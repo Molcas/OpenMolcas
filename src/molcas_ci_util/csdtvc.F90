@@ -19,7 +19,7 @@ use lucia_data, only: DTOC, SDREO
 use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDTASM, NDTFTP, NTYP
 use general_data, only: NDET
 use Constants, only: Zero
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -51,6 +51,9 @@ write(u6,*) '  NDET                  = ',NDET
 write(u6,*) '  NCSF                  = ',NCSF
 write(u6,*)
 #endif
+
+write(u6,'(/,A,I4)') 'Lucia SDREO, iRefSm = ', iRefSm
+write(u6,'(10I8)') abs(SDREO(1:NDET))
 
 ! CSF ==> DET TRANSFORMATION
 

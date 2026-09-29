@@ -67,6 +67,9 @@ contains
   integer(iwp) :: Mult, iCSF, iSD, nSD, nCSF, MinOpen, MaxOpen, iOpen, nOC
   real(wp), pointer:: T(:,:)
 
+  write(u6,'(/,A,I4)') 'SGUGA SDREO, iRefSm = ', iRefSm
+  write(u6,'(10I8)') SGS(iState)%SDREO(iRefSm)%List(:)
+
   If (SGS(iState)%nRsPrt /= 1) Then
      Write (6,*) 'Go with the old code'
      Call SD_CSF_Codec(SD,CSF,Direction,IRefSm)

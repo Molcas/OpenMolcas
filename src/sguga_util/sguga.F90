@@ -1638,6 +1638,13 @@ integer(kind=iwp), allocatable :: AlphaString(:,:)
 integer(kind=iwp), allocatable :: BetaString(:,:)
 integer(kind=iwp), allocatable :: AlphaRank(:)
 integer(kind=iwp), allocatable :: BetaRank(:)
+integer(kind=iwp), allocatable :: AlphaLocalRank(:)
+integer(kind=iwp), allocatable :: BetaLocalRank(:)
+integer(kind=iwp), allocatable :: AlphaType(:)
+integer(kind=iwp), allocatable :: BetaType(:)
+integer(kind=iwp), allocatable :: AlphaSym(:)
+integer(kind=iwp), allocatable :: BetaSym(:)
+integer(kind=iwp), allocatable :: Order(:)
 
 mult = SGS%iSpin
 
@@ -1745,6 +1752,51 @@ do iRefSm = 1, SGS%nSym
    AlphaRank(:) = 0
    BetaRank(:)  = 0
 
+   call mma_allocate( &
+      AlphaLocalRank, &
+      nSDTot, &
+      Label='AlphaLocalRank')
+
+   call mma_allocate( &
+      BetaLocalRank, &
+      nSDTot, &
+      Label='BetaLocalRank')
+
+   AlphaLocalRank(:) = 0
+   BetaLocalRank(:)  = 0
+
+   call mma_allocate( &
+      AlphaSym, &
+      nSDTot, &
+      Label='AlphaSym')
+
+   call mma_allocate( &
+      BetaSym, &
+      nSDTot, &
+      Label='BetaSym')
+
+   call mma_allocate( &
+      Order, &
+      nSDTot, &
+      Label='SDREO_Order')
+
+   AlphaSym(:) = 0
+   BetaSym(:)  = 0
+   Order(:)    = 0
+
+   call mma_allocate( &
+      AlphaType, &
+      nSDTot, &
+      Label='AlphaType')
+
+   call mma_allocate( &
+      BetaType, &
+      nSDTot, &
+      Label='BetaType')
+
+   AlphaType(:) = 0
+   BetaType(:)  = 0
+
    !
    ! Second pass: establish configuration-order addresses.
    !
@@ -1778,6 +1830,10 @@ do iRefSm = 1, SGS%nSym
          BetaString,             &
          AlphaRank,              &
          BetaRank,               &
+         AlphaSym,               &
+         BetaSym,                &
+         AlphaType,              &
+         BetaType,               &
          nOC,                    &
          nSD,                    &
          iAdr)
@@ -1793,14 +1849,130 @@ do iRefSm = 1, SGS%nSym
       write(u6,*) 'expected = ', nSDTot
       call Abend()
    end if
+#endif
+   call Build_Local_String_Ranks( &
+      AlphaSym,                   &
+      AlphaRank,                  &
+      AlphaLocalRank)
 
+   call Build_Local_String_Ranks( &
+      BetaSym,                    &
+      BetaRank,                   &
+      BetaLocalRank)
+
+if (iRefSm == 1) then
+
+   do iAdr = 1, min(5,nSDTot)
+
+      write(u6,'(A,7I8)') &
+         'Local ranks: Adr,ASym,ARank,ALocal,' // &
+         'BSym,BRank,BLocal = ',               &
+         iAdr,                                  &
+         AlphaSym(iAdr),                        &
+         AlphaRank(iAdr),                       &
+         AlphaLocalRank(iAdr),                  &
+         BetaSym(iAdr),                         &
+         BetaRank(iAdr),                        &
+         BetaLocalRank(iAdr)
+
+   end do
+
+end if
+
+#ifdef _SANITY_CHECK_
+if (any(AlphaLocalRank < 1) .or. &
+    any(BetaLocalRank  < 1)) then
+
+   write(u6,*) 'Mk_SDREO_SGUGA: invalid local string rank'
+   write(u6,*) 'iRefSm = ', iRefSm
+
+   call Abend()
+end if
+#endif
+!
+! Temporary string-type diagnostic.
+!
+if (iRefSm == 1) then
+
+   do iAdr = 1, min(5,nSDTot)
+
+      write(u6,'(A,7I8)') &
+         'String types: Adr,AType,BType,ASym,BSym,ARank,BRank = ', &
+         iAdr,            &
+         AlphaType(iAdr), &
+         BetaType(iAdr),  &
+         AlphaSym(iAdr),  &
+         BetaSym(iAdr),   &
+         AlphaRank(iAdr), &
+         BetaRank(iAdr)
+
+   end do
+
+end if
+
+   call Build_SDREO_Order( &
+      AlphaSym,  &
+      BetaSym,   &
+      AlphaRank, &
+      BetaRank,  &
+      Order)
+
+if (iRefSm == 1) then
+
+   do iAdr = 1, min(5,nSDTot)
+
+      write(u6,'(A,5I8)') &
+         'Stage C descriptor: Adr,ASym,BSym,ARank,BRank = ', &
+         iAdr,                       &
+         AlphaSym(iAdr),             &
+         BetaSym(iAdr),              &
+         AlphaRank(iAdr),            &
+         BetaRank(iAdr)
+
+   end do
+
+end if
+
+   SGS%SDREO(iRefSm)%List(:) = 0
+
+   do iAdr = 1, nSDTot
+
+      !
+      ! Order(iAdr) is the configuration-order address occupying
+      !    string-order position iAdr.
+      !
+      SGS%SDREO(iRefSm)%List(Order(iAdr)) = iAdr
+
+   end do
+
+#ifdef _SANITY_CHECK_
    if (any(SGS%SDREO(iRefSm)%List == 0)) then
       write(u6,*) 'Mk_SDREO_SGUGA: zero entry in SDREO'
       write(u6,*) 'iRefSm = ', iRefSm
       call Abend()
    end if
+
+   call Check_SDREO_Permutation(SGS%SDREO(iRefSm)%List)
 #endif
 
+   !
+   ! Temporary Stage C output.
+   !
+   write(u6,'(/,A,I4)') 'Stage C SDREO, iRefSm = ', iRefSm
+   write(u6,'(10I8)') SGS%SDREO(iRefSm)%List(1:min(20,nSDTot))
+   !
+   ! Release symmetry-specific work arrays.
+   !
+
+   call mma_deallocate(AlphaType)
+   call mma_deallocate(BetaType)
+
+   call mma_deallocate(AlphaSym)
+   call mma_deallocate(BetaSym)
+   call mma_deallocate(Order)
+
+   call mma_deallocate(AlphaLocalRank)
+   call mma_deallocate(BetaLocalRank)
    call mma_deallocate(AlphaRank)
    call mma_deallocate(BetaRank)
 
@@ -1812,6 +1984,292 @@ end do
 
 contains
 
+subroutine Build_Local_String_Ranks( &
+   StringSym,                       &
+   GlobalRank,                      &
+   LocalRank)
+
+implicit none
+
+integer(kind=iwp), intent(in)  :: StringSym(:)
+integer(kind=iwp), intent(in)  :: GlobalRank(:)
+integer(kind=iwp), intent(out) :: LocalRank(:)
+
+integer(kind=iwp), allocatable :: Present(:,:)
+integer(kind=iwp), allocatable :: RankMap(:,:)
+
+integer(kind=iwp) :: i
+integer(kind=iwp) :: iSym
+integer(kind=iwp) :: iRank
+integer(kind=iwp) :: iLocal
+integer(kind=iwp) :: MaxRank
+integer(kind=iwp) :: MaxSym
+integer(kind=iwp) :: nEntry
+
+nEntry = size(GlobalRank)
+
+if (size(StringSym) /= nEntry .or. &
+    size(LocalRank) /= nEntry) then
+
+   write(u6,*) 'Build_Local_String_Ranks: incompatible dimensions'
+   write(u6,*) 'StringSym  = ', size(StringSym)
+   write(u6,*) 'GlobalRank = ', size(GlobalRank)
+   write(u6,*) 'LocalRank  = ', size(LocalRank)
+
+   call Abend()
+
+end if
+
+if (nEntry == 0) return
+
+MaxRank = maxval(GlobalRank)
+MaxSym  = maxval(StringSym)
+
+if (MaxRank < 1 .or. MaxSym < 1) then
+
+   write(u6,*) 'Build_Local_String_Ranks: illegal input'
+   write(u6,*) 'MaxRank, MaxSym = ', MaxRank, MaxSym
+
+   call Abend()
+
+end if
+
+call mma_allocate( &
+   Present,        &
+   MaxRank,        &
+   MaxSym,         &
+   Label='StringRankPresent')
+
+call mma_allocate( &
+   RankMap,        &
+   MaxRank,        &
+   MaxSym,         &
+   Label='StringRankMap')
+
+Present(:,:) = 0
+RankMap(:,:) = 0
+
+!
+! Record every distinct global string rank occurring in
+! each string-symmetry list.
+!
+do i = 1, nEntry
+
+   iSym  = StringSym(i)
+   iRank = GlobalRank(i)
+
+   if (iSym < 1 .or. iSym > MaxSym .or. &
+       iRank < 1 .or. iRank > MaxRank) then
+
+      write(u6,*) 'Build_Local_String_Ranks: index out of range'
+      write(u6,*) 'i, iSym, iRank = ', i, iSym, iRank
+
+      call Abend()
+
+   end if
+
+   Present(iRank,iSym) = 1
+
+end do
+
+!
+! Within each symmetry, number the distinct strings in
+! increasing global-rank order.
+!
+do iSym = 1, MaxSym
+
+   iLocal = 0
+
+   do iRank = 1, MaxRank
+
+      if (Present(iRank,iSym) /= 0) then
+
+         iLocal = iLocal + 1
+         RankMap(iRank,iSym) = iLocal
+
+      end if
+
+   end do
+
+end do
+
+!
+! Convert every descriptor's global string rank to its
+! local rank within the corresponding symmetry list.
+!
+do i = 1, nEntry
+
+   LocalRank(i) = RankMap( &
+      GlobalRank(i),       &
+      StringSym(i))
+
+   if (LocalRank(i) < 1) then
+
+      write(u6,*) 'Build_Local_String_Ranks: local rank not found'
+      write(u6,*) 'i, symmetry, global rank = ', &
+                   i, StringSym(i), GlobalRank(i)
+
+      call Abend()
+
+   end if
+
+end do
+
+call mma_deallocate(RankMap)
+call mma_deallocate(Present)
+
+end subroutine Build_Local_String_Ranks
+
+subroutine Check_SDREO_Permutation(SDREO)
+
+implicit none
+
+integer(kind=iwp), intent(in) :: SDREO(:)
+
+integer(kind=iwp), allocatable :: Seen(:)
+
+integer(kind=iwp) :: i
+integer(kind=iwp) :: iString
+integer(kind=iwp) :: nSD
+
+nSD = size(SDREO)
+
+call mma_allocate(Seen,nSD,Label='SDREO_Seen')
+Seen(:) = 0
+
+do i = 1, nSD
+
+   iString = SDREO(i)
+
+   if (iString < 1 .or. iString > nSD) then
+      write(u6,*) 'Check_SDREO_Permutation: index out of range'
+      write(u6,*) 'i, SDREO(i), nSD = ', i, SDREO(i), nSD
+      call Abend()
+   end if
+
+   if (Seen(iString) /= 0) then
+      write(u6,*) 'Check_SDREO_Permutation: duplicate index'
+      write(u6,*) 'i, SDREO(i) = ', i, SDREO(i)
+      call Abend()
+   end if
+
+   Seen(iString) = 1
+
+end do
+
+if (any(Seen == 0)) then
+   write(u6,*) 'Check_SDREO_Permutation: incomp*ete permutation'
+   call Abend()
+end if
+
+call mma_deallocate(Seen)
+
+end subroutine Check_SDREO_Permutation
+
+subroutine Build_SDREO_Order( &
+   AlphaSym,  &
+   BetaSym,   &
+   AlphaRank, &
+   BetaRank,  &
+   Order)
+
+implicit none
+
+integer(kind=iwp), intent(in)  :: AlphaSym(:)
+integer(kind=iwp), intent(in)  :: BetaSym(:)
+integer(kind=iwp), intent(in)  :: AlphaRank(:)
+integer(kind=iwp), intent(in)  :: BetaRank(:)
+integer(kind=iwp), intent(out) :: Order(:)
+
+integer(kind=iwp) :: i
+integer(kind=iwp) :: j
+integer(kind=iwp) :: Entry
+integer(kind=iwp) :: nEntry
+
+nEntry = size(Order)
+
+Order(:) = [(i,i=1,nEntry)]
+
+!
+! Lucia string order:
+!
+!    alpha-string symmetry block
+!       -> beta string
+!          -> alpha string
+!
+! BetaSym is included as an explicit secondary block key,
+! although it is fixed by AlphaSym and the total symmetry.
+!
+do i = 2, nEntry
+
+   Entry = Order(i)
+   j = i - 1
+
+   do while (j >= 1)
+
+      if (.not. SDREO_Comes_After( &
+          Order(j), &
+          Entry,    &
+          AlphaSym, &
+          BetaSym,  &
+          AlphaRank,&
+          BetaRank)) exit
+
+      Order(j+1) = Order(j)
+      j = j - 1
+
+   end do
+
+   Order(j+1) = Entry
+
+end do
+
+end subroutine Build_SDREO_Order
+
+logical function SDREO_Comes_After( &
+   iLeft,    &
+   iRight,   &
+   AlphaSym, &
+   BetaSym,  &
+   AlphaRank,&
+   BetaRank) result(After)
+
+implicit none
+
+integer(kind=iwp), intent(in) :: iLeft
+integer(kind=iwp), intent(in) :: iRight
+
+integer(kind=iwp), intent(in) :: AlphaSym(:)
+integer(kind=iwp), intent(in) :: BetaSym(:)
+integer(kind=iwp), intent(in) :: AlphaRank(:)
+integer(kind=iwp), intent(in) :: BetaRank(:)
+
+!
+! First order the alpha/beta symmetry blocks.
+!
+if (AlphaSym(iLeft) /= AlphaSym(iRight)) then
+   After = AlphaSym(iLeft) > AlphaSym(iRight)
+   return
+end if
+
+if (BetaSym(iLeft) /= BetaSym(iRight)) then
+   After = BetaSym(iLeft) > BetaSym(iRight)
+   return
+end if
+
+!
+! Within one symmetry block, Lucia loops over beta strings
+! outside and alpha strings inside.
+!
+if (BetaRank(iLeft) /= BetaRank(iRight)) then
+   After = BetaRank(iLeft) > BetaRank(iRight)
+   return
+end if
+
+After = AlphaRank(iLeft) > AlphaRank(iRight)
+
+end function SDREO_Comes_After
+
 subroutine Fill_SDREO_Block( &
    SGS,        &
    iRefSm,     &
@@ -1822,6 +2280,10 @@ subroutine Fill_SDREO_Block( &
    BetaString, &
    AlphaRank,  &
    BetaRank,   &
+   AlphaSym,   &
+   BetaSym,    &
+   AlphaType,  &
+   BetaType,   &
    nOC,        &
    nSD,        &
    iAdr)
@@ -1843,6 +2305,10 @@ integer(kind=iwp), intent(inout) :: AlphaString(:,:)
 integer(kind=iwp), intent(inout) :: BetaString(:,:)
 integer(kind=iwp), intent(inout) :: AlphaRank(:)
 integer(kind=iwp), intent(inout) :: BetaRank(:)
+integer(kind=iwp), intent(inout) :: AlphaSym(:)
+integer(kind=iwp), intent(inout) :: BetaSym(:)
+integer(kind=iwp), intent(inout) :: AlphaType(:)
+integer(kind=iwp), intent(inout) :: BetaType(:)
 
 integer(kind=iwp) :: iOC
 integer(kind=iwp) :: iSD
@@ -2014,6 +2480,58 @@ end if
       end if
 #endif
 
+      AlphaSym(iAdr) = Rank_SD_Symmetry(SGS, AlphaString(:,iAdr))
+
+      BetaSym(iAdr) = Rank_SD_Symmetry(SGS, BetaString(:,iAdr))
+
+#ifdef _SANITY_CHECK_
+if (Mul(AlphaSym(iAdr),BetaSym(iAdr)) /= iRefSm) then
+
+   write(u6,*) 'Fill_SDREO_Block: total symmetry mismatch'
+   write(u6,*) 'iRefSm, iOpen, iOC, iSD = ', &
+                iRefSm, iOpen, iOC, iSD
+   write(u6,*) 'AlphaSym, BetaSym = ', &
+                AlphaSym(iAdr), BetaSym(iAdr)
+
+   call Abend()
+
+end if
+#endif
+      !
+      ! Stage C string types.
+      !
+      ! With one active-space partition there is only one alpha
+      ! string type and one beta string type.
+      !
+      if (SGS%nRsPrt == 1) then
+
+         AlphaType(iAdr) = 1
+         BetaType(iAdr)  = 1
+
+      else
+
+         write(u6,*) 'Fill_SDREO_Block: string-type construction'
+         write(u6,*) 'is not yet implemented for multiple partitions'
+         write(u6,*) 'nRsPrt = ', SGS%nRsPrt
+
+         call Abend()
+
+      end if
+
+#ifdef _SANITY_CHECK_
+if (AlphaType(iAdr) < 1 .or. BetaType(iAdr) < 1) then
+
+   write(u6,*) 'Fill_SDREO_Block: invalid strin* type'
+   write(u6,*) 'iRefSm, iOpen, iOC, iSD = ', &
+                iRefSm, iOpen, iOC, iSD
+   write(u6,*) 'AlphaType, BetaType = ', &
+                AlphaType(iAdr), BetaType(iAdr)
+
+   call Abend()
+
+end if
+#endif
+
       !
       ! Temporary identity map. Stage C will replace the
       ! right-hand side by the Lucia string-order index.
@@ -2055,6 +2573,30 @@ end do
 
 end subroutine Fill_SDREO_Block
 
+integer(kind=iwp) function Rank_SD_Symmetry(SGS, String) result(iSym)
+
+implicit none
+
+type(SGStruct), intent(in) :: SGS
+
+integer(kind=iwp), intent(in) :: String(:)
+
+integer(kind=iwp) :: iOrb
+
+iSym = 1
+
+do iOrb = 1, size(String)
+
+   if (String(iOrb) == 1) then
+      iSym = Mul(iSym,SGS%ISm(iOrb))
+   end if
+
+end do
+
+end function Rank_SD_Symmetry
+
+
+
 integer(kind=iwp) function Rank_SD_String(String) result(iRank)
 
 use second_quantization, only: binomial => binom_coef
@@ -2063,12 +2605,10 @@ implicit none
 
 integer(kind=iwp), intent(in) :: String(:)
 
-integer(kind=iwp) :: iOrb
-integer(kind=iwp) :: jOrb
+integer(kind=iwp) :: iOrb, jOrb, iStart
 integer(kind=iwp) :: iElec
 integer(kind=iwp) :: nElec
 integer(kind=iwp) :: nOrb
-integer(kind=iwp) :: iStart
 integer(kind=iwp) :: Occ(size(String))
 
 nOrb  = size(String)
