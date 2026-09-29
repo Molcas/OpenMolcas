@@ -28,11 +28,20 @@ private
 
 integer(kind=iwp) :: iq, NCP_Max
 
+! Slater Determinant reordering to fit the Lucia machinary
+! This might actually get redundant once the Lucia codes have been removed!
+type :: SDReoInfo
+   integer(kind=iwp), allocatable :: List(:)
+end type SDReoInfo
+
 ! Configuration-to-Determinant transformation informtion
 
 type CDCInfo
    integer(kind=iwp) :: nDet = 0
    integer(kind=iwp) :: nCSF = 0
+   ! Lucia spin-combination dimension
+   integer(kind=iwp) :: nDetSC = 0
+
    integer(kind=iwp) :: nClosed = 0
    integer(kind=iwp) :: nClosedOCP = 0
 
@@ -48,7 +57,15 @@ type CDCInfo
    integer(kind=iwp), allocatable :: DetSpin(:,:)
    integer(kind=iwp), allocatable :: Twos(:,:)
 
+   ! Full determinant representation
    real(kind=wp), allocatable :: CDC(:,:)
+
+   ! Lucia spin-combination representation
+   real(kind=wp), allocatable :: DTOC(:,:)
+
+   ! Pairing information
+   integer(kind=iwp), allocatable :: Pair(:)
+
 end type CDCInfo
 
 ! Split-Graph descriptor, sizes, addresses...
@@ -78,7 +95,8 @@ type SGStruct
   integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: NRAS(MxSym,MxGAS), NRASEL(MxGAS), nRsPrt=0
   type(CDCInfo), allocatable :: CDCInfo(:,:)
-  integer, Allocatable :: OC(:)
+  integer(kind=iwp), Allocatable :: OC(:)
+  type(SDReoInfo), allocatable :: SDREO(:)
 end type SGStruct
 
 ! index for DRT
@@ -246,7 +264,7 @@ integer(kind=iwp), parameter:: nPack=16-1
 
 public :: nPack
 
-Type (SGStruct) :: SGS(3)
+Type (SGStruct), target :: SGS(3)
 Type (CIStruct) :: CIS(3)
 Type (EXStruct) :: EXS(3)
 Logical(kind=iwp) :: State_is_used(3)=[.False.,.False.,.False.]
@@ -799,7 +817,7 @@ end subroutine RMVERT
 end subroutine MKSGUGA
 
 subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
-                   nRas,nRasEl,nRsPrt,                             &
+                   nRas,nRasEl,nRsPrt,                            &
                    xLevel,xL2Act,xNLEV,xNSM)
 
   integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin
@@ -810,7 +828,7 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
   type(TRStruct) :: TRS
 
   call SG_Init_Light(iState,nSym,nActEl,iSpin,        &
-                      nRas,nRasEl,nRsPrt,               &
+                      nRas,nRasEl,nRsPrt,             &
                       xLevel,xL2Act,xnLev,xNSM)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
@@ -843,7 +861,11 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
     ! Generate Occupation Configurations a la Lucia.
     ! Temporarily just enabled for CAS
 
-  If (SGS(iState)%nRsPrt == 1) Call Mk_CDC(SGS(iState))
+  if (SGS(iState)%nRsPrt == 1) then
+     call Mk_CDC(SGS(iState))
+     call Mk_SDREO_SGUGA(SGS(iState))
+  end if
+
 end subroutine SG_Init
 
 subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
@@ -931,7 +953,7 @@ subroutine SG_Free(iState)
 
 integer(kind=iwp), intent(in):: iState
 
-integer(kind=iwp) :: iOpen, mult
+integer(kind=iwp) :: iOpen, mult, iRefSm
 
 If (.Not.State_is_used(iState)) Return
 
@@ -970,6 +992,8 @@ if (allocated(SGS%CDCInfo)) then
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%twos,safe='*')
 
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%cdc,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%dtoc,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%pair,safe='*')
 
       end do
 
@@ -978,6 +1002,14 @@ if (allocated(SGS%CDCInfo)) then
    deallocate(SGS%CDCInfo)
 
 endif
+
+if (allocated(SGS%SDREO)) then
+   do iRefSm = 1, size(SGS%SDREO)
+      call mma_deallocate(SGS%SDREO(iRefSm)%List,Safe='*')
+   end do
+
+   deallocate(SGS%SDREO)
+end if
 
 nullify(SGS%DRTP,SGS%DOWNP)
 
@@ -1018,7 +1050,7 @@ type(SGStruct), intent(inout) :: SGS
 
 integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, MinOpen, MaxOpen, iSym, iDOC
 integer(kind=iwp) :: nClosed, nClosedOCP, nSOC, iSOC, nDOC, iOC
-integer(kind=iwp) :: NoNew, nConf, nElec
+integer(kind=iwp) :: NoNew, nConf, nElec, nDetSC
 Integer :: i,j
 Integer :: iStart
 integer(kind=iwp), allocatable :: nSOCSym(:)
@@ -1131,20 +1163,21 @@ do iOpen = MinOpen, MaxOpen, 2
 
       call generate_detspin(iOpen, mult-1, detspin, nDet)
 
-      call generate_twos(iOpen, mult, twos, nCSF)
       call mma_allocate( &
          SGS%CDCInfo(iOpen,mult)%DetSpin, &
          [lbound(detspin,1),ubound(detspin,1)], &
          [lbound(detspin,2),ubound(detspin,2)], &
          Label='DetSpin')
 
+      SGS%CDCInfo(iOpen,mult)%DetSpin(:,:) = detspin(:,:)
+
+      call generate_twos(iOpen, mult, twos, nCSF)
       call mma_allocate( &
          SGS%CDCInfo(iOpen,mult)%Twos, &
          [lbound(twos,1),ubound(twos,1)], &
          [lbound(twos,2),ubound(twos,2)], &
          Label='Twos')
 
-      SGS%CDCInfo(iOpen,mult)%DetSpin(:,:) = detspin(:,:)
       SGS%CDCInfo(iOpen,mult)%Twos(:,:)    = twos(:,:)
 
       call mma_allocate( &
@@ -1159,6 +1192,39 @@ do iOpen = MinOpen, MaxOpen, 2
          nCSF,   &
          twos,   &
          SGS%CDCInfo(iOpen,mult)%CDC )
+
+      if (mult == 1) then
+
+         nDetSC = Max(1,nDet/2)
+         SGS%CDCInfo(iOpen,mult)%nDetSC = nDetSC
+
+         call mma_allocate(   &
+            SGS%CDCInfo(iOpen,mult)%DTOC,   &
+            nDetSC,   &
+            nCSF,   &
+            Label='DTOC')
+
+         call mma_allocate(   &
+            SGS%CDCInfo(iOpen,mult)%Pair,   &
+            nDet,   &
+            Label='Pair')
+
+         if (nDet > 1) then
+            call mk_dtoc_singlet( &
+                 nDet, &
+                 nCSF, &
+                 SGS%CDCInfo(iOpen,mult)%DetSpin, &
+                 SGS%CDCInfo(iOpen,mult)%CDC, &
+                 SGS%CDCInfo(iOpen,mult)%Pair, &
+                 SGS%CDCInfo(iOpen,mult)%DTOC )
+         else if (nDet == 1) Then
+            SGS%CDCInfo(iOpen,mult)%Pair(1) = 1
+            SGS%CDCInfo(iOpen,mult)%DTOC(1,1) = SGS%CDCInfo(iOpen,mult)%CDC(1,1)
+         else
+            Write (u6,*) 'Mk_CDC: illegal nDet value: nDet<0'
+            Call Abend()
+         end if
+      endif
 
       call mma_deallocate(detspin)
       call mma_deallocate(twos)
@@ -1202,7 +1268,6 @@ do iOpen = MinOpen, MaxOpen, 2
 
    SGS%CDCInfo(iOpen,mult)%OCDOC(:,:) = 0
    SGS%CDCInfo(iOpen,mult)%OCSOC(:,:) = 0
-
 end do
 
 call mma_deallocate(nSOCSym)
@@ -1216,6 +1281,7 @@ Call mma_allocate( SGS%OC, SGS%nActel, Label='OC' )
 do iOpen = MinOpen, MaxOpen, 2
    SGS%CDCInfo(iOpen,mult)%nOCSym(:) = 0
 end do
+
 nElec = SGS%nActEl
 nConf=0
 NoNew = 0
@@ -1329,6 +1395,83 @@ Do While (NoNew == 0)
 End Do
 
 contains
+
+subroutine mk_dtoc_singlet(nDet,nCSF,DetSpin,CDC,Pair,DTOC)
+
+use Constants,   only: One
+use Definitions, only: wp, iwp
+implicit none
+
+integer(iwp), intent(in)  :: nDet
+integer(iwp), intent(in)  :: nCSF
+
+integer(iwp), intent(in)  :: DetSpin(:,:)
+
+real(wp),    intent(in)   :: CDC(nDet,nCSF)
+
+integer(iwp), intent(out) :: Pair(nDet)
+
+real(wp),    intent(out)  :: DTOC(nDet/2,nCSF)
+
+integer(iwp) :: iDet
+integer(iwp) :: jDet
+integer(iwp) :: iRow
+
+Pair(:) = 0
+
+!
+! Determine spin-reversal partner for every determinant
+!
+do iDet=1,nDet
+
+   do jDet=1,nDet
+
+      if (all(DetSpin(:,iDet) == 1-DetSpin(:,jDet))) then
+         Pair(iDet) = jDet
+         exit
+      end if
+
+   end do
+
+   if (Pair(iDet) == 0) then
+      write(6,*) 'MK_DTOC_SINGLET: partner not found'
+      write(6,*) 'IDET =',iDet
+      call Abend()
+   end if
+
+end do
+
+!
+! Generate Lucia DTOC matrix.
+!
+! Keep one determinant from every spin-reversal pair
+! and renormalize by sqrt(2).
+!
+iRow = 0
+
+do iDet=1,nDet
+
+   ! Lucia/SPNCOM ordering:
+   ! keep determinants with first spin = alpha
+
+   if (DetSpin(1,iDet) == 1) then
+
+      iRow = iRow + 1
+
+      DTOC(iRow,:) = sqrt(2.0_wp) * CDC(iDet,:)
+
+   end if
+
+end do
+
+if (iRow /= Max(1,nDet/2)) then
+   write(6,*) 'MK_DTOC_SINGLET: incorrect number of pairs'
+   write(6,*) 'Generated =',iRow
+   write(6,*) 'Expected  =',Max(1,nDet/2)
+   call Abend()
+end if
+
+end subroutine mk_dtoc_singlet
 
 recursive subroutine Make_SOCs(iPos,iStart,iSym)
 
@@ -1471,6 +1614,403 @@ enddo
 end subroutine count_twos
 
 end subroutine Mk_CDC
+
+subroutine Mk_SDREO_SGUGA(SGS)
+
+use Definitions, only: iwp, u6
+use stdalloc,   only: mma_allocate
+implicit none
+
+type(SGStruct), intent(inout), target :: SGS
+
+integer(kind=iwp) :: iRefSm
+integer(kind=iwp) :: iOpen
+integer(kind=iwp) :: iAdr
+integer(kind=iwp) :: mult
+integer(kind=iwp) :: MinOpen
+integer(kind=iwp) :: MaxOpen
+integer(kind=iwp) :: nOC
+integer(kind=iwp) :: nSD
+integer(kind=iwp) :: nSDTot
+
+real(kind=wp), pointer :: T(:,:)
+integer(kind=iwp), allocatable :: AlphaString(:,:)
+integer(kind=iwp), allocatable :: BetaString(:,:)
+
+mult = SGS%iSpin
+
+MinOpen = mult - 1
+MaxOpen = min(SGS%nActEl, 2*SGS%nLev-SGS%nActEl)
+
+if (mod(MaxOpen-MinOpen,2) /= 0) MaxOpen = MaxOpen - 1
+
+!
+! There is one SD reorder list for each total symmetry.
+!
+allocate(SGS%SDREO(1:SGS%nSym))
+
+do iRefSm = 1, SGS%nSym
+
+   !
+   ! First pass: determine the symmetry-dependent SD dimension.
+   !
+   nSDTot = 0
+
+   do iOpen = MinOpen, MaxOpen, 2
+
+      if (mult == 1) then
+
+         if (.not. allocated(SGS%CDCInfo(iOpen,mult)%DTOC)) then
+            write(u6,*) 'Mk_SDREO_SGUGA: DTOC is not allocated'
+            write(u6,*) 'iOpen, mult = ', iOpen, mult
+            call Abend()
+         end if
+
+         T => SGS%CDCInfo(iOpen,mult)%DTOC
+
+      else
+
+         if (.not. allocated(SGS%CDCInfo(iOpen,mult)%CDC)) then
+            write(u6,*) 'Mk_SDREO_SGUGA: CDC is not allocated'
+            write(u6,*) 'iOpen, mult = ', iOpen, mult
+            call Abend()
+         end if
+
+         T => SGS%CDCInfo(iOpen,mult)%CDC
+
+      end if
+
+      nSD = size(T,1)
+      nOC = SGS%CDCInfo(iOpen,mult)%nOCSym(iRefSm)
+
+#ifdef _SANITY_CHECK_
+      if (nOC < 0) then
+         write(6,'(A,3I8)') &
+            'Mk_SDREO_SGUGA: negative nOC:', &
+            iRefSm, iOpen, nOC
+         call Abend()
+      end if
+
+      if (nSD <= 0) then
+         write(6,'(A,3I8)') &
+            'Mk_SDREO_SGUGA: invalid nSD:', &
+            iRefSm, iOpen, nSD
+         call Abend()
+      end if
+#endif
+
+      nSDTot = nSDTot + nSD*nOC
+
+      nullify(T)
+
+   end do
+
+   !
+   ! Allocate the independently sized list for this symmetry.
+   !
+   call mma_allocate( &
+      SGS%SDREO(iRefSm)%List, &
+      nSDTot, &
+      Label='SGS%SDREO%List')
+
+   SGS%SDREO(iRefSm)%List(:) = 0
+
+   call mma_allocate( &
+      AlphaString, &
+      SGS%nLev, &
+      nSDTot, &
+      Label='AlphaString')
+
+   call mma_allocate( &
+      BetaString, &
+      SGS%nLev, &
+      nSDTot, &
+      Label='BetaString')
+
+   AlphaString(:,:) = 0
+   BetaString(:,:)  = 0
+
+   !
+   ! Second pass: establish configuration-order addresses.
+   !
+   iAdr = 0
+
+   do iOpen = MinOpen, MaxOpen, 2
+
+      if (mult == 1) then
+         T => SGS%CDCInfo(iOpen,mult)%DTOC
+      else
+         T => SGS%CDCInfo(iOpen,mult)%CDC
+      end if
+
+      nSD = size(T,1)
+      nOC = SGS%CDCInfo(iOpen,mult)%nOCSym(iRefSm)
+
+      !
+      ! Configuration order:
+      !
+      !    iOpen
+      !       -> iOC
+      !          -> iSD
+      !
+      call Fill_SDREO_Block( &
+         SGS,                    &
+         iRefSm,                 &
+         iOpen,                  &
+         mult,                   &
+         SGS%SDREO(iRefSm)%List, &
+         AlphaString,            &
+         BetaString,             &
+         nOC,                    &
+         nSD,                    &
+         iAdr)
+      nullify(T)
+
+   end do
+
+#ifdef _SANITY_CHECK_
+   if (iAdr /= nSDTot) then
+      write(u6,*) 'Mk_SDREO_SGUGA: inconsistent SDREO length'
+      write(u6,*) 'iRefSm   = ', iRefSm
+      write(u6,*) 'generated= ', iAdr
+      write(u6,*) 'expected = ', nSDTot
+      call Abend()
+   end if
+
+   if (any(SGS%SDREO(iRefSm)%List == 0)) then
+      write(u6,*) 'Mk_SDREO_SGUGA: zero entry in SDREO'
+      write(u6,*) 'iRefSm = ', iRefSm
+      call Abend()
+   end if
+#endif
+
+   call mma_deallocate(AlphaString)
+   call mma_deallocate(BetaString)
+
+end do
+
+
+contains
+
+subroutine Fill_SDREO_Block( &
+   SGS,        &
+   iRefSm,     &
+   iOpen,      &
+   mult,       &
+   SDREO,      &
+   AlphaString,&
+   BetaString, &
+   nOC,        &
+   nSD,        &
+   iAdr)
+
+implicit none
+
+type(SGStruct), intent(in) :: SGS
+
+integer(kind=iwp), intent(in)    :: iRefSm
+integer(kind=iwp), intent(in)    :: iOpen
+integer(kind=iwp), intent(in)    :: mult
+integer(kind=iwp), intent(in)    :: nOC
+integer(kind=iwp), intent(in)    :: nSD
+integer(kind=iwp), intent(inout) :: iAdr
+
+integer(kind=iwp), intent(inout) :: SDREO(:)
+integer(kind=iwp), intent(inout) :: AlphaString(:,:)
+integer(kind=iwp), intent(inout) :: BetaString(:,:)
+
+integer(kind=iwp) :: iOC
+integer(kind=iwp) :: iSD
+integer(kind=iwp) :: iDOC
+integer(kind=iwp) :: iSOC
+integer(kind=iwp) :: iDet
+integer(kind=iwp) :: iOrb
+integer(kind=iwp) :: i
+integer(kind=iwp) :: iRow
+integer(kind=iwp) :: nClosed
+
+nClosed = SGS%CDCInfo(iOpen,mult)%nClosed
+
+do iOC = 1, nOC
+
+   iDOC = SGS%CDCInfo(iOpen,mult)%OCDOC(iOC,iRefSm)
+   iSOC = SGS%CDCInfo(iOpen,mult)%OCSOC(iOC,iRefSm)
+
+#ifdef _SANITY_CHECK_
+   if (nClosed > 0) then
+      if (iDOC < 1 .or. &
+          iDOC > size(SGS%CDCInfo(iOpen,mult)%DOC,2)) then
+         write(u6,*) 'Fill_SDREO_Block: illegal iDOC'
+         write(u6,*) 'iRefSm, iOpen, iOC = ', &
+                      iRefSm, iOpen, iOC
+         write(u6,*) 'iDOC = ', iDOC
+         call Abend()
+      end if
+   end if
+
+   if (iOpen > 0) then
+      if (iSOC < 1 .or. &
+          iSOC > size(SGS%CDCInfo(iOpen,mult)%SOC,2)) then
+         write(u6,*) 'Fill_SDREO_Block: illegal iSOC'
+         write(u6,*) 'iRefSm, iOpen, iOC = ', &
+                      iRefSm, iOpen, iOC
+         write(u6,*) 'iSOC = ', iSOC
+         call Abend()
+      end if
+   end if
+#endif
+
+   do iSD = 1, nSD
+
+      iAdr = iAdr + 1
+
+#ifdef _SANITY_CHECK_
+      if (iAdr > size(SDREO)) then
+         write(u6,*) 'Fill_SDREO_Block: address out of range'
+         write(u6,*) 'iRefSm, iOpen = ', iRefSm, iOpen
+         write(u6,*) 'iOC, iSD      = ', iOC, iSD
+         write(u6,*) 'iAdr          = ', iAdr
+         write(u6,*) 'size(SDREO)   = ', size(SDREO)
+         call Abend()
+      end if
+#endif
+
+      AlphaString(:,iAdr) = 0
+      BetaString(:,iAdr)  = 0
+
+      !
+      ! Determine the corresponding row in the full CDC
+      ! determinant representation.
+      !
+      if (mult == 1 .and. iOpen > 0) then
+
+         iDet = 0
+         iRow = 0
+
+         do i = 1, SGS%CDCInfo(iOpen,mult)%nDet
+
+            !
+            ! Lucia spin-combination prototype:
+            ! first open spin must be alpha.
+            !
+            if (SGS%CDCInfo(iOpen,mult)%DetSpin(1,i) /= 1) cycle
+
+            iRow = iRow + 1
+
+            if (iRow == iSD) then
+               iDet = i
+               exit
+            end if
+
+         end do
+
+#ifdef _SANITY_CHECK_
+         if (iDet == 0) then
+            write(u6,*) 'Fill_SDREO_Block: DTOC row not found'
+            write(u6,*) 'iRefSm, iOpen, iOC, iSD = ', &
+                         iRefSm, iOpen, iOC, iSD
+            call Abend()
+         end if
+#endif
+
+      else
+
+         !
+         ! Full determinant representation. For iOpen=0,
+         ! iDet=1 is the unique closed-shell determinant.
+         !
+         iDet = iSD
+
+      end if
+
+      !
+      ! Doubly occupied orbitals occur in both strings.
+      !
+      do i = 1, nClosed
+
+         iOrb = SGS%CDCInfo(iOpen,mult)%DOC(i,iDOC)
+
+         AlphaString(iOrb,iAdr) = 1
+         BetaString (iOrb,iAdr) = 1
+
+      end do
+
+      !
+      ! Assign the singly occupied orbitals according to
+      ! the full-determinant spin pattern.
+      !
+      do i = 1, iOpen
+
+         iOrb = SGS%CDCInfo(iOpen,mult)%SOC(i,iSOC)
+
+         if (SGS%CDCInfo(iOpen,mult)%DetSpin(i,iDet) == 1) then
+            AlphaString(iOrb,iAdr) = 1
+         else
+            BetaString(iOrb,iAdr) = 1
+         end if
+
+      end do
+
+#ifdef _SANITY_CHECK_
+if (count(AlphaString(:,iAdr) /= BetaString(:,iAdr)) /= iOpen) then
+
+   write(u6,*) 'Fill_SDREO_Block: open-shell count mismatch'
+   write(u6,*) 'iRefSm, iOpen, iOC, iSD = ', &
+                iRefSm, iOpen, iOC, iSD
+   write(u6,*) 'Observed open shells = ', &
+                count(AlphaString(:,iAdr) /= BetaString(:,iAdr))
+   write(u6,*) 'Alpha = ', AlphaString(:,iAdr)
+   write(u6,*) 'Beta  = ', BetaString(:,iAdr)
+
+   call Abend()
+
+end if
+#endif
+
+      !
+      ! Temporary identity map. Stage C will replace the
+      ! right-hand side by the Lucia string-order index.
+      !
+      SDREO(iAdr) = iAdr
+
+#ifdef _SANITY_CHECK_
+      if (sum(AlphaString(:,iAdr)) + &
+          sum(BetaString(:,iAdr)) /= SGS%nActEl) then
+
+         write(u6,*) 'Fill_SDREO_Block: electron-count mismatch'
+         write(u6,*) 'iRefSm, iOpen, iOC, iSD = ', &
+                      iRefSm, iOpen, iOC, iSD
+         write(u6,*) 'iDet  = ', iDet
+         write(u6,*) 'Alpha = ', AlphaString(:,iAdr)
+         write(u6,*) 'Beta  = ', BetaString(:,iAdr)
+         call Abend()
+
+      end if
+
+      if (sum(AlphaString(:,iAdr)) - &
+          sum(BetaString(:,iAdr)) /= mult-1) then
+
+         write(u6,*) 'Fill_SDREO_Block: Ms mismatch'
+         write(u6,*) 'iRefSm, iOpen, iOC, iSD = ', &
+                      iRefSm, iOpen, iOC, iSD
+         write(u6,*) 'nAlpha, nBeta = ', &
+                      sum(AlphaString(:,iAdr)), &
+                      sum(BetaString(:,iAdr))
+         write(u6,*) 'Expected 2Ms = ', mult-1
+         call Abend()
+
+      end if
+#endif
+
+   end do
+
+end do
+
+end subroutine Fill_SDREO_Block
+
+end subroutine Mk_SDREO_SGUGA
+
+
 pure function SOC_Sym(ISm,nSOC,SOCOcc) result(iSym)
 use Symmetry_Info, only: Mul
 use Definitions,   only: iwp

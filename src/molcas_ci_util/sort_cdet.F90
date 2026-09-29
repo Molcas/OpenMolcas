@@ -77,6 +77,8 @@ integer(kind=iwp) :: i, i_new
 real(kind=wp) :: alpha
 real(kind=wp), allocatable :: ReoSDs(:)
 
+Write (6,*) 'SDREO'
+Write (6,'(10I4)') Idx(:)
 call mma_allocate(ReoSDs,N,label='ReordSDs')
 do i=1,N
   i_new = abs(Idx(i))
