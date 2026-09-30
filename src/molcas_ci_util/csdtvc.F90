@@ -15,7 +15,8 @@ subroutine CSDTVC(CSFVEC,DETVEC,IWAY,IREFSM,ICOPY)
 !          IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
-use lucia_data, only: DTOC, SDREO
+use sguga, only: SGS
+use lucia_data, only: DTOC, SDREO, SDREO_I
 use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDTASM, NDTFTP, NTYP
 use general_data, only: NDET
 use Constants, only: Zero
@@ -29,6 +30,8 @@ integer(kind=iwp), intent(in) :: IWAY, IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
 integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF
 
+write(u6,*) SGS(1)%SDREO(iRefSm)%List(1:40)
+write(u6,*) abs(SDREO_I(iRefSm)%A(1:40))
 ! To avoid compiler complaints
 
 IOFFCS = 0
@@ -53,7 +56,7 @@ write(u6,*)
 #endif
 
 write(u6,'(/,A,I4)') 'Lucia SDREO, iRefSm = ', iRefSm
-write(u6,'(10I8)') abs(SDREO(1:NDET))
+write(u6,'(10I8)') SDREO(1:NDET)
 
 ! CSF ==> DET TRANSFORMATION
 

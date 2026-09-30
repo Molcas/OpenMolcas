@@ -14,7 +14,6 @@
 #define _SANITY_CHECK_
 #define _SGUGA_VERIFY_
 module CI_Interfaces
-use sd_csf_codec_module, only: sd_csf_codec, sd_to_csf, csf_to_sd
 use sguga, only: SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
@@ -173,9 +172,8 @@ End Subroutine Mk_H_Psi
 
 Subroutine Mk_H_Psi_Det(istate,STSYM,nDet,CI_Vec,Sigma_Vec,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
-#ifdef _HOLD_IT_
+use sd_csf_codec_module, only: sd_csf_codec, sd_to_csf, csf_to_sd
 use sguga, only: EXS
-#endif
 use cands, only: ICSM, ISSM
 Implicit None
 
@@ -189,6 +187,7 @@ real(kind=wp), allocatable, target:: temp1(:), temp2(:)  ! Local scratch
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, nCSF
+integer(kind=iwp) :: iDet
 integer(kind=iwp) :: IREFSM_SAVE
 
 #ifdef _SGUGA_VERIFY_
@@ -225,14 +224,7 @@ Call mma_deallocate(Full)
 #endif
 #endif
 
-!Write (u6,*)
-!Write (u6,*) '==========================================='
-!Write (u6,*) 'Start Original section'
-!Write (u6,*) 'STSym=',STSym
 if (DOFARO) then
-!Write (u6,*) 'Faroald Style'
-!Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
-
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -262,7 +254,6 @@ if (DOFARO) then
   end do
 
   ! We need to convert this to the correct form! The input is in LUCIA format.
-  ! todo: This is not needed if the LUCIA and FAROALD order is the same.
 
   nCSF=CIS(istate)%nCSF(STSym) ! ToDo: This depends on the SGUGA part of the code.
   if (nCSF>nDet) Then
@@ -280,7 +271,6 @@ if (DOFARO) then
   temp1(:)=Zero
   call CSDTVC(temp1,temp2,2,STSym,0)
   !Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSym)
-!  Call RecPRT('CI_VEC(LUCIA CSF)',' ',temp1,1,nCSF)
   ! Now use the FAROALD machinary to go to FAROALD SD basis
   call SG_REORD(iState,STSYM,0,nCSF,temp1,temp2)
   call CITRANS_SORT('C',temp2,temp1)
@@ -291,12 +281,9 @@ if (DOFARO) then
   call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
 
   call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
-
   call CITRANS_SORT('O',Sigma_Vec,temp2)
-
   call SG_Reord(iState,STSYM,1,nCSF,temp2,temp1)
 
-!  Call RecPrt('Sigma_Vec(Lucia CSF)',' ',temp1,1,nCSF)
   ! Convert from LUCIA CSF basis to LUCIA SD basis
    call CSDTVC(temp1,Sigma_Vec,1,STSym,0)
   !Call SD_CSF_Codec(Sigma_Vec,temp1,CSF_to_SD,STSym)
@@ -308,8 +295,6 @@ if (DOFARO) then
 
 else
 
-!  Write (u6,*) 'Lucia Style'
-!  Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
   IREFSM_SAVE=IREFSM
   IREFSM=STSYM
   ICSM=STSYM
@@ -335,59 +320,48 @@ else
   ICSM=IREFSM
   ISSM=IREFSM
 endif
-!Call RecPrt('Sigma_Vec(Lucia SD)',' ',Sigma_Vec,1,nDet)
-!Write (u6,*) 'End Original section'
-!Write (u6,*)
-!Write (u6,*)
 
-#ifdef _HOLD_IT_
 #ifdef _SGUGA_VERIFY_
-!  Write (u6,*) 'Start SGUGA section'
+  If (SGS(iState)%nRsPrt /= 1) Then
+     Write (6,*) ' This option is only available for CASSCF'
+     Call abend()
+  End If
+  If (SGS(iState)%nSym /= 1) Return
   nCSF=CIS(istate)%nCSF(STSym)
   Call mma_allocate(temp1,nDet,Label='temp1')
   Call mma_allocate(temp2,nDet,Label='temp2')
 
-!  Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
    call CSDTVC(temp1,temp2,2,STSym,0)
   !Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSYM)
-!  Call RecPrt('CI_Vec (Lucia CSF)',' ',temp1,1,nCSF)
   ! Convert from Lucia CSF basis to SGUGA CSF basis
   !     iMode=0 --> from SGA to split graph GUGA order                   *
   !     iMode=1 --> from split graph GUGA to SGA order                   *
   call SG_Reord(iState,STSYM,0,nCSF,temp1,temp2)
-! Call RecPrt('CI_Vec (SGUGA CSF)',' ',temp2,1,nCSF)
 
   Call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),temp2,nCSF,STSYM,temp1,TUVX,nTUVX,TU,nTU)
-! Call RecPrt('Sigma_Vec (SGUGA CSF)',' ',temp1,1,nCSF)
 
   ! Convert from SGUGA CSF basis to Lucia CSF basis
   call SG_Reord(iState,STSYM,1,nCSF,temp1,temp2)
-!  Call RecPrt('Sigma_Vec (Lucia CSF)',' ',temp2,1,nCSF)
   ! Convert from Lucia CSF basis to Lucia SD Basis
   call CSDTVC(temp2,temp1,1,STSym,0)
   !call SD_CSF_Codec(temp1,temp2,CSF_to_SD,STSym)
-!  Call RecPrt('Sigma_Vec (Lucia SD)',' ',temp1,1,nDet)
-!Write (6,*) 'End SGUGA section'
 
-! Do iDet = 1, nDet
-!    If (Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp) Then
-!       Write (u6,*) 'Mk_H_Psi_Det: Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp)'
-!       Write (u6,*) ' iDet=',iDet
-!       Write (u6,*) 'temp1(iDet)=    ',temp1(iDet)
-!       Write (u6,*) 'Sigma_vec(iDet)=', Sigma_vec(iDet)
-!       Call Abend()
-!    End If
-! End Do
+  Do iDet = 1, nDet
+     If (Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp) Then
+        Write (u6,*) 'Mk_H_Psi_Det: Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp)'
+        Write (u6,*) ' iDet=',iDet
+        Write (u6,*) 'temp1(iDet)=    ',temp1(iDet)
+        Write (u6,*) 'Sigma_vec(iDet)=', Sigma_vec(iDet)
+        Call Abend()
+     End If
+  End Do
 
   Sigma_Vec(1:nDet)=temp1(1:nDet)
   Call mma_deallocate(temp1)
   Call mma_deallocate(temp2)
-!Write (6,*) '==========================================='
-!Write (6,*)
-#endif
 #endif
 
 #ifdef _SGUGA_VERIFY_

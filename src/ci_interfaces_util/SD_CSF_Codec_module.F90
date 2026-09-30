@@ -67,11 +67,13 @@ contains
      endif
 #endif
 
-     if (Mult == 1) then
-        T => SGS(iState)%CDCInfo(iOpen,Mult)%DTOC
-     else
+!    This code is only intended for conversion between the CASVB format and
+!    the format of FAROALD and SGUGA.
+!    if (Mult == 1) then
+!       T => SGS(iState)%CDCInfo(iOpen,Mult)%DTOC
+!    else
         T => SGS(iState)%CDCInfo(iOpen,Mult)%CDC
-     endif
+!    endif
 
      nSD  = size(T,1)
      nCSF = size(T,2)

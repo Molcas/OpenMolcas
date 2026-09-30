@@ -864,6 +864,7 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
   if (SGS(iState)%nRsPrt == 1) then
      call Mk_CDC(SGS(iState))
      call Mk_SDREO_SGUGA(SGS(iState))
+     call Mk_SDREO_SGUGA_New(SGS(iState))
   end if
 
 end subroutine SG_Init
@@ -1193,6 +1194,7 @@ do iOpen = MinOpen, MaxOpen, 2
          twos,   &
          SGS%CDCInfo(iOpen,mult)%CDC )
 
+! keep this for the time being.
       if (mult == 1) then
 
          nDetSC = Max(1,nDet/2)
@@ -1615,6 +1617,144 @@ end subroutine count_twos
 
 end subroutine Mk_CDC
 
+!***********************************************************************
+! Construct the SD reordering information required by the SGUGA-based
+! CAS SD-CSF codec.
+!
+! Initial version:
+!   Loop over the alpha and beta string symmetry pairs compatible with
+!   the requested total spatial symmetry.
+!***********************************************************************
+
+subroutine Mk_SDREO_SGUGA_New(SGS)
+
+  use Definitions,   only: iwp
+  use Symmetry_Info, only: Mul
+
+  implicit none
+
+  type(SGStruct), intent(in) :: SGS
+
+  integer(kind=iwp) :: iRefSm
+  integer(kind=iwp) :: iASm
+  integer(kind=iwp) :: iBSm
+  integer(kind=iwp) :: nSym
+  integer(kind=iwp) :: iDet
+
+  integer(kind=iwp) :: nAlpha
+  integer(kind=iwp) :: nBeta
+  integer(kind=iwp) :: nAlphaS
+  integer(kind=iwp) :: nBetaS
+  integer(kind=iwp) :: iAlphaS
+  integer(kind=iwp) :: iBetaS
+
+  integer(kind=iwp) :: nAlphaSSym(SGS%nSym)
+  integer(kind=iwp) :: nBetaSSym(SGS%nSym)
+
+  nSym = SGS%nSym
+
+  ! Highest-Ms component:
+  !
+  !   nAlpha + nBeta = nActEl
+  !   nAlpha - nBeta = 2*Ms = iSpin - 1
+  !
+  nAlpha = (SGS%nActEl + SGS%iSpin - 1_iwp)/2_iwp
+  nBeta  = (SGS%nActEl - SGS%iSpin + 1_iwp)/2_iwp
+
+  call Count_Strings_By_Symmetry( &
+       SGS,                        &
+       nAlpha,                     &
+       nAlphaSSym)
+
+  call Count_Strings_By_Symmetry( &
+       SGS,                        &
+       nBeta,                      &
+       nBetaSSym)
+
+  ! Outer loop over possible total spatial symmetries.
+  do iRefSm = 1, nSym
+
+     Write (6,*) 'iRefSM=',iRefSM
+     ! Loop over symmetry blocks in the same order as LUCIA.
+     iDet = 0_iwp
+
+     do iASm = 1, nSym
+
+        iBSm = Mul(iASm,iRefSm)
+
+        nAlphaS = nAlphaSSym(iASm)
+        nBetaS  = nBetaSSym(iBSm)
+        Write (6,*) 'iASm, iBSm, nAlphaS, nBetaS=',iASm, iBSm, nAlphaS, nBetaS
+
+        do iBetaS = 1, nBetaS
+           do iAlphaS = 1, nAlphaS
+
+              iDet = iDet + 1_iwp
+
+           end do
+        end do
+
+     end do
+
+  end do
+
+contains
+
+  subroutine Count_Strings_By_Symmetry(SGS,nElec,nStringSym)
+
+    implicit none
+
+    type(SGStruct), intent(in) :: SGS
+
+    integer(kind=iwp), intent(in)  :: nElec
+    integer(kind=iwp), intent(out) :: nStringSym(SGS%nSym)
+
+    integer(kind=iwp) :: iOrb
+    integer(kind=iwp) :: iSym
+    integer(kind=iwp) :: nOcc
+    integer(kind=iwp) :: newSym
+
+    integer(kind=iwp) :: nString(0:nElec,SGS%nSym)
+    integer(kind=iwp) :: nStringNew(0:nElec,SGS%nSym)
+
+    ! nString(nOcc,iSym) is the number of strings constructed
+    ! from the orbitals processed so far that contain nOcc
+    ! electrons and have spatial symmetry iSym.
+    nString(:,:) = 0_iwp
+
+    ! The empty string is totally symmetric.
+    nString(0,1) = 1_iwp
+
+    do iOrb = 1, SGS%nLev
+
+       ! Contributions in which orbital iOrb is unoccupied.
+       nStringNew(:,:) = nString(:,:)
+
+       ! Contributions in which orbital iOrb is occupied.
+       do nOcc = 0, min(nElec-1_iwp,iOrb-1_iwp)
+          do iSym = 1, SGS%nSym
+
+             if (nString(nOcc,iSym) == 0_iwp) cycle
+
+             newSym = Mul(iSym,SGS%ISm(iOrb))
+
+             nStringNew(nOcc+1,newSym) =               &
+                nStringNew(nOcc+1,newSym) +            &
+                nString(nOcc,iSym)
+
+          end do
+       end do
+
+       nString(:,:) = nStringNew(:,:)
+
+    end do
+
+    nStringSym(:) = nString(nElec,:)
+
+  end subroutine Count_Strings_By_Symmetry
+
+end subroutine Mk_SDREO_SGUGA_New
+
 subroutine Mk_SDREO_SGUGA(SGS)
 
 use Definitions, only: iwp, u6
@@ -1646,6 +1786,7 @@ integer(kind=iwp), allocatable :: AlphaSym(:)
 integer(kind=iwp), allocatable :: BetaSym(:)
 integer(kind=iwp), allocatable :: Order(:)
 
+Write (6,*) 'Mk_SDREO_SGUGA'
 mult = SGS%iSpin
 
 MinOpen = mult - 1
@@ -1667,17 +1808,17 @@ do iRefSm = 1, SGS%nSym
 
    do iOpen = MinOpen, MaxOpen, 2
 
-      if (mult == 1) then
+!     if (mult == 1) then
 
-         if (.not. allocated(SGS%CDCInfo(iOpen,mult)%DTOC)) then
-            write(u6,*) 'Mk_SDREO_SGUGA: DTOC is not allocated'
-            write(u6,*) 'iOpen, mult = ', iOpen, mult
-            call Abend()
-         end if
+!        if (.not. allocated(SGS%CDCInfo(iOpen,mult)%DTOC)) then
+!           write(u6,*) 'Mk_SDREO_SGUGA: DTOC is not allocated'
+!           write(u6,*) 'iOpen, mult = ', iOpen, mult
+!           call Abend()
+!        end if
 
-         T => SGS%CDCInfo(iOpen,mult)%DTOC
+!        T => SGS%CDCInfo(iOpen,mult)%DTOC
 
-      else
+!     else
 
          if (.not. allocated(SGS%CDCInfo(iOpen,mult)%CDC)) then
             write(u6,*) 'Mk_SDREO_SGUGA: CDC is not allocated'
@@ -1687,7 +1828,7 @@ do iRefSm = 1, SGS%nSym
 
          T => SGS%CDCInfo(iOpen,mult)%CDC
 
-      end if
+!     end if
 
       nSD = size(T,1)
       nOC = SGS%CDCInfo(iOpen,mult)%nOCSym(iRefSm)
@@ -1804,11 +1945,11 @@ do iRefSm = 1, SGS%nSym
 
    do iOpen = MinOpen, MaxOpen, 2
 
-      if (mult == 1) then
-         T => SGS%CDCInfo(iOpen,mult)%DTOC
-      else
+!     if (mult == 1) then
+!        T => SGS%CDCInfo(iOpen,mult)%DTOC
+!     else
          T => SGS%CDCInfo(iOpen,mult)%CDC
-      end if
+!     end if
 
       nSD = size(T,1)
       nOC = SGS%CDCInfo(iOpen,mult)%nOCSym(iRefSm)
@@ -1860,25 +2001,6 @@ do iRefSm = 1, SGS%nSym
       BetaRank,                   &
       BetaLocalRank)
 
-if (iRefSm == 1) then
-
-   do iAdr = 1, min(5,nSDTot)
-
-      write(u6,'(A,7I8)') &
-         'Local ranks: Adr,ASym,ARank,ALocal,' // &
-         'BSym,BRank,BLocal = ',               &
-         iAdr,                                  &
-         AlphaSym(iAdr),                        &
-         AlphaRank(iAdr),                       &
-         AlphaLocalRank(iAdr),                  &
-         BetaSym(iAdr),                         &
-         BetaRank(iAdr),                        &
-         BetaLocalRank(iAdr)
-
-   end do
-
-end if
-
 #ifdef _SANITY_CHECK_
 if (any(AlphaLocalRank < 1) .or. &
     any(BetaLocalRank  < 1)) then
@@ -1889,49 +2011,13 @@ if (any(AlphaLocalRank < 1) .or. &
    call Abend()
 end if
 #endif
-!
-! Temporary string-type diagnostic.
-!
-if (iRefSm == 1) then
-
-   do iAdr = 1, min(5,nSDTot)
-
-      write(u6,'(A,7I8)') &
-         'String types: Adr,AType,BType,ASym,BSym,ARank,BRank = ', &
-         iAdr,            &
-         AlphaType(iAdr), &
-         BetaType(iAdr),  &
-         AlphaSym(iAdr),  &
-         BetaSym(iAdr),   &
-         AlphaRank(iAdr), &
-         BetaRank(iAdr)
-
-   end do
-
-end if
 
    call Build_SDREO_Order( &
       AlphaSym,  &
       BetaSym,   &
-      AlphaRank, &
-      BetaRank,  &
+      AlphaLocalRank, &
+      BetaLocalRank,  &
       Order)
-
-if (iRefSm == 1) then
-
-   do iAdr = 1, min(5,nSDTot)
-
-      write(u6,'(A,5I8)') &
-         'Stage C descriptor: Adr,ASym,BSym,ARank,BRank = ', &
-         iAdr,                       &
-         AlphaSym(iAdr),             &
-         BetaSym(iAdr),              &
-         AlphaRank(iAdr),            &
-         BetaRank(iAdr)
-
-   end do
-
-end if
 
    SGS%SDREO(iRefSm)%List(:) = 0
 
@@ -1955,11 +2041,6 @@ end if
    call Check_SDREO_Permutation(SGS%SDREO(iRefSm)%List)
 #endif
 
-   !
-   ! Temporary Stage C output.
-   !
-   write(u6,'(/,A,I4)') 'Stage C SDREO, iRefSm = ', iRefSm
-   write(u6,'(10I8)') SGS%SDREO(iRefSm)%List(1:min(20,nSDTot))
    !
    ! Release symmetry-specific work arrays.
    !
@@ -2317,7 +2398,7 @@ integer(kind=iwp) :: iSOC
 integer(kind=iwp) :: iDet
 integer(kind=iwp) :: iOrb
 integer(kind=iwp) :: i
-integer(kind=iwp) :: iRow
+!integer(kind=iwp) :: iRow
 integer(kind=iwp) :: nClosed
 
 nClosed = SGS%CDCInfo(iOpen,mult)%nClosed
@@ -2373,38 +2454,38 @@ do iOC = 1, nOC
       ! Determine the corresponding row in the full CDC
       ! determinant representation.
       !
-      if (mult == 1 .and. iOpen > 0) then
+!     if (mult == 1 .and. iOpen > 0) then
 
-         iDet = 0
-         iRow = 0
+!        iDet = 0
+!        iRow = 0
 
-         do i = 1, SGS%CDCInfo(iOpen,mult)%nDet
+!        do i = 1, SGS%CDCInfo(iOpen,mult)%nDet
 
-            !
-            ! Lucia spin-combination prototype:
-            ! first open spin must be alpha.
-            !
-            if (SGS%CDCInfo(iOpen,mult)%DetSpin(1,i) /= 1) cycle
+!           !
+!           ! Lucia spin-combination prototype:
+!           ! first open spin must be alpha.
+!           !
+!           if (SGS%CDCInfo(iOpen,mult)%DetSpin(1,i) /= 1) cycle
 
-            iRow = iRow + 1
+!           iRow = iRow + 1
 
-            if (iRow == iSD) then
-               iDet = i
-               exit
-            end if
+!           if (iRow == iSD) then
+!              iDet = i
+!              exit
+!           end if
 
-         end do
+!        end do
 
-#ifdef _SANITY_CHECK_
-         if (iDet == 0) then
-            write(u6,*) 'Fill_SDREO_Block: DTOC row not found'
-            write(u6,*) 'iRefSm, iOpen, iOC, iSD = ', &
-                         iRefSm, iOpen, iOC, iSD
-            call Abend()
-         end if
-#endif
+!#ifdef _SANITY_CHECK_
+!   if (iDet < 1 .or. iDet > nSD) then
+!      write(u6,*) 'Fill_SDREO_Block: illegal determinant index'
+!      write(u6,*) 'iDet = ', iDet
+!      write(u6,*) 'nSD  = ', nSD
+!      call Abend()
+!   endif
+!#endif
 
-      else
+!     else
 
          !
          ! Full determinant representation. For iOpen=0,
@@ -2412,7 +2493,7 @@ do iOC = 1, nOC
          !
          iDet = iSD
 
-      end if
+!     end if
 
       !
       ! Doubly occupied orbitals occur in both strings.

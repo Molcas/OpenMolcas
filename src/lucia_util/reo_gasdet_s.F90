@@ -45,12 +45,14 @@ IBGRP = 2
 
 NEL = NAEL+NBEL
 
+write (6,*) 'Lucia, nBlock=',nBlock
 IDET = 0
 do JBLOCK=1,NBLOCK
   IATP = IBLOCK(1,JBLOCK)
   IBTP = IBLOCK(2,JBLOCK)
   IASM = IBLOCK(3,JBLOCK)
   IBSM = IBLOCK(4,JBLOCK)
+  Write (6,*) 'IASM, IBSM=',IASM, IBSM
   !write(u6,*) ' REO_GASDET, IATP, IBTP = ',IATP,IBTP
   ! Occupation class of this combination of string
   call IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
@@ -61,6 +63,7 @@ do JBLOCK=1,NBLOCK
   ! the arcweights
   call CONF_GRAPH(IOCMIN,IOCMAX,NORB,NEL,IZ,NCONF_P,IZSCR)
   !    CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
+
   ! Obtain alpha strings of sym IASM and type IATP
   IDUM(1) = 0
   call GETSTR_TOTSM_SPGP(1,IATP,IASM,NAEL,NASTR1,IASTR,NORB,0,IDUM,IDUM)
@@ -81,6 +84,7 @@ do JBLOCK=1,NBLOCK
 
   NIA = NSSOA(IASM,IATP)
   NIB = NSSOB(IBSM,IBTP)
+  Write (6,*) 'NIA, NIB=',NIA, NIB
 
   do IB=1,NIB
     if (IRESTR == 1) then
@@ -160,6 +164,8 @@ do JBLOCK=1,NBLOCK
         call XFLUSH(u6)
       end if
       !write(u6,*) ' IADR_SD_CONF_ORDER, ISGN, IDET = ',IADR_SD_CONF_ORDER,ISGN,IDET
+write(u6,'(5I8)') IADR_SD_CONF_ORDER, &
+                  IASM, IBSM, IA, IB
       IREO(IADR_SD_CONF_ORDER) = ISGN*IDET*ISIGN_2003
 
     end do
