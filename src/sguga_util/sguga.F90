@@ -1640,6 +1640,7 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
   integer(kind=iwp) :: iBSm
   integer(kind=iwp) :: nSym
   integer(kind=iwp) :: iDet
+  integer(kind=iwp) :: nLev
 
   integer(kind=iwp) :: nAlpha
   integer(kind=iwp) :: nBeta
@@ -1650,8 +1651,11 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
 
   integer(kind=iwp) :: nAlphaSSym(SGS%nSym)
   integer(kind=iwp) :: nBetaSSym(SGS%nSym)
+  integer(kind=iwp), allocatable :: AlphaStrings(:,:)
+  integer(kind=iwp), allocatable :: BetaStrings(:,:)
 
   nSym = SGS%nSym
+  nLev = SGS%nLev
 
   ! Highest-Ms component:
   !
@@ -1661,15 +1665,8 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
   nAlpha = (SGS%nActEl + SGS%iSpin - 1_iwp)/2_iwp
   nBeta  = (SGS%nActEl - SGS%iSpin + 1_iwp)/2_iwp
 
-  call Count_Strings_By_Symmetry( &
-       SGS,                        &
-       nAlpha,                     &
-       nAlphaSSym)
-
-  call Count_Strings_By_Symmetry( &
-       SGS,                        &
-       nBeta,                      &
-       nBetaSSym)
+  call Count_Strings_By_Symmetry(SGS,nAlpha,nAlphaSSym)
+  call Count_Strings_By_Symmetry(SGS,nBeta,nBetaSSym)
 
   ! Outer loop over possible total spatial symmetries.
   do iRefSm = 1, nSym
@@ -1684,7 +1681,29 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
 
         nAlphaS = nAlphaSSym(iASm)
         nBetaS  = nBetaSSym(iBSm)
+
+        If (nAlphaS*nBetaS == 0) Cycle
+
         Write (6,*) 'iASm, iBSm, nAlphaS, nBetaS=',iASm, iBSm, nAlphaS, nBetaS
+
+        call mma_allocate(AlphaStrings,Max(1_iwp,nAlpha),nAlphaS,Label='AStrings')
+        call mma_allocate(BetaStrings,Max(1_iwp,nBeta),nBetaS,Label='BStrings')
+
+        AlphaStrings(:,:)=0_iwp
+        BetaStrings(:,:)=0_iwp
+
+        call GenerateStringSet(nAlpha,iASm,nAlphaS,AlphaStrings)
+        call GenerateStringSet(nBeta, iBSm,nBetaS, BetaStrings)
+
+        Write (6,*) 'Beta strings'
+        do iBetaS = 1, nBetaS
+           Write(6,*) BetaStrings(:,iBetaS)
+        end do
+
+        Write (6,*) 'Alpha strings'
+        do iAlphaS = 1, nAlphaS
+           Write(6,*) AlphaStrings(:,iAlphaS)
+        end do
 
         do iBetaS = 1, nBetaS
            do iAlphaS = 1, nAlphaS
@@ -1693,6 +1712,9 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
 
            end do
         end do
+
+        call mma_deallocate(AlphaStrings)
+        call mma_deallocate(BetaStrings)
 
      end do
 
@@ -1753,7 +1775,120 @@ contains
 
   end subroutine Count_Strings_By_Symmetry
 
+subroutine GenerateStringSet(nElec,targetSym,nStrings,Strings)
+
+  integer(kind=iwp), intent(in) :: nElec
+  integer(kind=iwp), intent(in) :: targetSym
+  integer(kind=iwp), intent(in) :: nStrings
+
+  integer(kind=iwp), intent(out) :: &
+      Strings(max(1_iwp,nElec),nStrings)
+
+  integer(kind=iwp), allocatable :: String(:)
+
+  integer(kind=iwp) :: iString
+  integer(kind=iwp) :: nOrb
+
+  nOrb = SGS%nLev
+
+  Strings = 0_iwp
+  iString = 0_iwp
+
+  ! The empty string has totally symmetric spatial symmetry.
+  if (nElec == 0_iwp) then
+
+    if (targetSym == 1_iwp) then
+      if (nStrings /= 1_iwp) then
+        error stop 'GenerateStringSet: invalid empty-string count'
+      end if
+    else
+      if (nStrings /= 0_iwp) then
+        error stop 'GenerateStringSet: invalid empty-string symmetry'
+      end if
+    end if
+
+    return
+
+  end if
+
+  if (nElec < 0_iwp .or. nElec > nOrb) then
+    error stop 'GenerateStringSet: invalid electron count'
+  end if
+
+  Call mma_allocate(String,nElec,Label='String')
+  String = 0_iwp
+
+  ! Generate combinations in the same colexicographic order
+  ! used by LUCIA.
+  call GenerateLevel(nElec,nOrb,nElec,targetSym,nStrings,              &
+                     String,Strings,iString)
+
+  if (iString /= nStrings) then
+    error stop 'GenerateStringSet: incorrect number of strings'
+  end if
+
+  Call mma_deallocate(String)
+
+End subroutine GenerateStringSet
+
+recursive subroutine GenerateLevel(nChoose,maxOrb,nElec,targetSym,nStrings,           &
+                                   String,Strings,iString)
+
+  integer(kind=iwp), intent(in) :: nChoose
+  integer(kind=iwp), intent(in) :: maxOrb
+  integer(kind=iwp), intent(in) :: nElec
+  integer(kind=iwp), intent(in) :: targetSym
+  integer(kind=iwp), intent(in) :: nStrings
+
+  integer(kind=iwp), intent(inout) :: String(nElec)
+  integer(kind=iwp), intent(out) :: Strings(nElec,nStrings)
+  integer(kind=iwp), intent(inout) :: iString
+
+  integer(kind=iwp) :: i
+  integer(kind=iwp) :: iOrb
+  integer(kind=iwp) :: iSym
+
+  if (nChoose == 0_iwp) then
+
+    iSym = 1_iwp
+
+    do i = 1, nElec
+      iSym = Mul(iSym,SGS%ISm(String(i)))
+    end do
+
+    if (iSym == targetSym) then
+
+      iString = iString + 1_iwp
+
+      if (iString > nStrings) then
+        error stop 'GenerateLevel: too many strings'
+      end if
+
+      Strings(:,iString) = String(:)
+
+    end if
+
+    return
+
+  end if
+
+  ! Generate strings in colexicographic order. The highest
+  ! occupied orbital is the outermost ordering criterion.
+  do iOrb = nChoose, maxOrb
+
+    String(nChoose) = iOrb
+
+    call GenerateLevel(                               &
+        nChoose-1_iwp,iOrb-1_iwp,                     &
+        nElec,targetSym,nStrings,                     &
+        String,Strings,iString)
+
+  end do
+
+end subroutine GenerateLevel
+
 end subroutine Mk_SDREO_SGUGA_New
+
 
 subroutine Mk_SDREO_SGUGA(SGS)
 

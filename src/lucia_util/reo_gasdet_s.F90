@@ -52,7 +52,6 @@ do JBLOCK=1,NBLOCK
   IBTP = IBLOCK(2,JBLOCK)
   IASM = IBLOCK(3,JBLOCK)
   IBSM = IBLOCK(4,JBLOCK)
-  Write (6,*) 'IASM, IBSM=',IASM, IBSM
   !write(u6,*) ' REO_GASDET, IATP, IBTP = ',IATP,IBTP
   ! Occupation class of this combination of string
   call IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
@@ -84,7 +83,16 @@ do JBLOCK=1,NBLOCK
 
   NIA = NSSOA(IASM,IATP)
   NIB = NSSOB(IBSM,IBTP)
-  Write (6,*) 'NIA, NIB=',NIA, NIB
+  Write (6,*) 'IASM, IBSM, NIA, NIB=',IASM, IBSM, NIA, NIB
+
+  Write (6,*) 'Beta Strings'
+  do IB=1,NIB
+     Write(6,*) IBSTR(NBEL*(IB-1)+1:NBEL*(IB-1)+NBEL)
+  end do
+  Write (6,*) 'Alpha Strings'
+  do IA=1,NIA
+     Write(6,*) IASTR(NAEL*(IA-1)+1:NAEL*(IA-1)+NAEL)
+  end do
 
   do IB=1,NIB
     if (IRESTR == 1) then
@@ -164,8 +172,6 @@ do JBLOCK=1,NBLOCK
         call XFLUSH(u6)
       end if
       !write(u6,*) ' IADR_SD_CONF_ORDER, ISGN, IDET = ',IADR_SD_CONF_ORDER,ISGN,IDET
-write(u6,'(5I8)') IADR_SD_CONF_ORDER, &
-                  IASM, IBSM, IA, IB
       IREO(IADR_SD_CONF_ORDER) = ISGN*IDET*ISIGN_2003
 
     end do
