@@ -51,6 +51,7 @@ type CDCInfo
    integer(kind=iwp), allocatable :: nOCSym(:)
    integer(kind=iwp), allocatable :: OCDOC(:,:)
    integer(kind=iwp), allocatable :: OCSOC(:,:)
+   integer(kind=iwp), Allocatable :: OCReverse(:,:,:)
 
    integer(kind=iwp), allocatable :: nOpenOCP(:)
    integer(kind=iwp), allocatable :: nOCP(:)
@@ -984,6 +985,7 @@ if (allocated(SGS%CDCInfo)) then
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCP,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%DOC,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOC,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCReverse,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOCSym,safe='*')
          Call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCSym,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCDOC,safe='*')
@@ -1060,6 +1062,8 @@ integer(kind=iwp), allocatable :: twos(:,:)
 
 Integer :: DOCOcc(SGS%nLev)
 Integer :: SOCOcc(SGS%nLev)
+Integer(kind=iwp) :: nDOCList
+Integer(kind=iwp) :: nSOCList
 
 allocate(SGS%CDCInfo(0:SGS%nLev,SGS%iSpin:SGS%iSpin))
 SGS%CDCInfo(:,:)%nDet = 0
@@ -1158,6 +1162,24 @@ do iOpen = MinOpen, MaxOpen, 2
 #endif
 
    endif
+
+   ! Allocate and initialize the reverse list: iDOC,iSOC -> iOC
+
+   If (Allocated(SGS%CDCInfo(iOpen,mult)%DOC)) Then
+      nDOCList = Size(SGS%CDCInfo(iOpen,mult)%DOC,2)
+   Else
+      nDOCList = 1
+   End If
+   If (Allocated(SGS%CDCInfo(iOpen,mult)%SOC)) Then
+      nSOCList = Size(SGS%CDCInfo(iOpen,mult)%SOC,2)
+   Else
+      nSOCList = 1
+   End If
+   Call mma_allocate(SGS%CDCInfo(iOpen,mult)%OCReverse, &
+                     nDOCList,nSOCList,SGS%nSym,         &
+                     Label='OCReverse')
+
+   SGS%CDCInfo(iOpen,mult)%OCReverse = 0_iwp
 
    if (SGS%CDCInfo(iOpen,mult)%nDet > 0 .and. &
        SGS%CDCInfo(iOpen,mult)%nCSF > 0) then
@@ -1391,6 +1413,7 @@ Do While (NoNew == 0)
    SGS%CDCInfo(nSOC,mult)%OCDOC(iOC,iSym) = iDOC
    SGS%CDCInfo(nSOC,mult)%OCSOC(iOC,iSym) = iSOC
 
+   SGS%CDCInfo(nSOC,mult)%OCReverse(iDOC,iSOC,iSym) = iOC
 
    Call Nxt_OC(SGS%OC,nElec,SGS%nLev,0,NoNew)
 
@@ -1849,6 +1872,11 @@ Write(u6,'(A,5(1X,I0))') 'SGOC', iRefSm, nOpen, iOC, iDOC, iSOC
 Write(u6,'(A,2(1X,I0))') 'OCTABLE',                           &
    SGS%CDCInfo(nOpen,mult)%OCDOC(iOC,iRefSm),                 &
    SGS%CDCInfo(nOpen,mult)%OCSOC(iOC,iRefSm)
+
+   If (SGS%CDCInfo(nOpen,Mult)%OCReverse(iDOC,iSOC,iRefSm) /= iOC) Then
+      Write (u6,'(A)') 'SGS%CDCInfo(nOpen,Mult)%OCReverse(iDOC,iSOC,iRefSm) /= iOC'
+      Call Abend()
+   End If
            end do
         end do
 
