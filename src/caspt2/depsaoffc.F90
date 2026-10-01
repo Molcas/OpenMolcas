@@ -816,7 +816,7 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
             NNN = 0
             do LEV=1,SGS(jstate)%MIDLEV
               NNN = NNN+1
-              if (NNN == nPack) then
+              if (NNN == nPack+1) then
                 NNN = 1
                 ICDPOS = ICDPOS+1
                 ICDWN = CIS(jstate)%ICASE(ICDPOS)
@@ -833,7 +833,7 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
           NNN = 0
           do LEV=SGS(jstate)%MIDLEV+1,NLEV
             NNN = NNN+1
-            if (NNN == nPack) then
+            if (NNN == nPack+1) then
               NNN = 1
               ICUPOS = ICUPOS+1
               ICUP = CIS(jstate)%ICASE(ICUPOS)
