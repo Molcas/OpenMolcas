@@ -19,7 +19,7 @@
 
 subroutine DIELMV(ICASE,nICASE,JCASE,nJCASE,NUP,NDWN,EMU)
 
-use sguga, only: CIS, SGS
+use sguga, only: nPack, CIS, SGS
 use general_data, only: nLev
 use caspt2_module, only: ETA
 use Constants, only: Zero
@@ -37,10 +37,10 @@ nIpWlk = CIS(istate)%nIpWlk
 do I=1,NUP
   II = NIPWLK*(I-1)
   rSUM = Zero
-  do LV1=SGS(istate)%MIDLEV+1,NLEV,15
+  do LV1=SGS(istate)%MIDLEV+1,NLEV,nPack
     II = II+1
     IC = ICASE(II)
-    do LEV=LV1,min(LV1+14,NLEV)
+    do LEV=LV1,min(LV1+(nPack-1),NLEV)
       IC1 = IC/4
       ISTEP = IC-4*IC1
       IOC = (ISTEP+1)/2
@@ -54,10 +54,10 @@ end do
 do I=1,NDWN
   II = NIPWLK*(I-1)
   rSUM = Zero
-  do LV1=1,SGS(istate)%MIDLEV,15
+  do LV1=1,SGS(istate)%MIDLEV,nPack
     II = II+1
     IC = JCASE(II)
-    do LEV=LV1,min(LV1+14,SGS(istate)%MIDLEV)
+    do LEV=LV1,min(LV1+(nPack-1),SGS(istate)%MIDLEV)
       IC1 = IC/4
       ISTEP = IC-4*IC1
       IOC = (ISTEP+1)/2

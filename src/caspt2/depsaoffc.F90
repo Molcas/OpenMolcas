@@ -15,7 +15,7 @@ subroutine DEPSAOffC(NCONF,NSTATE,NASHT,NBAST,CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
 use Symmetry_Info, only: Mul
 use PrintLevel, only: VERBOSE
-use sguga, only: CIS, SGS
+use sguga, only: nPack, CIS, SGS
 use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
 use general_data, only: NASH, STSYM
 use caspt2_module, only: IFRMS, IFXMS, ISCF, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM
@@ -816,7 +816,7 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
             NNN = 0
             do LEV=1,SGS(jstate)%MIDLEV
               NNN = NNN+1
-              if (NNN == 16) then
+              if (NNN == nPack+1) then
                 NNN = 1
                 ICDPOS = ICDPOS+1
                 ICDWN = CIS(jstate)%ICASE(ICDPOS)
@@ -833,7 +833,7 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
           NNN = 0
           do LEV=SGS(jstate)%MIDLEV+1,NLEV
             NNN = NNN+1
-            if (NNN == 16) then
+            if (NNN == nPack+1) then
               NNN = 1
               ICUPOS = ICUPOS+1
               ICUP = CIS(jstate)%ICASE(ICUPOS)
