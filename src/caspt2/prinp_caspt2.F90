@@ -39,7 +39,7 @@ use general_data, only: ISPIN, NACTEL, NASH, nElec3, nHole1, STSym
 use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, mState, &
                          nAshT, nBas, nConf, nDel, nFro, nIsh, nIshT, nRoots, nSsh, nSshT, nState, nSym, Orbin, PT2Method, RFPert, &
                          Zeta
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_thres
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_merge, SC_thres
 #ifdef _DMRG_
 use caspt2_global, only: compressMPS
 use caspt2_module, only: DMRG
@@ -238,7 +238,14 @@ if (iprglb >= TERSE) then
         write(u6,fmt2//'A,T50,A)') '','(PC-NEVPT2)'
       end if
     end if
-    if (Do_SC) write(u6,fmt2//'A,T50,ES8.2)') 'Denominator threshold for SC-NEVPT2',SC_thres
+    if (Do_SC) then
+      write(u6,fmt2//'A,T50,ES8.2)') 'Denominator threshold for SC-NEVPT2',SC_thres
+      if (SC_merge) then
+        write(u6,fmt2//'A,T50,A)') 'Perturber functions for SC-NEVPT2','Merge'
+      else
+        write(u6,fmt2//'A,T50,A)') 'Perturber functions for SC-NEVPT2','Split'
+      end if
+    end if
   end if
 
   write(u6,fmt2//'A,T50,A)') 'Fock operator',trim(FockOpType)

@@ -25,7 +25,7 @@ use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, CPT2Method, DMRG, DoCum
                          mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, NRAS1, NRAS3, nRoots, nRoots, &
                          nSsh, nState, nSym, OrbIn, OutFmt, PrOrb, PRSD, PT2Method, RFPERT, RHSDirect, Root2State, SDECOM, &
                          SMatrix, ThrConv, ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_amplitude, SC_prop, SC_thres
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_amplitude, SC_prop, SC_merge, SC_thres
 #ifdef _DMRG_
 use qcmaquis_info, only: qcm_group_names
 use qcmaquis_interface_cfg, only: dmrg_file, qcmaquis_param
@@ -531,6 +531,16 @@ if (HZERO == 'DYALL') then
   SC_prop = input%SCPROP .or. (.not. Do_FIC)
   SC_amplitude = SC_prop
   SC_thres = abs(input%SC_thres)
+  ! Choose the perturber function for SC-NEVPT2
+  select case (input%SCPF)
+    case ('MERGE')
+      SC_merge = .true.
+    case ('SPLIT')
+      SC_merge = .false.
+    case default
+      call warningMessage(2,'invalid SCPF option: '//trim(input%SCPF))
+      call quit_onUserError()
+  end select
   if (sum(NRAS1(1:nSym))+sum(NRAS3(1:nSym)) > 0) then
     call warningMessage(2,'NEVPT2 calculations with a RAS reference wavefunction are not supported')
     call quit_onUserError()
@@ -721,6 +731,12 @@ ConvInvar = input%ThrConvInvar
 
 if ((ipea_shift /= Zero) .and. do_grad .and. (.not. IFDORTHO)) then
   call warningMessage(2,'Analytic gradients with IPEA shift must use the CORT or DORT option.')
+  call quit_onUserError()
+end if
+
+if (do_grad .and. (.not. if_invaria) .and. (.not. IfChol)) then
+  call warningMessage(2,'Analytic gradients that are not invariant with respect to rotations among the inactive and among the '// &
+                      'secondary orbitals require Cholesky decomposition or RI (&SEWARD RICD).')
   call quit_onUserError()
 end if
 
