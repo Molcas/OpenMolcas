@@ -1663,6 +1663,9 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
   Integer(kind=iwp) :: SOCOcc(SGS%nActel)
   Integer(kind=iwp) :: OpenSP(SGS%nActel)
 
+  Integer(kind=iwp) :: iOC
+  Integer(kind=iwp) :: nOC
+
   nSym = SGS%nSym
   nLev = SGS%nLev
   mult = SGS%iSpin
@@ -1812,27 +1815,40 @@ Write(6,'(A,3(1X,I0))') 'SGSECTOR', iOpen, nDouble, SGS%nActEl
                  mSOC = Size(SGS%CDCInfo(nOpen,mult)%SOC,2)
               End If
 
-Write(6,'(A,5(1X,I0))') 'SGCONFINDICES', iRefSM, iASm, iBSm, &
+Write(u6,'(A,5(1X,I0))') 'SGCONFINDICES', iRefSM, iASm, iBSm, &
                                           iAlphaS, iBetaS
 
-Write(6,'(A,5(1X,I0))') 'CONF', nOpen, nDouble, nDOC, iDOC, iSOC
+Write(u6,'(A,5(1X,I0))') 'CONF', nOpen, nDouble, nDOC, iDOC, iSOC
 
-Write(6,'(A,2(1X,I0))') 'TABLESIZES', mDOC, mSOC
+Write(u6,'(A,2(1X,I0))') 'TABLESIZES', mDOC, mSOC
 
-Write(6,'(A)',Advance='No') 'DOCTABLE'
+Write(u6,'(A)',Advance='No') 'DOCTABLE'
 Do i=1,nDOC
-   Write(6,'(1X,I0)',Advance='No') &
+   Write(u6,'(1X,I0)',Advance='No') &
       SGS%CDCInfo(nOpen,mult)%DOC(i,iDOC)
 End Do
-Write(6,'(A)') ''
+Write(u6,'(A)') ''
 
-Write(6,'(A)',Advance='No') 'SOCTABLE'
+Write(u6,'(A)',Advance='No') 'SOCTABLE'
 Do i=1,nOpen
-   Write(6,'(1X,I0)',Advance='No') &
+   Write(u6,'(1X,I0)',Advance='No') &
       SGS%CDCInfo(nOpen,mult)%SOC(i,iSOC)
 End Do
-Write(6,'(A)') ''
+Write(u6,'(A)') ''
 
+              nOC = SGS%CDCInfo(nOpen,mult)%nOCSym(iRefSm)
+
+              Call FindOCIndex(iDOC,                                               &
+                               iSOC,                                               &
+                               SGS%CDCInfo(nOpen,mult)%OCDOC(:,iRefSm),            &
+                               SGS%CDCInfo(nOpen,mult)%OCSOC(:,iRefSm),            &
+                               nOC,                                                &
+                               iOC)
+
+Write(u6,'(A,5(1X,I0))') 'SGOC', iRefSm, nOpen, iOC, iDOC, iSOC
+Write(u6,'(A,2(1X,I0))') 'OCTABLE',                           &
+   SGS%CDCInfo(nOpen,mult)%OCDOC(iOC,iRefSm),                 &
+   SGS%CDCInfo(nOpen,mult)%OCSOC(iOC,iRefSm)
            end do
         end do
 
@@ -1844,6 +1860,61 @@ Write(6,'(A)') ''
   end do
 
 contains
+
+Subroutine FindOCIndex(iDOC,iSOC,OCDOC,OCSOC,nOC,iOC)
+
+Implicit None
+
+Integer(kind=iwp), Intent(In)  :: iDOC
+Integer(kind=iwp), Intent(In)  :: iSOC
+Integer(kind=iwp), Intent(In)  :: nOC
+Integer(kind=iwp), Intent(In)  :: OCDOC(:)
+Integer(kind=iwp), Intent(In)  :: OCSOC(:)
+Integer(kind=iwp), Intent(Out) :: iOC
+
+Integer(kind=iwp) :: i
+Integer(kind=iwp) :: nMatch
+
+If (nOC < 1_iwp) Then
+   Write(u6,'(A)') 'FindOCIndex: no configurations for symmetry'
+   Call Abend()
+End If
+
+If (nOC > Size(OCDOC) .or. nOC > Size(OCSOC)) Then
+   Write(u6,'(A)') 'FindOCIndex: invalid configuration count'
+   Call Abend()
+End If
+
+iOC = 0_iwp
+nMatch = 0_iwp
+
+Do i=1,nOC
+
+   If (OCDOC(i) /= iDOC) Cycle
+   If (OCSOC(i) /= iSOC) Cycle
+
+   iOC = i
+   nMatch = nMatch + 1_iwp
+
+End Do
+
+If (nMatch == 0_iwp) Then
+   Write(u6,'(A)') 'FindOCIndex: occupation configuration not found'
+   Write(u6,'(A,2(1X,I0))') 'IDOC ISOC',iDOC,iSOC
+   Write(u6,'(A,1X,I0)') 'NOC',nOC
+   Write(u6,'(A)') 'FindOCIndex: configuration not found'
+   Call Abend()
+End If
+
+If (nMatch > 1_iwp) Then
+   Write(u6,'(A)') 'FindOCIndex: duplicate occupation configuration'
+   Write(u6,'(A,2(1X,I0))') 'IDOC ISOC',iDOC,iSOC
+   Write(u6,'(A,1X,I0)') 'NMATCH',nMatch
+   Write(u6,'(A)') 'FindOCIndex: duplicate configuration'
+   Call Abend()
+End If
+
+End Subroutine FindOCIndex
 
 Subroutine FindSOCIndex(iDetOC,nElec,SOCTable,iSOC)
 
