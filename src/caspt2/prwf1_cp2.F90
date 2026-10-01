@@ -20,7 +20,7 @@
 subroutine PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
 
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, SGS
+use sguga, only: nPack, CIS, SGS
 use general_data, only: ISPIN, nLev
 use caspt2_module, only: NSYM, PRSD
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -99,7 +99,7 @@ do MV=1,NMIDV
           NNN = 0
           do LEV=1,SGS(istate)%MIDLEV
             NNN = NNN+1
-            if (NNN == 16) then
+            if (NNN == nPack) then
               NNN = 1
               ICDPOS = ICDPOS+1
               ICDWN = CIS(istate)%ICASE(ICDPOS)
@@ -116,7 +116,7 @@ do MV=1,NMIDV
         NNN = 0
         do LEV=SGS(istate)%MIDLEV+1,NLEV
           NNN = NNN+1
-          if (NNN == 16) then
+          if (NNN == nPack) then
             NNN = 1
             ICUPOS = ICUPOS+1
             ICUP = CIS(istate)%ICASE(ICUPOS)
