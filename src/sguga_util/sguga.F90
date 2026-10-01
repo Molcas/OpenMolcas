@@ -1657,6 +1657,12 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
   Integer(kind=iwp) :: iDetSP(SGS%nActEl)
   Integer(kind=iwp) :: iSign
 
+  Integer(kind=iwp) :: nOpen, i
+  Integer(kind=iwp) :: nDouble
+  Integer(kind=iwp) :: DOCOcc(SGS%nActel)
+  Integer(kind=iwp) :: SOCOcc(SGS%nActel)
+  Integer(kind=iwp) :: OpenSP(SGS%nActel)
+
   nSym = SGS%nSym
   nLev = SGS%nLev
 
@@ -1724,6 +1730,32 @@ Write(u6,'(A,*(1X,I0))') 'SPIN ', iDetSP(1:nAlpha+nBeta)
 Write(u6,'(A,1X,I0)') 'SIGN ',iSign
 Write(u6,'(A)') 'ABMERGE END'
 
+              Call ExtractOccupationPattern(iDetOC,iDetSP,SGS%nActEl, &
+                                            DOCOcc,SOCOcc,OpenSP,nDouble,nOpen)
+Write(6,'(A,5(1X,I0))') 'OCPATTERN', iRefSM, iASm, iBSm, &
+                                      iAlphaS, iBetaS
+
+Write(6,'(A,2(1X,I0))') 'OCCOUNTS', nDouble, nOpen
+
+Write(6,'(A)',Advance='No') 'DOC   '
+Do i=1,nDouble
+   Write(6,'(1X,I0)',Advance='No') DOCOcc(i)
+End Do
+Write(6,'(A)') ''
+
+Write(6,'(A)',Advance='No') 'SOC   '
+Do i=1,nOpen
+   Write(6,'(1X,I0)',Advance='No') SOCOcc(i)
+End Do
+Write(6,'(A)') ''
+
+Write(6,'(A)',Advance='No') 'OPENSP'
+Do i=1,nOpen
+   Write(6,'(1X,I0)',Advance='No') OpenSP(i)
+End Do
+Write(6,'(A)') ''
+
+
            end do
         end do
 
@@ -1735,6 +1767,85 @@ Write(u6,'(A)') 'ABMERGE END'
   end do
 
 contains
+
+Subroutine ExtractOccupationPattern(iDetOC,iDetSP,nElec, &
+                                    DOCOcc,SOCOcc,OpenSP,  &
+                                    nDouble,nOpen)
+
+Use Definitions, Only: iwp
+
+Implicit None
+
+Integer(kind=iwp), Intent(In)  :: nElec
+Integer(kind=iwp), Intent(In)  :: iDetOC(nElec)
+Integer(kind=iwp), Intent(In)  :: iDetSP(nElec)
+
+Integer(kind=iwp), Intent(Out) :: DOCOcc(nElec)
+Integer(kind=iwp), Intent(Out) :: SOCOcc(nElec)
+Integer(kind=iwp), Intent(Out) :: OpenSP(nElec)
+Integer(kind=iwp), Intent(Out) :: nDouble
+Integer(kind=iwp), Intent(Out) :: nOpen
+
+Integer(kind=iwp) :: iElec
+
+DOCOcc = 0_iwp
+SOCOcc = 0_iwp
+OpenSP = 0_iwp
+
+nDouble = 0_iwp
+nOpen   = 0_iwp
+
+iElec = 1_iwp
+
+Do While (iElec <= nElec)
+
+   If (iElec < nElec) Then
+
+      If (iDetOC(iElec) == iDetOC(iElec+1_iwp)) Then
+
+         ! A repeated orbital number represents a doubly
+         ! occupied orbital. BuildOrderedDeterminant places
+         ! the alpha electron before the beta electron.
+
+         If (iDetSP(iElec) /= 1_iwp .or. &
+             iDetSP(iElec+1_iwp) /= -1_iwp) Then
+            Error Stop &
+               'ExtractOccupationPattern: invalid double occupation'
+         End If
+
+         nDouble = nDouble + 1_iwp
+         DOCOcc(nDouble) = iDetOC(iElec)
+
+         iElec = iElec + 2_iwp
+         Cycle
+
+      End If
+
+   End If
+
+   ! A non-repeated orbital number represents a singly
+   ! occupied orbital.
+
+   If (Abs(iDetSP(iElec)) /= 1_iwp) Then
+      Error Stop 'ExtractOccupationPattern: invalid spin label'
+   End If
+
+   nOpen = nOpen + 1_iwp
+   SOCOcc(nOpen) = iDetOC(iElec)
+   OpenSP(nOpen) = iDetSP(iElec)
+
+   iElec = iElec + 1_iwp
+
+End Do
+
+! Every electron must belong either to a doubly occupied
+! orbital or to a singly occupied orbital.
+
+If (2_iwp*nDouble+nOpen /= nElec) Then
+   Error Stop 'ExtractOccupationPattern:*inconsistent electron count'
+End If
+
+End Subroutine ExtractOccupationpattern
 
 Subroutine BuildOrderedDeterminant(AlphaString,BetaString, &
                                    nAlpha,nBeta,            &
