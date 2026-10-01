@@ -24,6 +24,7 @@ use caspt2_module, only: EPSA, MxCI, nSym
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 use caspt2_global, only: iTasks_grad, nTasks_grad
+use GA_Wrapper, only: GA_NNodes, GA_NodeId
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One, Half
@@ -34,14 +35,15 @@ integer(kind=iwp), intent(in) :: IFF, nCONF, NLEV, NG3
 real(kind=wp), intent(in) :: CI(nCONF), DG3(NG3), DF3(NG3), G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
 real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV), DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV), DF2(NLEV,NLEV,NLEV,NLEV), &
                                 DEPSA(NLEV,NLEV)
-integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3BK, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, &
-                     IP1STA, IP2, IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, iTask_loc, ITLEV, &
-                     IU, IULEV, IV, IVLEV, IXLEV, IXLEV0, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MXTASK, MYBUFFER, MYTASK, NB, &
-                     NBTOT, NBUF1, NBUFX, NDAB, NDTU, NLEV2, nMidV, NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
+integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3BK, IG3OFF, IOFFSET, IP1, IP1END, IP1MN, IP1MX, IP1STA, &
+                     IP2, IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, iTask_loc, ITLEV, IU, IULEV, &
+                     IVEC, IVLEV, IXLEV, IXLEV0, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, &
+                     NBUFX, NDAB, NDTU, NLEV2, nMidV, NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2, NVEC
 real(kind=wp) :: SCAL, ScalF, ScalG
-logical(kind=iwp) :: first
-integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
-real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUF3(:), BUF4(:), BUFD(:), BUFT(:), BUFX(:,:), DAB(:,:), DTU(:,:), DYZ(:)
+integer(kind=iwp) :: ip1loc, MyRank, nFlushed, nProcs
+integer(kind=iwp), allocatable :: ib_tmp(:,:), ICNJ(:), IDX2IJ(:,:), iG3Off_tmp(:), IJ2IDX(:,:), IP1_BUF(:), IVLEV_tmp(:), &
+                                  TASKLIST(:,:)
+real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFF(:,:), BUFX(:,:), CF(:,:), CG(:,:), DAB(:,:), DTU(:,:), DYZ(:)
 integer(kind=iwp), parameter :: iState = 1
 
 ! IJ2IDX, IDX2IJ: translation tables for levels i,j to and from pair indices idx
@@ -237,7 +239,7 @@ call mma_MaxDBLE(memmax)
 ! buf1: bra buffer with E_ip1 excitations of Psi0
 !       holds multiple CI vectors (allowed by memory)
 ! buf2: ket buffer for an E_ip3 excitation of Psi0
-! buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
+! bufx: E_ax E_ip3|Psi0> for all a of one x, and then reused for the right derivative
 ! bufd: diagonal matrix elements to compute the F matrix
 nbuf1 = nbuf1_grad
 ndtu = nbuf1
@@ -245,16 +247,20 @@ ndab = nbuf1
 nbufx = nlev
 call mma_allocate(BUF1,MXCI,NBUF1,Label='BUF1')
 call mma_allocate(BUF2,MXCI,Label='BUF2')
-call mma_allocate(BUFT,MXCI,Label='BUFT')
 call mma_allocate(BUFD,MXCI,Label='BUFD')
 
 call mma_allocate(DTU,MXCI,NDTU,Label='DTU')
 call mma_allocate(DYZ,MXCI,Label='DYZ')
 call mma_allocate(DAB,MXCI,NDAB,Label='DAB')
-call mma_allocate(BUF3,MXCI,Label='BUF3')
-call mma_allocate(BUF4,MXCI,Label='BUF4')
 
 call mma_allocate(BUFX,MXCI,NBUFX,Label='BUFX')
+
+call mma_allocate(ib_tmp,2,NLEV,Label='ib_tmp')
+call mma_allocate(iG3Off_tmp,NLEV,Label='iG3Off_tmp')
+call mma_allocate(IVLEV_tmp,NLEV,Label='IVLEV_tmp')
+call mma_allocate(BUFF,NLEV,NBUF1,Label='BUFF')
+call mma_allocate(CF,NLEV,NBUF1,Label='CF')
+call mma_allocate(CG,NLEV,NBUF1,Label='CG')
 
 !-SVC20100301: calculate maximum number of tasks possible
 MXTASK = (NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
@@ -264,7 +270,7 @@ if (iPrGlb >= VERBOSE) then
   write(u6,*)
   write(u6,'(2X,A)') 'Constructing CI derivatives of G3/F3'
   write(u6,'(2X,A,F16.9,A)') ' memory avail: ',real(memmax*RtoB,kind=wp)*1.0e-9_wp,' GB'
-  write(u6,'(2X,A,F16.9,A)') ' memory used:  ',real(((3*nbuf1+6+nlev)*MXCI)*RtoB,kind=wp)*1.0e-9_wp,' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory used:  ',real(((3*nbuf1+3+nlev)*MXCI)*RtoB,kind=wp)*1.0e-9_wp,' GB'
   call xFlush(u6)
 end if
 !call TIMING(CPTF10,CPE,TIOTF10,TIOE)
@@ -276,7 +282,14 @@ call mma_allocate(ip1_buf,nlev2,Label='ip1_buf')
 
 iG3OFF = 0
 iTask_loc = 1
-first = .true.
+MyRank = 0
+nProcs = 1
+#ifdef _MOLCAS_MPP_
+if (Is_Real_Par()) then
+  MyRank = GA_NodeId()
+  nProcs = GA_NNodes()
+end if
+#endif
 ! A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 ! This also allows precomputing the Hamiltonian (H0) diagonal elements.
 do issg1=1,nsym
@@ -347,6 +360,7 @@ do issg1=1,nsym
   call Init_Tsk(ID,nSubTasks)
 
   myBuffer = 0
+  nFlushed = 0
 
   !! loop start
   do
@@ -391,27 +405,22 @@ do issg1=1,nsym
     !-sigma vectors in the buffer.
     !write(u6,*) 'myBuffer,iTask = ',myBuffer,iTask
     if (myBuffer /= iTask) then
-      !! Compute left derivative and DEPSA contributions before
-      !! the TASK is completely switched
-      if (.not. first) call LEFT_DEPSA()
+      !! Compute left derivative and DEPSA contributions of the buffers before this one
+      call Flush_Buffers(iTask-1)
+      nFlushed = max(nFlushed,iTask-1)
       ibuf1 = 0
-      do ip1i=ip1sta,ip1end
-        itlev = idx2ij(1,ip1i)
-        iulev = idx2ij(2,ip1i)
-        istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
-        it = SGS(istate)%L2ACT(itlev)
-        iu = SGS(istate)%L2ACT(iulev)
-        if (istu == isp1) then
-          ibuf1 = ibuf1+1
-          ip1_buf(ibuf1) = ip1i
-          BUF1(1:nsgm1,ibuf1) = Zero
-          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
-        end if
+      do ip1loc=TaskList(iTask,1),TaskList(iTask,2)
+        itlev = idx2ij(1,ip1loc)
+        iulev = idx2ij(2,ip1loc)
+        if (Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev)) /= isp1) cycle
+        ibuf1 = ibuf1+1
+        ip1_buf(ibuf1) = ip1loc
+        BUF1(1:nsgm1,ibuf1) = Zero
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
       end do
       myBuffer = iTask
       DTU(1:MXCI,1:ibuf1) = Zero
       DAB(1:MXCI,1:ibuf1) = Zero
-      if (first) first = .false.
     else
       ibuf1 = TaskList(iTask,3)
     end if
@@ -477,7 +486,6 @@ do issg1=1,nsym
     call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IYLEV,IZLEV,One,STSYM,CI,BUF2)
     DYZ(1:nsgm1) = Zero
     if (issg2 == issg1) then
-      buf3(1:nsgm2) = Zero
       do ib=1,ibuf1
         idx = ip1_buf(ib)
         itlev = idx2ij(1,idx)
@@ -490,45 +498,32 @@ do issg1=1,nsym
         if ((ScalG == Zero) .and. (ScalF == Zero)) cycle
 
         !! left derivative
-        if (IFF == 1) then
-          BUFT(1:nsgm1) = (ScalG+ScalF*BUFD(1:nsgm1))*BUF2(1:nsgm1)
-          DTU(1:nsgm1,ib) = DTU(1:nsgm1,ib)+BUFT(1:nsgm1)
-        else
-          DTU(1:nsgm1,ib) = DTU(1:nsgm1,ib)+ScalG*BUF2(1:nsgm1)
-        end if
+        !! Note that DTU = (ScalG+ScalF*BUFD)*BUF2 = ScalG*BUF2 + DAB*BUFD
+        DTU(1:nsgm1,ib) = DTU(1:nsgm1,ib)+ScalG*BUF2(1:nsgm1)
 
-        !! right derivative
+        !! right derivative, saved in DYZ for Eyz
         if (IFF == 1) then
-          buft(1:mxci) = buf1(1:mxci,ib)
-          BUF3(1:nsgm1) = BUF3(1:nsgm1)+(ScalG+ScalF*BUFD(1:nsgm1))*BUFT(1:nsgm1)
+          DYZ(1:nsgm1) = DYZ(1:nsgm1)+(ScalG+ScalF*BUFD(1:nsgm1))*BUF1(1:nsgm1,ib)
         else
-          BUF3(1:nsgm1) = BUF3(1:nsgm1)+ScalG*BUF1(1:nsgm1,ib)
+          DYZ(1:nsgm1) = DYZ(1:nsgm1)+ScalG*BUF1(1:nsgm1,ib)
         end if
 
         !! For DEPSA
         if (IFF == 1) DAB(1:nsgm1,ib) = DAB(1:nsgm1,ib)+ScalF*BUF2(1:nsgm1)
       end do
-      !! Save for Eyz
-      DYZ(1:nsgm2) = DYZ(1:nsgm2)+BUF3(1:nsgm2)
     end if
     nbtot = 0
 
     !! Prepare for DEPSA for the -epsa(iv) term with square
     iG3bk = iG3OFF
     do ixlev0=1,nlev
-      BUFX(1:nsgm1,1:nlev) = Zero
-      do ivlev=1,nlev
-        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IVLEV,IXLEV0,One,STSYM,BUF2,BUFX(:,ivlev))
-      end do
       iG3OFF = iG3bk
+      NVEC = 0
       do ip2=ip3,ntri2
         ivlev = idx2ij(1,ip2)
         ixlev = idx2ij(2,ip2)
         isvx = Mul(SGS(istate)%ism(ivlev),SGS(istate)%ism(ixlev))
-        iv = SGS(istate)%L2ACT(ivlev)
         if (isvx /= Mul(issg1,issg2)) cycle
-        !! <I|EvxEyz|0>
-        if (IXLEV == IXLEV0) BUFT(1:nsgm1) = BUFX(1:nsgm1,IVLEV)
         !-----------
         ! Max and min values of index p1:
         ip1mx = ntri2
@@ -551,59 +546,77 @@ do issg1=1,nsym
         end do
         nb = ibmx-ibmn+1
         if (nb <= 0) cycle
-        if (ixlev /= ixlev0) then
-          iG3OFF = iG3OFF+nb
-          cycle
+        if (ixlev == ixlev0) then
+          NVEC = NVEC+1
+          IVLEV_tmp(NVEC) = ivlev
+          iG3Off_tmp(NVEC) = iG3OFF
+          ib_tmp(1,NVEC) = ibmn
+          ib_tmp(2,NVEC) = ibmx
+          nbtot = nbtot+nb
         end if
-
-        ! ----- left derivative
-
-        ! BUF3 = (<I|Ett|I>-EPSA(V))*<I|EvxEyz|0> = <I|fEvxEyz|0>
-        if (IFF == 1) buf3(1:nsgm1) = (bufd(1:nsgm1)-epsa(iv))*buft(1:nsgm1)
-        do ib=1,nb
-          iG3 = iG3OFF+ib
-          idx = ip1_buf(ibmn-1+ib)
-
-          !! <I|EvxEyz|0>*Dtuvxyz + <I|fEvxEyz|0>*Ftuvxyz
-          DTU(1:nsgm1,ibmn+ib-1) = DTU(1:nsgm1,ibmn+ib-1)+DG3(iG3)*BUFT(1:nsgm1)
-          if (IFF == 1) then
-            DTU(1:nsgm1,ibmn+ib-1) = DTU(1:nsgm1,ibmn+ib-1)+DF3(iG3)*BUF3(1:nsgm1)
-            !! DEPSA of the BUFD term
-            DAB(1:nsgm1,ibmn+ib-1) = DAB(1:nsgm1,ibmn+ib-1)+DF3(iG3)*BUFT(1:nsgm1)
-          end if
-        end do
-
-        ! ----- right derivative
-
-        BUF3(1:nsgm1) = Zero
-        BUF4(1:nsgm1) = Zero
-        !! right derivative (1):
-        !! <0|Etu|I>*Dtuvxyz and <0|Etu|I>*Ftuvxyz
-        !! <0|EtuEvxEyz|I> -> <I|EzyExvEut|0>
-        do ib=1,nb
-          iG3 = iG3OFF+ib
-          idx = ip1_buf(ibmn-1+ib)
-
-          !! BUF3 = <0|Etu|I>*Dtuvxyz
-          BUF3(1:nsgm1) = BUF3(1:nsgm1)+DG3(iG3)*BUF1(1:nsgm1,ibmn+ib-1)
-          !! BUFC = <0|Etu|I>*Ftuvxyz
-          if (IFF == 1) BUF4(1:nsgm1) = BUF4(1:nsgm1)+DF3(iG3)*BUF1(1:nsgm1,ibmn+ib-1)
-        end do
-
-        if (IFF == 1) then
-          !! DEPSA of the -EPSA(iv) term
-          call DGEMV_('T',nsgm1,NLEV,-One,BUFX,mxci,buf4,1,One,DEPSA(1,IVLEV),1)
-
-          !! Scale the DF3 contribution with the diagonal Fock
-          !! and add to the DG3 contribution
-          buf3(1:nsgm1) = buf3(1:nsgm1)+buf4(1:nsgm1)*(bufd(1:nsgm1)-epsa(iv))
-        end if
-        !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
-        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IXLEV,IVLEV,One,STSYM,BUF3,DYZ)
-
         iG3OFF = iG3OFF+nb
-        nbtot = nbtot+nb
-      end do !! end of ip2 loop
+      end do
+      if (NVEC == 0) cycle
+
+      ! BUFX(I,a) = <I|EaxEyz|0>
+      BUFX(1:nsgm1,1:nlev) = Zero
+      do ivlev=1,nlev
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IVLEV,IXLEV0,One,STSYM,BUF2,BUFX(:,ivlev))
+      end do
+
+      ! Construct DG3 and DF3 matrices that are convenient for DGEMM
+      ! CG(v,tu) = DG3(tuvxyz)-EPSA(v)*DF3(tuvxyz)
+      ! CF(v,tu) = DF3(tuvxyz)
+      ibmn = minval(ib_tmp(1,1:NVEC))
+      ibmx = maxval(ib_tmp(2,1:NVEC))
+      CG(1:nlev,ibmn:ibmx) = Zero
+      if (IFF == 1) CF(1:nlev,ibmn:ibmx) = Zero
+      do IVEC=1,NVEC
+        ivlev = IVLEV_tmp(IVEC)
+        iG3 = iG3Off_tmp(IVEC)
+        nb = ib_tmp(2,IVEC)-ib_tmp(1,IVEC)+1
+        CG(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC)) = DG3(iG3+1:iG3+nb)
+        if (IFF == 1) then
+          CF(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC)) = DF3(iG3+1:iG3+nb)
+          CG(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC)) = CG(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC)) &
+                                                    -EPSA(SGS(istate)%L2ACT(ivlev))*CF(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC))
+        end if
+      end do
+      nb = ibmx-ibmn+1
+
+      ! ----- left derivative
+
+      ! <I|EvxEyz|0>*(Dtuvxyz-EPSA(v)*Ftuvxyz); the BUFD part is added from DAB in LEFT_DEPSA
+      call DGEMM_('N','N',nsgm1,nb,nlev,One,BUFX,MXCI,CG(1,ibmn),nlev,One,DTU(1,ibmn),MXCI)
+      if (IFF == 1) then
+        ! DEPSA of the BUFD term
+        call DGEMM_('N','N',nsgm1,nb,nlev,One,BUFX,MXCI,CF(1,ibmn),nlev,One,DAB(1,ibmn),MXCI)
+
+        ! DEPSA of the -EPSA(v) term
+        ! DEPSA(ab) = -<0|Etu|I><I|EaxEyz|0>*DF3_{tubxyz}
+        ! 1. BUFF(a,tu) = BUFX(I,a)*BUF1(I,tu) = <0|Etu|I><I|EaxEyz|0>
+        call DGEMM_('T','N',nlev,nb,nsgm1,One,BUFX,MXCI,BUF1(1,ibmn),MXCI,Zero,BUFF,nlev)
+        ! 2. DEPSA(ab) = -BUFF(a,tu)*CF(b,tu) = -<0|EtuEaxEyz|0>*DF3(tubxyz)
+        call DGEMM_('N','T',nlev,nlev,nb,-One,BUFF,nlev,CF(1,ibmn),nlev,One,DEPSA,nlev)
+      end if
+
+      ! ----- right derivative
+
+      ! BUFX is overwritten with BUFX(I,v) = <I|Etu|0>*(Dtuvxyz+(BUFD(I)-EPSA(v))*Ftuvxyz)
+      if (IFF == 1) then
+        call DGEMM_('N','T',nsgm1,nlev,nb,One,BUF1(1,ibmn),MXCI,CF(1,ibmn),nlev,Zero,BUFX,MXCI)
+        do IVEC=1,NVEC
+          BUFX(1:nsgm1,IVLEV_tmp(IVEC)) = BUFX(1:nsgm1,IVLEV_tmp(IVEC))*BUFD(1:nsgm1)
+        end do
+      else
+        BUFX(1:nsgm1,1:nlev) = Zero
+      end if
+      call DGEMM_('N','T',nsgm1,nlev,nb,One,BUF1(1,ibmn),MXCI,CG(1,ibmn),nlev,One,BUFX,MXCI)
+
+      !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
+      do IVEC=1,NVEC
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IXLEV0,IVLEV_tmp(IVEC),One,STSYM,BUFX(:,IVLEV_tmp(IVEC)),DYZ)
+      end do
     end do !! end of ixlev0 loop
 
     !! Complete the right derivative contribution:
@@ -625,7 +638,8 @@ do issg1=1,nsym
   !-SVC20100301: end of the task
 
   !! Final (the last task) left derivative and DEPSA contributions
-  call LEFT_DEPSA()
+  call Flush_Buffers(nTasks)
+  nFlushed = max(nFlushed,nTasks)
 
   !-SVC20100302: no more tasks, wait here for the others, then proceed
   ! with next symmetry
@@ -657,39 +671,84 @@ call mma_deallocate(TASKLIST)
 ! free CI buffers
 call mma_deallocate(BUF1)
 call mma_deallocate(BUF2)
-call mma_deallocate(BUFT)
 call mma_deallocate(BUFD)
+
+call mma_deallocate(ib_tmp)
+call mma_deallocate(iG3Off_tmp)
+call mma_deallocate(IVLEV_tmp)
+call mma_deallocate(BUFF)
+call mma_deallocate(CF)
+call mma_deallocate(CG)
 
 call mma_deallocate(DTU)
 call mma_deallocate(DYZ)
 call mma_deallocate(DAB)
-call mma_deallocate(BUF3)
-call mma_deallocate(BUF4)
 
 call mma_deallocate(BUFX)
 
 contains
 
-subroutine LEFT_DEPSA()
+subroutine Flush_Buffers(jLast)
 
+  integer(kind=iwp), intent(in) :: jLast
+  integer(kind=iwp) :: ip1loc, jTask
+
+  do jTask=nFlushed+1,jLast
+    if (jTask == myBuffer) then
+      call LEFT_DEPSA(.true.)
+    else if (IFF == 1) then
+      ibuf1 = 0
+      do ip1loc=TaskList(jTask,1),TaskList(jTask,2)
+        itlev = idx2ij(1,ip1loc)
+        iulev = idx2ij(2,ip1loc)
+        if (Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev)) /= isp1) cycle
+        ibuf1 = ibuf1+1
+        ip1_buf(ibuf1) = ip1loc
+      end do
+      DAB(1:MXCI,1:ibuf1) = Zero
+      call LEFT_DEPSA(.false.)
+    end if
+  end do
+
+end subroutine Flush_Buffers
+
+subroutine LEFT_DEPSA(have_task)
+
+  logical(kind=iwp), intent(in) :: have_task ! this process has subtasks of the buffer (BUF1, DTU, and DAB)
   integer(kind=iwp) :: IALEVloc, IBLEVloc, ibloc
 
-  do ibloc=1,ibuf1
+  if (have_task) then
+    do ibloc=1,ibuf1
+      idx = ip1_buf(ibloc)
+      itlev = idx2ij(1,idx)
+      iulev = idx2ij(2,idx)
+      !! left derivative
+      if (IFF == 1) DTU(1:nsgm1,ibloc) = DTU(1:nsgm1,ibloc)+DAB(1:nsgm1,ibloc)*BUFD(1:nsgm1)
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),ITLEV,IULEV,One,STSYM,DTU(1,ibloc),CLAG)
+    end do
+  end if
+  if (IFF /= 1) return
+
+  !! DEPSA contribution: sum DAB over the processes, and then each process takes every nProcs-th column
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) call GADGOP(DAB,MXCI*ibuf1,'+')
+# endif
+
+  do ibloc=MyRank+1,ibuf1,nProcs
     idx = ip1_buf(ibloc)
     itlev = idx2ij(1,idx)
     iulev = idx2ij(2,idx)
-    !! left derivative
-    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),ITLEV,IULEV,One,STSYM,DTU(1,ibloc),CLAG)
-    !! the rest is DEPSA contribution
-    if (IFF == 1) then
-      do IALEVloc=1,NLEV
-        do IBLEVloc=1,NLEV
-          BUF2(:) = Zero
-          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IALEVloc,IBLEVloc,One,STSYM,DAB(1,ibloc),BUF2)
-          DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)+dot_product(BUF1(1:nsgm1,IBloc),BUF2(1:nsgm1))
-        end do
-      end do
+    if (.not. have_task) then
+      BUF1(1:nsgm1,ibloc) = Zero
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibloc))
     end if
+    do IALEVloc=1,NLEV
+      do IBLEVloc=1,NLEV
+        BUF2(1:nsgm1) = Zero
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IALEVloc,IBLEVloc,One,STSYM,DAB(1,ibloc),BUF2)
+        DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)+dot_product(BUF1(1:nsgm1,IBloc),BUF2(1:nsgm1))
+      end do
+    end do
   end do
 
 end subroutine LEFT_DEPSA
