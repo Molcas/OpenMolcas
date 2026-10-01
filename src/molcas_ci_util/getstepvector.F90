@@ -38,7 +38,7 @@ ICDWN = CIS(istate)%ICASE(ICDPOS)
 NNN = 0
 do LEV=1,SGS(istate)%MIDLEV
   NNN = NNN+1
-  if (NNN == nPack) then
+  if (NNN == nPack+1) then
     NNN = 1
     ICDPOS = ICDPOS+1
     ICDWN = CIS(istate)%ICASE(ICDPOS)
@@ -53,7 +53,7 @@ ICUP = CIS(istate)%ICASE(ICUPOS)
 NNN = 0
 do LEV=SGS(istate)%MIDLEV+1,NLEV
   NNN = NNN+1
-  if (NNN == nPack) then
+  if (NNN == nPack+1) then
     NNN = 1
     ICUPOS = ICUPOS+1
     ICUP = CIS(istate)%ICASE(ICUPOS)
