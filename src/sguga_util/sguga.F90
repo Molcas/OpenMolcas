@@ -1657,7 +1657,7 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
   Integer(kind=iwp) :: iDetSP(SGS%nActEl)
   Integer(kind=iwp) :: iSign
 
-  Integer(kind=iwp) :: nOpen, i
+  Integer(kind=iwp) :: nOpen, i, iOpen, mult, nDOC, iDOC, nSOC, iSOC, mDOC, mSOC
   Integer(kind=iwp) :: nDouble
   Integer(kind=iwp) :: DOCOcc(SGS%nActel)
   Integer(kind=iwp) :: SOCOcc(SGS%nActel)
@@ -1665,6 +1665,7 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
 
   nSym = SGS%nSym
   nLev = SGS%nLev
+  mult = SGS%iSpin
 
   ! Highest-Ms component:
   !
@@ -1732,6 +1733,9 @@ Write(u6,'(A)') 'ABMERGE END'
 
               Call ExtractOccupationPattern(iDetOC,iDetSP,SGS%nActEl, &
                                             DOCOcc,SOCOcc,OpenSP,nDouble,nOpen)
+
+              iOpen = nOpen
+
 Write(6,'(A,5(1X,I0))') 'OCPATTERN', iRefSM, iASm, iBSm, &
                                       iAlphaS, iBetaS
 
@@ -1755,6 +1759,79 @@ Do i=1,nOpen
 End Do
 Write(6,'(A)') ''
 
+#ifdef _SANITY_CHECK_
+If (2_iwp*nDouble+iOpen /= SGS%nActEl) Then
+   Write (u6,*) 'Mk_SDREO_SGUGA_new: inconsistent occupation counts'
+   Call Abend()
+End If
+If (Mod(iOpen,2_iwp) /= Mod(SGS%nActEl,2_iwp)) Then
+   Write (u6,*) 'Mk_SDREO_SGUGA_new: invalid number of open orbitals'
+   Call Abend()
+End If
+
+If (iOpen > 0_iwp) Then
+   If (Count(OpenSP(1:iOpen) == 1_iwp) /= nAlpha-nDouble) Then
+      Write (u6,*) 'Mk_SDREO_SGUGA_new: incorrect open alpha count'
+      Call Abend()
+   End If
+   If (Count(OpenSP(1:iOpen) == -1_iwp) /= nBeta-nDouble) Then
+      Write (u6,*) 'Mk_SDREO_SGUGA_new: incorrect open beta count'
+      Call Abend()
+   End If
+Else
+   If (nAlpha /= nDouble .or. nBeta /= nDouble) Then
+      Write (u6,*) 'Mk_SDREO_SGUGA_new: invalid closed-shell determinant'
+      Call Abend()
+   End If
+End If
+If (nDouble /= 0_iwp .and. .NOT.Allocated(SGS%CDCInfo(nOpen,mult)%DOC) ) Then
+   Write (u6,*) 'Mk_SDREO_SGUGA_new: ...%DOC not allocated while nDouble /= 0!'
+   Call Abend()
+End If
+Write(6,'(A,3(1X,I0))') 'SGSECTOR', iOpen, nDouble, SGS%nActEl
+#endif
+              If (nDouble == 0_iwp) Then
+                 iDOC = 1_iwp
+                 nDOC = 0_iwp
+                 mDOC = 0_iwp
+              Else
+                 Call FindDOCIndex(iDetOC,nAlpha+nBeta, &
+                                   SGS%CDCInfo(nOpen,mult)%DOC,iDOC)
+                 nDOC = Size(SGS%CDCInfo(nOpen,mult)%DOC,1)
+                 mDOC = Size(SGS%CDCInfo(nOpen,mult)%DOC,2)
+              End If
+
+              If (nOpen == 0_iwp) Then
+                 iSOC = 1_iwp
+                 nSOC = 0_iwp
+                 mSOC = 0_iwp
+              Else
+                 Call FindSOCIndex(iDetOC,nAlpha+nBeta, &
+                                   SGS%CDCInfo(nOpen,mult)%SOC,iSOC)
+                 nSOC = Size(SGS%CDCInfo(nOpen,mult)%SOC,1)
+                 mSOC = Size(SGS%CDCInfo(nOpen,mult)%SOC,2)
+              End If
+
+Write(6,'(A,5(1X,I0))') 'SGCONFINDICES', iRefSM, iASm, iBSm, &
+                                          iAlphaS, iBetaS
+
+Write(6,'(A,5(1X,I0))') 'CONF', nOpen, nDouble, nDOC, iDOC, iSOC
+
+Write(6,'(A,2(1X,I0))') 'TABLESIZES', mDOC, mSOC
+
+Write(6,'(A)',Advance='No') 'DOCTABLE'
+Do i=1,nDOC
+   Write(6,'(1X,I0)',Advance='No') &
+      SGS%CDCInfo(nOpen,mult)%DOC(i,iDOC)
+End Do
+Write(6,'(A)') ''
+
+Write(6,'(A)',Advance='No') 'SOCTABLE'
+Do i=1,nOpen
+   Write(6,'(1X,I0)',Advance='No') &
+      SGS%CDCInfo(nOpen,mult)%SOC(i,iSOC)
+End Do
+Write(6,'(A)') ''
 
            end do
         end do
@@ -1767,6 +1844,123 @@ Write(6,'(A)') ''
   end do
 
 contains
+
+Subroutine FindSOCIndex(iDetOC,nElec,SOCTable,iSOC)
+
+Implicit None
+
+Integer(kind=iwp), Intent(In)  :: nElec
+Integer(kind=iwp), Intent(In)  :: iDetOC(nElec)
+Integer(kind=iwp), Intent(In)  :: SOCTable(:,:)
+Integer(kind=iwp), Intent(Out) :: iSOC
+
+Integer(kind=iwp) :: i
+Integer(kind=iwp) :: j
+Integer(kind=iwp) :: nSOC
+Logical           :: Match
+
+nSOC = Size(SOCTable,1)
+iSOC = 0_iwp
+
+Do j=1,Size(SOCTable,2)
+
+   Match = .True.
+
+   Do i=1,nSOC
+      If (Count(iDetOC == SOCTable(i,j)) /= 1) Then
+         Match = .False.
+         Exit
+      End If
+   End Do
+
+   If (Match) Then
+      iSOC = j
+      Exit
+   End If
+
+End Do
+
+If (iSOC == 0_iwp) Then
+   Error Stop 'FindSOCIndex: SOC list not found'
+End If
+
+End Subroutine FindSOCIndex
+
+Subroutine FindDOCIndex(iDetOC,nElec,DOCTable,iDOC)
+
+Use Definitions, Only: iwp
+
+Implicit None
+
+Integer(kind=iwp), Intent(In)  :: nElec
+Integer(kind=iwp), Intent(In)  :: iDetOC(nElec)
+Integer(kind=iwp), Intent(In)  :: DOCTable(:,:)
+Integer(kind=iwp), Intent(Out) :: iDOC
+
+Integer(kind=iwp) :: DOCOcc(Size(DOCTable,1))
+Integer(kind=iwp) :: nDOC
+Integer(kind=iwp) :: nDOCTable
+Integer(kind=iwp) :: iElec
+Integer(kind=iwp) :: jDOC
+
+nDOC      = 0_iwp
+nDOCTable = Size(DOCTable,2)
+iElec     = 1_iwp
+iDOC      = 0_iwp
+
+Do While (iElec <= nElec)
+
+   If (iElec < nElec) Then
+      If (iDetOC(iElec) == iDetOC(iElec+1_iwp)) Then
+
+         nDOC = nDOC + 1_iwp
+
+         If (nDOC > Size(DOCOcc)) Then
+            Error Stop 'FindDOCIndex: too many double occupations'
+         End If
+
+         DOCOcc(nDOC) = iDetOC(iElec)
+         iElec = iElec + 2_iwp
+         Cycle
+
+      End If
+   End If
+
+   iElec = iElec + 1_iwp
+
+End Do
+
+If (nDOC == 0_iwp) Then
+
+   If (Size(DOCTable,1) /= 0) Then
+      Error Stop 'FindDOCIndex: expected zero-length DOC table'
+   End If
+
+   If (Size(DOCTable,2) /= 1) Then
+      Error Stop 'FindDOCIndex: invalid empty DOC table'
+   End If
+
+   iDOC = 1_iwp
+   Return
+
+End If
+
+If (nDOC /= Size(DOCTable,1)) Then
+   Error Stop 'FindDOCIndex: inconsistent number of double occupations'
+End If
+
+Do jDOC = 1, nDOCTable
+   If (All(DOCOcc(1:nDOC) == DOCTable(:,jDOC))) Then
+      iDOC = jDOC
+      Exit
+   End If
+End Do
+
+If (iDOC == 0_iwp) Then
+   Error Stop 'FindDOCIndex: DOC occupation not found'
+End If
+
+End Subroutine FindDOCIndex
 
 Subroutine ExtractOccupationPattern(iDetOC,iDetSP,nElec, &
                                     DOCOcc,SOCOcc,OpenSP,  &
