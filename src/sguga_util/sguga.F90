@@ -1653,6 +1653,9 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
   integer(kind=iwp) :: nBetaSSym(SGS%nSym)
   integer(kind=iwp), allocatable :: AlphaStrings(:,:)
   integer(kind=iwp), allocatable :: BetaStrings(:,:)
+  Integer(kind=iwp) :: iDetOC(SGS%nActEl)
+  Integer(kind=iwp) :: iDetSP(SGS%nActEl)
+  Integer(kind=iwp) :: iSign
 
   nSym = SGS%nSym
   nLev = SGS%nLev
@@ -1710,6 +1713,17 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
 
               iDet = iDet + 1_iwp
 
+              Call BuildOrderedDeterminant(AlphaStrings(:,iAlphaS),BetaStrings(:,iBetaS), &
+                                           nAlpha,nBeta,iDetOC,iDetSP,iSign)
+Write(u6,'(A)') 'SGUGA: ABMERGE BEGIN'
+Write(u6,'(A,5(1X,I0))') 'SGINDEX', iRefSm,iASm,iBSm, iAlphaS,iBetaS
+Write(u6,'(A,*(1X,I0))') 'ALPHA', AlphaStrings(:,iAlphaS)
+Write(u6,'(A,*(1X,I0))') 'BETA ', BetaStrings(:,iBetaS)
+Write(u6,'(A,*(1X,I0))') 'OC   ', iDetOC(1:nAlpha+nBeta)
+Write(u6,'(A,*(1X,I0))') 'SPIN ', iDetSP(1:nAlpha+nBeta)
+Write(u6,'(A,1X,I0)') 'SIGN ',iSign
+Write(u6,'(A)') 'ABMERGE END'
+
            end do
         end do
 
@@ -1721,6 +1735,104 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
   end do
 
 contains
+
+Subroutine BuildOrderedDeterminant(AlphaString,BetaString, &
+                                   nAlpha,nBeta,            &
+                                   iDetOC,iDetSP,iSign)
+
+Use Definitions, Only: iwp
+
+Implicit None
+
+Integer(kind=iwp), Intent(In)  :: nAlpha
+Integer(kind=iwp), Intent(In)  :: nBeta
+Integer(kind=iwp), Intent(In)  :: AlphaString(Max(1_iwp,nAlpha))
+Integer(kind=iwp), Intent(In)  :: BetaString(Max(1_iwp,nBeta))
+
+Integer(kind=iwp), Intent(Out) :: iDetOC(nAlpha+nBeta)
+Integer(kind=iwp), Intent(Out) :: iDetSP(nAlpha+nBeta)
+Integer(kind=iwp), Intent(Out) :: iSign
+
+Integer(kind=iwp) :: iAlpha
+Integer(kind=iwp) :: iBeta
+Integer(kind=iwp) :: iElec
+Integer(kind=iwp) :: nCross
+
+iAlpha = 1_iwp
+iBeta  = 1_iwp
+iSign  = 1_iwp
+
+Do iElec = 1, nAlpha+nBeta
+
+   If (iAlpha <= nAlpha .and. iBeta <= nBeta) Then
+
+      If (AlphaString(iAlpha) <= BetaString(iBeta)) Then
+
+         ! Add the next alpha electron.  The use of <= ensures
+         ! that alpha precedes beta in a doubly occupied orbital.
+
+         iDetOC(iElec) = AlphaString(iAlpha)
+         iDetSP(iElec) = 1_iwp
+
+         iAlpha = iAlpha + 1_iwp
+
+      Else
+
+         ! Add the next beta electron.
+
+         iDetOC(iElec) = BetaString(iBeta)
+         iDetSP(iElec) = -1_iwp
+
+         ! This beta electron passes all remaining alpha electrons.
+
+         nCross = nAlpha - iAlpha + 1_iwp
+
+         If (Mod(nCross,2_iwp) /= 0_iwp) Then
+            iSign = -iSign
+         End If
+
+         iBeta = iBeta + 1_iwp
+
+      End If
+
+   Else If (iBeta > nBeta) Then
+
+      ! No beta electrons remain.
+
+      iDetOC(iElec) = AlphaString(iAlpha)
+      iDetSP(iElec) = 1_iwp
+
+      iAlpha = iAlpha + 1_iwp
+
+   Else
+
+      ! No alpha electrons remain.
+
+      iDetOC(iElec) = BetaString(iBeta)
+      iDetSP(iElec) = -1_iwp
+
+      iBeta = iBeta + 1_iwp
+
+   End If
+
+End Do
+
+! Basic consistency checks.
+
+Do iElec = 2, nAlpha+nBeta
+   If (iDetOC(iElec) < iDetOC(iElec-1_iwp)) Then
+      Error Stop 'BuildOrderedDeterminant: unordered occupation list'
+   End If
+
+   If (iDetOC(iElec) == iDetOC(iElec-1_iwp)) Then
+      If (iDetSP(iElec-1_iwp) /= 1_iwp .or. &
+          iDetSP(iElec)       /= -1_iwp) Then
+         Error Stop 'BuildOrderedDeterminant: invalid double occupation'
+      End If
+   End If
+End Do
+
+End Subroutine BuildOrderedDeterminant
 
   subroutine Count_Strings_By_Symmetry(SGS,nElec,nStringSym)
 

@@ -105,6 +105,14 @@ do JBLOCK=1,NBLOCK
       !PAM06 call ABSTR_TO_ORDSTR(IASTR(1,IA),IBSTR(1,IB),NAEL,NBEL,
       call ABSTR_TO_ORDSTR(IASTR(1+NAEL*(IA-1)),IBSTR(1+NBEL*(IB-1)),NAEL,NBEL,IDET_OC,IDET_MS,ISGN)
       !    ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISGN)
+Write(6,'(A)') 'Lucia: ABMERGE BEGIN'
+Write(6,'(A,5(1X,I0))') 'LUINDEX',JBLOCK,IASM,IBSM,IA,IB
+Write(6,'(A,*(1X,I0))') 'ALPHA', IASTR(1+NAEL*(IA-1):NAEL*IA)
+Write(6,'(A,*(1X,I0))') 'BETA ', IBSTR(1+NBEL*(IB-1):NBEL*IB)
+Write(6,'(A,*(1X,I0))') 'OC   ', IDET_OC(1:NAEL+NBEL)
+Write(6,'(A,*(1X,I0))') 'SPIN ', IDET_MS(1:NAEL+NBEL)
+Write(6,'(A,1X,I0)') 'SIGN ',ISGN
+Write(6,'(A)') 'ABMERGE END'
       ! Number of open orbitals in this configuration
       NOPEN = NOP_FOR_CONF(IDET_OC,NEL)
       !       NOP_FOR_CONF(ICONF,NEL)
