@@ -351,7 +351,7 @@ if (IFINAL == 1) then
       else if (doBlockDMRG .or. DoNECI) then
       else !CI
         iDisk = IADR15(4)
-        call LUCIA_UTIL('TRACI',iDisk=iDisk,Lu=JOBIPH,Array=SMAT(:),nTUVX=size(TUVX),TUVX=TUVX)
+        call Traci_Master(iDisk,JOBIPH,SMAT(:),Size(TUVX),TUVX)
       end if
       call mma_deallocate(SMAT)
     else
