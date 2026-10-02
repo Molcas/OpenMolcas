@@ -57,39 +57,6 @@ call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
 LH1SAVE(:) = INT1(:)
 IH1FORM_SAVE = IH1FORM
 
-! Transfer the CI-vector to LUC
-
-call BLKFO_MIN(ISSM,NREC,LREC)
-
-IDISK(LUC) = 0
-JDISK = JOBDISK
-do JROOT=1,NROOT
-  call DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
-  call CSDTVC(VEC4,VEC1,1,ISSM,0)
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'CI-vector written to disk for root = ',JROOT
-  call WRTMAT(VEC1,1,20,1,20)
-  write(u6,*) 'Writing this to disk:'
-  IOFF = 1
-  do IREC=1,NREC
-    if (LREC(IREC) >= 0) then
-      call WRTMAT(VEC1(IOFF),1,LREC(IREC),1,LREC(IREC))
-      IOFF = IOFF+LREC(IREC)
-    end if
-  end do
-# endif
-  call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
-  I_DUMMY(1) = -1
-  call ITODS(I_DUMMY,1,LBLK,LUC)
-end do
-
-! Set up block structure of CI space
-IATP = 1
-IBTP = 2
-call Z_BLKFO(ISSPC,ISSM,IATP,IBTP,NBATCH,NBLOCK)
-
-call Deallocate_Local_Arrays()
-
 ! The input transformation matrix contains a lot of zeros which
 ! is expected not to be there in Traci_Lucia, so remove them.
 
@@ -110,6 +77,27 @@ do ISM=1,NSMOB
     IOFF = IOFF+NTOOBS(ISM)**2
   end if
 end do
+
+! Transfer the CI-vector to LUC
+
+call BLKFO_MIN(ISSM,NREC,LREC)
+
+IDISK(LUC) = 0
+JDISK = JOBDISK
+do JROOT=1,NROOT
+  call DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
+  call CSDTVC(VEC4,VEC1,1,ISSM,0)
+  call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
+  I_DUMMY(1) = -1
+  call ITODS(I_DUMMY,1,LBLK,LUC)
+end do
+
+! Set up block structure of CI space
+IATP = 1
+IBTP = 2
+call Z_BLKFO(ISSPC,ISSM,IATP,IBTP,NBATCH,NBLOCK)
+
+call Deallocate_Local_Arrays()
 
 ! Now the actual work
 
@@ -132,22 +120,11 @@ IDISK(LUDIA) = 0
 
 do JROOT=1,NROOT
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
-# ifdef _DEBUGPRINT_
-  NUM_ELE = sum(LREC(1:NREC))
-  write(u6,*) 'CI-Vector read from disk for root = ',JROOT
-  call WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
-# endif
   call CSDTVC(VEC2,VEC1,2,ISSM,0)
   call DDAFILE(JOBIPH,1,VEC2,NCONF,JOBDISK)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
 end do
 IDISK(LUDIA) = 0
-
-#ifdef _DEBUGPRINT_
-do JROOT=1,NROOT
-  call WRTVCD(VEC1,LUDIA,0,LBLK)
-end do
-#endif
 
 ! clean up time : copy 1-e integrals back in place
 INT1(:) = LH1SAVE(:)
