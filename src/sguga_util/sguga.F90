@@ -864,7 +864,7 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
 
   if (SGS(iState)%nRsPrt == 1) then
      call Mk_CDC(SGS(iState))
-     call Mk_SDREO_SGUGA(SGS(iState))
+!    call Mk_SDREO_SGUGA(SGS(iState))
      call Mk_SDREO_SGUGA_New(SGS(iState))
   end if
 
@@ -1010,7 +1010,6 @@ if (allocated(SGS%SDREO)) then
    do iRefSm = 1, size(SGS%SDREO)
       call mma_deallocate(SGS%SDREO(iRefSm)%List,Safe='*')
    end do
-
    deallocate(SGS%SDREO)
 end if
 
@@ -1656,7 +1655,7 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
 
   implicit none
 
-  type(SGStruct), intent(in) :: SGS
+  type(SGStruct), intent(inout) :: SGS
 
   integer(kind=iwp) :: iRefSm
   integer(kind=iwp) :: iASm
@@ -1688,10 +1687,24 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
 
   Integer(kind=iwp) :: iOC
   Integer(kind=iwp) :: nOC
+  Integer(kind=iwp) :: iSpinPattern
+  Integer(kind=iwp) :: iOpenOffset(0:SGS%nLev)
+  Integer(kind=iwp) :: jOpen
+  Integer(kind=iwp) :: MinOpen
+  Integer(kind=iwp) :: MaxOpen
+  Integer(kind=iwp) :: nOCSector
+  Integer(kind=iwp) :: nDetSector
+  Integer(kind=iwp) :: iAdr, nDetTotal
+  Integer(kind=iwp) :: iAdrSDConfOrder
 
   nSym = SGS%nSym
   nLev = SGS%nLev
   mult = SGS%iSpin
+
+  !
+  ! There is one SD reorder list for each total symmetry.
+  !
+  allocate(SGS%SDREO(1:nSym))
 
   ! Highest-Ms component:
   !
@@ -1706,6 +1719,28 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
 
   ! Outer loop over possible total spatial symmetries.
   do iRefSm = 1, nSym
+
+     MinOpen = mult - 1_iwp
+
+     MaxOpen = Min(SGS%nActEl,2_iwp*SGS%nLev-SGS%nActEl)
+     If (Mod(MaxOpen-MinOpen,2_iwp) /= 0_iwp) MaxOpen = MaxOpen - 1_iwp
+
+     iOpenOffset(:) = 0_iwp
+     iAdr = 0_iwp
+     Do jOpen=MinOpen,MaxOpen,2_iwp
+        iOpenOffset(jOpen) = iAdr
+        nOCSector = SGS%CDCInfo(jOpen,mult)%nOCSym(iRefSm)
+        nDetSector = SGS%CDCInfo(jOpen,mult)%nDet
+
+        iAdr = iAdr + nOCSector*nDetSector
+     End Do
+     nDetTotal = iAdr
+
+     If (Allocated(SGS%SDREO(iRefSm)%List)) Deallocate(SGS%SDREO(iRefSm)%List)
+
+     Call mma_allocate(SGS%SDREO(iRefSm)%List,nDetTotal,Label='List')
+
+     SGS%SDREO(iRefSm)%List(:) = 0_iwp
 
      Write (6,*) 'iRefSM=',iRefSM
      ! Loop over symmetry blocks in the same order as LUCIA.
@@ -1744,7 +1779,6 @@ subroutine Mk_SDREO_SGUGA_New(SGS)
         do iBetaS = 1, nBetaS
            do iAlphaS = 1, nAlphaS
 
-              iDet = iDet + 1_iwp
 
               Call BuildOrderedDeterminant(AlphaStrings(:,iAlphaS),BetaStrings(:,iBetaS), &
                                            nAlpha,nBeta,iDetOC,iDetSP,iSign)
@@ -1762,28 +1796,28 @@ Write(u6,'(A)') 'ABMERGE END'
 
               iOpen = nOpen
 
-Write(6,'(A,5(1X,I0))') 'OCPATTERN', iRefSM, iASm, iBSm, &
+Write(u6,'(A,5(1X,I0))') 'OCPATTERN', iRefSM, iASm, iBSm, &
                                       iAlphaS, iBetaS
 
-Write(6,'(A,2(1X,I0))') 'OCCOUNTS', nDouble, nOpen
+Write(u6,'(A,2(1X,I0))') 'OCCOUNTS', nDouble, nOpen
 
-Write(6,'(A)',Advance='No') 'DOC   '
+Write(u6,'(A)',Advance='No') 'DOC   '
 Do i=1,nDouble
-   Write(6,'(1X,I0)',Advance='No') DOCOcc(i)
+   Write(u6,'(1X,I0)',Advance='No') DOCOcc(i)
 End Do
-Write(6,'(A)') ''
+Write(u6,'(A)') ''
 
-Write(6,'(A)',Advance='No') 'SOC   '
+Write(u6,'(A)',Advance='No') 'SOC   '
 Do i=1,nOpen
-   Write(6,'(1X,I0)',Advance='No') SOCOcc(i)
+   Write(u6,'(1X,I0)',Advance='No') SOCOcc(i)
 End Do
-Write(6,'(A)') ''
+Write(u6,'(A)') ''
 
-Write(6,'(A)',Advance='No') 'OPENSP'
+Write(u6,'(A)',Advance='No') 'OPENSP'
 Do i=1,nOpen
-   Write(6,'(1X,I0)',Advance='No') OpenSP(i)
+   Write(u6,'(1X,I0)',Advance='No') OpenSP(i)
 End Do
-Write(6,'(A)') ''
+Write(u6,'(A)') ''
 
 #ifdef _SANITY_CHECK_
 If (2_iwp*nDouble+iOpen /= SGS%nActEl) Then
@@ -1877,6 +1911,71 @@ Write(u6,'(A,2(1X,I0))') 'OCTABLE',                           &
       Write (u6,'(A)') 'SGS%CDCInfo(nOpen,Mult)%OCReverse(iDOC,iSOC,iRefSm) /= iOC'
       Call Abend()
    End If
+
+              Call FindSpinIndex(OpenSP,                                               &
+                                 iOpen,                                                &
+                                 SGS%CDCInfo(iOpen,mult)%DetSpin,                      &
+                                 iSpinPattern)
+
+Write(u6,'(A,4(1X,I0))') 'SGSPIN',iRefSM,iOpen,iSpinPattern, &
+                                  Size(SGS%CDCInfo(iOpen,mult)%DetSpin,2)
+
+Write(u6,'(A)',Advance='No') 'OPENSP '
+Do i=1,iOpen
+   Write(u6,'(1X,I0)',Advance='No') OpenSP(i)
+End Do
+Write(u6,'(A)') ''
+
+Write(u6,'(A)',Advance='No') 'DETSPIN'
+Do i=1,iOpen
+   Write(u6,'(1X,I0)',Advance='No') SGS%CDCInfo(iOpen,mult)%DetSpin(i,iSpinPattern)
+End Do
+Write(u6,'(A)') ''
+#ifdef _SANITY_CHECK_
+              Do i=1,iOpen
+                 If (OpenSP(i) == 1_iwp) Then
+                    If (SGS%CDCInfo(iOpen,mult)%DetSpin(i,iSpinPattern) /= 1_iwp) Then
+                       Write (u6,'(A)') 'Mk_SDREO_SGUGA_New: alpha-spin mismatch'
+                       Call Abend()
+                    End If
+                 Else
+                    If (SGS%CDCInfo(iOpen,mult)%DetSpin(i,iSpinPattern) /= 0_iwp) Then
+                       Write (u6,'(A)') 'Mk_SDREO_SGUGA_New: beta-spin mismatch'
+                       Call Abend()
+                    End If
+                 End If
+              End Do
+#endif
+              iAdrSDConfOrder = iOpenOffset(iOpen)                  &
+                              + (iOC-1_iwp)*SGS%CDCInfo(iOpen,mult)%nDet + iSpinPattern
+#ifdef _SANITY_CHECK_
+              If (iAdrSDConfOrder < 1_iwp .or. &
+                  iAdrSDConfOrder > nDetTotal) Then
+                 Write(u6,'(A,2(1X,I0))') 'ADDRESS RANGE', iAdrSDConfOrder, nDetTotal
+                 Write(u6,'(A)') 'Mk_SDREO_SGUGA_New: invalid configuration address'
+                 Call Abend()
+              End If
+#endif
+Write(u6,'(A,6(1X,I0))') 'SGADDRESS',       &
+   iRefSm,                                  &
+   iOpen,                                   &
+   iOpenOffset(iOpen),                      &
+   iOC,                                     &
+   iSpinPattern,                            &
+   iAdrSDConfOrder
+
+              iDet = iDet + 1_iwp
+
+#ifdef _SANITY_CHECK_
+              If (SGS%SDREO(iRefSm)%List(iAdrSDConfOrder) /= 0_iwp) Then
+                 Write(u6,'(A,3(1X,I0))') 'DUPLICATE SDREO', iRefSm, iAdrSDConfOrder, iDet
+                 Write(u6,'(A)') 'Mk_SDREO_SGUGA: duplicate SDREO address'
+                 Call Abend()
+              End If
+#endif
+
+              SGS%SDREO(iRefSm)%List(iAdrSDConfOrder) = iSign*iDet
+
            end do
         end do
 
@@ -1884,10 +1983,104 @@ Write(u6,'(A,2(1X,I0))') 'OCTABLE',                           &
         call mma_deallocate(BetaStrings)
 
      end do
+#ifdef _SANITY_CHECK_
+     If (iDet /= nDetTotal) Then
+        Write(u6,'(A,3(1X,I0))') 'SDREO SIZE MISMATCH', iRefSm, iDet, nDetTotal
+        Write(u6,'(A)') 'Mk_SDREO_SGUGA: incorrect determinant count'
+        Call Abend()
+     End If
+
+     If (Any(SGS%SDREO(iRefSm)%List == 0_iwp)) Then
+        Write(u6,'(A,1X,I0)') 'INCOMPLETE SDREO FOR SYMMETRY', iRefSm
+        Write(u6,'(A)') 'Mk_SDREO_SGUGA: incomplete SDREO vector'
+        Call Abend()
+     End If
+#endif
 
   end do
 
 contains
+
+Subroutine FindSpinIndex(OpenSP,iOpen,DetSpin,iSpinPattern)
+
+Implicit None
+
+Integer(kind=iwp), Intent(In)  :: iOpen
+Integer(kind=iwp), Intent(In)  :: OpenSP(Max(1_iwp,iOpen))
+Integer(kind=iwp), Intent(In)  :: DetSpin(:,:)
+Integer(kind=iwp), Intent(Out) :: iSpinPattern
+
+Integer(kind=iwp) :: i
+Integer(kind=iwp) :: j
+Integer(kind=iwp) :: nSpin
+Integer(kind=iwp) :: nMatch
+Integer(kind=iwp) :: SpinValue
+Logical           :: Match
+
+nSpin  = Size(DetSpin,2)
+iSpinPattern  = 0_iwp
+nMatch = 0_iwp
+
+If (iOpen == 0_iwp) Then
+
+   If (nSpin /= 1_iwp) Then
+      Write (u6,'(A)') 'FindSpinIndex: invalid closed-shell spin table'
+      Call Abend()
+   End If
+
+   iSpinPattern = 1_iwp
+   Return
+
+End If
+
+If (Size(DetSpin,1) < iOpen) Then
+   Write (u6,'(A)') 'FindSpinIndex: spin table has too few rows'
+   Call Abend()
+End If
+
+Do j=1,nSpin
+
+   Match = .True.
+
+   Do i=1,iOpen
+
+      If (OpenSP(i) == 1_iwp) Then
+         SpinValue = 1_iwp
+      Else If (OpenSP(i) == -1_iwp) Then
+         SpinValue = 0_iwp
+      Else
+         Write (u6,'(A)')  'FindSpinIndex: invalid open-shell spin'
+         Call Abend()
+      End If
+
+      If (DetSpin(i,j) /= SpinValue) Then
+         Match = .False.
+         Exit
+      End If
+
+   End Do
+
+   If (Match) Then
+      iSpinPattern  = j
+      nMatch = nMatch + 1_iwp
+   End If
+
+End Do
+
+If (nMatch == 0_iwp) Then
+   Write(u6,'(A)') 'FindSpinIndex: open-spin pattern not found'
+   Write(u6,'(A,2(1X,I0))') 'IOPEN NSPIN',iOpen,nSpin
+   Write (u6,'(A)') 'FindSpinIndex: spin pattern not found'
+   Call Abend()
+End If
+
+If (nMatch > 1_iwp) Then
+   Write(u6,'(A,1X,I0)') 'FindSpinIndex: duplicate count',nMatch
+   Write (u6,'(A)') 'FindSpinIndex: duplicate spin pattern'
+   Call Abend()
+End If
+
+End Subroutine FindSpinIndex
 
 Subroutine FindOCIndex(iDOC,iSOC,OCDOC,OCSOC,nOC,iOC)
 
