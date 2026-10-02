@@ -13,7 +13,7 @@
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,nTUVX,TUVX)
 
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: Deallocate_Local_Arrays, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
+use lucia_data, only: IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
                       NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, VEC3, XISPSM, IH1FORM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -33,8 +33,6 @@ integer(kind=iwp) :: IREC, NUM_ELE
 #endif
 real(kind=wp), allocatable :: LCMOMO(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
 integer(kind=iwp), allocatable :: lRec(:)
-
-Call mma_allocate(lRec,MXNTTS,Label='lRec')
 
 LBLK = -1
 NDIM = NTOOB*NTOOB
@@ -80,12 +78,8 @@ end do
 
 ! Transfer the CI-vector to LUC
 
+Call mma_allocate(lRec,MXNTTS,Label='lRec')
 call BLKFO_MIN(ISSM,NREC,LREC)
-
-! Set up block structure of CI space
-IATP = 1
-IBTP = 2
-call Z_BLKFO(ISSPC,ISSM,IATP,IBTP,NBATCH,NBLOCK)
 
 IDISK(LUC) = 0
 JDISK = JOBDISK
@@ -96,8 +90,6 @@ do JROOT=1,NROOT
   I_DUMMY(1) = -1
   call ITODS(I_DUMMY,1,LBLK,LUC)
 end do
-
-call Deallocate_Local_Arrays()
 
 ! Now the actual work
 
