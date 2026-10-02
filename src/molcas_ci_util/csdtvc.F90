@@ -52,9 +52,6 @@ write(u6,*) '  NCSF                  = ',NCSF
 write(u6,*)
 #endif
 
-write(u6,'(/,A,I4)') 'Lucia SDREO, iRefSm = ', iRefSm
-write(u6,'(10I8)') SDREO(1:NDET)
-
 ! CSF ==> DET TRANSFORMATION
 
 if (IWAY == 1) then

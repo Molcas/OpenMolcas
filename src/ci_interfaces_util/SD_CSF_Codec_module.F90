@@ -11,6 +11,7 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
+#define _SANITY_CHECK_
 module SD_CSF_Codec_Module
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One

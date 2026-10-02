@@ -269,7 +269,6 @@ if (DOFARO) then
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
-!  call CSDTVC(temp1,temp2,2,STSym,0)
   Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSym)
   ! Now use the FAROALD machinary to go to FAROALD SD basis
   call SG_REORD(iState,STSYM,0,nCSF,temp1,temp2)
@@ -285,7 +284,6 @@ if (DOFARO) then
   call SG_Reord(iState,STSYM,1,nCSF,temp2,temp1)
 
   ! Convert from LUCIA CSF basis to LUCIA SD basis
-  !call CSDTVC(temp1,Sigma_Vec,1,STSym,0)
   Call SD_CSF_Codec(Sigma_Vec,temp1,CSF_to_SD,STSym)
 
   Faroald_Psi => Null()
@@ -334,8 +332,7 @@ endif
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
-   call CSDTVC(temp1,temp2,2,STSym,0)
-  !Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSYM)
+  Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSYM)
   ! Convert from Lucia CSF basis to SGUGA CSF basis
   !     iMode=0 --> from SGA to split graph GUGA order                   *
   !     iMode=1 --> from split graph GUGA to SGA order                   *
@@ -346,8 +343,7 @@ endif
   ! Convert from SGUGA CSF basis to Lucia CSF basis
   call SG_Reord(iState,STSYM,1,nCSF,temp1,temp2)
   ! Convert from Lucia CSF basis to Lucia SD Basis
-  call CSDTVC(temp2,temp1,1,STSym,0)
-  !call SD_CSF_Codec(temp1,temp2,CSF_to_SD,STSym)
+   call SD_CSF_Codec(temp1,temp2,CSF_to_SD,STSym)
 
   Do iDet = 1, nDet
      If (Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp) Then
