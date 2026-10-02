@@ -269,8 +269,8 @@ if (DOFARO) then
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
-  call CSDTVC(temp1,temp2,2,STSym,0)
-  !Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSym)
+!  call CSDTVC(temp1,temp2,2,STSym,0)
+  Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSym)
   ! Now use the FAROALD machinary to go to FAROALD SD basis
   call SG_REORD(iState,STSYM,0,nCSF,temp1,temp2)
   call CITRANS_SORT('C',temp2,temp1)
@@ -285,8 +285,8 @@ if (DOFARO) then
   call SG_Reord(iState,STSYM,1,nCSF,temp2,temp1)
 
   ! Convert from LUCIA CSF basis to LUCIA SD basis
-   call CSDTVC(temp1,Sigma_Vec,1,STSym,0)
-  !Call SD_CSF_Codec(Sigma_Vec,temp1,CSF_to_SD,STSym)
+  !call CSDTVC(temp1,Sigma_Vec,1,STSym,0)
+  Call SD_CSF_Codec(Sigma_Vec,temp1,CSF_to_SD,STSym)
 
   Faroald_Psi => Null()
   Faroald_SGM => Null()

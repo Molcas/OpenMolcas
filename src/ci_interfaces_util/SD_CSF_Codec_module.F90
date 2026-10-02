@@ -33,9 +33,10 @@ contains
   integer(iwp), intent(in) :: IRefSm
   integer(iwp), Parameter :: iState=1
   integer(iwp) :: Mult, iCSF, iSD, nSD, nCSF, MinOpen, MaxOpen, iOpen, nOC
-  integer(iwp) :: i
   real(wp), allocatable :: SD_Work(:)
   real(wp), pointer:: T(:,:)
+  integer(iwp) :: i, iSD_REO
+  real(wp) :: Phase
 
   Mult = SGS(iState)%iSpin
   MinOpen = mult - 1
@@ -56,8 +57,8 @@ contains
                  size(SGS(iState)%SDREO(IRefSm)%List), size(SD)
      call Abend()
   endif
-  if (any(SGS(iState)%SDREO(IRefSm)%List < 1_iwp) .or. &
-      any(SGS(iState)%SDREO(IRefSm)%List > size(SD))) then
+  if (any(abs(SGS(iState)%SDREO(IRefSm)%List) < 1_iwp) .or. &
+      any(abs(SGS(iState)%SDREO(IRefSm)%List) > size(SD))) then
      write(u6,*) 'SD_CSF_Codec: SDREO List contains an invalid address'
      call Abend()
   endif
@@ -78,7 +79,9 @@ contains
      SD_Work(:) = Zero
   case(SD_TO_CSF)
      do i = 1, size(SD)
-        SD_Work(i) = SD(SGS(iState)%SDREO(IRefSm)%List(i))
+        iSD_REO = abs(SGS(iState)%SDREO(IRefSm)%List(i))
+        Phase = merge(One,-One,SGS(iState)%SDREO(IRefSm)%List(i) > 0_iwp)
+        SD_Work(i) = Phase * SD(iSD_REO)
      end do
   case default
      write(u6,*) 'SD_CSF_Codec: invalid Direction=', Direction
@@ -140,10 +143,14 @@ contains
 
   if (Direction == CSF_TO_SD) then
      do i = 1, size(SD)
-        SD(SGS(iState)%SDREO(IRefSm)%List(i)) = SD_Work(i)
+        iSD_REO = abs(SGS(iState)%SDREO(IRefSm)%List(i))
+        Phase = merge(One,-One, SGS(iState)%SDREO(IRefSm)%List(i) > 0_iwp)
+
+        SD(iSD_REO) = Phase * SD_Work(i)
      end do
   endif
 
-  deallocate(SD_Work)
+
+  Call mma_deallocate(SD_Work)
   end subroutine SD_CSF_Codec
 end module SD_CSF_Codec_Module
