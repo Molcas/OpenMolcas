@@ -48,7 +48,6 @@ subroutine Lucia_Util(ModLab,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,n
   real(kind=wp), intent(_IN_), optional :: CI_Vector(:)
   real(kind=wp), intent(out), optional :: SIGMA_Vector(:)
   character(len=72) :: Module_
-  integer(kind=iwp), allocatable :: lVec(:)
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: COUNTER = 0
 
@@ -78,9 +77,7 @@ subroutine Lucia_Util(ModLab,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,n
     ! iDisk is the initial disk address (for read/write of JOBIPH)
     ! Lu is the file unit for JOBIPH
     ! Array is the transformation matrix (not sorted as LUCIA needs it).
-    call mma_allocate(lVec,MXNTTS,Label='lVec')
-    call Traci_Master(iDisk,LU,Array,lVec,nTUVX,TUVX)
-    call mma_deallocate(lVec)
+    call Traci_Master(iDisk,LU,Array,nTUVX,TUVX)
 
   else if (Module_(1:5) == 'DENSI') then
 

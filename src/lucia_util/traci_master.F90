@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec,nTUVX,TUVX)
+subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,nTUVX,TUVX)
 
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: Deallocate_Local_Arrays, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
@@ -26,13 +26,15 @@ implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH, nTUVX
 real(kind=wp), intent(in) :: CMOMO(*), TUVX(nTUVX)
-integer(kind=iwp), intent(out) :: LREC(MXNTTS)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, NCONF, &
                      NDIM, NREC, IH1FORM_SAVE
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IREC, NUM_ELE
 #endif
 real(kind=wp), allocatable :: LCMOMO(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
+integer(kind=iwp), allocatable :: lRec(:)
+
+Call mma_allocate(lRec,MXNTTS,Label='lRec')
 
 LBLK = -1
 NDIM = NTOOB*NTOOB
@@ -155,5 +157,6 @@ call mma_deallocate(VEC3)
 call mma_deallocate(VEC4)
 call mma_deallocate(LCMOMO)
 call mma_deallocate(LH1SAVE)
+Call mma_deallocate(lRec)
 
 end subroutine TRACI_MASTER
