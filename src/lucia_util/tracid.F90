@@ -57,6 +57,7 @@ I12 = 1
 ! With 1-electron integrals in complete block form
 IH1FORM = 2
 ! Transform each orbital separately
+
 do K=1,NTOOB
   ! Place (T(P,K)/S(K,K)   in one-electron integral list
   !    T_ROW_TO_H(T,H,K)
@@ -65,41 +66,20 @@ do K=1,NTOOB
   !    T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
   call T_TO_NK_VEC(TKK,K,ISSM,ISSPC,LUSC1,LUSC2,VEC1)
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
-# ifdef _DEBUGPRINT_
-  write(u6,*) ' output from T_TO_NK'
-  call WRTVCD(VEC1,LUSC1,1,LBLK)
-# endif
   ! For each orbital calculate (1+T+1/2 T^2)|0>
   ! + T
   call MV7(VEC1,VEC2,LUSC1,LUSC2,size(TUVX),TUVX)
-# ifdef _DEBUGPRINT_
-  write(u6,*) ' Correction vector'
-  call WRTVCD(VEC1,LUSC2,1,LBLK)
-# endif
+
   call VECSMDP(VEC1,VEC2,One,One,LUSC1,LUSC2,LUSC3,1,LBLK)
   call COPVCD(LUSC3,LUSC1,VEC1,1,LBLK)
-# ifdef _DEBUGPRINT_
-  write(u6,*) ' Updated vector'
-  call WRTVCD(VEC1,LUSC1,1,LBLK)
-# endif
   ! + 1/2 T^2
   call MV7(VEC1,VEC2,LUSC2,LUSC3,size(TUVX),TUVX)
-# ifdef _DEBUGPRINT_
-  write(u6,*) ' Correction vector'
-  call WRTVCD(VEC1,LUSC3,1,LBLK)
-# endif
+
   call VECSMDP(VEC1,VEC2,One,Half,LUSC1,LUSC3,LUSC2,1,LBLK)
   ! and transfer back to LUSC1
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
-# ifdef _DEBUGPRINT_
-  write(u6,*) ' Updated vector'
-  call WRTVCD(VEC1,LUSC1,1,LBLK)
-# endif
 end do
-#ifdef _DEBUGPRINT_
-CNORM = INPRDD(VEC1,VEC2,LUSC1,LUSC1,1,LBLK)
-write(u6,*) ' Norm of transformed vector',CNORM
-#endif
+
 ! And transfer to LUCOUT
 IDISK(LUSC1) = 0
 call COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)

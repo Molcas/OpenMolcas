@@ -71,14 +71,6 @@ subroutine Lucia_Util(ModLab,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,n
     I12=2
     call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
-  else if (Module_(1:5) == 'TRACI') then
-
-    !write(u6,*) 'blubbbbbbtraci'
-    ! iDisk is the initial disk address (for read/write of JOBIPH)
-    ! Lu is the file unit for JOBIPH
-    ! Array is the transformation matrix (not sorted as LUCIA needs it).
-    call Traci_Master(iDisk,LU,Array,nTUVX,TUVX)
-
   else if (Module_(1:5) == 'DENSI') then
 
     if (present(RVEC)) then

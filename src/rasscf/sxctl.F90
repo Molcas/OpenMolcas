@@ -59,7 +59,6 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
-use Lucia_Interface, only: Lucia_Util
 use wadr, only: BM, DIA, F1, F2, NLX, SXG, SXH, SXN, TUVX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &

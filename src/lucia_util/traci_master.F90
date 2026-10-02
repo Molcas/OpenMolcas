@@ -49,9 +49,18 @@ call mma_allocate(VEC2,LBLOCK,Label='VEC2')
 call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
 call mma_allocate(VEC4,NCONF,Label='VEC4')
 
+! MO-MO transformation matrix :
+call mma_allocate(LCMOMO,NDIM,Label='LCMOMO')
+! Copy of one-electron integrals
+call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
+! We are going to mess with the one-electron integrals, take a copy
+LH1SAVE(:) = INT1(:)
+IH1FORM_SAVE = IH1FORM
+
 ! Transfer the CI-vector to LUC
 
 call BLKFO_MIN(ISSM,NREC,LREC)
+
 IDISK(LUC) = 0
 JDISK = JOBDISK
 do JROOT=1,NROOT
@@ -74,13 +83,6 @@ do JROOT=1,NROOT
   call ITODS(I_DUMMY,1,LBLK,LUC)
 end do
 
-! MO-MO transformation matrix :
-call mma_allocate(LCMOMO,NDIM,Label='LCMOMO')
-! Copy of one-electron integrals
-call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
-! We are going to mess with the one-electron integrals, take a copy
-LH1SAVE(:) = INT1(:)
-IH1FORM_SAVE = IH1FORM
 ! Set up block structure of CI space
 IATP = 1
 IBTP = 2
