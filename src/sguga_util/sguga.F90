@@ -1421,7 +1421,6 @@ contains
 
 subroutine mk_dtoc_singlet(nDet,nCSF,DetSpin,CDC,Pair,DTOC)
 
-use Constants,   only: One
 use Definitions, only: wp, iwp
 implicit none
 
@@ -1661,7 +1660,6 @@ subroutine Mk_SDREO_SGUGA(SGS)
   integer(kind=iwp) :: iBSm
   integer(kind=iwp) :: nSym
   integer(kind=iwp) :: iDet
-  integer(kind=iwp) :: nLev
 
   integer(kind=iwp) :: nAlpha
   integer(kind=iwp) :: nBeta
@@ -1678,7 +1676,7 @@ subroutine Mk_SDREO_SGUGA(SGS)
   Integer(kind=iwp) :: iDetSP(SGS%nActEl)
   Integer(kind=iwp) :: iSign
 
-  Integer(kind=iwp) :: nOpen, i, iOpen, mult, nDOC, iDOC, nSOC, iSOC, mDOC, mSOC
+  Integer(kind=iwp) :: nOpen, i, iOpen, mult, nDOC, iDOC, iSOC
   Integer(kind=iwp) :: nDouble
   Integer(kind=iwp) :: DOCOcc(SGS%nActel)
   Integer(kind=iwp) :: SOCOcc(SGS%nActel)
@@ -1697,7 +1695,6 @@ subroutine Mk_SDREO_SGUGA(SGS)
   Integer(kind=iwp) :: iAdrSDConfOrder
 
   nSym = SGS%nSym
-  nLev = SGS%nLev
   mult = SGS%iSpin
 
   !
@@ -1807,23 +1804,17 @@ End If
               If (nDouble == 0_iwp) Then
                  iDOC = 1_iwp
                  nDOC = 0_iwp
-                 mDOC = 0_iwp
               Else
                  Call FindDOCIndex(iDetOC,nAlpha+nBeta, &
                                    SGS%CDCInfo(nOpen,mult)%DOC,iDOC)
                  nDOC = Size(SGS%CDCInfo(nOpen,mult)%DOC,1)
-                 mDOC = Size(SGS%CDCInfo(nOpen,mult)%DOC,2)
               End If
 
               If (nOpen == 0_iwp) Then
                  iSOC = 1_iwp
-                 nSOC = 0_iwp
-                 mSOC = 0_iwp
               Else
                  Call FindSOCIndex(iDetOC,nAlpha+nBeta, &
                                    SGS%CDCInfo(nOpen,mult)%SOC,iSOC)
-                 nSOC = Size(SGS%CDCInfo(nOpen,mult)%SOC,1)
-                 mSOC = Size(SGS%CDCInfo(nOpen,mult)%SOC,2)
               End If
 
               nOC = SGS%CDCInfo(nOpen,mult)%nOCSym(iRefSm)
@@ -1944,6 +1935,7 @@ If (Size(DetSpin,1) < iOpen) Then
    Call Abend()
 End If
 
+SpinValue = -1_iwp
 Do j=1,nSpin
 
    Match = .True.

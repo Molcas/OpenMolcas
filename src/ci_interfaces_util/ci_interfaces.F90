@@ -362,9 +362,8 @@ endif
 
 #ifdef _SGUGA_VERIFY_
 
-Contains
-
 #ifdef _Compute_Full_CI_Matrix
+Contains
 subroutine ci_full_det(nDet,STSym, &
                        TUVX,nTUVX, &
                        TU,nTU, &

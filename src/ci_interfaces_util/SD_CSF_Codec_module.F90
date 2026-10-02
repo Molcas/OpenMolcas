@@ -117,20 +117,22 @@ contains
      nSD  = size(T,1)
      nCSF = size(T,2)
      nOC = SGS(iState)%CDCInfo(iOpen,Mult)%nOCSym(IRefSm)
+
      select case(Direction)
      case(CSF_TO_SD)
         call DGEMM_('N','N', &
                     nSD,nOC,nCSF, &
                     One,T,nSD, &
-                        CSF(iCSF),nCSF, &
-                    Zero,SD_Work(iSD),nSD)
+                        CSF(iCSF:iCSF+nCSF*nOC-1),nCSF, &
+                    Zero,SD_Work(iSD:iSD+nSD*nOC-1),nSD)
      case(SD_TO_CSF)
         call DGEMM_('T','N', &
                     nCSF,nOC,nSD, &
                     One,T,nSD, &
-                        SD_Work(iSD),nSD, &
-                    Zero,CSF(iCSF),nCSF)
+                        SD_Work(iSD:iSD+nSD*nOC-1),nSD, &
+                    Zero,CSF(iCSF:iCSF+nCSF*nOC-1),nCSF)
      end select
+
      iCSF = iCSF + nCSF*nOC
      iSD  = iSD  + nSD*nOC
   end do
