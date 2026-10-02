@@ -82,6 +82,11 @@ end do
 
 call BLKFO_MIN(ISSM,NREC,LREC)
 
+! Set up block structure of CI space
+IATP = 1
+IBTP = 2
+call Z_BLKFO(ISSPC,ISSM,IATP,IBTP,NBATCH,NBLOCK)
+
 IDISK(LUC) = 0
 JDISK = JOBDISK
 do JROOT=1,NROOT
@@ -91,11 +96,6 @@ do JROOT=1,NROOT
   I_DUMMY(1) = -1
   call ITODS(I_DUMMY,1,LBLK,LUC)
 end do
-
-! Set up block structure of CI space
-IATP = 1
-IBTP = 2
-call Z_BLKFO(ISSPC,ISSM,IATP,IBTP,NBATCH,NBLOCK)
 
 call Deallocate_Local_Arrays()
 
