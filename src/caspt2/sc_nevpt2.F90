@@ -93,10 +93,8 @@ function SC_NEVPT2_Coupling(iCase)
   integer(kind=iwp), intent(in) :: iCase
   integer(kind=iwp) :: SC_NEVPT2_Coupling
 
-  if (.not.SC_merge) then
-    SC_NEVPT2_Coupling = 0
-    return
-  end if
+  SC_NEVPT2_Coupling = 0
+  if (.not.SC_merge) return
 
   select case (iCase)
   case (2,6,8,10)
