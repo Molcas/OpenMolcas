@@ -713,7 +713,7 @@ if (do_grad) then
     !! DRDMFock contributions
     !! Use canonical CSFs rather than natural CSFs
     !! Now, compute the configuration Lagrangian
-    call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,RDMEIG)
+    call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,DRDMFock)
 #   ifdef _MOLCAS_MPP_
     if (Is_Real_Par()) call GADGOP(CLag,nCLag,'+')
 #   endif
