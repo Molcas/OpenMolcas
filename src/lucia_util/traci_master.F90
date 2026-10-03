@@ -31,7 +31,7 @@ integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IROW, ISM, J, 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IREC, NUM_ELE
 #endif
-real(kind=wp), allocatable :: LCMOMO(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
+real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
 integer(kind=iwp), allocatable :: lRec(:)
 
 LBLK = -1
@@ -48,38 +48,39 @@ call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
 call mma_allocate(VEC4,NCONF,Label='VEC4')
 
 ! MO-MO transformation matrix :
-call mma_allocate(LCMOMO,NDIM,Label='LCMOMO')
+call mma_allocate(TransMat,NDIM,Label='TransMat')
 ! Copy of one-electron integrals
 call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
 ! We are going to mess with the one-electron integrals, take a copy
 LH1SAVE(:) = INT1(:)
 IH1FORM_SAVE = IH1FORM
 
-! The input transformation matrix contains a lot of zeros which
-! is expected not to be there in Traci_Lucia, so remove them.
+! The input transformation matrix, CMOMO is over the full basis but it
+! has non-zero values just in the block-diagonal sections. Here we
+! remove those blocks.
 
-LCMOMO(:) = Zero
+TransMat(:) = Zero
 IOFF = 1
 IADR = 1
 ICOL = 1
 do ISM=1,NSMOB
-  if (NTOOBS(ISM) > 0) then
-    IROW = ICOL
-    do I=1,NTOOBS(ISM)
-      IADR = (ICOL-1)*NTOOB+IROW
-      do J=1,NTOOBS(ISM)
-        LCMOMO(IOFF+NTOOBS(ISM)*(J-1)+I-1) = CMOMO(IADR+J-1)
-      end do
-      ICOL = ICOL+1
+  if (NTOOBS(ISM) == 0) Cycle
+  IROW = ICOL
+  do I=1,NTOOBS(ISM)
+    IADR = (ICOL-1)*NTOOB+IROW
+    do J=1,NTOOBS(ISM)
+      TransMat(IOFF+NTOOBS(ISM)*(J-1)+I-1) = CMOMO(IADR+J-1)
     end do
-    IOFF = IOFF+NTOOBS(ISM)**2
-  end if
+    ICOL = ICOL+1
+  end do
+  IOFF = IOFF+NTOOBS(ISM)**2
 end do
 
-! Transfer the CI-vector to LUC
 
 Call mma_allocate(lRec,MXNTTS,Label='lRec')
 call BLKFO_MIN(ISSM,NREC,LREC)
+
+! Transfer the CI-vector to LUC
 
 IDISK(LUC) = 0
 JDISK = JOBDISK
@@ -103,7 +104,7 @@ do JROOT=1,NROOT
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
 
-  call TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2,size(TUVX),TUVX)
+  call TRACI_LUCIA(TransMat,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2,size(TUVX),TUVX)
 end do
 ! End of loop over roots
 IDISK(LUDIA) = 0
@@ -126,7 +127,7 @@ call mma_deallocate(VEC1)
 call mma_deallocate(VEC2)
 call mma_deallocate(VEC3)
 call mma_deallocate(VEC4)
-call mma_deallocate(LCMOMO)
+call mma_deallocate(TransMat)
 call mma_deallocate(LH1SAVE)
 Call mma_deallocate(lRec)
 
