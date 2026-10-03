@@ -17,7 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 
-subroutine EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,WRK2)
+subroutine EigDer2(NBSQT,nAshT,DRDM,Trf,FIFA,RDM,DEPSA,WRK1,WRK2)
 
 use caspt2_global, only: OLag
 use general_data, only: NASH
@@ -28,8 +28,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
-real(kind=wp), intent(inout) :: RDMEIG(NBSQT)
-real(kind=wp), intent(in) :: Trf(NBSQT), FIFA(NBSQT), RDMSA(nAshT**2), DEPSA(nAshT**2)
+real(kind=wp), intent(inout) :: DRDM(NBSQT)
+real(kind=wp), intent(in) :: Trf(NBSQT), FIFA(NBSQT), RDM(nAshT**2), DEPSA(nAshT**2)
 real(kind=wp), intent(out) :: WRK1(NBSQT), WRK2(NBSQT)
 integer(kind=iwp) :: iSQ, iSQA, iSym, iT, iTabs, iTU, iTUA, iU, iUabs, nAshI, nCor, nFroI, nIshI, nOrbI
 real(kind=wp), allocatable :: FPT2_loc(:), RDMqc(:)
@@ -53,7 +53,7 @@ do iSym=1,nSym
   OLAG(iSQ:iSQ+nOrbI*nCor-1) = OLAG(iSQ:iSQ+nOrbI*nCor-1)+Two*FPT2_loc(iSQ:iSQ+nOrbI*nCor-1)
   !! Active orbital contributions: (p,q) = (all,act)
   call mma_allocate(RDMqc,nAshI**2,Label='RDMqc')
-  RDMqc(1:nAshT**2) = RDMSA(1:nAshT**2)
+  RDMqc(1:nAshT**2) = RDM(1:nAshT**2)
   call DGemm_('T','N',nAshT,nAshT,nAshT,One,Trf(iSQ+nBasT*nCor+nCor),nBasT,RDMqc,nAshT,Zero,WRK1,nAshT)
   call DGemm_('N','N',nAshT,nAshT,nAshT,One,WRK1,nAshT,Trf(iSQ+nBasT*nCor+nCor),nBasT,Zero,RDMqc,nAshT)
   ! Then just multiply with G(DPT2)
@@ -81,7 +81,7 @@ do iSym=1,nSym
       iUabs = nCor+iU
       iTU = iTabs-1+nOrbI*(iUabs-1)
       iTUA = iT-1+nAshI*(iU-1)
-      RDMEIG(iSQA+iTUA) = FPT2_loc(iSq+iTU)
+      DRDM(iSQA+iTUA) = FPT2_loc(iSq+iTU)
     end do
   end do
   iSQ = iSQ+nOrbI*nOrbI
