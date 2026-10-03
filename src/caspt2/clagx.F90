@@ -17,7 +17,7 @@ use PrintLevel, only: VERBOSE
 use sguga, only: SGS
 use general_data, only: nLev
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: EPSA, HZERO, ISCF, JSTATE, NG1, NG2, NG3, NG3TOT
+use caspt2_module, only: EPSA, HZERO, JSTATE, NG1, NG2, NG3, NG3TOT
 use BDerNEV, only: BDerNEV_E4
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -94,6 +94,7 @@ DEASUM = Zero
 
 call TIMING(CPTF0,CPE,TIOTF0,TIOE)
 call CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,VECROT)
+call mma_deallocate(G3)
 call TIMING(CPTF10,CPE,TIOTF10,TIOE)
 if (IPRGLB >= VERBOSE) then
   CPUT = CPTF10-CPTF0
@@ -116,11 +117,7 @@ call CLagSym(nAshT,DG1,DG2,DF1,DF2,0)
 if (IFF == 1) then
   do ILEV=1,nLev
     DG1(ILEV+nLev*(ILEV-1)) = DG1(ILEV+nLev*(ILEV-1))+DEASUM*EPSA(SGS(istate)%L2ACT(ILEV))
-    if (ISCF == 0) then
-      DEPSA(:,ILEV) = DEPSA(:,ILEV)+DEASUM*G1(nLev*(ILEV-1)+1:nLev*ILEV)
-    else
-      !! ?
-    end if
+    DEPSA(:,ILEV) = DEPSA(:,ILEV)+DEASUM*G1(nLev*(ILEV-1)+1:nLev*ILEV)
   end do
 end if
 
@@ -137,11 +134,10 @@ if (is_real_par()) then
 end if
 #endif
 
-call CnstCLag(IFF,nLev,NG3,NCONF,CLag(1,jState),DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2,G3)
+call CnstCLag(IFF,nLev,NG3,NCONF,CLag(1,jState),DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
 call mma_deallocate(G1)
 call mma_deallocate(G2)
-call mma_deallocate(G3)
 if (IFF == 1) then
   call mma_deallocate(F1_H)
   call mma_deallocate(F2_H)
