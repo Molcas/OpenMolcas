@@ -135,122 +135,8 @@ NLX = max(MIAAE,maxval(NASH(1:NSYM)*(NISH(1:NSYM)+NASH(1:NSYM))))
 NQ = max(NIAIA,maxval(NASH(1:NSYM)*NORB(1:NSYM)))
 NROOT = 1
 NDIMSX = NROOT+NSXS
-!***********************************************************************
-! load back two-electron integrals (pu|vx)
-!***********************************************************************
-if ((.not. DoCholesky) .or. (ALGO == 1)) then
-  if (nFint > 0) then
-    iDisk = 0
-    call mma_allocate(PUVX,nFint,Label='PUVX')
-    call DDaFile(LUINTM,2,PUVX,nFint,iDisk)
-  else
-    call mma_allocate(PUVX,1,Label='PUVX')
-  end if
-end if
-if (IPRLEV >= DEBUG) then
-  write(u6,*) 'PUVX integrals in SXCTL'
-  call wrtmat(PUVX,1,nFInt,1,nFInt)
-end if
-!********************************************************************************
-! update and transform the Fock matrices FI and FA in MO basis ----> Fmat routine
-!********************************************************************************
-if ((.not. DoCholesky) .or. (ALGO == 1)) then
-  call Fmat(CMO,PUVX,D,D1A,FI,FA)
 
-else if (ALGO == 2) then
-
-  ! Inactive-active contribution to ECAS
-  call mma_allocate(DA,nTot1,Label='DA')
-  call Fold(nSym,nBas,D1A,DA) !get the packed DA
-  VIA = dDot_(nTot1,FI,1,DA,1)
-  ECAS = EMY+VIA
-  if (IPRLEV >= DEBUG) then
-    write(u6,'(A,ES20.10)') ' Total core energy:            ',EMY
-    write(u6,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
-    write(u6,'(A,ES20.10)') ' CAS energy (core+interaction):',ECAS
-  end if
-  call mma_deallocate(DA)
-
-  TraOnly = .true.
-  call CHO_CAS_DRV(irc,CMO,D,FI,D1A,FA,Dummy,TraOnly)
-
-  if (irc /= 0) then
-    write(u6,*) 'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
-    call abend()
-  end if
-
-else
-
-  write(u6,*) 'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-  call abend()
-
-end if
-!***********************************************************************
-! reorder the two-body density matrix P
-!***********************************************************************
-if (.not. l_casdft) then
-  ! ISTORP(NSYM+1) represents the size of the 2-body density matrix,d(vwxy), with vwxy all active.
-  ! the size is computed as NAP*NAQ*NRS (sum over all symmetries). If Sym_R = Sym_S then triangular
-  ! form over NRS... with R >= S, rectanguar otherwise.
-  if (ISTORP(NSYM+1) > 0) then
-    call mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
-
-    call PMAT_RASSCF(P,STRP)
-
-    if ((ExFac /= One) .and. (KSDFT(1:3) /= 'SCF')) then
-      call mma_allocate(P2reo,ISTORP(NSYM+1),Label='P2reo')
-      call Get_Temp('nP2Act  ',P2Act,1)
-      nP2Act = int(P2Act(1))
-      call mma_allocate(P2RAW,nP2Act,Label='P2Raw')
-      call Get_Temp('P2_RAW  ',P2RAW,nP2Act)
-      call PMAT_RASSCF(P2RAW,P2reo)
-      call mma_deallocate(P2Raw)
-      P2reo_size = real(ISTORP(NSYM+1),kind=wp)
-      call Put_Temp('nP2reo  ',[P2reo_size],1)
-      call Put_Temp('P2_reo  ',P2reo,ISTORP(NSYM+1))
-      call mma_deallocate(P2reo)
-    end if
-  else
-    call mma_allocate(STRP,1,Label='STRP')
-  end if
-else ! GLM-CASDFT
-  ! ISTORP(NSYM+1) here represents the size of the Dvw*Dxy array (product of one-body
-  ! density matrix,d(vwxy), with vwxy all active. The size is computed as NAP*NAQ*NRS
-  ! (sum over all symmetries). If Sym_R = Sym_S then triangular form over NRS...
-  ! with R >= S, rectanguar otherwise. Basically we will use same simmetry as for dvwxy.
-  if (ISTORP(NSYM+1) > 0) then
-    !write(u6,*)
-    !write(u6,*) ' ---------------------'
-    call mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
-    call DmatDmat(D,STRP)
-  else
-    call mma_allocate(STRP,1,Label='STRP')
-  end if
-end if
-!***********************************************************************
-! Compute the MCSCF generalized Fock matrix and Brillouin matrix elements
-!***********************************************************************
-call mma_allocate(FCK,NTOT4,Label='FCK')
-call mma_allocate(BM,NSXS,Label='BM')
-call mma_allocate(QMat,NQ,Label='QMat') ! q-matrix(1symmblock)
-call FOCK(FCK,BM,FI,FA,D,STRP,QMat,PUVX,IFINAL,CMO)
-! Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
-if (IPRLEV >= DEBUG) then
-  write(u6,*)
-  write(u6,*) 'FI+FA in MO-basis in sxctl (overwritten on FA)'
-  write(u6,*) ' --------------'
-  write(u6,*)
-  iOff = 1
-  do iSym=1,nSym
-    iOrb = nOrb(iSym)
-    call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+nTri_Elem(iOrb)
-  end do
-end if
-call mma_deallocate(FCK)
-call mma_deallocate(QMat)
-call mma_deallocate(STRP,safe='*')
-call mma_deallocate(PUVX,safe='*')
+Call SXCTL_Prelude()
 
 ! PAM 2008: Orbital files should be updated each iteration
 ! for easy access in case of catastrophic failure.
@@ -279,6 +165,7 @@ if (IFINAL /= 1) then
   call mh5_put_dset(wfn_mocoef,CMO)
   call mh5_put_dset(wfn_occnum,OCC)
 # endif
+
 end if
 
 if (IFINAL == 1) then
@@ -350,7 +237,7 @@ if (IFINAL == 1) then
       else if (doBlockDMRG .or. DoNECI) then
       else !CI
         iDisk = IADR15(4)
-        call Traci_Master(iDisk,JOBIPH,SMAT(:),Size(TUVX),TUVX)
+        call TraCI_Master(iDisk,JOBIPH,SMAT(:),Size(TUVX),TUVX)
       end if
       call mma_deallocate(SMAT)
     else
@@ -486,23 +373,13 @@ else
   if (doDMRG .and. (ITER <= 2)) NCALL = 0  ! YM: change 4 -> 2, for saving time
   if (XSXMAX > Half) NCALL = 0
   if ((NQUNE /= 0) .and. (XSXMAX < Half)) then
-    call mma_allocate(VT,NSXS,Label='VT')
-    call mma_allocate(VL,NSXS,Label='VL')
-    call mma_allocate(XQN,NSXS,Label='XQN')
-    call mma_allocate(SCR,NSXS,Label='SCR')
-    call mma_allocate(V1,NSXS,Label='V1')
-    call mma_allocate(V2,NSXS,Label='V2')
+
     CASDFT_En = Zero
     if ((KSDFT /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_En)
     CASDFT_En = ECAS+CASDFT_En
-    call QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),VL,VT,XQN,SCR,V1,V2,NSXS,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
 
-    call mma_deallocate(VT)
-    call mma_deallocate(VL)
-    call mma_deallocate(XQN)
-    call mma_deallocate(SCR)
-    call mma_deallocate(V1)
-    call mma_deallocate(V2)
+    call QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),NSXS,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
+
   end if
 
   ! Rotation of orbitals with exp(x) where x is obtained from
@@ -532,10 +409,12 @@ else
       iOff = iOff+nTri_Elem(iOrb)
     end do
   end if
+
   call mma_deallocate(CMON)
   call mma_deallocate(XMAT)
   call mma_deallocate(X2)
   call mma_deallocate(SCR)
+
   call mma_deallocate(SXN)
   call mma_deallocate(DIA)
   call mma_deallocate(CSX)
@@ -551,5 +430,126 @@ else
 end if
 
 call mma_deallocate(BM)
+
+Contains
+
+Subroutine SXCTL_Prelude()
+!***********************************************************************
+! load back two-electron integrals (pu|vx)
+!***********************************************************************
+if ((.not. DoCholesky) .or. (ALGO == 1)) then
+  if (nFint > 0) then
+    iDisk = 0
+    call mma_allocate(PUVX,nFint,Label='PUVX')
+    call DDaFile(LUINTM,2,PUVX,nFint,iDisk)
+  else
+    call mma_allocate(PUVX,1,Label='PUVX')
+  end if
+end if
+if (IPRLEV >= DEBUG) then
+  write(u6,*) 'PUVX integrals in SXCTL'
+  call wrtmat(PUVX,1,nFInt,1,nFInt)
+end if
+!********************************************************************************
+! update and transform the Fock matrices FI and FA in MO basis ----> Fmat routine
+!********************************************************************************
+if ((.not. DoCholesky) .or. (ALGO == 1)) then
+  call Fmat(CMO,PUVX,D,D1A,FI,FA)
+
+else if (ALGO == 2) then
+
+  ! Inactive-active contribution to ECAS
+  call mma_allocate(DA,nTot1,Label='DA')
+  call Fold(nSym,nBas,D1A,DA) !get the packed DA
+  VIA = dDot_(nTot1,FI,1,DA,1)
+  ECAS = EMY+VIA
+  if (IPRLEV >= DEBUG) then
+    write(u6,'(A,ES20.10)') ' Total core energy:            ',EMY
+    write(u6,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
+    write(u6,'(A,ES20.10)') ' CAS energy (core+interaction):',ECAS
+  end if
+  call mma_deallocate(DA)
+
+  TraOnly = .true.
+  call CHO_CAS_DRV(irc,CMO,D,FI,D1A,FA,Dummy,TraOnly)
+
+  if (irc /= 0) then
+    write(u6,*) 'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
+    call abend()
+  end if
+
+else
+
+  write(u6,*) 'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
+  call abend()
+
+end if
+!***********************************************************************
+! reorder the two-body density matrix P
+!***********************************************************************
+if (.not. l_casdft) then
+  ! ISTORP(NSYM+1) represents the size of the 2-body density matrix,d(vwxy), with vwxy all active.
+  ! the size is computed as NAP*NAQ*NRS (sum over all symmetries). If Sym_R = Sym_S then triangular
+  ! form over NRS... with R >= S, rectanguar otherwise.
+  if (ISTORP(NSYM+1) > 0) then
+    call mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
+
+    call PMAT_RASSCF(P,STRP)
+
+    if ((ExFac /= One) .and. (KSDFT(1:3) /= 'SCF')) then
+      call mma_allocate(P2reo,ISTORP(NSYM+1),Label='P2reo')
+      call Get_Temp('nP2Act  ',P2Act,1)
+      nP2Act = int(P2Act(1))
+      call mma_allocate(P2RAW,nP2Act,Label='P2Raw')
+      call Get_Temp('P2_RAW  ',P2RAW,nP2Act)
+      call PMAT_RASSCF(P2RAW,P2reo)
+      call mma_deallocate(P2Raw)
+      P2reo_size = real(ISTORP(NSYM+1),kind=wp)
+      call Put_Temp('nP2reo  ',[P2reo_size],1)
+      call Put_Temp('P2_reo  ',P2reo,ISTORP(NSYM+1))
+      call mma_deallocate(P2reo)
+    end if
+  else
+    call mma_allocate(STRP,1,Label='STRP')
+  end if
+else ! GLM-CASDFT
+  ! ISTORP(NSYM+1) here represents the size of the Dvw*Dxy array (product of one-body
+  ! density matrix,d(vwxy), with vwxy all active. The size is computed as NAP*NAQ*NRS
+  ! (sum over all symmetries). If Sym_R = Sym_S then triangular form over NRS...
+  ! with R >= S, rectanguar otherwise. Basically we will use same simmetry as for dvwxy.
+  if (ISTORP(NSYM+1) > 0) then
+    !write(u6,*)
+    !write(u6,*) ' ---------------------'
+    call mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
+    call DmatDmat(D,STRP)
+  else
+    call mma_allocate(STRP,1,Label='STRP')
+  end if
+end if
+!***********************************************************************
+! Compute the MCSCF generalized Fock matrix and Brillouin matrix elements
+!***********************************************************************
+call mma_allocate(FCK,NTOT4,Label='FCK')
+call mma_allocate(BM,NSXS,Label='BM')
+call mma_allocate(QMat,NQ,Label='QMat') ! q-matrix(1symmblock)
+call FOCK(FCK,BM,FI,FA,D,STRP,QMat,PUVX,IFINAL,CMO)
+! Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
+if (IPRLEV >= DEBUG) then
+  write(u6,*)
+  write(u6,*) 'FI+FA in MO-basis in sxctl (overwritten on FA)'
+  write(u6,*) ' --------------'
+  write(u6,*)
+  iOff = 1
+  do iSym=1,nSym
+    iOrb = nOrb(iSym)
+    call TriPrt(' ',' ',FA(iOff),iOrb)
+    iOff = iOff+nTri_Elem(iOrb)
+  end do
+end if
+call mma_deallocate(FCK)
+call mma_deallocate(QMat)
+call mma_deallocate(STRP,safe='*')
+call mma_deallocate(PUVX,safe='*')
+End Subroutine SXCTL_Prelude
 
 end subroutine SXCtl
