@@ -621,7 +621,7 @@ if ((input%GRDT .or. input%NAC) .and. (SuperName(1:18) /= 'numerical_gradient') 
   if (ipea_shift /= Zero) do_lindep = .true.
 
   ! only allow analytic gradients either with nstate = nroots or with sadref
-  if ((nState /= nRoots) .and. (.not. ifsadref)) then
+  if ((nState /= nRoots) .and. (.not. input%SADREF)) then
     call warningMessage(2,'Analytic gradients available only if all CASSCF roots are included in the CASPT2 calculation or '// &
                         'with the SADRef keyword.')
     call quit_onUserError()
@@ -634,7 +634,7 @@ if ((input%GRDT .or. input%NAC) .and. (SuperName(1:18) /= 'numerical_gradient') 
   end if
 
   ! CASPT2 analytic gradients with state-dependent density available only with DF or CD
-  if ((.not. ifChol) .and. (.not. input%SADREF) .and. (nRoots /= 1)) then
+  if ((.not. ifChol) .and. ((.not. input%SADREF) .or. any(Weight(2:nRoots) /= Weight(1))) .and. (nRoots /= 1)) then
     call warningMessage(2,'Analytic gradients with state-dependent density available only with density fitting or Cholesky '// &
                         'decomposition.')
     call quit_onUserError()
@@ -674,7 +674,7 @@ if (isStructure() == 1) then
     ! check weaker constraints, if not met, revert to numerical gradients
     if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
     if ((ipea_shift /= Zero) .and. (.not. ifChol)) do_grad = .false.
-    if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
+    if ((nState /= nRoots) .and. (.not. input%SADREF)) do_grad = .false.
   end if
 end if
 
