@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,DF,DDIAG)
+subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,nDF,nDDIAG)
 ! RASSCF VERSION IBM-3090: SX-SECTION
 !
 ! Objective: Compute the auxiliary matrices G,H,F1,F2,and SXN
@@ -40,6 +40,7 @@ subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,DF,DDIAG)
 !
 ! ********** IBM-3090 RELEASE 89 01 23 **********
 
+use stdalloc, only: mma_deallocate, mma_allocate
 use Index_Functions, only: iTri, nTri_Elem
 use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, IXSYM, IZROT, LVSHFT, NROOT, NSXS, SXSHFT
 use PrintLevel, only: DEBUG
@@ -52,12 +53,17 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: D(*), PA(*), FP(*)
-real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*), DF(*), DDIAG(*)
+real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*)
+integer(kind=iwp), intent(in) :: nDF, nDDIAG
+
 integer(kind=iwp) :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, &
                      IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO, NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR, NT, NTT, NTU, &
                      NTUT, NTUTU, NTUVX, NU, NUT, NV, NVT, NVX, NVXF, NVXT, NX, NXT
 real(kind=wp) :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, P2Act(1), PRPR, SXNRM2, XLEV
+real(kind=wp), allocatable :: DF(:)
+real(kind=wp), allocatable :: DDIAG(:)
 real(kind=wp), parameter :: Large = 1.0e32_wp, THRA = 1.0e-6_wp
+
 #include "warnings.h"
 
 ! -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
@@ -65,6 +71,9 @@ real(kind=wp), parameter :: Large = 1.0e32_wp, THRA = 1.0e-6_wp
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering SXHAM'
+
+Call mma_allocate(DF,nDF,Label='DF')
+Call mma_allocate(DDIAG,nDDIAG,Label='DDiag')
 
 ! Loop over all symmetry blocks
 
@@ -388,6 +397,9 @@ if (ICICP /= 0) then
   IROOT1 = IROOT(1)
   HDIAG(1:NROOT) = ENER(1:NROOT,ITER)-ENER(IROOT1,ITER)
 end if
+
+Call mma_deallocate(DF)
+Call mma_deallocate(DDIAG)
 
 return
 

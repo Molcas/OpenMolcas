@@ -87,8 +87,8 @@ character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
 real(kind=wp), allocatable :: CC(:), CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), ENER_X(:), Fck(:), FTR(:), HH(:), OVL(:), P2Raw(:), &
-                              P2reo(:), PUVX(:), QMat(:), QQ(:), SC(:), SCR(:), Sigma(:), SQ(:), STRP(:), SXDD(:), SXDF(:), &
-                              SXHD(:), V1(:), V2(:), Vec(:), VL(:), VT(:), WO(:), X2(:), XMAT(:), XQN(:)
+                              P2reo(:), PUVX(:), QMat(:), QQ(:), SC(:), SCR(:), Sigma(:), SQ(:), STRP(:), &
+                              SXHD(:), VEC(:), WO(:), X2(:), XMAT(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
@@ -113,7 +113,6 @@ real(kind=wp), external :: DDot_
 ! (Tested against 1.0e20 in IF-statements)
 ! Extra term in overlaps (COVLP, SXHAM): 1.0e-14
 ! Extra term in SIGVEC:                  1.0e-12
-
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
 !write(u6,*) 'Entering SXCTL!'
@@ -278,16 +277,8 @@ else
   call mma_allocate(SXG,NIAIA,Label='SXG')
   call mma_allocate(SXH,NAOAE,Label='SXH')
   call mma_allocate(SXHD,NDIMSX,Label='SXHD')
-  call mma_allocate(SXDF,NQ,Label='SXDF')
-  call mma_allocate(SXDD,MNO,Label='SXDD')
 
-  !call TRIPRT(' Dmat in MO in SXCTL bf call to SXHAM ',' ',D,NAC)
-  !call TRIPRT(' Pmat in MO in SXCTL bf call to SXHAM ',' ',P,NACPAR)
-  !call TRIPRT(' PAmat in MO in SXCTL bf call to SXHAM',' ',PA,NACPAR)
-  call SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,SXH,SXHD,SXDF,SXDD)
-
-  call mma_deallocate(SXDD)
-  call mma_deallocate(SXDF)
+  call SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,SXH,SXHD,NQ,MNO)
 
   ! PAM01 Removal of certain rotations from the BLB elements.
   ! Some additional rotations (besides those listed in IZROT) may
@@ -434,6 +425,7 @@ call mma_deallocate(BM)
 Contains
 
 Subroutine SXCTL_Prelude()
+integer(kind=iwp) iSym
 !***********************************************************************
 ! load back two-electron integrals (pu|vx)
 !***********************************************************************
