@@ -276,7 +276,7 @@ end subroutine SC_NEVPT2_Print
 subroutine SC_NEVPT2_Energy()
 
   integer(kind=iwp) :: ias, iCase, iCoupling, idisk, IHI1, ILO1, isp, iSym, jCase, JHI1, JLO1, lg_V, NAS, NAS2, NIS, NIS2
-  real(kind=wp) :: etmp, otmp, vale
+  real(kind=wp) :: Dummy(1), etmp, otmp, vale
   logical(kind=iwp) :: do_H
 
   integer(kind=iwp), allocatable :: Map(:)
@@ -406,10 +406,9 @@ subroutine SC_NEVPT2_Energy()
       ! 2. compute E_value using VALN and VALH
       ! For SC_merge, the minus coupling is included in VALN
 
-      call mma_allocate(LBD,NAS,Label='LBD')
       call mma_allocate(LID,NIS,Label='LID')
       idisk = IDBMAT(iSym,iCase)
-      call dDaFile(LUSBT,2,LBD,NAS,idisk)
+      call dDaFile(LUSBT,0,Dummy,NAS,idisk)
       call dDaFile(LUSBT,2,LID,NIS,idisk)
 
       call mma_allocate(E_value,NIS,Label='E_value')
@@ -441,15 +440,13 @@ subroutine SC_NEVPT2_Energy()
       idisk = IDBMAT_NEVPT2(iSym,iCase,2)
       call dDaFile(LUSBT,1,LID,NIS,idisk)
 
-      call mma_deallocate(LBD)
       call mma_deallocate(LID)
 
       if ((iCoupling == +1) .and. (NAS2*NIS2 > 0)) then
         ! minus coupling for SC_merge
-        call mma_allocate(LBD,NAS2,Label='LBD')
         call mma_allocate(LID,NIS2,Label='LID')
         idisk = IDBMAT(iSym,jCase)
-        call dDaFile(LUSBT,2,LBD,NAS2,idisk)
+        call dDaFile(LUSBT,0,Dummy,NAS2,idisk)
         call dDaFile(LUSBT,2,LID,NIS2,idisk)
 
         do isp=1,NIS2
@@ -458,7 +455,6 @@ subroutine SC_NEVPT2_Energy()
         idisk = IDBMAT_NEVPT2(iSym,jCase,2)
         call dDaFile(LUSBT,1,LID,NIS2,idisk)
 
-        call mma_deallocate(LBD)
         call mma_deallocate(LID)
         call mma_deallocate(Map)
       end if
@@ -482,39 +478,30 @@ end subroutine SC_NEVPT2_Energy
 
 !-----------------------------------------------------------------------
 
-subroutine SC_NEVPT2_ValHN(iCase,iSym,NAS,NIS,ValHN,nVal)
+subroutine SC_NEVPT2_ReadSB(iCase,iSym,NAS,SMAT,BMAT)
 
-  integer(kind=iwp), intent(in) :: iCase, iSym, NAS, NIS, nVal
-  real(kind=wp), intent(out) :: ValHN(NIS,nVal)
+  integer(kind=iwp), intent(in) :: iCase, iSym, NAS
+  real(kind=wp), intent(out) :: SMAT(nTri_Elem(NAS)), BMAT(nTri_Elem(NAS))
 
-  integer(kind=iwp) :: ias, idisk, IHI1, ILO1, isp, jas, JHI1, JLO1, lg_C, lg_V
-  real(kind=wp), external :: ddot_
-  real(kind=wp), allocatable :: BMAT(:), SMAT(:)
+  integer(kind=iwp) :: idisk
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: ii, jj, LDC, LDV, lg_S, MC, MV, myRank
+  integer(kind=iwp) :: ii, jj, lg_S
   real(kind=wp), allocatable :: WRK(:,:)
 # endif
 
-  ! Compute VALH and VALN
-  ! ValH = ValHN(:,1): <Psi|V[H,V]|Psi> (Eq. (A2), (A6), ...)
-  ! ValN = ValHN(:,2): norm (Eq. (11)--(18))
-  !        ValHN(:,3): overlap of the RHS with IVECC (only for the gradient)
-
   ! Read the original B matrix
-  call mma_allocate(BMAT,nTri_Elem(NAS),Label='BMAT')
   idisk = IDBMAT_NEVPT2(iSym,iCase,1)
   call dDaFile(LUSBT,2,BMAT,nTri_Elem(NAS),idisk)
 
   ! Read the S matrix
-  call mma_allocate(SMAT,nTri_Elem(NAS),Label='SMAT')
 # ifdef _MOLCAS_MPP_
   if (Is_Real_Par() .and. ((iCase == 1) .or. (iCase == 4))) then
     call mma_allocate(WRK,NAS,NAS,Label='WRK')
     call PSBMAT_GETMEM('S',lg_S,NAS)
-    call PSBMAT_READ('S',iCase,iSYM,lg_S,NAS)
+    call PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
     call RHS_GET(NAS,NAS,lg_S,WRK)
     do ii=1,NAS
-      do jj=ii,NAS
+      do jj=1,ii
         SMAT(iTri(jj,ii)) = WRK(jj,ii)
       end do
     end do
@@ -527,6 +514,32 @@ subroutine SC_NEVPT2_ValHN(iCase,iSym,NAS,NIS,ValHN,nVal)
 # ifdef _MOLCAS_MPP_
   end if
 # endif
+
+end subroutine SC_NEVPT2_ReadSB
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_ValHN(iCase,iSym,NAS,NIS,ValHN,nVal)
+
+  integer(kind=iwp), intent(in) :: iCase, iSym, NAS, NIS, nVal
+  real(kind=wp), intent(out) :: ValHN(NIS,nVal)
+
+  integer(kind=iwp) :: ias, IHI1, ILO1, isp, jas, JHI1, JLO1, lg_C, lg_V
+  real(kind=wp), external :: ddot_
+  real(kind=wp), allocatable :: BMAT(:), SMAT(:)
+# ifdef _MOLCAS_MPP_
+  integer(kind=iwp) :: LDC, LDV, MC, MV, myRank
+# endif
+
+  ! Compute H and N
+  ! ValHN(:,1): <Psi|V[H,V]|Psi> (Eq. (A2), (A6), ...)
+  ! ValHN(:,2): norm (Eq. (11)--(18))
+  ! ValHN(:,3): overlap of the RHS with IVECC (only for the gradient)
+
+  ! Read the S matrix and the original B matrix
+  call mma_allocate(SMAT,nTri_Elem(NAS),Label='SMAT')
+  call mma_allocate(BMAT,nTri_Elem(NAS),Label='BMAT')
+  call SC_NEVPT2_ReadSB(iCase,iSym,NAS,SMAT,BMAT)
 
   call RHS_ALLO(NAS,NIS,lg_V)
   call RHS_READ(NAS,NIS,lg_V,iCase,iSym,IVECW)
@@ -786,8 +799,7 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
   real(kind=wp), allocatable :: BDER(:,:), BMAT(:), derHNS(:,:), LID(:), SDER(:,:), SMAT(:), ValHN(:,:), ValHN2(:,:)
 
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: IHI1, IHI2, IHI3, ii, ILO1, ILO2, ILO3, JHI2, JHI3, jj, JLO2, JLO3, LDV, LDV1, LDV2, lg_S, MV1, MV2, MV3, &
-                       myRank
+  integer(kind=iwp) :: IHI1, IHI2, IHI3, ILO1, ILO2, ILO3, JHI2, JHI3, JLO2, JLO3, LDV, LDV1, LDV2, MV1, MV2, MV3, myRank
 # endif
 
 # ifdef _MOLCAS_MPP_
@@ -819,33 +831,10 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
         cycle
       end if
 
-      ! Read the original B matrix
-      call mma_allocate(BMAT,nTri_Elem(NAS),Label='BMAT')
-      idisk = IDBMAT_NEVPT2(iSym,iCase,1)
-      call DDAFILE(LUSBT,2,BMAT,nTri_Elem(NAS),idisk)
-
-      ! Read the S matrix
+      ! Read the S matrix and the original B matrix
       call mma_allocate(SMAT,nTri_Elem(NAS),Label='SMAT')
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par() .and. ((iCase == 1) .or. (iCase == 4))) then
-        call mma_allocate(SDER,NAS,NAS,Label='SDER')
-        call PSBMAT_GETMEM('S',lg_S,NAS)
-        call PSBMAT_READ('S',iCase,iSYM,lg_S,NAS)
-        call RHS_GET(NAS,NAS,lg_S,SDER)
-        do ii=1,NAS
-          do jj=1,ii
-            SMAT(iTri(ii,jj)) = SDER(jj,ii)
-          end do
-        end do
-        call PSBMAT_FREEMEM(lg_S)
-        call mma_deallocate(SDER)
-      else
-#     endif
-        idisk = IDSMAT(iSym,iCase)
-        call DDAFILE(LUSBT,2,SMAT,nTri_Elem(NAS),idisk)
-#     ifdef _MOLCAS_MPP_
-      end if
-#     endif
+      call mma_allocate(BMAT,nTri_Elem(NAS),Label='BMAT')
+      call SC_NEVPT2_ReadSB(iCase,iSym,NAS,SMAT,BMAT)
 
       iCoupling = SC_NEVPT2_Coupling(iCase)
 
