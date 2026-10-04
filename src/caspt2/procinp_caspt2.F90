@@ -777,8 +777,8 @@ end if
 
 !! issue #448
 if ((IFDENS .and. (.not. do_grad)) .and. (sum(NRAS1(1:nSym))+sum(NRAS3(1:nSym)) > 0)) then
-  call warningMessage(2,'DENS keyword cannot be combined with RAS.')
-  call quit_onUserError()
+  call warningMessage(1,'DENS keyword with RAS gives an inaccurate active density.')
+! call quit_onUserError()
 end if
 
 if (do_grad .and. (HZERO == 'DYALL')) then
