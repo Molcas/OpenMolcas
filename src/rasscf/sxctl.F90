@@ -87,7 +87,7 @@ real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_si
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
-real(kind=wp), allocatable :: CC(:), CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), ENER_X(:), Fck(:), FTR(:), HH(:), OVL(:), P2Raw(:), &
+real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:), HH(:), OVL(:), P2Raw(:), &
                               P2reo(:), PUVX(:), QMat(:), QQ(:), SC(:), SCR(:), SQ(:), STRP(:), &
                               SXHD(:), VEC(:), WO(:), X2(:), XMAT(:)
 real(kind=wp), allocatable, target :: SMAT(:)
@@ -258,19 +258,13 @@ else
   NLQ = NDIMSX*(NROOT+1)
   NLOVL = ITMAX*NROOT**2
 
-  call mma_allocate(CC,NLCC,Label='CC')
-  call mma_allocate(ENER_X,KMAX,Label='ENER_X')
   call mma_allocate(SC,NDIMSX,Label='SC')
   call mma_allocate(QMat,NLQ,Label='QMat')
   call mma_allocate(QQ,NROOT,Label='QQ')
   call mma_allocate(OVL,NLOVL,Label='OVL')
 
-  call DAVCRE(CSX,CC,ENER_X,SXHD,SC,QMat,QQ,OVL,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
+  call DAVCRE(CSX,ESX,SXHD,SC,QMat,QQ,OVL,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
 
-  ESX = ENER_X(1)
-
-  call mma_deallocate(CC)
-  call mma_deallocate(ENER_X)
   call mma_deallocate(SC)
   call mma_deallocate(QMat)
   call mma_deallocate(QQ)

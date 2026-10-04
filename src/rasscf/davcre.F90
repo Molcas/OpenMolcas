@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DAVCRE(C,CC,E,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
+subroutine DAVCRE(C,ESX,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
 ! RASSCF program: version IBM-3090: SX section
 !
 ! Using the Davidson method, in the multiple root version suggested
@@ -52,8 +52,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: NROOT, NDIM, NSXS
 integer(kind=iwp), intent(inout) :: ITMAX
-real(kind=wp), intent(out) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), CC((ITMAX*NROOT)**2), E((ITMAX*NROOT)), SC((NROOT+NSXS)), &
-                              Q((NROOT+NSXS)*(NROOT+1)), QQ(NROOT), S(ITMAX*NROOT**2)
+real(kind=wp), intent(out) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), SC((NROOT+NSXS)), &
+                              Q((NROOT+NSXS)*(NROOT+1)), QQ(NROOT), S(ITMAX*NROOT**2), ESX
 real(kind=wp), intent(in) :: HD(NROOT+NSXS)
 character(len=*), intent(in) :: SXSEL
 integer(kind=iwp), intent(out) :: ITERSX
@@ -61,13 +61,15 @@ integer(kind=iwp) :: i, iConvA, iConvL, iConvQ, ii, ij, iPass, iPrLev, iSel, iST
                      nDimH, nDimH2, nST, nTotDC, nTrial
 real(kind=wp) :: ASQ, Ei, ENO, Ovl, QNorm, SWAP, THRA_, XMX, XNorm, XX
 character(len=4) :: IOUTW, IOUTX
-real(kind=wp), allocatable :: C1(:), C2(:), X(:), HC(:), HH(:)
+real(kind=wp), allocatable :: C1(:), C2(:), X(:), HC(:), HH(:), CC(:), E(:)
 real(kind=wp), parameter :: THRA = 1.0e-13_wp, THRLD1 = 1.0e-8_wp, THRLD2 = 5.0e-14_wp, THRQ = 1.0e-7_wp, THRZ = 1.0e-6_wp
 real(kind=wp), external :: DDot_
 #include "warnings.h"
 
-call mma_allocate(HC,(NROOT+NSXS)*NROOT*ITMAX)
-call mma_allocate(HH,(ITMAX*NROOT)*(ITMAX*NROOT+1))
+call mma_allocate(HC,(NROOT+NSXS)*NROOT*ITMAX,Label='HC')
+call mma_allocate(HH,(ITMAX*NROOT)*(ITMAX*NROOT+1),Label='HH')
+Call mma_allocate(CC,(ITMAX*NROOT)**2,Label='CC')
+Call mma_allocate(E,(ITMAX*NROOT),Label='E')
 
 if (iCIRst == 1) then
   THRA_ = THRA
@@ -522,9 +524,13 @@ end if
 ! End of diagonalization
 ! Free memory for COVLP
 
+ESX = E(1)
+
 call mma_deallocate(C1)
 call mma_deallocate(C2)
 call mma_deallocate(X)
+call mma_deallocate(E)
+call mma_deallocate(CC)
 call mma_deallocate(HH)
 call mma_deallocate(HC)
 
