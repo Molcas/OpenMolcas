@@ -88,7 +88,7 @@ character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
 real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:), HH(:), OVL(:), P2Raw(:), &
-                              P2reo(:), PUVX(:), QMat(:), QQ(:), SC(:), SCR(:), SQ(:), STRP(:), &
+                              P2reo(:), PUVX(:), QMat(:), QQ(:), SCR(:), SQ(:), STRP(:), &
                               SXHD(:), VEC(:), WO(:), X2(:), XMAT(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
@@ -258,15 +258,11 @@ else
   NLQ = NDIMSX*(NROOT+1)
   NLOVL = ITMAX*NROOT**2
 
-  call mma_allocate(SC,NDIMSX,Label='SC')
-  call mma_allocate(QMat,NLQ,Label='QMat')
   call mma_allocate(QQ,NROOT,Label='QQ')
   call mma_allocate(OVL,NLOVL,Label='OVL')
 
-  call DAVCRE(CSX,ESX,SXHD,SC,QMat,QQ,OVL,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
+  call DAVCRE(CSX,ESX,SXHD,QQ,OVL,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
 
-  call mma_deallocate(SC)
-  call mma_deallocate(QMat)
   call mma_deallocate(QQ)
   call mma_deallocate(OVL)
 
