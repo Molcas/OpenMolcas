@@ -11,6 +11,7 @@
 ! Copyright (C) 1989, Bjorn O. Roos                                    *
 !               1989, Per Ake Malmqvist                                *
 !               1991,1993,1996, Markus P. Fuelscher                    *
+!               2026, Roland Lindh                                     *
 !***********************************************************************
 
 subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
@@ -81,13 +82,13 @@ real(kind=wp), intent(in) :: D(*), PA(*), D1A(*)
 real(kind=wp), intent(out) :: THMAX
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iBas, IC, iDisk, IndType(7,8), iOff, iOrb, iPrLev, iRC, iRef, iSym, iWay, j, kMax, LCSXI, LuvvVec, MIAAE, &
-                     MNO, NAEAE, NAOAE, NCR, NCR1, NIAIA, NLCC, NLHH, NLOVL, NLQ, nP2Act, NQ
+                     MNO, NAEAE, NAOAE, NCR1, NIAIA, NLCC, NLOVL, NLQ, nP2Act, NQ
 real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
 real(kind=wp), allocatable :: CC(:), CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), ENER_X(:), Fck(:), FTR(:), HH(:), OVL(:), P2Raw(:), &
-                              P2reo(:), PUVX(:), QMat(:), QQ(:), SC(:), SCR(:), Sigma(:), SQ(:), STRP(:), &
+                              P2reo(:), PUVX(:), QMat(:), QQ(:), SC(:), SCR(:), SQ(:), STRP(:), &
                               SXHD(:), VEC(:), WO(:), X2(:), XMAT(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
@@ -118,11 +119,6 @@ IPRLEV = IPRLOC(4)
 !write(u6,*) 'Entering SXCTL!'
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering SXCTL'
 
-! --- Check for Cholesky ---------------
-
-!call DecideOnCholesky(DoCholesky)
-! --------------------------------------
-
 ! compute constants needed for addressing
 NSXS = sum((NISH(1:NSYM)+NASH(1:NSYM))*(NASH(1:NSYM)+NSSH(1:NSYM)))
 NIAIA = sum((NISH(1:NSYM)+NASH(1:NSYM))**2)
@@ -136,36 +132,6 @@ NROOT = 1
 NDIMSX = NROOT+NSXS
 
 Call SXCTL_Prelude()
-
-! PAM 2008: Orbital files should be updated each iteration
-! for easy access in case of catastrophic failure.
-if (IFINAL /= 1) then
-  IndType(:,:) = 0
-  do ISYM=1,NSYM
-    IndType(:,ISYM) = [NFRO(ISYM),NISH(ISYM),NRS1(ISYM),NRS2(ISYM),NRS3(ISYM),NDEL(ISYM),NBAS(ISYM)]
-    IndType(7,ISYM) = IndType(7,ISYM)-sum(IndType(1:6,ISYM))
-  end do
-  ! Note: This is not the final orbitals, and the orbital energies and
-  ! active occupation numbers may be meaningless.
-  ! There is an array with occupation numbers, so use it, even if
-  ! possibly irrelevant. But put zeroes as orbital energies:
-  call mma_allocate(EDUM,NTOT,Label='EDUM')
-  EDUM(:) = Zero
-
-  write(VecTyp,'(A)')
-  VecTyp = '* RASSCF average (pseudo-natural) orbitals (Not final)'
-  LuvvVec = 50
-  LuvvVec = isfreeunit(LuvvVec)
-  call WrVec('RASORB',LuvvVec,'COE',NSYM,NBAS,NBAS,CMO,OCC,EDUM,INDTYPE,VECTYP)
-  call WrVec('RASORB',LuvvVec,'AI',NSYM,NBAS,NBAS,CMO,OCC,EDUM,INDTYPE,VECTYP)
-  call mma_deallocate(EDUM)
-
-# ifdef _HDF5_
-  call mh5_put_dset(wfn_mocoef,CMO)
-  call mh5_put_dset(wfn_occnum,OCC)
-# endif
-
-end if
 
 if (IFINAL == 1) then
   ! If ifinal=1 , this is the last call to SXCTL for calculating
@@ -189,23 +155,6 @@ if (IFINAL == 1) then
   call mma_allocate(WO,NTOT2,Label='WO')
   call mma_allocate(SQ,NTOT2,Label='SQ')
   call mma_allocate(CMOX,NTOT2,Label='CMOX')
-  if (IPRLEV >= DEBUG) then
-    write(u6,*)
-    write(u6,*) ' CMO in SXCTL for IFINAL=1'
-    write(u6,*) ' ---------------------'
-    write(u6,*)
-    ioff = 0
-    do iSym=1,nSym
-      iBas = nBas(iSym)
-      if (iBas /= 0) then
-        write(u6,*) 'Sym =',iSym
-        do i=1,iBas
-          write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=1,iBas)
-        end do
-        iOff = iOff+(iBas*iBas)
-      end if
-    end do
-  end if
 
   if (iCIonly == 1) then
     IDISK = IADR15(2)
@@ -294,7 +243,6 @@ else
   ! MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
 
   ! CSX: The super-CI vectors
-  ! SIGMA: The sigma vectors
   ! HH:  The Davidson H matrix
   ! CC:   "     "     egenvectors
   ! ENER: "     "     energies
@@ -303,16 +251,13 @@ else
   ! QQ:   Norm of update vectors
   ! OVL:  Overlap matrix
 
-  NCR = NDIMSX*NROOT*ITMAX
-  KMAX = ITMAX*NROOT
+  KMAX =        NROOT*ITMAX
   NCR1 = NDIMSX*NROOT*(ITMAX+1)
   call mma_allocate(CSX,NCR1,Label='CSX')
-  call mma_allocate(SIGMA,NCR,Label='SIGMA')
-  NLHH = KMAX**2+KMAX
   NLCC = KMAX**2
   NLQ = NDIMSX*(NROOT+1)
   NLOVL = ITMAX*NROOT**2
-  call mma_allocate(HH,NLHH,Label='HH')
+
   call mma_allocate(CC,NLCC,Label='CC')
   call mma_allocate(ENER_X,KMAX,Label='ENER_X')
   call mma_allocate(SC,NDIMSX,Label='SC')
@@ -320,17 +265,17 @@ else
   call mma_allocate(QQ,NROOT,Label='QQ')
   call mma_allocate(OVL,NLOVL,Label='OVL')
 
-  call DAVCRE(CSX,SIGMA,HH,CC,ENER_X,SXHD,SC,QMat,QQ,OVL,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
+  call DAVCRE(CSX,CC,ENER_X,SXHD,SC,QMat,QQ,OVL,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
 
   ESX = ENER_X(1)
-  call mma_deallocate(SIGMA)
-  call mma_deallocate(HH)
+
   call mma_deallocate(CC)
   call mma_deallocate(ENER_X)
   call mma_deallocate(SC)
   call mma_deallocate(QMat)
   call mma_deallocate(QQ)
   call mma_deallocate(OVL)
+
   call mma_deallocate(F1)
   call mma_deallocate(F2)
   call mma_deallocate(SXG)
@@ -542,6 +487,36 @@ call mma_deallocate(FCK)
 call mma_deallocate(QMat)
 call mma_deallocate(STRP,safe='*')
 call mma_deallocate(PUVX,safe='*')
+
+! PAM 2008: Orbital files should be updated each iteration
+! for easy access in case of catastrophic failure.
+if (IFINAL /= 1) then
+  IndType(:,:) = 0
+  do ISYM=1,NSYM
+    IndType(:,ISYM) = [NFRO(ISYM),NISH(ISYM),NRS1(ISYM),NRS2(ISYM),NRS3(ISYM),NDEL(ISYM),NBAS(ISYM)]
+    IndType(7,ISYM) = IndType(7,ISYM)-sum(IndType(1:6,ISYM))
+  end do
+  ! Note: This is not the final orbitals, and the orbital energies and
+  ! active occupation numbers may be meaningless.
+  ! There is an array with occupation numbers, so use it, even if
+  ! possibly irrelevant. But put zeroes as orbital energies:
+  call mma_allocate(EDUM,NTOT,Label='EDUM')
+  EDUM(:) = Zero
+
+  write(VecTyp,'(A)')
+  VecTyp = '* RASSCF average (pseudo-natural) orbitals (Not final)'
+  LuvvVec = 50
+  LuvvVec = isfreeunit(LuvvVec)
+  call WrVec('RASORB',LuvvVec,'COE',NSYM,NBAS,NBAS,CMO,OCC,EDUM,INDTYPE,VECTYP)
+  call WrVec('RASORB',LuvvVec,'AI',NSYM,NBAS,NBAS,CMO,OCC,EDUM,INDTYPE,VECTYP)
+  call mma_deallocate(EDUM)
+
+# ifdef _HDF5_
+  call mh5_put_dset(wfn_mocoef,CMO)
+  call mh5_put_dset(wfn_occnum,OCC)
+# endif
+
+end if
 End Subroutine SXCTL_Prelude
 
 end subroutine SXCtl
