@@ -19,8 +19,6 @@
 !--------------------------------------------*
 
 subroutine DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA)
-! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
-! OR CLOSED-SHELL SCF CASE.
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: King

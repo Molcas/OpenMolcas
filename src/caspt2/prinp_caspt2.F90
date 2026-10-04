@@ -39,7 +39,7 @@ use general_data, only: ISPIN, NACTEL, NASH, nElec3, nHole1, STSym
 use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, mState, &
                          nAshT, nBas, nConf, nDel, nFro, nIsh, nIshT, nRoots, nSsh, nSshT, nState, nSym, Orbin, PT2Method, RFPert, &
                          Zeta
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_merge, SC_thres
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_merge, SC_prop, SC_thres
 #ifdef _DMRG_
 use caspt2_global, only: compressMPS
 use caspt2_module, only: DMRG

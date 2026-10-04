@@ -69,7 +69,7 @@ end if
 
 if (IPRGLB >= VERBOSE) then
   ! Print new orbitals. First, form array of orbital energies.
-  ! The frozen orbitals taken from the runfile are copied from the RASSF reference.
+  ! The frozen orbitals taken from the runfile are copied from the RASSCF reference.
   call mma_allocate(ORBE,NBAST,Label='ORBE')
   call Qpg_dArray('RASSCF OrbE',Found,nData)
   Found = Found .and. (nData == NBAST)

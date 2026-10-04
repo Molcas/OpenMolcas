@@ -37,7 +37,7 @@ private
 !! SC_prop      :: Do property (energy and gradients) calculations using SC-NEVPT2 wavefunction
 !! SC_amplitude :: Compute the T-amplitude for SC-NEVPT2 wavefunction
 !! SC_thres     :: Threshold for avoiding vanishing denominators: the main purpose is to avoid numerical blow up, not for efficiency
-!! SC_merge     :: Perturber functions
+!! SC_merge     :: Choose perturber functions (.true. -> SCPF = MERGE, .false. -> SCPF = SPLIT)
 
 !----- SC-NEVPT2
 ! ECORR_SC                         :: Correlation energy
@@ -53,7 +53,7 @@ private
 
 integer(kind=iwp) :: IDBMAT_NEVPT2(8,13,2)
 real(kind=wp) :: DVALUE_SC, ECORR_SC(0:8,0:MXCASE), OVLAPS_SC(0:8,0:MXCASE), SC_thres = 1.0e-9_wp
-logical(kind=iwp) :: Do_FIC, Do_SC, SC_amplitude = .false., SC_merge = .true., SC_prop = .false.
+logical(kind=iwp) :: Do_FIC, Do_SC, SC_amplitude = .false., SC_merge = .false., SC_prop = .false.
 real(kind=wp), allocatable :: ENERGY_SC(:), HEFF_SC(:,:), UEFF_SC(:,:)
 
 public :: Do_FIC, Do_SC, DVALUE_SC, ECORR_SC, ENERGY_SC, HEFF_SC, IDBMAT_NEVPT2, OVLAPS_SC, SC_amplitude, SC_merge, &
@@ -94,29 +94,32 @@ function SC_NEVPT2_Coupling(iCase)
   integer(kind=iwp) :: SC_NEVPT2_Coupling
 
   SC_NEVPT2_Coupling = 0
-  if (.not.SC_merge) return
+  if (.not. SC_merge) return
 
   select case (iCase)
-  case (2,6,8,10)
-    SC_NEVPT2_Coupling = +1
-  case (1,4,5,12,13)
-    SC_NEVPT2_Coupling = 0
-  case (3,7,9,11)
-    SC_NEVPT2_Coupling = -1
+    case (2,6,8,10)
+      SC_NEVPT2_Coupling = +1
+    case (1,4,5,12,13)
+      SC_NEVPT2_Coupling = 0
+    case (3,7,9,11)
+      SC_NEVPT2_Coupling = -1
+    case default
+      write(u6,*) 'SC_NEVPT2_Coupling: illegal case number', iCase
+      call abend()
   end select
 
 end function SC_NEVPT2_Coupling
 
 !-----------------------------------------------------------------------
 
-subroutine SC_NEVPT2_Map(iCase,iSym,NIS,MAP)
+subroutine SC_NEVPT2_Map(iCase,iSym,NIS,Map)
 
   use Symmetry_Info, only: Mul
   use SUPERINDEX, only: KAGEB, KIGEJ, MAGTB, MIGTJ
   use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NISH, NSSH
 
   integer(kind=iwp), intent(in) :: iCase, iSym, NIS
-  integer(kind=iwp), intent(out) :: MAP(NIS)
+  integer(kind=iwp), intent(out) :: Map(NIS)
 
   integer(kind=iwp) :: ia, iab, iaq, ibq, ii, iij, iiq, ijq, ioff, isp, iSym1, iSym2, jab, jij
 
@@ -128,7 +131,7 @@ subroutine SC_NEVPT2_Map(iCase,iSym,NIS,MAP)
       do isp=1,NIGTJ(iSym)
         iiq = MIGTJ(1,isp+NIGTJES(iSym))
         ijq = MIGTJ(2,isp+NIGTJES(iSym))
-        MAP(isp) = KIGEJ(iiq,ijq)-NIGEJES(iSym)
+        Map(isp) = KIGEJ(iiq,ijq)-NIGEJES(iSym)
       end do
     case (7)
       ! VJAIM --> VJAIP: a*(i>j) --> a*(i>=j)
@@ -142,7 +145,7 @@ subroutine SC_NEVPT2_Map(iCase,iSym,NIS,MAP)
           jij = KIGEJ(iiq,ijq)-NIGEJES(iSym2)
           do ia=1,NSSH(iSym1)
             isp = isp+1
-            MAP(isp) = ioff+ia+NSSH(iSym1)*(jij-1)
+            Map(isp) = ioff+ia+NSSH(iSym1)*(jij-1)
           end do
         end do
         ioff = ioff+NSSH(iSym1)*NIGEJ(iSym2)
@@ -152,7 +155,7 @@ subroutine SC_NEVPT2_Map(iCase,iSym,NIS,MAP)
       do isp=1,NAGTB(iSym)
         iaq = MAGTB(1,isp+NAGTBES(iSym))
         ibq = MAGTB(2,isp+NAGTBES(iSym))
-        MAP(isp) = KAGEB(iaq,ibq)-NAGEBES(iSym)
+        Map(isp) = KAGEB(iaq,ibq)-NAGEBES(iSym)
       end do
     case (11)
       ! BJATM -> BJATP: i*(a>b) --> i*(a>=b)
@@ -166,13 +169,13 @@ subroutine SC_NEVPT2_Map(iCase,iSym,NIS,MAP)
           jab = KAGEB(iaq,ibq)-NAGEBES(iSym2)
           do ii=1,NISH(iSym1)
             isp = isp+1
-            MAP(isp) = ioff+ii+NISH(iSym1)*(jab-1)
+            Map(isp) = ioff+ii+NISH(iSym1)*(jab-1)
           end do
         end do
         ioff = ioff+NISH(iSym1)*NAGEB(iSym2)
       end do
     case default
-      write(u6,*) 'SC_NEVPT2_Map: illegal case number'
+      write(u6,*) 'SC_NEVPT2_Map: illegal case number', iCase
       call abend()
   end select
 
@@ -228,12 +231,12 @@ subroutine SC_NEVPT2_Print()
     write(u6,*) ' Correlation energy /case, /Symm, and sums (SC-NEVPT2):'
     do IC=1,13
       select case (SC_NEVPT2_Coupling(IC))
-      case (+1)
-        LABEL = CASES(IC)(1:len_trim(CASES(IC))-1)
-      case (0)
-        LABEL = CASES(IC)
-      case (-1)
-        cycle
+        case (+1)
+          LABEL = CASES(IC)(1:len_trim(CASES(IC))-1)
+        case (0)
+          LABEL = CASES(IC)
+        case (-1)
+          cycle
       end select
       write(u6,'(1X,A8,9F12.8)') LABEL,(ECORR_SC(IS,IC),IS=1,NSYM),ECORR_SC(0,IC)
     end do
@@ -276,7 +279,7 @@ subroutine SC_NEVPT2_Energy()
   real(kind=wp) :: etmp, otmp, vale
   logical(kind=iwp) :: do_H
 
-  integer(kind=iwp), allocatable :: MAP(:)
+  integer(kind=iwp), allocatable :: Map(:)
   real(kind=wp), allocatable :: E_value(:), LBD(:), LID(:), ValHN(:,:), ValHN2(:,:)
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: LDV, MV, myRank
@@ -370,7 +373,7 @@ subroutine SC_NEVPT2_Energy()
 
       if (iCoupling == -1) cycle ! minus coupling has been computed already (SC_Merge)
       if (SC_merge) then
-        jCase = iCase + iCoupling
+        jCase = iCase+iCoupling
       else
         jCase = 0
       end if
@@ -391,10 +394,10 @@ subroutine SC_NEVPT2_Energy()
           call mma_allocate(ValHN2,NIS2,2,Label='ValHN2')
           call SC_NEVPT2_ValHN(jCase,iSym,NAS2,NIS2,ValHN2,2)
 
-          call mma_allocate(MAP,NIS2,Label='MAP')
-          call SC_NEVPT2_Map(jCase,iSym,NIS2,MAP)
+          call mma_allocate(Map,NIS2,Label='Map')
+          call SC_NEVPT2_Map(jCase,iSym,NIS2,Map)
           do isp=1,NIS2
-            ValHN(MAP(isp),:) = ValHN(MAP(isp),:)+ValHN2(isp,:)
+            ValHN(Map(isp),:) = ValHN(Map(isp),:)+ValHN2(isp,:)
           end do
           call mma_deallocate(ValHN2)
         end if
@@ -441,8 +444,8 @@ subroutine SC_NEVPT2_Energy()
       call mma_deallocate(LBD)
       call mma_deallocate(LID)
 
-      if (iCoupling == +1 .and. NAS2*NIS2 > 0) then
-        ! minus coupling for SC_merge (to be verified)
+      if ((iCoupling == +1) .and. (NAS2*NIS2 > 0)) then
+        ! minus coupling for SC_merge
         call mma_allocate(LBD,NAS2,Label='LBD')
         call mma_allocate(LID,NIS2,Label='LID')
         idisk = IDBMAT(iSym,jCase)
@@ -450,14 +453,14 @@ subroutine SC_NEVPT2_Energy()
         call dDaFile(LUSBT,2,LID,NIS2,idisk)
 
         do isp=1,NIS2
-          LID(isp) = LID(isp)+E_value(MAP(isp))
+          LID(isp) = LID(isp)+E_value(Map(isp))
         end do
         idisk = IDBMAT_NEVPT2(iSym,jCase,2)
         call dDaFile(LUSBT,1,LID,NIS2,idisk)
 
         call mma_deallocate(LBD)
         call mma_deallocate(LID)
-        call mma_deallocate(MAP)
+        call mma_deallocate(Map)
       end if
       call mma_deallocate(E_value)
     end do
@@ -554,9 +557,7 @@ subroutine SC_NEVPT2_ValHN(iCase,iSym,NAS,NIS,ValHN,nVal)
       call SC_NEVPT2_ValHN_MPP(DBL_MB(MV),LDV,JLO1,JHI1,NAS,NIS,BMAT,SMAT,ValHN,nVal)
       if (nVal == 3) then
         call GA_Access(lg_C,ILO1,IHI1,JLO1,JHI1,MC,LDC)
-        do isp=JLO1,JHI1
-          ValHN(isp,3) = ddot_(NAS,DBL_MB(MV+LDV*(isp-JLO1)),1,DBL_MB(MC+LDC*(isp-JLO1)),1)
-        end do
+        call SC_NEVPT2_ValHN_MPP2(DBL_MB(MV),DBL_MB(MC),JLO1,JHI1,LDV,LDC,NAS,NIS,ValHN(1,3))
         call GA_Release(lg_C,ILO1,IHI1,JLO1,JHI1)
       end if
       call GA_RELEASE(lg_V,ILO1,IHI1,JLO1,JHI1)
@@ -628,6 +629,23 @@ subroutine SC_NEVPT2_ValHN_MPP(V,LDV,JLO,JHI,NAS,NIS,BMAT,SMAT,ValHN,nVal)
   end do
 
 end subroutine SC_NEVPT2_ValHN_MPP
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_ValHN_MPP2(V1,V2,JLO,JHI,LDV,LDC,NAS,NIS,ValHN)
+
+  integer(kind=iwp), intent(in) :: JLO, JHI, LDV, LDC, NAS, NIS
+  real(kind=wp), intent(in) :: V1(LDV,JHI-JLO+1), V2(LDC,JHI-JLO+1)
+  real(kind=wp), intent(inout) :: ValHN(NIS)
+
+  integer(kind=iwp) :: isp
+  real(kind=wp), external :: ddot_
+
+  do isp=JLO,JHI
+    ValHN(isp) = ddot_(NAS,V1(1,isp-JLO+1),1,V2(1,isp-JLO+1),1)
+  end do
+
+end subroutine SC_NEVPT2_ValHN_MPP2
 #endif
 
 !-----------------------------------------------------------------------
@@ -764,7 +782,7 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
   integer(kind=iwp) :: ias, iCase, iCoupling, idisk, isp, iSym, jas, jCase, JHI1, JLO1, lg_V1, lg_V2, lg_V3, NAS, NAS2, NIS, NIS2, &
                        NVEC
 
-  integer(kind=iwp), allocatable :: MAP(:)
+  integer(kind=iwp), allocatable :: Map(:)
   real(kind=wp), allocatable :: BDER(:,:), BMAT(:), derHNS(:,:), LID(:), SDER(:,:), SMAT(:), ValHN(:,:), ValHN2(:,:)
 
 # ifdef _MOLCAS_MPP_
@@ -871,20 +889,20 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
 
           if (iCoupling == +1) then
             ! add the minus coupling to the plus coupling
-            call mma_allocate(MAP,NIS2,Label='MAP')
-            call SC_NEVPT2_Map(jCase,iSym,NIS2,MAP)
+            call mma_allocate(Map,NIS2,Label='Map')
+            call SC_NEVPT2_Map(jCase,iSym,NIS2,Map)
             do isp=1,NIS2
-              ValHN(MAP(isp),:) = VALHN(MAP(isp),:)+ValHN2(isp,:)
+              ValHN(Map(isp),:) = ValHN(Map(isp),:)+ValHN2(isp,:)
             end do
           else if (iCoupling == -1) then
             ! add the plus coupling to the minus coupling
-            call mma_allocate(MAP,NIS,Label='MAP')
-            call SC_NEVPT2_Map(iCase,iSym,NIS,MAP)
+            call mma_allocate(Map,NIS,Label='Map')
+            call SC_NEVPT2_Map(iCase,iSym,NIS,Map)
             do isp=1,NIS
-              ValHN(isp,:) = VALHN(isp,:)+ValHN2(MAP(isp),:)
+              ValHN(isp,:) = ValHN(isp,:)+ValHN2(Map(isp),:)
             end do
           end if
-          call mma_deallocate(VALHN2)
+          call mma_deallocate(ValHN2)
           call mma_deallocate(Map)
         end if
       end if
@@ -898,7 +916,7 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
         ! Compensate the division by lid
         derHNS(isp,3) = -lid(isp)
       end do
-      call mma_deallocate(VALHN)
+      call mma_deallocate(ValHN)
 
       JLO1 = 1
       JHI1 = NIS
@@ -1084,7 +1102,7 @@ end subroutine SC_NEVPT2_res
 subroutine SC_NEVPT2_CLagD1_MPP(V1,LDV1,JLO,JHI,NAS,NIS,derHNS,scal,BDER,SDER)
 
   integer(kind=iwp), intent(in) :: LDV1, JLO, JHI, NAS, NIS
-  real(kind=wp), intent(in) :: V1(LDV1,*), derHNS(NIS,3), scal
+  real(kind=wp), intent(in) :: V1(LDV1,JHI-JLO+1), derHNS(NIS,3), scal
   real(kind=wp), intent(inout) :: BDER(NAS,NAS), SDER(NAS,NAS)
   integer(kind=iwp) :: ias, icol, isp, jas
 
@@ -1108,8 +1126,8 @@ end subroutine SC_NEVPT2_CLagD1_MPP
 subroutine SC_NEVPT2_CLagD2_MPP(V1,LDV1,V2,LDV2,V3,LDV3,JLO,JHI,NAS,NIS,BMAT,SMAT,LID,derHNS)
 
   integer(kind=iwp), intent(in) :: LDV1, LDV2, LDV3, JLO, JHI, NAS, NIS
-  real(kind=wp), intent(in) :: V1(LDV1,*), V2(LDV2,*), BMAT(*), SMAT(*), LID(*)
-  real(kind=wp), intent(inout) :: V3(LDV3,*), derHNS(NIS,3)
+  real(kind=wp), intent(in) :: V1(LDV1,JHI-JLO+1), V2(LDV2,JHI-JLO+1), BMAT(nTri_Elem(NAS)), SMAT(nTri_Elem(NAS)), LID(NIS)
+  real(kind=wp), intent(inout) :: V3(LDV3,JHI-JLO+1), derHNS(NIS,3)
   integer(kind=iwp) :: ias, icol, isp, jas
 
   ! Construct the integral derivative vector V3 from V1, V2, and derHNS

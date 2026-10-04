@@ -25,7 +25,7 @@ use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, CPT2Method, DMRG, DoCum
                          mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, NRAS1, NRAS3, nRoots, nRoots, &
                          nSsh, nState, nSym, OrbIn, OutFmt, PrOrb, PRSD, PT2Method, RFPERT, RHSDirect, Root2State, SDECOM, &
                          SMatrix, ThrConv, ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_amplitude, SC_prop, SC_merge, SC_thres
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_amplitude, SC_merge, SC_prop, SC_thres
 #ifdef _DMRG_
 use qcmaquis_info, only: qcm_group_names
 use qcmaquis_interface_cfg, only: dmrg_file, qcmaquis_param

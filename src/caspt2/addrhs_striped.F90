@@ -828,9 +828,10 @@ subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYL, NA, NJ, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NL,NCHO)
-  integer(kind=iwp) :: IA, IAEND, IAHI, IALO, IASTA, IJ, IJABS, IL, ILABS, IOFFM, IOFFP, ISA, ISIJ, ISYA, ISYJL, ISYM, JBASM(NL), &
-                       JBASP(NL), JHIM, JHIP, JLOM, JLOP, LDY, MOFFM, MOFFP, NAMX, NAS, NASZ, NISM, NISP
+  integer(kind=iwp) :: IA, IAEND, IAHI, IALO, IASTA, IJ, IJABS, IL, ILABS, IOFFM, IOFFP, ISA, ISIJ, ISYA, ISYJL, ISYM, &
+                       JHIM, JHIP, JLOM, JLOP, LDY, MOFFM, MOFFP, NAMX, NAS, NASZ, NISM, NISP
   real(kind=wp) :: SCLM, SCLP
+  integer(kind=iwp), allocatable :: JBASM(:), JBASP(:)
 
   ! Case E: both combinations of (aj,vl)
   !   WP(v,a,j>=l) = ((aj,vl)+(al,vj))/SQRT(2+2*Kron(jl))
@@ -856,6 +857,9 @@ subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
 
   call RHSLOC_BOUNDS(ISYM,6,NAS*NISP > 0,MOFFP,JLOP,JHIP)
   call RHSLOC_BOUNDS(ISYM,7,NAS*NISM > 0,MOFFM,JLOM,JHIM)
+
+  call mma_allocate(JBASP,max(NL,1),Label='JBASP')
+  call mma_allocate(JBASM,max(NL,1),Label='JBASM')
 
   IOFFP = 0
   IOFFM = 0
@@ -906,6 +910,9 @@ subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
       end do
     end do
   end do
+
+  call mma_deallocate(JBASP)
+  call mma_deallocate(JBASM)
 
 end subroutine ADDRHSE_STRIPED
 
