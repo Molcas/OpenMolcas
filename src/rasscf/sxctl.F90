@@ -60,7 +60,7 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
-use wadr, only: BM, DIA, F1, F2, NLX, SXG, SXH, SXN, TUVX
+use wadr, only: BM, F1, F2, NLX, SXG, SXH, SXN, TUVX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
                          l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
@@ -89,7 +89,7 @@ logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
 real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:), HH(:), P2Raw(:), &
                               P2reo(:), PUVX(:), QMat(:), SCR(:), SQ(:), STRP(:), &
-                              SXHD(:), VEC(:), WO(:), X2(:), XMAT(:)
+                              SXHD(:), VEC(:), WO(:), X2(:), XMAT(:), DIA(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
@@ -422,7 +422,7 @@ Subroutine SXCTL_Iterate()
   NCR1 = NDIMSX*NROOT*(ITMAX+1)
   call mma_allocate(CSX,NCR1,Label='CSX')
 
-  call DAVCRE(CSX,ESX,SXHD,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
+  call DAVCRE(CSX,ESX,SXHD,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS,DIA,NIAIA)
 
   call mma_deallocate(F1)
   call mma_deallocate(F2)

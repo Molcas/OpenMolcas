@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DAVCRE(C,ESX,HD,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
+subroutine DAVCRE(C,ESX,HD,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS,DIA,nDIA)
 ! RASSCF program: version IBM-3090: SX section
 !
 ! Using the Davidson method, in the multiple root version suggested
@@ -40,7 +40,7 @@ subroutine DAVCRE(C,ESX,HD,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
 
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
-use wadr, only: DIA, PA, SXN
+use wadr, only: PA, SXN
 use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC, RC_SX
 use RASDim, only: MxSXIt
@@ -50,10 +50,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NROOT, NDIM, NSXS
+integer(kind=iwp), intent(in) :: NROOT, NDIM, NSXS, nDIA
 integer(kind=iwp), intent(inout) :: ITMAX
 real(kind=wp), intent(out) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), ESX
-real(kind=wp), intent(in) :: HD(NROOT+NSXS)
+real(kind=wp), intent(in) :: HD(NROOT+NSXS), DIA(nDIA)
 character(len=*), intent(in) :: SXSEL
 integer(kind=iwp), intent(out) :: ITERSX
 integer(kind=iwp) :: i, iConvA, iConvL, iConvQ, ii, ij, iPass, iPrLev, iSel, iST, iSTC, iSTQ, j, ji, jST, k, kDimH, Length, nCR, &
@@ -122,7 +122,7 @@ NDIMH = 0
 !               Head of Super-CI iteration loop:
 !*************************************************************
 do ITERSX=1,ITMAX
-  call HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL)
+  call HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL,DIA,nDIA)
   KDIMH = nTri_Elem(NDIMH)
 
   ! Echo the HH-matrix before diagonalizing it.
