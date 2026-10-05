@@ -231,7 +231,7 @@ do ITERSX=1,ITMAX
   ICONVQ = 0
   IST = 1+NDIM
   do I=1,NROOT
-    call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,QQ(I))
+    call COVLP(Q(IST),Q(IST),DIA,PA,SXN,nSXS,C1,C2,X,QQ(I))
     IST = IST+NDIM
   end do
 
@@ -341,7 +341,7 @@ do ITERSX=1,ITMAX
       ISTC = 1
       do J=1,NDIMH
         IJ = IJ+1
-        call COVLP(Q(ISTQ),C(ISTC),DIA,PA,SXN,C1,C2,X,OVL)
+        call COVLP(Q(ISTQ),C(ISTC),DIA,PA,SXN,nSXS,C1,C2,X,OVL)
         S(IJ) = -OVL
         ISTC = ISTC+NDIM
       end do
@@ -368,7 +368,7 @@ do ITERSX=1,ITMAX
 
         JST = 1
         do J=1,NTRIAL
-          call COVLP(Q(IST),Q(JST),DIA,PA,SXN,C1,C2,X,OVL)
+          call COVLP(Q(IST),Q(JST),DIA,PA,SXN,nSXS,C1,C2,X,OVL)
           S(J) = -OVL
           JST = JST+NDIM
         end do
@@ -382,7 +382,7 @@ do ITERSX=1,ITMAX
 
       ! Normalize this vector and move to trial set if norm large enough
 
-      call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,XNORM)
+      call COVLP(Q(IST),Q(IST),DIA,PA,SXN,nSXS,C1,C2,X,XNORM)
       ! Due to large noise amplification in COVLP, the squared-norm
       ! can actually come out as a negative number.
       ! Acceptable, only if it is very close to zero. Else, quit.
@@ -507,7 +507,7 @@ end if
 
 IST = 1
 do I=1,NROOT
-  call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,XNORM)
+  call COVLP(Q(IST),Q(IST),DIA,PA,SXN,nSXS,C1,C2,X,XNORM)
   XNORM = One/XNORM
   C(IST:IST+NDIM-1) = XNORM*Q(IST:IST+NDIM-1)
   IST = IST+NDIM

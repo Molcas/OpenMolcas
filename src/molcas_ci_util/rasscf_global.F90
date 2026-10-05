@@ -27,7 +27,7 @@ integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLB
                      ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), IXMSP, IXSYM(mxOrb), IZROT(ITRIM), &
                      JBLB(8), JBLBM, JCJ(mxRoot,mxRef), KTIGHT, LOWMS, LROOTS, MALTER(MAXALTER,3), MAXIT, MAXJT, MAXORBOUT, &
                      MxDMRG, n_Det, n_keep, NAC, NACPAR, NACPR2, NALTER, NCRVEC, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, &
-                     NQUNE, NROOT, NROOTS, NSEC, NSXS, NTIT, NTOT3, NTOT4
+                     NQUNE, NROOT, NROOTS, NSEC, NTIT, NTOT3, NTOT4
 integer(kind=iwp), allocatable :: CleanMask(:)
 real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, CONV(6,mxIter+2), CoreShift, DE, E2act, &
                  ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, &
@@ -51,7 +51,7 @@ public :: BName, CBLB, CBLBM, CCI, CleanMask, CMAX, CMSStartMat, CMSThreshold, C
           IROOT, IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD, ISTORP, ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc, &
           IXMSP, IXSYM, IZROT, JBLB, JBLBM, JCJ, kIvo, KSDFT, KSDFT_TEMP, KTIGHT, l_casdft, Lowdin_On, LOWMS, LROOTS, lSquare, &
           LVSHFT, MALTER, MAXALTER, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, n_keep, NAC, NACPAR, NACPR2, NALTER, NCRVEC, NDIMSX, &
-          NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, NSXS, NTIT, NTOT3, NTOT4, OutFmt1, OutFmt2, &
+          NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, NTIT, NTOT3, NTOT4, OutFmt1, OutFmt2, &
           POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, RLXGRD, ROTMAX, S, Start_Vectors, SXDAMP, SXSEL, SXSHFT, &
           THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT
 

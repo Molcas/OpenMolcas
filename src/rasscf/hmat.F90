@@ -39,7 +39,7 @@ IST = 1+NDIMH*NDIM
 call mma_allocate(XX,NLX,Label='XX')
 call mma_allocate(XC,NSXS,Label='XC')
 
-call SIGVEC(C(IST),HC(IST),HD,BM,SXN,SXG,SXH,DIA,F1,F2,XX,XC,NTRIAL)
+call SIGVEC(C(IST),HC(IST),HD,BM,SXN,nSXS,SXG,SXH,DIA,F1,F2,XX,XC,NTRIAL)
 
 call mma_deallocate(XX)
 call mma_deallocate(XC)

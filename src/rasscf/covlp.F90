@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
+subroutine COVLP(C1IN,C2IN,DIA,PA,SXN,nSXS,C1,C2,X,OVL)
 ! RASSCF program version IBM-3090: SX section
 !
 ! Purpose:Calculation of the overlap between two super-CI
@@ -21,7 +21,7 @@ subroutine COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
 !PAM01 quantity to the overlap of brillouin states.
 
 use Index_Functions, only: iTri
-use rasscf_global, only: NROOT, NSXS
+use rasscf_global, only: NROOT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NASH, NISH, NSSH, NSYM
@@ -29,6 +29,7 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: NSXS
 real(kind=wp), intent(in) :: C1IN(*), C2IN(*), DIA(*), PA(*), SXN(NSXS)
 real(kind=wp), intent(out) :: C1(NSXS), C2(NSXS), X(NSXS), OVL
 integer(kind=iwp) :: iAshI, iAshJ, iC1, iC2, iPrLev, ISTBM, ISTC2, iSTIA, ISYM, JSYM, NAE, NAEJ, NAO, NAOJ, NEO, NIA, NIAJ, NIO, &

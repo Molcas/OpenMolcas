@@ -63,7 +63,7 @@ use Fock_util_global, only: ALGO, DoCholesky
 use wadr, only: BM, NLX, TUVX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
-                         l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
+                         l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH, LUINTM, LUQUNE
@@ -82,7 +82,7 @@ real(kind=wp), intent(in) :: D(*), PA(*), D1A(*)
 real(kind=wp), intent(out) :: THMAX
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iBas, IC, iDisk, IndType(7,8), iOff, iOrb, iPrLev, iRC, iRef, iSym, iWay, j, kMax, LCSXI, LuvvVec, MIAAE, &
-                     MNO, NAEAE, NAOAE, NCR1, NIAIA, nP2Act, NQ
+                     MNO, NAEAE, NAOAE, NCR1, NIAIA, nP2Act, NQ, NSXS
 real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
