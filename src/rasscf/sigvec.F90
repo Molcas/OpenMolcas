@@ -31,7 +31,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSXS
-real(kind=wp), intent(in) :: CIN(*), HD(*), BM(*), SXN(nSXS), G(*), H(*), DIA(*), F1(*), F2(*)
+real(kind=wp), intent(in) :: CIN(*), HD(*), BM(nSXS), SXN(nSXS), G(*), H(*), DIA(*), F1(*), F2(*)
 real(kind=wp), intent(_OUT_) :: HC(*), X(*), C(*)
 integer(kind=iwp) :: NTRIAL
 integer(kind=iwp) :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM, ITRIAL, NAE, NAO, NEO, NIA, NIO, NNST, NST

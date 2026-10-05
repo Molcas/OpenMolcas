@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DAVCRE(C,ESX,SXG,HD,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS,DIA,F1,nIAIA,F2,nAEAE,SXH,nAOAE,SXN)
+subroutine DAVCRE(C,ESX,SXG,HD,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS,DIA,F1,nIAIA,F2,nAEAE,SXH,nAOAE,SXN,BM)
 ! RASSCF program: version IBM-3090: SX section
 !
 ! Using the Davidson method, in the multiple root version suggested
@@ -53,7 +53,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NROOT, NDIM, NSXS, nIAIA, nAEAE, nAOAE
 integer(kind=iwp), intent(inout) :: ITMAX
 real(kind=wp), intent(out) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), ESX
-real(kind=wp), intent(in) :: HD(NROOT+NSXS), DIA(nIAIA), F1(nIAIA), F2(nAEAE), SXG(nIAIA), SXH(nAOAE), SXN(nSXS)
+real(kind=wp), intent(in) :: HD(NROOT+NSXS), DIA(nIAIA), F1(nIAIA), F2(nAEAE), SXG(nIAIA), SXH(nAOAE), SXN(nSXS), BM(nSXS)
 character(len=*), intent(in) :: SXSEL
 integer(kind=iwp), intent(out) :: ITERSX
 integer(kind=iwp) :: i, iConvA, iConvL, iConvQ, ii, ij, iPass, iPrLev, iSel, iST, iSTC, iSTQ, j, ji, jST, k, kDimH, Length, nCR, &
@@ -122,7 +122,7 @@ NDIMH = 0
 !               Head of Super-CI iteration loop:
 !*************************************************************
 do ITERSX=1,ITMAX
-  call HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL,DIA,F1,nIAIA,F2,nAEAE,SXG,SXH,nAOAE,SXN,nSXS)
+  call HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL,DIA,F1,nIAIA,F2,nAEAE,SXG,SXH,nAOAE,SXN,nSXS,BM)
   KDIMH = nTri_Elem(NDIMH)
 
   ! Echo the HH-matrix before diagonalizing it.
