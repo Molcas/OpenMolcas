@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL,DIA,F1,nIAIA,F2,nAEAE,SXG)
+subroutine HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL,DIA,F1,nIAIA,F2,nAEAE,SXG,SXH,nAOAE)
 ! RASSCF program: version IBM-3090: SX section
 !
 ! Purpose: Calculation of the Davidson Hamiltonian.
@@ -18,15 +18,15 @@ subroutine HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL,DIA,F1,nIAIA,F2,nAEAE,SXG)
 ! ********** IBM-3090 Release 88 09 08 **********
 
 use Index_Functions, only: nTri_Elem
-use wadr, only: BM, NLX, SXH, SXN
+use wadr, only: BM, NLX, SXN
 use rasscf_global, only: NSXS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NDIM, NTRIAL, nIAIA, nAEAE
+integer(kind=iwp), intent(in) :: NDIM, NTRIAL, nIAIA, nAEAE, nAOAE
 real(kind=wp), intent(in) :: C(*), HD(NDIM), DIA(nIAIA), F1(nIAIA), F2(nAEAE), &
-                                   SXG(nIAIA)
+                             SXG(nIAIA), SXH(nAOAE)
 real(kind=wp), intent(inout) :: HC(*), HH(*)
 integer(kind=iwp), intent(inout) :: NDIMH
 integer(kind=iwp) :: I, IJ, IST, J, JST, L1

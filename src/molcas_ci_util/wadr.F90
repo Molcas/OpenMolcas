@@ -12,7 +12,7 @@
 module wadr
 
 ! These arrays are used for the SXCTL part of the code:
-!   BM, DIAF, SXH, SXN
+!   BM, DIAF, SXN
 ! These arrays are used for the TRACTL2 part of the code:
 !   CMO, D1A, D1I, FA, FI, OccN
 
@@ -23,8 +23,8 @@ private
 
 integer(kind=iwp) :: NLX, nPWXY
 real(kind=wp), allocatable :: BM(:), CMO(:), D1A(:), D1I(:), DIAF(:), DMAT(:), DSPN(:), FA(:), FI(:), &
-                              FMO(:), FockOcc(:), OccN(:), PA(:), PMAT(:), SXH(:), SXN(:), TUVX(:)
+                              FMO(:), FockOcc(:), OccN(:), PA(:), PMAT(:), SXN(:), TUVX(:)
 
-public :: BM, CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FMO, FockOcc, NLX, nPWXY, OccN, PA, PMAT, SXH, SXN, TUVX
+public :: BM, CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FMO, FockOcc, NLX, nPWXY, OccN, PA, PMAT, SXN, TUVX
 
 end module wadr
