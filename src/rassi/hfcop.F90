@@ -26,9 +26,9 @@ use RASSIWfn, only: wfn_h_hfc_rms
 use Molcas, only: LenIn
 use spin_data, only: free_spin_data, get_first_nonzero_GNUC, GNUC_by_nucspin, GNUC_NUCSPIN_by_nucmass, init_spin_data, &
                      NUCSPIN_by_gnuc
-use Cntrl, only: AngMom_idx, ASD_idx, Atens_Req, AutoSel_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, &
+use Cntrl, only: Atens_Req, AutoSel_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, E_HFC_Req, &
                  LPRPR, MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass, &
-                 NucSpin, pNMR_req, PSO_idx, TMAXP, TMINP, SDFlip
+                 NucSpin, pNMR_req, TMAXP, TMINP, SDFlip, ICOMP, PNAME, IFSO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, &
                      kBoltzmann,proton_mass_in_au
@@ -65,10 +65,11 @@ private
 integer(kind=iwp) :: iACalc, ipNMR_Calc, n_uniq_ener, NSS
 real(kind=wp) :: Atens_fac, e_spin, ETHR_in_cm
 logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
-integer(kind=iwp), allocatable :: degen_end_idx(:), degen_group(:), degen_start_idx(:), LAtNumb(:), MAPST(:)
+integer(kind=iwp), allocatable :: degen_end_idx(:), degen_group(:), degen_start_idx(:), LAtNumb(:), MAPST(:), MAPMS(:), &
+                                  MAPSP(:), MAG_idx(:,:), AngMom_idx(:), PSO_idx(:,:)
 real(kind=wp), allocatable :: C_tens(:,:,:), CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:), C_shifts(:,:,:), dE_inv(:,:), &
-                              ESO(:), h_hfc_rms(:,:), h_rms_nuc(:,:), LR_shifts(:,:,:), LR_tens(:,:,:), pBoltz(:,:), &
-                              pr_vals(:,:,:), Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:)
+                              h_hfc_rms(:,:), h_rms_nuc(:,:), LR_shifts(:,:,:), LR_tens(:,:,:), pBoltz(:,:), &
+                              pr_vals(:,:,:), Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:), ESO(:)
 complex(kind=wp), allocatable :: h_FC(:,:,:), h_FCSD(:,:,:), h_PSO(:,:,:), h_SD(:,:,:), h_TOT(:,:,:), h_Zeeman(:,:,:), USO(:,:)
 logical(kind=iwp), allocatable :: signs_resolved(:)
 character(len=LenIn), allocatable :: LAtomLbl(:)
@@ -106,11 +107,11 @@ subroutine Hyperfine_Oper(PROP,USOR,USOI,JBNUM)
   do iAtom=1,NAtoms
     call route_calc(iAtom)
     if (do_calc) call calc_h_HFC(iAtom,PROP)
-    if (HypF_rms_Req) call update_h_HFC_RMS(iAtom,h_TOT)
   end do
 
   ! Printing final results------------------------------
-  if (HypF_rms_Req) call save_h_rms()
+  if (HypF_rms_Req) call save_and_print_h_rms()
+  if (E_HFC_Req) call get_HFSO_ener()
   if (allocated(Atens_Req)) call print_EPR_summary()
   if (allocated(pNMR_req)) call print_pNMR_summary()
 
@@ -124,10 +125,10 @@ subroutine setup_hfc_calc(JBNUM,USOR,USOI)
 
   integer(kind=iwp), intent(in) :: JBNUM(NSTATE)
   real(kind=wp), intent(in) :: USOR(:,:), USOI(:,:)
-  integer(kind=iwp) :: ISS, ISTATE, JOB, JSS, MPLET, MSPROJ
+  integer(kind=iwp) :: ISS, ISTATE, JOB, JSS, MPLET, MSPROJ, nData
   real(kind=wp) :: CGm, CGp, FACT, MPLET1, MPLET2, MSPROJ1, MSPROJ2, S1, S2, SM1, SM2
-  integer(kind=iwp), allocatable :: MAPMS(:), MAPSP(:)
-  real(kind=wp), allocatable :: rtemp(:)
+  real(kind=wp), allocatable :: rtemp(:), ESF(:)
+  logical(kind=iwp) :: Found
 
   ! Form transformation matrix USO with complex numbers
   NSS = size(USOR,1)
@@ -165,10 +166,6 @@ subroutine setup_hfc_calc(JBNUM,USOR,USOI)
   LAtNumb(:) = nint(rtemp(:))
   call mma_deallocate(rtemp)
 
-  ! GET: Energy of SO states (ESO)
-  call mma_allocate(ESO,NSS,Label='ESO')
-  call get_dArray('ESO_SINGLE',ESO,NSS)
-
   ! MAP: from spin-free and to spin states:
   call mma_allocate(MAPST,NSS,Label='MAPST')
   call mma_allocate(MAPSP,NSS,Label='MAPSP')
@@ -185,6 +182,20 @@ subroutine setup_hfc_calc(JBNUM,USOR,USOI)
       MAPMS(ISS) = MSPROJ
     end do
   end do
+
+  ! GET: Energy of SO states (ESO)
+  call mma_allocate(ESO,NSS,Label='ESO_HFCOP')
+  call Qpg_dArray('ESO_SINGLE', Found, nData)
+  if (Found) then
+    call get_dArray('ESO_SINGLE',ESO,NSS)
+  else
+    call mma_allocate(ESF,NSTATE,Label="ESF_HFCOP")
+    call get_dArray('ESFS_SINGLE', ESF, NSTATE)
+    do ISS = 1, NSS
+      ESO(ISS) = ESF(MAPST(ISS))
+    end do
+    call mma_deallocate(ESF)
+  end if
 
   ! CALC: Clebsch-Gordan coefficients. Store CGo, CGx, CGy to matrices
   call mma_allocate(CGo_mat,NSS,NSS,Label='CGo')
@@ -213,9 +224,6 @@ subroutine setup_hfc_calc(JBNUM,USOR,USOI)
       CGy_mat(ISS,JSS) = sqrt(Half)*(CGm+CGp)
     end do
   end do
-  ! MAPSP and MAPMS are not needed anymore, but MAPST is required to compute h_HFC
-  call mma_deallocate(MAPSP)
-  call mma_deallocate(MAPMS)
 
   ! Process spin data (Nuclear spin + g-Factor)
   if (HypF_rms_Req .or. allocated(Atens_Req)) then
@@ -226,6 +234,9 @@ subroutine setup_hfc_calc(JBNUM,USOR,USOI)
   ! GET: Coupled states used to calculate A_tensors and/or pNMR tensors
   ETHR_in_cm = DEGEN_ETHR*auTocm
   if (allocated(Atens_Req) .or. allocated(pNMR_req)) call proc_coupl_states()
+
+  ! Get PROP
+  call get_all_prop()
 
 end subroutine setup_hfc_calc
 
@@ -299,17 +310,17 @@ subroutine calc_h_HFC(iAtom,PROP)
   real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
   integer(kind=iwp) :: idx(6), ISS, iState, JSS, jState
   real(kind=wp) :: A_tens(3,3,5)
-  real(kind=wp), allocatable :: ASD(:,:,:), ASD_FC(:,:)
+  real(kind=wp), allocatable :: MAG(:,:,:), ASD_FC(:,:)
 
-  idx(:) = ASD_idx(iAtom,:)
-  call mma_allocate(ASD,NSS,NSS,6,Label='ASD')
+  idx(:) = MAG_idx(iAtom,:)
+  call mma_allocate(MAG,NSS,NSS,6,Label='ASD')
   call mma_allocate(ASD_FC,NSS,NSS,Label='ASD_FC')
   do ISS=1,NSS
     iState = MAPST(ISS)
     do JSS=ISS,NSS
       jState = MAPST(JSS)
-      ASD(ISS,JSS,:) = PROP(iState,jState,idx(:))
-      ASD(JSS,ISS,:) = ASD(ISS,JSS,:)
+      MAG(ISS,JSS,:) = PROP(iState,jState,idx(:))
+      MAG(JSS,ISS,:) = MAG(ISS,JSS,:)
     end do
   end do
 
@@ -326,12 +337,12 @@ subroutine calc_h_HFC(iAtom,PROP)
   !       = 2/3 (2 x_k*dx - y_k*dy - z_k*dz)
   !       = 2/3 (3 x_k*dx - (x_k*dx + y_k*dy + z_k*dz))
 
-  ASD_FC(:,:) = TwoThird * (ASD(:,:,1) + ASD(:,:,4) + ASD(:,:,6))
+  ASD_FC(:,:) = TwoThird * (MAG(:,:,1) + MAG(:,:,4) + MAG(:,:,6))
 
-  ASD(:,:,:) = Two*ASD(:,:,:)
-  ASD(:,:,1) = ASD(:,:,1) - ASD_FC(:,:)
-  ASD(:,:,4) = ASD(:,:,4) - ASD_FC(:,:)
-  ASD(:,:,6) = ASD(:,:,6) - ASD_FC(:,:)
+  MAG(:,:,:) = Two*MAG(:,:,:)
+  MAG(:,:,1) = MAG(:,:,1) - ASD_FC(:,:)
+  MAG(:,:,4) = MAG(:,:,4) - ASD_FC(:,:)
+  MAG(:,:,6) = MAG(:,:,6) - ASD_FC(:,:)
   ASD_FC(:,:) = Two*ASD_FC(:,:)
 
 
@@ -348,21 +359,28 @@ subroutine calc_h_HFC(iAtom,PROP)
 
 ! CALCULATE HAMILTONIAN
   call calc_h_FC(ASD_FC)
-  call calc_h_SD(ASD)
+  call calc_h_SD(MAG)
   ! Revision for JCTC-2021: https://dx.doi.org/10.1021/acs.jctc.0c01005
   if(SDFlip) h_SD(:,:,:) = -h_SD(:,:,:)
-  call mma_deallocate(ASD)
+  call mma_deallocate(MAG)
   call mma_deallocate(ASD_FC)
   h_FCSD(:,:,:) = h_FC(:,:,:)+h_SD(:,:,:)
   call calc_h_PSO(iAtom,PROP)
   h_TOT(:,:,:) = h_FCSD(:,:,:)+h_PSO(:,:,:)
 
+  ! UPDATE EFFECTIVE NUCLEAR-STATE HYPERFINE HAMILTONIAN
+  ! SHARC-MD uses HSO_MATRIX_REAL and HSO_MATRIX_IMAG, which are wfn_sos_hsor and wfn_sos_hsoi in SOEIG and RASSI_WFN
+  ! before adding ENERGY(NSTATE) (spin-free) and diagonalization.
+  if (HypF_rms_Req) call update_h_HFC_RMS(iAtom,h_TOT)
+
 ! TRANSFORM TO SPIN-ORIBT BASIS HAMILTONIAN
-  call to_cmpl_SO_states(h_FC)
-  call to_cmpl_SO_states(h_SD)
-  call to_cmpl_SO_states(h_FCSD)
-  call to_cmpl_SO_states(h_PSO)
-  call to_cmpl_SO_states(h_TOT)
+  if (IFSO) then
+    call to_cmpl_SO_states(h_FC)
+    call to_cmpl_SO_states(h_SD)
+    call to_cmpl_SO_states(h_FCSD)
+    call to_cmpl_SO_states(h_PSO)
+    call to_cmpl_SO_states(h_TOT)
+  end if
 
 ! PRINT SPIN-ORIBT BASIS HAMILTONIAN
   if (LPRPR) then
@@ -502,21 +520,22 @@ subroutine proc_spin_data()
   use_seward_mass = .false.
   ! Setting DEFAULT case based on user input
   if (HypF_rms_Req) then
-    if (.not.(AutoSel_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
+    if (.not.(NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
   else if (allocated(Atens_Req)) then
     if (.not.AutoSel_GFac) then
     ! Use SEWARD mass as default if keyword DAUG is present
-      use_seward_mass= .true.
+      use_seward_mass = .true.
     else if (.not.(NMass_set .or. NSpin_set .or. GNuc_set)) then
       AutoSel_GFac = .true.
     end if
   end if
 
+  ! Two defaults have higher priority. They will be overridden by NMASS, NSPIN or GNUC
+  if (AutoSel_GFac) icase = 5
   if (use_seward_mass) icase = 1
   if (NMass_set) icase = 2
   if (NSpin_set) icase = 3
   if (GNuc_set) icase = 4
-  if (AutoSel_GFac) icase = 5
 
   ! HYPOTHEICAL ISOTOPE-------------------------------------------------------------
   if (.not. allocated(HypoIso)) then
@@ -589,6 +608,60 @@ subroutine route_calc(iAtom)
 
 end subroutine route_calc
 
+subroutine get_prop(prop_lab,idx,comps,iAtom)
+  !PURPOSE: Get a specific property for iAtom with comps
+
+  character(len=5), intent(in) :: prop_lab
+  integer(kind=iwp), intent(out) :: idx(:,:)
+  integer(kind=iwp), intent(in), optional :: iAtom, comps(:)
+  integer(kind=iwp) :: iC, iProp
+  character(len=3) :: temp_lab
+  character(len=8) :: lab_full
+
+  write(temp_lab,'(I3)') iAtom
+  lab_full = prop_lab//temp_lab
+
+  do iPROP = 1,NPROP
+    if (PNAME(iPROP) == lab_full) then
+      do iC = 1, size(comps)
+        if (comps(iC) == ICOMP(iPROP)) then
+          idx(iAtom,iC) = iPROP
+          exit
+        end if
+      end do
+    end if
+  end do
+
+end subroutine
+
+subroutine get_all_prop()
+  !PURPOSE: Generate a specific property for iAtom with comps
+  integer(kind=iwp) :: iPROP, iAtom
+
+  call mma_allocate(MAG_idx,NAtoms, 6)
+  call mma_allocate(PSO_idx,NAtoms, 3)
+  MAG_idx(:,:) = -1
+  PSO_idx(:,:) = -1
+
+  do iAtom=1,NAtoms
+    call route_calc(iAtom)
+    if (do_calc) then
+      call get_prop('MAGXP', MAG_idx, [1,2,3,5,6,9], iAtom)
+      call get_prop('PSOP ',PSO_idx, [1,2,3], iAtom)
+    end if
+  end do
+
+  if (allocated(pNMR_req)) then
+    call mma_allocate(AngMom_idx, 3)
+    do iPROP = 1, NPROP
+      if (PNAME(iPROP)(1:6) == 'ANGMOM') then
+        AngMom_idx(ICOMP(iPROP)) = iPROP
+      end if
+    end do
+  end if
+
+end subroutine
+
 subroutine print_isotope_info()
 
   integer(kind=iwp) :: iAtom
@@ -623,6 +696,70 @@ subroutine print_isotope_info()
   call mma_deallocate(NucMass)
 
 end subroutine print_isotope_info
+
+subroutine get_HFSO_ener()
+  real(kind=wp), allocatable :: h_hfsor(:,:), h_hfsoi(:,:), UR(:,:), UI(:,:), ESF(:)
+  integer(kind=iwp) :: ISS
+  real(kind=wp) :: EHFSO, EMIN_HFSO
+
+  call mma_allocate(h_hfsor, NSS,NSS,Label='hsor')
+  call mma_allocate(h_hfsoi, NSS,NSS,Label='hsoi')
+  call mma_allocate(UR, NSS,NSS,Label='UR')
+  call mma_allocate(UI, NSS,NSS,Label='UI')
+
+  h_hfsor(:,:) = Zero
+  h_hfsoi(:,:) = Zero
+
+  if(IFSO) then
+    call Get_dArray('HAMSOR_SINGLE', h_hfsor, NSS**2)
+    call Get_dArray('HAMSOI_SINGLE', h_hfsoi, NSS**2)
+  else
+    call mma_allocate(ESF, NSTATE, Label='ESF')
+    call Get_dArray('ESFS_SINGLEAU', ESF, NSTATE)
+    do ISS = 1, NSS
+      h_hfsor(ISS,ISS) = ESF(MAPST(ISS))
+    end do
+    call mma_deallocate(ESF)
+  endif
+
+  UR(:,:) = Zero
+  UI(:,:) = Zero
+
+  h_hfsor(:,:) = h_hfsor(:,:) + h_hfc_rms(:,:)
+
+  call ZJAC(NSS,h_hfsor,h_hfsoi,NSS,UR,UI)
+  EMIN_HFSO = h_hfsor(1,1)
+  do ISS = 1, NSS
+    h_hfsor(ISS,ISS) = h_hfsor(ISS,ISS) - EMIN_HFSO
+  end do
+
+  if (IFSO) then
+    write(u6,*) "Total energies including spin-orbit and hyperfine coupling cm-1"
+    write(u6,*) repeat('-', 63)
+    write(u6,'(9X,A14,A18)') 'SO State', 'HFC-SO State'
+    do ISS = 1, NSS
+      EHFSO = h_hfsor(ISS,ISS)*auTocm
+      write(u6,'(1X,I4,3(F18.4))')  ISS, ESO(ISS),  EHFSO
+    end do
+  else
+    write(u6,*) "Total energies including hyperfine coupling cm-1"
+    write(u6,*) repeat('-', 48)
+    write(u6,'(9X,A14)') 'HFC State'
+    do ISS = 1, NSS
+      EHFSO = h_hfsor(ISS,ISS)*auTocm
+      write(u6,'(1X,I4,3(F18.4))')  ISS,  EHFSO
+    end do
+  endif
+
+  write(u6,*)
+  write(u6,*)
+
+  call mma_deallocate(h_hfsor)
+  call mma_deallocate(h_hfsoi)
+  call mma_deallocate(UR)
+  call mma_deallocate(UI)
+
+end subroutine get_HFSO_ener
 
 subroutine print_pNMR_summary()
 
@@ -1278,14 +1415,25 @@ subroutine calc_h_PSO(iAtom,PROP)
 
   integer(kind=iwp), intent(in) :: iAtom
   real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
-  integer(kind=iwp) :: u
+  integer(kind=iwp) :: ISS, JSS, ISTATE, JSTATE, MPLET1, MSPROJ1, MPLET2, MSPROJ2
   real(kind=wp), allocatable :: Im_h_PSO(:,:,:)
 
   call mma_allocate(Im_h_PSO,3,NSS,NSS,Label='Im_h_PSO')
   Im_h_PSO(:,:,:) = Zero
-  do u=1,3
-    call SMMAT(PROP,Im_h_PSO(u,:,:),NSS,PSO_idx(iAtom,u),u)
+
+  do ISS=1, NSS
+    MPLET1 = MAPSP(ISS)
+    MSPROJ1 = MAPMS(ISS)
+    ISTATE = MAPST(ISS)
+    do JSS=1,NSS
+      MPLET2 = MAPSP(JSS)
+      MSPROJ2 = MAPMS(JSS)
+      JSTATE = MAPST(JSS)
+      if (MPLET1 == MPLET2 .and. MSPROJ1 == MSPROJ2)  &
+       Im_h_PSO(:,ISS,JSS) = PROP(ISTATE,JSTATE,PSO_idx(iAtom,:))
+    end do
   end do
+
   h_PSO(:,:,:) = cmplx(Zero,Im_h_PSO(:,:,:),kind=wp)
   call mma_deallocate(Im_h_PSO)
 
@@ -1316,29 +1464,54 @@ subroutine save_h_hfc(h_HFC,iAtom,iContr)
   end do
 end subroutine
 
-subroutine save_h_rms()
-
-  integer(kind=iwp) :: ISS, istatus, JSTA, LU
+subroutine save_and_print_h_rms()
   logical(kind=iwp) :: is_error
   integer(kind=iwp), external :: IsFreeUnit
+  integer(kind=iwp) :: ISS, JSS, MPLET1, MPLET2, MSPROJ1, MSPROJ2, istatus, LU, io_units(2),i, IO
+  real(kind=wp) :: S1, SM1, S2, SM2
 
+  ! SAVE TO h_HFC_RMS.txt file
 # ifdef _HDF5_
   call mh5_put_dset(wfn_h_hfc_rms,h_hfc_rms)
 # endif
 
   Lu = IsFreeUnit(88)
   istatus = 100
-  call molcas_open_ext2(Lu,'h_RMS.txt','SEQUENTIAL','FORMATTED',istatus,.false.,1,'REPLACE',is_error)
-  write(Lu,*) 'NSS= ',NSS
-  write(Lu,*) '#NROW NCOL REAL'
-  do JSTA=1,NSS
-    do ISS=1,NSS
-      write(Lu,'(I6,1X,I6,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',h_hfc_rms(ISS,JSTA)
-    end do
-  end do
-  close(Lu)
+  call molcas_open_ext2(Lu,'h_HFC_RMS.txt','SEQUENTIAL','FORMATTED',istatus,.false.,1,'REPLACE',is_error)
+  io_units = [Lu,u6]
+  write(u6,*)
 
-end subroutine save_h_rms
+  do i = 1, 2
+    IO = io_units(i)
+    if (is_error) then
+      call WarningMessage(1, "Failed to write h_HFC_rms.txt")
+      cycle
+    end if
+    write(IO,'(10X,A31)') 'Effective hyperfine hamiltonian'
+    write(IO,'(10X,A51)') 'over spin components of spin-free eigenstates (SFS)'
+    write(IO,'(1X,A)') repeat('-',70)
+    write(IO,'(4X,A2,4X,A2,3X,A3,4X,A2,4X,A2,3X,A3,4X,A9,4X,A9,5X,A8)') &
+    'I1','S1','MS1','I2','S2','MS2','Absolute'
+    do ISS=1,NSS
+      MPLET1 = MAPSP(ISS)
+      MSPROJ1 = MAPMS(ISS)
+      S1 = Half*real(MPLET1-1,kind=wp)
+      SM1 = Half*real(MSPROJ1,kind=wp)
+      do JSS=1,ISS
+        MPLET2 = MAPSP(JSS)
+        MSPROJ2 = MAPMS(JSS)
+        S2 = Half*real(MPLET2-1,kind=wp)
+        SM2 = Half*real(MSPROJ2,kind=wp)
+        write(IO,'(1X,I5,1X,F5.1,1X,F5.1,1X,I5,1X,F5.1,1X,F5.1,1X,ES25.16)') &
+        ISS,S1,SM1,JSS,S2,SM2,h_hfc_rms(ISS,JSS)
+      end do
+    end do
+    if (IO == Lu) close(Lu)
+  end do
+  write(u6,*)
+  write(u6,*)
+
+end subroutine save_and_print_h_rms
 
 subroutine calc_h_Zeeman(PROP)
 
@@ -1484,6 +1657,8 @@ end subroutine print_pNMR_tens
 subroutine cleanup_hfcop()
 
   call mma_deallocate(MAPST)
+  call mma_deallocate(MAPSP)
+  call mma_deallocate(MAPMS)
   call mma_deallocate(CGx_mat)
   call mma_deallocate(CGy_mat)
   call mma_deallocate(CGo_mat)
@@ -1526,7 +1701,7 @@ subroutine cleanup_hfcop()
   call mma_deallocate(GNuc,safe='*')
   call mma_deallocate(LCSTATES,safe='*')
 
-  call mma_deallocate(ASD_idx,safe='*')
+  call mma_deallocate(MAG_idx,safe='*')
   call mma_deallocate(PSO_idx,safe='*')
 
   call mma_deallocate(degen_start_idx,safe='*')
