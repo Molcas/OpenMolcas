@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,nIAIA,H,nAOAE,HDIAG,nDF,nDDIAG)
+subroutine SXHAM(D,P,PA,FP,SXN,nSXS,F1,F2,DIA,G,nIAIA,H,nAOAE,HDIAG,nDF,nDDIAG)
 ! RASSCF VERSION IBM-3090: SX-SECTION
 !
 ! Objective: Compute the auxiliary matrices G,H,F1,F2,and SXN
@@ -42,7 +42,7 @@ subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,nIAIA,H,nAOAE,HDIAG,nDF,nDDIAG)
 
 use stdalloc, only: mma_deallocate, mma_allocate
 use Index_Functions, only: iTri, nTri_Elem
-use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, IXSYM, IZROT, LVSHFT, NROOT, NSXS, SXSHFT
+use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, IXSYM, IZROT, LVSHFT, NROOT, SXSHFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
@@ -52,9 +52,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: nDF, nDDIAG, nIAIA, nAOAE
+integer(kind=iwp), intent(in) :: nDF, nDDIAG, nIAIA, nAOAE, nSXS
 real(kind=wp), intent(in) :: D(*), PA(*), FP(*)
-real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(nIAIA), G(nIAIA), H(nAOAE), HDIAG(*)
+real(kind=wp), intent(_OUT_) :: P(*), SXN(nSXS), F1(*), F2(*), DIA(nIAIA), G(nIAIA), H(nAOAE), HDIAG(*)
 
 integer(kind=iwp) :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, &
                      IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO, NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR, NT, NTT, NTU, &

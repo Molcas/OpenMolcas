@@ -60,7 +60,7 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
-use wadr, only: BM, NLX, SXN, TUVX
+use wadr, only: BM, NLX, TUVX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
                          l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
@@ -89,7 +89,7 @@ logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
 real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:), HH(:), P2Raw(:), &
                               P2reo(:), PUVX(:), QMat(:), SCR(:), SQ(:), STRP(:), SXG(:), SXHD(:), VEC(:), &
-                              WO(:), X2(:), XMAT(:), DIA(:), F1(:), F2(:), SXH(:)
+                              WO(:), X2(:), XMAT(:), DIA(:), F1(:), F2(:), SXH(:), SXN(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
@@ -241,26 +241,17 @@ else ! GLM-CASDFT
     call mma_allocate(STRP,1,Label='STRP')
   end if
 end if
+
 !***********************************************************************
 ! Compute the MCSCF generalized Fock matrix and Brillouin matrix elements
 !***********************************************************************
 call mma_allocate(FCK,NTOT4,Label='FCK')
 call mma_allocate(BM,NSXS,Label='BM')
 call mma_allocate(QMat,NQ,Label='QMat') ! q-matrix(1symmblock)
+
 call FOCK(FCK,BM,FI,FA,D,STRP,QMat,PUVX,IFINAL,CMO)
+
 ! Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
-if (IPRLEV >= DEBUG) then
-  write(u6,*)
-  write(u6,*) 'FI+FA in MO-basis in sxctl (overwritten on FA)'
-  write(u6,*) ' --------------'
-  write(u6,*)
-  iOff = 1
-  do iSym=1,nSym
-    iOrb = nOrb(iSym)
-    call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+nTri_Elem(iOrb)
-  end do
-end if
 call mma_deallocate(FCK)
 call mma_deallocate(QMat)
 call mma_deallocate(STRP,safe='*')
@@ -394,7 +385,7 @@ Subroutine SXCTL_Iterate()
   call mma_allocate(SXH,NAOAE,Label='SXH')
   call mma_allocate(SXHD,NDIMSX,Label='SXHD')
 
-  call SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,nIAIA,SXH,NAOAE,SXHD,NQ,MNO)
+  call SXHAM(D,P,PA,FA,SXN,NSXS,F1,F2,DIA,SXG,nIAIA,SXH,NAOAE,SXHD,NQ,MNO)
 
   ! PAM01 Removal of certain rotations from the BLB elements.
   ! Some additional rotations (besides those listed in IZROT) may
@@ -422,7 +413,7 @@ Subroutine SXCTL_Iterate()
   NCR1 = NDIMSX*NROOT*(ITMAX+1)
   call mma_allocate(CSX,NCR1,Label='CSX')
 
-  call DAVCRE(CSX,ESX,SXG,SXHD,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS,DIA,F1,NIAIA,F2,NAEAE,SXH,NAOAE)
+  call DAVCRE(CSX,ESX,SXG,SXHD,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS,DIA,F1,NIAIA,F2,NAEAE,SXH,NAOAE,SXN)
 
   call mma_deallocate(F1)
   call mma_deallocate(F2)
@@ -441,13 +432,6 @@ Subroutine SXCTL_Iterate()
     write(u6,*) 'SXCTL after DAVCRE, Renormalized SX coeffs:'
     write(u6,'(1X,8F14.6)') (CSX(IC+I),I=1,NSXS)
   end if
-
-  ! Step size control has been built into qune now.
-  !C Step length control, just for safety.
-  !do I=1,NSXS
-  !  VAL = CSX(IC+I)
-  !  CSX(IC+I) = VAL/(One+1.7_wp*abs(VAL))
-  !end do
 
   ! Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
 
@@ -480,19 +464,6 @@ Subroutine SXCTL_Iterate()
   call mma_allocate(Scr,NO2M,Label='SCR')
 
   call ROTORB(CMO,CMON,CSX(LCSXI),XMAT,X2,SCR,THMAX,FA)
-
-  if (IPRLEV >= DEBUG) then
-    write(u6,*)
-    write(u6,*) 'FI+FA in SXCTL after Unitary transform in ROTORB'
-    write(u6,*) ' --------------'
-    write(u6,*)
-    iOff = 1
-    do iSym=1,nSym
-      iOrb = nOrb(iSym)
-      call TriPrt(' ',' ',FA(iOff),iOrb)
-      iOff = iOff+nTri_Elem(iOrb)
-    end do
-  end if
 
   call mma_deallocate(CMON)
   call mma_deallocate(XMAT)
