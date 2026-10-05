@@ -36,15 +36,14 @@ contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-subroutine Lucia_Util(ModLab,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
+subroutine Lucia_Util(ModLab,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
-  use lucia_data, only: IREFSM, MXNTTS, I12
+  use lucia_data, only: IREFSM, I12
 
   implicit none
   character(len=*), intent(in) :: ModLab
-  integer(kind=iwp), intent(in), optional :: LU, nTU, nTUVX
-  integer(kind=iwp), intent(inout), optional :: iDisk
-  real(kind=wp), intent(in), optional :: Array(:), RVEC(:), TU(:), TUVX(:)
+  integer(kind=iwp), intent(in), optional :: nTU, nTUVX
+  real(kind=wp), intent(in), optional :: RVEC(:), TU(:), TUVX(:)
   real(kind=wp), intent(_IN_), optional :: CI_Vector(:)
   real(kind=wp), intent(out), optional :: SIGMA_Vector(:)
   character(len=72) :: Module_
