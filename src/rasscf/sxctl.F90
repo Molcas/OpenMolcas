@@ -394,7 +394,7 @@ Subroutine SXCTL_Iterate()
   call mma_allocate(SXH,NAOAE,Label='SXH')
   call mma_allocate(SXHD,NDIMSX,Label='SXHD')
 
-  call SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,nIAIA,SXH,SXHD,NQ,MNO)
+  call SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,nIAIA,SXH,NAOAE,SXHD,NQ,MNO)
 
   ! PAM01 Removal of certain rotations from the BLB elements.
   ! Some additional rotations (besides those listed in IZROT) may

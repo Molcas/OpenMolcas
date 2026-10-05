@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,nIAIA,H,HDIAG,nDF,nDDIAG)
+subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,nIAIA,H,nAOAE,HDIAG,nDF,nDDIAG)
 ! RASSCF VERSION IBM-3090: SX-SECTION
 !
 ! Objective: Compute the auxiliary matrices G,H,F1,F2,and SXN
@@ -52,9 +52,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: nDF, nDDIAG, nIAIA
+integer(kind=iwp), intent(in) :: nDF, nDDIAG, nIAIA, nAOAE
 real(kind=wp), intent(in) :: D(*), PA(*), FP(*)
-real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(nIAIA), G(nIAIA), H(*), HDIAG(*)
+real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(nIAIA), G(nIAIA), H(nAOAE), HDIAG(*)
 
 integer(kind=iwp) :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, &
                      IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO, NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR, NT, NTT, NTU, &
@@ -344,22 +344,6 @@ do ISYM=1,NSYM
 
       end do
     end do
-    !write(u6,*) 'SXHAM: The IXSYM array='
-    !write(u6,'(1x,40i2)') (ixsym(i),i=1,ntot)
-
-    ! Test print of all matrices
-
-    if (IPRLEV >= DEBUG) then
-      write(u6,1000) ISYM
-      write(u6,1100) (DDIAG(I),I=1,NO)
-      write(u6,1200) (SXN(I),I=ISTBM+1,ISTBM+NIA*NAE)
-      write(u6,1300) (DF(I),I=1,NAO*NO)
-      write(u6,1400) (F1(I),I=ISTIA+1,ISTIA+NIA**2)
-      write(u6,1500) (F2(I),I=ISTAE+1,ISTAE+NAE**2)
-      write(u6,1600) (G(I),I=ISTIA+1,ISTIA+NIA**2)
-      write(u6,1700) (H(I),I=ISTH+1,ISTH+NAO*NAE)
-      write(u6,1800) (HDIAG(I),I=ISTBM+1+NROOT,ISTBM+NAE*NIA+NROOT)
-    end if
 
     IASHI = IASHI+NAO
     ISTD = ISTD+nTri_Elem(NAO)
