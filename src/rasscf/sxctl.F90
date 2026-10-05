@@ -134,216 +134,13 @@ NDIMSX = NROOT+NSXS
 Call SXCTL_Prelude()
 
 if (IFINAL == 1) then
-  ! If ifinal=1 , this is the last call to SXCTL for calculating
-  ! the MCSCF Fock matrix for occupied orbitals, and new orbitals).
-  ! First generate final orbitals:
-  ! Diagonalize inactive and secondary part of FP = FI + FA.
-  !         diagonal blocks of the active density matrix
-  ! for RAS1, RAS2, and RAS3. All this is done in NEWORB.
-  ! Finally generate orbitals and Fock matrices for CAS-PT2 runs.
-  ! in FCKPT2
 
-  ! Memory allocation and call to NEWORB and FCKPT2
-  ! CMON: New molecular orbitals (NTOT2)
-  ! FTR:  Temporary area for part of the Fock matrix FP (NTOT1)
-  ! VEC:  EIGENVECTORS OF FTR (NO2M)
-  ! SQ and WO: scratch areas
-
-  call mma_allocate(CMON,NTOT2,Label='CMON')
-  call mma_allocate(FTR,NTOT1,Label='FTR')
-  call mma_allocate(VEC,NTOT2,Label='VEC')
-  call mma_allocate(WO,NTOT2,Label='WO')
-  call mma_allocate(SQ,NTOT2,Label='SQ')
-  call mma_allocate(CMOX,NTOT2,Label='CMOX')
-
-  if (iCIonly == 1) then
-    IDISK = IADR15(2)
-    call DDAFILE(JOBIPH,1,CMO,NTOT2,IDISK)
-    call DDAFILE(JOBIPH,1,OCC,NTOT,IDISK)
-#   ifdef _HDF5_
-    call mh5_put_dset(wfn_mocoef,CMO)
-    call mh5_put_dset(wfn_occnum,OCC)
-#   endif
-  else
-    ! this part (TRACI) need to be changed to "TRAMPS", not yet ! Yingjin
-    call NEWORB_RASSCF(CMO,CMON,FA,FTR,VEC,WO,SQ,CMOX,D,OCC)
-    ! compute orbital overlap matrix
-    !if (NACTEL > 0) then
-    ! NN.14 Skip this when DMRG-CASSCF due to CI-vector dependency
-    !if (.not. (DoDMRG .or. doBlockDMRG) .and. (NACTEL > 0)) then
-    if (NACTEL > 0) then
-      call mma_allocate(SMAT,NAC*NAC,Label='SMAT')
-      IWAY = 1
-      call OVLP(IWAY,CMO,CMON,SMAT)
-
-      if (dodmrg) then
-#       ifdef _DMRG_
-#       ifdef BLUBB
-        call mpsrot(mat,nac,nrs2,nsym)
-#       endif
-#       endif
-      else if (doBlockDMRG .or. DoNECI) then
-      else !CI
-        iDisk = IADR15(4)
-        call TraCI_Master(iDisk,JOBIPH,SMAT(:),Size(TUVX),TUVX)
-      end if
-      call mma_deallocate(SMAT)
-    else
-      CIDUMMY = One
-      IDISK = IADR15(4)
-      call DDAFILE(JOBIPH,1,CIDUMMY,1,IDISK)
-    end if
-  end if
-
-  ! IPT2 = 1 for OUTO, CANOnical option...
-  if (IPT2 /= 0) call FCKPT2(CMO,CMON,FI,FA,FTR,VEC,WO,SQ,CMOX)
-
-  call mma_deallocate(CMOX)
-  call mma_deallocate(SQ)
-  call mma_deallocate(WO)
-  call mma_deallocate(VEC)
-  call mma_deallocate(FTR)
-  call mma_deallocate(CMON)
-
-  call TIMING(CPTS,CPES,TIOS,TIOES)
+  Call SXCTL_Final()
 
 else
 
-  ! Memory allocation and calling sequence for SXHAM
-  ! SXN: Normalization constants for super-CI vector
-  ! F1 and F2: parts of the Fock matrix FP
-  ! DIA: Occupied part of the density matrix (squared)
-  ! SXG: The G matrix(used in sigvec)
-  ! SXH: The H matrix( "    "   "   )
-  ! SXHD: The diagonal of the super-CI Hamiltonian
-  ! LDF: The matrix D*FP
-  ! LDDIA: Diagonal of the density matrix (all elements one symmetry)
+  Call SXCTL_Iterate()
 
-  call mma_allocate(SXN,NSXS,Label='SXN')
-  call mma_allocate(F1,NIAIA,Label='F1')
-  call mma_allocate(F2,NAEAE,Label='F2')
-  call mma_allocate(DIA,NIAIA,Label='DIA')
-  call mma_allocate(SXG,NIAIA,Label='SXG')
-  call mma_allocate(SXH,NAOAE,Label='SXH')
-  call mma_allocate(SXHD,NDIMSX,Label='SXHD')
-
-  call SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,SXH,SXHD,NQ,MNO)
-
-  ! PAM01 Removal of certain rotations from the BLB elements.
-  ! Some additional rotations (besides those listed in IZROT) may
-  ! need to be suppressed. These are rotations that are (very nearly)
-  ! redundant -- they hardly affect the wave function at all.
-  ! All suppressed rotations can be identified because the corresponding
-  ! diagonal elements have been set to a huge number in SXHAM.
-  ! Use this criterion to set some BLB elements exactly =0:
-  do I=1,NSXS
-    if (SXHD(NROOT+I) > 1.0e20_wp) BM(I) = Zero
-  end do
-
-  ! MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
-
-  ! CSX: The super-CI vectors
-  ! HH:  The Davidson H matrix
-  ! CC:   "     "     egenvectors
-  ! ENER: "     "     energies
-  ! SC:   Scratch area
-  ! QMat:    Davidson update vectors
-  ! QQ:   Norm of update vectors
-  ! OVL:  Overlap matrix
-
-  KMAX =        NROOT*ITMAX
-  NCR1 = NDIMSX*NROOT*(ITMAX+1)
-  call mma_allocate(CSX,NCR1,Label='CSX')
-
-  call DAVCRE(CSX,ESX,SXHD,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
-
-  call mma_deallocate(F1)
-  call mma_deallocate(F2)
-  call mma_deallocate(SXG)
-  call mma_deallocate(SXH)
-  call mma_deallocate(SXHD)
-
-  ! Renormalize the SX-coefficients
-
-  IREF = 1
-  LCSXI = 1+NDIMSX*(IREF-1)
-  IC = NROOT+LCSXI-1
-  CSX(IC+1:IC+NSXS) = SXN(1:NSXS)*CSX(IC+1:IC+NSXS)/CSX(LCSXI)
-  XSXMAX = maxval(abs(CSX(IC+1:IC+NSXS)))
-  if (IPRLEV >= DEBUG) then
-    write(u6,*) 'SXCTL after DAVCRE, Renormalized SX coeffs:'
-    write(u6,'(1X,8F14.6)') (CSX(IC+I),I=1,NSXS)
-  end if
-
-  ! Step size control has been built into qune now.
-  !C Step length control, just for safety.
-  !do I=1,NSXS
-  !  VAL = CSX(IC+I)
-  !  CSX(IC+I) = VAL/(One+1.7_wp*abs(VAL))
-  !end do
-
-  ! Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
-
-  !if (ITER == 1) NCALL = 0
-  if (ITER <= 4) NCALL = 0
-  if (Key('HEUR') .and. (ITER > 10) .and. (mod(ITER,10) < 4)) NCALL = 0
-  if (doDMRG .and. (ITER <= 2)) NCALL = 0  ! YM: change 4 -> 2, for saving time
-  if (XSXMAX > Half) NCALL = 0
-  if ((NQUNE /= 0) .and. (XSXMAX < Half)) then
-
-    CASDFT_En = Zero
-    if ((KSDFT /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_En)
-    CASDFT_En = ECAS+CASDFT_En
-
-    call QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),NSXS,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
-
-  end if
-
-  ! Rotation of orbitals with exp(x) where x is obtained from
-  ! the super-CI coefficients, with a Quasi Newton update (NQUNE=1)
-
-  ! CMO:  before - old MO's           after - new MO's
-  ! CMON: intermediate storage for new MO's (moved to CMO in ORTHO)
-  ! X2:  work area, also in ORTHO (AO overlap matrix)
-  ! Scr: WORK AREA
-
-  call mma_allocate(CMON,NTOT2,Label='CMON')
-  call mma_allocate(XMAT,NO2M,Label='XMAT')
-  call mma_allocate(X2,NTOT1,Label='X2')
-  call mma_allocate(Scr,NO2M,Label='SCR')
-
-  call ROTORB(CMO,CMON,CSX(LCSXI),XMAT,X2,SCR,THMAX,FA)
-
-  if (IPRLEV >= DEBUG) then
-    write(u6,*)
-    write(u6,*) 'FI+FA in SXCTL after Unitary transform in ROTORB'
-    write(u6,*) ' --------------'
-    write(u6,*)
-    iOff = 1
-    do iSym=1,nSym
-      iOrb = nOrb(iSym)
-      call TriPrt(' ',' ',FA(iOff),iOrb)
-      iOff = iOff+nTri_Elem(iOrb)
-    end do
-  end if
-
-  call mma_deallocate(CMON)
-  call mma_deallocate(XMAT)
-  call mma_deallocate(X2)
-  call mma_deallocate(SCR)
-
-  call mma_deallocate(SXN)
-  call mma_deallocate(DIA)
-  call mma_deallocate(CSX)
-
-  IDISK = IADR15(2)
-  call DDAFILE(JOBIPH,1,CMO,NTOT2,IDISK)
-  call DDAFILE(JOBIPH,1,OCC,NTOT,IDISK)
-# ifdef _HDF5_
-  call mh5_put_dset(wfn_mocoef,CMO)
-  call mh5_put_dset(wfn_occnum,OCC)
-# endif
-  call TIMING(CPTS,CPES,TIOS,TIOES)
 end if
 
 call mma_deallocate(BM)
@@ -499,5 +296,222 @@ if (IFINAL /= 1) then
 
 end if
 End Subroutine SXCTL_Prelude
+
+Subroutine SXCTL_Final()
+
+  ! If ifinal=1 , this is the last call to SXCTL for calculating
+  ! the MCSCF Fock matrix for occupied orbitals, and new orbitals).
+  ! First generate final orbitals:
+  ! Diagonalize inactive and secondary part of FP = FI + FA.
+  !         diagonal blocks of the active density matrix
+  ! for RAS1, RAS2, and RAS3. All this is done in NEWORB.
+  ! Finally generate orbitals and Fock matrices for CAS-PT2 runs.
+  ! in FCKPT2
+
+  ! Memory allocation and call to NEWORB and FCKPT2
+  ! CMON: New molecular orbitals (NTOT2)
+  ! FTR:  Temporary area for part of the Fock matrix FP (NTOT1)
+  ! VEC:  EIGENVECTORS OF FTR (NO2M)
+  ! SQ and WO: scratch areas
+
+  call mma_allocate(CMON,NTOT2,Label='CMON')
+  call mma_allocate(FTR,NTOT1,Label='FTR')
+  call mma_allocate(VEC,NTOT2,Label='VEC')
+  call mma_allocate(WO,NTOT2,Label='WO')
+  call mma_allocate(SQ,NTOT2,Label='SQ')
+  call mma_allocate(CMOX,NTOT2,Label='CMOX')
+
+  if (iCIonly == 1) then
+    IDISK = IADR15(2)
+    call DDAFILE(JOBIPH,1,CMO,NTOT2,IDISK)
+    call DDAFILE(JOBIPH,1,OCC,NTOT,IDISK)
+#   ifdef _HDF5_
+    call mh5_put_dset(wfn_mocoef,CMO)
+    call mh5_put_dset(wfn_occnum,OCC)
+#   endif
+  else
+    ! this part (TRACI) need to be changed to "TRAMPS", not yet ! Yingjin
+    call NEWORB_RASSCF(CMO,CMON,FA,FTR,VEC,WO,SQ,CMOX,D,OCC)
+    ! compute orbital overlap matrix
+    !if (NACTEL > 0) then
+    ! NN.14 Skip this when DMRG-CASSCF due to CI-vector dependency
+    !if (.not. (DoDMRG .or. doBlockDMRG) .and. (NACTEL > 0)) then
+    if (NACTEL > 0) then
+      call mma_allocate(SMAT,NAC*NAC,Label='SMAT')
+      IWAY = 1
+      call OVLP(IWAY,CMO,CMON,SMAT)
+
+      if (dodmrg) then
+#       ifdef _DMRG_
+#       ifdef BLUBB
+        call mpsrot(mat,nac,nrs2,nsym)
+#       endif
+#       endif
+      else if (doBlockDMRG .or. DoNECI) then
+      else !CI
+        iDisk = IADR15(4)
+        call TraCI_Master(iDisk,JOBIPH,SMAT(:),Size(TUVX),TUVX)
+      end if
+      call mma_deallocate(SMAT)
+    else
+      CIDUMMY = One
+      IDISK = IADR15(4)
+      call DDAFILE(JOBIPH,1,CIDUMMY,1,IDISK)
+    end if
+  end if
+
+  ! IPT2 = 1 for OUTO, CANOnical option...
+  if (IPT2 /= 0) call FCKPT2(CMO,CMON,FI,FA,FTR,VEC,WO,SQ,CMOX)
+
+  call mma_deallocate(CMOX)
+  call mma_deallocate(SQ)
+  call mma_deallocate(WO)
+  call mma_deallocate(VEC)
+  call mma_deallocate(FTR)
+  call mma_deallocate(CMON)
+
+  call TIMING(CPTS,CPES,TIOS,TIOES)
+
+End Subroutine SXCTL_Final
+
+Subroutine SXCTL_Iterate()
+
+  ! Memory allocation and calling sequence for SXHAM
+  ! SXN: Normalization constants for super-CI vector
+  ! F1 and F2: parts of the Fock matrix FP
+  ! DIA: Occupied part of the density matrix (squared)
+  ! SXG: The G matrix(used in sigvec)
+  ! SXH: The H matrix( "    "   "   )
+  ! SXHD: The diagonal of the super-CI Hamiltonian
+  ! LDF: The matrix D*FP
+  ! LDDIA: Diagonal of the density matrix (all elements one symmetry)
+
+  call mma_allocate(SXN,NSXS,Label='SXN')
+  call mma_allocate(F1,NIAIA,Label='F1')
+  call mma_allocate(F2,NAEAE,Label='F2')
+  call mma_allocate(DIA,NIAIA,Label='DIA')
+  call mma_allocate(SXG,NIAIA,Label='SXG')
+  call mma_allocate(SXH,NAOAE,Label='SXH')
+  call mma_allocate(SXHD,NDIMSX,Label='SXHD')
+
+  call SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,SXH,SXHD,NQ,MNO)
+
+  ! PAM01 Removal of certain rotations from the BLB elements.
+  ! Some additional rotations (besides those listed in IZROT) may
+  ! need to be suppressed. These are rotations that are (very nearly)
+  ! redundant -- they hardly affect the wave function at all.
+  ! All suppressed rotations can be identified because the corresponding
+  ! diagonal elements have been set to a huge number in SXHAM.
+  ! Use this criterion to set some BLB elements exactly =0:
+  do I=1,NSXS
+    if (SXHD(NROOT+I) > 1.0e20_wp) BM(I) = Zero
+  end do
+
+  ! MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
+
+  ! CSX: The super-CI vectors
+  ! HH:  The Davidson H matrix
+  ! CC:   "     "     egenvectors
+  ! ENER: "     "     energies
+  ! SC:   Scratch area
+  ! QMat:    Davidson update vectors
+  ! QQ:   Norm of update vectors
+  ! OVL:  Overlap matrix
+
+  KMAX =        NROOT*ITMAX
+  NCR1 = NDIMSX*NROOT*(ITMAX+1)
+  call mma_allocate(CSX,NCR1,Label='CSX')
+
+  call DAVCRE(CSX,ESX,SXHD,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
+
+  call mma_deallocate(F1)
+  call mma_deallocate(F2)
+  call mma_deallocate(SXG)
+  call mma_deallocate(SXH)
+  call mma_deallocate(SXHD)
+
+  ! Renormalize the SX-coefficients
+
+  IREF = 1
+  LCSXI = 1+NDIMSX*(IREF-1)
+  IC = NROOT+LCSXI-1
+  CSX(IC+1:IC+NSXS) = SXN(1:NSXS)*CSX(IC+1:IC+NSXS)/CSX(LCSXI)
+  XSXMAX = maxval(abs(CSX(IC+1:IC+NSXS)))
+  if (IPRLEV >= DEBUG) then
+    write(u6,*) 'SXCTL after DAVCRE, Renormalized SX coeffs:'
+    write(u6,'(1X,8F14.6)') (CSX(IC+I),I=1,NSXS)
+  end if
+
+  ! Step size control has been built into qune now.
+  !C Step length control, just for safety.
+  !do I=1,NSXS
+  !  VAL = CSX(IC+I)
+  !  CSX(IC+I) = VAL/(One+1.7_wp*abs(VAL))
+  !end do
+
+  ! Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
+
+  !if (ITER == 1) NCALL = 0
+  if (ITER <= 4) NCALL = 0
+  if (Key('HEUR') .and. (ITER > 10) .and. (mod(ITER,10) < 4)) NCALL = 0
+  if (doDMRG .and. (ITER <= 2)) NCALL = 0  ! YM: change 4 -> 2, for saving time
+  if (XSXMAX > Half) NCALL = 0
+  if ((NQUNE /= 0) .and. (XSXMAX < Half)) then
+
+    CASDFT_En = Zero
+    if ((KSDFT /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_En)
+    CASDFT_En = ECAS+CASDFT_En
+
+    call QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),NSXS,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
+
+  end if
+
+  ! Rotation of orbitals with exp(x) where x is obtained from
+  ! the super-CI coefficients, with a Quasi Newton update (NQUNE=1)
+
+  ! CMO:  before - old MO's           after - new MO's
+  ! CMON: intermediate storage for new MO's (moved to CMO in ORTHO)
+  ! X2:  work area, also in ORTHO (AO overlap matrix)
+  ! Scr: WORK AREA
+
+  call mma_allocate(CMON,NTOT2,Label='CMON')
+  call mma_allocate(XMAT,NO2M,Label='XMAT')
+  call mma_allocate(X2,NTOT1,Label='X2')
+  call mma_allocate(Scr,NO2M,Label='SCR')
+
+  call ROTORB(CMO,CMON,CSX(LCSXI),XMAT,X2,SCR,THMAX,FA)
+
+  if (IPRLEV >= DEBUG) then
+    write(u6,*)
+    write(u6,*) 'FI+FA in SXCTL after Unitary transform in ROTORB'
+    write(u6,*) ' --------------'
+    write(u6,*)
+    iOff = 1
+    do iSym=1,nSym
+      iOrb = nOrb(iSym)
+      call TriPrt(' ',' ',FA(iOff),iOrb)
+      iOff = iOff+nTri_Elem(iOrb)
+    end do
+  end if
+
+  call mma_deallocate(CMON)
+  call mma_deallocate(XMAT)
+  call mma_deallocate(X2)
+  call mma_deallocate(SCR)
+
+  call mma_deallocate(SXN)
+  call mma_deallocate(DIA)
+  call mma_deallocate(CSX)
+
+  IDISK = IADR15(2)
+  call DDAFILE(JOBIPH,1,CMO,NTOT2,IDISK)
+  call DDAFILE(JOBIPH,1,OCC,NTOT,IDISK)
+# ifdef _HDF5_
+  call mh5_put_dset(wfn_mocoef,CMO)
+  call mh5_put_dset(wfn_occnum,OCC)
+# endif
+  call TIMING(CPTS,CPES,TIOS,TIOES)
+
+End Subroutine SXCTL_Iterate
 
 end subroutine SXCtl
