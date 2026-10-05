@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,nDF,nDDIAG)
+subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,nIAIA,H,HDIAG,nDF,nDDIAG)
 ! RASSCF VERSION IBM-3090: SX-SECTION
 !
 ! Objective: Compute the auxiliary matrices G,H,F1,F2,and SXN
@@ -52,9 +52,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
+integer(kind=iwp), intent(in) :: nDF, nDDIAG, nIAIA
 real(kind=wp), intent(in) :: D(*), PA(*), FP(*)
-real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*)
-integer(kind=iwp), intent(in) :: nDF, nDDIAG
+real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(nIAIA), G(nIAIA), H(*), HDIAG(*)
 
 integer(kind=iwp) :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, &
                      IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO, NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR, NT, NTT, NTU, &
