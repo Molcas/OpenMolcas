@@ -82,13 +82,13 @@ real(kind=wp), intent(in) :: D(*), PA(*), D1A(*)
 real(kind=wp), intent(out) :: THMAX
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iBas, IC, iDisk, IndType(7,8), iOff, iOrb, iPrLev, iRC, iRef, iSym, iWay, j, kMax, LCSXI, LuvvVec, MIAAE, &
-                     MNO, NAEAE, NAOAE, NCR1, NIAIA, NLCC, NLOVL, NLQ, nP2Act, NQ
+                     MNO, NAEAE, NAOAE, NCR1, NIAIA, nP2Act, NQ
 real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
-real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:), HH(:), OVL(:), P2Raw(:), &
-                              P2reo(:), PUVX(:), QMat(:), QQ(:), SCR(:), SQ(:), STRP(:), &
+real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:), HH(:), P2Raw(:), &
+                              P2reo(:), PUVX(:), QMat(:), SCR(:), SQ(:), STRP(:), &
                               SXHD(:), VEC(:), WO(:), X2(:), XMAT(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
@@ -254,17 +254,8 @@ else
   KMAX =        NROOT*ITMAX
   NCR1 = NDIMSX*NROOT*(ITMAX+1)
   call mma_allocate(CSX,NCR1,Label='CSX')
-  NLCC = KMAX**2
-  NLQ = NDIMSX*(NROOT+1)
-  NLOVL = ITMAX*NROOT**2
 
-  call mma_allocate(QQ,NROOT,Label='QQ')
-  call mma_allocate(OVL,NLOVL,Label='OVL')
-
-  call DAVCRE(CSX,ESX,SXHD,QQ,OVL,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
-
-  call mma_deallocate(QQ)
-  call mma_deallocate(OVL)
+  call DAVCRE(CSX,ESX,SXHD,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
 
   call mma_deallocate(F1)
   call mma_deallocate(F2)
