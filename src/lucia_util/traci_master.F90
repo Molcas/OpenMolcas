@@ -93,16 +93,12 @@ do JROOT=1,NROOT
   ! Convert to internal Lucia SD format
   call CSDTVC(VEC4,VEC1,1,ISSM,0)
   ! Write CI vector to the Lucia file LUC
+  IDISK_Save=IDISK(LUC)
   call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
   I_DUMMY(1) = -1
   call ITODS(I_DUMMY,1,LBLK,LUC)
-end do
-
-! Now the actual work
-
-IDISK(LUC) = 0
-JDISK=JOBDISK
-do JROOT=1,NROOT
+  IDISK(LUC)=IDISK_Save
+  ! Do the actual work
   IDISK(LUSC1) = 0
   ! Copy the CI vector from file LUC to LUSC1
   call COPVCD(LUC,LUSC1,VEC1,0,LBLK) ! From the current position
