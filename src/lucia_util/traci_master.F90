@@ -14,7 +14,8 @@ subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,nTUVX,TUVX)
 
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
-                      NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, VEC3, XISPSM, IH1FORM
+                      NCSF_PER_SYM, NROOT, NSMOB, NTOOBS, PSSIGN, VEC3, XISPSM, IH1FORM
+use general_data, only: nCSF=>nConf, nDet, nLev
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -26,7 +27,7 @@ implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH, nTUVX
 real(kind=wp), intent(in) :: CMOMO(*), TUVX(nTUVX)
-integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NCONF, &
+integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, &
                      NDIM, NREC, IH1FORM_SAVE
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IREC, NUM_ELE
@@ -35,8 +36,9 @@ real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
 integer(kind=iwp), allocatable :: lRec(:)
 
 LBLK = -1
-NDIM = NTOOB*NTOOB
-NCONF = NCSF_PER_SYM(ISSM)
+
+NDIM = nLev*nLev
+nCSF = NCSF_PER_SYM(ISSM)
 ! JESPER: Should reduce I/O
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
@@ -45,7 +47,7 @@ if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 call mma_allocate(VEC1,LBLOCK,Label='VEC1')
 call mma_allocate(VEC2,LBLOCK,Label='VEC2')
 call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-call mma_allocate(VEC4,NCONF,Label='VEC4')
+call mma_allocate(VEC4,nCSF,Label='VEC4')
 
 ! MO-MO transformation matrix :
 call mma_allocate(TransMat,NDIM,Label='TransMat')
@@ -67,7 +69,7 @@ do ISM=1,NSMOB
   if (NTOOBS(ISM) == 0) Cycle
   IROW = ICOL
   do I=1,NTOOBS(ISM)
-    IADR = (ICOL-1)*NTOOB+IROW
+    IADR = (ICOL-1)*nLev+IROW
     do J=1,NTOOBS(ISM)
       TransMat(IOFF+NTOOBS(ISM)*(J-1)+I-1) = CMOMO(IADR+J-1)
     end do
@@ -86,7 +88,7 @@ IDISK(LUC) = 0
 JDISK = JOBDISK
 do JROOT=1,NROOT
   ! Read CI vector in SG format
-  call DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
+  call DDAFILE(JOBIPH,2,VEC4,nCSF,JDISK)
   ! Convert to internal Lucia SD format
   call CSDTVC(VEC4,VEC1,1,ISSM,0)
   ! Write CI vector to the Lucia file LUC
@@ -117,7 +119,7 @@ IDISK(LUDIA) = 0
 do JROOT=1,NROOT
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
   call CSDTVC(VEC2,VEC1,2,ISSM,0)
-  call DDAFILE(JOBIPH,1,VEC2,NCONF,JOBDISK)
+  call DDAFILE(JOBIPH,1,VEC2,nCSF,JOBDISK)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
 end do
 

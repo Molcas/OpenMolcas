@@ -48,6 +48,7 @@ implicit none
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM, nTUVX
 real(kind=wp), intent(in) :: X(*), TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
+
 real(kind=wp), allocatable :: SCR(:), LT(:)
 integer(kind=iwp) :: IOFF, ISM
 
