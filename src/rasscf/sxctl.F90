@@ -458,13 +458,11 @@ Subroutine SXCTL_Iterate()
   ! X2:  work area, also in ORTHO (AO overlap matrix)
   ! Scr: WORK AREA
 
-  call mma_allocate(XMAT,NO2M,Label='XMAT')
   call mma_allocate(X2,NTOT1,Label='X2')
   call mma_allocate(Scr,NO2M,Label='SCR')
 
-  call ROTORB(CMO,CSX(LCSXI),XMAT,X2,SCR,THMAX,FA)
+  call ROTORB(CMO,CSX(LCSXI),X2,SCR,THMAX,FA)
 
-  call mma_deallocate(XMAT)
   call mma_deallocate(X2)
   call mma_deallocate(SCR)
 
