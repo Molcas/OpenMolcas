@@ -41,7 +41,6 @@ real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 integer(kind=iwp) :: K, LBLK, I12_SAVE, I_RES_AB_SAVE
 real(kind=wp) :: TKK
 #ifdef _DEBUGPRINT_
-real(kind=wp) :: CNORM
 real(kind=wp), external :: INPRDD
 #endif
 

@@ -26,7 +26,7 @@ implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH, nTUVX
 real(kind=wp), intent(in) :: CMOMO(*), TUVX(nTUVX)
-integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, NCONF, &
+integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NCONF, &
                      NDIM, NREC, IH1FORM_SAVE
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IREC, NUM_ELE
@@ -85,8 +85,11 @@ call BLKFO_MIN(ISSM,NREC,LREC)
 IDISK(LUC) = 0
 JDISK = JOBDISK
 do JROOT=1,NROOT
+  ! Read CI vector in SG format
   call DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
+  ! Convert to internal Lucia SD format
   call CSDTVC(VEC4,VEC1,1,ISSM,0)
+  ! Write CI vector to the Lucia file LUC
   call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
   I_DUMMY(1) = -1
   call ITODS(I_DUMMY,1,LBLK,LUC)
@@ -98,8 +101,8 @@ IDISK(LUC) = 0
 IDISK(LUDIA) = 0
 do JROOT=1,NROOT
   IDISK(LUSC1) = 0
+  ! Copy the CI vector from file LUC to LUSC1
   call COPVCD(LUC,LUSC1,VEC1,0,LBLK)
-  call COPVCD(LUSC1,LUSC2,VEC1,1,LBLK)
 
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)

@@ -340,7 +340,8 @@ Subroutine SXCTL_Final()
 #       endif
       else if (doBlockDMRG .or. DoNECI) then
       else !CI
-        iDisk = IADR15(4)
+        ! Transform the CI vectors
+        iDisk = IADR15(4) ! Disk adress where the CI vectors are stored on JOBIPH
         call TraCI_Master(iDisk,JOBIPH,SMAT(:),Size(TUVX),TUVX)
       end if
       call mma_deallocate(SMAT)
