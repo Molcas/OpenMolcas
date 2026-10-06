@@ -28,7 +28,7 @@ integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, &
-                     NDIM, NREC, IH1FORM_SAVE
+                     NDIM, NREC, IH1FORM_SAVE, IDISK_Save
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IREC, NUM_ELE
 #endif
@@ -101,6 +101,7 @@ end do
 ! Now the actual work
 
 IDISK(LUC) = 0
+JDISK=JOBDISK
 do JROOT=1,NROOT
   IDISK(LUSC1) = 0
   ! Copy the CI vector from file LUC to LUSC1
@@ -108,12 +109,9 @@ do JROOT=1,NROOT
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)! Rewind first
 
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
+  IDISK_Save=IDISK(LUDIA)
   call TRACI_LUCIA(TransMat,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2)
-end do
-! End of loop over roots
-IDISK(LUDIA) = 0
-
-do JROOT=1,NROOT
+  IDISK(LUDIA)=IDISK_Save
   ! Copy CI-vector back to MOLCAS JOBIPH file
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
   call CSDTVC(VEC2,VEC1,2,ISSM,0)
