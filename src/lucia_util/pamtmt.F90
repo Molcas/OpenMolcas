@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PAMTMT(X,T,SCR,NORB)
+subroutine PAMTMT(X,T,NORB)
 ! GENERATE PER AKE'S T MATRIX FROM AN
 ! ORBITAL ROTATION MATRIX X
 !
@@ -30,31 +30,23 @@ subroutine PAMTMT(X,T,SCR,NORB)
 !
 ! JEPPE OLSEN OCTOBER 1988
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-#ifdef _DEBUGPRINT_
-use Definitions, only: u6
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrb
 real(kind=wp), intent(in) :: X(NORB,NORB)
-real(kind=wp), intent(out) :: T(NORB,NORB), SCR(nOrb**2+nTri_Elem(nOrb))
-integer(kind=iwp) :: I, ISING, J, KLFREE, KLL, KLU
+real(kind=wp), intent(out) :: T(NORB,NORB)
 
-#ifdef _DEBUGPRINT_
-write(u6,*) ' Welcome to PAMTMT'
-write(u6,*) ' ================='
-write(u6,*)
-#endif
+integer(kind=iwp) :: I, ISING, J, KLL, KLU
+real(kind=wp), allocatable:: SCR(:)
+
 ! Allocate local memory
-KLFREE = 1
-!KLL = KFLREE
-KLL = KLFREE
-KLFREE = KLL+nTri_Elem(NORB)
-KLU = KLFREE
-KLFREE = KLU+NORB**2
+Call mma_allocate(SCR,nOrb**2+nTri_Elem(nOrb),Label='SCR')
+KLL = 1
+KLU = KLL+nTri_Elem(NORB)
 ! LU factorize X
 call LULU(X,SCR(KLL),SCR(KLU),NORB)
 ! Expand U to full matrix
@@ -64,28 +56,14 @@ do I=1,NORB
     T(I,J) = SCR(KLU-1+nTri_Elem(J-1)+I)
   end do
 end do
-#ifdef _DEBUGPRINT_
-write(u6,*) ' MATRIX TO BE INVERTED'
-call WRTMAT(T,NORB,NORB,NORB,NORB)
-#endif
 ! Invert U
 call INVMAT(T,SCR(KLU),NORB,ISING)
-#ifdef _DEBUGPRINT_
-write(u6,*) ' INVERTED MATRIX'
-call WRTMAT(T,NORB,NORB,NORB,NORB)
-#endif
 ! Subtract L
 do I=1,NORB
   do J=1,I-1
     T(I,J) = -SCR(KLL-1+nTri_Elem(I-1)+J)
   end do
 end do
-
-#ifdef _DEBUGPRINT_
-write(u6,*) ' INPUT X MATRIX'
-call WRTMAT(X,NORB,NORB,NORB,NORB)
-write(u6,*) ' T MATRIX'
-call WRTMAT(T,NORB,NORB,NORB,NORB)
-#endif
+Call mma_deallocate(SCR)
 
 end subroutine PAMTMT

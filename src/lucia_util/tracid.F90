@@ -65,17 +65,21 @@ do K=1,NTOOB
   ! T_{kk}^Nk
   !    T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
   call T_TO_NK_VEC(TKK,K,ISSM,ISSPC,LUSC1,LUSC2,VEC1)
+
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
+
   ! For each orbital calculate (1+T+1/2 T^2)|0>
   ! + T
   call MV7(VEC1,VEC2,LUSC1,LUSC2,size(TUVX),TUVX)
 
   call VECSMDP(VEC1,VEC2,One,One,LUSC1,LUSC2,LUSC3,1,LBLK)
+
   call COPVCD(LUSC3,LUSC1,VEC1,1,LBLK)
   ! + 1/2 T^2
   call MV7(VEC1,VEC2,LUSC2,LUSC3,size(TUVX),TUVX)
 
   call VECSMDP(VEC1,VEC2,One,Half,LUSC1,LUSC3,LUSC2,1,LBLK)
+
   ! and transfer back to LUSC1
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
 end do

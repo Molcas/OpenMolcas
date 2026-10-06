@@ -11,7 +11,6 @@
 ! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
 subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2,nTUVX,TUVX)
 ! A rotation matrix X is defining expansion from
 ! old to new orbitals
@@ -36,6 +35,7 @@ subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2,nTUVX,TUVX)
 use Index_Functions, only: nTri_Elem
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use lucia_data, only: LUSC1, LUSC2, LUSC3, NSMOB, NTOOB, NTOOBS
+use general_data, only: nLev
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -49,14 +49,12 @@ integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM, nTUVX
 real(kind=wp), intent(in) :: X(*), TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 
-real(kind=wp), allocatable :: SCR(:), LT(:)
+real(kind=wp), allocatable :: LT(:)
 integer(kind=iwp) :: IOFF, ISM
 
-! Memory allocation
-! for a matrix T
-call mma_allocate(LT,NTOOB**2,Label='LT')
-! Scratch in PAMTMT
-call mma_allocate(SCR,NTOOB**2+nTri_Elem(NTOOB),Label='SCR')
+! Memory allocation for a matrix T
+call mma_allocate(LT,nLev**2,Label='LT')
+
 ! Obtain T matrix used for transformation, for each symmetry separately
 IOFF = 0
 do ISM=1,NSMOB
@@ -65,7 +63,7 @@ do ISM=1,NSMOB
   else
     IOFF = IOFF+NTOOBS(ISM-1)**2
   end if
-  if (NTOOBS(ISM) > 0) call PAMTMT(X(IOFF),LT(IOFF),SCR,NTOOBS(ISM))
+  if (NTOOBS(ISM) > 0) call PAMTMT(X(IOFF),LT(IOFF),NTOOBS(ISM))
 end do
 
 ! Transform CI-vector
@@ -76,7 +74,6 @@ ISSM = IXSM
 
 call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2,size(TUVX),TUVX)
 
-call mma_deallocate(SCR)
 call mma_deallocate(LT)
 
 end subroutine TRACI_LUCIA
