@@ -47,6 +47,7 @@ real(kind=wp), external :: INPRDD
 LBLK = -1
 ! Transfer vector on LUCIN to LUSC1
 call COPVCD(LUCIN,LUSC1,VEC1,1,LBLK)
+
 ! A bit of info for the sigma routine
 I_RES_AB_SAVE = I_RES_AB
 I_RES_AB = 0

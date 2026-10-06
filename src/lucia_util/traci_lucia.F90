@@ -51,22 +51,13 @@ real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 real(kind=wp), allocatable :: SCR(:), LT(:)
 integer(kind=iwp) :: IOFF, ISM
 
-! Some dummy initializations
-IOFF = 0 ! jwk-cleanup
-
-#ifdef _DEBUGPRINT_
-write(u6,*) ' ================'
-write(u6,*) ' Welcome to TRACI'
-write(u6,*) ' ================'
-write(u6,*)
-write(u6,*) ' IXSPC,IXSM = ',IXSPC,IXSM
-#endif
 ! Memory allocation
 ! for a matrix T
 call mma_allocate(LT,NTOOB**2,Label='LT')
 ! Scratch in PAMTMT
 call mma_allocate(SCR,NTOOB**2+nTri_Elem(NTOOB),Label='SCR')
 ! Obtain T matrix used for transformation, for each symmetry separately
+IOFF = 0
 do ISM=1,NSMOB
   if (ISM == 1) then
     IOFF = 1
@@ -75,6 +66,7 @@ do ISM=1,NSMOB
   end if
   if (NTOOBS(ISM) > 0) call PAMTMT(X(IOFF),LT(IOFF),SCR,NTOOBS(ISM))
 end do
+
 ! Transform CI-vector
 ICSPC = IXSPC
 ICSM = ICSM

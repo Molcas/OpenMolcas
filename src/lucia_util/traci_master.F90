@@ -99,14 +99,14 @@ end do
 
 IDISK(LUC) = 0
 IDISK(LUDIA) = 0
+IDISK(LUSC1) = 0
 do JROOT=1,NROOT
   IDISK(LUSC1) = 0
   ! Copy the CI vector from file LUC to LUSC1
-  call COPVCD(LUC,LUSC1,VEC1,0,LBLK)
+  call COPVCD(LUC,LUSC1,VEC1,0,LBLK) ! From the current position
+  call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)! Rewind first
 
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
-  call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
-
   call TRACI_LUCIA(TransMat,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2,size(TUVX),TUVX)
 end do
 ! End of loop over roots
@@ -120,6 +120,7 @@ do JROOT=1,NROOT
   call DDAFILE(JOBIPH,1,VEC2,NCONF,JOBDISK)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
 end do
+
 IDISK(LUDIA) = 0
 
 ! clean up time : copy 1-e integrals back in place
