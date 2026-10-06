@@ -11,7 +11,7 @@
 ! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
+subroutine TRACI_LUCIA(LT,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 ! A rotation matrix X is defining expansion from
 ! old to new orbitals
 !        PHI(NEW) = PHI(OLD) * X
@@ -46,25 +46,10 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM
-real(kind=wp), intent(in) :: X(*)
+real(kind=wp), intent(in) :: LT(*)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 
-real(kind=wp), allocatable :: LT(:)
 integer(kind=iwp) :: IOFF, ISM
-
-! Memory allocation for a matrix T
-call mma_allocate(LT,nLev**2,Label='LT')
-
-! Obtain T matrix used for transformation, for each symmetry separately
-IOFF = 0
-do ISM=1,NSMOB
-  if (ISM == 1) then
-    IOFF = 1
-  else
-    IOFF = IOFF+NTOOBS(ISM-1)**2
-  end if
-  if (NTOOBS(ISM) > 0) call PAMTMT(X(IOFF),LT(IOFF),NTOOBS(ISM))
-end do
 
 ! Transform CI-vector
 ICSPC = IXSPC
@@ -73,7 +58,5 @@ ISSPC = IXSPC
 ISSM = IXSM
 
 call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
-
-call mma_deallocate(LT)
 
 end subroutine TRACI_LUCIA

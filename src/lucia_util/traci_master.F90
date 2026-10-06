@@ -32,7 +32,7 @@ integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IREC, NUM_ELE
 #endif
-real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
+real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:), LT(:)
 integer(kind=iwp), allocatable :: lRec(:)
 
 LBLK = -1
@@ -78,6 +78,19 @@ do ISM=1,NSMOB
   IOFF = IOFF+NTOOBS(ISM)**2
 end do
 
+! Memory allocation for a matrix T
+call mma_allocate(LT,nLev**2,Label='LT')
+
+! Obtain T matrix used for transformation, for each symmetry separately
+IOFF = 0
+do ISM=1,NSMOB
+  if (ISM == 1) then
+    IOFF = 1
+  else
+    IOFF = IOFF+NTOOBS(ISM-1)**2
+  end if
+  if (NTOOBS(ISM) > 0) call PAMTMT(TransMat(IOFF),LT(IOFF),NTOOBS(ISM))
+end do
 
 Call mma_allocate(lRec,MXNTTS,Label='lRec')
 call BLKFO_MIN(ISSM,NREC,LREC)
@@ -106,7 +119,9 @@ do JROOT=1,NROOT
 
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
   IDISK_Save=IDISK(LUDIA)
-  call TRACI_LUCIA(TransMat,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2)
+
+  call TRACI_LUCIA(LT,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2)
+
   IDISK(LUDIA)=IDISK_Save
   ! Copy CI-vector back to MOLCAS JOBIPH file
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
@@ -125,6 +140,7 @@ call mma_deallocate(VEC1)
 call mma_deallocate(VEC2)
 call mma_deallocate(VEC3)
 call mma_deallocate(VEC4)
+call mma_deallocate(LT)
 call mma_deallocate(TransMat)
 call mma_deallocate(LH1SAVE)
 Call mma_deallocate(lRec)
