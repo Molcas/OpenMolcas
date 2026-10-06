@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,nTUVX,TUVX)
+subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
@@ -25,8 +25,8 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
-integer(kind=iwp), intent(in) :: JOBIPH, nTUVX
-real(kind=wp), intent(in) :: CMOMO(*), TUVX(nTUVX)
+integer(kind=iwp), intent(in) :: JOBIPH
+real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, &
                      NDIM, NREC, IH1FORM_SAVE
 #ifdef _DEBUGPRINT_
@@ -109,7 +109,7 @@ do JROOT=1,NROOT
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)! Rewind first
 
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
-  call TRACI_LUCIA(TransMat,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2,size(TUVX),TUVX)
+  call TRACI_LUCIA(TransMat,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2)
 end do
 ! End of loop over roots
 IDISK(LUDIA) = 0

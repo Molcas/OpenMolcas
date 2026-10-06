@@ -48,7 +48,10 @@ character(len=4) :: ITRACI_CN, ITRACI_CR
 if (ifvb /= 0) iSpeed(1) = 0
 
 INI_H0 = 1
+! Assign the form in which the one-electron orbitals are stored.
 IH1FORM=0 ! default unassigned value.
+! Assign if the one is computing sigma vectors over E_pq or H. In the latter case
+! one will need two-electron integrals in addition to thw one-electron integrals.
 I12=0 ! default unassigned value.
 ! Flag for compatibility with normal MOLCAS input format
 

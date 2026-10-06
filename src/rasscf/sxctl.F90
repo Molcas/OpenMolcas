@@ -60,7 +60,7 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
-use wadr, only: NLX, TUVX
+use wadr, only: NLX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
                          l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
@@ -342,7 +342,7 @@ Subroutine SXCTL_Final()
       else !CI
         ! Transform the CI vectors
         iDisk = IADR15(4) ! Disk adress where the CI vectors are stored on JOBIPH
-        call TraCI_Master(iDisk,JOBIPH,SMAT(:),Size(TUVX),TUVX)
+        call TraCI_Master(iDisk,JOBIPH,SMAT(:))
       end if
       call mma_deallocate(SMAT)
     else
