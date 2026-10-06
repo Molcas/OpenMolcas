@@ -88,8 +88,8 @@ character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
 real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:), HH(:), P2Raw(:), &
-                              P2reo(:), PUVX(:), QMat(:), SCR(:), SQ(:), STRP(:), SXG(:), SXHD(:), VEC(:), &
-                              WO(:), X2(:), XMAT(:), DIA(:), F1(:), F2(:), SXH(:), SXN(:), BM(:)
+                              P2reo(:), PUVX(:), QMat(:), SQ(:), STRP(:), SXG(:), SXHD(:), VEC(:), &
+                              WO(:), XMAT(:), DIA(:), F1(:), F2(:), SXH(:), SXN(:), BM(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
@@ -458,13 +458,7 @@ Subroutine SXCTL_Iterate()
   ! X2:  work area, also in ORTHO (AO overlap matrix)
   ! Scr: WORK AREA
 
-  call mma_allocate(X2,NTOT1,Label='X2')
-  call mma_allocate(Scr,NO2M,Label='SCR')
-
-  call ROTORB(CMO,CSX(LCSXI),X2,SCR,THMAX,FA)
-
-  call mma_deallocate(X2)
-  call mma_deallocate(SCR)
+  call ROTORB(CMO,CSX(LCSXI),THMAX,FA)
 
   call mma_deallocate(SXN)
   call mma_deallocate(DIA)

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine rotorb(cmoo,c,x2,y,thmax,FA)
+subroutine rotorb(cmoo,c,thmax,FA)
 ! RASSCF program: version IBM-3090: SX section
 !
 ! PURPOSE: Calculation of the rotation matrix X from the super-CI
@@ -26,7 +26,7 @@ use general_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: CMAX, iXSym, PURIFY, ROTMAX, NO2M
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRLOC
-use general_data, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NSSH, NSYM, NTOT2
+use general_data, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NSSH, NSYM, NTOT2, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -37,13 +37,12 @@ implicit none
 real(kind=wp), intent(inout) :: cmoo(NTOT2), FA(*)
 real(kind=wp), intent(out) ::  THMAX
 real(kind=wp), intent(in) :: c(*)
-real(kind=wp), intent(_OUT_) :: x2(*), y(*)
 integer(kind=iwp) :: I, IB, ICORE, ICOREGAS(0:4,0:4), IDAMP, IDAMPGAS(0:4,0:4), IGAS, II, IJ, IO, iOff, iOrb, iPrLev, iSpace, IST, &
                      ISTBM, ISTMO, ISTMO1, ISUM, ISYM, jPr, jSPace, MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND, NDB, NEO, NF, NFB, &
                      NI, NIO, NIO1, NJ, NO, NOC, NOC1, NP, NR
 real(kind=wp) :: COREGAS(10), DAMPGAS(10), TERM, THM, Xn, XX
 logical(kind=iwp) :: iFrzAct
-real(kind=wp), allocatable :: SqFA(:), Unt(:), CMON(:), X(:)
+real(kind=wp), allocatable :: SqFA(:), Unt(:), CMON(:), X(:), X2(:), Y(:)
 real(kind=wp), parameter :: ACC = 1.0e-13_wp, Thrs = 1.0e-14_wp
 
 IPRLEV = IPRLOC(4)
@@ -63,6 +62,8 @@ end if
 
 Call mma_allocate(CMON,NTOT2,Label='CMON')
 Call mma_allocate(X,NO2M,Label='X')
+Call mma_allocate(X2,NTOT1,Label='X2')
+Call mma_allocate(Y,NO2M,Label='Y')
 
 istbm = 1
 istmo1 = 0
@@ -403,6 +404,8 @@ cmoo(1:ntot2) = cmon(1:ntot2)
 
 1010 format(6x,'Molecular orbital',i4,' of symmetry',i2,' MO space',i2,'  weight is',f12.6)
 
+Call mma_deallocate(Y)
+Call mma_deallocate(X2)
 Call mma_deallocate(X)
 Call mma_deallocate(CMON)
 
