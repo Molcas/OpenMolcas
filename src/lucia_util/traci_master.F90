@@ -85,6 +85,7 @@ call BLKFO_MIN(ISSM,NREC,LREC)
 ! Transfer the CI-vector to LUC
 
 IDISK(LUC) = 0
+IDISK(LUDIA) = 0
 JDISK = JOBDISK
 do JROOT=1,NROOT
   ! Read CI vector in SG format
@@ -100,8 +101,6 @@ end do
 ! Now the actual work
 
 IDISK(LUC) = 0
-IDISK(LUDIA) = 0
-IDISK(LUSC1) = 0
 do JROOT=1,NROOT
   IDISK(LUSC1) = 0
   ! Copy the CI vector from file LUC to LUSC1
@@ -114,9 +113,8 @@ end do
 ! End of loop over roots
 IDISK(LUDIA) = 0
 
-! Copy CI-vector back to MOLCAS JOBIPH file
-
 do JROOT=1,NROOT
+  ! Copy CI-vector back to MOLCAS JOBIPH file
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
   call CSDTVC(VEC2,VEC1,2,ISSM,0)
   call DDAFILE(JOBIPH,1,VEC2,nCSF,JOBDISK)
