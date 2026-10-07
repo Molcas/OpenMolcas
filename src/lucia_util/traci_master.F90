@@ -28,14 +28,15 @@ integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, &
                      NDIM, NREC, IH1FORM_SAVE, IDISK_Save
-real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:), LT(:)
+real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), CI_Vector(:), LT(:)
 integer(kind=iwp), allocatable :: lRec(:)
 
-LBLK = -1
 
 NDIM = nLev*nLev
 nCSF = NCSF_PER_SYM(ISSM)
+
 ! JESPER: Should reduce I/O
+LBLK = -1
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 
@@ -43,10 +44,9 @@ if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 call mma_allocate(VEC1,LBLOCK,Label='VEC1')
 call mma_allocate(VEC2,LBLOCK,Label='VEC2')
 call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-call mma_allocate(VEC4,nCSF,Label='VEC4')
 
-! MO-MO transformation matrix :
-call mma_allocate(TransMat,NDIM,Label='TransMat')
+call mma_allocate(CI_Vector,nCSF,Label='CI_Vector')
+
 ! Copy of one-electron integrals
 call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
 ! We are going to mess with the one-electron integrals, take a copy
@@ -57,6 +57,8 @@ IH1FORM_SAVE = IH1FORM
 ! has non-zero values just in the block-diagonal sections. Here we
 ! remove those blocks.
 
+! MO-MO transformation matrix :
+call mma_allocate(TransMat,NDIM,Label='TransMat')
 TransMat(:) = Zero
 IOFF = 1
 IADR = 1
@@ -91,26 +93,26 @@ end do
 Call mma_allocate(lRec,MXNTTS,Label='lRec')
 call BLKFO_MIN(ISSM,NREC,LREC)
 
-! Transfer the CI-vector to LUC
-
-IDISK(LUC) = 0
 IDISK(LUDIA) = 0
+
 JDISK = JOBDISK
 do JROOT=1,NROOT
   ! Read CI vector in SG format
-  call DDAFILE(JOBIPH,2,VEC4,nCSF,JDISK)
+  call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
+
+  IDISK(LUC) = 0
   ! Convert to internal Lucia SD format
-  call CSDTVC(VEC4,VEC1,1,ISSM,0)
+  call CSDTVC(CI_Vector,VEC1,1,ISSM,0)
   ! Write CI vector to the Lucia file LUC
-  IDISK_Save=IDISK(LUC)
   call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
   I_DUMMY(1) = -1
   call ITODS(I_DUMMY,1,LBLK,LUC)
-  IDISK(LUC)=IDISK_Save
+  IDISK(LUC)=0
   ! Do the actual work
   IDISK(LUSC1) = 0
   ! Copy the CI vector from file LUC to LUSC1
   call COPVCD(LUC,LUSC1,VEC1,0,LBLK) ! From the current position
+  IDISK(LUC)=0
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)! Rewind first
 
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
@@ -122,11 +124,13 @@ do JROOT=1,NROOT
   ! Copy CI-vector back to MOLCAS JOBIPH file
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
   call CSDTVC(VEC2,VEC1,2,ISSM,0)
-  call DDAFILE(JOBIPH,1,VEC2,nCSF,JOBDISK)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
+
+  call DDAFILE(JOBIPH,1,VEC2,nCSF,JOBDISK)
 end do
 
 IDISK(LUDIA) = 0
+Call mma_deallocate(lRec)
 
 ! clean up time : copy 1-e integrals back in place
 INT1(:) = LH1SAVE(:)
@@ -135,10 +139,10 @@ IH1FORM = IH1FORM_SAVE
 call mma_deallocate(VEC1)
 call mma_deallocate(VEC2)
 call mma_deallocate(VEC3)
-call mma_deallocate(VEC4)
+
+call mma_deallocate(CI_Vector)
 call mma_deallocate(LT)
 call mma_deallocate(TransMat)
 call mma_deallocate(LH1SAVE)
-Call mma_deallocate(lRec)
 
 end subroutine TRACI_MASTER
