@@ -12,10 +12,9 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
-use CandS, only: ISSM, ISSPC
 use lucia_data, only: IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
                       NCSF_PER_SYM, NROOT, NSMOB, NTOOBS, PSSIGN, VEC3, XISPSM, IH1FORM
-use general_data, only: nCSF=>nConf, nDet, nLev
+use general_data, only: nCSF=>nConf, nDet, nLev, ISSM=>STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -120,7 +119,7 @@ do JROOT=1,NROOT
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
   IDISK_Save=IDISK(LUDIA)
 
-  call TRACI_LUCIA(LT,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2)
+  call TRACI_LUCIA(LT,LUHC,LUDIA,VEC1,VEC2)
 
   IDISK(LUDIA)=IDISK_Save
   ! Copy CI-vector back to MOLCAS JOBIPH file

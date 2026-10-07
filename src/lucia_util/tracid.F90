@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
+subroutine TRACID(T,LUCIN,LUCOUT,VEC1,VEC2)
 ! Transform CI vector on LUCIN with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
@@ -24,8 +24,9 @@ subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
 !
 ! each transformation is
 
-use CandS, only: ISSM, ISSPC
+use CandS, only: ICSPC, ICSM, ISSM, ISSPC
 use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1
+use lucia_data, only: LUSC1, LUSC2, LUSC3
 use general_data, only: nLev
 use Constants, only: Zero,One, Half
 use Definitions, only: wp, iwp
@@ -36,7 +37,7 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
+integer(kind=iwp), intent(in) :: LUCIN, LUCOUT
 real(kind=wp), intent(in) :: T(*)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 integer(kind=iwp) :: K, LBLK, I12_SAVE, I_RES_AB_SAVE
@@ -45,6 +46,8 @@ real(kind=wp) :: TKK
 real(kind=wp), external :: INPRDD
 #endif
 
+ICSPC = ISSPC
+ICSM = ISSM
 LBLK = -1
 ! Transfer vector on LUCIN to LUSC1
 call COPVCD(LUCIN,LUSC1,VEC1,1,LBLK)
@@ -69,15 +72,18 @@ do K=1,nLev
 
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
 
+  ! VEC1 = |Psi>
   ! For each orbital calculate (1+T+1/2 T^2)|0>
   ! + T
-  call MV7(VEC1,VEC2,LUSC1,LUSC2,1,[Zero])
+  ! VEC2 = T|Psi>
+  call MV7(VEC1,VEC2,LUSC1,LUSC2,1,[Zero]) ! Dummy ERIs
 
+  ! Form |Psi> + T|Psi>
   call VECSMDP(VEC1,VEC2,One,One,LUSC1,LUSC2,LUSC3,1,LBLK)
 
   call COPVCD(LUSC3,LUSC1,VEC1,1,LBLK)
   ! + 1/2 T^2
-  call MV7(VEC1,VEC2,LUSC2,LUSC3,1,[Zero])
+  call MV7(VEC1,VEC2,LUSC2,LUSC3,1,[Zero]) ! Dummy ERIs
 
   call VECSMDP(VEC1,VEC2,One,Half,LUSC1,LUSC3,LUSC2,1,LBLK)
 

@@ -11,12 +11,12 @@
 ! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine TRACI_LUCIA(LT,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
+subroutine TRACI_LUCIA(LT,LUCIN,LUCOUT,VEC1,VEC2)
 ! A rotation matrix X is defining expansion from
 ! old to new orbitals
 !        PHI(NEW) = PHI(OLD) * X
 !
-! change CI coefficients (sym IXSM, space IXSPC)
+! change CI coefficients (sym ISSM, space ISSPC)
 ! so they corresponds to PHI(NEW) basis
 !
 ! The input CI vector is on LUCIN and the transformed CI vector
@@ -32,31 +32,17 @@ subroutine TRACI_LUCIA(LT,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 ! note The transformation matrix X is supposed to be in complete form
 ! as a matrix over NTOOB orbitals.
 
-use Index_Functions, only: nTri_Elem
-use CandS, only: ICSM, ICSPC, ISSM, ISSPC
-use lucia_data, only: LUSC1, LUSC2, LUSC3, NSMOB, NTOOB, NTOOBS
-use general_data, only: nLev
-use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-#ifdef _DEBUGPRINT_
-use Definitions, only: u6
-#endif
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM
+integer(kind=iwp), intent(in) :: LUCIN, LUCOUT
 real(kind=wp), intent(in) :: LT(*)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 
-integer(kind=iwp) :: IOFF, ISM
-
 ! Transform CI-vector
-ICSPC = IXSPC
-ICSM = ICSM
-ISSPC = IXSPC
-ISSM = IXSM
 
-call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
+call TRACID(LT,LUCIN,LUCOUT,VEC1,VEC2)
 
 end subroutine TRACI_LUCIA
