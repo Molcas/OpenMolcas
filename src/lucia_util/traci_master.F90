@@ -113,14 +113,15 @@ do JROOT=1,NROOT
   ! Copy the CI vector from file LUC to LUSC1
   call COPVCD(LUC,LUSC1,VEC1,0,LBLK) ! From the current position
   IDISK(LUC)=0
+  IDISK(LUHC)=0
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)! Rewind first
 
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
-  IDISK_Save=IDISK(LUDIA)
+  IDISK(LUDIA)=0
 
   call TRACI_LUCIA(LT,LUHC,LUDIA,VEC1,VEC2)
 
-  IDISK(LUDIA)=IDISK_Save
+  IDISK(LUDIA)=0
   ! Copy CI-vector back to MOLCAS JOBIPH file
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
   call CSDTVC(VEC2,VEC1,2,ISSM,0)
