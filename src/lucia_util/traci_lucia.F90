@@ -7,42 +7,95 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine TRACI_LUCIA(LT,LUCIN,LUCOUT,VEC1,VEC2)
-! A rotation matrix X is defining expansion from
-! old to new orbitals
-!        PHI(NEW) = PHI(OLD) * X
+!#define _DEBUGPRINT_
+subroutine TRACI_Lucia(T,LUCIN,LUCOUT,VEC1,VEC2)
+! Transform CI vector on LUCIN with T matrix after
+! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
-! change CI coefficients (sym ISSM, space ISSPC)
-! so they corresponds to PHI(NEW) basis
+! The transformation is done as a sequence of one-electron transformations
 !
-! The input CI vector is on LUCIN and the transformed CI vector
-! will be delivered on LUCOUT.
+! with each orbital transformation being
 !
-! Transformation as conceived by Per-AAke Malmquist
-! (I.J.Q.C. vol XXX, p479, 1986 (OCTOBER ISSUE))
+! Sum(k=0,2) ( 1/k! sum(n' /= n) S(n'n) E_{n'n} ) Tnn^N_n
 !
-!  Jeppe Olsen 1988
+! with Sn'n = T(n'n)/Tnn
 !
-! New LUCIA version of Jan 1998
-!
-! note The transformation matrix X is supposed to be in complete form
-! as a matrix over NTOOB orbitals.
+! each transformation is
 
+use CandS, only: ICSPC, ICSM, ISSM, ISSPC
+use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1
+use lucia_data, only: LUSC1, LUSC2, LUSC3
+use general_data, only: nLev
+use Constants, only: Zero,One, Half
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT
-real(kind=wp), intent(in) :: LT(*)
+real(kind=wp), intent(in) :: T(*)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
+integer(kind=iwp) :: K, LBLK, I12_SAVE, I_RES_AB_SAVE
+real(kind=wp) :: TKK
+#ifdef _DEBUGPRINT_
+real(kind=wp), external :: INPRDD
+#endif
 
-! Transform CI-vector
+ICSPC = ISSPC
+ICSM = ISSM
+LBLK = -1
+! Transfer vector on LUCIN to LUSC1
+call COPVCD(LUCIN,LUSC1,VEC1,1,LBLK)
 
-call TRACID(LT,LUCIN,LUCOUT,VEC1,VEC2)
+! A bit of info for the sigma routine
+I_RES_AB_SAVE = I_RES_AB
+I_RES_AB = 0
+! Do one-electron update, i.e. don't use any two-electron integrals
+I12_SAVE=I12
+I12 = 1
+! With 1-electron integrals in complete block form
+IH1FORM = 2
+! Transform each orbital separately
 
-end subroutine TRACI_LUCIA
+do K=1,nLev
+  ! Place (T(P,K)/S(K,K)   in one-electron integral list
+  !    T_ROW_TO_H(T,H,K)
+  call T_ROW_TO_H(T,INT1,K,TKK)
+  ! T_{kk}^Nk
+  !    T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
+  call T_TO_NK_VEC(TKK,K,ISSM,ISSPC,LUSC1,LUSC2,VEC1)
+
+  call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
+
+  ! VEC1 = |Psi>
+  ! For each orbital calculate (1+T+1/2 T^2)|0>
+  ! + T
+  ! VEC2 = T|Psi>
+  call MV7(VEC1,VEC2,LUSC1,LUSC2,1,[Zero]) ! Dummy ERIs
+
+  ! Form |Psi> + T|Psi>
+  call VECSMDP(VEC1,VEC2,One,One,LUSC1,LUSC2,LUSC3,1,LBLK)
+
+  call COPVCD(LUSC3,LUSC1,VEC1,1,LBLK)
+  ! + 1/2 T^2
+  call MV7(VEC1,VEC2,LUSC2,LUSC3,1,[Zero]) ! Dummy ERIs
+
+  call VECSMDP(VEC1,VEC2,One,Half,LUSC1,LUSC3,LUSC2,1,LBLK)
+
+  ! and transfer back to LUSC1
+  call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
+end do
+
+! And transfer to LUCOUT
+IDISK(LUSC1) = 0
+call COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)
+
+I12=I12_SAVE
+I_RES_AB = I_RES_AB_SAVE
+
+end subroutine TRACI_Lucia
