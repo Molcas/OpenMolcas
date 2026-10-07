@@ -12,7 +12,7 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
-use lucia_data, only: IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
+use lucia_data, only: IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, MXNTTS, MXSOOB, &
                       NCSF_PER_SYM, NROOT, NSMOB, NTOOBS, PSSIGN, VEC3, XISPSM, IH1FORM
 use general_data, only: nCSF=>nConf, nDet, nLev, ISSM=>STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -28,9 +28,6 @@ integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, &
                      NDIM, NREC, IH1FORM_SAVE, IDISK_Save
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IREC, NUM_ELE
-#endif
 real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:), LT(:)
 integer(kind=iwp), allocatable :: lRec(:)
 

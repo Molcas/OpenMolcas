@@ -57,13 +57,12 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 !                                                                  *
 !*******************************************************************
 
-use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
 use wadr, only: NLX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
-                         l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
+                         l_casdft, NAC, nDimSX, nFint, nQune, NROOT, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH, LUINTM, LUQUNE
@@ -81,15 +80,15 @@ real(kind=wp), intent(inout) :: CMO(*), OCC(*), P(*), FI(*), FA(*)
 real(kind=wp), intent(in) :: D(*), PA(*), D1A(*)
 real(kind=wp), intent(out) :: THMAX
 integer(kind=iwp), intent(in) :: IFINAL
-integer(kind=iwp) :: i, iBas, IC, iDisk, IndType(7,8), iOff, iOrb, iPrLev, iRC, iRef, iSym, iWay, j, kMax, LCSXI, LuvvVec, MIAAE, &
+integer(kind=iwp) :: i, IC, iDisk, IndType(7,8), iPrLev, iRC, iRef, iWay, kMax, LCSXI, LuvvVec, MIAAE, &
                      MNO, NAEAE, NAOAE, NCR1, NIAIA, nP2Act, NQ, NSXS
 real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
-real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:), HH(:), P2Raw(:), &
+real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:),  P2Raw(:), &
                               P2reo(:), PUVX(:), QMat(:), SQ(:), STRP(:), SXG(:), SXHD(:), VEC(:), &
-                              WO(:), XMAT(:), DIA(:), F1(:), F2(:), SXH(:), SXN(:), BM(:)
+                              WO(:), DIA(:), F1(:), F2(:), SXH(:), SXN(:), BM(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
@@ -289,6 +288,7 @@ end if
 End Subroutine SXCTL_Prelude
 
 Subroutine SXCTL_Final()
+  integer(kind=iwp) :: i
 
   ! If ifinal=1 , this is the last call to SXCTL for calculating
   ! the MCSCF Fock matrix for occupied orbitals, and new orbitals).
