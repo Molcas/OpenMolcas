@@ -90,8 +90,6 @@ do ISM=1,NSMOB
   if (NTOOBS(ISM) > 0) call PAMTMT(TransMat(IOFF),LT(IOFF),NTOOBS(ISM))
 end do
 
-Call mma_allocate(lRec,MXNTTS,Label='lRec')
-call BLKFO_MIN(ISSM,NREC,LREC)
 
 IDISK(LUDIA) = 0
 
@@ -100,6 +98,8 @@ do JROOT=1,NROOT
   ! Read CI vector in SG format
   call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
 
+  Call mma_allocate(lRec,MXNTTS,Label='lRec')
+  call BLKFO_MIN(ISSM,NREC,LREC)
   IDISK(LUC) = 0
   ! Convert to internal Lucia SD format
   call CSDTVC(CI_Vector,VEC1,1,ISSM,0)
@@ -124,14 +124,15 @@ do JROOT=1,NROOT
   IDISK(LUDIA)=0
   ! Copy CI-vector back to MOLCAS JOBIPH file
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
+  IDISK(LUDIA)=0
   call CSDTVC(VEC2,VEC1,2,ISSM,0)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
+  IDISK(LUDIA)=0
+  Call mma_deallocate(lRec)
 
   call DDAFILE(JOBIPH,1,VEC2,nCSF,JOBDISK)
 end do
 
-IDISK(LUDIA) = 0
-Call mma_deallocate(lRec)
 
 ! clean up time : copy 1-e integrals back in place
 INT1(:) = LH1SAVE(:)
