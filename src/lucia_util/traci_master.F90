@@ -12,9 +12,9 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
-use lucia_data, only: IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, MXNTTS, MXSOOB, &
-                      NCSF_PER_SYM, NROOT, NSMOB, NTOOBS, PSSIGN, VEC3, XISPSM, IH1FORM
-use general_data, only: nCSF=>nConf, nDet, nLev, ISSM=>STSYM
+use lucia_data, only: IDISK, INT1, LUC, LUDIA, LUHC, LUSC1, MXNTTS, MXSOOB, &
+                      NCSF_PER_SYM, NROOT, NSMOB, NTOOBS, PSSIGN, XISPSM, IH1FORM
+use general_data, only: nCSF=>nConf, nDet, nLev, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -33,17 +33,16 @@ integer(kind=iwp), allocatable :: lRec(:)
 
 
 NDIM = nLev*nLev
-nCSF = NCSF_PER_SYM(ISSM)
+nCSF = NCSF_PER_SYM(STSym)
 
 ! JESPER: Should reduce I/O
 LBLK = -1
-LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
+LBLOCK = max(int(XISPSM(STSym,1)),MXSOOB)
+if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(STSym,1))
 
 ! The three scratch  blocks
 call mma_allocate(VEC1,LBLOCK,Label='VEC1')
 call mma_allocate(VEC2,LBLOCK,Label='VEC2')
-call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
 
 call mma_allocate(CI_Vector,nCSF,Label='CI_Vector')
 
@@ -99,10 +98,10 @@ do JROOT=1,NROOT
   call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
 
   Call mma_allocate(lRec,MXNTTS,Label='lRec')
-  call BLKFO_MIN(ISSM,NREC,LREC)
+  call BLKFO_MIN(STSym,NREC,LREC)
   IDISK(LUC) = 0
   ! Convert to internal Lucia SD format
-  call CSDTVC(CI_Vector,VEC1,1,ISSM,0)
+  call CSDTVC(CI_Vector,VEC1,1,STSym,0)
   ! Write CI vector to the Lucia file LUC
   call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
   I_DUMMY(1) = -1
@@ -125,7 +124,7 @@ do JROOT=1,NROOT
   ! Copy CI-vector back to MOLCAS JOBIPH file
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
   IDISK(LUDIA)=0
-  call CSDTVC(VEC2,VEC1,2,ISSM,0)
+  call CSDTVC(VEC2,VEC1,2,STSym,0)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
   IDISK(LUDIA)=0
   Call mma_deallocate(lRec)
@@ -140,7 +139,6 @@ IH1FORM = IH1FORM_SAVE
 
 call mma_deallocate(VEC1)
 call mma_deallocate(VEC2)
-call mma_deallocate(VEC3)
 
 call mma_deallocate(CI_Vector)
 call mma_deallocate(LT)

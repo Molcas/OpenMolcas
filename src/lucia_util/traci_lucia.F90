@@ -24,9 +24,11 @@ subroutine TRACI_Lucia(T,LUCIN,LUCOUT,VEC1,VEC2)
 !
 ! each transformation is
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use CandS, only: ICSPC, ICSM, ISSM, ISSPC
 use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1
 use lucia_data, only: LUSC1, LUSC2, LUSC3
+use lucia_data, only: kvec3_length, VEC3
 use general_data, only: nLev
 use Constants, only: Zero,One, Half
 use Definitions, only: wp, iwp
@@ -46,6 +48,7 @@ real(kind=wp) :: TKK
 real(kind=wp), external :: INPRDD
 #endif
 
+call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
 ICSPC = ISSPC
 ICSM = ISSM
 LBLK = -1
@@ -97,5 +100,6 @@ call COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)
 
 I12=I12_SAVE
 I_RES_AB = I_RES_AB_SAVE
+call mma_deallocate(VEC3)
 
 end subroutine TRACI_Lucia
