@@ -10,8 +10,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_Lucia(T,LUCIN,LUCOUT,VEC1,VEC2)
-! Transform CI vector on LUCIN with T matrix after
+subroutine TRACI_Lucia(T,VEC1,VEC2)
+! Transform CI vector on LUHC with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
 ! The transformation is done as a sequence of one-electron transformations
@@ -27,7 +27,7 @@ subroutine TRACI_Lucia(T,LUCIN,LUCOUT,VEC1,VEC2)
 use stdalloc, only: mma_allocate, mma_deallocate
 use CandS, only: ICSPC, ICSM, ISSM, ISSPC
 use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1
-use lucia_data, only: LUSC1, LUSC2, LUSC3
+use lucia_data, only: LUSC1, LUSC2, LUSC3, LUDIA, LUHC
 use lucia_data, only: kvec3_length, VEC3
 use general_data, only: nLev
 use Constants, only: Zero,One, Half
@@ -39,7 +39,6 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: LUCIN, LUCOUT
 real(kind=wp), intent(in) :: T(*)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 integer(kind=iwp) :: K, LBLK, I12_SAVE, I_RES_AB_SAVE
@@ -49,11 +48,14 @@ real(kind=wp), external :: INPRDD
 #endif
 
 call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
+
+
+
 ICSPC = ISSPC
 ICSM = ISSM
 LBLK = -1
-! Transfer vector on LUCIN to LUSC1
-call COPVCD(LUCIN,LUSC1,VEC1,1,LBLK)
+! Transfer vector on LUHC to LUSC1
+call COPVCD(LUHC,LUSC1,VEC1,1,LBLK)
 
 ! A bit of info for the sigma routine
 I_RES_AB_SAVE = I_RES_AB
@@ -67,10 +69,8 @@ IH1FORM = 2
 
 do K=1,nLev
   ! Place (T(P,K)/S(K,K)   in one-electron integral list
-  !    T_ROW_TO_H(T,H,K)
   call T_ROW_TO_H(T,INT1,K,TKK)
   ! T_{kk}^Nk
-  !    T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
   call T_TO_NK_VEC(TKK,K,ISSM,ISSPC,LUSC1,LUSC2,VEC1)
 
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
@@ -94,9 +94,9 @@ do K=1,nLev
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
 end do
 
-! And transfer to LUCOUT
+! And transfer to LUDIA
 IDISK(LUSC1) = 0
-call COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)
+call COPVCD(LUSC1,LUDIA,VEC1,0,LBLK)
 
 I12=I12_SAVE
 I_RES_AB = I_RES_AB_SAVE

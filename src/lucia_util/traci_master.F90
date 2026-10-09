@@ -40,7 +40,7 @@ LBLK = -1
 LBLOCK = max(int(XISPSM(STSym,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(STSym,1))
 
-! The three scratch  blocks
+! The two scratch  blocks
 call mma_allocate(VEC1,LBLOCK,Label='VEC1')
 call mma_allocate(VEC2,LBLOCK,Label='VEC2')
 
@@ -118,7 +118,7 @@ do JROOT=1,NROOT
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
   IDISK(LUDIA)=0
 
-  call TRACI_LUCIA(LT,LUHC,LUDIA,VEC1,VEC2)
+  call TRACI_LUCIA(LT,VEC1,VEC2)
 
   IDISK(LUDIA)=0
   ! Copy CI-vector back to MOLCAS JOBIPH file
