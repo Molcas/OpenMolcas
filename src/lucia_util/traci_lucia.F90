@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,STSYM)
+subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF)
 ! Transform CI vector on LUHC with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
@@ -26,7 +26,7 @@ subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,STSYM)
 use stdalloc, only: mma_allocate, mma_deallocate
 use CandS, only: ICSPC, ICSM, ISSM, ISSPC
 use lucia_data, only: INT1, IH1FORM, I12, I_RES_AB, IDISK, IH1FORM, INT1, MXNTTS
-use lucia_data, only: LUSC1, LUSC2, LUSC3, LUDIA, LUHC, LUC
+use lucia_data, only: LUSC1, LUSC2, LUSC3, LUDIA, LUHC, LUC, IREFSM
 use lucia_data, only: kvec3_length, VEC3, XISPSM, MXSOOB, PSSIGN
 use Constants, only: Zero, One, Half, Two
 use Definitions, only: wp, iwp
@@ -37,7 +37,7 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in):: nLev, STSym, nCSF
+integer(kind=iwp), intent(in):: nLev, nCSF
 real(kind=wp), intent(in) :: T(nLEV**2)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 integer(kind=iwp) :: K, I12_SAVE, I_RES_AB_SAVE, nREC, I_Dummy(1)
@@ -57,21 +57,21 @@ LH1SAVE(:) = INT1(:)
 IH1FORM_SAVE = IH1FORM
 
 
-LBLOCK = max(int(XISPSM(STSym,1)),MXSOOB)
-if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(STSym,1))
+LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
+if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 
 ! The two scratch  blocks
 call mma_allocate(VEC1,LBLOCK,Label='VEC1')
 call mma_allocate(VEC2,LBLOCK,Label='VEC2')
 
 Call mma_allocate(lRec,MXNTTS,Label='lRec')
-call BLKFO_MIN(STSym,NREC,LREC)
+call BLKFO_MIN(IREFSM,NREC,LREC)
 
 call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
 
 IDISK(LUC) = 0
 ! Convert to internal Lucia SD format
-call CSDTVC(CI_Vector,VEC1,1,STSym,0)
+call CSDTVC(CI_Vector,VEC1,1,IREFSM,0)
 ! Write CI vector to the Lucia file LUC
 call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
 I_DUMMY(1) = -1
@@ -134,7 +134,7 @@ IDISK(LUDIA)=0
 ! Copy CI-vector back to MOLCAS JOBIPH file
 call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
 IDISK(LUDIA)=0
-call CSDTVC(VEC2,VEC1,2,STSym,0)
+call CSDTVC(VEC2,VEC1,2,IREFSM,0)
 call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
 IDISK(LUDIA)=0
 

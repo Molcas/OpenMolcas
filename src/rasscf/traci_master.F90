@@ -12,8 +12,9 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
+use lucia_interface, only: Lucia_util
 use rasscf_global, only: NROOTS
-use general_data, only: nCSF=>nConf, nLev, STSYM, nSym, NASH
+use general_data, only: nCSF=>nConf, nLev, nSym, NASH
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -72,7 +73,11 @@ do JROOT=1,NROOTS
   ! Read CI vector in SG format
   call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
 
-  call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF,STSYM)
+  call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF)
+! Call Lucia_util('TRACI',
+!                  CI_Vec=CI_Vector(:),
+!                  TU=LT(:), nTU=nLev**2)
+
 
   Call VecPhase(CI_Vector,nCSF)
   call DDAFILE(JOBIPH,1,CI_Vector,nCSF,JOBDISK)
