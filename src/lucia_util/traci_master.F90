@@ -100,13 +100,6 @@ do JROOT=1,NROOT
 
   call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF,VEC1,VEC2,i_dummy,STSYM,lRec,mxntts,nRec)
 
-  IDISK(LUDIA)=0
-  ! Copy CI-vector back to MOLCAS JOBIPH file
-  call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
-  IDISK(LUDIA)=0
-  call CSDTVC(VEC2,VEC1,2,STSym,0)
-  call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
-  IDISK(LUDIA)=0
   Call mma_deallocate(lRec)
 
   call DDAFILE(JOBIPH,1,VEC2,nCSF,JOBDISK)
