@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_Lucia(T,VEC1,VEC2)
+subroutine TRACI_Lucia(T,nLev,VEC1,VEC2)
 ! Transform CI vector on LUHC with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
@@ -27,9 +27,8 @@ subroutine TRACI_Lucia(T,VEC1,VEC2)
 use stdalloc, only: mma_allocate, mma_deallocate
 use CandS, only: ICSPC, ICSM, ISSM, ISSPC
 use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1
-use lucia_data, only: LUSC1, LUSC2, LUSC3, LUDIA, LUHC
+use lucia_data, only: LUSC1, LUSC2, LUSC3, LUDIA, LUHC, LUC
 use lucia_data, only: kvec3_length, VEC3
-use general_data, only: nLev
 use Constants, only: Zero,One, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -39,9 +38,11 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(in) :: T(*)
+real(kind=wp), intent(in) :: T(nLEV**2)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
-integer(kind=iwp) :: K, LBLK, I12_SAVE, I_RES_AB_SAVE
+integer(kind=iwp), intent(in):: nLev
+integer(kind=iwp) :: K, I12_SAVE, I_RES_AB_SAVE
+integer(kind=iwp), parameter :: LBLK=-1
 real(kind=wp) :: TKK
 #ifdef _DEBUGPRINT_
 real(kind=wp), external :: INPRDD
@@ -49,11 +50,18 @@ real(kind=wp), external :: INPRDD
 
 call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
 
-
+!...more to come ...
+IDISK(LUC)=0
+IDISK(LUSC1) = 0
+! Copy the CI vector from file LUC to LUSC1
+call COPVCD(LUC,LUSC1,VEC1,0,LBLK) ! From the current position
+IDISK(LUC)=0
+IDISK(LUHC)=0
+call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)! Rewind first
+IDISK(LUDIA)=0
 
 ICSPC = ISSPC
 ICSM = ISSM
-LBLK = -1
 ! Transfer vector on LUHC to LUSC1
 call COPVCD(LUHC,LUSC1,VEC1,1,LBLK)
 

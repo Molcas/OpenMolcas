@@ -26,17 +26,15 @@ implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
-integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, &
-                     NDIM, NREC, IH1FORM_SAVE
+integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLOCK, &
+                     NREC, IH1FORM_SAVE
+integer(kind=iwp), parameter:: LBLK=-1
 real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), CI_Vector(:), LT(:)
 integer(kind=iwp), allocatable :: lRec(:)
 
 
-NDIM = nLev*nLev
 nCSF = NCSF_PER_SYM(STSym)
 
-! JESPER: Should reduce I/O
-LBLK = -1
 LBLOCK = max(int(XISPSM(STSym,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(STSym,1))
 
@@ -47,7 +45,7 @@ call mma_allocate(VEC2,LBLOCK,Label='VEC2')
 call mma_allocate(CI_Vector,nCSF,Label='CI_Vector')
 
 ! Copy of one-electron integrals
-call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
+call mma_allocate(LH1SAVE,nLev**2,Label='LH1SAVE')
 ! We are going to mess with the one-electron integrals, take a copy
 LH1SAVE(:) = INT1(:)
 IH1FORM_SAVE = IH1FORM
@@ -57,7 +55,7 @@ IH1FORM_SAVE = IH1FORM
 ! remove those blocks.
 
 ! MO-MO transformation matrix :
-call mma_allocate(TransMat,NDIM,Label='TransMat')
+call mma_allocate(TransMat,nLev**2,Label='TransMat')
 TransMat(:) = Zero
 IOFF = 1
 IADR = 1
@@ -106,19 +104,8 @@ do JROOT=1,NROOT
   call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
   I_DUMMY(1) = -1
   call ITODS(I_DUMMY,1,LBLK,LUC)
-  IDISK(LUC)=0
-  ! Do the actual work
-  IDISK(LUSC1) = 0
-  ! Copy the CI vector from file LUC to LUSC1
-  call COPVCD(LUC,LUSC1,VEC1,0,LBLK) ! From the current position
-  IDISK(LUC)=0
-  IDISK(LUHC)=0
-  call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)! Rewind first
 
-  ! Transform CI vector : Input on LUHC, output on LUDIA (!)
-  IDISK(LUDIA)=0
-
-  call TRACI_LUCIA(LT,VEC1,VEC2)
+  call TRACI_LUCIA(LT,nLev,VEC1,VEC2)
 
   IDISK(LUDIA)=0
   ! Copy CI-vector back to MOLCAS JOBIPH file
