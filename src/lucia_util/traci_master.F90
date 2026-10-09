@@ -87,9 +87,6 @@ do ISM=1,NSMOB
   if (NTOOBS(ISM) > 0) call PAMTMT(TransMat(IOFF),LT(IOFF),NTOOBS(ISM))
 end do
 
-
-IDISK(LUDIA) = 0
-
 JDISK = JOBDISK
 do JROOT=1,NROOT
   ! Read CI vector in SG format
