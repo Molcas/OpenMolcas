@@ -25,7 +25,7 @@ subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,STSYM)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use CandS, only: ICSPC, ICSM, ISSM, ISSPC
-use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1, MXNTTS
+use lucia_data, only: INT1, IH1FORM, I12, I_RES_AB, IDISK, IH1FORM, INT1, MXNTTS
 use lucia_data, only: LUSC1, LUSC2, LUSC3, LUDIA, LUHC, LUC
 use lucia_data, only: kvec3_length, VEC3, XISPSM, MXSOOB, PSSIGN
 use Constants, only: Zero, One, Half, Two
@@ -43,12 +43,19 @@ real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 integer(kind=iwp) :: K, I12_SAVE, I_RES_AB_SAVE, nREC, I_Dummy(1)
 integer(kind=iwp), parameter :: LBLK=-1
 integer(kind=iwp), allocatable :: lRec(:)
-real(kind=wp), allocatable :: VEC1(:), VEC2(:)
+real(kind=wp), allocatable :: VEC1(:), VEC2(:), LH1SAVE(:)
 real(kind=wp) :: TKK
-integer(kind=iwp) LBLOCK
+integer(kind=iwp) LBLOCK, IH1FORM_SAVE
 #ifdef _DEBUGPRINT_
 real(kind=wp), external :: INPRDD
 #endif
+
+! Copy of one-electron integrals
+call mma_allocate(LH1SAVE,nLev**2,Label='LH1SAVE')
+! We are going to mess with the one-electron integrals, take a copy
+LH1SAVE(:) = INT1(:)
+IH1FORM_SAVE = IH1FORM
+
 
 LBLOCK = max(int(XISPSM(STSym,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(STSym,1))
@@ -140,5 +147,10 @@ CI_Vector(1:nCSF)=Vec2(1:nCSF)
 
 call mma_deallocate(VEC2)
 call mma_deallocate(VEC1)
+
+! clean up time : copy 1-e integrals back in place
+INT1(:) = LH1SAVE(:)
+IH1FORM = IH1FORM_SAVE
+call mma_deallocate(LH1SAVE)
 
 end subroutine TRACI_Lucia
