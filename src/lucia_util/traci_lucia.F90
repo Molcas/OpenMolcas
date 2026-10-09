@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,VEC1,VEC2,STSYM)
+subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,STSYM)
 ! Transform CI vector on LUHC with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
@@ -27,8 +27,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use CandS, only: ICSPC, ICSM, ISSM, ISSPC
 use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1, MXNTTS
 use lucia_data, only: LUSC1, LUSC2, LUSC3, LUDIA, LUHC, LUC
-use lucia_data, only: kvec3_length, VEC3
-use Constants, only: Zero,One, Half
+use lucia_data, only: kvec3_length, VEC3, XISPSM, MXSOOB, PSSIGN
+use Constants, only: Zero, One, Half, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -40,14 +40,22 @@ implicit none
 integer(kind=iwp), intent(in):: nLev, STSym, nCSF
 real(kind=wp), intent(in) :: T(nLEV**2)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
-real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 integer(kind=iwp) :: K, I12_SAVE, I_RES_AB_SAVE, nREC, I_Dummy(1)
 integer(kind=iwp), parameter :: LBLK=-1
 integer(kind=iwp), allocatable :: lRec(:)
+real(kind=wp), allocatable :: VEC1(:), VEC2(:)
 real(kind=wp) :: TKK
+integer(kind=iwp) LBLOCK
 #ifdef _DEBUGPRINT_
 real(kind=wp), external :: INPRDD
 #endif
+
+LBLOCK = max(int(XISPSM(STSym,1)),MXSOOB)
+if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(STSym,1))
+
+! The two scratch  blocks
+call mma_allocate(VEC1,LBLOCK,Label='VEC1')
+call mma_allocate(VEC2,LBLOCK,Label='VEC2')
 
 Call mma_allocate(lRec,MXNTTS,Label='lRec')
 call BLKFO_MIN(STSym,NREC,LREC)
@@ -129,5 +137,8 @@ call mma_deallocate(VEC3)
 
 Call mma_deallocate(lRec)
 CI_Vector(1:nCSF)=Vec2(1:nCSF)
+
+call mma_deallocate(VEC2)
+call mma_deallocate(VEC1)
 
 end subroutine TRACI_Lucia

@@ -12,8 +12,8 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
-use lucia_data, only: IDISK, INT1, LUC, LUDIA, LUHC, LUSC1, MXNTTS, MXSOOB, &
-                      NCSF_PER_SYM, NROOT, NSMOB, NTOOBS, PSSIGN, XISPSM, IH1FORM
+use lucia_data, only: IDISK, INT1, LUC, LUDIA, LUHC, LUSC1, &
+                      NCSF_PER_SYM, NROOT, NSMOB, NTOOBS, IH1FORM
 use general_data, only: nCSF=>nConf, nLev, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -29,18 +29,9 @@ real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp) :: I, IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLOCK, &
                      NREC, IH1FORM_SAVE
 integer(kind=iwp), parameter:: LBLK=-1
-real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), CI_Vector(:), LT(:)
-integer(kind=iwp), allocatable :: lRec(:)
-
+real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), CI_Vector(:), LT(:)
 
 nCSF = NCSF_PER_SYM(STSym)
-
-LBLOCK = max(int(XISPSM(STSym,1)),MXSOOB)
-if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(STSym,1))
-
-! The two scratch  blocks
-call mma_allocate(VEC1,LBLOCK,Label='VEC1')
-call mma_allocate(VEC2,LBLOCK,Label='VEC2')
 
 call mma_allocate(CI_Vector,nCSF,Label='CI_Vector')
 
@@ -92,7 +83,7 @@ do JROOT=1,NROOT
   ! Read CI vector in SG format
   call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
 
-  call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF,VEC1,VEC2,STSYM)
+  call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF,STSYM)
 
   call DDAFILE(JOBIPH,1,CI_Vector,nCSF,JOBDISK)
 end do
@@ -101,9 +92,6 @@ end do
 ! clean up time : copy 1-e integrals back in place
 INT1(:) = LH1SAVE(:)
 IH1FORM = IH1FORM_SAVE
-
-call mma_deallocate(VEC1)
-call mma_deallocate(VEC2)
 
 call mma_deallocate(CI_Vector)
 call mma_deallocate(LT)
