@@ -73,6 +73,7 @@ public :: npat, occpat, ipat_of_det
 public :: combination_occupations
 public :: combination_diagonal
 public :: build_ictsdt, ictsdt
+public :: epq_psi
 
 ! Extensions to mma interfaces
 
@@ -2128,6 +2129,56 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
   end do
 
 end subroutine LRs_init
+
+subroutine epq_psi(p,q,psi,sgm)
+
+  integer(kind=iwp), intent(in) :: p,q
+  real(kind=wp), intent(in)  :: psi(ndeta,ndetb)
+  real(kind=wp), intent(out) :: sgm(ndeta,ndetb)
+
+  integer(kind=iwp) :: ja,jb
+  integer(kind=iwp) :: ia,ib
+  integer(kind=iwp) :: k
+
+  sgm = Zero
+
+  !
+  ! alpha excitation part
+  !
+  do ja=1,ndeta
+    do k=1,max_ex1a
+
+      if (ex1_a(k,ja)%p /= p) cycle
+      if (ex1_a(k,ja)%q /= q) cycle
+
+      ia = ex1_a(k,ja)%rank
+
+      sgm(ia,:) = sgm(ia,:) +         &
+           real(ex1_a(k,ja)%sgn,wp) * &
+           psi(ja,:)
+
+    end do
+  end do
+
+  !
+  ! beta excitation part
+  !
+  do jb=1,ndetb
+    do k=1,max_ex1b
+
+      if (ex1_b(k,jb)%p /= p) cycle
+      if (ex1_b(k,jb)%q /= q) cycle
+
+      ib = ex1_b(k,jb)%rank
+
+      sgm(:,ib) = sgm(:,ib) +         &
+           real(ex1_b(k,jb)%sgn,wp) * &
+           psi(:,jb)
+
+    end do
+  end do
+
+end subroutine epq_psi
 
 ! Extensions to mma_interfaces, using preprocessor templates
 ! (see mma_util/stdalloc.F90)
