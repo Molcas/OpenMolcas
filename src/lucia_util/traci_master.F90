@@ -14,7 +14,7 @@ subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
 use lucia_data, only: IDISK, INT1, LUC, LUDIA, LUHC, LUSC1, MXNTTS, MXSOOB, &
                       NCSF_PER_SYM, NROOT, NSMOB, NTOOBS, PSSIGN, XISPSM, IH1FORM
-use general_data, only: nCSF=>nConf, nDet, nLev, STSYM
+use general_data, only: nCSF=>nConf, nLev, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -27,7 +27,7 @@ integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, &
-                     NDIM, NREC, IH1FORM_SAVE, IDISK_Save
+                     NDIM, NREC, IH1FORM_SAVE
 real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), CI_Vector(:), LT(:)
 integer(kind=iwp), allocatable :: lRec(:)
 

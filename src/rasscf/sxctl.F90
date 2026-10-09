@@ -80,7 +80,7 @@ real(kind=wp), intent(inout) :: CMO(*), OCC(*), P(*), FI(*), FA(*)
 real(kind=wp), intent(in) :: D(*), PA(*), D1A(*)
 real(kind=wp), intent(out) :: THMAX
 integer(kind=iwp), intent(in) :: IFINAL
-integer(kind=iwp) :: i, IC, iDisk, IndType(7,8), iPrLev, iRC, iRef, iWay, kMax, LCSXI, LuvvVec, MIAAE, &
+integer(kind=iwp) :: IC, iDisk, IndType(7,8), iPrLev, iRC, iRef, iWay, kMax, LCSXI, LuvvVec, MIAAE, &
                      MNO, NAEAE, NAOAE, NCR1, NIAIA, nP2Act, NQ, NSXS
 real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
 character(len=80) :: VecTyp
@@ -367,6 +367,7 @@ Subroutine SXCTL_Final()
 End Subroutine SXCTL_Final
 
 Subroutine SXCTL_Iterate()
+  integer(kind=iwp) I
 
   ! Memory allocation and calling sequence for SXHAM
   ! SXN: Normalization constants for super-CI vector

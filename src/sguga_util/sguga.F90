@@ -1676,7 +1676,7 @@ subroutine Mk_SDREO_SGUGA(SGS)
   Integer(kind=iwp) :: iDetSP(SGS%nActEl)
   Integer(kind=iwp) :: iSign
 
-  Integer(kind=iwp) :: nOpen, i, iOpen, mult, nDOC, iDOC, iSOC
+  Integer(kind=iwp) :: nOpen, i, iOpen, mult, iDOC, iSOC
   Integer(kind=iwp) :: nDouble
   Integer(kind=iwp) :: DOCOcc(SGS%nActel)
   Integer(kind=iwp) :: SOCOcc(SGS%nActel)
@@ -1803,11 +1803,9 @@ End If
 #endif
               If (nDouble == 0_iwp) Then
                  iDOC = 1_iwp
-                 nDOC = 0_iwp
               Else
                  Call FindDOCIndex(iDetOC,nAlpha+nBeta, &
                                    SGS%CDCInfo(nOpen,mult)%DOC,iDOC)
-                 nDOC = Size(SGS%CDCInfo(nOpen,mult)%DOC,1)
               End If
 
               If (nOpen == 0_iwp) Then
