@@ -129,6 +129,7 @@ set (sources
      supsch.F90
      sxctl.F90
      sxham.F90
+     traci_master.F90
      thetaopt2.F90
      thetaopt.F90
      ug2sg.F90

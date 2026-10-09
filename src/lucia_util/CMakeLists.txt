@@ -205,7 +205,6 @@ set (sources
      todscn.F90
      todscp.F90
      traci_lucia.F90
-     traci_master.F90
      tripak.F90
      tripk31.F90
      tripk32.F90

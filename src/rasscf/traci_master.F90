@@ -12,9 +12,8 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
-use lucia_data, only: NTOOBS
 use rasscf_global, only: NROOTS
-use general_data, only: nCSF=>nConf, nLev, STSYM, nSym
+use general_data, only: nCSF=>nConf, nLev, STSYM, nSym, NASH
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -42,16 +41,16 @@ IOFF = 1
 IADR = 1
 ICOL = 1
 do ISM=1,nSym
-  if (NTOOBS(ISM) == 0) Cycle
+  if (NASH(ISM) == 0) Cycle
   IROW = ICOL
-  do I=1,NTOOBS(ISM)
+  do I=1,NASH(ISM)
     IADR = (ICOL-1)*nLev+IROW
-    do J=1,NTOOBS(ISM)
-      TransMat(IOFF+NTOOBS(ISM)*(J-1)+I-1) = CMOMO(IADR+J-1)
+    do J=1,NASH(ISM)
+      TransMat(IOFF+NASH(ISM)*(J-1)+I-1) = CMOMO(IADR+J-1)
     end do
     ICOL = ICOL+1
   end do
-  IOFF = IOFF+NTOOBS(ISM)**2
+  IOFF = IOFF+NASH(ISM)**2
 end do
 
 ! Memory allocation for a matrix T
@@ -63,9 +62,9 @@ do ISM=1,nSym
   if (ISM == 1) then
     IOFF = 1
   else
-    IOFF = IOFF+NTOOBS(ISM-1)**2
+    IOFF = IOFF+NASH(ISM-1)**2
   end if
-  if (NTOOBS(ISM) > 0) call PAMTMT(TransMat(IOFF),LT(IOFF),NTOOBS(ISM))
+  if (NASH(ISM) > 0) call PAMTMT(TransMat(IOFF),LT(IOFF),NASH(ISM))
 end do
 
 JDISK = JOBDISK
