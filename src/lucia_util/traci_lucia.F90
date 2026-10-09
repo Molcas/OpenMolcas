@@ -128,4 +128,6 @@ I_RES_AB = I_RES_AB_SAVE
 call mma_deallocate(VEC3)
 
 Call mma_deallocate(lRec)
+CI_Vector(1:nCSF)=Vec2(1:nCSF)
+
 end subroutine TRACI_Lucia
