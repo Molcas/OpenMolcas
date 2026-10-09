@@ -73,10 +73,9 @@ do JROOT=1,NROOTS
   ! Read CI vector in SG format
   call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
 
-  call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF)
-! Call Lucia_util('TRACI',
-!                  CI_Vec=CI_Vector(:),
-!                  TU=LT(:), nTU=nLev**2)
+  Call Lucia_util('TRACI', &
+                   CI_Vector=CI_Vector(:), &
+                   TU=LT(:), nTU=nLev**2)
 
 
   Call VecPhase(CI_Vector,nCSF)

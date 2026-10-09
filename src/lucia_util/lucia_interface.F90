@@ -78,6 +78,11 @@ subroutine Lucia_Util(ModLab,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
       call Densi_Master(CI_VECTOR)
     end if
 
+  else if (Module_(1:5) == 'TRACI') then
+
+  Call TRACI_LUCIA(TU,Size(TU),CI_VECTOR,Size(CI_VECTOR))
+
+
   else if (Module_(1:3) == 'INI') then
 
     call Lucia_Ini()
