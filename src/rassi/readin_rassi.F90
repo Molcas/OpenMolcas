@@ -14,18 +14,17 @@
 subroutine READIN_RASSI()
 
 use Cholesky, only: timings
-use Cntrl, only: ALGO, ALPHZ, Atens_Req, AutoSel_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
-                 DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DOCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, DYSO, EPrThr, &
+use Cntrl, only: ALGO, ALPHZ, Atens_Req, AutoSel_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, DCHO, DCHS, DEGEN_ETHR, &
+                 DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DOCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, DYSO, E_HFC_Req, EPrThr, &
                  GNuc, GNuc_set, HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IFARGU, IFCURD, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, &
                  IFGTSHSA, IFHAM, IfHCOM, IfHDia, IfHEff, IfHEXT, IfJ2, IfJZ, IFMCAL, IFNTO, IfShft, IFSO, IFTDM, IFTRD1, IFTRD2, &
-                 IFVANVLECK, IFXCAL, ISOCMP, ISTAT, JBNAME, l_Eff, LCSTATES, lHami, LOOPDIVIDE, LOOPMAX, LPRPR, ASD_idx, MULTIP, &
-                 MULTIP, MXJOB, MXPROP, NATens_Calc, NATO, NAtoms, NBINA, NBSTEP, NCOUP, NJOB, NMass_set, NOHAM, NOSO, &
-                 NRNATO, Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, NucSpin, OCAA, OCAN, &
+                 IFVANVLECK, IFXCAL, ISOCMP, ISTAT, JBNAME, l_Eff, LCSTATES, lHami, LOOPDIVIDE, LOOPMAX, LPRPR, MULTIP, MXJOB, &
+                 MXPROP, NATens_Calc, NATO, NAtoms, NBINA, NBSTEP, NCOUP, NJOB, NMass_set, NOHAM, NOSO, NPNMR_Calc, NPROP, NRNATO, &
+                 Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, NucSpin, OCAA, OCAN, &
                  ONLY_OVERLAPS, OSTHR_DIPR, OSTHR_QIPR, PNAME, pNMR_req, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, &
-                 PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, QDPT2EV, QDPT2SC, QIALL, QIPR,&
-                 RHODYN, RSPR, RSThr, SDFlip, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, &
+                 PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, QDPT2EV, QDPT2SC, QIALL, QIPR, REDUCELOOP, RFPERT, RHODYN, &
+                 RSPR, RSThr, SDFlip, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, &
                  SOThr_Prt, TDIPMIN, TDYS, TINCRE, TMAXP, TMAXS, TMGR_Thrs, TMINP, TMINS, ToFile, TOLERANCE, TRACK, TSTART
-                 TRACK, TSTART, SDFlip, E_HFC_Req
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
 use kVectors, only: e_Vector, k_Vector, nk_Vector
@@ -981,7 +980,6 @@ subroutine gen_hfc_prop_labels()
 
   integer(kind=iwp) :: iAtom, iC
   logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
-
 
   !NOTE  : This logic follows the same branching structure as route_calc in hfcop.F90, but skips iterator updates.
   do iAtom=1,NAtoms

@@ -61,10 +61,10 @@ else if (IPGLOB >= 2) then
 
   write(u6,*)
   write(u6,*)
-  write(u6,*) 'Weights of the five most important spin-orbit-free states for each spin-orbit state.'
+  write(u6,100) 'Weights of the five most important spin-orbit-free states for each spin-orbit state.'
   write(u6,*)
-  write(u6,*) 'SO State  Total energy (au)           Spin-free states, spin, and weights'
-  write(u6,*) '-------------------------------------------------------------------------------------------------------'
+  write(u6,100) 'SO State  Total energy (au)           Spin-free states, spin, and weights'
+  write(u6,100) repeat('-',103)
   do iss=1,nss
     weight(1:nstate) = Zero
     do jss=1,nss
@@ -96,7 +96,7 @@ else if (IPGLOB >= 2) then
     write(u6,'(i5,1x,f16.6,3x,5(i5,f4.1,f8.4))') iss,soene(iss),(nmax(i),smax(i),wmax(i),i=1,(min(nstate,5)))
 
   end do
-  write(u6,*) '-------------------------------------------------------------------------------------------------------'
+  write(u6,100) repeat('-',103)
 end if
 
 ! Added by Ungur Liviu on 04.11.2009
@@ -107,5 +107,7 @@ call Put_dArray('UMATI_SINGLE',UMATI,NSS**2)
 
 call mma_deallocate(weight)
 call mma_deallocate(sstate)
+
+100 format (1x,a)
 
 end subroutine PRCEVC

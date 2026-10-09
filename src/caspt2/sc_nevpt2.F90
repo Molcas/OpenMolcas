@@ -104,7 +104,7 @@ function SC_NEVPT2_Coupling(iCase)
     case (3,7,9,11)
       SC_NEVPT2_Coupling = -1
     case default
-      write(u6,*) 'SC_NEVPT2_Coupling: illegal case number', iCase
+      write(u6,*) 'SC_NEVPT2_Coupling: illegal case number',iCase
       call abend()
   end select
 
@@ -120,7 +120,6 @@ subroutine SC_NEVPT2_Map(iCase,iSym,NIS,Map)
 
   integer(kind=iwp), intent(in) :: iCase, iSym, NIS
   integer(kind=iwp), intent(out) :: Map(NIS)
-
   integer(kind=iwp) :: ia, iab, iaq, ibq, ii, iij, iiq, ijq, ioff, isp, iSym1, iSym2, jab, jij
 
   ! Construct the map array for converting inactive/virtual superindex of minus to plus
@@ -175,7 +174,7 @@ subroutine SC_NEVPT2_Map(iCase,iSym,NIS,Map)
         ioff = ioff+NISH(iSym1)*NAGEB(iSym2)
       end do
     case default
-      write(u6,*) 'SC_NEVPT2_Map: illegal case number', iCase
+      write(u6,*) 'SC_NEVPT2_Map: illegal case number',iCase
       call abend()
   end select
 
@@ -276,14 +275,13 @@ end subroutine SC_NEVPT2_Print
 subroutine SC_NEVPT2_Energy()
 
   integer(kind=iwp) :: ias, iCase, iCoupling, idisk, IHI1, ILO1, isp, iSym, jCase, JHI1, JLO1, lg_V, NAS, NAS2, NIS, NIS2
-  real(kind=wp) :: Dummy(1), etmp, otmp, vale
-  logical(kind=iwp) :: do_H
-
-  integer(kind=iwp), allocatable :: Map(:)
-  real(kind=wp), allocatable :: E_value(:), LBD(:), LID(:), ValHN(:,:), ValHN2(:,:)
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: LDV, MV, myRank
 # endif
+  real(kind=wp) :: Dummy(1), etmp, otmp, vale
+  logical(kind=iwp) :: do_H
+  integer(kind=iwp), allocatable :: Map(:)
+  real(kind=wp), allocatable :: E_value(:), LBD(:), LID(:), ValHN(:,:), ValHN2(:,:)
 
   ECORR_SC(:,0:11) = Zero
   OVLAPS_SC(:,0:11) = Zero
@@ -482,7 +480,6 @@ subroutine SC_NEVPT2_ReadSB(iCase,iSym,NAS,SMAT,BMAT)
 
   integer(kind=iwp), intent(in) :: iCase, iSym, NAS
   real(kind=wp), intent(out) :: SMAT(nTri_Elem(NAS)), BMAT(nTri_Elem(NAS))
-
   integer(kind=iwp) :: idisk
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: ii, jj, lg_S
@@ -523,13 +520,12 @@ subroutine SC_NEVPT2_ValHN(iCase,iSym,NAS,NIS,ValHN,nVal)
 
   integer(kind=iwp), intent(in) :: iCase, iSym, NAS, NIS, nVal
   real(kind=wp), intent(out) :: ValHN(NIS,nVal)
-
   integer(kind=iwp) :: ias, IHI1, ILO1, isp, jas, JHI1, JLO1, lg_C, lg_V
-  real(kind=wp), external :: ddot_
-  real(kind=wp), allocatable :: BMAT(:), SMAT(:)
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: LDC, LDV, MC, MV, myRank
 # endif
+  real(kind=wp), allocatable :: BMAT(:), SMAT(:)
+  real(kind=wp), external :: ddot_
 
   ! Compute H and N
   ! ValHN(:,1): <Psi|V[H,V]|Psi> (Eq. (A2), (A6), ...)
@@ -608,7 +604,6 @@ subroutine SC_NEVPT2_Energy_H_MPP(V,LDV,JLO,JHI,NAS,NIS,LBD,LID,etmp,otmp)
   integer(kind=iwp), intent(in) :: LDV, JLO, JHI, NAS, NIS
   real(kind=wp), intent(in) :: V(LDV,JHI-JLO+1), LBD(NAS), LID(NIS)
   real(kind=wp), intent(inout) :: etmp, otmp
-
   integer(kind=iwp) :: ias, isp
 
   do isp=JLO,JHI
@@ -627,7 +622,6 @@ subroutine SC_NEVPT2_ValHN_MPP(V,LDV,JLO,JHI,NAS,NIS,BMAT,SMAT,ValHN,nVal)
   integer(kind=iwp), intent(in) :: LDV, JLO, JHI, NAS, NIS, nVal
   real(kind=wp), intent(in) :: V(LDV,JHI-JLO+1), BMAT(nTri_Elem(NAS)), SMAT(nTri_Elem(NAS))
   real(kind=wp), intent(inout) :: ValHN(NIS,nVal)
-
   integer(kind=iwp) :: ias, isp, jas
 
   do isp=JLO,JHI
@@ -650,7 +644,6 @@ subroutine SC_NEVPT2_ValHN_MPP2(V1,V2,JLO,JHI,LDV,LDC,NAS,NIS,ValHN)
   integer(kind=iwp), intent(in) :: JLO, JHI, LDV, LDC, NAS, NIS
   real(kind=wp), intent(in) :: V1(LDV,JHI-JLO+1), V2(LDC,JHI-JLO+1)
   real(kind=wp), intent(inout) :: ValHN(NIS)
-
   integer(kind=iwp) :: isp
   real(kind=wp), external :: ddot_
 
@@ -667,10 +660,10 @@ subroutine SC_NEVPT2_Amplitude(NAS,NIS,iCase,iSym,lg_V)
 
   integer(kind=iwp), intent(in) :: NAS, NIS, iCase, iSym, lg_V
   integer(kind=iwp) :: ias, idisk, IHI, ILO, isp, JHI, JLO
-  real(kind=wp) :: scal
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: LDV, MV, myRank
 # endif
+  real(kind=wp) :: scal
   real(kind=wp), allocatable :: LBD(:), LID(:)
 
   ! Compute the T-amplitude from the right hand side (lg_V = <Phi|H|Psi>)
@@ -791,16 +784,13 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
   integer(kind=iwp), intent(in) :: NASHT, NG3, NSTATE
   real(kind=wp), intent(in) :: G1(NASHT,NASHT), G2(NASHT,NASHT,NASHT,NASHT), G3(NG3), VECROT(NSTATE)
   real(kind=wp), intent(inout) :: DG1(NASHT,NASHT), DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3)
-
   integer(kind=iwp) :: ias, iCase, iCoupling, idisk, isp, iSym, jas, jCase, JHI1, JLO1, lg_V1, lg_V2, lg_V3, NAS, NAS2, NIS, NIS2, &
                        NVEC
-
-  integer(kind=iwp), allocatable :: Map(:)
-  real(kind=wp), allocatable :: BDER(:,:), BMAT(:), derHNS(:,:), LID(:), SDER(:,:), SMAT(:), ValHN(:,:), ValHN2(:,:)
-
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: IHI1, IHI2, IHI3, ILO1, ILO2, ILO3, JHI2, JHI3, JLO2, JLO3, LDV, LDV1, LDV2, MV1, MV2, MV3, myRank
 # endif
+  integer(kind=iwp), allocatable :: Map(:)
+  real(kind=wp), allocatable :: BDER(:,:), BMAT(:), derHNS(:,:), LID(:), SDER(:,:), SMAT(:), ValHN(:,:), ValHN2(:,:)
 
 # ifdef _MOLCAS_MPP_
   if (Is_Real_Par()) call RHS_ZERO(iVecC2)
@@ -839,7 +829,7 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
       iCoupling = SC_NEVPT2_Coupling(iCase)
 
       if (SC_merge) then
-        jCase = iCase + iCoupling
+        jCase = iCase+iCoupling
       else
         jCase = 0
       end if

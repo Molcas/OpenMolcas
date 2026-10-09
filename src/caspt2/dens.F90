@@ -52,8 +52,8 @@ integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, IDM, IDMOFF, IDRF, IDSOFF, I
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
 integer(kind=iwp), allocatable :: ISAV(:)
 real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), &
-                              DPT2C_AO(:), DSUM(:), EigT(:,:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), OMGT(:,:), &
-                              DRDMFock(:,:), RDMFock(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
+                              DPT2C_AO(:), DRDMFock(:,:), DSUM(:), EigT(:,:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), &
+                              OMGT(:,:), RDMFock(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
 real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
 real(kind=wp), pointer :: DPT2Canti(:)
 integer(kind=iwp), parameter :: kstate = 1

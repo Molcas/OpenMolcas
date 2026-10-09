@@ -516,7 +516,7 @@ subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUF
       nsgm2 = CIS(istate)%ncsf(issg2)
       iv = SGS(istate)%L2ACT(ivlev)
       ix = SGS(istate)%L2ACT(ixlev)
-      do ipxy = ipxysta,ipxyend
+      do ipxy=ipxysta,ipxyend
         itlev = idx2ij(1,ipxy)
         iulev = idx2ij(2,ipxy)
         istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))

@@ -17,14 +17,14 @@ use rassi_aux, only: ipglob
 use rasscf_global, only: doDMRG
 #endif
 use Cntrl, only: AutoSel_GFac, BINA, CIH5, CITHR, DCHO, DCHS, DEGEN_ETHR, DIPR, Do_Pol, Do_SK, DO_TMOM, DoCD, DYSEXPORT, DYSO, &
-                 FnTOM, FORCE_NON_AO_TDM, GNuc_set, HAVE_DIAG, HAVE_HEFF, HOP, HypF_rms_Req, IFArgU, IFCURD, IFDCPL, IFEJOB, &
-                 IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IFNTO, IFSHFT, IFSO, IFTDM, IFTRD1, &
-                 IFTRD2, IFXCAL, JBNAME, L_Eff, LHAMI, LOOPDIVIDE, LOOPMAX, LPRPR, LuEig, LuExc, LuIph, LuMck, LuOne, LuOrd, &
-                 LuTOM, MINAME, NATens_Calc, NATO, NBINA, NCOUP, NJOB, NMass_set, NOHAM, NOSO, NPROP, NrNATO, NSOPR, NSOThr_Prt, &
-                 NSpin_set, NSTATE, OCAN, ONLY_OVERLAPS, OSThr_DipR, OSThr_QIPR, PNAME, PRCI, PRDIPVEC, PRMEE, PRMER, PRMES, &
-                 PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PTYPE, QIALL, QIPR, REDUCELOOP, RFPert, RSPR, RSThr, &
-                 SODIAGNSTATE, SONATNSTATE, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, ToFile, TOLERANCE, &
-                 TOLERANCE, TRACK, E_HFC_Req
+                 E_HFC_Req, EPRThr, FnEig, FnTOM, FORCE_NON_AO_TDM, GNuc_set, HAVE_DIAG, HAVE_HEFF, HOP, HypF_rms_Req, IFArgU, &
+                 IFCURD, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IFNTO, &
+                 IFSHFT, IFSO, IFTDM, IFTRD1, IFTRD2, IFXCAL, JBNAME, L_Eff, LHAMI, LOOPDIVIDE, LOOPMAX, LPRPR, LuEig, LuExc, &
+                 LuIph, LuMck, LuOne, LuOrd, LuTOM, MINAME, NATens_Calc, NATO, NBINA, NCOUP, NJOB, NMass_set, NOHAM, NOSO, NPROP, &
+                 NrNATO, NSOPR, NSOThr_Prt, NSpin_set, NSTATE, OCAN, ONLY_OVERLAPS, OSThr_DipR, OSThr_QIPR, PNAME, PRCI, PRDIPVEC, &
+                 PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PTYPE, QIALL, QIPR, REDUCELOOP, &
+                 RFPert, RSPR, RSThr, SODIAGNSTATE, SONATNSTATE, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, &
+                 ToFile, TOLERANCE, TOLERANCE, TRACK
 use rassi_data, only: WFTYPE
 use hfc_logical, only: MagX2C_Avail
 use Constants, only: Zero, One
