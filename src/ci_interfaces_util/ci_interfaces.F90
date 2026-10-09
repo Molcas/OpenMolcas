@@ -33,7 +33,7 @@ use general_data, only: iDoGAS, nRsPrt
 
 Private
 
-Public :: Mk_H_Psi, Mk_H_Psi_Det, Mk_pdms, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close
+Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close
 
 contains
 
@@ -905,5 +905,16 @@ endif
 #endif
 
 End subroutine Mk_CI_Diag
+
+subroutine Mk_Tra_Psi(TU,nTU,CI_Vector,nCSF)
+integer(kind=iwp), intent(in) ::  nTU, nCSF
+real(kind=wp), intent(in) :: TU(nTU)
+real(kind=wp), intent(inout) :: CI_Vector(nCSF)
+
+Call Lucia_util('TRACI', &
+                CI_Vector=CI_Vector(:), &
+                TU=TU(:), nTU=nTU)
+
+End subroutine Mk_Tra_Psi
 
 End module CI_Interfaces
