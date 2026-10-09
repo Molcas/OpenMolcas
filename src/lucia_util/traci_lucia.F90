@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_Lucia(T,nLev,VEC1,VEC2)
+subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,VEC1,VEC2,I_Dummy,STSYM,lRec,mxntts,nREC)
 ! Transform CI vector on LUHC with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
@@ -38,9 +38,12 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
+integer(kind=iwp), intent(in):: nLev, STSym, nCSF, mxntts
+integer(kind=iwp), intent(in):: lRec(MXNTTS)
 real(kind=wp), intent(in) :: T(nLEV**2)
+real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
-integer(kind=iwp), intent(in):: nLev
+integer(kind=iwp), intent(inout):: i_dummy(1), nREC
 integer(kind=iwp) :: K, I12_SAVE, I_RES_AB_SAVE
 integer(kind=iwp), parameter :: LBLK=-1
 real(kind=wp) :: TKK
@@ -50,7 +53,13 @@ real(kind=wp), external :: INPRDD
 
 call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
 
-!...more to come ...
+IDISK(LUC) = 0
+! Convert to internal Lucia SD format
+call CSDTVC(CI_Vector,VEC1,1,STSym,0)
+! Write CI vector to the Lucia file LUC
+call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
+I_DUMMY(1) = -1
+call ITODS(I_DUMMY,1,LBLK,LUC)
 IDISK(LUC)=0
 IDISK(LUSC1) = 0
 ! Copy the CI vector from file LUC to LUSC1

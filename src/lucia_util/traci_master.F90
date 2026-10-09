@@ -97,15 +97,8 @@ do JROOT=1,NROOT
 
   Call mma_allocate(lRec,MXNTTS,Label='lRec')
   call BLKFO_MIN(STSym,NREC,LREC)
-  IDISK(LUC) = 0
-  ! Convert to internal Lucia SD format
-  call CSDTVC(CI_Vector,VEC1,1,STSym,0)
-  ! Write CI vector to the Lucia file LUC
-  call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
-  I_DUMMY(1) = -1
-  call ITODS(I_DUMMY,1,LBLK,LUC)
 
-  call TRACI_LUCIA(LT,nLev,VEC1,VEC2)
+  call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF,VEC1,VEC2,i_dummy,STSYM,lRec,mxntts,nRec)
 
   IDISK(LUDIA)=0
   ! Copy CI-vector back to MOLCAS JOBIPH file
