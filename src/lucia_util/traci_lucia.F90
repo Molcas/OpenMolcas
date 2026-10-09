@@ -9,8 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
-subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,VEC1,VEC2,I_Dummy,STSYM,lRec,mxntts,nREC)
+subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,VEC1,VEC2,STSYM)
 ! Transform CI vector on LUHC with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
@@ -26,7 +25,7 @@ subroutine TRACI_Lucia(T,nLev,CI_Vector,nCSF,VEC1,VEC2,I_Dummy,STSYM,lRec,mxntts
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use CandS, only: ICSPC, ICSM, ISSM, ISSPC
-use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1
+use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1, MXNTTS
 use lucia_data, only: LUSC1, LUSC2, LUSC3, LUDIA, LUHC, LUC
 use lucia_data, only: kvec3_length, VEC3
 use Constants, only: Zero,One, Half
@@ -38,18 +37,20 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in):: nLev, STSym, nCSF, mxntts
-integer(kind=iwp), intent(in):: lRec(MXNTTS)
+integer(kind=iwp), intent(in):: nLev, STSym, nCSF
 real(kind=wp), intent(in) :: T(nLEV**2)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
-integer(kind=iwp), intent(inout):: i_dummy(1), nREC
-integer(kind=iwp) :: K, I12_SAVE, I_RES_AB_SAVE
+integer(kind=iwp) :: K, I12_SAVE, I_RES_AB_SAVE, nREC, I_Dummy(1)
 integer(kind=iwp), parameter :: LBLK=-1
+integer(kind=iwp), allocatable :: lRec(:)
 real(kind=wp) :: TKK
 #ifdef _DEBUGPRINT_
 real(kind=wp), external :: INPRDD
 #endif
+
+Call mma_allocate(lRec,MXNTTS,Label='lRec')
+call BLKFO_MIN(STSym,NREC,LREC)
 
 call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
 
@@ -126,4 +127,5 @@ I12=I12_SAVE
 I_RES_AB = I_RES_AB_SAVE
 call mma_deallocate(VEC3)
 
+Call mma_deallocate(lRec)
 end subroutine TRACI_Lucia

@@ -26,7 +26,7 @@ implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
-integer(kind=iwp) :: I, I_DUMMY(1), IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLOCK, &
+integer(kind=iwp) :: I, IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLOCK, &
                      NREC, IH1FORM_SAVE
 integer(kind=iwp), parameter:: LBLK=-1
 real(kind=wp), allocatable :: TransMat(:), LH1SAVE(:), VEC1(:), VEC2(:), CI_Vector(:), LT(:)
@@ -95,12 +95,7 @@ do JROOT=1,NROOT
   ! Read CI vector in SG format
   call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
 
-  Call mma_allocate(lRec,MXNTTS,Label='lRec')
-  call BLKFO_MIN(STSym,NREC,LREC)
-
-  call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF,VEC1,VEC2,i_dummy,STSYM,lRec,mxntts,nRec)
-
-  Call mma_deallocate(lRec)
+  call TRACI_LUCIA(LT,nLev,CI_Vector,nCSF,VEC1,VEC2,STSYM)
 
   call DDAFILE(JOBIPH,1,VEC2,nCSF,JOBDISK)
 end do
