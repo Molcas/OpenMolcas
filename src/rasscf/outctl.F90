@@ -533,7 +533,7 @@ end if
 !----------------------------------------------------------------------*
 call Put_dArray('RASSCF orbitals',CMO,NTOT2)
 !! Fix https://molcasforum.univie.ac.at/viewtopic.php?id=1009
-if (IPRLEV < USUAL) call Put_dArray('RASSCF OrbE',FDIAG,NTOT)
+call Put_dArray('RASSCF OrbE',FDIAG,NTOT)
 !----------------------------------------------------------------------*
 !     compute properties and Mulliken's orbital populations            *
 !----------------------------------------------------------------------*

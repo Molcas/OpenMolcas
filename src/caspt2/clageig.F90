@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine CLagEig(if_SSDMloc,force_equal,nConf,nRoots,nState,nLev,CLag,RDMEIG)
+subroutine CLagEig(if_SSDMloc,force_equal,nConf,nRoots,nState,nLev,CLag,DRDM)
 
 use caspt2_global, only: DREF, DWGT, OMGDER, Weight
 use caspt2_module, only: IFDW, IFSADREF, ISCF, JSTATE, NASHT, ZETA
@@ -23,7 +23,7 @@ implicit none
 logical(kind=iwp), intent(in) :: if_SSDMloc, force_equal
 integer(kind=iwp), intent(in) :: nConf, nRoots, nState, nLev
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots)
-real(kind=wp), intent(in) :: RDMEIG(nLev**2)
+real(kind=wp), intent(in) :: DRDM(nLev**2)
 integer(kind=iwp) :: iState
 real(kind=wp) :: Scal, WGT
 real(kind=wp), allocatable :: CI1(:), WRK(:)
@@ -32,7 +32,7 @@ real(kind=wp), external :: DDOT_
 ! MODE=0: Either state-averaged or DWGT matrix
 ! MODE=1: XMS-specific term, always state-averaged DM
 
-!! RDMEIG
+!! DRDM
 call mma_allocate(CI1,nConf,Label='LCI')
 call mma_allocate(WRK,max(NLEV,NASHT)**2,Label='WRK')
 
@@ -51,7 +51,7 @@ do iState=1,nState
     else
       CI1(1) = One
     end if
-    WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
+    WRK(1:NLEV**2) = DRDM(1:NLEV**2)*WGT
     call Poly1_CLag(NCONF,NLEV,CI1,CLag(:,iState),WRK)
   else
     Wgt = DWgt(iState,jState)
@@ -61,7 +61,7 @@ do iState=1,nState
       else
         CI1(1) = One
       end if
-      WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
+      WRK(1:NLEV**2) = DRDM(1:NLEV**2)*WGT
       call Poly1_CLag(NCONF,NLEV,CI1,CLag(:,iState),WRK)
     end if
 
@@ -76,7 +76,7 @@ do iState=1,nState
       call GETDREF(DREF,size(DREF))
       call SQUARE(DREF,WRK,1,nAshT,nAshT)
       !! probably it is doubled somewhere, so should half
-      Scal = DDOT_(nAshT**2,RDMEIG,1,WRK,1)*Half
+      Scal = DDOT_(nAshT**2,DRDM,1,WRK,1)*Half
       !write(u6,*) 'scal = ',scal
       OMGDER(iState,jState) = OMGDER(iState,jState)+Scal
     end if

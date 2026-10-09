@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,RDMEIG,nLev)
+subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,DRDM,nLev)
 ! Purpose: Compute the 1-electron density matrix array G1.
 
 ! For the general cases, we use actual CI routine calls, and
@@ -32,7 +32,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NCI, NSGM1, nConf, nLev
-real(kind=wp), intent(in) :: CI(NCI), RDMEIG(NLEV,NLEV)
+real(kind=wp), intent(in) :: CI(NCI), DRDM(NLEV,NLEV)
 real(kind=wp), intent(inout) :: SGM1(NSGM1), CLag(nConf)
 integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
 integer(kind=iwp), allocatable :: TASK(:,:)
@@ -82,7 +82,7 @@ do while (Rsv_Tsk(ID,iTask))
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
   call GETSGM2(LU,LT,STSYM,CI,NCI,SGM1,NSGM)
   ! Symmetry not yet
-  if (ISTU == 1) CLag(1:NSGM) = CLag(1:NSGM)+RDMEIG(IT,IU)*SGM1(1:NSGM)
+  if (ISTU == 1) CLag(1:NSGM) = CLag(1:NSGM)+DRDM(IT,IU)*SGM1(1:NSGM)
 
   ! SVC: The master node now continues to only handle task scheduling,
   !     needed to achieve better load balancing. So it exits from the task

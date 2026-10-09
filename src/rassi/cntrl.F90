@@ -161,7 +161,8 @@ logical(kind=iwp) :: AutoSel_GFac, BINA, ChkHop, CIH5, DCHS, DIPR, Do_Pol, Do_SK
                      IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IfNTO, IFSHFT, IFSO, IFTDM, IFTRD1, &
                      IFTRD2, IFVANVLECK, IFXCAL, LHAMI, LPRPR, NATO, NMass_set, NOHAM, NOSO, NSpin_set, ONLY_OVERLAPS, PRCI, &
                      PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, QDPT2EV, &
-                     QDPT2SC, QIALL, QIPR, REDUCELOOP, RFpert, RHODyn, RSPR, SaveDens, SECOND_TIME, TDYS, ToFile, TRACK, SDFlip
+                     QDPT2SC, QIALL, QIPR, REDUCELOOP, RFpert, RHODyn, RSPR, SaveDens, SECOND_TIME, TDYS, ToFile, TRACK, SDFlip, &
+                     E_HFC_Req
 character(len=LenIn+8) :: bNAME(mxOrb)
 character(len=128) :: JBNAME(MXJOB), MINAME(MXJOB)
 character(len=16) :: OCAA(20)
@@ -169,12 +170,11 @@ character(len=8) :: FnEig, FnToM, PNAME(MXPROP), PTYPE(MXPROP), RASTYP(MXJOB), S
                     SOPRTP(MXPROP)
 character(len=4) :: TITLE1(18,mxTit)
 character(len=2) :: HEAD1(72)
-integer(kind=iwp), allocatable :: AngMom_idx(:), ASD_idx(:,:), LCSTATES(:), NucMass(:), PSO_idx(:,:), SODIAG(:), SONAT(:), &
-                                  SONTO(:,:)
+integer(kind=iwp), allocatable :: LCSTATES(:), NucMass(:), SODIAG(:), SONAT(:), SONTO(:,:)
 real(kind=wp), allocatable :: GNuc(:), HEff(:,:), NucSpin(:), RefEne(:)
 logical(kind=iwp), allocatable :: Atens_Req(:), HypoIso(:), pNMR_req(:)
 
-public :: ALGO, AlphZ, AngMom_idx, ASD_idx, Atens_Req, AutoSel_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, &
+public :: ALGO, AlphZ, Atens_Req, AutoSel_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, &
           CIH5, CITHR, Coor, DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, &
           DYSEXPSO, DYSO, EMin, EPRThr, ERFNuc, FnEig, FnTOM, FORCE_NON_AO_TDM, GNuc, GNuc_set, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, &
           HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IDCMO, IfArgu, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, &
@@ -185,9 +185,9 @@ public :: ALGO, AlphZ, AngMom_idx, ASD_idx, Atens_Req, AutoSel_GFac, BAngRes, Be
           NCOUP, NDEL1, NDET, NELE3, NELE31, NFRO1, NHOL11, NHOLE1, NISH1, NJOB, NMass_set, NOHAM, NOSO, NPNMR_Calc, NPROP, NQUAD, &
           NrNATO, NROOT1, NROOTS, NRS11, NRS21, NRS31, Nscreen, NSOPR, NSOThr_Prt, NSpin_set, NSTAT, NSTATE, NSYM1, NTP, NTS, &
           nTStep, NucMass, NucSpin, OCAA, OCAN, ONLY_OVERLAPS, OSThr_DiPr, OSThr_QIPR, PNAME, pNMR_req, PNUC, PORIG, PRCI, &
-          PRDIPCOM, PrDipVec, PRMEE, PRMER, PRMES, PRORB, PrRaw, PRSXY, PRTRA, PrWeight, PRXVE, PRXVR, PRXVS, PSO_idx, PTYPE, &
+          PRDIPCOM, PrDipVec, PRMEE, PRMER, PRMES, PRORB, PrRaw, PRSXY, PRTRA, PrWeight, PRXVE, PRXVR, PRXVS, PTYPE, &
           QDPT2EV, QDPT2SC, QIAll, QIPR, RASTYP, REDUCELOOP, RefEne, RFPert, RhoDyn, RSPR, RSThr, SAVEDENS, SECOND_TIME, SODIAG, &
           SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDipMin, TDYS, TIncre, TITLE1, TMAXP, &
-          TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart, SDFlip
+          TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart, SDFlip, E_HFC_Req
 
 end module Cntrl

@@ -17,7 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 
-subroutine EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,CMO,Trf,FPT2,FPT2C,FIFA,FIMO,RDMSA)
+subroutine EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2AO,FPT2CAO,DRDM,CMO,Trf,FPT2,FPT2C,FIFA,FIMO,RDM)
 
 use caspt2_global, only: OLag
 use general_data, only: NASH
@@ -29,8 +29,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
 real(kind=wp), intent(in) :: DPT2(NBSQT), DPT2C(NBSQT), FPT2AO(NBSQT), FPT2CAO(NBSQT), CMO(NBSQT), Trf(NBSQT), FPT2(NBSQT), &
-                             FPT2C(NBSQT), FIFA(NBSQT), FIMO(NBSQT), RDMSA(nAshT**2)
-real(kind=wp), intent(inout) :: RDMEIG(nAshT**2)
+                             FPT2C(NBSQT), FIFA(NBSQT), FIMO(NBSQT), RDM(nAshT**2)
+real(kind=wp), intent(inout) :: DRDM(nAshT**2)
 integer(kind=iwp) :: iAO, iCMO, iSQ, iSQA, iSym, iT, iTabs, iTU, iTUA, iU, iUabs, nAshI, nBasI, nCor, nFroI, nIshI, nOrbI
 real(kind=wp), allocatable :: FPT2_loc(:), FPT2C_loc(:), RDMqc(:), WRK1(:)
 
@@ -90,11 +90,11 @@ do iSym=1,nSym
   !  WRK1(1:nDRef) = WRK1(1:nDRef)+Wgt*DMIX(:,iState)
   !end do
   ! RDM of CASSCF
-  ! RDMSA is defined by a set of natural orbitals.
+  ! RDM is defined by a set of natural orbitals.
   ! Here, we have to transform to a set of quasi-canonical
   ! orbitals (RDMqc), so forward transformation is appropriate.
   !call SQUARE(WRK1,RDMqc,1,nAshI,nAshI)
-  RDMqc(1:nAshI**2) = RDMSA(1:nAshI**2)
+  RDMqc(1:nAshI**2) = RDM(1:nAshI**2)
   !! nbast?
   call DGemm_('T','N',nAshT,nAshT,nAshT,One,Trf(iSQ+nBasT*nCor+nCor),nBasT,RDMqc,nAshT,Zero,WRK1,nAshT)
   call DGemm_('N','N',nAshT,nAshT,nAshT,One,WRK1,nAshT,Trf(iSQ+nBasT*nCor+nCor),nBasT,Zero,RDMqc,nAshT)
@@ -140,7 +140,7 @@ do iSym=1,nSym
       iUabs = nCor+iU
       iTU = iTabs-1+nOrbI*(iUabs-1)
       iTUA = iT-1+nAshI*(iU-1)
-      RDMEIG(iSQA+iTUA) = RDMEIG(iSQA+iTUA)+FPT2_loc(iSq+iTU)
+      DRDM(iSQA+iTUA) = DRDM(iSQA+iTUA)+FPT2_loc(iSq+iTU)
       !write(u6,'(2i3,f20.10)') it,iu,FPT2(iSq+iTU)
     end do
   end do

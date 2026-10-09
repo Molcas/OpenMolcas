@@ -366,7 +366,7 @@ if (do_grad) then
   ngrad5 = NFIT*2+NFIA*2+NFTA*2+max(MMX,maxval(NASUP(1:NSYM,1:11)**2))
 
   ! gradient: CI derivatives (clagx)
-  ngrad6 = NG1*4+NG2*4+NG3TOT*3
+  ngrad6 = NG1*4+NG2*4+NG3TOT*2
   ! CLagD (hmm, not for the A and C subspaces in parallel)
   MMX = 0
   do ICASE=1,11
@@ -398,7 +398,7 @@ if (do_grad) then
       MMX = max(M,MMX)
     end do
   end do
-  ngrad6_1 = MMX
+  ngrad6_1 = MMX+NG3TOT
   ! CnstCLag (derfg3)
   ngrad6_2 = NG3TOT+NCONF
   MXLFT = membase-ngrad6-ngrad6_2

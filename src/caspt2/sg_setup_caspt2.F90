@@ -18,7 +18,7 @@ use caspt2_qmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
 use sguga, only: CIS, SG_Init, SG_Init_Light
 use general_data, only: iSpin, nActel, nAsh, nElec3, nHole1, nLev, nRas, nRasEl, nRsPrt, STSym
-use caspt2_module, only: DMRG, DoCumulant, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
+use caspt2_module, only: DMRG, DoCumulant, HZERO, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use Definitions, only: iwp
 
 implicit none
@@ -48,7 +48,9 @@ else
   nRasEl(1)= nActel
 end if
 
-if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) then
+! NEVPT2 applies E_pq to the reference also for a single determinant (MKNEVE4).
+if ((.not. DoCumulant) .and. (nactel > 0) .and. ((iscf == 0) .or. (HZERO == 'DYALL')) .and. (.not. DoFCIQMC) .and. &
+    (.not. DMRG)) then
 
   call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
                xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)

@@ -16,7 +16,6 @@ use Definitions, only: iwp
 implicit none
 private
 
-integer(kind=iwp) :: MagX2C_Req
 logical(kind=iwp) :: MagX2C_Avail, UHF_HFC
 
 ! VARIABLE DESCRIPTION
@@ -26,16 +25,9 @@ logical(kind=iwp) :: MagX2C_Avail, UHF_HFC
 !               It is mainly used in scf program and the related integral_util
 !               directory.
 !
-! MagX2C_Req   : an integer specifies whether RX2C, MTXC are requested in &SEWARD
-!              = -2 (non-relativistic case), both are turned off: no RX2C, no MXTC
-!              = -1 RX2C = ON, but users do not specify MXTC
-!              =  2 both are turned on
-!
 ! MagX2C_Avail : is controlled by iRdOne.
 !             = .TRUE. when MagX2C integral is accessible and vice versa
-!
-! NOTE: MagX2C_Req is used for handling input instead of calling iRdOne.
 
-public :: MagX2C_Avail, MagX2C_Req, UHF_HFC
+public :: MagX2C_Avail, UHF_HFC
 
 end module HFC_logical

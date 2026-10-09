@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
+subroutine POLY1_CLagT(CI1,CI2,CLag1,CLag2,DRDM,Scal)
 ! PER-AAKE MALMQUIST, 92-12-07
 ! THIS PROGRAM CALCULATES THE 1-EL DENSITY
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
@@ -22,14 +22,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), RDMEIG(*), Scal
+real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), DRDM(*), Scal
 real(kind=wp), intent(inout) :: CLag1(*), CLag2(*)
 real(kind=wp), allocatable :: SGM1(:)
 integer(kind=iwp), parameter :: iState = 1
 
 if (NLEV > 0) then
   call mma_allocate(SGM1,MXCI,Label='SGM1')
-  call DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,Scal,nLev)
+  call DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,DRDM,Scal,nLev)
 end if
 
 ! REINITIALIZE USE OF DMAT.

@@ -1107,6 +1107,20 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`SCPF`
+  This keyword selects the perturber functions for SC-NEVPT2 (default = ``SPLIT``).
+  With ``SPLIT``, the symmetric and antisymmetric spin couplings of a pair index are separately used.
+  With ``MERGE``, one perturber function is used for each set of inactive and secondary orbital indices,
+  which is the standard definition of SC-NEVPT2.
+  Choose ``MERGE`` to obtain consistent results with some other program packages (e.g., QCMaquis).
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SCPF" APPEAR="SC perturber functions" KIND="CHOICE" LIST="SPLIT,MERGE" LEVEL="ADVANCED" DEFAULT_VALUE="SPLIT">
+              %%Keyword: SCPF <advanced>
+              <HELP>
+              Perturber functions for SC-NEVPT2: SPLIT (default) or MERGE.
+              </HELP>
+              </KEYWORD>
+
 :kword:`FCIQmc`
   Perform a FCIQMC-CASPT2 calculation with the |molcas|--M7 interface.
   The keyword :kword:`MCM7` and :kword:`NDPT` should be used in

@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine OLagFroD(NBSQT,NASHT,DIA,DI,RDMSA,Trf)
+subroutine OLagFroD(NBSQT,NASHT,DIA,DI,RDM,Trf)
 
 use Index_Functions, only: nTri_Elem
 use caspt2_global, only: CMOPT2
@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
 real(kind=wp), intent(out) :: DIA(NBSQT), DI(NBSQT)
-real(kind=wp), intent(in) :: RDMSA(nAshT**2), Trf(NBSQT)
+real(kind=wp), intent(in) :: RDM(nAshT**2), Trf(NBSQT)
 integer(kind=iwp) :: iAOsq, iAOtr, iSym, nAshI, nBasI, nCorI, nFroI, nIshI
 real(kind=wp), allocatable :: WRK1(:), WRK2(:)
 
@@ -58,9 +58,9 @@ do iSym=1,nSym
   !! Get_D1AO is incorrect... at least, cannot be used.
   ! 1) inactive part
   DIA(1:nBasI**2) = DI(1:nBasI**2)
-  ! 2)  RDMSA is defined in CASSCF orbitals, so transform RDMSA to
+  ! 2)  RDM is defined in CASSCF orbitals, so transform RDM to
   !     CASPT2 orbital basis
-  call DGemm_('T','N',nAshI,nAshI,nAshI,One,Trf(1+nCorI+nBasI*nCorI),nBasI,RDMSA,nAshI,Zero,WRK2,nAshI)
+  call DGemm_('T','N',nAshI,nAshI,nAshI,One,Trf(1+nCorI+nBasI*nCorI),nBasI,RDM,nAshI,Zero,WRK2,nAshI)
   call DGemm_('N','N',nAshI,nAshI,nAshI,One,WRK2,nAshI,Trf(1+nCorI+nBasI*nCorI),nBasI,Zero,WRK1,nAshI)
   ! 3) Finally, add the active part
   call DGemm_('N','N',nBasI,nAshI,nAshI,One,CMOPT2(1+nBasI*nCorI),nBasI,WRK1,nAshI,Zero,WRK2,nBasI)

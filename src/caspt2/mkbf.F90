@@ -87,16 +87,18 @@ do ISYM=1,NSYM
   if (NBFM > 0) then
     call mma_allocate(BFM,NBFM,Label='BFM')
     !GG.Nov03  Load in SDM the diagonal elements of SFM matrix:
-    call mma_allocate(SM,NBFM,Label='SM')
     call mma_allocate(SDM,NASM,Label='SDM')
-    IDSM = IDSMAT(ISYM,9)
-    call DDAFILE(LUSBT,2,SM,NBFM,IDSM)
-    IDIAG = 0
-    do I=1,NASM
-      IDIAG = IDIAG+I
-      SDM(I) = SM(IDIAG)
-    end do
-    call mma_deallocate(SM)
+    if (NINDEP(ISYM,9) > 0) then
+      call mma_allocate(SM,NBFM,Label='SM')
+      IDSM = IDSMAT(ISYM,9)
+      call DDAFILE(LUSBT,2,SM,NBFM,IDSM)
+      IDIAG = 0
+      do I=1,NASM
+        IDIAG = IDIAG+I
+        SDM(I) = SM(IDIAG)
+      end do
+      call mma_deallocate(SM)
+    end if
     !GG End
   end if
   INSM = 1
@@ -124,6 +126,7 @@ do ISYM=1,NSYM
         BFP(IBPADR) = BFP(IBPADR)+ipea_shift*Half*(Four-DREF(IDT)-DREF(IDU))*SDP(ITGEU)
       end if
       !GG End
+      if (NINDEP(ISYM,9) < 1) cycle
       if (ITABS == IUABS) cycle
       if (IXABS == IYABS) cycle
       ITGTU = KTGTU(ITABS,IUABS)-NTGTUES(ISYM)

@@ -1433,7 +1433,7 @@ Keywords
 
   Keyword requirements are the same as :kword:`HFCAt` (see below).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCOP" APPEAR="Hyperfine RMS Hamiltonian" KIND="SINGLE" REQUIRE="SPIN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCOP" APPEAR="Hyperfine RMS Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: HFCOp <advanced>
               <HELP>
               Calculate effective hyperfine hamiltonian.
@@ -1463,7 +1463,7 @@ Keywords
 
   To obtain results in the non-relativistic limit, users can set :kword:`CLIGht` in :program:`SEWARD` to a large value (e.g., :math:`10^{6}`).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAT" APPEAR="HFC Atoms" KIND="INTS_COMPUTED" SIZE="1" REQUIRE="SPIN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAT" APPEAR="HFC Atoms" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED">
               %<ALTERNATE KIND="CHOICE" LIST="all" />
               %Keyword: HFCAt <advanced>
               <HELP>

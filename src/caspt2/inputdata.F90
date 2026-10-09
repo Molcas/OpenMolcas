@@ -211,6 +211,9 @@ type InputTable
   logical(kind=iwp) :: DOSC = .true.
   ! SC_thres  Threshold for avoiding vanishing denominators
   real(kind=wp) :: SC_thres = 1.0e-9_wp
+  ! SCPF      Choose the SC-NEVPT2 perturber functions
+  !           'SPLIT' = P and M kept apart, 'MERGE' = one per index set (consistent with QCMaquis etc.)
+  character(len=5) :: SCPF = 'SPLIT'
 
 end type ! end of type InputTable
 
@@ -751,6 +754,10 @@ subroutine readin_CASPT2(LuIn,nSym)
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         read(Line,*,iostat=iError) Input%SC_thres
         if (iError /= 0) call IOError(Line)
+
+      case ('SCPF')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        call StdFmt(Line,Input%SCPF)
 
         ! OBSOLETE KEYWORDS
 
