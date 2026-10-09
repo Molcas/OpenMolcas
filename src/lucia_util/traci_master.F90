@@ -12,8 +12,8 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
-use lucia_data, only: NCSF_PER_SYM, NROOT, NSMOB, NTOOBS
-use general_data, only: nCSF=>nConf, nLev, STSYM
+use lucia_data, only: NROOT, NTOOBS
+use general_data, only: nCSF=>nConf, nLev, STSYM, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -28,8 +28,6 @@ real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp) :: I, IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT
 real(kind=wp), allocatable :: TransMat(:), CI_Vector(:), LT(:)
 
-nCSF = NCSF_PER_SYM(STSym)
-
 call mma_allocate(CI_Vector,nCSF,Label='CI_Vector')
 
 ! The input transformation matrix, CMOMO is over the full basis but it
@@ -42,7 +40,7 @@ TransMat(:) = Zero
 IOFF = 1
 IADR = 1
 ICOL = 1
-do ISM=1,NSMOB
+do ISM=1,nSym
   if (NTOOBS(ISM) == 0) Cycle
   IROW = ICOL
   do I=1,NTOOBS(ISM)
@@ -60,7 +58,7 @@ call mma_allocate(LT,nLev**2,Label='LT')
 
 ! Obtain T matrix used for transformation, for each symmetry separately
 IOFF = 0
-do ISM=1,NSMOB
+do ISM=1,nSym
   if (ISM == 1) then
     IOFF = 1
   else
