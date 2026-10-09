@@ -16,7 +16,8 @@
 module CI_Interfaces
 use sguga, only: SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
-use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
+use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
+                   traci_faroald
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
@@ -911,9 +912,37 @@ integer(kind=iwp), intent(in) ::  nTU, nCSF
 real(kind=wp), intent(in) :: TU(nTU)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 
-Call Lucia_util('TRACI', &
-                CI_Vector=CI_Vector(:), &
-                TU=TU(:), nTU=nTU)
+real(kind=wp), allocatable :: Faroald_Psi(:,:), ctemp(:)
+real(kind=wp), allocatable :: dtemp(:)
+
+!If (DoFaro) Then
+If (.false.) Then
+
+  Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
+  Call mma_allocate(ctemp,Max(nCSF,nDetA*nDetB),Label='ctemp')
+  Call mma_allocate(dtemp,nDetA*nDetB,Label='dtemp')
+
+  call SG_REORD(iState,STSYM,0,nCSF,CI_Vector,ctemp)
+  call CITRANS_SORT('C',ctemp,dTemp)
+  Faroald_PSI(:,:) = Zero
+  call CITRANS_CSF2SD(dTemp,Faroald_PSI)
+
+  Call traci_faroald(TU,nTU,Faroald_Psi)
+
+  call CITRANS_SD2CSF(Faroald_Psi,dTemp)
+  call CITRANS_SORT('O',dTemp,ctemp)
+  call SG_Reord(iState,STSYM,1,nCSF,cTemp,CI_Vector)
+
+  Call mma_deallocate(dTemp)
+  Call mma_deallocate(ctemp)
+  Call mma_deallocate(Faroald_Psi)
+
+Else
+
+   Call Lucia_util('TRACI', &
+                   CI_Vector=CI_Vector(:), &
+                   TU=TU(:), nTU=nTU)
+End If
 
 End subroutine Mk_Tra_Psi
 

@@ -21,6 +21,7 @@ module faroald
 ! The implementation follows the minimum operation count algorithm
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
+use Index_Functions, only: iTri
 use second_quantization, only: binom_coef
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
@@ -73,7 +74,7 @@ public :: npat, occpat, ipat_of_det
 public :: combination_occupations
 public :: combination_diagonal
 public :: build_ictsdt, ictsdt
-public :: epq_psi
+public :: faroald_epq_psi, traci_faroald
 
 ! Extensions to mma interfaces
 
@@ -2130,7 +2131,7 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 
 end subroutine LRs_init
 
-subroutine epq_psi(p,q,psi,sgm)
+subroutine Faroald_epq_psi(p,q,psi,sgm)
 
   integer(kind=iwp), intent(in) :: p,q
   real(kind=wp), intent(in)  :: psi(ndeta,ndetb)
@@ -2178,7 +2179,156 @@ subroutine epq_psi(p,q,psi,sgm)
     end do
   end do
 
-end subroutine epq_psi
+end subroutine Faroald_epq_psi
+
+subroutine sigma_update_1e(h1,psi,sigma)
+
+  real(kind=wp), intent(in)  :: h1(:,:)
+  real(kind=wp), intent(in)  :: psi(ndeta,ndetb)
+  real(kind=wp), intent(out) :: sigma(ndeta,ndetb)
+
+  integer(kind=iwp) :: ja,jb
+  integer(kind=iwp) :: ia,ib
+  integer(kind=iwp) :: k
+  integer(kind=iwp) :: p,q
+  real(kind=wp) :: hpq
+  real(kind=wp), allocatable :: work(:,:)
+  real(kind=wp), parameter :: thr=1.0e-12_wp
+
+  Call mma_allocate(Work,nDetA,nDetB,Label='Work')
+  sigma(:,:) = Zero
+
+  do p=1,my_norb
+    do q=1,my_norb
+
+      hpq = h1(p,q)
+
+      if (abs(hpq) < thr) cycle
+
+      call Faroald_Epq_Psi(p,q,psi,work)
+
+      sigma(:,:) = sigma(:,:) + hpq*work(:,:)
+
+    end do
+  end do
+  Call mma_deallocate(Work)
+
+end subroutine sigma_update_1e
+
+subroutine traci_faroald(T,nT,psi)
+
+   integer(iwp), intent(in) :: nT
+   real(wp), intent(in)    :: T(nT)
+   real(wp), intent(inout) :: psi(ndeta,ndetb)
+
+   real(wp), allocatable :: h1(:,:)
+   real(wp), allocatable :: psi0(:,:), psi1(:,:), psi2(:,:)
+
+   integer(iwp) :: k
+   real(wp) :: tkk
+
+   call mma_allocate(h1,my_norb,my_norb,Label='h1')
+   call mma_allocate(psi0,ndeta,ndetb,Label='Psi0')
+   call mma_allocate(psi1,ndeta,ndetb,Label='Psi1')
+   call mma_allocate(psi2,ndeta,ndetb,Label='Psi2')
+
+   do k=1,my_norb
+
+      call build_trow_operator(T,k,h1,tkk)
+
+      psi0(:,:) = psi(:,:)
+
+      call multiply_by_nk(tkk,k,psi0)
+
+      call sigma_update_1e(h1,psi0,psi1)
+
+      call sigma_update_1e(h1,psi1,psi2)
+
+      psi (:,:)= psi0(:,:)+ psi1(:,:)+ Half*psi2(:,:)
+
+   end do
+
+   call mma_deallocate(psi2)
+   call mma_deallocate(psi1)
+   call mma_deallocate(psi0)
+   call mma_deallocate(h1)
+
+end subroutine traci_faroald
+
+subroutine build_trow_operator(T,k,h1,tkk)
+   real(wp), intent(in)  :: T(:)
+   integer(iwp), intent(in) :: k
+   real(wp), intent(out) :: h1(my_norb,my_norb)
+   real(wp), intent(out) :: tkk
+
+   integer(iwp) :: p
+
+   h1 = Zero
+
+   tkk = T(iTri(k,k))
+
+   do p=1,my_norb
+      if (p == k) cycle
+      h1(p,k) = T(iTri(max(p,k),min(p,k))) / tkk
+   end do
+end subroutine build_trow_operator
+
+subroutine multiply_by_nk(tkk,k,psi)
+
+   use Constants,   only: One
+   use Definitions, only: wp, iwp
+
+   real(kind=wp), intent(in)    :: tkk
+   integer(kind=iwp), intent(in) :: k
+   real(kind=wp), intent(inout) :: psi(ndeta,ndetb)
+
+   integer(kind=iwp) :: ia, ib, pq
+   integer(kind=iwp), allocatable :: occa(:), occb(:)
+
+   real(kind=wp) :: fac(0:2)
+
+   fac(0)=One
+   fac(1)=tkk
+   fac(2)=tkk*tkk
+
+   call mma_allocate(occa,ndeta,label='OccA')
+   call mma_allocate(occb,ndetb,label='OccB')
+
+   occa(:)=0
+   occb(:)=0
+
+   do ia=1,ndeta
+      do pq=1,max_ex1a
+         if (ex1_a(pq,ia)%p == k .and. &
+             ex1_a(pq,ia)%q == k .and. &
+             ex1_a(pq,ia)%rank == ia) then
+            occa(ia)=1
+            exit
+         end if
+      end do
+   end do
+
+   do ib=1,ndetb
+      do pq=1,max_ex1b
+         if (ex1_b(pq,ib)%p == k .and. &
+             ex1_b(pq,ib)%q == k .and. &
+             ex1_b(pq,ib)%rank == ib) then
+            occb(ib)=1
+            exit
+         end if
+      end do
+   end do
+
+   do ib=1,ndetb
+      do ia=1,ndeta
+         psi(ia,ib)=fac(occa(ia)+occb(ib))*psi(ia,ib)
+      end do
+   end do
+
+   call mma_deallocate(occb)
+   call mma_deallocate(occa)
+
+end subroutine multiply_by_nk
 
 ! Extensions to mma_interfaces, using preprocessor templates
 ! (see mma_util/stdalloc.F90)
