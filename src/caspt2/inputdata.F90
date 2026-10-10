@@ -196,8 +196,6 @@ type InputTable
   !        the case with IPEA shift. Otherwise, just for debug
   !        purpose
   logical(kind=iwp) :: INVAR = .true.
-  ! CVIN  Convergence threshold for non-invariant CASPT2 equation
-  real(kind=wp) :: ThrConvInvar = 1.0e-7_wp
   ! CSF  compute CSF contributions in derivative coupling
   logical(kind=iwp) :: CSF = .true.
   ! IAINVAR  specify the CASPT2 energy is invariant wrt inactive
@@ -700,11 +698,6 @@ subroutine readin_CASPT2(LuIn,nSym)
 
       case ('INVA')
         Input%INVAR = .false.
-
-      case ('CVIN')
-        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read(Line,*,iostat=iError) Input%ThrConvInvar
-        if (iError /= 0) call IOError(Line)
 
       case ('GRDT')
         Input%GRDT = .true.

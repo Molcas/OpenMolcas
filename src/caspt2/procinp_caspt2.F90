@@ -17,9 +17,9 @@ use inputData, only: input
 use PrintLevel, only: TERSE
 use UnixInfo, only: SuperName
 use Molcas, only: MxRoot, MxSym
-use caspt2_global, only: cmpThr, cntThr, CompressMPS, ConvInvar, dnmThr, do_csf, do_grad, do_lindep, do_nac, if_equalW, if_invar, &
-                         if_invaria, if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, &
-                         sigma_p_epsilon, sigma_p_exponent, Weight
+use caspt2_global, only: cmpThr, cntThr, CompressMPS, dnmThr, do_csf, do_grad, do_lindep, do_nac, if_equalW, if_invar, if_invaria, &
+                         if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, sigma_p_epsilon, &
+                         sigma_p_exponent, Weight
 use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, CPT2Method, DMRG, DoCumulant, DWType, FockType, G1SECIN, HZero, IfChol, &
                          IfDens, IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, &
                          mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, NRAS1, NRAS3, nRoots, nRoots, &
@@ -724,10 +724,10 @@ IFSADREF = input%SADREF
 IFDORTHO = input%DORTHO
 if_invar = input%INVAR
 if (ipea_shift /= Zero) if_invar = .false.
+if (HZERO == 'DYALL') if_invar = .true. ! just in case
 if_invaria = input%IAINVAR
 if (sigma_p_epsilon /= Zero) if_invaria = .false. !! I'm not sure this is necessary, but it is needed for now
 if (SC_prop) if_invaria = .false.
-ConvInvar = input%ThrConvInvar
 
 if ((ipea_shift /= Zero) .and. do_grad .and. (.not. IFDORTHO)) then
   call warningMessage(2,'Analytic gradients with IPEA shift must use the CORT or DORT option.')

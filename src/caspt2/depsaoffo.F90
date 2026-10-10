@@ -31,13 +31,11 @@ real(kind=wp) :: EigI, EigJ, OLagIJ, OLagJI, Tmp
 iMO = 1
 do iSym=1,nSym
   nAshI = nAsh(iSym)
-  nOrbI = 0
+  nOrbI = nBas(iSym)-nDel(iSym)
   if (nAshI /= 0) then
-    nOrbI = nBas(iSym)-nDel(iSym)
     nFroI = nFro(iSym)
     nIshI = nIsh(iSym)
     nBasI = nBas(iSym)
-
     do iAsh=1,nAshI
       iOrb = iAsh+nFroI+nIshI
       EigI = FIFA(iMO+iOrb-1+nBasI*(iOrb-1))

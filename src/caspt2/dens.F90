@@ -666,7 +666,7 @@ if (do_grad) then
   if (.not. if_invar) then
     SLag(:,:) = Zero
     !! Add the density that comes from CI Lagrangian
-    call DEPSAOffC(nConf,nState,nAshT,nBasT,CLag,DEPSA,FIFA_all,FIMO_all,WRK1,WRK2,U0)
+    call DEPSAOffC(nConf,nState,nAshT,NBSQT,CLag,DEPSA,FIFA_all)
     !! Add the density that comes from orbital Lagrangian
     call DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA_all)
     !! Restore the diagonal elements

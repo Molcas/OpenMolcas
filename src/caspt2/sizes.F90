@@ -436,9 +436,9 @@ if (do_grad) then
   ngrad7_2 = ngrad7_2+MXLFT
   ngrad7 = ngrad7+max(ngrad7_1,ngrad7_2)
 
-  ! gradient: iterative CI derivatives (DEPSAOffC)
+  ! gradient: CI derivatives (DEPSAOffC)
   ngrad8 = 0
-  if (.not. if_invar) ngrad8 = nConf*nState*5+nConf+nState**3+nAshT**2+nAshT**4
+  if (.not. if_invar) ngrad8 = 2*nConf
 
   ! gradient: kappa (orbital) derivatives
   !           (OLagNS_RI, OLagNS2, OLagVVVO)
