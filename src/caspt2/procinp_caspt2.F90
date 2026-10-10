@@ -618,8 +618,6 @@ if ((input%GRDT .or. input%NAC) .and. (SuperName(1:18) /= 'numerical_gradient') 
     call quit_onUserError()
   end if
 
-  if (ipea_shift /= Zero) do_lindep = .true.
-
   ! only allow analytic gradients either with nstate = nroots or with sadref
   if ((nState /= nRoots) .and. (.not. input%SADREF)) then
     call warningMessage(2,'Analytic gradients available only if all CASSCF roots are included in the CASPT2 calculation or '// &
@@ -722,6 +720,7 @@ end if
 
 IFSADREF = input%SADREF
 IFDORTHO = input%DORTHO
+do_lindep = do_grad .and. IFDORTHO ! Adding this contribution improves the accuracy
 if_invar = input%INVAR
 if (ipea_shift /= Zero) if_invar = .false.
 if (HZERO == 'DYALL') if_invar = .true. ! just in case
