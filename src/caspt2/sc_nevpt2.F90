@@ -26,7 +26,7 @@ use GA_Wrapper, only: DBL_MB, GA_NodeId
 use Para_Info, only: Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -886,14 +886,15 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
         end if
       end if
       do isp=1,NIS
+        ! derivative of N: the explicit derivative (numerator)
+        ! Compensate the division by lid
+        derHNS(isp,3) = -lid(isp)
+        ! Without epsilon (small N in the energy), there is no derivative through it
         if (abs(ValHN(isp,2)) <= SC_thres) cycle
         ! derivative of H (through vale)
         derHNS(isp,1) = ValHN(isp,3)/ValHN(isp,2)
         ! derivative of N (through vale)
         derHNS(isp,2) = -ValHN(isp,3)*ValHN(isp,1)/ValHN(isp,2)**2
-        ! derivative of N: the explicit derivative (numerator)
-        ! Compensate the division by lid
-        derHNS(isp,3) = -lid(isp)
       end do
       call mma_deallocate(ValHN)
 
@@ -1070,7 +1071,8 @@ subroutine SC_NEVPT2_res(VECROT)
     scal = VECROT(iStLag)
     if (iStLag == jStLag) cycle
     if (abs(scal) <= 1.0e-12_wp) cycle
-    call MS_Res(1,iStLag,jStLag,scal)
+    ! The transpose is needed as well for SC-NEVPT2
+    call MS_Res(IVECW,IVECC,iStLag,jStLag,Half*scal,'T')
   end do
 
 end subroutine SC_NEVPT2_res

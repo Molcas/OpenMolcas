@@ -80,7 +80,7 @@ if (IFMSCOUP) then
     Scal = VECROT(iStLag)
     if (iStLag == jStLag) Scal = Zero
     if (abs(VECROT(iStLag)) <= 1.0e-12_wp) cycle
-    call MS_Res(1,iStLag,jStLag,Scal)
+    call MS_Res(IVECW,IVECC,iStLag,jStLag,Scal,'N')
   end do
   !! Transform to SR representatin (IRHS).
   call PTRTOSR(0,IVECC,IRHS)
@@ -120,7 +120,7 @@ if (IFMSCOUP) then
     Scal = VECROT(iStLag)*Half
     if (iStLag == jStLag) Scal = Scal*Two
     if (abs(VECROT(iStLag)) <= 1.0e-12_wp) cycle
-    call MS_Res(1,iStLag,jStLag,Scal)
+    call MS_Res(IVECW,IVECC,iStLag,jStLag,Scal,'N')
   end do
   call PTRTOSR(0,IVECC,iVecL)
 end if

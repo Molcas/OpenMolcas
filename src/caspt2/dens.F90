@@ -30,10 +30,11 @@ use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_
                          DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_invar, if_invaria, if_SSDM, &
                          imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, real_shift, sigma_p_epsilon, &
                          SLag, TORB, Weight
-use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASHT, NBAS, &
-                         NBAST, NBSQT, NCONF, NFROT, NISH, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, ZETA
+use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASHT, NASUP, &
+                         NBAS, NBAST, NBSQT, NCONF, NFROT, NISH, NISUP, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, &
+                         ZETA
 use BDerNEV, only: BDerNEV_initial, BDerNEV_final1, BDerNEV_final2
-use SC_NEVPT2, only: SC_prop
+use SC_NEVPT2, only: SC_NEVPT2_amplitude, SC_prop
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 use caspt2_global, only: nCLag
@@ -46,9 +47,9 @@ implicit none
 integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
 real(kind=wp), intent(inout) :: DMAT(NDMAT)
 real(kind=wp), intent(in) :: UEFF(nState,nState), U0(nState,nState)
-integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, IFF, II, IP, IQ, iSQ, iState, iStLag, ISYM, &
-                     IT, ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, liBasSq, liBasTr, lT2AO, NA, nBasI, nch, NDPT, nDPTAO, NI, &
-                     NLEV, NO, nOcc, nOrbI
+integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, iCase, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, IFF, II, IP, IQ, iSQ, iState, iStLag, &
+                     ISYM, IT, ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, lg_V, liBasSq, liBasTr, lT2AO, NA, NAS, nBasI, nch, &
+                     NDPT, nDPTAO, NI, NIS, NLEV, NO, nOcc, nOrbI
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
 integer(kind=iwp), allocatable :: ISAV(:)
 real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), &
@@ -368,7 +369,7 @@ if (do_grad) then
           if (iStLag == jState) cycle
           Scal = VECROT(iStLag)
           if (abs(Scal) <= 1.0e-12_wp) cycle
-          call MS_Res(2,jStLag,iStLag,Scal*Half)
+          call MS_Res(IVECC,IVECC2,jStLag,iStLag,Scal*Half,'N')
         end do
       end if
       if (do_csf) then
@@ -381,8 +382,28 @@ if (do_grad) then
           Scal = UEFF(iStLag,iRoot1)*UEFF(jStLag,iRoot2)-UEFF(jStLag,iRoot1)*UEFF(iStLag,iRoot2)
           Scal = Scal*Half
           if (abs(Scal) <= 1.0e-12_wp) cycle
-          call MS_Res(2,jStLag,iStLag,Scal)
+          if (SC_prop) then
+            ! IVECC is not the amplitude for SC-NEVPT2, so the RHS (IVECW) is used
+            call MS_Res(IVECW,IVECC2,jStLag,iStLag,Scal,'N')
+          else
+            call MS_Res(IVECC,IVECC2,jStLag,iStLag,Scal,'N')
+          end if
         end do
+        if (SC_prop) then
+          ! We need the denominator for IVECC2
+          do iCase=1,11
+            do iSym=1,nSym
+              NAS = NASUP(iSym,iCase)
+              NIS = NISUP(iSym,iCase)
+              if (NAS*NIS == 0) cycle
+              call RHS_ALLO(NAS,NIS,lg_V)
+              call RHS_READ(NAS,NIS,lg_V,iCase,iSym,IVECC2)
+              call SC_NEVPT2_amplitude(NAS,NIS,iCase,iSym,lg_V)
+              call RHS_SAVE(NAS,NIS,lg_V,iCase,iSym,IVECC2)
+              call RHS_FREE(lg_V)
+            end do
+          end do
+        end if
         IVECC2 = ibk
       end if
     else

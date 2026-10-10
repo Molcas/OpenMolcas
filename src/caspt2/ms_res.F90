@@ -11,11 +11,10 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine MS_Res(MODE,IST,JST,Scal)
-! Compute the derivative of E^PT2 with respct to the T amplitude
+subroutine MS_Res(IVEC,JVEC,IST,JST,Scal,CNT)
+! Compute the derivative of E^PT2 with respect to the T amplitude
 
 use Index_Functions, only: nTri3_Elem
-use EQSOLV, only: IVECC, IVECC2, IVECW
 use caspt2_global, only: IDTCEX, LUCIEX
 use general_data, only: STSYM
 use caspt2_module, only: ISCF, MXCI, NASHT, NCONF, NSTATE
@@ -24,13 +23,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: MODE, IST, JST
+integer(kind=iwp), intent(in) :: IVEC, JVEC, IST, JST
 real(kind=wp), intent(in) :: Scal
+character(len=1), intent(in) :: CNT
 integer(kind=iwp) :: I, IDCI, NTG1, NTG2, NTG3
 real(kind=wp) :: DUMMY(1), DVALUE, OVL
 real(kind=wp), allocatable :: CI1(:), CI2(:), TG1(:), TG2(:), TG3(:)
-
-! We evaluate the effective Hamiltonian matrix element in two steps.
 
 NTG1 = NASHT**2
 NTG2 = NASHT**4
@@ -68,16 +66,11 @@ call MKTG3(STSYM,STSYM,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 call mma_deallocate(CI1)
 call mma_deallocate(CI2)
 
-!! Do similar to RHS_STRANS. Multiply the solution vector (T) with
-!! the overlap-like term constructe with transition density
-!! matrices. The output is IVECC (MODE=1) or IVECC2 (MODE=2)
-if (MODE == 1) then
-  call MS_STRANS(IVECW,IVECC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,SCAL)
-else if (MODE == 2) then
-  call MS_STRANS(IVECC,IVECC2,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,SCAL)
-else if (MODE == 3) then
-  call MS_STRANS(IVECW,IVECC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,SCAL)
-end if
+! Do similar to RHS_STRANS. Multiply the solution vector (T) with
+! the overlap-like term constructed with transition density matrices.
+! The vector on IVEC is multiplied, and the result is added to JVEC.
+! With CNT = 'T', the transpose is additionally computed.
+call MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,Scal,CNT)
 
 call mma_deallocate(TG1)
 call mma_deallocate(TG2)
