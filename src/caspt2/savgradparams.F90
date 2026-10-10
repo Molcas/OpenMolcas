@@ -278,11 +278,13 @@ do ISYM=1,NSYM
         call DDAFILE(LUSTD,2,WRK1,nTri_Elem(NAS),ID)
         call DDAFILE(LUGRAD,1,WRK1,nTri_Elem(NAS),IDSAVGRD)
       end if
-      !! Original B matrix, needed in SC-NEVPT2 gradient
-      if ((HZERO == 'DYALL') .and. SC_amplitude) then
+      !! Original B matrix, needed in SC-NEVPT2 gradient and in LinDepLag for the cases A and C
+      if ((HZERO == 'DYALL') .and. (SC_amplitude .or. (do_lindep .and. ((ICASE == 1) .or. (ICASE == 4))))) then
         ID = IDBMAT_NEVPT2(ISYM,ICASE,1)
         call DDAFILE(LUSBT,2,WRK1,nTri_Elem(NAS),ID)
         call DDAFILE(LUGRAD,1,WRK1,nTri_Elem(NAS),IDSAVGRD)
+      end if
+      if ((HZERO == 'DYALL') .and. SC_amplitude) then
         ID = IDBMAT_NEVPT2(ISYM,ICASE,2)
         call DDAFILE(LUSBT,2,WRK1,NIS,ID)
         call DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
@@ -375,11 +377,13 @@ do ISYM=1,NSYM
         ID = IDBoriMat(ISYM,ICASE)
         call DDAFILE(LUSTD,1,WRK1,nTri_Elem(NAS),ID)
       end if
-      !! Original B matrix, needed in SC-NEVPT2 gradient
-      if ((HZERO == 'DYALL') .and. SC_amplitude) then
+      !! Original B matrix, needed in SC-NEVPT2 gradient and in LinDepLag for the cases A and C
+      if ((HZERO == 'DYALL') .and. (SC_amplitude .or. (do_lindep .and. ((ICASE == 1) .or. (ICASE == 4))))) then
         ID = IDBMAT_NEVPT2(ISYM,ICASE,1)
         call DDAFILE(LUGRAD,2,WRK1,nTri_Elem(NAS),IDSAVGRD)
         call DDAFILE(LUSBT,1,WRK1,nTri_Elem(NAS),ID)
+      end if
+      if ((HZERO == 'DYALL') .and. SC_amplitude) then
         ID = IDBMAT_NEVPT2(ISYM,ICASE,2)
         call DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
         call DDAFILE(LUSBT,1,WRK1,NIS,ID)
