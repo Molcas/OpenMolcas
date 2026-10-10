@@ -15,8 +15,8 @@ subroutine GrdCls(IRETURN,nState,UEFF,U0,H0)
 
 use PrintLevel, only: VERBOSE
 use caspt2_global, only: CLag, CLagFull, do_csf, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, FIFA_all, &
-                         FIFASA_all, FIMO_all, iPrGlb, iRoot1, iRoot2, iTasks_grad, LuAPT2, LUGRAD, LuPT2, LUSTD, nOLag, nWLag, &
-                         OLag, OLagFull, OMGDER, SLag, TraFro, WLag
+                         FIFASA_all, FIMO_all, if_SSDM, iPrGlb, iRoot1, iRoot2, iTasks_grad, LuAPT2, LUGRAD, LuPT2, LUSTD, nOLag, &
+                         nWLag, OLag, OLagFull, OMGDER, RDMSCF, SLag, TraFro, WLag
 use caspt2_module, only: DWTYPE, IfChol, IFDW, IFMSCOUP, IFRMS, IFXMS, iRlxRoot, NBAST, NBSQT, NBTRI, NCONF, nFroT, NROOTS, &
                          REFENE, RFPERT, Zeta
 #ifdef _MOLCAS_MPP_
@@ -292,6 +292,7 @@ call mma_deallocate(FIFA_all)
 if (IFXMS .or. IFRMS) call mma_deallocate(FIFASA_all)
 if (IFDW .and. (zeta >= Zero)) call mma_deallocate(OMGDER)
 if (do_nac) call mma_deallocate(DPT2Canti_tot)
+if (if_SSDM) call mma_deallocate(RDMSCF,safe='*')
 
 ! Prepare for MCLR
 iGo = 3

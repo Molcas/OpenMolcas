@@ -77,21 +77,21 @@ integer(kind=iwp) :: CompressMPS = 0, idBoriMat(8,13) = 0, IDSAVGRD = 0, idSDMat
                      NTORB = 0, nWLag = 0, sigma_p_exponent = 2
 real(kind=wp) :: cmpThr, cntThr, dnmThr, EMP2, imag_shift = Zero, ipea_shift = Zero, real_shift = Zero, sigma_p_epsilon = Zero
 logical(kind=iwp) :: do_csf = .false., do_grad = .false., do_lindep = .false., do_nac = .false., if_equalW = .true., &
-                     if_invar = .true., if_invaria = .true., if_SSDM = .false.
+                     if_FroSCF = .false., if_invar = .true., if_invaria = .true., if_SSDM = .false.
 integer(kind=iwp), allocatable :: IDCIEX(:), IDSCT(:), IDTCEX(:), IDXB(:), iTasks_grad(:), LISTS(:)
 real(kind=wp), allocatable :: Buff(:), CLag(:,:), CLagFull(:,:), CMOPT2(:), DMIX(:,:), DPT2_AO_tot(:), DPT2_tot(:), &
                               DPT2C_AO_tot(:), DPT2C_tot(:), DPT2Canti_tot(:), DREF(:), DWGT(:,:), FIFA(:), FIFA_all(:), &
-                              FIFASA_all(:), FIMO(:), FIMO_all(:), OLag(:), OLagFull(:), OMGDER(:,:), PIQK(:), PREF(:), SLag(:,:), &
-                              TAT(:), TORB(:), TraFro(:), Weight(:), WLag(:)
+                              FIFASA_all(:), FIMO(:), FIMO_all(:), OLag(:), OLagFull(:), OMGDER(:,:), PIQK(:), PREF(:), &
+                              RDMSCF(:,:), SLag(:,:), TAT(:), TORB(:), TraFro(:), Weight(:), WLag(:)
 real(kind=wp), allocatable, target :: CMO_Internal(:)
 real(kind=wp), pointer :: CMO(:)
 
 public :: Buff, CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, CompressMPS, DMIX, dnmThr, do_csf, do_grad, do_lindep, &
           do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, DREF, DWGT, EMP2, FIFA, FIFA_all, FIFASA_all, &
-          FIMO, FIMO_all, idBoriMat, IDCIEX, IDSAVGRD, IDSCT, idSDMat, IDTCEX, IDXB, if_equalW, if_invar, if_invaria, if_SSDM, &
-          imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iTasks_grad, iVecL, jStLag, LISTS, LuAPT2, LUCIEX, &
-          LuCMOPT2, LUDMAT, LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, LURHS, LUSBT, &
-          LUSOLV, LUSTD, nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nStpGrd, nTasks_grad, NTAT, NTORB, nWLag, OLag, OLagFull, &
-          OMGDER, PIQK, PREF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, Weight, WLag
+          FIMO, FIMO_all, idBoriMat, IDCIEX, IDSAVGRD, IDSCT, idSDMat, IDTCEX, IDXB, if_equalW, if_FroSCF, if_invar, if_invaria, &
+          if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iTasks_grad, iVecL, jStLag, LISTS, LuAPT2, &
+          LUCIEX, LuCMOPT2, LUDMAT, LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, LURHS, &
+          LUSBT, LUSOLV, LUSTD, nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nStpGrd, nTasks_grad, NTAT, NTORB, nWLag, OLag, &
+          OLagFull, OMGDER, PIQK, PREF, RDMSCF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, Weight, WLag
 
 end module caspt2_global

@@ -17,7 +17,7 @@ use Index_Functions, only: nTri_Elem, nTri3_Elem
 use sguga, only: SGS
 use general_data, only: STSym
 use caspt2_global, only: CLag, CLagFull, CMOPT2, do_csf, do_nac, DPT2_tot, FIFA, FIFA_all, FIFASA_all, if_equalW, iRoot1, iRoot2, &
-                         NDREF, nOLag, OLag, TORB, weight
+                         NDREF, nOLag, OLag, RDMSCF, TORB
 use caspt2_module, only: ENERGY, IFDW, IFRMS, IFXMS, MXCI, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NROOTS, NSTATE, &
                          ORBIN, ZETA
 #ifdef _MOLCAS_MPP_
@@ -237,20 +237,8 @@ if (IFXMS .or. IFRMS) then
     !! does not. In any case, construct DPT2 again.
     DPT2(:) = Zero
     call DPT2_Trf(NBSQT,nAshT,DPT2,DPT2_AO,CMOPT2,G1,WRK1)
-    !! Construct the SCF density
-    WRK1(1:nDRef) = Zero
-    call mma_allocate(CI1,nConf,Label='CI1')
-    do iState=1,nState
-      call LoadCI_XMS('N',1,nConf,nState,CI1,iState,U0)
-      call POLY1(CI1,nConf)
-      call GETDREF(WRK2,nDRef)
-      WRK1(1:nDRef) = WRK1(1:nDRef)+Weight(iState)*WRK2(1:nDRef)
-    end do
-    call mma_deallocate(CI1)
-    !! WRK2 is the SCF density (for nstate=nroots)
-    call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
     !! Construct the SA minus SCF density matrix in WRK1
-    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA-reshape(WRK2(1:nAshT**2),[nAshT,nAshT]),Trf)
+    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA-RDMSCF,Trf)
     !! Subtract the inactive part
     WRK1(1:nBasT**2) = WRK1(1:nBasT**2)-WRK2(1:nBasT**2)
     !! Save

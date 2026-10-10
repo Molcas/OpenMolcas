@@ -27,9 +27,9 @@ use ChoCASPT2, only: iALGO, MaxVec_PT2
 use sguga, only: SGS
 use general_data, only: nAsh
 use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
-                         DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_invar, if_invaria, if_SSDM, &
-                         imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, real_shift, sigma_p_epsilon, &
-                         SLag, TORB, Weight
+                         DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_FroSCF, if_invar, if_invaria, &
+                         if_SSDM, imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, RDMSCF, real_shift, &
+                         sigma_p_epsilon, SLag, TORB, Weight
 use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASHT, NASUP, &
                          NBAS, NBAST, NBSQT, NCONF, NFROT, NISH, NISUP, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, &
                          ZETA
@@ -49,12 +49,13 @@ real(kind=wp), intent(inout) :: DMAT(NDMAT)
 real(kind=wp), intent(in) :: UEFF(nState,nState), U0(nState,nState)
 integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, iCase, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, IFF, II, IP, IQ, iSQ, iState, iStLag, &
                      ISYM, IT, ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, lg_V, liBasSq, liBasTr, lT2AO, NA, NAS, nBasI, nch, &
-                     NDPT, nDPTAO, NI, NIS, NLEV, NO, nOcc, nOrbI
-real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
+                     nDens, NDPT, nDPTAO, NI, NIS, NLEV, NO, nOcc, nOrbI
+real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, X
 integer(kind=iwp), allocatable :: ISAV(:)
-real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DAOs(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), &
-                              DPT2_AO(:), DPT2C_AO(:), DRDMFock(:,:), DSUM(:), EigT(:,:), FAOs(:,:), FPT2(:), FPT2_AO(:), &
-                              FPT2C(:), FPT2C_AO(:), OMGT(:,:), RDMFock(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
+real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DAOs(:,:), DEPSA(:,:), DEPSA_diag(:), DFro(:), DFro_AO(:), DI(:), &
+                              DIA(:), DPT(:), DPT2(:), DPT2_AO(:), DPT2C_AO(:), DRDMFock(:,:), DRDMSCF(:), DSUM(:), EigT(:,:), &
+                              FAOs(:,:), FFro(:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), FSCF(:), OMGT(:,:), RDMFock(:,:), &
+                              T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
 real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
 real(kind=wp), pointer :: DPT2Canti(:)
 integer(kind=iwp), parameter :: kstate = 1
@@ -576,7 +577,15 @@ if (do_grad) then
     !! Now, compute pseudo-density using orbital Lagrangian
     !! DSUM does not contain frozen orbitals,
     !! so the properties using this density may be inaccurate
-    if (nFroT /= 0) call OLagFro1(NBSQT,nOLag,DPT2,OLag)
+    ! With if_FroSCF, the frozen part is kept in DFro, because it is coupled with the SCF density.
+    if (nFroT /= 0) then
+      call mma_allocate(DFro,NBSQT,Label='DFro')
+      call OLagFro1(NBSQT,nOLag,Trf,DFro,OLag)
+      if (.not. if_FroSCF) then
+        DPT2(:) = DPT2(:)+DFro(:)
+        call mma_deallocate(DFro)
+      end if
+    end if
 
     !! Subtract the orbital Lagrangian added above.
     !! It is computed again in EigDer
@@ -598,18 +607,36 @@ if (do_grad) then
       !! It seems that it is not possible to do this
       !! transformation in OLagVVVO, because the frozen-part of
       !! the DPT2 is obtained after OLagVVVO.
-      call mma_allocate(DAOs,NBSQT,2,Label='DAOs')
-      call mma_allocate(FAOs,NBSQT,2,Label='FAOs')
+      ! With if_FroSCF, the frozen part (3) and the SCF minus the present active density (4) are transformed at the same time.
+      ! The latter gives the Fock matrix of the SCF density.
+      nDens = 2
+      if (if_FroSCF) nDens = 4
+      call mma_allocate(DAOs,NBSQT,nDens,Label='DAOs')
+      call mma_allocate(FAOs,NBSQT,nDens,Label='FAOs')
       DAOs(:,1) = DPT2_AO(:)
       DAOs(:,2) = DPT2C_AO(:)
-      call OLagFro4(NBSQT,1,1,1,1,1,2,DAOs,FAOs,WRK1)
+      if (if_FroSCF) then
+        call mma_allocate(DFro_AO,NBSQT,Label='DFro_AO')
+        call OLagTrf(1,iSym,NBSQT,CMOPT2,DFro,DFro_AO,WRK1)
+        DAOs(:,3) = DFro_AO(:)
+        call OLagFroD(NBSQT,nAshT,DAOs(:,4),WRK2,RDMSCF-RDMFock,Trf)
+        DAOs(:,4) = DAOs(:,4)-WRK2(1:NBSQT)
+      end if
+      call OLagFro4(NBSQT,1,1,1,1,1,nDens,DAOs,FAOs,WRK1)
       FPT2_AO(:) = FAOs(:,1)
       FPT2C_AO(:) = FAOs(:,2)
-      call mma_deallocate(DAOs)
-      call mma_deallocate(FAOs)
       !! AO -> MO transformations for FPT2AO and FPT2CAO
       call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
       call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
+      if (if_FroSCF) then
+        call mma_allocate(FFro,NBSQT,Label='FFro')
+        call mma_allocate(FSCF,NBSQT,Label='FSCF')
+        call OLagTrf(2,iSym,NBSQT,CMOPT2,FFro,FAOs(:,3),WRK1)
+        call OLagTrf(2,iSym,NBSQT,CMOPT2,FSCF,FAOs(:,4),WRK1)
+        FSCF(:) = FSCF(:)+FIFA_all(1:NBSQT)
+      end if
+      call mma_deallocate(DAOs)
+      call mma_deallocate(FAOs)
     else
       !write(u6,*) 'dpt'
       !call sqprt(dpt2,nbast)
@@ -668,6 +695,32 @@ if (do_grad) then
   !ipTrfL = 1+nAshT*nBasT+nAshT
   !call DGemm_('N','N',nAshT,nAshT,nAshT,One,Trf(ipTrfL),nBasT,DRDMFock,nAshT,Zero,WRK1,nAshT)
   !call DGemm_('N','T',nAshT,nAshT,nAshT,One,WRK1,nAshT,Trf(ipTrfL),nBasT,Zero,DRDMFock,nAshT)
+  !! Use canonical CSFs rather than natural CSFs in CLagEig
+  call mma_allocate(ISAV,size(IDCIEX),Label='ISAV')
+  ISAV(:) = IDCIEX(:)
+  IDCIEX(:) = IDTCEX(:)
+  ! With if_FroSCF, do the same as above for the frozen part with the Fock and density matrices of SCF.
+  ! The SCF density (usually) depends on all the states through the weights, so all the states have the configuration Lagrangian.
+  if (if_FroSCF) then
+    call mma_allocate(CI1,nConf,Label='CI1')
+    call mma_allocate(DRDMSCF,nAshT**2,Label='DRDMSCF')
+    WRK2(1:NBSQT) = Zero
+    DRDMSCF(:) = Zero
+    ! EigDer reads the AO Fock matrices only without frozen orbitals
+    call EigDer(NBSQT,nAshT,DFro,WRK2,WRK2,WRK2,DRDMSCF,CMOPT2,Trf,FFro,WRK2,FSCF,FIMO_all,RDMSCF)
+    do iState=1,nState
+      call LoadCI(CI1,iState)
+      WRK1(1:nAshT**2) = Weight(iState)*DRDMSCF(:)
+      call Poly1_CLag(nConf,NLEV,CI1,CLag(:,iState),WRK1)
+    end do
+    DPT2(:) = DPT2(:)+DFro(:)
+    DPT2_AO(:) = DPT2_AO(:)+DFro_AO(:)
+    call mma_deallocate(CI1)
+    call mma_deallocate(DRDMSCF)
+    call mma_deallocate(DFro)
+    call mma_deallocate(FFro)
+    call mma_deallocate(FSCF)
+  end if
   if (.not. if_invar) then !test
     call mma_allocate(CLagT,nConf,nState,Label='CLagT')
     call mma_allocate(EigT,nAshT,nAshT,Label='EigT')
@@ -678,10 +731,6 @@ if (do_grad) then
       OMGT(:,:) = OMGDER(:,:)
     end if
   end if
-  !! Use canonical CSFs rather than natural CSFs in CLagEig
-  call mma_allocate(ISAV,size(IDCIEX),Label='ISAV')
-  ISAV(:) = IDCIEX(:)
-  IDCIEX(:) = IDTCEX(:)
   !! Now, compute the configuration Lagrangian
   call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,DRDMFock)
 # ifdef _MOLCAS_MPP_
@@ -845,30 +894,15 @@ if (do_grad) then
     !  call abend()
     !end if
 
-    !! Construct the SCF density
-    !! We first need to construct the density averaged over all
-    !! roots involved in SCF.
-    WRK1(1:nDRef) = Zero
-    call mma_allocate(CI1,nConf,Label='CI1')
-    do iState=1,nState
-      call LoadCI_XMS('N',1,nConf,nState,CI1,iState,U0)
-      call POLY1(CI1,nConf)
-      call GETDREF(WRK2,nDRef)
-      wgt = Weight(iState)
-      WRK1(1:nDRef) = WRK1(1:nDRef)+Wgt*WRK2(1:nDRef)
-    end do
-    call mma_deallocate(CI1)
-    !! WRK2 is the SCF density (for nstate=nroots)
-    call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
-    RDMFock(:,:) = RDMFock(:,:)-reshape(WRK2(1:nAshT**2),[nAshT,nAshT])
-
-    !! Construct the SS minus SA density matrix in WRK1
-    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMFock,Trf)
+    !! Construct the Fock minus SCF density matrix in WRK1
+    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMFock-RDMSCF,Trf)
     !! Subtract the inactive part
     WRK1(1:nBasT**2) = WRK1(1:nBasT**2)-WRK2(1:nBasT**2)
     !! Here we should use DPT2_AO??
     !! Save
     if (IfChol) then
+      ! The frozen part is coupled with the SCF density
+      if (if_FroSCF) DPT2_AO(:) = DPT2_AO(:)-DFro_AO(:)
       call CnstAB_SSDM(NBSQT,DPT2_AO,WRK1)
     else
       !! Well, it is not working any more. I need to use
@@ -901,6 +935,7 @@ if (do_grad) then
   call mma_deallocate(FPT2C_AO)
   if (do_csf) call mma_deallocate(DPT2Canti_)
   nullify(DPT2Canti)
+  if (if_FroSCF) call mma_deallocate(DFro_AO)
 
   !! Finalize OLag (anti-symmetrize) and construct WLag
   call OLagFinal(nOLag,NBSQT,OLag,Trf)

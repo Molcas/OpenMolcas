@@ -15,20 +15,24 @@ subroutine GrdIni()
 
 use Index_Functions, only: nTri_Elem
 use general_data, only: NASH
+use PrintLevel, only: TERSE
 use caspt2_global, only: CLag, CLagFull, do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, &
-                         FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, iStpGrd, LuAPT2, LuCMOPT2, LuGAMMA, LUGRAD, LuPT2, &
-                         LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, SLag, TraFro, WLag
-use caspt2_module, only: IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASUP, NBAS, NBSQT, NBTRI, NCONF, NFROT, NISH, NSTATE, NSYM, ZETA
+                         FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, if_FroSCF, if_SSDM, iPrGlb, iStpGrd, LuAPT2, &
+                         LuCMOPT2, LuGAMMA, LUGRAD, LUONEM, LuPT2, LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, RDMSCF, &
+                         SLag, TraFro, Weight, WLag
+use caspt2_module, only: IAD1M, IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASHT, NASUP, NBAS, NBAST, NBSQT, NBTRI, NCONF, NFRO, NFROT, &
+                         NISH, NSTATE, NSYM, ZETA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCase, idSD, idSD_, idSDer, iost, iSym, LENGTH, lRealName, MaxLen, nAS, NS
-logical(kind=iwp) :: Exists, is_error
+integer(kind=iwp) :: iCase, iDisk, idSD, idSD_, idSDer, iEps, iost, iSQ, iState, iSym, LENGTH, lRealName, MaxLen, nAS, nData, &
+                     nOcc, NS
+logical(kind=iwp) :: Exists, Found, is_error
 character(len=4096) :: RealName
 character(len=128) :: FileName
-real(kind=wp), allocatable :: WRK(:)
+real(kind=wp), allocatable :: CI(:), CMOSCF(:), EpsSCF(:), SGM(:), WRK(:)
 integer(kind=iwp), external :: isFreeUnit
 
 iStpGrd = 1
@@ -122,6 +126,59 @@ if (IFXMS .or. IFRMS) then
   call mma_allocate(FIFASA_all,NBSQT,Label='FIFASA_all')
   FIFASA_all(:) = Zero
   !norbi = norb(1)
+end if
+
+! The active density of the SCF calculation.
+! The CI vectors are not rotated yet by XMS.
+if (if_SSDM) then
+  call mma_allocate(RDMSCF,nAshT,nAshT,Label='RDMSCF')
+  call mma_allocate(CI,nConf,Label='CI')
+  call mma_allocate(SGM,nConf,Label='SGM')
+  call mma_allocate(WRK,nAshT**2,Label='WRK')
+  RDMSCF(:,:) = Zero
+  do iState=1,nState
+    call LoadCI(CI,iState)
+    call DENS1_RPT2(CI,nConf,SGM,nConf,WRK,nAshT)
+    RDMSCF(:,:) = RDMSCF(:,:)+Weight(iState)*reshape(WRK,[nAshT,nAshT])
+  end do
+  call mma_deallocate(CI)
+  call mma_deallocate(SGM)
+  call mma_deallocate(WRK)
+  ! The frozen orbitals are determined at the RASSCF level.
+  ! If the reference orbitals and the orbital energies are available, the frozen orbitals are treated with them (if_FroSCF).
+  ! Without Cholesky, it is difficult
+  if ((nFroT /= 0) .and. IfChol) then
+    call Qpg_dArray('RASSCF orbitals',Found,nData)
+    if_FroSCF = Found .and. (nData == NBSQT)
+    call Qpg_dArray('RASSCF OrbE',Found,nData)
+    if_FroSCF = if_FroSCF .and. Found .and. (nData == nBasT)
+    if (if_FroSCF) then
+      call mma_allocate(WRK,NBSQT,Label='WRK')
+      call mma_allocate(CMOSCF,NBSQT,Label='CMOSCF')
+      call mma_allocate(EpsSCF,nBasT,Label='EpsSCF')
+      iDisk = IAD1M(1)
+      call DDAFILE(LUONEM,2,WRK,NBSQT,iDisk)
+      call Get_dArray('RASSCF orbitals',CMOSCF,NBSQT)
+      call Get_dArray('RASSCF OrbE',EpsSCF,nBasT)
+      ! Only the frozen and inactive orbitals matter
+      iSQ = 0
+      iEps = 0
+      do iSym=1,nSym
+        nOcc = nFro(iSym)+nIsh(iSym)
+        if (any(abs(CMOSCF(iSQ+1:iSQ+nBas(iSym)*nOcc)-WRK(iSQ+1:iSQ+nBas(iSym)*nOcc)) > 1.0e-10_wp)) if_FroSCF = .false.
+        if (any(EpsSCF(iEps+1:iEps+nOcc) == Zero)) if_FroSCF = .false.
+        iSQ = iSQ+nBas(iSym)**2
+        iEps = iEps+nBas(iSym)
+      end do
+      call mma_deallocate(WRK)
+      call mma_deallocate(CMOSCF)
+      call mma_deallocate(EpsSCF)
+    end if
+    ! Otherwise, the Fock matrix of CASPT2 is used. The loss of the accuracy is small (~1.0e-6).
+    if ((.not. if_FroSCF) .and. (iPrGlb >= TERSE)) &
+      call WarningMessage(1,'The frozen orbitals are treated with the Fock matrix of the state, because the SCF orbital '// &
+                          'energies are not available for the reference orbitals.')
+  end if
 end if
 
 if (IFDW .and. (zeta >= Zero)) then
