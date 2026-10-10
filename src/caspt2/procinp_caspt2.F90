@@ -720,18 +720,15 @@ end if
 
 IFSADREF = input%SADREF
 IFDORTHO = input%DORTHO
-do_lindep = do_grad .and. IFDORTHO ! Adding this contribution improves the accuracy
+do_lindep = do_grad ! Adding this contribution improves the accuracy
 if_invar = input%INVAR
 if (ipea_shift /= Zero) if_invar = .false.
 if (HZERO == 'DYALL') if_invar = .true. ! just in case
+! The scaled orthonormalization gives a small non-invariance with respect to active space rotations
+if (.not. IFDORTHO) if_invar = .false.
 if_invaria = input%IAINVAR
 if (sigma_p_epsilon /= Zero) if_invaria = .false. !! I'm not sure this is necessary, but it is needed for now
 if (SC_prop) if_invaria = .false.
-
-if ((ipea_shift /= Zero) .and. do_grad .and. (.not. IFDORTHO)) then
-  call warningMessage(2,'Analytic gradients with IPEA shift must use the CORT or DORT option.')
-  call quit_onUserError()
-end if
 
 if (do_grad .and. (.not. if_invaria) .and. (.not. IfChol)) then
   call warningMessage(2,'Analytic gradients that are not invariant with respect to rotations among the inactive and among the '// &
@@ -747,7 +744,7 @@ end if
 #endif
 
 if (do_grad .and. RF_On() .and. (.not. if_invar)) then
-  if (IPRGLB >= TERSE) call warningMessage(1,'Analytic gradients with IPEA shift and PCM is not fully analytic.')
+  if (IPRGLB >= TERSE) call warningMessage(1,'Analytic gradients with IPEA shift or without DORT and PCM is not fully analytic.')
 end if
 
 !! Whether the Fock matrix (eigenvalues) is constructed with

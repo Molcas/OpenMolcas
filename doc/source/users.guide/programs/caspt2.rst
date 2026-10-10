@@ -741,7 +741,6 @@ Keywords
 
 :kword:`DORT` or :kword:`CORT`
   Use a different (canonical) orthonormalization for internally contracted basis.
-  This keyword is required for analytical nuclear gradients with IPEA shift.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DORT" APPEAR="Canonical orthonormalization" KIND="SINGLE" LEVEL="ADVANCED" ALSO='CORT'>
               %%Keyword: DORT <advanced>
