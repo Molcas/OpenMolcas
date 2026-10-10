@@ -4061,20 +4061,19 @@ endif
 if (.not. SkipGUGA) then
   call StatusLine('RASSCF: ','Initializing Lucia/SGUGA/Faroald')
 
+#define _FAROALD_VERIFY_
 # ifdef _FAROALD_VERIFY_
   ! Turn on the Faroald SD CI code in case of
   ! 1) no symmetry
   ! 2) not RASSCF or GASSCF
   ! 3) not using the expert, the HEXS or the DEXS key word
-  ! 4) not running the CASVB module.
   if ((nSym == 1) .and. &
       ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
       (.not. iDoGas) .and. &
       (.not. Key('HEXS')) .and. &
       (.not. Key('DEXS')) .and. &
-      (.not. Key('EXPE')) .and. &
-      (IFVB == 0)) &
-    DoFaro = .true.
+      (.not. Key('EXPE')) &
+     ) DoFaro = .true.
 # endif
 
   call CI_Initialize(.NOT. iDoGAS, DOFARO)
