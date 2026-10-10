@@ -17,7 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 
-subroutine DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
+subroutine DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF)
 
 use Index_Functions, only: iTri, nTri_Elem
 use CHOVEC_IO, only: nvloc_chobatch

@@ -108,7 +108,7 @@ if (MODE == 0) then
   DMAT(:) = Zero
   call mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
   call MKLIST(LISTS,NLSTOT)
-  call DENS(IVECX,NDMAT,NSTATE,DMAT,UEFF,U0)
+  call DENS(IVECX,NDMAT,NSTATE,DMAT,UEFF)
   call mma_deallocate(LISTS)
 else
   !! Density matrix for the target adiabatic state
