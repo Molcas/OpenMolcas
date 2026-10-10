@@ -14,7 +14,7 @@
 #include "compiler_features.h"
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 
-subroutine LinDepLag_MPP(lg_BDER,lg_SDER,nAS,nIN,iSym,iCase)
+subroutine LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,nAS,nIN,iSym,iCase)
 ! Parallel LinDepLag
 ! We always use the canonical orthonormalization.
 
@@ -29,8 +29,8 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: lg_BDER, lg_SDER, nAS, nIN, iSym, iCase
-integer(kind=iwp) :: I, IDB, iHi, iLo, J, jHi, jLo, LDB, LDV, lg_B, lg_Lag, lg_S, lg_Vec, mB, mV, myRank
+integer(kind=iwp), intent(in) :: lg_BDER, lg_SDER, lg_GDER, nAS, nIN, iSym, iCase
+integer(kind=iwp) :: I, IDB, iHi, iLo, J, jHi, jLo, LDB, LDG, LDV, lg_B, lg_Lag, lg_S, lg_Vec, mB, mG, mV, myRank
 logical(kind=iwp) :: bStat
 real(kind=wp), allocatable :: EIG(:)
 #if ! defined (_SCALAPACK_)
@@ -96,8 +96,6 @@ if (iLo /= 0) then
 end if
 call GA_Sync()
 
-call mma_deallocate(EIG)
-
 ! matrix has been prepared
 
 call GA_CREATE_STRIPED('H',NAS,NAS,'Lag',lg_Lag)
@@ -121,11 +119,29 @@ call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_Vec,lg_Lag,Zero,lg_B)
 !! At this point,
 !! Work(LF) = 2 \mathcal{X}^0 * B * D * \mathcal{X}
 
-!! remove dependent part
-!! (linearly indep-indep and dep-dep)
+! Add explicit derivative of 2<1|H|0> (lg_GDER) to the S derivative, then replace it with \mathcal{X}^0 * G^T * \mathcal{X}
+call GA_Distribution(lg_SDER,myRank,iLo,iHi,jLo,jHi)
+if (iLo /= 0) then
+  call GA_Access(lg_SDER,iLo,iHi,jLo,jHi,mV,LDV)
+  call GA_Access(lg_GDER,iLo,iHi,jLo,jHi,mG,LDG)
+  do J=1,jHi-jLo+1
+    do I=1,iHi-iLo+1
+      DBL_MB(mV+I-1+LDV*(J-1)) = DBL_MB(mV+I-1+LDV*(J-1))+DBL_MB(mG+I-1+LDG*(J-1))
+    end do
+  end do
+  call GA_Release(lg_GDER,iLo,iHi,jLo,jHi)
+  call GA_Release_Update(lg_SDER,iLo,iHi,jLo,jHi)
+end if
+call GA_Sync()
+call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_GDER,lg_Vec,Zero,lg_Lag)
+call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_Vec,lg_Lag,Zero,lg_GDER)
+
+! remove dependent part (linearly indep-indep and dep-dep)
+! and add the RHS part with the eigenvalue differences to the dep-indep part
 call GA_Distribution(lg_B,myRank,iLo,iHi,jLo,jHi)
 if (iLo /= 0) then
   call GA_Access(lg_B,iLo,iHi,jLo,jHi,mV,LDV)
+  call GA_Access(lg_GDER,iLo,iHi,jLo,jHi,mG,LDG)
   !if (ilo <= nas-nin) then
   do J=1,nAS-nIN
     do I=1,min(iHi-iLo+1,nAS-nIN-iLo+1)
@@ -135,13 +151,18 @@ if (iLo /= 0) then
   !end if
   !if (ilo >= nas-nin+1) then
   do J=nAS-nIN+1,nAS
+    do I=1,min(iHi-iLo+1,nAS-nIN-iLo+1)
+      DBL_MB(mV+i-1+LDV*(j-1)) = (DBL_MB(mV+i-1+LDV*(j-1))+EIG(iLo+i-1)*DBL_MB(mG+i-1+LDG*(j-1)))*EIG(j)/(EIG(j)-EIG(iLo+i-1))
+    end do
     do I=max(1,nAS-nIN+1-iLo+1),LDV
       DBL_MB(mV+i-1+LDV*(j-1)) = Zero
     end do
   end do
   !end if
+  call GA_Release(lg_GDER,iLo,iHi,jLo,jHi)
   call GA_Release_Update(lg_B,iLo,iHi,jLo,jHi)
 end if
+call mma_deallocate(EIG)
 
 !! orthogonal -> non-orthogonal
 !! Finalize Eq. (62)

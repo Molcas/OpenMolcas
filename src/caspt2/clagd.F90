@@ -43,7 +43,7 @@ integer(kind=iwp) :: iCase, ID, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUab
 real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BDERval, bsBDER, ET, EU, EX, EY, ScalB1, ScalB2, ScalS1, ScalS2, SDERval
 real(kind=wp), allocatable :: BDER(:), LBD(:), LID(:), SDER(:), SMat(:)
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: idT, IHI, ILO, JHI, JLO, LDV, lg_S, lg_T, mS, MYRANK
+integer(kind=iwp) :: idT, IHI, ILO, J, JHI, JLO, LDV, lg_S, lg_T, mS, MYRANK
 logical(kind=iwp) :: bStat
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: VEC1(:), VEC2(:), VEC3(:), VEC4(:), VEC5(:)
@@ -92,6 +92,23 @@ do iCase=1,11
           call mma_deallocate(VEC1)
         end if
         bStat = GA_destroy(lg_T)
+        if (do_lindep .and. (nAS /= nIN)) then
+          ! LinDepLag reads S in the triangular form
+          NS = nTri_Elem(NAS)
+          if (King()) call mma_allocate(VEC1,NAS*NAS,Label='VEC1')
+          call PSBMAT_GETMEM('S',lg_T,NAS)
+          call PSBMAT_READ('S',iCase,iSym,lg_T,NAS)
+          if (King()) then
+            call GA_GET(lg_T,1,NAS,1,NAS,VEC1,NAS)
+            do J=1,NAS
+              VEC1(nTri_Elem(J-1)+1:nTri_Elem(J)) = VEC1(NAS*(J-1)+1:NAS*(J-1)+J)
+            end do
+            idT = idSMAT(iSym,iCase)
+            call DDAFILE(LUSBT,1,VEC1,NS,idT)
+            call mma_deallocate(VEC1)
+          end if
+          call PSBMAT_FREEMEM(lg_T)
+        end if
       end if
     else
 #   endif
@@ -918,8 +935,8 @@ subroutine CLagDX_MPP()
   use caspt2_module, only: JSTATE, MAXIT
   use Constants, only: One
 
-  integer(kind=iwp) :: i, idB, idSD, iHiV1, iICB, iLoV1, j, jHiV1, jICB, jLoV1, LDV1, lg_BDER, lg_SDER, lg_T, lg_WRK, lg_WRK2, &
-                       mBDER, mSDER, mV1, myrank, NCOL, NROW
+  integer(kind=iwp) :: i, idB, idSD, iHiV1, iICB, iLoV1, j, jHiV1, jICB, jLoV1, LDV1, lg_BDER, lg_GDER, lg_SDER, lg_T, lg_WRK, &
+                       lg_WRK2, mBDER, mSDER, mV1, myrank, NCOL, NROW
   real(kind=wp) :: EigI, EigJ, SCAL, tmp
   logical(kind=iwp) :: bStat, invar_act
   integer(kind=byte), allocatable :: idxG3(:,:)
@@ -1227,10 +1244,6 @@ subroutine CLagDX_MPP()
   bStat = GA_destroy(lg_WRK)
   bStat = GA_destroy(lg_WRK2)
 
-  !! Add some trivial contributions due to the dependence
-  !! on the linearly independent space
-  if (do_lindep .and. (nAS /= nIN)) call LinDepLag_MPP(lg_BDER,lg_SDER,nAS,nIN,iSym,iCase)
-
   ! 2) Explicit overlap derivative of the 2<1|H|0> part
   !    Again, not for imaginary shift-specific terms
   !! E = 2<1|H|0> + <1|H0-E0|1>
@@ -1255,11 +1268,23 @@ subroutine CLagDX_MPP()
   call RHS_ALLO(nAS,nIS,lg_V1)
   call RHS_READ(nAS,nIS,lg_V1,iCase,iSym,iVecW)
 
-  call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,One,lg_SDER)
+  if (do_lindep .and. (nAS /= nIN)) then
+    call GA_CREATE_STRIPED('H',NAS,NAS,'GDER',lg_GDER)
+    call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,Zero,lg_GDER)
+  else
+    call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,One,lg_SDER)
+  end if
 
   call RHS_FREE(lg_V1)
   bStat = GA_destroy(lg_WRK)
   call GA_SYNC()
+
+  ! Add the contributions due to the dependence on the linearly independent space
+  ! LinDepLag_MPP also adds lg_GDER to lg_SDER.
+  if (do_lindep .and. (nAS /= nIN)) then
+    call LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,nAS,nIN,iSym,iCase)
+    bStat = GA_destroy(lg_GDER)
+  end if
 
   !! Add the contributions from the off-diagonal coupling
   !! (i.e., CASPT2-N). Of course, this is not for imaginary shift-
