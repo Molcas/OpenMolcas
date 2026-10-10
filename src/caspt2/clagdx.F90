@@ -168,9 +168,13 @@ end if
 call DGEMM_('N','N',nAS,nIN,nIN,One,TRANS,nAS,WRK1,nIN,Zero,WRK2,nAS)
 call DGEMM_('N','T',nAS,nAS,nIN,One,WRK2,nAS,TRANS,nAS,Zero,WRK1,nAS)
 
-!! Add some trivial contributions due to the dependence
-!! on the linearly independent space
-if (do_lindep .and. (nAS /= nIN)) call LinDepLag(WRK3,WRK1,nAS,nIN,iSym,iCase)
+! Add the implicit overlap derivative (WRK1) to the output array
+if (Mode == 0) then
+  SDERmat(1:NAS**2) = SDERmat(1:NAS**2)+WRK1(1:NAS**2)
+else
+  SDERmat(1:NAS**2) = SDERmat(1:NAS**2)-WRK1(1:NAS**2)
+end if
+WRK1(1:nAS**2) = Zero
 
 !  2) Explicit overlap derivative of the 2<1|H|0> part
 !     Again, not for imaginary shift-specific terms
@@ -179,7 +183,14 @@ if (Mode == 0) then
   call DGEMM_('N','N',nAS,nIS,nIN,SCAL,TRANS,nAS,VEC1,nIN,Zero,WRK2,nAS)
   if ((real_shift /= Zero) .or. (imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero) .or. IFMSCOUP) &
     call DGEMM_('N','N',nAS,nIS,nIN,Half,TRANS,nAS,VEC2,nIN,One,WRK2,nAS)
-  call DGEMM_('N','T',nAS,nAS,nIS,Two,WRK2,nAS,VEC4,nAS,One,WRK1,nAS)
+  call DGEMM_('N','T',nAS,nAS,nIS,Two,WRK2,nAS,VEC4,nAS,Zero,WRK1,nAS)
+end if
+
+!! Add the contributions due to the dependence on the linearly independent space
+if (do_lindep .and. (nAS /= nIN)) then
+  WRK2(1:nAS**2) = Zero
+  call LinDepLag(WRK3,WRK2,WRK1,nAS,nIN,iSym,iCase)
+  WRK1(1:nAS**2) = WRK1(1:nAS**2)+WRK2(1:nAS**2)
 end if
 
 !! Add the contributions from the off-diagonal coupling

@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine LinDepLag(BDer,SDer,nAS,nIN,iSym,iCase)
+subroutine LinDepLag(BDer,SDer,GDer,nAS,nIN,iSym,iCase)
 ! Compute contributions that arise from the non-invariance effect
 ! in non-orthogonal -> orthogonal ICB rotations
 ! See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
@@ -20,7 +20,8 @@ subroutine LinDepLag(BDer,SDer,nAS,nIN,iSym,iCase)
 use Index_Functions, only: nTri_Elem
 use EQSOLV, only: idSMAT
 use caspt2_global, only: idBoriMat, LUSBT, LUSTD
-use caspt2_module, only: IFDORTHO, THRSHN, THRSHS
+use caspt2_module, only: HZERO, IFDORTHO, THRSHN, THRSHS
+use SC_NEVPT2, only: IDBMAT_NEVPT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
@@ -28,6 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nAS, nIN, iSym, iCase
 real(kind=wp), intent(inout) :: BDer(nAS,nAS), SDer(nAS,nAS)
+real(kind=wp), intent(in) :: GDer(nAS,nAS)
 integer(kind=iwp) :: I, IDB, IDIAG, idS, IJ, INFO, J, NB, NS, NSCRATCH
 real(kind=wp) :: SD, WGRONK(2)
 real(kind=wp), allocatable :: B(:), EIG(:), F(:,:), LAG(:,:), S(:), SCA(:), SCRATCH(:), SS(:,:), VEC(:,:)
@@ -95,10 +97,15 @@ do I=1,NAS
 end do
 
 call mma_allocate(LAG,NAS,NAS,Label='LAG')
-IDB = IDBoriMat(ISYM,ICASE)
 NB = NS
 call mma_allocate(B,NB,Label='B')
-call DDAFILE(LUSTD,2,B,NB,IDB)
+if ((HZERO == 'DYALL') .and. ((iCase == 1) .or. (iCase == 4))) then
+  IDB = IDBMAT_NEVPT2(ISYM,ICASE,1)
+  call DDAFILE(LUSBT,2,B,NB,IDB)
+else
+  IDB = IDBoriMat(ISYM,ICASE)
+  call DDAFILE(LUSTD,2,B,NB,IDB)
+end if
 call mma_allocate(F,NAS,NAS,Label='F')
 IJ = 0
 do J=1,NAS
@@ -123,6 +130,16 @@ call DGEMM_('T','N',NAS,NAS,NAS,One,VEC,NAS,LAG,NAS,Zero,F,NAS)
 !! (linearly indep-indep and dep-dep)
 F(1:nAS-nIN,1:nAS-nIN) = Zero
 F(nAS-nIN+1:nAS,nAS-nIN+1:nAS) = Zero
+
+! Add the RHS part of the residual: SS = \mathcal{X}^0 * G^T * \mathcal{X} times the eigenvalue of the dependent vector
+! GDER: explicit overlap derivative of 2*<0|H|1>
+call DGEMM_('T','N',NAS,NAS,NAS,One,GDER,NAS,VEC,NAS,Zero,LAG,NAS)
+call DGEMM_('T','N',NAS,NAS,NAS,One,VEC,NAS,LAG,NAS,Zero,SS,NAS)
+do J=nAS-nIN+1,nAS
+  do I=1,nAS-nIN
+    F(I,J) = (F(I,J)+EIG(I)*SS(I,J))*EIG(J)/(EIG(J)-EIG(I))
+  end do
+end do
 
 !! orthogonal -> non-orthogonal
 !! Finalize Eq. (62)
