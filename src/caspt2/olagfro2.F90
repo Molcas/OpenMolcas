@@ -39,7 +39,7 @@ do iSym=1,nSym
   !! Fpq = ((pq|rs)-1/2(pr|qs))*Drs
   do iOrb=1,nFroI
     do jOrb=nFroI+1,nFroI+nIshI
-      Scal = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
+      Scal = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))+DPT2(iMO+jOrb-1+nOrbI*(iOrb-1))
       call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,ERI,Scr)
       FPT2(iMO:iMO+nOrbI*nOrbI-1) = FPT2(iMO:iMO+nOrbI*nOrbI-1)+Scal*ERI(1:nOrbI*nOrbI)
       call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,ERI,Scr)
