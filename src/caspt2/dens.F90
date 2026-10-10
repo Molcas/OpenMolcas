@@ -46,7 +46,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
 real(kind=wp), intent(inout) :: DMAT(NDMAT)
-real(kind=wp), intent(in) :: UEFF(nState,nState), U0(nState,nState)
+real(kind=wp), intent(in) :: UEFF(nState,nState)
 integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, iCase, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, IFF, II, IP, IQ, iSQ, iState, iStLag, &
                      ISYM, IT, ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, lg_V, liBasSq, liBasTr, lT2AO, NA, NAS, nBasI, nch, &
                      nDens, NDPT, nDPTAO, NI, NIS, NLEV, NO, nOcc, nOrbI
