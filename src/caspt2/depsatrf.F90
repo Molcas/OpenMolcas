@@ -58,10 +58,8 @@ if (IfChol) then
     call OLagTrf(1,iSym,NBSQT,CMOPT2,DMO,DAO,WRK1)
   end do
   !! Compute G(D)
-  WRK1(1:NBSQT) = Zero
-  DMO(:) = Zero
   !! it's very inefficient
-  call OLagFro4(NBSQT,1,1,1,1,1,DAO,WRK1,DMO,WRK1,WRK2)
+  call OLagFro4(NBSQT,1,1,1,1,1,1,DAO,DMO,WRK2)
   !! G(D) in AO -> G(D) in MO
   do iSym=1,nSym
     call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,DMO,WRK1)

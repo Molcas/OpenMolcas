@@ -52,9 +52,9 @@ integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, iCase, IDM, IDMOFF, IDRF, ID
                      NDPT, nDPTAO, NI, NIS, NLEV, NO, nOcc, nOrbI
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
 integer(kind=iwp), allocatable :: ISAV(:)
-real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), &
-                              DPT2C_AO(:), DRDMFock(:,:), DSUM(:), EigT(:,:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), &
-                              OMGT(:,:), RDMFock(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
+real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DAOs(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), &
+                              DPT2_AO(:), DPT2C_AO(:), DRDMFock(:,:), DSUM(:), EigT(:,:), FAOs(:,:), FPT2(:), FPT2_AO(:), &
+                              FPT2C(:), FPT2C_AO(:), OMGT(:,:), RDMFock(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
 real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
 real(kind=wp), pointer :: DPT2Canti(:)
 integer(kind=iwp), parameter :: kstate = 1
@@ -598,9 +598,15 @@ if (do_grad) then
       !! It seems that it is not possible to do this
       !! transformation in OLagVVVO, because the frozen-part of
       !! the DPT2 is obtained after OLagVVVO.
-      FPT2_AO(:) = Zero
-      FPT2C_AO(:) = Zero
-      call OLagFro4(NBSQT,1,1,1,1,1,DPT2_AO,DPT2C_AO,FPT2_AO,FPT2C_AO,WRK1)
+      call mma_allocate(DAOs,NBSQT,2,Label='DAOs')
+      call mma_allocate(FAOs,NBSQT,2,Label='FAOs')
+      DAOs(:,1) = DPT2_AO(:)
+      DAOs(:,2) = DPT2C_AO(:)
+      call OLagFro4(NBSQT,1,1,1,1,1,2,DAOs,FAOs,WRK1)
+      FPT2_AO(:) = FAOs(:,1)
+      FPT2C_AO(:) = FAOs(:,2)
+      call mma_deallocate(DAOs)
+      call mma_deallocate(FAOs)
       !! AO -> MO transformations for FPT2AO and FPT2CAO
       call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
       call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
