@@ -55,7 +55,7 @@ integer(kind=iwp), parameter :: IRHSGRP(2,NRHSGRP) = reshape([ 1, 0, &  ! A
                                                                8, 9, &  ! F+ F-
                                                                4, 0, &  ! C
                                                                5, 0], & ! D2, the lower half of D
-                                                             [ 2,NRHSGRP])
+                                                             [2,NRHSGRP])
 
 ! a-block width of ADDRHSF/G_STRIPED_D, 32 measured best
 integer(kind=iwp), parameter :: NAMXCAP = 32
@@ -756,8 +756,8 @@ subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYL, NA, NU, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV*NL,NCHO)
-  integer(kind=iwp) :: IA, ICOL, IL, ILHI, ILLO, IOFF, IOFFD, IROFF, IROFFU, ISA, ISI, ISYA, ISYM, ISYV, IU, JHI, JLO, MOFF, &
-                       NAS, NAS1, NIS, NLSZ
+  integer(kind=iwp) :: IA, ICOL, IL, ILHI, ILLO, IOFF, IOFFD, IROFF, IROFFU, ISA, ISI, ISYA, ISYM, ISYV, IU, JHI, JLO, MOFF, NAS, &
+                       NAS1, NIS, NLSZ
   real(kind=wp), allocatable :: CHOBA(:)
   real(kind=wp), pointer, contiguous :: WBLK(:,:)
   !WBLK : the local stripe of the block, as (row,column)
@@ -828,8 +828,8 @@ subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYL, NA, NJ, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NL,NCHO)
-  integer(kind=iwp) :: IA, IAEND, IAHI, IALO, IASTA, IJ, IJABS, IL, ILABS, IOFFM, IOFFP, ISA, ISIJ, ISYA, ISYJL, ISYM, &
-                       JHIM, JHIP, JLOM, JLOP, LDY, MOFFM, MOFFP, NAMX, NAS, NASZ, NISM, NISP
+  integer(kind=iwp) :: IA, IAEND, IAHI, IALO, IASTA, IJ, IJABS, IL, ILABS, IOFFM, IOFFP, ISA, ISIJ, ISYA, ISYJL, ISYM, JHIM, JHIP, &
+                       JLOM, JLOP, LDY, MOFFM, MOFFP, NAMX, NAS, NASZ, NISM, NISP
   real(kind=wp) :: SCLM, SCLP
   integer(kind=iwp), allocatable :: JBASM(:), JBASP(:)
 

@@ -423,9 +423,9 @@ Optional important keywords are:
               </KEYWORD>
 
 :kword:`DMPF`
-  This keyword is used to produce an MRCC-compatible :file:`fort.55` integral file
+  This keyword is used to produce an :program:`MRCC`-compatible :file:`fort.55` integral file
   and quit in a clean manner. The active orbitals are re-ordered into
-  ascending-energy order as expected by MRCC.
+  ascending-energy order as expected by :program:`MRCC`.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPF" APPEAR="Dump fort.55" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: DMPF <advanced>
@@ -707,17 +707,17 @@ A minimal input example to generate the wave functions that describe the ground 
 
 .. _UG\:sec\:rasscf_orbitals:
 
-Interface to MRCC
------------------
+Interface to :program:`MRCC`
+----------------------------
 
 .. warning::
 
-   This will only work if you have MRCC installed
+   This will only work with :program:`MRCC` installed
 
-Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. The :file:`fort.55` dumping code automatically re-orders the active orbitals into ascending-energy order via the :func:`energy_sort_permutation` routine in the ``fcidump`` module. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. Because :file:`fort.55` is registered in the module file registry, the wrapper automatically copies it from :file:`$WorkDir/` back to the user's output directory after the calculation.
+Since the :program:`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in :program:`MRCC`'s :file:`fort.55` format for interfacing to :program:`MRCC`. The :file:`fort.55` dumping code automatically re-orders the active orbitals into ascending-energy order. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. The :file:`fort.55` file is automatically copied from :file:`$WorkDir` back to the output directory (:file:`$MOLCAS_OUTPUT`) after the calculation.
 
-Generating an MRCC :file:`fort.55` file
-.......................................
+Generating an :program:`MRCC` :file:`fort.55` file
+..................................................
 
 The :kword:`DMPF` keyword in the :program:`RASSCF` program can be used to produce a
 :file:`fort.55` integral file compatible with the external :program:`MRCC`
@@ -733,7 +733,7 @@ keyword is included so that the orbitals are diagonalized in the Fock matrix. ::
     Basis = 6-31G
   &SEWARD
   &SCF
-  Threshold = 0.5D-14 0.5D-14 0.5D-14 0.5D-14
+    Threshold = 0.5D-14 0.5D-14 0.5D-14 0.5D-14
   &RASSCF
     OutOrbitals = CANOnical
     nActEl = 10 0 0
@@ -742,7 +742,7 @@ keyword is included so that the orbitals are diagonalized in the Fock matrix. ::
 
 After a successful run, the output directory will contain a :file:`fort.55` file. The first three lines of
 :file:`fort.55` contain the number of active orbitals and electrons, the
-symmetry labels of each orbital (with MRCC's numbering convention for point groups), and a status flag
+symmetry labels of each orbital (with :program:`MRCC`'s numbering convention for point groups), and a status flag
 (``150000``). The body contains the two-electron integrals in 4-fold
 format, followed by the one-electron Fock matrix elements and the core energy.
 A representative excerpt is shown below::
@@ -760,33 +760,30 @@ A representative excerpt is shown below::
    ...
     0.00000000000000000000E+00    0    0    0    0
 
-Input example for running MRCC with OpenMolcas integrals
-........................................................
+Input example for running :program:`MRCC` with OpenMolcas integrals
+...................................................................
 
-A complete workflow that runs |openmolcas| to generate the integral
-files and then calls the external :program:`MRCC` program can be
-submitted with the following SLURM script.  The working directory must
-contain the |openmolcas| input file (e.g. ``in.input``) and the
-:program:`MRCC` input file ``MINP``.  Using the |openmolcas| input file for the above Ne example, and naming the file ``in.input`` a minimal working SLURM script is::
+.. compound::
 
-  #!/bin/sh
+  A complete workflow that runs |openmolcas| to generate the integral files and then calls the external :program:`MRCC` program can be submitted with the following SLURM script. The working directory must contain the |openmolcas| input file (e.g. ``in.input``) and the :program:`MRCC` input file ``MINP``. Using the |openmolcas| input file for the above Ne example, and naming the file ``in.input`` a minimal working SLURM script is::
 
-  pymolcas in.input
-  dmrcc
+    #!/bin/sh
 
-with a minimal working :program:`MRCC` input file ``MINP`` as follows::
+    pymolcas in.input
+    dmrcc
 
-  iface=cfour
-  calc=CCSDTQ
-  cctol=10
-  ccmaxit=999
-  scftype=RHF
+  with a minimal working :program:`MRCC` input file ``MINP`` as follows::
 
-Whether the integrals are generated by |openmolcas| and CCSDTQ is calculated using :program:`MRCC` (OpenMolcas-MRCC), or the integrals and CCSDTQ are both calculated using :program:`MRCC` (MRCC-MRCC), the total CCSDTQ energy is the same in the pico-hartree digit, confirming that the integrals are transferred correctly to MRCC::
+    iface=cfour
+    calc=CCSDTQ
+    cctol=10
+    ccmaxit=999
+    scftype=RHF
+
+Whether the integrals are generated by |openmolcas| and CCSDTQ is calculated using :program:`MRCC` (|openmolcas|--:program:`MRCC`), or the integrals and CCSDTQ are both calculated using :program:`MRCC` (:program:`MRCC`--:program:`MRCC`), the total CCSDTQ energy is the same in the picohartree digit, confirming that the integrals are transferred correctly to :program:`MRCC`::
 
   MRCC-MRCC       : -128.589 793 424 699
   OpenMolcas-MRCC : -128.589 793 424 699
-
 
 RASSCF output orbitals
 ----------------------
@@ -926,9 +923,8 @@ Output files
   and are named :file:`RASORB.1`, :file:`RASORB.2`, etc.
 
 :file:`FORT55`
-  MRCC-compatible integral file (:file:`fort.55`). Produced when the
-  ``DMPF`` keyword is used. The wrapper copies it from the
-  scratch directory back to the user's output directory.
+  :program:`MRCC`-compatible integral file (:file:`fort.55`). Produced when the
+  ``DMPF`` keyword is used.
 
 :file:`MCDENS`
   This ASCII file is generated for MC-PDFT calculations.

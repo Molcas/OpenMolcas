@@ -35,12 +35,12 @@ integer(kind=iwp), intent(in) :: IFF, nCONF, NLEV, NG3
 real(kind=wp), intent(in) :: CI(nCONF), DG3(NG3), DF3(NG3), G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
 real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV), DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV), DF2(NLEV,NLEV,NLEV,NLEV), &
                                 DEPSA(NLEV,NLEV)
-integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3BK, IG3OFF, IOFFSET, IP1, IP1END, IP1MN, IP1MX, IP1STA, &
-                     IP2, IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, iTask_loc, ITLEV, IU, IULEV, &
-                     IVEC, IVLEV, IXLEV, IXLEV0, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, &
-                     NBUFX, NDAB, NDTU, NLEV2, nMidV, NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2, NVEC
+integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3BK, IG3OFF, IOFFSET, IP1, IP1END, ip1loc, IP1MN, IP1MX, &
+                     IP1STA, IP2, IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, iTask_loc, ITLEV, &
+                     IU, IULEV, IVEC, IVLEV, IXLEV, IXLEV0, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MXTASK, MYBUFFER, MyRank, &
+                     MYTASK, NB, NBTOT, NBUF1, NBUFX, NDAB, NDTU, nFlushed, NLEV2, nMidV, nProcs, NSGM1, NSGM2, NSUBTASKS, NTASKS, &
+                     NTRI1, NTRI2, NVEC
 real(kind=wp) :: SCAL, ScalF, ScalG
-integer(kind=iwp) :: ip1loc, MyRank, nFlushed, nProcs
 integer(kind=iwp), allocatable :: ib_tmp(:,:), ICNJ(:), IDX2IJ(:,:), iG3Off_tmp(:), IJ2IDX(:,:), IP1_BUF(:), IVLEV_tmp(:), &
                                   TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFF(:,:), BUFX(:,:), CF(:,:), CG(:,:), DAB(:,:), DTU(:,:), DYZ(:)

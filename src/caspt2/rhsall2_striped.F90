@@ -82,8 +82,9 @@ do JSYM=1,NSYM
   !   + the block the ket transpose works on
   ! MINREQ and MINSLOW have to agree, or a tier chosen here may not fit there
   MINREQ = max(MINREQ, &
-               NTUVX+MINPIQK_J(JSYM)+2*NADDBUF+NPIKTR_J(JSYM)+(NPIBRA_J(JSYM)+NPIKET_J(JSYM)+NAAPI_J(JSYM)+ &
-               max(2*NPITRA_J(JSYM),NPIBRA_J(JSYM),NPIKET_J(JSYM),NAAPI_J(JSYM),NPIPCK_J(JSYM)))*MXBATCH_J(JSYM))
+               NTUVX+MINPIQK_J(JSYM)+2*NADDBUF+NPIKTR_J(JSYM)+ &
+               MXBATCH_J(JSYM)*(NPIBRA_J(JSYM)+NPIKET_J(JSYM)+NAAPI_J(JSYM)+ &
+                                max(2*NPITRA_J(JSYM),NPIBRA_J(JSYM),NPIKET_J(JSYM),NAAPI_J(JSYM),NPIPCK_J(JSYM))))
 end do
 call mma_MaxDBLE(MXAVAIL)
 if (NRHSLOC <= MXAVAIL-MINREQ) then

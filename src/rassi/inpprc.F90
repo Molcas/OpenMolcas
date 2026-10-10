@@ -621,7 +621,7 @@ end do
 do IPRP=1,NPRPLST
   if (IPUSED(IPRP) == 0) then
     do IPROP=1,NPROP
-      if (PNAME(IPROP) == PRPLST(IPRP) .and. (ICOMP(IPROP) == ICMPLST(IPRP))) PNAME(IPROP) = 'REMOVE'
+      if ((PNAME(IPROP) == PRPLST(IPRP)) .and. (ICOMP(IPROP) == ICMPLST(IPRP))) PNAME(IPROP) = 'REMOVE'
     end do
   else
     IADD = 1
@@ -662,7 +662,7 @@ NPROP = MPROP
 do IPRP=1,NPRPLST
   if (IPUSED(IPRP) == 0) then
     do ISOPR=1,NSOPR
-      if (SOPRNM(ISOPR) == PRPLST(IPRP)  .and. (ISOCMP(ISOPR) == ICMPLST(IPRP))) SOPRNM(ISOPR) = 'REMOVE'
+      if ((SOPRNM(ISOPR) == PRPLST(IPRP)) .and. (ISOCMP(ISOPR) == ICMPLST(IPRP))) SOPRNM(ISOPR) = 'REMOVE'
     end do
   else
     IADD = 1

@@ -217,41 +217,36 @@ end subroutine dump_hdf5
 !>    - Line 3:  150000
 !>  One-electron integrals are written from the Fock table only;
 !>  orbital energies are omitted.
-subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
+subroutine dump_fort55(path,EMY,fock_table,two_el_table,orbsym)
 
   use general_data, only: nActEl, nAsh, nSym
-  use Symmetry_Info, only: SymLab, lIrrep, Symmetry_Info_Get
-  use Constants, only: Zero
-  use Index_Functions, only: iTri
+  use Symmetry_Info, only: lIrrep, SymLab, Symmetry_Info_Get
+  use Index_Functions, only: iTri, nTri_Elem
   use fcidump_tables, only: cutoff_default, length
+  use Constants, only: Zero
 
   character(len=*), intent(in) :: path
   real(kind=wp), intent(in) :: EMY
-  type(OrbitalTable), intent(in) :: orbital_table
   type(FockTable), intent(in) :: fock_table
   type(TwoElIntTable), intent(in) :: two_el_table
   integer(kind=iwp), intent(in) :: orbsym(:)
-  integer(kind=iwp) :: i, j, k, l, m, ij, kl, LuFCI, mrcc_orbsym(size(orbsym)), nmo, npair
-  real(kind=wp) :: val
+  integer(kind=iwp), parameter :: max_test = 20
+  integer(kind=iwp) :: i, ij, j, k, kl, l, LuFCI, m, mrcc_orbsym(size(orbsym)), n_twoel_written, nmo, npair
+  real(kind=wp) :: twoel_written(max_test), val
+  character(len=3) :: label
   real(kind=wp), allocatable :: eri_2d(:,:)
   integer(kind=iwp), external :: isFreeUnit
-  character(len=3) :: label
-  integer(kind=iwp), parameter :: max_test = 20
-  integer(kind=iwp) :: n_twoel_written
-  real(kind=wp) :: twoel_written(max_test)
-
-  unused_var(orbital_table)
 
   call Symmetry_Info_Get()
 
   do i=1,size(orbsym)
     label = adjustl(trim(lIrrep(orbsym(i)-1)))
-    call to_lower(label)
+    call LoCase(label)
     mrcc_orbsym(i) = molcas_irrep_to_mrcc(orbsym(i),trim(adjustl(SymLab)),label)
   end do
 
-  nmo = sum(nAsh(:nSym))
-  npair = nmo*(nmo+1)/2
+  nmo = sum(nAsh(1:nSym))
+  npair = nTri_Elem(nmo)
   LuFCI = isFreeUnit(38)
   call molcas_open(LuFCI,path)
 
@@ -261,14 +256,14 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
     do i=1,size(mrcc_orbsym)-1
       write(LuFCI,'(I0,1X)',advance='NO') mrcc_orbsym(i)
     end do
-    write(LuFCI,'(I0)') mrcc_orbsym(size(mrcc_orbsym))
+    write(LuFCI,'(I0)') mrcc_orbsym(i)
   end if
 
   write(LuFCI,'(A)') ' 150000'
 
   ! 4-fold symmetry
   call mma_allocate(eri_2d,npair,npair,Label='eri_2d')
-  eri_2d = Zero
+  eri_2d(:,:) = Zero
 
   do j=1,length(two_el_table)
     i = two_el_table%idx(1,j)
@@ -292,7 +287,7 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
           if (abs(val) > cutoff_default) then
             write(LuFCI,'(1X,E27.20,4I5)') val,i,j,k,l
             if (n_twoel_written < max_test) then
-              n_twoel_written = n_twoel_written + 1
+              n_twoel_written = n_twoel_written+1
               twoel_written(n_twoel_written) = val
             end if
           end if
@@ -310,16 +305,10 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   write(LuFCI,'(1X,E27.20,4I5)') EMY,0,0,0,0
 
   ! ========== For testing purposes FROM HERE =============
-  if (n_twoel_written > 0) then
-    call Add_Info('fort55 TwoEl Integral element',twoel_written(:n_twoel_written),n_twoel_written,8)
-  end if
-  if (length(fock_table) > 0) then
-    call Add_Info('fort55 Fock element',fock_table%values(1),1,8)
-  end if
+  if (n_twoel_written > 0) call Add_Info('fort55 TwoEl Integral element',twoel_written(1:n_twoel_written),n_twoel_written,8)
+  if (length(fock_table) > 0) call Add_Info('fort55 Fock element',fock_table%values(1),1,8)
   call Add_Info('fort55 Core energy',[EMY],1,8)
-  if (size(mrcc_orbsym) > 0) then
-    call Add_Info('fort55 Orbsym',real(mrcc_orbsym,kind=wp),size(mrcc_orbsym),8)
-  end if
+  if (size(mrcc_orbsym) > 0) call Add_Info('fort55 Orbsym',real(mrcc_orbsym,kind=wp),size(mrcc_orbsym),8)
   ! ========== For testing purposes TO HERE ===============
 
   close(LuFCI)
@@ -332,113 +321,92 @@ end subroutine dump_fort55
 !>    Map irrep label to the MRCC numbering used in fort.55
 !>
 !>  @author Jaafar Mehrez
-!>
-
 function molcas_irrep_to_mrcc(molcas_irrep,group,label) result(mrcc_irrep)
 
+  integer(kind=iwp) :: mrcc_irrep
   integer(kind=iwp), intent(in) :: molcas_irrep
   character(len=*), intent(in) :: group, label
-  integer(kind=iwp) :: mrcc_irrep
 
   mrcc_irrep = molcas_irrep
 
   select case (group)
-  case ('D2h')
-    select case (label)
-    case ('ag')
+    case ('D2h')
+      select case (label)
+        case ('ag')
+          mrcc_irrep = 1
+        case ('b1g')
+          mrcc_irrep = 2
+        case ('b2g')
+          mrcc_irrep = 3
+        case ('b3g')
+          mrcc_irrep = 4
+        case ('au')
+          mrcc_irrep = 5
+        case ('b1u')
+          mrcc_irrep = 6
+        case ('b2u')
+          mrcc_irrep = 7
+        case ('b3u')
+          mrcc_irrep = 8
+      end select
+    case ('C2v')
+      select case (label)
+        case ('a1')
+          mrcc_irrep = 1
+        case ('a2')
+          mrcc_irrep = 2
+        case ('b1')
+          mrcc_irrep = 3
+        case ('b2')
+          mrcc_irrep = 4
+      end select
+    case ('C2h')
+      select case (label)
+        case ('ag')
+          mrcc_irrep = 1
+        case ('bg')
+          mrcc_irrep = 2
+        case ('au')
+          mrcc_irrep = 3
+        case ('bu')
+          mrcc_irrep = 4
+      end select
+    case ('D2')
+      select case (label)
+        case ('a')
+          mrcc_irrep = 1
+        case ('b1')
+          mrcc_irrep = 2
+        case ('b2')
+          mrcc_irrep = 3
+        case ('b3')
+          mrcc_irrep = 4
+      end select
+    case ('Cs')
+      select case (label)
+        case ("a'")
+          mrcc_irrep = 1
+        case ('a"')
+          mrcc_irrep = 2
+      end select
+    case ('C2')
+      select case (label)
+        case ('a')
+          mrcc_irrep = 1
+        case ('b')
+          mrcc_irrep = 2
+      end select
+    case ('Ci')
+      select case (label)
+        case ('ag')
+          mrcc_irrep = 1
+        case ('au')
+          mrcc_irrep = 2
+      end select
+    case ('C1')
       mrcc_irrep = 1
-    case ('b1g')
-      mrcc_irrep = 2
-    case ('b2g')
-      mrcc_irrep = 3
-    case ('b3g')
-      mrcc_irrep = 4
-    case ('au')
-      mrcc_irrep = 5
-    case ('b1u')
-      mrcc_irrep = 6
-    case ('b2u')
-      mrcc_irrep = 7
-    case ('b3u')
-      mrcc_irrep = 8
-    end select
-  case ('C2v')
-    select case (label)
-    case ('a1')
-      mrcc_irrep = 1
-    case ('a2')
-      mrcc_irrep = 2
-    case ('b1')
-      mrcc_irrep = 3
-    case ('b2')
-      mrcc_irrep = 4
-    end select
-  case ('C2h')
-    select case (label)
-    case ('ag')
-      mrcc_irrep = 1
-    case ('bg')
-      mrcc_irrep = 2
-    case ('au')
-      mrcc_irrep = 3
-    case ('bu')
-      mrcc_irrep = 4
-    end select
-  case ('D2')
-    select case (label)
-    case ('a')
-      mrcc_irrep = 1
-    case ('b1')
-      mrcc_irrep = 2
-    case ('b2')
-      mrcc_irrep = 3
-    case ('b3')
-      mrcc_irrep = 4
-    end select
-  case ('Cs')
-    select case (label)
-    case ("a'")
-      mrcc_irrep = 1
-    case ('a"')
-      mrcc_irrep = 2
-    end select
-  case ('C2')
-    select case (label)
-    case ('a')
-      mrcc_irrep = 1
-    case ('b')
-      mrcc_irrep = 2
-    end select
-  case ('Ci')
-    select case (label)
-    case ('ag')
-      mrcc_irrep = 1
-    case ('au')
-      mrcc_irrep = 2
-    end select
-  case ('C1')
-    mrcc_irrep = 1
   end select
 
 end function molcas_irrep_to_mrcc
-
-!>  @brief
-!>    Convert a character string to lowercase in-place.
-!>
-!>  @author Jaafar Mehrez
-!>
-subroutine to_lower(s)
-
-  character(len=*), intent(inout) :: s
-  integer(kind=iwp) :: i, ic
-
-  do i=1,len(s)
-    ic = ichar(s(i:i))
-    if ((ic >= ichar('A')) .and. (ic <= ichar('Z'))) then
-      s(i:i) = char(ic+ichar('a')-ichar('A'))
-    end if
-  end do
-
-end subroutine to_lower
 
 end module fcidump_dump

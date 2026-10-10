@@ -20,8 +20,8 @@ set (sources
      embpotoutput.F90
      embpotoutputmodensities.F90
      embpotrdrun.F90
-     embpotwrrun.F90
      embpotwriteresults.F90
+     embpotwrrun.F90
      gaussrad.F90
 )
 

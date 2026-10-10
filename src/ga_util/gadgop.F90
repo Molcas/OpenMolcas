@@ -29,12 +29,11 @@ implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(inout) :: x(n)
 character(len=*), intent(in) :: op
-
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iblk
 ! maximum number of real values handled by a single GADGOP (ARMCI) call:
 ! (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB (\approx 2 GB)
-! However, ga_dgop internally allocates an array of the length as the communicated array,
+! However, ga_dgop internally allocates an array of the same length as the communicated array,
 ! so it may be sensible to limit the length to 1 GB.
 integer(kind=iwp), parameter :: MAXBUF = 2**30/RtoB
 #endif

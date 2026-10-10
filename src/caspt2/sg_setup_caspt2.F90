@@ -34,23 +34,23 @@ do ISYM=1,NSYM
 end do
 
 if (nHole1+nElec3 /= 0) then
-  nRsPrt= 3
-  nRas(:,1)= nRas1(:)
-  nRas(:,2)= nRas2(:)
-  nRas(:,3)= nRas3(:)
+  nRsPrt = 3
+  nRas(:,1) = nRas1(:)
+  nRas(:,2) = nRas2(:)
+  nRas(:,3) = nRas3(:)
   nRs1T = sum(nRas1(1:nSym))
-  nRasEl(1)= 2*nRs1T-nHole1
+  nRasEl(1) = 2*nRs1T-nHole1
   nRasEl(2) = nActel-nElec3
-  nRasEl(3)= nActel
+  nRasEl(3) = nActel
 else
-  nRsPrt= 1
-  nRas(:,1)= nRas2(:)
-  nRasEl(1)= nActel
+  nRsPrt = 1
+  nRas(:,1) = nRas2(:)
+  nRasEl(1) = nActel
 end if
 
 ! NEVPT2 applies E_pq to the reference also for a single determinant (MKNEVE4).
-if ((.not. DoCumulant) .and. (nactel > 0) .and. ((iscf == 0) .or. (HZERO == 'DYALL')) .and. (.not. DoFCIQMC) .and. &
-    (.not. DMRG)) then
+if ((.not. DoCumulant) .and. (nactel > 0) .and. ((iscf == 0) .or. (HZERO == 'DYALL')) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) &
+  then
 
   call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
                xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
