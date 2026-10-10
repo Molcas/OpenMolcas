@@ -31,6 +31,7 @@ use caspt2_global, only: FIFA, idSDMat, LISTS, LUSTD
 use general_data, only: nActel, nAsh
 use caspt2_module, only: CPUSGM, FockType, G1SecIn, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
+use Vec_Backup, only: BackupVecs
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -44,7 +45,7 @@ integer(kind=iwp) :: iCase, iCase1, idSDer, IfC, IFIFA, iLoop, IMLTOP, ISYM, ISY
                      lg_V1, lSgmX, lSgmX_Sta, Max_MESG_SIZE, NA, NAS, NAS1, NAS2, nCX, nD1, NFIA, NFIT, NFTA, NI, NIN1, NIN2, &
                      NIS1, NIS2, nLoop, NO, NS, nSgm1, nSgm2, lSgm2_Sta, nD2, iCase2, nSgm2_Blk, nSgmX, nSgmX_Blk, MaxLen
 real(kind=wp) :: CPU, CPU0, CPU1, FACT, TIO, TIO0, TIO1
-real(kind=wp), allocatable :: D1(:), D2(:), SDER1(:), SDER2(:), SGM1(:), SGM2(:), WRK(:)
+real(kind=wp), allocatable :: D1(:), D2(:), SDER1(:), SDER2(:), SGM1(:), SGM2(:), VecKeepI(:), VecKeepJ(:), WRK(:)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 logical(kind=iwp) :: bStat
 #endif
@@ -100,6 +101,10 @@ if ((FOCKTYPE == 'G1') .and. (.not. G1SECIN)) then
   IFCOUP(12,5) = 0
   IFCOUP(13,5) = 0
 end if
+
+! Keep the rows of the vectors that the transformation below does not recover (see BackupVecs)
+call BackupVecs(1,IVEC,VecKeepI)
+if (IVEC /= JVEC) call BackupVecs(1,JVEC,VecKeepJ)
 
 ! Transform to standard representation:
 call PTRTOC(0,IVEC,IVEC) !! T*C (internally contracted -> MO)
@@ -463,6 +468,8 @@ end do
 ! Transform contrav C  to ei%Agenbasis of H0(diag):
 call PTRTOSR(1,IVEC,IVEC)
 if (IVEC /= JVEC) call PTRTOSR(1,JVEC,JVEC)
+call BackupVecs(2,IVEC,VecKeepI)
+if (IVEC /= JVEC) call BackupVecs(2,JVEC,VecKeepJ)
 
 contains
 

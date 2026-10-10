@@ -33,6 +33,7 @@ use caspt2_global, only: LISTS
 use general_data, only: nActel, nAsh
 use caspt2_module, only: FockType, G1SecIn, nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Vec_Backup, only: BackupVecs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -44,7 +45,7 @@ real(kind=wp), intent(in) :: SCAL
 integer(kind=iwp) :: iCase1, iCase2, idoff, idpq, idqp, iLoop, iMltOp, ip, iq, iSta, iSym, iSym1, iSym2, lScr, lScr2, lVec1, &
                      lVec2, na, nas1, nas2, ni, nis1, nis2, nLoop, no, nVec1, nVec2, nWec1
 real(kind=wp) :: Fact
-real(kind=wp), allocatable :: SCR(:), WEC1(:)
+real(kind=wp), allocatable :: SCR(:), VecKeepI(:), VecKeepJ(:), WEC1(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: TMP1(:), TMP2(:)
 #endif
@@ -62,6 +63,10 @@ NDPT2 = sum(NORB(1:NSYM)**2)
 ! Loop over ordering: First, <IVEC|...|JVEC>, then reverse.
 ! For each order, compute the upper-triangular blocks.
 ! For true density matrices, use symmetry of D-matrix.
+
+! Keep the rows of the vectors that the transformation below does not recover (see BackupVecs)
+call BackupVecs(1,IVEC,VecKeepI)
+if (IVEC /= JVEC) call BackupVecs(1,JVEC,VecKeepJ)
 
 ! Transform to standard representation, contravariant form.
 call PTRTOC(0,IVEC,IVEC)
@@ -211,6 +216,8 @@ end if
 ! Transform vectors back to eigenbasis of H0(diag).
 call PTRTOSR(1,IVEC,IVEC)
 if (IVEC /= JVEC) call PTRTOSR(1,JVEC,JVEC)
+call BackupVecs(2,IVEC,VecKeepI)
+if (IVEC /= JVEC) call BackupVecs(2,JVEC,VecKeepJ)
 if (IVEC == JVEC) then
   ! Fill in lower-triangular block elements by symmetry.
   IDOFF = 0
