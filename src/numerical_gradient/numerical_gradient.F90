@@ -24,17 +24,17 @@ use Para_Info, only: King
 use spool, only: disable_spool, LuWr
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, OneHalf, Angstrom, auTokcalmol
+use Constants, only: Zero, One, Two, Eight, Twelve, OneHalf, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-real(kind=wp) :: Dsp, EMinus, Energy_Ref, EPlus, FX(3), Grada, Gradb, rDeg, rDelta, rDum(1), rMax, rTest, Sgn, TempX, TempY, &
-                 TempZ, x, x0, y, y0, z, z0
+real(kind=wp) :: Dsp, EMinus, EMinus2, Energy_Ref, EPlus, EPlus2, FX(3), Grada, Gradb, rDeg, rDelta, rDum(1), rMax, rTest, Sgn, &
+                 TempX, TempY, TempZ, x, x0, y, y0, z, z0
 integer(kind=iwp) :: error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, iCoSet(0:7,0:7), id_Tsk, iData, iDisp, iDispXYZ(3), iEm, &
                      iEp, ii, iMlt, iOper(0:7), iOption, iPL, iPL_Save, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, irlxroot2, &
                      iRoot, iSave, ITkQMMM, ixyz, j, jStab(0:7), LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
-                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym, rc
+                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nPtDisp, nRoots, nStab, nSym, rc
 logical(kind=iwp) :: DispX, DispY, DispZ, Do_ESPF, Do_FFPT, DoDirect, DoFirst, DoTinker, DynExtPot, Exists, External_Coor_List, &
                      Found, Is_Roots_Set, KeepOld, NMCart, StandAlone
 character(len=LenIn) :: Namei
@@ -194,6 +194,9 @@ end if
 !                                                                      *
 ! Pick up rDelta from the runfile
 call Get_dScalar('Numerical Gradient rDelta',rDelta)
+! Pick up the number of displaced geometries per degree of freedom from the runfile
+! nPtDisp = 2 (+h, -h) for the central difference, 4 (+h, +2h, -h, -2h) for the five-point stencil
+call Get_iScalar('nPtDisp',nPtDisp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -249,7 +252,7 @@ else
   call Abend()
 end if
 
-nDisp2 = 2*3*nAtoms
+nDisp2 = nPtDisp*3*nAtoms
 call mma_Allocate(EnergyArray,nRoots,nDisp2,Label='EnergyArray')
 EnergyArray(:,:) = Zero
 !                                                                      *
@@ -359,14 +362,22 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_allocate(XYZ,3*nAtoms,2*nDisp,Label='XYZ')
+call mma_allocate(XYZ,3*nAtoms,nPtDisp*nDisp,Label='XYZ')
 XYZ(:,:) = Zero
 if (External_Coor_List) then
-  mDisp = nDisp*2
-  call Get_dArray('CList',XYZ,3*nAtoms*mDisp)
+  mDisp = nDisp*nPtDisp
+  call Get_dArray('CList',XYZ,3*nAtoms*2*nDisp) ! GenCxCTL generates 3*nAtoms*2*nDisp coordinates
+  if (nPtDisp == 4) then
+    do iDisp=nDisp,1,-1
+      XYZ(:,4*iDisp-1) = XYZ(:,2*iDisp)
+      XYZ(:,4*iDisp) = Two*XYZ(:,4*iDisp-1)-pack(Coor(:,:),.true.)
+      XYZ(:,4*iDisp-3) = XYZ(:,2*iDisp-1)
+      XYZ(:,4*iDisp-2) = Two*XYZ(:,4*iDisp-3)-pack(Coor(:,:),.true.)
+    end do
+  end if
 else
   mDisp = 0
-  do iDisp=1,nDisp2
+  do iDisp=1,2*nDisp
     iCoor = (iDisp+1)/2
     if (Disp(icoor) /= Zero) then
       mDisp = mDisp+1
@@ -377,6 +388,12 @@ else
       Sgn = One
       if (mod(iDisp,2) == 0) Sgn = -One
       XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)+Sgn*Disp(icoor)
+
+      if (nPtDisp == 4) then
+        mDisp = mDisp+1
+        XYZ(:,mDisp) = XYZ(:,mDisp-1)
+        XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp-1)+Sgn*Disp(icoor)
+      end if
     end if
   end do
 end if
@@ -420,11 +437,11 @@ if (iPL >= 2) then
   write(LuWr,*) 'Root to use: ',iRoot
   write(LuWr,*) 'Number of internal degrees            ',nDisp
   write(LuWr,*) 'Number of constraints                 ',nLambda
-  write(LuWr,*) 'Number of displacements               ',nDisp*2
+  write(LuWr,*) 'Number of displacements               ',nDisp*nPtDisp
   if ((nAtMM /= 0) .and. DoTinker .and. (.not. DoDirect)) then
     write(LuWr,*) 'Number of MM degrees (analytical grad)',nAtMM*3
   end if
-  write(LuWr,*) 'Effective number of displacements     ',2*(nDisp-nLambda-3*nAtMM)
+  write(LuWr,*) 'Effective number of displacements     ',nPtDisp*(nDisp-nLambda-3*nAtMM)
   write(LuWr,*) 'Relative displacements                ',rDelta
   write(LuWr,*)
 end if
@@ -516,12 +533,12 @@ else
   SSTMODE = 0
 end if
 if (SSTMODE == 1) then
-  call Init_Tsk(id_Tsk,mDisp-2*nLambda)
+  call Init_Tsk(id_Tsk,mDisp-nPtDisp*nLambda)
 else
-  call Init_Tsk_Even(id_Tsk,mDisp-2*nLambda)
+  call Init_Tsk_Even(id_Tsk,mDisp-nPtDisp*nLambda)
 end if
 #else
-call Init_Tsk(id_Tsk,mDisp-2*nLambda)
+call Init_Tsk(id_Tsk,mDisp-nPtDisp*nLambda)
 #endif
 call mma_allocate(C,3,nAtoms,Label='C')
 do
@@ -537,7 +554,7 @@ do
 
   ! Offset for the constraints
 
-  iDisp = iDisp+2*nLambda
+  iDisp = iDisp+nPtDisp*nLambda
 
   ! Get the displaced geometry
 
@@ -754,7 +771,7 @@ do
   call Set_Do_Parallel(.true.)
 
   if (iPL >= 2) then
-    write(LuWr,200) '   * Point #',iDisp-2*nLambda,' of ',2*(nDisp-nLambda-3*nAtMM),' done.'
+    write(LuWr,200) '   * Point #',iDisp-nPtDisp*nLambda,' of ',nPtDisp*(nDisp-nLambda-3*nAtMM),' done.'
     write(LuWr,200) '    (Perturbation ',iDisp,')'
   end if
   !                                                                    *
@@ -897,12 +914,25 @@ do i=1,nDisp
   else
     iDisp = iDisp+1
     do iR=1,nRoots
-      iEp = iDisp*2-1
-      EPlus = EnergyArray(iR,iEp)
-      iEm = iDisp*2
-      EMinus = EnergyArray(iR,iEm)
-      Dsp = Disp(i)
-      Grad(iR) = (EPlus-EMinus)/(Two*Dsp)
+      if (nPtDisp == 2) then
+        iEp = iDisp*2-1
+        EPlus = EnergyArray(iR,iEp)
+        iEm = iDisp*2
+        EMinus = EnergyArray(iR,iEm)
+        Dsp = Disp(i)
+        Grad(iR) = (EPlus-EMinus)/(Two*Dsp)
+      else
+        iEp = iDisp*4-3
+        EPlus = EnergyArray(iR,iEp)
+        iEp = iDisp*4-2
+        EPlus2 = EnergyArray(iR,iEp)
+        iEm = iDisp*4-1
+        EMinus = EnergyArray(iR,iEm)
+        iEm = iDisp*4
+        EMinus2 = EnergyArray(iR,iEm)
+        Dsp = Disp(i)
+        Grad(iR) = (-EPlus2+Eight*EPlus-Eight*EMinus+EMinus2)/(Twelve*Dsp)
+      end if
 
       ! If the gradient is not close to zero check that it is
       ! consistent. For CASPT2/CASSCF sometimes the active space
@@ -986,7 +1016,11 @@ do iR=1,nRoots
       TempY = Tmp(2,iAtom)
       TempZ = Tmp(3,iAtom)
       Namei = AtomLbl(iAtom)
-      write(LuWr,'(2X,A,3X,3F12.6)') Namei,TempX,TempY,TempZ
+      if (nPtDisp == 2) then
+        write(LuWr,'(2X,A,3X,3F12.6)') Namei,TempX,TempY,TempZ
+      else if (nPtDisp == 4) then
+        write(LuWr,'(2X,A,3X,3F12.8)') Namei,TempX,TempY,TempZ
+      end if
     end do
     write(LuWr,'(2x,A)') '---------------------------------------------'
   end if
