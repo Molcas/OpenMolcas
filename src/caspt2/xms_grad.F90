@@ -320,6 +320,9 @@ if (IFXMS .or. IFRMS) then
 
 end if
 
+! Avoid the double counting of CLag in the standard MS-CASPT2
+if (.not. (IFXMS .or. IFRMS)) CLag(:,:) = Zero
+
 if (do_csf) then
   !! Eq (68)
   !! I think this contributes even in XMS-CASPT2.
