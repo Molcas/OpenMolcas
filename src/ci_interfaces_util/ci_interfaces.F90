@@ -919,7 +919,7 @@ real(kind=wp), allocatable :: dtemp(:)
 integer(kind=iwp) :: iCSF
 real(kind=wp), allocatable :: CI_Faroald(:)
 
-!If (DoFaro) Then
+If (DoFaro) Then
   Call mma_allocate(CI_Faroald,nCSF,Label='CI_Faroald')
   CI_Faroald(:) = CI_Vector(:)
 
@@ -942,13 +942,15 @@ real(kind=wp), allocatable :: CI_Faroald(:)
   Call mma_deallocate(dTemp)
   Call mma_deallocate(ctemp)
   Call mma_deallocate(Faroald_Psi)
-
+End If
 !Else
 
    Call Lucia_util('TRACI', &
                    CI_Vector=CI_Vector(:), &
                    TU=TU(:), nTU=nTU)
 !End If
+
+if (DoFaro) Then
 Do iCSF = 1, nCSF
    If (Abs(CI_Vector(iCSF)-CI_Faroald(iCSF))/nCSF>1.0E-12_wp) Then
       Write (6,*) 'Mk_Tra_Psi error, iCSF=',iCSF
@@ -957,6 +959,8 @@ Do iCSF = 1, nCSF
       Call Abend()
    End If
 End Do
+Call mma_deallocate(CI_Faroald)
+Endif
 
 End subroutine Mk_Tra_Psi
 
