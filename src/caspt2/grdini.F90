@@ -17,7 +17,7 @@ use Index_Functions, only: nTri_Elem
 use general_data, only: NASH
 use PrintLevel, only: TERSE
 use caspt2_global, only: CLag, CLagFull, do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, &
-                         FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, if_FroSCF, if_SSDM, iPrGlb, iStpGrd, LuAPT2, &
+                         DRDMFro, FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, if_FroSCF, if_SSDM, iPrGlb, iStpGrd, LuAPT2, &
                          LuCMOPT2, LuGAMMA, LUGRAD, LUONEM, LuPT2, LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, RDMSCF, &
                          SLag, TraFro, Weight, WLag
 use caspt2_module, only: IAD1M, IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASHT, NASUP, NBAS, NBAST, NBSQT, NBTRI, NCONF, NFRO, NFROT, &
@@ -175,6 +175,11 @@ if (if_SSDM) then
       call mma_deallocate(EpsSCF)
     end if
     ! Otherwise, the Fock matrix of CASPT2 is used. The loss of the accuracy is small (~1.0e-6).
+    ! Derivative of the frozen part with respect to the active density of SCF, accumulated in DENS and used in GrdCls
+    if (if_FroSCF) then
+      call mma_allocate(DRDMFro,nAshT,nAshT,Label='DRDMFro')
+      DRDMFro(:,:) = Zero
+    end if
     if ((.not. if_FroSCF) .and. (iPrGlb >= TERSE)) &
       call WarningMessage(1,'The frozen orbitals are treated with the Fock matrix of the state, because the SCF orbital '// &
                           'energies are not available for the reference orbitals.')

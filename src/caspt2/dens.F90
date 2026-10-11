@@ -27,12 +27,12 @@ use ChoCASPT2, only: iALGO, MaxVec_PT2
 use sguga, only: SGS
 use general_data, only: nAsh
 use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
-                         DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_FroSCF, if_invar, if_invaria, &
-                         if_SSDM, imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, RDMSCF, real_shift, &
-                         sigma_p_epsilon, SLag, TORB, Weight
+                         DPT2Canti_tot, DRDMFro, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_FroSCF, if_invar, &
+                         if_invaria, if_SSDM, imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, RDMSCF, &
+                         real_shift, sigma_p_epsilon, SLag, TORB, Weight
 use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASHT, NASUP, &
-                         NBAS, NBAST, NBSQT, NCONF, NFROT, NISH, NISUP, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, &
-                         ZETA
+                         NBAS, NBAST, NBSQT, NCONF, NFRO, NFROT, NISH, NISUP, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, &
+                         ORBIN, ZETA
 use BDerNEV, only: BDerNEV_initial, BDerNEV_final1, BDerNEV_final2
 use SC_NEVPT2, only: SC_NEVPT2_amplitude, SC_prop
 #ifdef _MOLCAS_MPP_
@@ -52,7 +52,7 @@ integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, iCase, IDM, IDMOFF, IDRF, ID
                      nDens, NDPT, nDPTAO, NI, NIS, NLEV, NO, nOcc, nOrbI
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, X
 integer(kind=iwp), allocatable :: ISAV(:)
-real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DAOs(:,:), DEPSA(:,:), DEPSA_diag(:), DFro(:), DFro_AO(:), DI(:), &
+real(kind=wp), allocatable :: A_PT2(:), CDensF(:,:), CLagT(:,:), DAOs(:,:), DEPSA(:,:), DEPSA_diag(:), DFro(:), DFro_AO(:), DI(:), &
                               DIA(:), DPT(:), DPT2(:), DPT2_AO(:), DPT2C_AO(:), DRDMFock(:,:), DRDMSCF(:), DSUM(:), EigT(:,:), &
                               FAOs(:,:), FFro(:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), FSCF(:), OMGT(:,:), RDMFock(:,:), &
                               T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
@@ -350,6 +350,9 @@ if (do_grad) then
     end do
     !! Clear
     DEPSA(:,:) = Zero
+    ! Frozen part of the contraction of the configuration Lagrangian in DEPSAOff
+    call mma_allocate(CDensF,nAshT,nAshT,Label='CDensF')
+    CDensF(:,:) = Zero
   end if
   !write(u6,*) 'depsad'
   !call sqprt(depsa,nasht)
@@ -702,20 +705,26 @@ if (do_grad) then
   ! With if_FroSCF, do the same as above for the frozen part with the Fock and density matrices of SCF.
   ! The SCF density (usually) depends on all the states through the weights, so all the states have the configuration Lagrangian.
   if (if_FroSCF) then
-    call mma_allocate(CI1,nConf,Label='CI1')
     call mma_allocate(DRDMSCF,nAshT**2,Label='DRDMSCF')
     WRK2(1:NBSQT) = Zero
     DRDMSCF(:) = Zero
     ! EigDer reads the AO Fock matrices only without frozen orbitals
     call EigDer(NBSQT,nAshT,DFro,WRK2,WRK2,WRK2,DRDMSCF,CMOPT2,Trf,FFro,WRK2,FSCF,FIMO_all,RDMSCF)
-    do iState=1,nState
-      call LoadCI(CI1,iState)
-      WRK1(1:nAshT**2) = Weight(iState)*DRDMSCF(:)
-      call Poly1_CLag(nConf,NLEV,CI1,CLag(:,iState),WRK1)
-    end do
+    ! CI Lagrangian from DRDMSCF is later evaluated once in GrdCls
+    iSQ = 1+nFro(1)+nIsh(1)+nBasT*(nFro(1)+nIsh(1))
+    if ((jState == iRlxRoot) .or. IFMSCOUP) then
+      ! DRDMSCF in PT2 orbital --> DRDMFro in SCF (natural) orbital
+      call DGEMM_('N','N',nAshT,nAshT,nAshT,One,Trf(iSQ),nBasT,DRDMSCF,nAshT,Zero,WRK1,nAshT)
+      call DGEMM_('N','T',nAshT,nAshT,nAshT,One,WRK1,nAshT,Trf(iSQ),nBasT,One,DRDMFro,nAshT)
+    end if
+    ! Need the commutator of the SCF density and DRDMSCF: CDensF = RDMSCF*DRDMSCF in the quasi-canonical basis (see depsaoff.F90)
+    if (.not. if_invar) then
+      call DGEMM_('N','N',nAshT,nAshT,nAshT,One,Trf(iSQ),nBasT,DRDMSCF,nAshT,Zero,CDensF,nAshT) ! CDensF is a working array
+      call DGEMM_('N','N',nAshT,nAshT,nAshT,One,RDMSCF,nAshT,CDensF,nAshT,Zero,WRK1,nAshT)
+      call DGEMM_('T','N',nAshT,nAshT,nAshT,One,Trf(iSQ),nBasT,WRK1,nAshT,Zero,CDensF,nAshT) ! CDensF is quasi-canonical
+    end if
     DPT2(:) = DPT2(:)+DFro(:)
     DPT2_AO(:) = DPT2_AO(:)+DFro_AO(:)
-    call mma_deallocate(CI1)
     call mma_deallocate(DRDMSCF)
     call mma_deallocate(DFro)
     call mma_deallocate(FFro)
@@ -742,7 +751,8 @@ if (do_grad) then
   if (.not. if_invar) then
     SLag(:,:) = Zero
     !! Add the density that comes from the CI and orbital Lagrangians
-    call DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,FIFA_all)
+    call DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,CDensF,FIFA_all)
+    call mma_deallocate(CDensF)
     !! Restore the diagonal elements
     do i=1,nAshT
       DEPSA(i,i) = DEPSA_diag(i)

@@ -11,7 +11,7 @@
 ! Copyright (C) 2021,2026, Yoshio Nishimoto                            *
 !***********************************************************************
 
-subroutine DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,FIFA)
+subroutine DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,CDensF,FIFA)
 
 use caspt2_global, only: IDTCEX, LUCIEX
 use general_data, only: NASH
@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nConf, nState, nAshT, nOLag, NBSQT
-real(kind=wp), intent(in) :: CLag(nConf,nState), OLag(nOLag), FIFA(NBSQT)
+real(kind=wp), intent(in) :: CLag(nConf,nState), OLag(nOLag), CDensF(nAshT,nAshT), FIFA(NBSQT)
 real(kind=wp), intent(inout) :: DEPSA(nAshT,nAshT)
 integer(kind=iwp) :: ID, iMO, iState, iSym, iT, iTabs, iTtot, iU, iUabs, iUtot, nAshI, nBasI, nFroI, nIshI, nOrbI
 real(kind=wp) :: EigT, EigU, Tmp
@@ -31,7 +31,7 @@ real(kind=wp), allocatable :: CDens(:,:), CI(:), G1(:,:), SGM(:)
 ! See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
 ! Section II C 4 "Non-invariance with respect to active MOs"
 ! Off-diagonal active density, Eq. (70):
-! D_{tu} += -(1/2)*[(OLag_tu - OLag_ut) - X_tu ] / (f_t-f_u)
+! D_{tu} += -(1/2)*[(OLag_tu - OLag_ut) + X_tu ] / (f_t-f_u)
 
 ! The original code first solved the linear equation: |CLag_I> = H^{CC}|Q_I> = 2w_I (H-E_I)|Q_I> for Q,
 ! where H^{CC} is CI Hessian and |Q> is the solution.
@@ -40,11 +40,21 @@ real(kind=wp), allocatable :: CDens(:,:), CI(:), G1(:,:), SGM(:)
 ! The active orbitals and CI vectors rotated together in the opposite direction keep the reference states, so
 ! H_{tu}^{Ca} = H^{CC}*r_{tu}, with r_{tu,I} = E_{tu}^-|I>
 ! Then X_{tu} can be directly computed: X_{tu} = Q*H^{CC}*r_{tu} = CLag*r_{tu} = sum_I <CLag_I|E_{tu}^-|I>
-! CDens(t,u) = sum_I <CLag_I|E_ut|I> with the CI vectors in the quasi-canonical basis, so X_tu = CDens(u,t)-CDens(t,u).
+! CDens(t,u) = sum_I <CLag_I|E_ut|I> with the CI vectors in the quasi-canonical basis, so X_tu = CDens(t,u)-CDens(u,t).
 ! The rotation of a single CSF is outside the CI space.
 
 call mma_allocate(CDens,nAshT,nAshT,Label='CDens')
-CDens(:,:) = Zero
+! CDensF is the part of the frozen orbitals, which depend on the SCF density D.
+! With F = DRDMSCF, |CLagF_I> = w_I sum_xy F(x,y) Exy |PsiI>, and
+! X_tu = sum_I <CLagF_I|Etu-Eut|PsiI> = sum_I w_I sum_xy F(x,y) <PsiI|Exy*(Etu-Eut)|PsiI>
+! F is symmetric, so
+!   sum_xy F(x,y)*<PsiI|Exy*(Etu-Eut)|PsiI>
+!    = 0.5*sum_xy F(x,y)*<PsiI|[Exy,Etu-Eut]|PsiI>
+!    = 0.5*sum_xy F(x,y)*<PsiI|Exu*del(ty)-Ety*del(xu)-Ext*del(uy)+Euy*del(xt)|PsiI>
+!    = 0.5*<PsiI|Fxt*Exu-Fuy*Ety-Fxu*Ext+Fty*Euy|PsiI>
+! and X_tu = 0.5*(Fxt*Dxu-Fuy*Dty-Fxu*Dxt+Fty*Duy) = (FD-DF)_tu.
+! CDensF = D*F, so CDens(t,u)-CDens(u,t) gives frozen orbital contributions
+CDens(:,:) = CDensF(:,:)
 if (ISCF == 0) then
   call mma_allocate(CI,nConf,Label='CI')
   call mma_allocate(SGM,nConf,Label='SGM')
