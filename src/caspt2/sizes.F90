@@ -436,9 +436,9 @@ if (do_grad) then
   ngrad7_2 = ngrad7_2+MXLFT
   ngrad7 = ngrad7+max(ngrad7_1,ngrad7_2)
 
-  ! gradient: CI derivatives (DEPSAOffC)
+  ! gradient: CI derivatives (DEPSAOff)
   ngrad8 = 0
-  if (.not. if_invar) ngrad8 = 2*nConf
+  if (.not. if_invar) ngrad8 = nConf+MXCI
 
   ! gradient: kappa (orbital) derivatives
   !           (OLagNS_RI, OLagNS2, OLagVVVO)
@@ -479,7 +479,7 @@ if (do_grad) then
   write(u6,'(1x,a,i12)') 'sigder         :',ngrad5
   write(u6,'(1x,a,i12)') 'clagx          :',ngrad6
   write(u6,'(1x,a,i12)') 'derheff        :',ngrad7
-  write(u6,'(1x,a,i12)') 'DEPSAOffC      :',ngrad8
+  write(u6,'(1x,a,i12)') 'DEPSAOff       :',ngrad8
   write(u6,'(1x,a,i12)') 'OLagNS/OLagVVVO:',ngrad9
   write(u6,'(1x,a,i12)') 'CnstAB_SSDM    :',ngrad10
   write(u6,'(1x,a,i12)') 'XMS_Grad       :',ngrad11

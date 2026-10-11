@@ -741,10 +741,8 @@ if (do_grad) then
   !! active density for non-invariant CASPT2
   if (.not. if_invar) then
     SLag(:,:) = Zero
-    !! Add the density that comes from CI Lagrangian
-    call DEPSAOffC(nConf,nState,nAshT,NBSQT,CLag,DEPSA,FIFA_all)
-    !! Add the density that comes from orbital Lagrangian
-    call DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA_all)
+    !! Add the density that comes from the CI and orbital Lagrangians
+    call DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,FIFA_all)
     !! Restore the diagonal elements
     do i=1,nAshT
       DEPSA(i,i) = DEPSA_diag(i)

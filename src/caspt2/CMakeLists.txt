@@ -68,8 +68,7 @@ set (sources
      dens1t_rpt2.F90
      dens2t_rpt2.F90
      dens.F90
-     depsaoffc.F90
-     depsaoffo.F90
+     depsaoff.F90
      depsatrf.F90
      dere4.F90
      derfg3.F90
