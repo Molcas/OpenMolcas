@@ -87,12 +87,7 @@ else
   IDB = IDBoriMat(ISYM,ICASE)
   call DDAFILE(LUSTD,2,B,NS,IDB)
 end if
-IJ = 0
-do J=1,NAS
-  F(1:J,J) = B(IJ+1:IJ+J)
-  F(J,1:J) = B(IJ+1:IJ+J)
-  IJ = IJ+J
-end do
+call SQUARE(B,F,1,NAS,NAS)
 call mma_deallocate(B)
 
 ! LAG = 2 (SCA*U)^T * B * D * (SCA^{-1}*U), the B part of the residual

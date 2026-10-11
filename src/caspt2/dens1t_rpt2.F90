@@ -87,14 +87,13 @@ else
     ISU = SGS(istate)%ISM(LU)
     IU = SGS(istate)%L2ACT(LU)
     ISTU = Mul(IST,ISU)
+    if (ISTU /= 1) cycle
     ISSG = Mul(ISTU,STSYM)
     NSGM = CIS(istate)%NCSF(ISSG)
     if (NSGM == 0) cycle
     call GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
-    if (ISTU == 1) then
-      GTU = DDOT_(NSGM,CI2,1,SGM1,1)
-      G1(IT,IU) = G1(IT,IU)+GTU
-    end if
+    GTU = DDOT_(NSGM,CI2,1,SGM1,1)
+    G1(IT,IU) = G1(IT,IU)+GTU
 
     !SVC: The master node now continues to only handle task scheduling,
     !     needed to achieve better load balancing. So it exits from the task

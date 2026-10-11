@@ -15,7 +15,7 @@ subroutine DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,FIFA)
 
 use caspt2_global, only: IDTCEX, LUCIEX
 use general_data, only: NASH
-use caspt2_module, only: ISCF, MXCI, NAES, NBAS, NDEL, NFRO, NISH, NSYM
+use caspt2_module, only: ISCF, NAES, NBAS, NDEL, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
@@ -47,8 +47,7 @@ call mma_allocate(CDens,nAshT,nAshT,Label='CDens')
 CDens(:,:) = Zero
 if (ISCF == 0) then
   call mma_allocate(CI,nConf,Label='CI')
-  ! DENS1T_RPT2 also builds the sigma vectors of the other symmetries
-  call mma_allocate(SGM,MXCI,Label='SGM')
+  call mma_allocate(SGM,nConf,Label='SGM')
   call mma_allocate(G1,nAshT,nAshT,Label='G1')
   do iState=1,nState
     ID = IDTCEX(iState)

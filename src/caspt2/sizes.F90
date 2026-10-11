@@ -438,7 +438,7 @@ if (do_grad) then
 
   ! gradient: CI derivatives (DEPSAOff)
   ngrad8 = 0
-  if (.not. if_invar) ngrad8 = nConf+MXCI
+  if (.not. if_invar) ngrad8 = 2*nConf
 
   ! gradient: kappa (orbital) derivatives
   !           (OLagNS_RI, OLagNS2, OLagVVVO)
