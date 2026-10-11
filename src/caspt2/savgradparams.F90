@@ -192,6 +192,8 @@ do ISYM=1,NSYM
     NIN = NINDEP(ISYM,ICASE)
     NAS = NASUP(ISYM,ICASE)
     NIS = NISUP(ISYM,ICASE)
+    ! SBDIAG writes nothing for the blocks without the inactive/secondary part
+    if (NAS*NIS == 0) cycle
     if (IORW == 1) then
       if (NAS > 0) then
         !! Active overlap
