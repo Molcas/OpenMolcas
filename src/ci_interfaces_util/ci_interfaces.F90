@@ -753,7 +753,8 @@ subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
-use faroald, only: nPat, hdiag, ncomb_tot
+use faroald, only: hdiag, ncomb_tot
+!use faroald, only: nPat, hdiag, ncomb_tot
 #ifdef _SGUGA_VERIFY_EXTRA_
 use sguga, only: SGS, EXS, CIS
 #endif
@@ -785,15 +786,15 @@ call get_diag(DDIA,ndet)
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
 If (DoFaro) Then
-  If (nDet/=nComb_tot) Then
-     Write (u6,*) 'Warning: nDet/=nComb'
-     Write (u6,*) 'iSpin=',iSpin
-     Write (u6,*) 'nConf=',nConf
-     Write (u6,*) 'nDet=',nDet
-     Write (u6,*) 'nPat=',nPat
-     Write (u6,*) 'nComb_tot',nComb_tot
-     Call Abend()
-  End If
+! If (nDet/=nComb_tot) Then
+!    Write (u6,*) 'Warning: nDet/=nComb'
+!    Write (u6,*) 'iSpin=',iSpin
+!    Write (u6,*) 'nConf=',nConf
+!    Write (u6,*) 'nDet=',nDet
+!    Write (u6,*) 'nPat=',nPat
+!    Write (u6,*) 'nComb_tot',nComb_tot
+!    Call Abend()
+! End If
 !Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
 !Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
 
@@ -907,16 +908,20 @@ endif
 
 End subroutine Mk_CI_Diag
 
-subroutine Mk_Tra_Psi(TU,nTU,CI_Vector,nCSF)
-integer(kind=iwp), intent(in) ::  nTU, nCSF
+subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
+integer(kind=iwp), intent(in) ::  iState,nTU, nCSF
 real(kind=wp), intent(in) :: TU(nTU)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 
 real(kind=wp), allocatable :: Faroald_Psi(:,:), ctemp(:)
 real(kind=wp), allocatable :: dtemp(:)
 
+integer(kind=iwp) :: iCSF
+real(kind=wp), allocatable :: CI_Faroald(:)
+
 !If (DoFaro) Then
-If (.false.) Then
+  Call mma_allocate(CI_Faroald,nCSF,Label='CI_Faroald')
+  CI_Faroald(:) = CI_Vector(:)
 
   Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
   Call mma_allocate(ctemp,Max(nCSF,nDetA*nDetB),Label='ctemp')
@@ -931,18 +936,27 @@ If (.false.) Then
 
   call CITRANS_SD2CSF(Faroald_Psi,dTemp)
   call CITRANS_SORT('O',dTemp,ctemp)
-  call SG_Reord(iState,STSYM,1,nCSF,cTemp,CI_Vector)
+! call SG_Reord(iState,STSYM,1,nCSF,cTemp,CI_Vector)
+  call SG_Reord(iState,STSYM,1,nCSF,cTemp,CI_Faroald)
 
   Call mma_deallocate(dTemp)
   Call mma_deallocate(ctemp)
   Call mma_deallocate(Faroald_Psi)
 
-Else
+!Else
 
    Call Lucia_util('TRACI', &
                    CI_Vector=CI_Vector(:), &
                    TU=TU(:), nTU=nTU)
-End If
+!End If
+Do iCSF = 1, nCSF
+   If (Abs(CI_Vector(iCSF)-CI_Faroald(iCSF))/nCSF>1.0E-12_wp) Then
+      Write (6,*) 'Mk_Tra_Psi error, iCSF=',iCSF
+      Write (6,*) 'CI_Vector(iCSF) =',CI_Vector(iCSF)
+      Write (6,*) 'CI_Faroald(iCSF)=',CI_Faroald(iCSF)
+      Call Abend()
+   End If
+End Do
 
 End subroutine Mk_Tra_Psi
 

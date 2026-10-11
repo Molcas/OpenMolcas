@@ -28,6 +28,7 @@ integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp) :: I, IADR, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT
 real(kind=wp), allocatable :: TransMat(:), CI_Vector(:), LT(:)
+integer(kind=iwp), parameter :: iState=1
 
 call mma_allocate(CI_Vector,nCSF,Label='CI_Vector')
 
@@ -73,7 +74,7 @@ do JROOT=1,NROOTS
   ! Read CI vector in SG format
   call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
 
-  Call Mk_Tra_Psi(LT,nLev**2,CI_Vector,nCSF)
+  Call Mk_Tra_Psi(iState,LT,nLev**2,CI_Vector,nCSF)
 
   Call VecPhase(CI_Vector,nCSF)
   call DDAFILE(JOBIPH,1,CI_Vector,nCSF,JOBDISK)

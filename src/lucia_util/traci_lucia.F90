@@ -56,7 +56,6 @@ call mma_allocate(LH1SAVE,nT,Label='LH1SAVE')
 LH1SAVE(:) = INT1(:)
 IH1FORM_SAVE = IH1FORM
 
-
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 

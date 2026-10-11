@@ -2187,9 +2187,6 @@ subroutine sigma_update_1e(h1,psi,sigma)
   real(kind=wp), intent(in)  :: psi(ndeta,ndetb)
   real(kind=wp), intent(out) :: sigma(ndeta,ndetb)
 
-  integer(kind=iwp) :: ja,jb
-  integer(kind=iwp) :: ia,ib
-  integer(kind=iwp) :: k
   integer(kind=iwp) :: p,q
   real(kind=wp) :: hpq
   real(kind=wp), allocatable :: work(:,:)
@@ -2256,6 +2253,7 @@ subroutine traci_faroald(T,nT,psi)
 end subroutine traci_faroald
 
 subroutine build_trow_operator(T,k,h1,tkk)
+
    real(wp), intent(in)  :: T(:)
    integer(iwp), intent(in) :: k
    real(wp), intent(out) :: h1(my_norb,my_norb)
@@ -2263,15 +2261,16 @@ subroutine build_trow_operator(T,k,h1,tkk)
 
    integer(iwp) :: p
 
-   h1 = Zero
+   h1(:,:) = Zero
 
-   tkk = T(iTri(k,k))
+   tkk = T((k-1)*my_norb + k)
 
    do p=1,my_norb
       if (p == k) cycle
-      h1(p,k) = T(iTri(max(p,k),min(p,k))) / tkk
+      h1(p,k) = T((k-1)*my_norb + p) / tkk
    end do
-end subroutine build_trow_operator
+
+end subroutine
 
 subroutine multiply_by_nk(tkk,k,psi)
 
