@@ -288,7 +288,6 @@ end if
 End Subroutine SXCTL_Prelude
 
 Subroutine SXCTL_Final()
-  integer(kind=iwp) :: i
 
   ! If ifinal=1 , this is the last call to SXCTL for calculating
   ! the MCSCF Fock matrix for occupied orbitals, and new orbitals).

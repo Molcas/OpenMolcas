@@ -21,7 +21,6 @@ module faroald
 ! The implementation follows the minimum operation count algorithm
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
-use Index_Functions, only: iTri
 use second_quantization, only: binom_coef
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
