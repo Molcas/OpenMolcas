@@ -4696,6 +4696,56 @@ end subroutine apply_row
 
 end subroutine SG_Epq_Psi
 
+subroutine SG_Sum_Hpq_Epq_Psi(iState,LSM,Hpq,nLev,CI,Sigma)
+
+  use Constants, only: Zero, One
+  use stdalloc,  only: mma_allocate,mma_deallocate
+
+  implicit none
+
+  integer(kind=iwp), intent(in) :: iState
+  integer(kind=iwp), intent(in) :: LSM
+  integer(kind=iwp), intent(in) :: nLev
+
+  real(kind=wp), intent(in)  :: Hpq(nLev,nLev)
+  real(kind=wp), intent(in)  :: CI(:)
+  real(kind=wp), intent(out) :: Sigma(:)
+
+  integer(kind=iwp) :: ip,iq
+  real(kind=wp)  :: Factor
+  real(kind=wp), Parameter :: Thr = 1.0d-14
+
+  real(kind=wp), allocatable :: Tmp(:)
+
+  call mma_allocate(Tmp,size(CI),Label='Tmp')
+
+  Sigma(:)=Zero
+
+  do iq=1,nLev
+    do ip=1,nLev
+
+      ! Epq may only connect orbitals of the same irrep
+      If (SGS(iState)%ISM(ip) /= SGS(iState)%ISM(iq)) Cycle
+
+      Factor = Hpq(ip,iq)
+
+      if(abs(Factor) < Thr) cycle
+
+      call SG_Epq_Psi( SGS(iState), &
+                       CIS(iState), &
+                       EXS(iState), &
+                       ip, iq, One, LSM, &
+                       CI, Tmp )
+
+      Sigma(:)=Sigma(:)+Factor*Tmp(:)
+
+    end do
+  end do
+
+  call mma_deallocate(Tmp)
+
+end subroutine SG_Sum_Hpq_Epq_Psi
+
 subroutine SG_EpqEqp_Diag(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,DIAG)
 
 use Symmetry_Info, only: Mul
