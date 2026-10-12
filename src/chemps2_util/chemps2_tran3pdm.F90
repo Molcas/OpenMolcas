@@ -49,6 +49,7 @@ contains
     use mh5, only: mh5_open_file_r, mh5_open_file_rw, mh5_open_group, mh5_open_dset, &
                   mh5_fetch_dset, mh5_put_dset, mh5_close_dset, mh5_close_group, mh5_close_file
     use stdalloc, only: mma_allocate, mma_deallocate
+    use filesystem, only: copy_
     character(len=64) :: source_file, target_file
     character(len=10) :: rootindex
     integer(kind=iwp) :: file_h5, group_h5, dset_h5, ierr
@@ -84,7 +85,7 @@ contains
       end do
       rdm(:)=out(:)
     end do
-    call systemf('cp -f '//trim(source_file)//' '//trim(target_file),ierr)
+    call copy_(source_file,target_file,ierr)
     if (ierr /= 0) then
       write(u6,*) 'CHEMPS2> Could not create ',trim(target_file)
       call abend()
