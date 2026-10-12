@@ -798,12 +798,12 @@ end subroutine CLagDXG
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 subroutine CLagDX_MPP()
 
-  use caspt2_global, only: iVecL
+  use caspt2_global, only: iVecG, iVecL
   use caspt2_module, only: JSTATE, MAXIT
   use Constants, only: One
 
-  integer(kind=iwp) :: i, idB, idSD, iHiV1, iICB, iLoV1, j, jHiV1, jICB, jLoV1, LDV1, lg_BDER, lg_GDER, lg_SDER, lg_T, &
-                       lg_WRK, lg_WRK2, mBDER, mSDER, mV1, mV2, myrank, NCOL, NROW
+  integer(kind=iwp) :: i, idB, idSD, iHiV1, iICB, iLoV1, j, jHiV1, jICB, jLoV1, LDV1, lg_BDER, lg_GCDER, lg_GDER, lg_SDER, lg_T, &
+                       lg_WRK, lg_WRK2, lg_WT, mBDER, mSDER, mV1, mV2, myrank, NCOL, NROW
   real(kind=wp) :: EigI, EigJ, SCAL
   logical(kind=iwp) :: bStat
   integer(kind=byte), allocatable :: idxG3(:,:)
@@ -1055,6 +1055,11 @@ subroutine CLagDX_MPP()
   !! lg_V1 = VEC1 = T (solution; not quasi-variational)
   call RHS_ALLO(nIN,nIS,lg_V1)
   call RHS_READ_SR(lg_V1,iCase,iSym,iVecX)
+  if (do_lindep .and. (nAS /= nIN) .and. IFMSCOUP) then
+    ! lg_WT = T in the MO basis, for the RHS of the other states
+    call GA_CREATE_STRIPED('V',NAS,NIS,'WT',lg_WT)
+    call GA_DGEMM('N','N',NAS,NIS,NIN,One,lg_T,lg_V1,Zero,lg_WT)
+  end if
   call RHS_SCAL(nIN,nIS,lg_V1,SCAL)
   if ((real_shift /= Zero) .or. (imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero) .or. IFMSCOUP) then
     !! lg_V2 = VEC2 = lambda (shift correction)
@@ -1076,6 +1081,15 @@ subroutine CLagDX_MPP()
   if (do_lindep .and. (nAS /= nIN)) then
     call GA_CREATE_STRIPED('H',NAS,NAS,'GDER',lg_GDER)
     call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,Zero,lg_GDER)
+    ! lg_GCDER is the implicit derivative of the RHS of the other states
+    call GA_CREATE_STRIPED('H',NAS,NAS,'GCDER',lg_GCDER)
+    call GA_Zero(lg_GCDER)
+    if (do_lindep .and. (nAS /= nIN) .and. IFMSCOUP) then
+      ! lg_V1 = RHS of the other states (in MO basis)
+      call RHS_READ(nAS,nIS,lg_V1,iCase,iSym,iVecG)
+      call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WT,lg_V1,Zero,lg_GCDER)
+      bStat = GA_destroy(lg_WT)
+    end if
   else
     call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,One,lg_SDER)
   end if
@@ -1087,8 +1101,9 @@ subroutine CLagDX_MPP()
   ! Add the contributions due to the dependence on the linearly independent space
   ! LinDepLag_MPP also adds lg_GDER to lg_SDER.
   if (do_lindep .and. (nAS /= nIN)) then
-    call LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,nAS,nIN,iSym,iCase)
+    call LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,lg_GCDER,nAS,nIN,iSym,iCase)
     bStat = GA_destroy(lg_GDER)
+    bStat = GA_destroy(lg_GCDER)
   end if
 
   !! Add the contributions from the off-diagonal coupling

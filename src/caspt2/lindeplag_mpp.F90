@@ -14,7 +14,7 @@
 #include "compiler_features.h"
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 
-subroutine LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,nAS,nIN,iSym,iCase)
+subroutine LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,lg_GCDER,nAS,nIN,iSym,iCase)
 ! Parallel LinDepLag
 
 use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
@@ -22,14 +22,15 @@ use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use scalapack_mod, only: GA_PDSYEVX_
 #endif
 use caspt2_global, only: idBoriMat, LUSTD
-use caspt2_module, only: IFDORTHO, THRSHN
+use caspt2_module, only: IFDORTHO, IFMSCOUP, THRSHN
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: lg_BDER, lg_SDER, lg_GDER, nAS, nIN, iSym, iCase
-integer(kind=iwp) :: I, IDB, iHi, iLo, J, jHi, jLo, LDB, LDG, LDS, LDV, lg_B, lg_Lag, lg_S, lg_Vec, M, mB, mG, mS, mV, myRank
+integer(kind=iwp), intent(in) :: lg_BDER, lg_SDER, lg_GDER, lg_GCDER, nAS, nIN, iSym, iCase
+integer(kind=iwp) :: I, IDB, iHi, iLo, J, jHi, jLo, LDB, LDC, LDG, LDS, LDV, lg_B, lg_Lag, lg_S, lg_Vec, M, mB, mC, mG, mS, mV, &
+                     myRank
 real(kind=wp) :: Tmp
 logical(kind=iwp) :: bStat
 real(kind=wp), allocatable :: EIG(:), SCA(:), SD(:)
@@ -157,6 +158,10 @@ end if
 call GA_Sync()
 call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_GDER,lg_Vec,Zero,lg_Lag)
 call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_Vec,lg_Lag,Zero,lg_GDER)
+if (IFMSCOUP) then
+  call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_GCDER,lg_Vec,Zero,lg_Lag)
+  call GA_Copy_Patch('N',lg_Lag,1,NAS,1,NAS,lg_GCDER,1,NAS,1,NAS)
+end if
 
 ! Multiply the rows of lg_Vec by SCA**2 to get VL, which couples with the residual and the derivative of S
 call GA_Distribution(lg_Vec,myRank,iLo,iHi,jLo,jHi)
@@ -169,6 +174,10 @@ if (iLo /= 0) then
 end if
 call GA_Sync()
 call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_Vec,lg_B,Zero,lg_Lag)
+if (IFMSCOUP) then
+  call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_Vec,lg_GCDER,Zero,lg_B)
+  call GA_Copy_Patch('N',lg_B,1,NAS,1,NAS,lg_GCDER,1,NAS,1,NAS)
+end if
 !! At this point,
 ! lg_Lag = 2 VL^T * B * D * VR
 
@@ -178,17 +187,21 @@ call GA_Distribution(lg_Lag,myRank,iLo,iHi,jLo,jHi)
 if (iLo /= 0) then
   call GA_Access(lg_Lag,iLo,iHi,jLo,jHi,mV,LDV)
   call GA_Access(lg_GDER,iLo,iHi,jLo,jHi,mG,LDG)
+  if (IFMSCOUP) call GA_Access(lg_GCDER,iLo,iHi,jLo,jHi,mC,LDC)
   do J=1,nAS
     do I=1,iHi-iLo+1
       if ((iLo+I-1 <= nAS-nIN) .and. (J > nAS-nIN)) then
-        DBL_MB(mV+I-1+LDV*(J-1)) = (DBL_MB(mV+I-1+LDV*(J-1))+EIG(iLo+I-1)*DBL_MB(mG+I-1+LDG*(J-1)))/(EIG(J)-EIG(iLo+I-1))
+        Tmp = DBL_MB(mV+I-1+LDV*(J-1))+EIG(iLo+I-1)*DBL_MB(mG+I-1+LDG*(J-1))
+        if (IFMSCOUP) Tmp = Tmp+DBL_MB(mC+I-1+LDC*(J-1))
+        DBL_MB(mV+I-1+LDV*(J-1)) = Tmp/(EIG(J)-EIG(iLo+I-1))
       else
         DBL_MB(mV+I-1+LDV*(J-1)) = Zero
       end if
     end do
   end do
-  call GA_Release(lg_GDER,iLo,iHi,jLo,jHi)
   call GA_Release_Update(lg_Lag,iLo,iHi,jLo,jHi)
+  call GA_Release(lg_GDER,iLo,iHi,jLo,jHi)
+  if (IFMSCOUP) call GA_Release(lg_GCDER,iLo,iHi,jLo,jHi)
 end if
 call GA_Sync()
 

@@ -15,7 +15,7 @@ subroutine CLagDX(iSym,iCase,nIN,nIS,nAS,nState,VECROT,BDERmat,SDERmat)
 
 use EQSOLV, only: IDBMAT, IDTMAT, IRHS, IVECR, IVECW, IVECX
 use fake_GA, only: GA_Arrays
-use caspt2_global, only: do_lindep, idSDMat, imag_shift, iVecL, LUSBT, LUSTD, real_shift, sigma_p_epsilon
+use caspt2_global, only: do_lindep, idSDMat, imag_shift, iVecG, iVecL, LUSBT, LUSTD, real_shift, sigma_p_epsilon
 use caspt2_module, only: IFMSCOUP, JSTATE, MAXIT
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
@@ -31,7 +31,7 @@ real(kind=wp), intent(inout) :: BDERmat(NAS*NAS), SDERmat(NAS*NAS)
 integer(kind=iwp) :: i, idB, idSD, idT, j, jICB, lg_V1, lg_V2
 real(kind=wp) :: Dummy(1), EigJ, SCAL, Tmp
 logical(kind=iwp) :: do_lambda
-real(kind=wp), allocatable :: DIS(:), EIG(:), TRANS(:), WRK1(:), WRK2(:), WRK3(:)
+real(kind=wp), allocatable :: DIS(:), EIG(:), TRANS(:), WRK1(:), WRK2(:), WRK3(:), XC(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: BUF1(:), BUF2(:)
 #endif
@@ -42,10 +42,12 @@ real(kind=wp), allocatable :: BUF1(:), BUF2(:)
 !   RHS    (iRHS) : RHS in the IC basis
 !   RHS    (iVecL): RHS in the IC basis of the coupled states, with the multistate coupling instead of iRHS
 !   RHS    (iVecW): RHS in the contravariant MO basis
+!   RHS    (iVecG): RHS of the other states with the multistate coupling and linear dependence in the contravariant MO basis
 ! In parallel, the master copies the two vectors to local buffers and does everything.
 ! Work arrays:
 !   WRK1 (nIN,nIN): density, and then the derivative of the overlap, in the IC basis
 !   WRK2 (nIN,nAS): (T+lambda/2)*RHS with the RHS in the MO basis. It is also the scratch array before that.
+!                   WRK2 may also be used as a working array of WRK2(nAS,nAS)
 !   WRK3 (nAS,nAS): explicit derivative of the overlap in the MO basis
 
 do_lambda = (real_shift /= Zero) .or. (imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero) .or. IFMSCOUP
@@ -54,9 +56,10 @@ call mma_allocate(EIG,nIN,Label='EIG')
 idB = idBMAT(iSym,iCase)
 call DDAFILE(LUSBT,2,EIG,nIN,idB)
 call mma_allocate(WRK1,nIN**2,Label='WRK1')
-call mma_allocate(WRK2,nIN*nAS,Label='WRK2')
+call mma_allocate(WRK2,nAS**2,Label='WRK2')
 call mma_allocate(WRK3,nAS**2,Label='WRK3')
 call mma_allocate(TRANS,nAS*nIN,Label='TRANS')
+if (do_lindep .and. (nAS /= nIN) .and. IFMSCOUP) call mma_allocate(XC,nIN*nAS,Label='XC')
 WRK1(:) = Zero
 
 SCAL = One
@@ -135,6 +138,12 @@ if (IFMSCOUP) then
   call RHS_ALLO(nAS,nIS,lg_V2)
   call RHS_READ(nAS,nIS,lg_V2,iCase,iSym,iVecW)
   call Contract(5,lg_V1,nIN,lg_V2,nAS)
+  if (do_lindep .and. (nAS /= nIN) .and. IFMSCOUP) then
+    ! XC = T*RHS, with the RHS of the other states
+    call RHS_READ(nAS,nIS,lg_V2,iCase,iSym,iVecG)
+    call Contract(8,lg_V1,nIN,lg_V2,nAS)
+    call RHS_READ(nAS,nIS,lg_V2,iCase,iSym,iVecW)
+  end if
   ! WRK2 = WRK2 + lambda*RHS/2
   call RHS_READ_SR(lg_V1,iCase,iSym,iVecR)
   call Contract(6,lg_V1,nIN,lg_V2,nAS)
@@ -176,7 +185,11 @@ if ((.not. Is_Real_Par()) .or. King()) then
   call DGEMM_('N','T',nAS,nAS,nIN,One,WRK2,nAS,TRANS,nAS,Zero,SDERmat,nAS)
 
   ! Add the contributions due to the dependence on the linearly independent space
-  if (do_lindep .and. (nAS /= nIN)) call LinDepLag(BDERmat,SDERmat,WRK3,nAS,nIN,iSym,iCase)
+  if (do_lindep .and. (nAS /= nIN)) then
+    WRK2(:) = Zero
+    if (IFMSCOUP) call DGEMM_('N','N',nAS,nAS,nIN,Two,TRANS,nAS,XC,nIN,One,WRK2,nAS)
+    call LinDepLag(BDERmat,SDERmat,WRK3,WRK2,nAS,nIN,iSym,iCase)
+  end if
 
   SDERmat(1:NAS**2) = SDERmat(1:NAS**2)+WRK3(1:NAS**2)
 
@@ -193,6 +206,7 @@ end if
 
 call mma_deallocate(WRK1)
 call mma_deallocate(WRK2)
+if (do_lindep .and. (nAS /= nIN) .and. IFMSCOUP) call mma_deallocate(XC)
 call mma_deallocate(WRK3)
 call mma_deallocate(TRANS)
 call mma_deallocate(EIG)
@@ -260,6 +274,9 @@ select case (iStep)
   case (7)
     ! VEC1 = RHS, VEC2 = lambda
     call DGEMM_('N','T',nIN,nIN,nIS,-Half,VEC1,nIN,VEC2,nIN,One,WRK1,nIN)
+  case (8)
+    ! VEC1 = T, VEC2 = RHS of the other states in the MO basis
+    call DGEMM_('N','T',nIN,nAS,nIS,One,VEC1,nIN,VEC2,nAS,Zero,XC,nIN)
 end select
 
 end subroutine Contract_

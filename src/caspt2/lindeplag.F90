@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine LinDepLag(BDer,SDer,GDer,nAS,nIN,iSym,iCase)
+subroutine LinDepLag(BDer,SDer,GDer,GCDer,nAS,nIN,iSym,iCase)
 ! Compute contributions that arise from the non-invariance effect
 ! in non-orthogonal -> orthogonal ICB rotations
 ! See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
@@ -21,7 +21,7 @@ subroutine LinDepLag(BDer,SDer,GDer,nAS,nIN,iSym,iCase)
 use Index_Functions, only: nTri_Elem
 use EQSOLV, only: idSMAT
 use caspt2_global, only: idBoriMat, LUSBT, LUSTD
-use caspt2_module, only: HZERO, IFDORTHO, THRSHN
+use caspt2_module, only: HZERO, IFDORTHO, IFMSCOUP, THRSHN
 use SC_NEVPT2, only: IDBMAT_NEVPT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -30,10 +30,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nAS, nIN, iSym, iCase
 real(kind=wp), intent(inout) :: BDer(nAS,nAS), SDer(nAS,nAS)
-real(kind=wp), intent(in) :: GDer(nAS,nAS)
+real(kind=wp), intent(in) :: GDer(nAS,nAS), GCDer(nAS,nAS)
 integer(kind=iwp) :: I, IDB, idS, IJ, INFO, J, NS, NSCRATCH
 real(kind=wp) :: WGRONK(2)
-real(kind=wp), allocatable :: B(:), EIG(:), F(:,:), LAG(:,:), S(:), SCA(:), SCRATCH(:), SS(:,:), VEC(:,:)
+real(kind=wp), allocatable :: B(:), EIG(:), F(:,:), LAG(:,:), S(:), SC(:,:), SCA(:), SCRATCH(:), SS(:,:), VEC(:,:)
 
 ! Diagonalize S scaled in the same way as in SBDIAG
 NS = nTri_Elem(NAS)
@@ -78,6 +78,11 @@ call mma_allocate(F,NAS,NAS,Label='F')
 ! SS = VEC^T * G^T * VEC. Its dep-indep block times the dep eigenvalue is the RHS part of the residual.
 call DGEMM_('T','N',NAS,NAS,NAS,One,GDER,NAS,VEC,NAS,Zero,LAG,NAS)
 call DGEMM_('T','N',NAS,NAS,NAS,One,VEC,NAS,LAG,NAS,Zero,SS,NAS)
+! SC = VEC^T * GCDer^T * VEC is added. GCDer^T * VEC is computed here.
+if (IFMSCOUP) then
+  call mma_allocate(SC,NAS,NAS,Label='SC')
+  call DGEMM_('T','N',NAS,NAS,NAS,One,GCDER,NAS,VEC,NAS,Zero,SC,NAS)
+end if
 
 call mma_allocate(B,NS,Label='B')
 if ((HZERO == 'DYALL') .and. ((iCase == 1) .or. (iCase == 4))) then
@@ -97,6 +102,10 @@ call DGEMM_('N','N',NAS,NAS,NAS,One,LAG,NAS,VEC,NAS,Zero,F,NAS)
 do I=1,NAS
   VEC(I,:) = VEC(I,:)*SCA(I)**2
 end do
+if (IFMSCOUP) then
+  F(:,:) = F(:,:)+SC(:,:)
+  call mma_deallocate(SC)
+end if
 call DGEMM_('T','N',NAS,NAS,NAS,One,VEC,NAS,F,NAS,Zero,LAG,NAS)
 
 ! Rotations between the dependent (I) and independent (J) vectors
