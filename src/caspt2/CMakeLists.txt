@@ -45,6 +45,7 @@ set (sources
      clagdxc_fg3.F90
      clagdxc_fg3_mpp.F90
      clagdx.F90
+     clagdx_sigma.F90
      clageig.F90
      clageigt.F90
      clagfinal.F90

@@ -736,13 +736,6 @@ if (do_grad .and. (.not. if_invaria) .and. (.not. IfChol)) then
   call quit_onUserError()
 end if
 
-#ifdef _MOLCAS_MPP_
-if (do_grad .and. (sigma_p_epsilon /= Zero) .and. (nProcs > 1)) then
-  call warningMessage(2,'Analytic gradients without the sigma^P regularization not available in parallel executions.')
-  call quit_onUserError()
-end if
-#endif
-
 if (do_grad .and. RF_On() .and. (.not. if_invar)) then
   if (IPRGLB >= TERSE) call warningMessage(1,'Analytic gradients with IPEA shift or without DORT and PCM is not fully analytic.')
 end if
