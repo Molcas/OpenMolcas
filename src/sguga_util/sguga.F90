@@ -5694,6 +5694,86 @@ end do
 
 end function SG_PHASE
 
+subroutine Encode_CSF( &
+           CIS,ISYCI, &
+           MV,ISYUP,IUP,IDWN, &
+           iCSF )
+
+use Definitions, only: iwp
+
+type(CIStruct), intent(in) :: CIS
+
+integer(kind=iwp), intent(in)  :: ISYCI
+integer(kind=iwp), intent(in)  :: MV
+integer(kind=iwp), intent(in)  :: ISYUP
+integer(kind=iwp), intent(in)  :: IUP
+integer(kind=iwp), intent(in)  :: IDWN
+
+integer(kind=iwp), intent(out) :: iCSF
+
+integer(kind=iwp) :: NUP
+integer(kind=iwp) :: IOFF
+
+NUP  = CIS%NOW(1,ISYUP,MV)
+IOFF = CIS%IOCSF(ISYUP,MV,ISYCI)
+
+iCSF = IOFF + IUP + (IDWN-1)*NUP
+
+end subroutine Encode_CSF
+
+subroutine Decode_CSF( &
+           CIS,ISYCI, &
+           iCSF, &
+           MV,ISYUP,IUP,IDWN )
+
+use Definitions, only: iwp,u6
+
+type(CIStruct), intent(in) :: CIS
+
+integer(kind=iwp), intent(in)  :: ISYCI
+integer(kind=iwp), intent(in)  :: iCSF
+
+integer(kind=iwp), intent(out) :: MV
+integer(kind=iwp), intent(out) :: ISYUP
+integer(kind=iwp), intent(out) :: IUP
+integer(kind=iwp), intent(out) :: IDWN
+
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: NCI
+integer(kind=iwp) :: NUP
+integer(kind=iwp) :: ILOC
+
+do MV=1,CIS%nMidV
+
+   do ISYUP=1,size(CIS%NOCSF,1)
+
+      IOFF = CIS%IOCSF(ISYUP,MV,ISYCI)
+      NCI  = CIS%NOCSF(ISYUP,MV,ISYCI)
+
+      if (NCI == 0) cycle
+
+      if (iCSF <= IOFF) cycle
+      if (iCSF >  IOFF+NCI) cycle
+
+      ILOC = iCSF-IOFF
+
+      NUP = CIS%NOW(1,ISYUP,MV)
+
+      IDWN = (ILOC-1)/NUP + 1
+      IUP  = ILOC - (IDWN-1)*NUP
+
+      return
+
+   end do
+
+end do
+
+write(u6,*) 'Decode_CSF failed'
+write(u6,*) 'iCSF=',iCSF
+call Abend()
+
+end subroutine Decode_CSF
+
 subroutine MK_FLAT_Epq(SGS)
 integer(kind=iwp) p, q, iSym
 type(SGStruct), intent(inout) :: SGS
@@ -6475,7 +6555,8 @@ integer(kind=iwp) :: iI,iJ,nI,nJ
 real(kind=wp)     :: X
 
 integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: i
+integer(kind=iwp) :: I, J, MV, ISYM
+integer(kind=iwp) :: ISYUP,IUP,IDWN
 
 integer(kind=iwp), allocatable :: ILeft(:)
 integer(kind=iwp), allocatable :: IRight(:)
@@ -6488,16 +6569,18 @@ write(u6,*) ' SG_EpqErs Reference Test'
 write(u6,*) '========================================='
 write(u6,*)
 
-Call Dump_All_ICoup_Blocks(iState)
+if (EXS(iState)%NOCP(1,1,2) /= 0 .and. &
+    EXS(iState)%NOCP(4,1,2) /= 0) then
 
 call Contract_ICoup_Blocks( &
      EXS(iState), &
-     8,1,1, &
-     17,1,2, &
+     1,1,2, &
+     4,1,2, &
      nTerm, &
      ILeft, &
      IRight, &
      XVal )
+
 write(6,'(A,I6)') 'NTERM = ',nTerm
 
 write(6,*)
@@ -6512,9 +6595,32 @@ do i=1,nTerm
         XVal(i)
 
 end do
+
 call mma_deallocate(ILeft)
 call mma_deallocate(IRight)
 call mma_deallocate(XVal)
+endif
+
+do I=1,CIS(iState)%NCSF(LSM)
+
+   call Decode_CSF( &
+        CIS(iState),LSM, &
+        I, &
+        MV,ISYUP,IUP,IDWN )
+
+   call Encode_CSF( &
+        CIS(iState),LSM, &
+        MV,ISYUP,IUP,IDWN, &
+        J )
+
+   if (I /= J) then
+      write(6,*) 'Encode/Decode failed'
+      write(6,*) I,J
+      call Abend()
+   endif
+
+end do
+
 
 nI=Min(size(IList),CIS(iState)%nCSF(LSM))
 nJ=Min(size(JList),CIS(iState)%nCSF(LSM))
@@ -6550,36 +6656,6 @@ end do
 end do
 
 contains
-
-subroutine Dump_All_ICoup_Blocks(iState)
-
-integer(kind=iwp), intent(in) :: iState
-
-integer(kind=iwp) :: INDEO
-integer(kind=iwp) :: ISYM
-integer(kind=iwp) :: MV
-
-do MV=1,CIS(iState)%nMidV
-
-   do ISYM=1,SGS(iState)%nSym
-
-      do INDEO=1,size(EXS(iState)%NOCP,1)
-
-         if (EXS(iState)%NOCP(INDEO,ISYM,MV) == 0) cycle
-
-         call Print_ICoup_Block( &
-              EXS(iState), &
-              INDEO, &
-              ISYM, &
-              MV )
-
-      end do
-
-   end do
-
-end do
-
-end subroutine Dump_All_ICoup_Blocks
 
 function MatEl_Ref(I,J,p,q,r,s) result(Value)
 
@@ -6740,6 +6816,16 @@ logical :: Found
 
 NCP1 = EXS%NOCP(INDEO1,ISYM1,MV1)
 NCP2 = EXS%NOCP(INDEO2,ISYM2,MV2)
+write(6,'(A,4I8)') 'INFO:',INDEO1,ISYM1,MV1,NCP1
+write(6,'(A,4I8)') 'INFO:',INDEO2,ISYM2,MV2,NCP2
+
+if (NCP1 == 0 .or. NCP2 == 0) then
+   nTerm = 0
+   call mma_allocate(ILeft ,1,Label='ILeft')
+   call mma_allocate(IRight,1,Label='IRight')
+   call mma_allocate(XVal  ,1,Label='XVal')
+   return
+end if
 
 IOFF1 = EXS%IOCP(INDEO1,ISYM1,MV1)
 IOFF2 = EXS%IOCP(INDEO2,ISYM2,MV2)
@@ -6800,247 +6886,6 @@ do ICP1=1,NCP1
 end do
 
 end subroutine Contract_ICoup_Blocks
-#ifdef _SCRAP_
-subroutine Print_ICoup_Contraction( &
-           EXS,                     &
-           INDEO1,ISYM1,MV1,        &
-           INDEO2,ISYM2,MV2 )
-
-use Definitions, only: iwp, wp, u6
-use stdalloc,    only: mma_allocate, mma_deallocate
-
-implicit none
-
-type(EXStruct), intent(in) :: EXS
-
-integer(kind=iwp), intent(in) :: INDEO1
-integer(kind=iwp), intent(in) :: ISYM1
-integer(kind=iwp), intent(in) :: MV1
-
-integer(kind=iwp), intent(in) :: INDEO2
-integer(kind=iwp), intent(in) :: ISYM2
-integer(kind=iwp), intent(in) :: MV2
-
-integer(kind=iwp) :: NCP1
-integer(kind=iwp) :: NCP2
-
-integer(kind=iwp) :: IOFF1
-integer(kind=iwp) :: IOFF2
-
-integer(kind=iwp) :: ICP1
-integer(kind=iwp) :: ICP2
-
-integer(kind=iwp) :: L1
-integer(kind=iwp) :: M1
-
-integer(kind=iwp) :: M2
-integer(kind=iwp) :: R2
-
-integer(kind=iwp) :: IV1
-integer(kind=iwp) :: IV2
-
-real(kind=wp) :: X1
-real(kind=wp) :: X2
-real(kind=wp) :: X
-
-integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: i
-integer(kind=iwp) :: j
-
-integer(kind=iwp), allocatable :: ILeft(:)
-integer(kind=iwp), allocatable :: IRight(:)
-
-real(kind=wp), allocatable :: XVal(:)
-
-logical :: Found
-
-NCP1 = EXS%NOCP(INDEO1,ISYM1,MV1)
-NCP2 = EXS%NOCP(INDEO2,ISYM2,MV2)
-
-IOFF1 = EXS%IOCP(INDEO1,ISYM1,MV1)
-IOFF2 = EXS%IOCP(INDEO2,ISYM2,MV2)
-
-call mma_allocate(ILeft ,NCP1*NCP2,Label='ILeft')
-call mma_allocate(IRight,NCP1*NCP2,Label='IRight')
-call mma_allocate(XVal  ,NCP1*NCP2,Label='XVal')
-
-nTerm = 0
-
-write(u6,*)
-write(u6,*) '========================================='
-write(u6,*) ' ICOUP CONTRACTION'
-write(u6,*) '========================================='
-
-write(u6,'(A,3I6)') 'BLOCK1:',INDEO1,ISYM1,MV1
-write(u6,'(A,3I6)') 'BLOCK2:',INDEO2,ISYM2,MV2
-
-!
-! Sparse contraction
-!
-do ICP1=1,NCP1
-
-   L1  = EXS%ICoup(1,IOFF1+ICP1)
-   M1  = EXS%ICoup(2,IOFF1+ICP1)
-
-   IV1 = EXS%ICoup(3,IOFF1+ICP1)
-   X1  = EXS%VTab(IV1)
-
-   do ICP2=1,NCP2
-
-      M2 = EXS%ICoup(1,IOFF2+ICP2)
-
-      if (M1 /= M2) cycle
-
-      R2 = EXS%ICoup(2,IOFF2+ICP2)
-
-      IV2 = EXS%ICoup(3,IOFF2+ICP2)
-      X2  = EXS%VTab(IV2)
-
-      X = X1*X2
-
-      Found = .false.
-
-      do i=1,nTerm
-
-         if (ILeft(i)  /= L1) cycle
-         if (IRight(i) /= R2) cycle
-
-         XVal(i) = XVal(i) + X
-
-         Found = .true.
-         exit
-
-      end do
-
-      if (.not. Found) then
-
-         nTerm = nTerm + 1
-
-         ILeft(nTerm)  = L1
-         IRight(nTerm) = R2
-         XVal(nTerm)   = X
-
-      end if
-
-   end do
-
-end do
-
-write(u6,*)
-write(u6,*) 'CONTRACTED BLOCK'
-write(u6,*)
-
-write(u6,'(A)') &
-' LEFT RIGHT                VALUE'
-
-do i=1,nTerm
-
-   write(u6,'(2I6,1X,F24.15)') &
-      ILeft(i), &
-      IRight(i), &
-      XVal(i)
-
-end do
-
-write(u6,*)
-
-call mma_deallocate(ILeft)
-call mma_deallocate(IRight)
-call mma_deallocate(XVal)
-
-end subroutine Print_ICoup_Contraction
-
-subroutine Print_ICoup_Contraction( &
-           EXS,                     &
-           INDEO1,ISYM1,MV1,        &
-           INDEO2,ISYM2,MV2 )
-
-use Definitions, only: iwp, wp, u6
-
-implicit none
-
-type(EXStruct), intent(in) :: EXS
-
-integer(kind=iwp), intent(in) :: INDEO1
-integer(kind=iwp), intent(in) :: ISYM1
-integer(kind=iwp), intent(in) :: MV1
-
-integer(kind=iwp), intent(in) :: INDEO2
-integer(kind=iwp), intent(in) :: ISYM2
-integer(kind=iwp), intent(in) :: MV2
-
-integer(kind=iwp) :: NCP1
-integer(kind=iwp) :: NCP2
-
-integer(kind=iwp) :: IOFF1
-integer(kind=iwp) :: IOFF2
-
-integer(kind=iwp) :: ICP1
-integer(kind=iwp) :: ICP2
-
-integer(kind=iwp) :: L1
-integer(kind=iwp) :: M1
-
-integer(kind=iwp) :: M2
-integer(kind=iwp) :: R2
-
-integer(kind=iwp) :: IV1
-integer(kind=iwp) :: IV2
-
-real(kind=wp) :: X1
-real(kind=wp) :: X2
-real(kind=wp) :: X
-
-NCP1  = EXS%NOCP(INDEO1,ISYM1,MV1)
-NCP2  = EXS%NOCP(INDEO2,ISYM2,MV2)
-
-IOFF1 = EXS%IOCP(INDEO1,ISYM1,MV1)
-IOFF2 = EXS%IOCP(INDEO2,ISYM2,MV2)
-
-write(u6,*)
-write(u6,*) '========================================='
-write(u6,*) ' ICOUP CONTRACTION'
-write(u6,*) '========================================='
-
-write(u6,'(A,3I6)') 'BLOCK1:',INDEO1,ISYM1,MV1
-write(u6,'(A,3I6)') 'BLOCK2:',INDEO2,ISYM2,MV2
-
-write(u6,*)
-write(u6,'(A)') &
-'  LEFT   MID  RIGHT             X1              X2           PRODUCT'
-
-do ICP1=1,NCP1
-
-   L1  = EXS%ICoup(1,IOFF1+ICP1)
-   M1  = EXS%ICoup(2,IOFF1+ICP1)
-
-   IV1 = EXS%ICoup(3,IOFF1+ICP1)
-   X1  = EXS%VTab(IV1)
-
-   do ICP2=1,NCP2
-
-      M2  = EXS%ICoup(1,IOFF2+ICP2)
-
-      if (M1 /= M2) cycle
-
-      R2  = EXS%ICoup(2,IOFF2+ICP2)
-
-      IV2 = EXS%ICoup(3,IOFF2+ICP2)
-      X2  = EXS%VTab(IV2)
-
-      X = X1*X2
-
-      write(u6,'(3I6,3F16.8)') &
-           L1,M1,R2,X1,X2,X
-
-   end do
-
-end do
-
-write(u6,*)
-
-end subroutine Print_ICoup_Contraction
-#endif
 
 end subroutine SG_Test_EpqErs_Ref
 
