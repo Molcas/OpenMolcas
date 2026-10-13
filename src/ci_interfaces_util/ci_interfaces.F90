@@ -687,11 +687,15 @@ end subroutine CI_Timer
 !***********************************************************************************************************************************
 
 subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
+use sguga, only: SG_Test_EpqErs_Ref
+use general_data, only: STSym
 use Molcas, only: MxSym
 use spinfo, only: ncsasm, ndtasm
 
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
+integer(kind=iwp) :: IList(3), JList(3)
+integer(kind=iwp), parameter :: iState=1
 
 ! Construct the determinant tables
 ! Initialize LUCIA and determinant control
@@ -710,6 +714,9 @@ If (Do_SGUGA) Then
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
 #endif
    call SG_Setup_RASSCF()
+   IList = [1,2,3]
+   JList = [1,2,3]
+   call SG_Test_EpqErs_Ref(iState,STSym,IList,JList)
 End If
 
 ! faroald initializations
