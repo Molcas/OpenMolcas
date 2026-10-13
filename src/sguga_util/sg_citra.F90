@@ -157,8 +157,11 @@ do IP=1,NA
   end do
   ILEV(IP) = IL
 end do
-
+!Call RecPrt('SG_SSOTRA: CI',' ',CI,1,NCO)
+!Call RecPrt('TRA',' ',Tra,NO,NO)
 do IK=1,NA
+
+!   Write (6,*) 'ik=',ik
 
   IKLEV = ILEV(IK)
   TMP(:) = Zero
@@ -170,10 +173,13 @@ do IK=1,NA
     if (abs(X) < 1.0e-14_wp) cycle
     call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,X,LSM,CI,TMP)
   end do
+!  Call RecPrt('TMP',' ',TMP,1,NCO)
 
   CKK = TRA(NI+IK,NI+IK)
   X = Three-CKK
+!  Write (6,*) 'CKK, X=',CKK, X
   CI(:) = CI(:)+X*TMP(:)
+!  Call RecPrt('CI',' ',CI,1,NCO)
 
   do IP=1,NA
     IPLEV = ILEV(IP)
@@ -182,6 +188,7 @@ do IK=1,NA
     if (abs(CPK) < 1.0e-14_wp) cycle
     call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,CPK,LSM,TMP,CI)
   end do
+!  Call RecPrt('CI',' ',CI,1,NCO)
 
 end do
 call mma_deallocate(ILEV)

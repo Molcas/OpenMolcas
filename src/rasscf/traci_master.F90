@@ -74,6 +74,19 @@ do JROOT=1,NROOTS
   ! Read CI vector in SG format
   call DDAFILE(JOBIPH,2,CI_Vector,nCSF,JDISK)
 
+!CI_Vector(:) = [ &
+!   -0.9246364863243709_wp, &
+!    0.3808508476526229_wp, &
+!    0.0000000000000042_wp  &
+!]
+
+!LT(:) = [ &
+!    1.0950887694440439_wp, &
+!   -0.4463400194498248_wp, &
+!    0.4075834141522822_wp, &
+!    0.9131679804438881_wp  &
+!]
+
   Call Mk_Tra_Psi(iState,LT,nLev**2,CI_Vector,nCSF)
 
   Call VecPhase(CI_Vector,nCSF)

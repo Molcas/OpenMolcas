@@ -248,7 +248,7 @@ integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
-public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, SG_ReOrd_Orig, StepVec
+public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, SG_ReOrd_Orig, StepVec, SG_TRACI
 !#define _TEST_CSFDET_
 #ifdef _TEST_CSFDET_
 public :: test_sg_csfdet
@@ -4696,6 +4696,68 @@ end subroutine apply_row
 
 end subroutine SG_Epq_Psi
 
+SubRoutine SG_Apply_Ak_Psi(iState,LSM,T,k,Scale,CI,Sigma)
+
+  use Constants, only: Zero, One
+  use stdalloc,  only: mma_allocate, mma_deallocate
+
+  Implicit None
+
+  Integer(kind=iwp), Intent(In) :: iState
+  Integer(kind=iwp), Intent(In) :: LSM
+  Integer(kind=iwp), Intent(In) :: k
+
+  Real(kind=wp), Intent(In) :: T(:,:)
+  Real(kind=wp), Intent(In) :: Scale
+  Real(kind=wp), Intent(In) :: CI(:)
+
+  Real(kind=wp), Intent(InOut) :: Sigma(:)
+
+  Integer(kind=iwp) :: p
+  Integer(kind=iwp) :: nLev
+
+  Real(kind=wp) :: CPK
+  Real(kind=wp), Parameter :: Thr = 1.0e-14_wp
+
+  Real(kind=wp), Allocatable :: Tmp(:)
+
+  nLev = size(T,1)
+
+  Call mma_allocate(Tmp,size(CI),Label='Tmp')
+
+  Do p=1,nLev
+
+!
+!   Symmetry constraint
+!
+
+     If (SGS(iState)%ISM(p) /= SGS(iState)%ISM(k)) Cycle
+
+!
+!   CPK = Tpk - delta_pk
+!
+
+     CPK = T(p,k)
+
+     If (p == k) CPK = CPK-One
+
+     CPK = Scale*CPK
+
+     If (Abs(CPK) <= Thr) Cycle
+
+     Tmp(:) = Zero
+
+     Call SG_Epq_Psi(SGS(iState),CIS(iState),EXS(iState), &
+                     p,k,CPK,LSM,CI,Tmp)
+
+     Sigma(:) = Sigma(:) + Tmp(:)
+
+  End Do
+
+  Call mma_deallocate(Tmp)
+
+End SubRoutine SG_Apply_Ak_Psi
+
 subroutine SG_Sum_Hpq_Epq_Psi(iState,LSM,Hpq,nLev,CI,Sigma)
 
   use Constants, only: Zero, One
@@ -5057,6 +5119,158 @@ vTab => Null()
 end subroutine apply_colY
 
 end subroutine SG_EpqEqp_Diag
+
+Subroutine SG_Multiply_By_Nk(iState,LSM,k,tkk,CI)
+
+  use Constants, only: Zero, One, Half, Three, Four
+  use stdalloc,  only: mma_allocate,mma_deallocate
+
+  Integer(kind=iwp), Intent(In)    :: iState
+  Integer(kind=iwp), Intent(In)    :: LSM
+  Integer(kind=iwp), Intent(In)    :: k
+  Real(kind=wp) , Intent(In)    :: tkk
+  Real(kind=wp) , Intent(InOut) :: CI(:)
+
+  Real(kind=wp) :: b,c
+
+  Real(kind=wp), Allocatable :: N1(:),N2(:)
+
+  Call mma_allocate(N1,size(CI),Label='N1')
+  Call mma_allocate(N2,size(CI),Label='N2')
+
+  b = Half*(-tkk*tkk + Four*tkk - Three)
+  c = Half*(tkk-One)*(tkk-One)
+
+  ! N1 = Ekk Psi
+
+  Call SG_Epq_Psi(SGS(iState),CIS(iState),EXS(iState),k,k,One,LSM,CI,N1)
+
+  ! N2 = Ekk^2 Psi
+
+  Call SG_Epq_Psi(SGS(iState),CIS(iState),EXS(iState),k,k,One,LSM,N1,N2)
+
+  CI(:)=CI(:)+b*N1(:)+c*N2(:)
+
+  Call mma_deallocate(N1)
+  Call mma_deallocate(N2)
+
+End Subroutine SG_Multiply_By_Nk
+
+SubRoutine SG_TRACI(iState,LSM,T,nT,CI,nCSF)
+
+  use molcas, only: MxAct
+  use Constants, only: Zero, Half, Three
+  use stdalloc,  only: mma_allocate, mma_deallocate
+
+  Implicit None
+
+  Integer(kind=iwp), Intent(In)    :: iState
+  Integer(kind=iwp), intent(In) :: LSM
+  Integer(kind=iwp), Intent(In)    :: nT
+  Integer(kind=iwp), Intent(In)    :: nCSF
+
+  Real(kind=wp), Intent(In), target   :: T(nT)
+  Real(kind=wp), Intent(InOut):: CI(nCSF)
+
+  Integer(kind=iwp) :: k, iOff, iSym, nAct, p, kLocal, pLocal
+  Integer(kind=iwp) :: nLev, Level(MxAct)
+
+  Real(kind=wp) :: tkk, X
+
+  real(kind=wp), allocatable :: Tmp(:), Tmp2(:)
+  Real(kind=wp), Allocatable :: T2(:,:)
+
+
+  nLev = SGS(iState)%NLEV
+
+! Call RecPrt('SG_TRACI; CI',' ',CI,1,nCSF)
+  Call mma_allocate(T2,nLev,nLev,Label='T2')
+! Call RecPrt('T',' ',T,1,nT)
+
+  T2(:,:) = Zero
+  iOff = 0
+
+  Do iSym = 1,SGS(iState)%nSym
+
+     nAct = 0
+
+     Do p = 1,nLev
+        If (SGS(iState)%ISM(p) == iSym) Then
+           nAct = nAct + 1
+           Level(nAct) = p
+        End If
+     End Do
+
+     Do kLocal = 1,nAct
+        k = Level(kLocal)
+
+        Do pLocal = 1,nAct
+           p = Level(pLocal)
+           T2(p,k) = T(iOff + pLocal + (kLocal-1)*nAct)
+        End Do
+     End Do
+     iOff = iOff + nAct*nAct
+  End Do
+! Call RecPrt('T2',' ',T2,nLev,nLev)
+!
+! Work array
+!
+  call mma_allocate(Tmp,nCSF,Label='tmp')
+!
+! Apply row operators sequentially.
+!
+
+  Do k=1,nLev
+
+!    Write (6,*) 'ik=',k
+     TMP(:)=Zero
+
+     ! tmp = 1/2 A_k CI
+     Call SG_Apply_Ak_Psi(iState,LSM,T2,k,Half,CI,TMP)
+!    Call RecPrt('TMP',' ',TMP,1,nCSF)
+
+     tkk = T2(k,k)
+     X = Three-tkk
+!    Write (6,*) 'Ckk, X=',TKK, X
+     CI(:)=CI(:)+X*TMP(:)
+!    Call RecPrt('CI',' ',CI,1,nCSF)
+
+     Call SG_Apply_Ak_Psi(iState,LSM,T2,k,One,TMP,CI)
+!    Call RecPrt('CI',' ',CI,1,nCSF)
+
+  End Do
+
+!
+! Cleanup
+!
+  call mma_deallocate(Tmp)
+  call mma_deallocate(T2)
+
+End SubRoutine SG_TRACI
+
+subroutine build_trow_operator(T,k,tkk,H1)
+
+  use constants, only: Zero
+  implicit none
+
+  integer(kind=iwp),intent(in) :: k
+  real(kind=wp) ,intent(in) :: T(:,:)
+  real(kind=wp) ,intent(out):: tkk
+  real(kind=wp) ,intent(out):: H1(:,:)
+
+  integer(kind=iwp) :: p, nLev
+
+  nLev = size(T,1)
+  H1(:,:)=Zero
+
+  tkk = T(k,k)
+
+  do p=1,nLev
+     If (p == k) Cycle
+     H1(p,k) = T(p,k)/tkk
+  end do
+
+end subroutine build_trow_operator
 
 ! This is temporarily for the MCLR code
 subroutine SG_ReOrd_orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)

@@ -909,6 +909,9 @@ endif
 End subroutine Mk_CI_Diag
 
 subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
+
+use sguga, only: sg_traci
+
 integer(kind=iwp), intent(in) ::  iState,nTU, nCSF
 real(kind=wp), intent(in) :: TU(nTU)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
@@ -918,6 +921,15 @@ real(kind=wp), allocatable :: dtemp(:)
 
 integer(kind=iwp) :: iCSF
 real(kind=wp), allocatable :: CI_Faroald(:)
+#ifdef _SGUGA_VERIFY_
+real(kind=wp), allocatable :: CI_SGUGA(:)
+#endif
+
+#ifdef _SGUGA_VERIFY_
+  Call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
+  CI_SGUGA(:) = CI_Vector(:)
+  Call RecPrt('Original CI vector',' ',CI_SGUGA,1,nCSF)
+#endif
 
 If (DoFaro) Then
   Call mma_allocate(CI_Faroald,nCSF,Label='CI_Faroald')
@@ -945,9 +957,12 @@ If (DoFaro) Then
 End If
 !Else
 
+!  Note that the CI vector is transformed to Lucia format inside the routine! This
+!  in difference to the other calls to Lucia_util.
    Call Lucia_util('TRACI', &
                    CI_Vector=CI_Vector(:), &
                    TU=TU(:), nTU=nTU)
+  Call RecPrt('Lucia CI vector',' ',CI_Vector,1,nCSF)
 !End If
 
 if (DoFaro) Then
@@ -961,6 +976,28 @@ Do iCSF = 1, nCSF
 End Do
 Call mma_deallocate(CI_Faroald)
 Endif
+
+#ifdef _SGUGA_VERIFY_
+If (.NOT.iDoGAS .and. nRsPrt==1) Then
+
+!  Call SG_TRACI(iState,STSYM,TU,nTU,CI_SGUGA,nCSF)
+   Call mma_allocate(ctemp,nCSF,Label='ctemp')
+   call SG_REORD(iState,STSYM,0,nCSF,CI_SGUGA,ctemp)
+   Call SG_TRACI(iState,STSYM,TU,nTU,ctemp,nCSF)
+   call SG_REORD(iState,STSYM,1,nCSF,ctemp,CI_SGUGA)
+   Call mma_deallocate(ctemp)
+
+   Do iCSF = 1, nCSF
+      If (Abs(CI_Vector(iCSF)-CI_SGUGA(iCSF))/nCSF>1.0E-12_wp) Then
+         Write (6,*) 'Mk_Tra_Psi(SGUGA) error, iCSF=',iCSF
+         Write (6,*) 'CI_Vector(iCSF) =',CI_Vector(iCSF)
+         Write (6,*) 'CI_SGUGA(iCSF)=',CI_SGUGA(iCSF)
+         Call Abend()
+      End If
+   End Do
+End If
+Call mma_deallocate(CI_SGUGA)
+#endif
 
 End subroutine Mk_Tra_Psi
 
