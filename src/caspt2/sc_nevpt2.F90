@@ -52,7 +52,7 @@ private
 ! UEFF_SC   :: Eigenvector
 
 integer(kind=iwp) :: IDBMAT_NEVPT2(8,13,2)
-real(kind=wp) :: DVALUE_SC, ECORR_SC(0:8,0:MXCASE), OVLAPS_SC(0:8,0:MXCASE), SC_thres = 1.0e-9_wp
+real(kind=wp) :: DVALUE_SC, ECORR_SC(0:8,0:MXCASE), OVLAPS_SC(0:8,0:MXCASE), SC_thres = 1.0e-14_wp
 logical(kind=iwp) :: Do_FIC, Do_SC, SC_amplitude = .false., SC_merge = .false., SC_prop = .false.
 real(kind=wp), allocatable :: ENERGY_SC(:), HEFF_SC(:,:), UEFF_SC(:,:)
 
