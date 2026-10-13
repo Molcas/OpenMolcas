@@ -11,7 +11,7 @@
 ! Copyright (C) 2021,2026, Yoshio Nishimoto                            *
 !***********************************************************************
 
-subroutine DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,CDensF,FIFA)
+subroutine DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,DEPSA_can,CDensF,FIFA)
 
 use caspt2_global, only: IDTCEX, LUCIEX
 use general_data, only: NASH
@@ -22,11 +22,12 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nConf, nState, nAshT, nOLag, NBSQT
-real(kind=wp), intent(in) :: CLag(nConf,nState), OLag(nOLag), CDensF(nAshT,nAshT), FIFA(NBSQT)
+real(kind=wp), intent(in) :: CLag(nConf,nState), OLag(nOLag), DEPSA_can(nAshT,nAshT), CDensF(nAshT,nAshT), FIFA(NBSQT)
 real(kind=wp), intent(inout) :: DEPSA(nAshT,nAshT)
 integer(kind=iwp) :: ID, iMO, iState, iSym, iT, iTabs, iTtot, iU, iUabs, iUtot, nAshI, nBasI, nFroI, nIshI, nOrbI
 real(kind=wp) :: EigT, EigU, Tmp
 real(kind=wp), allocatable :: CDens(:,:), CI(:), G1(:,:), SGM(:)
+real(kind=wp), parameter :: ThrDeg = 1.0e-8_wp
 
 ! See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
 ! Section II C 4 "Non-invariance with respect to active MOs"
@@ -89,8 +90,12 @@ do iSym=1,nSym
         iUabs = iU+nAES(iSym)
         iUtot = iU+nFroI+nIshI
         EigU = FIFA(iMO+iUtot-1+nBasI*(iUtot-1))
-        Tmp = OLag(iMO+iTtot-1+nOrbI*(iUtot-1))-OLag(iMO+iUtot-1+nOrbI*(iTtot-1))+CDens(iTabs,iUabs)-CDens(iUabs,iTabs)
-        Tmp = -Tmp/(EigT-EigU)*Half
+        if (abs(EigT-EigU) < ThrDeg) then
+          Tmp = DEPSA_can(iTabs,iUabs) ! avoid singular
+        else
+          Tmp = OLag(iMO+iTtot-1+nOrbI*(iUtot-1))-OLag(iMO+iUtot-1+nOrbI*(iTtot-1))+CDens(iTabs,iUabs)-CDens(iUabs,iTabs)
+          Tmp = -Tmp/(EigT-EigU)*Half
+        end if
 
         DEPSA(iTabs,iUabs) = DEPSA(iTabs,iUabs)+Tmp
         DEPSA(iUabs,iTabs) = DEPSA(iUabs,iTabs)+Tmp

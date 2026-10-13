@@ -52,10 +52,10 @@ integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, iCase, IDM, IDMOFF, IDRF, ID
                      nDens, NDPT, nDPTAO, NI, NIS, NLEV, NO, nOcc, nOrbI
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, X
 integer(kind=iwp), allocatable :: ISAV(:)
-real(kind=wp), allocatable :: A_PT2(:), CDensF(:,:), CLagT(:,:), DAOs(:,:), DEPSA(:,:), DEPSA_diag(:), DFro(:), DFro_AO(:), DI(:), &
-                              DIA(:), DPT(:), DPT2(:), DPT2_AO(:), DPT2C_AO(:), DRDMFock(:,:), DRDMSCF(:), DSUM(:), EigT(:,:), &
-                              FAOs(:,:), FFro(:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), FSCF(:), OMGT(:,:), RDMFock(:,:), &
-                              T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
+real(kind=wp), allocatable :: A_PT2(:), CDensF(:,:), CLagT(:,:), DAOs(:,:), DEPSA(:,:), DEPSA_can(:,:), DFro(:), DFro_AO(:), &
+                              DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), DPT2C_AO(:), DRDMFock(:,:), DRDMSCF(:), DSUM(:), &
+                              EigT(:,:), FAOs(:,:), FFro(:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), FSCF(:), OMGT(:,:), &
+                              RDMFock(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
 real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
 real(kind=wp), pointer :: DPT2Canti(:)
 integer(kind=iwp), parameter :: kstate = 1
@@ -343,11 +343,9 @@ if (do_grad) then
   !! as DEPSA is incorrect, so remove them. The true density
   !! is computed after everything.
   if (.not. if_invar) then
-    !! But, save the diagonal elements
-    call mma_allocate(DEPSA_diag,nAshT,Label='DEPSA_diag')
-    do i=1,nAshT
-      DEPSA_diag(i) = DEPSA(i,i)
-    end do
+    !! But, save it for the diagonal elements and for the degenerate orbital pairs
+    call mma_allocate(DEPSA_can,nAshT,nAshT,Label='DEPSA_can')
+    DEPSA_can(:,:) = DEPSA(:,:)
     !! Clear
     DEPSA(:,:) = Zero
     ! Frozen part of the contraction of the configuration Lagrangian in DEPSAOff
@@ -751,13 +749,13 @@ if (do_grad) then
   if (.not. if_invar) then
     SLag(:,:) = Zero
     !! Add the density that comes from the CI and orbital Lagrangians
-    call DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,CDensF,FIFA_all)
+    call DEPSAOff(nConf,nState,nAshT,nOLag,NBSQT,CLag,OLag,DEPSA,DEPSA_can,CDensF,FIFA_all)
     call mma_deallocate(CDensF)
     !! Restore the diagonal elements
     do i=1,nAshT
-      DEPSA(i,i) = DEPSA_diag(i)
+      DEPSA(i,i) = DEPSA_can(i,i)
     end do
-    call mma_deallocate(DEPSA_diag)
+    call mma_deallocate(DEPSA_can)
     if (IPRGLB >= VERBOSE) then
       write(u6,*) 'DEPSA computed again'
       call sqprt(depsa,nasht)
