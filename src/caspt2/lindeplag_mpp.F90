@@ -22,7 +22,7 @@ use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use scalapack_mod, only: GA_PDSYEVX_
 #endif
 use caspt2_global, only: idBoriMat, LUSTD
-use caspt2_module, only: IFDORTHO, IFMSCOUP, THRSHN
+use caspt2_module, only: IFDORTHO, IFMSCOUP, MAXIT, THRSHN
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -158,7 +158,7 @@ end if
 call GA_Sync()
 call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_GDER,lg_Vec,Zero,lg_Lag)
 call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_Vec,lg_Lag,Zero,lg_GDER)
-if (IFMSCOUP) then
+if (IFMSCOUP .or. (MAXIT /= 0)) then
   call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_GCDER,lg_Vec,Zero,lg_Lag)
   call GA_Copy_Patch('N',lg_Lag,1,NAS,1,NAS,lg_GCDER,1,NAS,1,NAS)
 end if
@@ -174,7 +174,7 @@ if (iLo /= 0) then
 end if
 call GA_Sync()
 call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_Vec,lg_B,Zero,lg_Lag)
-if (IFMSCOUP) then
+if (IFMSCOUP .or. (MAXIT /= 0)) then
   call GA_DGEMM('T','N',NAS,NAS,NAS,One,lg_Vec,lg_GCDER,Zero,lg_B)
   call GA_Copy_Patch('N',lg_B,1,NAS,1,NAS,lg_GCDER,1,NAS,1,NAS)
 end if
@@ -187,12 +187,12 @@ call GA_Distribution(lg_Lag,myRank,iLo,iHi,jLo,jHi)
 if (iLo /= 0) then
   call GA_Access(lg_Lag,iLo,iHi,jLo,jHi,mV,LDV)
   call GA_Access(lg_GDER,iLo,iHi,jLo,jHi,mG,LDG)
-  if (IFMSCOUP) call GA_Access(lg_GCDER,iLo,iHi,jLo,jHi,mC,LDC)
+  if (IFMSCOUP .or. (MAXIT /= 0)) call GA_Access(lg_GCDER,iLo,iHi,jLo,jHi,mC,LDC)
   do J=1,nAS
     do I=1,iHi-iLo+1
       if ((iLo+I-1 <= nAS-nIN) .and. (J > nAS-nIN)) then
         Tmp = DBL_MB(mV+I-1+LDV*(J-1))+EIG(iLo+I-1)*DBL_MB(mG+I-1+LDG*(J-1))
-        if (IFMSCOUP) Tmp = Tmp+DBL_MB(mC+I-1+LDC*(J-1))
+        if (IFMSCOUP .or. (MAXIT /= 0)) Tmp = Tmp+DBL_MB(mC+I-1+LDC*(J-1))
         DBL_MB(mV+I-1+LDV*(J-1)) = Tmp/(EIG(J)-EIG(iLo+I-1))
       else
         DBL_MB(mV+I-1+LDV*(J-1)) = Zero
@@ -201,7 +201,7 @@ if (iLo /= 0) then
   end do
   call GA_Release_Update(lg_Lag,iLo,iHi,jLo,jHi)
   call GA_Release(lg_GDER,iLo,iHi,jLo,jHi)
-  if (IFMSCOUP) call GA_Release(lg_GCDER,iLo,iHi,jLo,jHi)
+  if (IFMSCOUP .or. (MAXIT /= 0)) call GA_Release(lg_GCDER,iLo,iHi,jLo,jHi)
 end if
 call GA_Sync()
 

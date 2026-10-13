@@ -15,7 +15,7 @@ subroutine CLagDX(iSym,iCase,nIN,nIS,nAS,nState,VECROT,BDERmat,SDERmat)
 
 use EQSOLV, only: IDBMAT, IDTMAT, IRHS, IVECR, IVECW, IVECX
 use fake_GA, only: GA_Arrays
-use caspt2_global, only: do_lindep, idSDMat, imag_shift, iVecG, iVecL, LUSBT, LUSTD, real_shift, sigma_p_epsilon
+use caspt2_global, only: do_lindep, idSCMat, idSDMat, imag_shift, iVecG, iVecL, LUSBT, LUSTD, real_shift, sigma_p_epsilon
 use caspt2_module, only: IFMSCOUP, JSTATE, MAXIT
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
@@ -178,7 +178,15 @@ call RHS_FREE(lg_V2)
 if ((.not. Is_Real_Par()) .or. King()) then
 #endif
   ! Explicit overlap derivative in the MO basis
-  call DGEMM_('N','N',nAS,nAS,nIN,Two,TRANS,nAS,WRK2,nIN,Zero,WRK3,nAS)
+  WRK3(:) = Zero
+  ! Add the contributions from the off-diagonal coupling (i.e., CASPT2-N).
+  if (MAXIT /= 0) then
+    idSD = idSDMat(iSym,iCase)
+    call DDAFILE(LuSTD,2,WRK3,nAS*nAS,idSD)
+    ! T*(T+lambda) + (T+lambda)*T is saved, so 1/2
+    WRK3(:) = Half*WRK3(:)
+  end if
+  call DGEMM_('N','N',nAS,nAS,nIN,Two,TRANS,nAS,WRK2,nIN,One,WRK3,nAS) ! WRK3 = GDer
 
   ! Convert the implicit overlap derivative to the MO basis
   call DGEMM_('N','N',nAS,nIN,nIN,One,TRANS,nAS,WRK1,nIN,Zero,WRK2,nAS)
@@ -187,19 +195,18 @@ if ((.not. Is_Real_Par()) .or. King()) then
   ! Add the contributions due to the dependence on the linearly independent space
   if (do_lindep .and. (nAS /= nIN)) then
     WRK2(:) = Zero
-    if (IFMSCOUP) call DGEMM_('N','N',nAS,nAS,nIN,Two,TRANS,nAS,XC,nIN,One,WRK2,nAS)
+    ! Coupling of H0 with the lower cases for CASPT2-N
+    if (MAXIT /= 0) then
+      idSD = idSCMat(iSym,iCase)
+      call DDAFILE(LuSTD,2,WRK2,nAS*nAS,idSD)
+      WRK2(:) = Half*WRK2(:)
+    end if
+    ! RHS of the other states
+    if (IFMSCOUP) call DGEMM_('N','N',nAS,nAS,nIN,Two,TRANS,nAS,XC,nIN,One,WRK2,nAS) ! WRK2 = GCDer
     call LinDepLag(BDERmat,SDERmat,WRK3,WRK2,nAS,nIN,iSym,iCase)
   end if
 
   SDERmat(1:NAS**2) = SDERmat(1:NAS**2)+WRK3(1:NAS**2)
-
-  ! Add the contributions from the off-diagonal coupling (i.e., CASPT2-N).
-  if (MAXIT /= 0) then
-    idSD = idSDMat(iSym,iCase)
-    call DDAFILE(LuSTD,2,WRK3,nAS*nAS,idSD)
-    ! T*(T+lambda) + (T+lambda)*T is saved, so 1/2
-    SDERmat(1:NAS**2) = SDERmat(1:NAS**2)+Half*WRK3(1:NAS**2)
-  end if
 #ifdef _MOLCAS_MPP_
 end if
 #endif

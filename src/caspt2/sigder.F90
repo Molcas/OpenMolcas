@@ -27,7 +27,7 @@ use Para_Info, only: Is_Real_Par
 use GA_Wrapper, only: GA_Destroy
 #endif
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
-use caspt2_global, only: FIFA, idSDMat, LISTS, LUSTD
+use caspt2_global, only: do_lindep, FIFA, idSCMat, idSDMat, LISTS, LUSTD
 use general_data, only: nActel, nAsh
 use caspt2_module, only: CPUSGM, FockType, G1SecIn, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -45,7 +45,8 @@ integer(kind=iwp) :: iCase, iCase1, idSDer, IfC, IFIFA, iLoop, IMLTOP, ISYM, ISY
                      lg_V1, lSgmX, lSgmX_Sta, Max_MESG_SIZE, NA, NAS, NAS1, NAS2, nCX, nD1, NFIA, NFIT, NFTA, NI, NIN1, NIN2, &
                      NIS1, NIS2, nLoop, NO, NS, nSgm1, nSgm2, lSgm2_Sta, nD2, iCase2, nSgm2_Blk, nSgmX, nSgmX_Blk, MaxLen
 real(kind=wp) :: CPU, CPU0, CPU1, FACT, TIO, TIO0, TIO1
-real(kind=wp), allocatable :: D1(:), D2(:), SDER1(:), SDER2(:), SGM1(:), SGM2(:), VecKeepI(:), VecKeepJ(:), WRK(:)
+logical(kind=iwp) :: DoSC
+real(kind=wp), allocatable :: D1(:), D2(:), SCDER2(:), SDER1(:), SDER2(:), SGM1(:), SGM2(:), VecKeepI(:), VecKeepJ(:), WRK(:)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 logical(kind=iwp) :: bStat
 #endif
@@ -90,6 +91,10 @@ do iCase=1,11
     nAS = nASUP(iSym,iCase)
     idSDer = idSDMat(iSym,iCase)
     call DDAFILE(LuSTD,1,WRK,nAS*nAS,idSDer)
+    if (do_lindep) then
+      idSDer = idSCMat(iSym,iCase)
+      call DDAFILE(LuSTD,1,WRK,nAS*nAS,idSDer)
+    end if
   end do
 end do
 call mma_deallocate(WRK)
@@ -426,11 +431,24 @@ do ILOOP=1,NLOOP
             idSDer = idSDMat(iSym2,iCase2)
             call DDAFILE(LuSTD,2,SDER2,nAS2*nAS2,idSDer)
 
-            call C2DER(SDER2,NAS2*NAS2)
+            ! SCDER2 is needed only if linearly dependent functions are removed (see LinDepLag)
+            DoSC = do_lindep .and. (NAS2 /= NIN2)
+            call mma_allocate(SCDER2,NAS2*NAS2,Label='SCDER2')
+            if (DoSC) then
+              idSDer = idSCMat(iSym2,iCase2)
+              call DDAFILE(LuSTD,2,SCDER2,nAS2*nAS2,idSDer)
+            end if
+
+            call C2DER(SDER2,SCDER2,NAS2*NAS2)
 
             idSDer = idSDMat(iSym2,iCase2)
             call DDAFILE(LuSTD,1,SDER2,nAS2*nAS2,idSDer)
             call mma_deallocate(SDER2)
+            if (DoSC) then
+              idSDer = idSCMat(iSym2,iCase2)
+              call DDAFILE(LuSTD,1,SCDER2,nAS2*nAS2,idSDer)
+            end if
+            call mma_deallocate(SCDER2)
 
             !call Deallocate_GA_Array(LSGMX)
           end if
@@ -530,10 +548,10 @@ subroutine C1S1DER(SDER,nSDER)
 
 end subroutine C1S1DER
 
-subroutine C2DER(SDER,nSDER)
+subroutine C2DER(SDER,SCDER,nSDER)
 
   integer(kind=iwp), intent(in) :: nSDER
-  real(kind=wp), intent(inout) :: SDER(nSDER)
+  real(kind=wp), intent(inout) :: SDER(nSDER), SCDER(nSDER)
   integer(kind=iwp) :: iType, lg_Sgm, lg_v2
 # if defined(_MOLCAS_MPP_) && defined(_GA_)
   integer(kind=iwp) :: lg_SDER
@@ -552,6 +570,36 @@ subroutine C2DER(SDER,nSDER)
   end if
 # endif
 
+  !! (T2Ct2), prepare for the fourth step
+  call RHS_ALLO(NAS2,NIS2,lg_SGM)
+  call RHS_READ(NAS2,NIS2,lg_SGM,ICASE2,ISYM2,IVEC)
+  if ((IVEC /= JVEC) .and. (ILOOP == 2)) then
+    !! T = T + \lambda
+    if (SCAL /= One) call RHS_SCAL(NAS2,NIS2,lg_SGM,SCAL)
+    call RHS_ALLO(NAS2,NIS2,lg_V1)
+    call RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
+    call RHS_DAXPY(NAS2,NIS2,One,lg_V1,lg_SGM)
+    call RHS_FREE(lg_V1)
+  end if
+
+  ! (T2Ct2) * (T1Ct1St1*f) before the projection onto the independent space.
+  ! The removed functions couple with the other cases through this.
+  if (DoSC) then
+#   if defined(_MOLCAS_MPP_) && defined(_GA_)
+    if (is_real_par()) then
+      call GA_CREATE_STRIPED('H',NAS2,NAS2,'SDER',lg_SDER)
+      call GA_PUT(lg_SDER,1,NAS2,1,NAS2,SCDER,NAS2)
+      call GA_DGEMM('N','T',NAS2,NAS2,NIS2,Two,lg_SGM,lg_SGMX,One,lg_SDER)
+      call GA_GET(lg_SDER,1,NAS2,1,NAS2,SCDER,NAS2)
+      bStat = GA_destroy(lg_SDER)
+    else
+#   endif
+      call DGEMM_('N','T',NAS2,NAS2,NIS2,Two,GA_Arrays(lg_SGM)%A,NAS2,GA_Arrays(LSGMX)%A,NAS2,One,SCDER,NAS2)
+#   if defined(_MOLCAS_MPP_) && defined(_GA_)
+    end if
+#   endif
+  end if
+
   !! For icase = 12 or 13, there is no need to transform,
   !! so LTMP is always replicated, but T for A and C are
   !! distributed?, so...
@@ -564,16 +612,6 @@ subroutine C2DER(SDER,nSDER)
   call RHS_FREE(lg_V2)
 
   !! 4. (T2Ct2*f) * (T1Ct1St1*f*C2*Ct2)
-  call RHS_ALLO(NAS2,NIS2,lg_SGM)
-  call RHS_READ(NAS2,NIS2,lg_SGM,ICASE2,ISYM2,IVEC)
-  if ((IVEC /= JVEC) .and. (ILOOP == 2)) then
-    !! T = T + \lambda
-    if (SCAL /= One) call RHS_SCAL(NAS2,NIS2,lg_SGM,SCAL)
-    call RHS_ALLO(NAS2,NIS2,lg_V1)
-    call RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
-    call RHS_DAXPY(NAS2,NIS2,One,lg_V1,lg_SGM)
-    call RHS_FREE(lg_V1)
-  end if
 # if defined(_MOLCAS_MPP_) && defined(_GA_)
   if (is_real_par()) then
     call GA_CREATE_STRIPED('H',NAS2,NAS2,'SDER',lg_SDER)

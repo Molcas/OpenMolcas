@@ -17,9 +17,9 @@ use Index_Functions, only: nTri_Elem
 use general_data, only: NASH
 use PrintLevel, only: TERSE
 use caspt2_global, only: CLag, CLagFull, do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, &
-                         DRDMFro, FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, if_FroSCF, if_SSDM, iPrGlb, iStpGrd, LuAPT2, &
-                         LuCMOPT2, LuGAMMA, LUGRAD, LUONEM, LuPT2, LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, RDMSCF, &
-                         SLag, TraFro, Weight, WLag
+                         DRDMFro, FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSCMat, idSDMat, if_FroSCF, if_SSDM, iPrGlb, &
+                         iStpGrd, LuAPT2, LuCMOPT2, LuGAMMA, LUGRAD, LUONEM, LuPT2, LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, &
+                         OMGDER, RDMSCF, SLag, TraFro, Weight, WLag
 use caspt2_module, only: IAD1M, IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASHT, NASUP, NBAS, NBAST, NBSQT, NBTRI, NCONF, NFRO, NFROT, &
                          NISH, NSTATE, NSYM, ZETA
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -225,6 +225,11 @@ if (MAXIT /= 0) then
       idSDer = idSDMat(iSym,iCase)
       ! idSDMat(iSym,iCase))
       call DDAFILE(LuSTD,1,WRK,nAS*nAS,idSDer)
+      if (do_lindep) then
+        ! derivative of the SC matrix
+        idSCMat(iSym,iCase) = idSD
+        call DDAFILE(LuSTD,1,WRK,nAS*nAS,idSD)
+      end if
     end do
   end do
 end if

@@ -21,7 +21,7 @@ use caspt2_module, only: EASUM, EPSA, HZERO, NAES, NASUP, NINDEP, NISUP, NSYM, N
 use BDerNEV, only: BDNA, BDNB, BDNC, BDND, BDNE, BDNF, BDNG, BDN_G3
 use SC_NEVPT2, only: SC_prop, SC_NEVPT2_CLagD
 #ifdef _MOLCAS_MPP_
-use caspt2_global, only: do_lindep, idSDMat, imag_shift, LUSTD, real_shift, sigma_p_epsilon
+use caspt2_global, only: do_lindep, idSCMat, idSDMat, imag_shift, LUSTD, real_shift, sigma_p_epsilon
 use caspt2_module, only: IFMSCOUP
 use Para_Info, only: Is_Real_Par, King
 use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
@@ -1081,7 +1081,7 @@ subroutine CLagDX_MPP()
   if (do_lindep .and. (nAS /= nIN)) then
     call GA_CREATE_STRIPED('H',NAS,NAS,'GDER',lg_GDER)
     call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,Zero,lg_GDER)
-    ! lg_GCDER is the implicit derivative of the RHS of the other states
+    ! lg_GCDER is the implicit derivative of the RHS of the other states, and the coupling of H0 with the lower cases
     call GA_CREATE_STRIPED('H',NAS,NAS,'GCDER',lg_GCDER)
     call GA_Zero(lg_GCDER)
     if (do_lindep .and. (nAS /= nIN) .and. IFMSCOUP) then
@@ -1098,23 +1098,18 @@ subroutine CLagDX_MPP()
   bStat = GA_destroy(lg_WRK)
   call GA_SYNC()
 
-  ! Add the contributions due to the dependence on the linearly independent space
-  ! LinDepLag_MPP also adds lg_GDER to lg_SDER.
-  if (do_lindep .and. (nAS /= nIN)) then
-    call LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,lg_GCDER,nAS,nIN,iSym,iCase)
-    bStat = GA_destroy(lg_GDER)
-    bStat = GA_destroy(lg_GCDER)
-  end if
-
   !! Add the contributions from the off-diagonal coupling
   !! (i.e., CASPT2-N). Of course, this is not for imaginary shift-
   !! specific terms.
+  ! LinDepLag_MPP needs them, so they are added to lg_GDER and lg_GCDER before it.
   if (MAXIT /= 0) then
+    lg_WRK = lg_SDER
+    if (do_lindep .and. (nAS /= nIN)) lg_WRK = lg_GDER
     call mma_allocate(WRK,NAS,NAS,Label='WRK')
     idSD = idSDMat(iSym,iCase)
     call DDAFILE(LuSTD,2,WRK,nAS*nAS,idSD)
-    call GA_Distribution(lg_SDER,myRank,ILO,IHI,JLO,JHI)
-    call GA_Access(lg_SDER,ILO,IHI,JLO,JHI,mSDER,LDV)
+    call GA_Distribution(lg_WRK,myRank,ILO,IHI,JLO,JHI)
+    call GA_Access(lg_WRK,ILO,IHI,JLO,JHI,mSDER,LDV)
     NROW = IHI-ILO+1
     NCOL = JHI-JLO+1
     do J=1,NCOL
@@ -1124,10 +1119,23 @@ subroutine CLagDX_MPP()
         DBL_MB(mSDER+I-1+NROW*(J-1)) = DBL_MB(mSDER+I-1+NROW*(J-1))+WRK(I+ILO-1,J+JLO-1)*Half
       end do
     end do
-    call GA_Release_Update(lg_SDER,ILO,IHI,JLO,JHI)
+    call GA_Release_Update(lg_WRK,ILO,IHI,JLO,JHI)
+    if (King() .and. do_lindep .and. (nAS /= nIN)) then
+      idSD = idSCMat(iSym,iCase)
+      call DDAFILE(LuSTD,2,WRK,nAS*nAS,idSD)
+      call GA_Acc(lg_GCDER,1,NAS,1,NAS,WRK,NAS,Half)
+    end if
     call mma_deallocate(WRK)
   end if
   call GA_SYNC()
+
+  ! Add the contributions due to the dependence on the linearly independent space
+  ! LinDepLag_MPP also adds lg_GDER to lg_SDER.
+  if (do_lindep .and. (nAS /= nIN)) then
+    call LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,lg_GCDER,nAS,nIN,iSym,iCase)
+    bStat = GA_destroy(lg_GDER)
+    bStat = GA_destroy(lg_GCDER)
+  end if
   !if (King()) then
   !  call mma_allocate(VEC1,NAS*NAS,Label='VEC1')
   !  call GA_GET(lg_sder,1,NAS,1,NAS,VEC1,NAS)

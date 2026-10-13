@@ -21,7 +21,7 @@ subroutine LinDepLag(BDer,SDer,GDer,GCDer,nAS,nIN,iSym,iCase)
 use Index_Functions, only: nTri_Elem
 use EQSOLV, only: idSMAT
 use caspt2_global, only: idBoriMat, LUSBT, LUSTD
-use caspt2_module, only: HZERO, IFDORTHO, IFMSCOUP, THRSHN
+use caspt2_module, only: HZERO, IFDORTHO, IFMSCOUP, MAXIT, THRSHN
 use SC_NEVPT2, only: IDBMAT_NEVPT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -78,8 +78,9 @@ call mma_allocate(F,NAS,NAS,Label='F')
 ! SS = VEC^T * G^T * VEC. Its dep-indep block times the dep eigenvalue is the RHS part of the residual.
 call DGEMM_('T','N',NAS,NAS,NAS,One,GDER,NAS,VEC,NAS,Zero,LAG,NAS)
 call DGEMM_('T','N',NAS,NAS,NAS,One,VEC,NAS,LAG,NAS,Zero,SS,NAS)
-! SC = VEC^T * GCDer^T * VEC is added. GCDer^T * VEC is computed here.
-if (IFMSCOUP) then
+! GCDer has the RHS of the other states (MS coupling) and the coupling of H0 with the lower cases (MAXIT /= 0).
+! We need SC = VEC^T * GCDer^T * VEC. GCDer^T * VEC is computed here.
+if (IFMSCOUP .or. (MAXIT /= 0)) then
   call mma_allocate(SC,NAS,NAS,Label='SC')
   call DGEMM_('T','N',NAS,NAS,NAS,One,GCDER,NAS,VEC,NAS,Zero,SC,NAS)
 end if
@@ -102,7 +103,7 @@ call DGEMM_('N','N',NAS,NAS,NAS,One,LAG,NAS,VEC,NAS,Zero,F,NAS)
 do I=1,NAS
   VEC(I,:) = VEC(I,:)*SCA(I)**2
 end do
-if (IFMSCOUP) then
+if (IFMSCOUP .or. (MAXIT /= 0)) then
   F(:,:) = F(:,:)+SC(:,:)
   call mma_deallocate(SC)
 end if
