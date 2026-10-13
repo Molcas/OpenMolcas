@@ -776,11 +776,9 @@ if (do_grad) then
     call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
     !! Just transform the density in MO to AO
     call DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
-    !! For IPEA shift with state-dependent density
-    if (if_SSDM .and. ((jState == iRlxRoot) .or. IFMSCOUP)) then
-      iSym = 1
-      call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
-    end if
+    ! Transform DPT2 to AO again (for PCM + IPEA)
+    iSym = 1
+    call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
     !! Some transformations similar to EigDer
     call EigDer2(NBSQT,nAshT,DRDMFock,Trf,FIFA_all,RDMFock,DEPSA,WRK1,WRK2)
 
