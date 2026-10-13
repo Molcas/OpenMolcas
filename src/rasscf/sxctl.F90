@@ -57,6 +57,7 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 !                                                                  *
 !*******************************************************************
 
+use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
 use wadr, only: NLX
@@ -67,6 +68,9 @@ use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH, LUINTM, LUQUNE
 use general_data, only: NACTEL, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, NTOT1, NTOT2
+#ifdef _ENABLE_CHEMPS2_DMRG_
+use rasscf_global, only: ChemPS2_Can
+#endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use raswfn, only: wfn_mocoef, wfn_occnum
@@ -86,6 +90,11 @@ real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_si
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
+#ifdef _ENABLE_CHEMPS2_DMRG_
+character(len=3) :: ChemLabel
+integer(kind=iwp) :: ChemCh(8), iAct, iActOffset, iFockIndex, jAct, LuChemFck, nActTotal
+integer(kind=iwp), allocatable :: ChemOrbSym(:)
+#endif
 real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:),  P2Raw(:), &
                               P2reo(:), PUVX(:), QMat(:), SQ(:), STRP(:), SXG(:), SXHD(:), VEC(:), &
                               WO(:), DIA(:), F1(:), F2(:), SXH(:), SXN(:), BM(:)
@@ -147,7 +156,7 @@ call mma_deallocate(BM)
 Contains
 
 Subroutine SXCTL_Prelude()
-integer(kind=iwp) iSym
+integer(kind=iwp) iSym, i, iOrb, iOff
 !***********************************************************************
 ! load back two-electron integrals (pu|vx)
 !***********************************************************************
@@ -247,10 +256,67 @@ end if
 call mma_allocate(FCK,NTOT4,Label='FCK')
 call mma_allocate(BM,NSXS,Label='BM')
 call mma_allocate(QMat,NQ,Label='QMat') ! q-matrix(1symmblock)
-
 call FOCK(FCK,BM,FI,FA,D,STRP,QMat,PUVX,IFINAL,CMO)
 
+#ifdef _ENABLE_CHEMPS2_DMRG_
+! For noncanonical CheMPS2-CASPT2, IPT2 is zero and FCKPT2 is skipped.
+! Write the active-space Fock matrix before the final CheMPS2 call.
+if ((IFINAL == 1) .and. (.not. ChemPS2_Can)) then
+  nActTotal = sum(nAsh(1:nSym))
+
+  call MOLPRO_ChTab(nSym,ChemLabel,ChemCh)
+  call mma_allocate(ChemOrbSym,nActTotal,Label='ChemOrbSym')
+  iOrb = 1
+  do iSym=1,nSym
+    do jAct=1,nAsh(iSym)
+      ChemOrbSym(iOrb) = ChemCh(iSym)
+      iOrb = iOrb+1
+    end do
+  end do
+
+  LuChemFck = IsFreeUnit(27)
+  call molcas_open(LuChemFck,'FOCK_CHEMPS2')
+  write(LuChemFck,'(1X,A12,I2,A1)') '&FOCK NACT= ',nActTotal,','
+  write(LuChemFck,'(2X,A7)',advance='no') 'ORBSYM='
+  do iOrb=1,nActTotal
+    write(LuChemFck,'(I1,A1)',advance='no') ChemOrbSym(iOrb),','
+  end do
+  write(LuChemFck,*)
+  write(LuChemFck,*) '/'
+
+  iOff = 1
+  iActOffset = 0
+  do iSym=1,nSym
+    iOrb = nOrb(iSym)
+    do iAct=1,nAsh(iSym)
+      do jAct=1,iAct
+        iFockIndex = (iOff-1)+(nIsh(iSym)+iAct)*(nIsh(iSym)+iAct+1)/2-(iAct-jAct)
+        write(LuChemFck,'(1X,ES23.16E2,I4,I4)') FA(iFockIndex),iAct+iActOffset,jAct+iActOffset
+        if (iAct /= jAct) &
+          write(LuChemFck,'(1X,ES23.16E2,I4,I4)') FA(iFockIndex),jAct+iActOffset,iAct+iActOffset
+      end do
+    end do
+    iOff = iOff+nTri_Elem(iOrb)
+    iActOffset = iActOffset+nAsh(iSym)
+  end do
+  close(LuChemFck)
+  call mma_deallocate(ChemOrbSym)
+end if
+#endif
+
 ! Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
+if (IPRLEV >= DEBUG) then
+  write(u6,*)
+  write(u6,*) 'FI+FA in MO-basis in sxctl (overwritten on FA)'
+  write(u6,*) ' --------------'
+  write(u6,*)
+  iOff = 1
+  do iSym=1,nSym
+    iOrb = nOrb(iSym)
+    call TriPrt(' ',' ',FA(iOff),iOrb)
+    iOff = iOff+nTri_Elem(iOrb)
+  end do
+end if
 call mma_deallocate(FCK)
 call mma_deallocate(QMat)
 call mma_deallocate(STRP,safe='*')
@@ -288,6 +354,7 @@ end if
 End Subroutine SXCTL_Prelude
 
 Subroutine SXCTL_Final()
+integer(kind=iwp) :: i, j, iBas, iOff, iSym
 
   ! If ifinal=1 , this is the last call to SXCTL for calculating
   ! the MCSCF Fock matrix for occupied orbitals, and new orbitals).
@@ -310,6 +377,23 @@ Subroutine SXCTL_Final()
   call mma_allocate(WO,NTOT2,Label='WO')
   call mma_allocate(SQ,NTOT2,Label='SQ')
   call mma_allocate(CMOX,NTOT2,Label='CMOX')
+  if (IPRLEV >= DEBUG) then
+    write(u6,*)
+    write(u6,*) ' CMO in SXCTL for IFINAL=1'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
+    ioff = 0
+    do iSym=1,nSym
+      iBas = nBas(iSym)
+      if (iBas /= 0) then
+        write(u6,*) 'Sym =',iSym
+        do i=1,iBas
+          write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=1,iBas)
+        end do
+        iOff = iOff+(iBas*iBas)
+      end if
+    end do
+  end if
 
   if (iCIonly == 1) then
     IDISK = IADR15(2)
@@ -366,7 +450,7 @@ Subroutine SXCTL_Final()
 End Subroutine SXCTL_Final
 
 Subroutine SXCTL_Iterate()
-  integer(kind=iwp) I
+  integer(kind=iwp) I, iOff, iSym, iOrb
 
   ! Memory allocation and calling sequence for SXHAM
   ! SXN: Normalization constants for super-CI vector
@@ -402,6 +486,7 @@ Subroutine SXCTL_Iterate()
   ! MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
 
   ! CSX: The super-CI vectors
+  ! SIGMA: The sigma vectors
   ! HH:  The Davidson H matrix
   ! CC:   "     "     egenvectors
   ! ENER: "     "     energies
@@ -434,6 +519,13 @@ Subroutine SXCTL_Iterate()
     write(u6,'(1X,8F14.6)') (CSX(IC+I),I=1,NSXS)
   end if
 
+  ! Step size control has been built into qune now.
+  !C Step length control, just for safety.
+  !do I=1,NSXS
+  !  VAL = CSX(IC+I)
+  !  CSX(IC+I) = VAL/(One+1.7_wp*abs(VAL))
+  !end do
+
   ! Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
 
   !if (ITER == 1) NCALL = 0
@@ -460,6 +552,19 @@ Subroutine SXCTL_Iterate()
   ! Scr: WORK AREA
 
   call ROTORB(CMO,CSX(LCSXI),THMAX,FA)
+
+  if (IPRLEV >= DEBUG) then
+    write(u6,*)
+    write(u6,*) 'FI+FA in SXCTL after Unitary transform in ROTORB'
+    write(u6,*) ' --------------'
+    write(u6,*)
+    iOff = 1
+    do iSym=1,nSym
+      iOrb = nOrb(iSym)
+      call TriPrt(' ',' ',FA(iOff),iOrb)
+      iOff = iOff+nTri_Elem(iOrb)
+    end do
+  end if
 
   call mma_deallocate(SXN)
   call mma_deallocate(DIA)

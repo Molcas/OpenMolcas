@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-! Compute F3 using cumulant reconstruction except for G3-dependent terms
+! Compute F3 using cumulant reconstruction except for G3-dependent terms.
+! This routine is shared by the Block and CheMPS2 CASPT2 interfaces.
 
 function CU4F3H(NAC,E,ES,G1,G2,F1,F2,iP,iQ,jP,jQ,kP,kQ)
 

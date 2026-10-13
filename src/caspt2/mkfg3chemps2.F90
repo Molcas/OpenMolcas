@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2016, Sebastian Wouters                                *
 !               2016, Quan Phung                                       *
+!               2026, Vic Austen                                       *
 !***********************************************************************
 
 #include "compiler_features.h"
@@ -21,6 +22,7 @@ use Symmetry_Info, only: Mul
 use sguga, only: SGS
 use general_data, only: nActel
 use caspt2_module, only: EPSA, jState, mState
+use InputData, only: Input
 use Constants, only: Zero
 use Definitions, only: wp, iwp, byte, u6
 
@@ -34,7 +36,7 @@ integer(kind=iwp), parameter :: istate = 1
 
 if (NACTEL > 1) then
   NAC4 = NLEV*NLEV*NLEV*NLEV
-  call chemps2_load2pdm(nlev,G2,MSTATE(JSTATE))
+  call chemps2_load2pdm(nlev,G2,MSTATE(JSTATE),Input%DoTranRDM)
   call two2onerdm(nlev,NACTEL,G2,G1)
 else
   write(u6,*) 'FATAL ERROR: DMRG-CASPT2 with CHEMPS2 does not work with NACTEL=1'
@@ -56,9 +58,14 @@ end do
 
 if (NACTEL >= 3) then
 
-  if (mkF) call chemps2_load3pdm(nlev,idxG3,NG3,F3,.false.,EPSA,F2,MSTATE(JSTATE))
-
-  call chemps2_load3pdm(nlev,idxG3,NG3,G3,mkF,EPSA,F2,MSTATE(JSTATE))
+  if (Input%DoApproRDM) then
+    write(u6,*) 'CHEMPS2> Cumulant approximation for F.4-RDM'
+    call mkfg3cu4_chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3,Input%DoTranRDM,MSTATE(JSTATE))
+  else
+    write(u6,*) 'CHEMPS2> Reading exact F.4-RDM'
+    if (mkF) call chemps2_load3pdm(nlev,idxG3,NG3,F3,.false.,EPSA,F2,MSTATE(JSTATE),Input%DoTranRDM)
+    call chemps2_load3pdm(nlev,idxG3,NG3,G3,mkF,EPSA,F2,MSTATE(JSTATE),Input%DoTranRDM)
+  end if
 
 end if
 

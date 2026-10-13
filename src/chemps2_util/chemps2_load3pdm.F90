@@ -10,11 +10,13 @@
 !                                                                      *
 ! Copyright (C) 2016, Sebastian Wouters                                *
 !               2016, Quan Phung                                       *
+!               2026, Vic Austen                                       *
 !***********************************************************************
 ! Subroutine to load 3-RDM and F4-RDM
 ! Written by Quan Phung and Sebastian Wouters, Leuven, Aug 2016
+! Adapted to Molcas 26.06 by Vic Austen, Nagoya, Sep 2026
 
-subroutine chemps2_load3pdm(NAC,idxG3,NG3,storage,doG3,EPSA,F2,chemroot)
+subroutine chemps2_load3pdm(NAC,idxG3,NG3,storage,doG3,EPSA,F2,chemroot,TRANS)
 
 #include "intent.fh"
 
@@ -29,22 +31,34 @@ integer(kind=byte), intent(in) :: idxG3(6,NG3)
 real(kind=wp), intent(_OUT_) :: storage(*)
 real(kind=wp), intent(out) :: F2(NAC,NAC,NAC,NAC)
 logical(kind=iwp), intent(in) :: doG3
+logical(kind=iwp), intent(in) :: TRANS
 real(kind=wp), intent(in) :: EPSA(NAC)
 character(len=30) :: file_3rdm, file_f4rdm
 character(len=10) :: rootindex
 integer(kind=iwp) :: file_h5, group_h5, ip1, ip2, ip3, iq1, iq2, iq3, idx, iG3
-logical(kind=iwp) :: irdm, jrdm
+logical(kind=iwp) :: rdm_found
 real(kind=wp), allocatable :: buffer(:)
 
 write(rootindex,'(i2)') chemroot-1
 file_3rdm = 'molcas_3rdm.h5.r'//trim(adjustl(rootindex))
 file_f4rdm = 'molcas_f4rdm.h5.r'//trim(adjustl(rootindex))
+if (TRANS) then
+  file_3rdm = trim(file_3rdm)//'.tran'
+  file_f4rdm = trim(file_f4rdm)//'.tran'
+end if
 file_3rdm = trim(adjustl(file_3rdm))
 file_f4rdm = trim(adjustl(file_f4rdm))
-call f_inquire(file_3rdm,irdm)
-call f_inquire(file_f4rdm,jrdm)
-if ((.not. irdm) .or. (.not. jrdm)) then
-  write(u6,'(1x,a15,i3,a26)') 'CHEMPS2> Root: ',CHEMROOT,' :: No 3RDM or F.4RDM file'
+if (doG3) then
+  call f_inquire(file_3rdm,rdm_found)
+else
+  call f_inquire(file_f4rdm,rdm_found)
+end if
+if (.not. rdm_found) then
+  if (doG3) then
+    write(u6,'(1x,a15,i3,a17)') 'CHEMPS2> Root: ',CHEMROOT,' :: No 3-RDM file'
+  else
+    write(u6,'(1x,a15,i3,a19)') 'CHEMPS2> Root: ',CHEMROOT,' :: No F.4-RDM file'
+  end if
   call abend()
 end if
 

@@ -157,7 +157,7 @@ subroutine End_Stuff()
   if (DoCumulant) then
     if (NACTEL > 1) then
       !QP: At this point, only load 2RDM of one state, JSTATE=1
-      call chemps2_load2pdm(nlev,G2,MSTATE(1))
+      call chemps2_load2pdm(nlev,G2,MSTATE(1),.false.)
       call two2onerdm(nlev,NACTEL,G2,G1)
     else
       write(u6,*) 'FATAL ERROR: DMRG-CASPT2 with CHEMPS2 does not work with NACTEL=1'

@@ -34,9 +34,13 @@ use caspt2_module, only: EPS, EPSA, EPSE, EPSI, iSCF, nBas, nConf, nDel, nFro, n
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
 use caspt2_module, only: DoCumulant
 #endif
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_DMRG_)
 use caspt2_module, only: jState, nAshT
 use Constants, only: Zero
+#endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+use caspt2_module, only: mState
+use InputData, only: Input
 #endif
 #if defined(_DMRG_)
 use, intrinsic :: iso_c_binding, only: c_bool, c_int
@@ -54,7 +58,7 @@ real(kind=wp), intent(inout) :: CMO(NCMO)
 integer(kind=iwp) :: I, ICMOEND, ICMOSTA, IDR, IDW, IEPS, IEPSA, IEPSE, IEPSI, II, IOEND, IOSTA, IST, ISYM, ITOEND, ITOSTA, NB, &
                      NCMOSCT, NFES, NFOCK, NO, NSCT
 real(kind=wp), allocatable :: CI(:), CMO2(:), FOCK(:)
-#if defined(_ENABLE_BLOCK_DMRG_) || defined(_DMRG_)
+#if defined(_ENABLE_BLOCK_DMRG_) || defined(_ENABLE_CHEMPS2_DMRG_) || defined(_DMRG_)
 integer(kind=iwp) :: NXMAT
 real(kind=wp), allocatable :: XMAT(:)
 #endif
@@ -275,7 +279,19 @@ if (ISCF == 0) then
     end if
 #   elif _ENABLE_CHEMPS2_DMRG_
   else
-    write(u6,*) 'CHEMPS2> MKRPTORB assumes PSEUDOCANONICAL orbitals!'
+    if (Input%DoTranRDM) then
+      write(u6,*) 'CHEMPS2> Transforming RDMs to pseudocanonical orbitals'
+      NXMAT = nAshT**2
+      call mma_allocate(XMAT,NXMAT,Label='XMAT')
+      XMAT(:) = Zero
+      call MKXMAT(TORB,XMAT)
+      call chemps2_tran2pdm(nAshT,XMAT,MSTATE(JSTATE))
+      call chemps2_tran3pdm(nAshT,XMAT,MSTATE(JSTATE),.true.)
+      if (.not. Input%DoApproRDM) call chemps2_tran3pdm(nAshT,XMAT,MSTATE(JSTATE),.false.)
+      call mma_deallocate(XMAT)
+    else
+      write(u6,*) 'CHEMPS2> MKRPTORB assumes PSEUDOCANONICAL orbitals!'
+    end if
   end if
 # endif
 end if
