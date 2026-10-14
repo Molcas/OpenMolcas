@@ -2228,30 +2228,17 @@ subroutine traci_faroald(T,nT,psi)
    call mma_allocate(psi1,ndeta,ndetb,Label='Psi1')
    call mma_allocate(psi2,ndeta,ndetb,Label='Psi2')
 
-   Call RecPrt('Psi(Faroald)',' ',Psi,nDeta,nDetb)
-   Call RecPrt('T',' ',T,my_nOrb,my_nOrb)
    do k=1,my_norb
-      Write (6,*) 'k=',k
       call build_trow_operator(T,k,h1,tkk)
-      Write (6,*) 'tkk=',tkk
-      Call RecPrt('h1',' ',h1,my_nOrb,my_nOrb)
 
       psi0(:,:) = psi(:,:)
 
       call multiply_by_nk(tkk,k,psi0)
-      Write (6,*) 'After multiply_by_nk'
-      Call RecPrt('Psi0',' ',Psi0,nDetA,nDetb)
-
       call sigma_update_1e(h1,psi0,psi1)
-      Write (6,*) 'After first sigma_update_1e'
-      Call RecPrt('Psi1',' ',Psi1,nDetA,nDetb)
 
       call sigma_update_1e(h1,psi1,psi2)
-      Write (6,*) 'After second sigma_update_1e'
-      Call RecPrt('Psi2',' ',Psi2,nDetA,nDetb)
 
       psi (:,:)= psi0(:,:)+ psi1(:,:)+ Half*psi2(:,:)
-      Call RecPrt('psi0(:,:)+ psi1(:,:)+ Half*psi2(:,:)',' ',Psi,nDetA,nDetb)
 
    end do
 

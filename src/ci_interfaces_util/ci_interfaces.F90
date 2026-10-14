@@ -935,7 +935,6 @@ real(kind=wp), allocatable :: CI_SGUGA(:)
 #ifdef _SGUGA_VERIFY_
   Call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
   CI_SGUGA(:) = CI_Vector(:)
-  Call RecPrt('Original CI vector',' ',CI_SGUGA,1,nCSF)
 #endif
 
 If (DoFaro) Then
@@ -969,7 +968,6 @@ End If
    Call Lucia_util('TRACI', &
                    CI_Vector=CI_Vector(:), &
                    TU=TU(:), nTU=nTU)
-  Call RecPrt('Lucia CI vector',' ',CI_Vector,1,nCSF)
 !End If
 
 if (DoFaro) Then
