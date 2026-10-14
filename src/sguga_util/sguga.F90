@@ -6566,6 +6566,7 @@ real(kind=wp), allocatable :: XVal(:)
 real(kind=wp) :: XLL, XREF
 integer(kind=iwp) :: MVI, ISYUPI,IUPI,IDWNI
 integer(kind=iwp) :: MVJ, ISYUPJ,IUPJ,IDWNJ
+integer(kind=iwp) :: INDEO1
 
 
 write(u6,*)
@@ -6594,48 +6595,95 @@ do I=1,CIS(iState)%NCSF(LSM)
 
 end do
 
+
+#ifdef _SCRAP_
+!call Print_Epq_Matrix( &
+!     iState, &
+!     LSM, &
+!     2,1 )
 call Print_Epq_Matrix( &
      iState, &
      LSM, &
-     2,1 )
+     4,3 )
 
 Call Print_CSF_Walks(SGS(iState),CIS(istate),LSM)
 
+!call Contract_ICoup_Blocks( &
+!     EXS(iState), &
+!     10,1,3, &
+!     10,1,3, &
+!     nTerm,ILeft,IRight,XVal )
+
+!write(6,*) 'NTERM=',nTerm
+
+!do k=1,nTerm
+!   write(6,'(2I6,F24.15)') &
+!        ILeft(k),IRight(k),XVal(k)
+!end do
+
+call Decode_Upper_Operator(SGS(iState),4,3,INDEO1)
+write(6,*) 'INDEO43=',INDEO1
+
 call Contract_ICoup_Blocks( &
      EXS(iState), &
-     10,1,3, &
-     10,1,3, &
+     INDEO1,1,3, &
+     INDEO1,1,3, &
      nTerm,ILeft,IRight,XVal )
 
-write(6,*) 'NTERM=',nTerm
+write(6,*)
+write(6,*) '========================================='
+write(6,*) ' UU CONTRACTED BLOCK'
+write(6,*) '========================================='
+write(6,*)
+
+write(6,'(A,I6)') 'INDEO =',INDEO1
+write(6,'(A,I6)') 'MV    =',3
+write(6,'(A,I6)') 'NTERM =',nTerm
 
 do k=1,nTerm
+
    write(6,'(2I6,F24.15)') &
-        ILeft(k),IRight(k),XVal(k)
+        ILeft(k), &
+        IRight(k), &
+        XVal(k)
+
 end do
 
+write(6,*)
 
 write(6,*)
 write(6,*) '========================================='
 write(6,*) ' FIRST OPERATOR COMPARISON'
 write(6,*) '========================================='
 
-p=2
-q=1
-r=2
-s=1
+!p=2
+!q=1
+!r=2
+!s=1
+p=4
+q=3
+r=4
+s=3
 do I=6,14
    do J=6,14
 
       XREF = MatEl_Ref(I,J,p,q,r,s)
 
-      XLL  = MatEl_EpqErs_LL( &
+      XLL  = MatEl_EpqErs_UU( &
                  SGS(iState), &
                  CIS(iState), &
                  EXS(iState), &
                  LSM, &
                  I,J, &
                  p,q,r,s )
+
+!     XLL  = MatEl_EpqErs_LL( &
+!                SGS(iState), &
+!                CIS(iState), &
+!                EXS(iState), &
+!                LSM, &
+!                I,J, &
+!                p,q,r,s )
 
       if (abs(XREF) > 1.0e-10_wp .or. &
           abs(XLL ) > 1.0e-10_wp) then
@@ -6647,6 +6695,7 @@ do I=6,14
 
    end do
 end do
+#endif
 
 #ifdef _SCRAP_
 write(6,*)
@@ -6990,25 +7039,9 @@ call Decode_CSF( &
 ! lower-loop operator leaves upper walk unchanged
 !
 
-if (MVI /= MVJ) then
-!  write(6,'(A,2I6,A,2I6)') &
-!     'REJECT MV: I,J=',I,J,'  MV=',MVI,MVJ
-   return
-end if
-
-if (ISYUPI /= ISYUPJ) then
-!  write(6,'(A,2I6,A,2I6)') &
-!     'REJECT ISYUP: I,J=',I,J,'  ISYUP=',ISYUPI,ISYUPJ
-   return
-end if
-
-if (IUPI /= IUPJ) then
-!  write(6,'(A,2I6,A,2I6)') &
-!     'REJECT IUP: I,J=',I,J,'  IUP=',IUPI,IUPJ
-   return
-end if
-
-!write(6,'(A,2I6)') 'CALL CONTRACT FOR I,J=',I,J
+if (MVI /= MVJ) return
+if (ISYUPI /= ISYUPJ) return
+if (IUPI /= IUPJ) return
 
 call Contract_ICoup_Blocks( &
      EXS, &
@@ -7033,6 +7066,104 @@ call mma_deallocate(IRight)
 call mma_deallocate(XVal)
 
 end function MatEl_LL
+
+function MatEl_UU( &
+           CIS,EXS,ISYCI, &
+           I,J, &
+           INDEO1,ISYM1,MV1, &
+           INDEO2,ISYM2,MV2 ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+use stdalloc,    only: mma_deallocate
+
+implicit none
+
+type(CIStruct), intent(in) :: CIS
+type(EXStruct), intent(in) :: EXS
+
+integer(kind=iwp), intent(in) :: ISYCI
+
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+
+integer(kind=iwp), intent(in) :: INDEO1
+integer(kind=iwp), intent(in) :: ISYM1
+integer(kind=iwp), intent(in) :: MV1
+
+integer(kind=iwp), intent(in) :: INDEO2
+integer(kind=iwp), intent(in) :: ISYM2
+integer(kind=iwp), intent(in) :: MV2
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+integer(kind=iwp) :: nTerm
+integer(kind=iwp) :: k
+
+integer(kind=iwp), allocatable :: ILeft(:)
+integer(kind=iwp), allocatable :: IRight(:)
+
+real(kind=wp), allocatable :: XVal(:)
+
+Value = Zero
+
+call Decode_CSF( &
+     CIS,ISYCI, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS,ISYCI, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! upper loop leaves lower walk unchanged
+!
+
+if (MVI    /= MVJ   ) return
+if (ISYUPI /= ISYUPJ) return
+if (IDWNI  /= IDWNJ ) return
+
+call Contract_ICoup_Blocks( &
+     EXS, &
+     INDEO1,ISYM1,MVI, &
+     INDEO2,ISYM2,MVI, &
+     nTerm, &
+     ILeft, &
+     IRight, &
+     XVal )
+
+do k=1,nTerm
+
+   !
+   ! Same orientation convention that worked for LL
+   !
+
+   if (ILeft(k)  /= IUPJ) cycle
+   if (IRight(k) /= IUPI) cycle
+
+   Value = Value + XVal(k)
+
+end do
+
+call mma_deallocate(ILeft)
+call mma_deallocate(IRight)
+call mma_deallocate(XVal)
+
+end function MatEl_UU
 
 subroutine Print_CSF_Decoding(CIS,ISYCI)
 
@@ -7310,6 +7441,22 @@ end do
 
 end subroutine Print_Block_CSF_Map
 
+subroutine Decode_Upper_Operator(SGS,p,q,INDEO)
+
+type(SGStruct), intent(in) :: SGS
+integer(kind=iwp), intent(in)  :: p,q
+integer(kind=iwp), intent(out) :: INDEO
+
+logical(kind=iwp) :: Swap
+
+Swap = q > p
+
+INDEO = merge( 2*SGS%nLev + (q*(q-1))/2 + p, &
+               2*SGS%nLev + (p*(p-1))/2 + q, &
+               Swap )
+
+end subroutine Decode_Upper_Operator
+
 subroutine Decode_Lower_Operator(SGS,p,q,INDEO)
 
 type(SGStruct), intent(in) :: SGS
@@ -7324,6 +7471,44 @@ endif
 
 end subroutine Decode_Lower_Operator
 
+
+function MatEl_EpqErs_UU( &
+           SGS,CIS,EXS, &
+           ISYCI, &
+           I,J, &
+           p,q,r,s ) result(Value)
+
+   type(SGStruct), intent(in) :: SGS
+   type(CIStruct), intent(in) :: CIS
+   type(EXStruct), intent(in) :: EXS
+
+   integer(kind=iwp), intent(in) :: ISYCI
+   integer(kind=iwp), intent(in) :: I,J
+   integer(kind=iwp), intent(in) :: p,q,r,s
+
+   integer(kind=iwp) :: INDEO1
+   integer(kind=iwp) :: INDEO2
+
+   real(kind=wp) :: Value
+
+   call Decode_Upper_Operator(SGS,p,q,INDEO1)
+   call Decode_Upper_Operator(SGS,r,s,INDEO2)
+
+   call Decode_CSF( CIS,ISYCI,I,MVI,ISYUPI,IUPI,IDWNI )
+   call Decode_CSF( CIS,ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+Value = Zero
+
+if (MVI /= MVJ) return
+if (ISYUPI /= ISYUPJ) return
+
+Value = MatEl_UU( &
+           CIS,EXS,ISYCI, &
+           I,J, &
+           INDEO1,ISYUPI,MVI, &
+           INDEO2,ISYUPI,MVI )
+
+end function MatEl_EpqErs_UU
 
 function MatEl_EpqErs_LL( &
            SGS,CIS,EXS, &
@@ -7359,25 +7544,19 @@ function MatEl_EpqErs_LL( &
    call Decode_Lower_Operator(SGS,p,q,INDEO1)
    call Decode_Lower_Operator(SGS,r,s,INDEO2)
 
-   call Decode_CSF( &
-        CIS,ISYCI, &
-        I, &
-        MVI,ISYUPI,IUPI,IDWNI )
-
-   call Decode_CSF( &
-        CIS,ISYCI, &
-        J, &
-        MVJ,ISYUPJ,IUPJ,IDWNJ )
+   call Decode_CSF(CIS,ISYCI,I,MVI,ISYUPI,IUPI,IDWNI )
+   call Decode_CSF(CIS,ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ )
 
    Value = Zero
 
    if (MVI /= MVJ) return
+   if (ISYUPI /= ISYUPJ) return
 
    Value = MatEl_LL( &
               CIS,EXS,ISYCI, &
               I,J, &
-              INDEO1,1,MVI, &
-              INDEO2,1,MVI )
+              INDEO1,ISYUPI,MVI, &
+              INDEO2,ISYUPI,MVI )
 
 end function MatEl_EpqErs_LL
 
@@ -7464,6 +7643,165 @@ call mma_deallocate(Ket)
 call mma_deallocate(Res)
 
 end function MatEl_Epq_Ref
+
+function MatEl_Lower_Closed( &
+           CIS,EXS,ISYCI, &
+           I,J, &
+           INDEO,ISYM,MV ) result(Value)
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+type(CIStruct), intent(in) :: CIS
+type(EXStruct), intent(in) :: EXS
+
+integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: I,J
+integer(kind=iwp), intent(in) :: INDEO
+integer(kind=iwp), intent(in) :: ISYM
+integer(kind=iwp), intent(in) :: MV
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI,MVJ
+integer(kind=iwp) :: ISYUPI,ISYUPJ
+integer(kind=iwp) :: IUPI,IUPJ
+integer(kind=iwp) :: IDWNI,IDWNJ
+
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+
+Value = Zero
+
+call Decode_CSF(CIS,ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
+call Decode_CSF(CIS,ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
+
+if (MVI    /= MVJ   ) return
+if (ISYUPI /= ISYUPJ) return
+if (IUPI   /= IUPJ  ) return
+
+NCP  = EXS%NOCP(INDEO,ISYM,MVI)
+IOFF = EXS%IOCP(INDEO,ISYM,MVI)
+
+do ICP=1,NCP
+
+   if (EXS%ICoup(1,IOFF+ICP) /= IDWNJ) cycle
+   if (EXS%ICoup(2,IOFF+ICP) /= IDWNI) cycle
+
+   Value = Value + EXS%VTab(EXS%ICoup(3,IOFF+ICP))
+
+end do
+
+end function MatEl_Lower_Closed
+
+function MatEl_Upper_Closed( &
+           CIS,EXS,ISYCI, &
+           I,J, &
+           INDEO,ISYM,MV ) result(Value)
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+type(CIStruct), intent(in) :: CIS
+type(EXStruct), intent(in) :: EXS
+
+integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: I,J
+integer(kind=iwp), intent(in) :: INDEO
+integer(kind=iwp), intent(in) :: ISYM
+integer(kind=iwp), intent(in) :: MV
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI,MVJ
+integer(kind=iwp) :: ISYUPI,ISYUPJ
+integer(kind=iwp) :: IUPI,IUPJ
+integer(kind=iwp) :: IDWNI,IDWNJ
+
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+
+Value = Zero
+
+call Decode_CSF(CIS,ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
+call Decode_CSF(CIS,ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
+
+if (MVI   /= MVJ  ) return
+if (IDWNI /= IDWNJ) return
+
+NCP  = EXS%NOCP(INDEO,ISYUPI,MVI)
+IOFF = EXS%IOCP(INDEO,ISYUPI,MVI)
+
+do ICP=1,NCP
+
+   if (EXS%ICoup(1,IOFF+ICP) /= IUPJ) cycle
+   if (EXS%ICoup(2,IOFF+ICP) /= IUPI) cycle
+
+   Value = Value + EXS%VTab(EXS%ICoup(3,IOFF+ICP))
+
+end do
+
+end function MatEl_Upper_Closed
+
+function MatEl_EpqErs_LU( &
+           SGS,CIS,EXS, &
+           ISYCI, &
+           I,J, &
+           p,q,r,s ) result(Value)
+
+   type(SGStruct), intent(in) :: SGS
+   type(CIStruct), intent(in) :: CIS
+   type(EXStruct), intent(in) :: EXS
+
+   integer(kind=iwp), intent(in) :: ISYCI
+   integer(kind=iwp), intent(in) :: I,J
+   integer(kind=iwp), intent(in) :: p,q,r,s
+
+   integer(kind=iwp) :: INDEOL
+   integer(kind=iwp) :: INDEOU
+
+   integer(kind=iwp) :: MVI,MVJ
+   integer(kind=iwp) :: ISYUPI,ISYUPJ
+   integer(kind=iwp) :: IUPI,IUPJ
+   integer(kind=iwp) :: IDWNI,IDWNJ
+
+   real(kind=wp) :: XL
+   real(kind=wp) :: XU
+   real(kind=wp) :: Value
+
+   call Decode_Lower_Operator(SGS,p,q,INDEOL)
+   call Decode_Upper_Operator(SGS,r,s,INDEOU)
+
+   call Decode_CSF(CIS,ISYCI,I, &
+                   MVI,ISYUPI,IUPI,IDWNI)
+
+   call Decode_CSF(CIS,ISYCI,J, &
+                   MVJ,ISYUPJ,IUPJ,IDWNJ)
+
+   Value = Zero
+
+   if (MVI    /= MVJ   ) return
+   if (ISYUPI /= ISYUPJ) return
+
+   XL = MatEl_Lower_Closed( &
+           CIS,EXS,ISYCI, &
+           I,J, &
+           INDEOL,ISYUPI,MVI )
+
+   XU = MatEl_Upper_Closed( &
+           CIS,EXS,ISYCI, &
+           I,J, &
+           INDEOU,ISYUPI,MVI )
+
+   Value = XL * XU
+
+end function MatEl_EpqErs_LU
 
 end subroutine SG_Test_EpqErs_Ref
 
