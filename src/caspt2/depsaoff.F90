@@ -37,23 +37,23 @@ real(kind=wp), parameter :: ThrDeg = 1.0e-8_wp
 ! The original code first solved the linear equation: |CLag_I> = H^{CC}|Q_I> = 2w_I (H-E_I)|Q_I> for Q,
 ! where H^{CC} is CI Hessian and |Q> is the solution.
 ! Then, contracted with the CI-active rotation Hessian:
-! X_{tu} = Q * H_{tu}^{Ca} = 2 sum_I w_I <Q_I | [H,E_{tu}^-] |I>, where E_{tu}^- = E_{tu} - E_{ut}
+! X_{tu} = Q * H_{tu}^{Ca} = 2 sum_I w_I <Q_I | [E_{tu}^-,H] |I>, where E_{tu}^- = E_{tu} - E_{ut}
 ! The active orbitals and CI vectors rotated together in the opposite direction keep the reference states, so
-! H_{tu}^{Ca} = H^{CC}*r_{tu}, with r_{tu,I} = E_{tu}^-|I>
-! Then X_{tu} can be directly computed: X_{tu} = Q*H^{CC}*r_{tu} = CLag*r_{tu} = sum_I <CLag_I|E_{tu}^-|I>
+! H_{tu}^{Ca} = -H^{CC}*r_{tu}, with r_{tu,I} = E_{tu}^-|I>
+! Then X_{tu} can be directly computed: X_{tu} = -Q*H^{CC}*r_{tu} = -CLag*r_{tu} = -sum_I <CLag_I|E_{tu}^-|I>
 ! CDens(t,u) = sum_I <CLag_I|E_ut|I> with the CI vectors in the quasi-canonical basis, so X_tu = CDens(t,u)-CDens(u,t).
 ! The rotation of a single CSF is outside the CI space.
 
 call mma_allocate(CDens,nAshT,nAshT,Label='CDens')
 ! CDensF is the part of the frozen orbitals, which depend on the SCF density D.
 ! With F = DRDMSCF, |CLagF_I> = w_I sum_xy F(x,y) Exy |PsiI>, and
-! X_tu = sum_I <CLagF_I|Etu-Eut|PsiI> = sum_I w_I sum_xy F(x,y) <PsiI|Exy*(Etu-Eut)|PsiI>
+! X_tu = -sum_I <CLagF_I|Etu-Eut|PsiI> = -sum_I w_I sum_xy F(x,y) <PsiI|Exy*(Etu-Eut)|PsiI>
 ! F is symmetric, so
 !   sum_xy F(x,y)*<PsiI|Exy*(Etu-Eut)|PsiI>
 !    = 0.5*sum_xy F(x,y)*<PsiI|[Exy,Etu-Eut]|PsiI>
 !    = 0.5*sum_xy F(x,y)*<PsiI|Exu*del(ty)-Ety*del(xu)-Ext*del(uy)+Euy*del(xt)|PsiI>
 !    = 0.5*<PsiI|Fxt*Exu-Fuy*Ety-Fxu*Ext+Fty*Euy|PsiI>
-! and X_tu = 0.5*(Fxt*Dxu-Fuy*Dty-Fxu*Dxt+Fty*Duy) = (FD-DF)_tu.
+! and X_tu = -0.5*(Fxt*Dxu-Fuy*Dty-Fxu*Dxt+Fty*Duy) = (DF-FD)_tu.
 ! CDensF = D*F, so CDens(t,u)-CDens(u,t) gives frozen orbital contributions
 CDens(:,:) = CDensF(:,:)
 if (ISCF == 0) then
