@@ -25,11 +25,10 @@ use OneDat, only: sNoNuc, sNoOri
 use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use caspt2_global, only: do_grad
 #endif
 use EQSOLV, only: IVECX, NLSTOT
-use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_nac, DPT2_tot, DPT2C_tot, iPrGlb, iRoot1, iRoot2, LISTS, LUONEM, NCMO, &
-                         SLag, TORB
+use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, do_nac, DPT2_tot, DPT2C_tot, iPrGlb, iRoot1, iRoot2, LISTS, LUONEM, &
+                         NCMO, SLag, TORB
 use general_data, only: NASH
 use caspt2_module, only: BNAME, CPT2Method, Energy, IAD1M, IFMSCOUP, IFPROP, irlxroot, ISCF, JSTATE, MSTATE, MSTATE, NASHT, NBAS, &
                          NBAST, NCONF, NDEL, NFRO, NISH, NORB, NRAS1, NRAS2, NRAS3, NSYM, OUTFMT, PRORB, THRENE, THROCC
@@ -43,7 +42,7 @@ real(kind=wp), intent(in) :: UEFF(NSTATE,NSTATE), U0(nState,nState)
 integer(kind=iwp) :: iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2, IJ, IJ2, IndType(7,8), iOpt, iRc, ISTATE, iSyLbl, ISYM, iUHF, &
                      KSTATE, LUTMP, N, nDens, NDMAT, NFROSAV(NSYM), NO, NOCC, NORBSAV(NSYM)
 real(kind=wp) :: Dummy(2), DUM(1), SCAL
-logical(kind=iwp) :: Do_ESPF, FullMlk, lSave
+logical(kind=iwp) :: Do_ESPF, FullMlk, GradSav, lSave
 character(len=128) :: FILENAME, MDNAME
 character(len=80) :: Note
 character(len=8) :: Label
@@ -108,7 +107,10 @@ if (MODE == 0) then
   DMAT(:) = Zero
   call mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
   call MKLIST(LISTS,NLSTOT)
+  GradSav = do_grad
+  if ((MSTATE(JSTATE) /= iRlxRoot) .and. (.not. IFMSCOUP)) do_grad = .false.
   call DENS(IVECX,NDMAT,NSTATE,DMAT,UEFF)
+  do_grad = GradSav
   call mma_deallocate(LISTS)
 else
   !! Density matrix for the target adiabatic state
