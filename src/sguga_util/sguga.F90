@@ -3713,6 +3713,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   do ICOP = 1, EXS%nICoup
     i1 = EXS%ICoup(1,ICOP)
     i2 = EXS%ICoup(2,ICOP)
+write(6,'(A,4I8)') 'LUNDMAP:', i1, ILNDW(i1), i2, ILNDW(i2)
     EXS%ICoup(1,ICOP) = ILNDW(i1)
     EXS%ICoup(2,ICOP) = ILNDW(i2)
   end do
@@ -3852,7 +3853,7 @@ do MIDV=1,CIS%nMidV
 
   end do
 end do
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*) ' LSGN IN SUBROUTINE MKSGNUM'
 do MIDV=1,CIS%nMidV
@@ -3864,7 +3865,7 @@ do MIDV=1,CIS%nMidV
   write(u6,'(1X,''MIDV='',I3,/,(20I6))') MIDV,EXS%USGN(:,MIDV)
 end do
 write(u6,*)
-#endif
+!#endif
 
 call mma_deallocate(ISTEPVEC)
 
@@ -6563,6 +6564,11 @@ integer(kind=iwp), allocatable :: IRight(:)
 
 real(kind=wp), allocatable :: XVal(:)
 
+real(kind=wp) :: XLL
+integer(kind=iwp) :: MVI, ISYUPI,IUPI,IDWNI
+integer(kind=iwp) :: MVJ, ISYUPJ,IUPJ,IDWNJ
+
+
 write(u6,*)
 write(u6,*) '========================================='
 write(u6,*) ' SG_EpqErs Reference Test'
@@ -6588,6 +6594,27 @@ do I=1,CIS(iState)%NCSF(LSM)
    endif
 
 end do
+
+call Print_CI_Blocks(CIS(iState),LSM )
+call Print_CSF_Decoding( CIS(iState),LSM )
+
+write(6,*)
+write(6,*) '========================================='
+write(6,*) ' CSF DECODING'
+write(6,*) '========================================='
+write(6,*)
+
+do I=1,min(20,CIS(iState)%NCSF(LSM))
+
+   call Decode_CSF( &
+        CIS(iState),LSM,I, &
+        MVI,ISYUPI,IUPI,IDWNI )
+
+   write(6,'(I6,4I6)') &
+        I, MVI, ISYUPI, IUPI, IDWNI
+
+end do
+
 
 
 nI=Min(size(IList),CIS(iState)%nCSF(LSM))
@@ -6799,6 +6826,196 @@ do ICP1=1,NCP1
 end do
 
 end subroutine Contract_ICoup_Blocks
+
+function MatEl_LL( &
+           CIS,EXS,ISYCI, &
+           I,J, &
+           INDEO1,ISYM1,MV1, &
+           INDEO2,ISYM2,MV2 ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+use stdalloc,    only: mma_deallocate
+
+implicit none
+
+type(CIStruct), intent(in) :: CIS
+type(EXStruct), intent(in) :: EXS
+
+integer(kind=iwp), intent(in) :: ISYCI
+
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+
+integer(kind=iwp), intent(in) :: INDEO1
+integer(kind=iwp), intent(in) :: ISYM1
+integer(kind=iwp), intent(in) :: MV1
+
+integer(kind=iwp), intent(in) :: INDEO2
+integer(kind=iwp), intent(in) :: ISYM2
+integer(kind=iwp), intent(in) :: MV2
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+integer(kind=iwp) :: nTerm
+integer(kind=iwp) :: k
+
+integer(kind=iwp), allocatable :: ILeft(:)
+integer(kind=iwp), allocatable :: IRight(:)
+
+real(kind=wp), allocatable :: XVal(:)
+
+Value = Zero
+
+call Decode_CSF( &
+     CIS,ISYCI, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS,ISYCI, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! lower-loop operator leaves upper walk unchanged
+!
+
+if (MVI    /= MVJ   ) return
+if (ISYUPI /= ISYUPJ) return
+if (IUPI   /= IUPJ  ) return
+
+call Contract_ICoup_Blocks( &
+     EXS, &
+     INDEO1,ISYM1,MV1, &
+     INDEO2,ISYM2,MV2, &
+     nTerm, &
+     ILeft, &
+     IRight, &
+     XVal )
+
+do k=1,nTerm
+
+   if (ILeft(k)  /= IDWNI) cycle
+   if (IRight(k) /= IDWNJ) cycle
+
+   Value = Value + XVal(k)
+
+end do
+
+call mma_deallocate(ILeft)
+call mma_deallocate(IRight)
+call mma_deallocate(XVal)
+
+end function MatEl_LL
+
+subroutine Print_CSF_Decoding(CIS,ISYCI)
+
+use Definitions, only: iwp,u6
+
+implicit none
+
+type(CIStruct), intent(in) :: CIS
+integer(kind=iwp), intent(in) :: ISYCI
+
+integer(kind=iwp) :: iCSF
+integer(kind=iwp) :: MV
+integer(kind=iwp) :: ISYUP
+integer(kind=iwp) :: IUP
+integer(kind=iwp) :: IDWN
+
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' CSF DECODING'
+write(u6,*) '========================================='
+write(u6,*)
+
+write(u6,'(A)') &
+'  ICSF    MV  ISYUP   IUP  IDWN'
+
+do iCSF=1,CIS%NCSF(ISYCI)
+
+   call Decode_CSF( &
+        CIS,ISYCI, &
+        iCSF, &
+        MV,ISYUP,IUP,IDWN )
+
+   write(u6,'(5I8)') &
+        iCSF,MV,ISYUP,IUP,IDWN
+
+end do
+
+write(u6,*)
+
+end subroutine Print_CSF_Decoding
+
+subroutine Print_CI_Blocks(CIS,ISYCI)
+
+use Definitions, only: iwp,u6
+use Symmetry_Info, only: Mul
+
+implicit none
+
+type(CIStruct), intent(in) :: CIS
+integer(kind=iwp), intent(in) :: ISYCI
+
+integer(kind=iwp) :: MV
+integer(kind=iwp) :: ISYUP
+integer(kind=iwp) :: ISYDWN
+
+integer(kind=iwp) :: NUP
+integer(kind=iwp) :: NDWN
+integer(kind=iwp) :: NCI
+integer(kind=iwp) :: IOFF
+
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' CI BLOCK STRUCTURE'
+write(u6,*) '========================================='
+write(u6,*)
+
+write(u6,'(A)') &
+' MV ISYUP ISYDWN   NUP  NDWN   NCI   IOCSF'
+
+do MV=1,CIS%nMidV
+
+   do ISYUP=1,size(CIS%NOCSF,1)
+
+      NCI = CIS%NOCSF(ISYUP,MV,ISYCI)
+
+      if (NCI == 0) cycle
+
+      ISYDWN = Mul(ISYUP,ISYCI)
+
+      NUP  = CIS%NOW(1,ISYUP ,MV)
+      NDWN = CIS%NOW(2,ISYDWN,MV)
+
+      IOFF = CIS%IOCSF(ISYUP,MV,ISYCI)
+
+      write(u6,'(7I8)') &
+           MV,ISYUP,ISYDWN, &
+           NUP,NDWN,NCI,IOFF
+
+   end do
+
+end do
+
+write(u6,*)
+
+end subroutine Print_CI_Blocks
+
 end subroutine SG_Test_EpqErs_Ref
 
 end module SGUGA
