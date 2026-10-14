@@ -6671,6 +6671,134 @@ function MatEl_Ref(I,J,p,q,r,s) result(Value)
 
 end function MatEl_Ref
 
+subroutine Contract_ICoup_Blocks( &
+           EXS,                   &
+           INDEO1,ISYM1,MV1,      &
+           INDEO2,ISYM2,MV2,      &
+           nTerm,                 &
+           ILeft,                 &
+           IRight,                &
+           XVal )
+
+use Definitions, only: iwp, wp
+use stdalloc,    only: mma_allocate
+
+implicit none
+
+type(EXStruct), intent(in) :: EXS
+
+integer(kind=iwp), intent(in) :: INDEO1
+integer(kind=iwp), intent(in) :: ISYM1
+integer(kind=iwp), intent(in) :: MV1
+
+integer(kind=iwp), intent(in) :: INDEO2
+integer(kind=iwp), intent(in) :: ISYM2
+integer(kind=iwp), intent(in) :: MV2
+
+integer(kind=iwp), intent(out) :: nTerm
+
+integer(kind=iwp), allocatable, intent(out) :: ILeft(:)
+integer(kind=iwp), allocatable, intent(out) :: IRight(:)
+
+real(kind=wp), allocatable, intent(out) :: XVal(:)
+
+integer(kind=iwp) :: NCP1
+integer(kind=iwp) :: NCP2
+
+integer(kind=iwp) :: IOFF1
+integer(kind=iwp) :: IOFF2
+
+integer(kind=iwp) :: ICP1
+integer(kind=iwp) :: ICP2
+
+integer(kind=iwp) :: L1
+integer(kind=iwp) :: M1
+
+integer(kind=iwp) :: M2
+integer(kind=iwp) :: R2
+
+integer(kind=iwp) :: IV1
+integer(kind=iwp) :: IV2
+
+real(kind=wp) :: X1
+real(kind=wp) :: X2
+real(kind=wp) :: X
+
+integer(kind=iwp) :: i
+logical :: Found
+
+NCP1 = EXS%NOCP(INDEO1,ISYM1,MV1)
+NCP2 = EXS%NOCP(INDEO2,ISYM2,MV2)
+write(6,'(A,4I8)') 'INFO:',INDEO1,ISYM1,MV1,NCP1
+write(6,'(A,4I8)') 'INFO:',INDEO2,ISYM2,MV2,NCP2
+
+if (NCP1 == 0 .or. NCP2 == 0) then
+   nTerm = 0
+   call mma_allocate(ILeft ,1,Label='ILeft')
+   call mma_allocate(IRight,1,Label='IRight')
+   call mma_allocate(XVal  ,1,Label='XVal')
+   return
+end if
+
+IOFF1 = EXS%IOCP(INDEO1,ISYM1,MV1)
+IOFF2 = EXS%IOCP(INDEO2,ISYM2,MV2)
+
+call mma_allocate(ILeft ,NCP1*NCP2,Label='ILeft')
+call mma_allocate(IRight,NCP1*NCP2,Label='IRight')
+call mma_allocate(XVal  ,NCP1*NCP2,Label='XVal')
+
+nTerm = 0
+
+do ICP1=1,NCP1
+
+   L1  = EXS%ICoup(1,IOFF1+ICP1)
+   M1  = EXS%ICoup(2,IOFF1+ICP1)
+
+   IV1 = EXS%ICoup(3,IOFF1+ICP1)
+   X1  = EXS%VTab(IV1)
+
+   do ICP2=1,NCP2
+
+      M2 = EXS%ICoup(1,IOFF2+ICP2)
+
+      if (M1 /= M2) cycle
+
+      R2 = EXS%ICoup(2,IOFF2+ICP2)
+
+      IV2 = EXS%ICoup(3,IOFF2+ICP2)
+      X2  = EXS%VTab(IV2)
+
+      X = X1*X2
+
+      Found = .false.
+
+      do i=1,nTerm
+
+         if (ILeft(i)  /= L1) cycle
+         if (IRight(i) /= R2) cycle
+
+         XVal(i) = XVal(i) + X
+
+         Found = .true.
+         exit
+
+      end do
+
+      if (.not. Found) then
+
+         nTerm = nTerm + 1
+
+         ILeft (nTerm) = L1
+         IRight(nTerm) = R2
+         XVal  (nTerm) = X
+
+      end if
+
+   end do
+
+end do
+
+end subroutine Contract_ICoup_Blocks
 end subroutine SG_Test_EpqErs_Ref
 
 end module SGUGA
