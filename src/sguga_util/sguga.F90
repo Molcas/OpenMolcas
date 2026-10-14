@@ -3713,7 +3713,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   do ICOP = 1, EXS%nICoup
     i1 = EXS%ICoup(1,ICOP)
     i2 = EXS%ICoup(2,ICOP)
-write(6,'(A,4I8)') 'LUNDMAP:', i1, ILNDW(i1), i2, ILNDW(i2)
     EXS%ICoup(1,ICOP) = ILNDW(i1)
     EXS%ICoup(2,ICOP) = ILNDW(i2)
   end do
@@ -3853,7 +3852,7 @@ do MIDV=1,CIS%nMidV
 
   end do
 end do
-!#ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*) ' LSGN IN SUBROUTINE MKSGNUM'
 do MIDV=1,CIS%nMidV
@@ -3865,7 +3864,7 @@ do MIDV=1,CIS%nMidV
   write(u6,'(1X,''MIDV='',I3,/,(20I6))') MIDV,EXS%USGN(:,MIDV)
 end do
 write(u6,*)
-!#endif
+#endif
 
 call mma_deallocate(ISTEPVEC)
 
@@ -6556,7 +6555,7 @@ integer(kind=iwp) :: iI,iJ,nI,nJ
 real(kind=wp)     :: X
 
 integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: I, J, MV, ISYM
+integer(kind=iwp) :: I, J, k, MV, ISYM
 integer(kind=iwp) :: ISYUP,IUP,IDWN
 
 integer(kind=iwp), allocatable :: ILeft(:)
@@ -6564,7 +6563,7 @@ integer(kind=iwp), allocatable :: IRight(:)
 
 real(kind=wp), allocatable :: XVal(:)
 
-real(kind=wp) :: XLL
+real(kind=wp) :: XLL, XREF
 integer(kind=iwp) :: MVI, ISYUPI,IUPI,IDWNI
 integer(kind=iwp) :: MVJ, ISYUPJ,IUPJ,IDWNJ
 
@@ -6595,27 +6594,102 @@ do I=1,CIS(iState)%NCSF(LSM)
 
 end do
 
-call Print_CI_Blocks(CIS(iState),LSM )
-call Print_CSF_Decoding( CIS(iState),LSM )
+call Print_Epq_Matrix( &
+     iState, &
+     LSM, &
+     2,1 )
 
-write(6,*)
-write(6,*) '========================================='
-write(6,*) ' CSF DECODING'
-write(6,*) '========================================='
-write(6,*)
+Call Print_CSF_Walks(SGS(iState),CIS(istate),LSM)
 
-do I=1,min(20,CIS(iState)%NCSF(LSM))
+call Contract_ICoup_Blocks( &
+     EXS(iState), &
+     10,1,3, &
+     10,1,3, &
+     nTerm,ILeft,IRight,XVal )
 
-   call Decode_CSF( &
-        CIS(iState),LSM,I, &
-        MVI,ISYUPI,IUPI,IDWNI )
+write(6,*) 'NTERM=',nTerm
 
-   write(6,'(I6,4I6)') &
-        I, MVI, ISYUPI, IUPI, IDWNI
-
+do k=1,nTerm
+   write(6,'(2I6,F24.15)') &
+        ILeft(k),IRight(k),XVal(k)
 end do
 
 
+write(6,*)
+write(6,*) '========================================='
+write(6,*) ' FIRST OPERATOR COMPARISON'
+write(6,*) '========================================='
+
+p=2
+q=1
+r=2
+s=1
+do I=6,14
+   do J=6,14
+
+      XREF = MatEl_Ref(I,J,p,q,r,s)
+
+      XLL  = MatEl_EpqErs_LL( &
+                 SGS(iState), &
+                 CIS(iState), &
+                 EXS(iState), &
+                 LSM, &
+                 I,J, &
+                 p,q,r,s )
+
+      if (abs(XREF) > 1.0e-10_wp .or. &
+          abs(XLL ) > 1.0e-10_wp) then
+
+         write(6,'(2I6,2F20.12)') &
+              I,J,XREF,XLL
+
+      end if
+
+   end do
+end do
+
+#ifdef _SCRAP_
+write(6,*)
+write(6,*) '========================================='
+write(6,*) ' FIRST LL MATRIX ELEMENT TEST'
+write(6,*) '========================================='
+write(6,*)
+
+do I=1,min(10,CIS(iState)%NCSF(LSM))
+   do J=1,min(10,CIS(iState)%NCSF(LSM))
+
+      XLL = MatEl_LL( &
+              CIS(iState), &
+              EXS(iState), &
+              LSM, &
+              I, J, &
+              1,1,2, &
+              4,1,2 )
+      Write (6,*) 'XLL=',XLL
+
+      if (abs(XLL) > 1.0e-12_wp) then
+
+         call Decode_CSF( &
+              CIS(iState),LSM,I, &
+              MVI,ISYUPI,IUPI,IDWNI )
+
+         call Decode_CSF( &
+              CIS(iState),LSM,J, &
+              MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+         write(6,'(2I6,8I4,F20.12)') &
+              I,J, &
+              MVI,ISYUPI,IUPI,IDWNI, &
+              MVJ,ISYUPJ,IUPJ,IDWNJ, &
+              XLL
+
+      end if
+
+   end do
+end do
+
+write(6,*)
+#endif
 
 nI=Min(size(IList),CIS(iState)%nCSF(LSM))
 nJ=Min(size(JList),CIS(iState)%nCSF(LSM))
@@ -6756,8 +6830,6 @@ logical :: Found
 
 NCP1 = EXS%NOCP(INDEO1,ISYM1,MV1)
 NCP2 = EXS%NOCP(INDEO2,ISYM2,MV2)
-write(6,'(A,4I8)') 'INFO:',INDEO1,ISYM1,MV1,NCP1
-write(6,'(A,4I8)') 'INFO:',INDEO2,ISYM2,MV2,NCP2
 
 if (NCP1 == 0 .or. NCP2 == 0) then
    nTerm = 0
@@ -6824,6 +6896,31 @@ do ICP1=1,NCP1
    end do
 
 end do
+
+#ifdef _SCRAP_
+write(6,*)
+write(6,*) '========================================='
+write(6,*) ' CONTRACTED BLOCK'
+write(6,*) '========================================='
+
+write(6,'(A,3I6)') 'BLOCK1 =',INDEO1,ISYM1,MV1
+
+write(6,'(A,3I6)') 'BLOCK2 =',INDEO2,ISYM2,MV2
+
+write(6,'(A,I6)') 'NTERM =',nTerm
+
+do i=1,nTerm
+
+   write(6,'(A,2I6,F20.12)') &
+      'TERM =', &
+      ILeft(i), &
+      IRight(i), &
+      XVal(i)
+
+end do
+
+write(6,*)
+#endif
 
 end subroutine Contract_ICoup_Blocks
 
@@ -6893,14 +6990,30 @@ call Decode_CSF( &
 ! lower-loop operator leaves upper walk unchanged
 !
 
-if (MVI    /= MVJ   ) return
-if (ISYUPI /= ISYUPJ) return
-if (IUPI   /= IUPJ  ) return
+if (MVI /= MVJ) then
+!  write(6,'(A,2I6,A,2I6)') &
+!     'REJECT MV: I,J=',I,J,'  MV=',MVI,MVJ
+   return
+end if
+
+if (ISYUPI /= ISYUPJ) then
+!  write(6,'(A,2I6,A,2I6)') &
+!     'REJECT ISYUP: I,J=',I,J,'  ISYUP=',ISYUPI,ISYUPJ
+   return
+end if
+
+if (IUPI /= IUPJ) then
+!  write(6,'(A,2I6,A,2I6)') &
+!     'REJECT IUP: I,J=',I,J,'  IUP=',IUPI,IUPJ
+   return
+end if
+
+!write(6,'(A,2I6)') 'CALL CONTRACT FOR I,J=',I,J
 
 call Contract_ICoup_Blocks( &
      EXS, &
-     INDEO1,ISYM1,MV1, &
-     INDEO2,ISYM2,MV2, &
+     INDEO1,ISYM1,MVI, &
+     INDEO2,ISYM2,MVJ, &
      nTerm, &
      ILeft, &
      IRight, &
@@ -6908,8 +7021,8 @@ call Contract_ICoup_Blocks( &
 
 do k=1,nTerm
 
-   if (ILeft(k)  /= IDWNI) cycle
-   if (IRight(k) /= IDWNJ) cycle
+   if (ILeft(k)  /= IDWNJ) cycle
+   if (IRight(k) /= IDWNI) cycle
 
    Value = Value + XVal(k)
 
@@ -7015,6 +7128,342 @@ end do
 write(u6,*)
 
 end subroutine Print_CI_Blocks
+
+subroutine Print_CSF_Walks(SGS,CIS,ISYCI)
+
+use Symmetry_Info, only: Mul
+use Definitions, only: iwp,u6
+
+implicit none
+
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(in) :: CIS
+
+integer(kind=iwp), intent(in) :: ISYCI
+
+integer(kind=iwp) :: MV
+integer(kind=iwp) :: ISYUP
+integer(kind=iwp) :: ISYDWN
+
+integer(kind=iwp) :: IUP
+integer(kind=iwp) :: IDWN
+
+integer(kind=iwp) :: NUP
+integer(kind=iwp) :: NDWN
+
+integer(kind=iwp) :: IUW0
+integer(kind=iwp) :: IDW0
+
+integer(kind=iwp) :: ICUPOS
+integer(kind=iwp) :: ICDPOS
+
+integer(kind=iwp) :: ICUP
+integer(kind=iwp) :: ICDWN
+
+integer(kind=iwp) :: LEV
+integer(kind=iwp) :: NNN
+integer(kind=iwp) :: IC1
+
+integer(kind=iwp) :: ICS(SGS%nLev)
+
+character(len=1), parameter :: CODE(0:3)=['0','u','d','2']
+character(len=200) :: LINE
+
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' CSF WALKS'
+write(u6,*) '========================================='
+write(u6,*)
+
+do MV=1,CIS%nMidV
+
+   do ISYUP=1,SGS%nSym
+
+      ISYDWN = Mul(ISYUP,ISYCI)
+
+      NUP  = CIS%NOW(1,ISYUP ,MV)
+      NDWN = CIS%NOW(2,ISYDWN,MV)
+
+      if (NUP*NDWN == 0) cycle
+
+      write(u6,*)
+      write(u6,'(A,4I6)') &
+         'MV,ISYUP,ISYDWN,NUP=', &
+         MV,ISYUP,ISYDWN,NUP
+
+      write(u6,'(A,I6)') 'NDWN=',NDWN
+
+      IUW0 = 1-CIS%nIpWlk + CIS%IOW(1,ISYUP ,MV)
+      IDW0 = 1-CIS%nIpWlk + CIS%IOW(2,ISYDWN,MV)
+
+      do IDWN=1,NDWN
+
+         ICDPOS = IDW0 + IDWN*CIS%nIpWlk
+         ICDWN  = CIS%ICase(ICDPOS)
+
+         NNN = 0
+
+         do LEV=1,SGS%MidLev
+
+            NNN = NNN + 1
+
+            if (NNN == nPack+1) then
+               NNN = 1
+               ICDPOS = ICDPOS + 1
+               ICDWN  = CIS%ICase(ICDPOS)
+            end if
+
+            IC1 = ICDWN/4
+            ICS(LEV) = ICDWN-4*IC1
+            ICDWN = IC1
+
+         end do
+
+         do IUP=1,NUP
+
+            ICUPOS = IUW0 + IUP*CIS%nIpWlk
+            ICUP   = CIS%ICase(ICUPOS)
+
+            NNN = 0
+
+            do LEV=SGS%MidLev+1,SGS%nLev
+
+               NNN = NNN + 1
+
+               if (NNN == nPack+1) then
+                  NNN = 1
+                  ICUPOS = ICUPOS + 1
+                  ICUP   = CIS%ICase(ICUPOS)
+               end if
+
+               IC1 = ICUP/4
+               ICS(LEV) = ICUP-4*IC1
+               ICUP = IC1
+
+            end do
+
+            LINE=' '
+
+            write(LINE(1:20),'(A,I3,A,I3,A,I3,A,I3,A)') &
+              '(',MV,':',ISYUP,':',IUP,'/',IDWN,')'
+
+            do LEV=1,SGS%nLev
+               LINE(25+LEV:25+LEV)=CODE(ICS(LEV))
+            end do
+
+            write(u6,'(A)') trim(LINE)
+
+         end do
+
+      end do
+
+   end do
+end do
+
+write(u6,*)
+
+end subroutine Print_CSF_Walks
+
+subroutine Print_Block_CSF_Map(CIS,ISYCI,MV,ISYUP)
+
+use Definitions, only: iwp,u6
+use Symmetry_Info, only: Mul
+
+type(CIStruct), intent(in) :: CIS
+
+integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: ISYUP
+
+integer(kind=iwp) :: ISYDWN
+integer(kind=iwp) :: NUP
+integer(kind=iwp) :: NDWN
+
+integer(kind=iwp) :: IUP
+integer(kind=iwp) :: IDWN
+integer(kind=iwp) :: iCSF
+
+ISYDWN = Mul(ISYUP,ISYCI)
+
+NUP  = CIS%NOW(1,ISYUP ,MV)
+NDWN = CIS%NOW(2,ISYDWN,MV)
+
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' BLOCK -> CSF MAP'
+write(u6,*) '========================================='
+
+do IDWN=1,NDWN
+   do IUP=1,NUP
+
+      call Encode_CSF( &
+           CIS,ISYCI, &
+           MV,ISYUP,IUP,IDWN, &
+           iCSF )
+
+      write(u6,'(4I6,A,I6)') &
+           MV,ISYUP,IUP,IDWN, &
+           '  CSF=',iCSF
+
+   end do
+end do
+
+end subroutine Print_Block_CSF_Map
+
+subroutine Decode_Lower_Operator(SGS,p,q,INDEO)
+
+type(SGStruct), intent(in) :: SGS
+integer(kind=iwp), intent(in)  :: p,q
+integer(kind=iwp), intent(out) :: INDEO
+
+if (q > p) then
+   INDEO = 2*SGS%nLev + (p*(p-1))/2 + q
+else
+   INDEO = 2*SGS%nLev + (q*(q-1))/2 + p
+endif
+
+end subroutine Decode_Lower_Operator
+
+
+function MatEl_EpqErs_LL( &
+           SGS,CIS,EXS, &
+           ISYCI, &
+           I,J, &
+           p,q,r,s ) result(Value)
+
+   type(SGStruct), intent(in) :: SGS
+   type(CIStruct), intent(in) :: CIS
+   type(EXStruct), intent(in) :: EXS
+
+   integer(kind=iwp), intent(in) :: ISYCI
+   integer(kind=iwp), intent(in) :: I,J
+   integer(kind=iwp), intent(in) :: p,q,r,s
+
+   integer(kind=iwp) :: MVI
+   integer(kind=iwp) :: MVJ
+
+   integer(kind=iwp) :: ISYUPI
+   integer(kind=iwp) :: ISYUPJ
+
+   integer(kind=iwp) :: IUPI
+   integer(kind=iwp) :: IUPJ
+
+   integer(kind=iwp) :: IDWNI
+   integer(kind=iwp) :: IDWNJ
+
+   integer(kind=iwp) :: INDEO1
+   integer(kind=iwp) :: INDEO2
+
+   real(kind=wp) :: Value
+
+   call Decode_Lower_Operator(SGS,p,q,INDEO1)
+   call Decode_Lower_Operator(SGS,r,s,INDEO2)
+
+   call Decode_CSF( &
+        CIS,ISYCI, &
+        I, &
+        MVI,ISYUPI,IUPI,IDWNI )
+
+   call Decode_CSF( &
+        CIS,ISYCI, &
+        J, &
+        MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+   Value = Zero
+
+   if (MVI /= MVJ) return
+
+   Value = MatEl_LL( &
+              CIS,EXS,ISYCI, &
+              I,J, &
+              INDEO1,1,MVI, &
+              INDEO2,1,MVI )
+
+end function MatEl_EpqErs_LL
+
+subroutine Print_Epq_Matrix(iState,LSM,p,q)
+
+use Constants, only: Zero
+use Definitions, only: iwp, wp, u6
+
+integer(kind=iwp), intent(in) :: iState
+integer(kind=iwp), intent(in) :: LSM
+integer(kind=iwp), intent(in) :: p,q
+
+integer(kind=iwp) :: I,J
+integer(kind=iwp) :: nCSF
+
+real(kind=wp) :: X
+
+nCSF = CIS(iState)%NCSF(LSM)
+
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' EPQ MATRIX'
+write(u6,*) '========================================='
+write(u6,'(A,2I6)') 'p,q=',p,q
+write(u6,*)
+
+write(u6,'(A)') &
+'I        J                 <I|Epq|J>'
+
+do I=1,nCSF
+   do J=1,nCSF
+
+      X = MatEl_Epq_Ref(iState,LSM,I,J,p,q)
+
+      if (abs(X) < 1.0e-12_wp) cycle
+
+      write(u6,'(2I8,F24.15)') I,J,X
+
+   end do
+end do
+
+write(u6,*)
+
+end subroutine Print_Epq_Matrix
+
+function MatEl_Epq_Ref(iState,LSM,I,J,p,q) result(Value)
+
+use Constants, only: Zero, One
+use Definitions, only: iwp, wp
+use stdalloc, only: mma_allocate, mma_deallocate
+
+integer(kind=iwp), intent(in) :: iState
+integer(kind=iwp), intent(in) :: LSM
+integer(kind=iwp), intent(in) :: I,J
+integer(kind=iwp), intent(in) :: p,q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: nCSF
+
+real(kind=wp), allocatable :: Ket(:)
+real(kind=wp), allocatable :: Res(:)
+
+nCSF = CIS(iState)%NCSF(LSM)
+
+call mma_allocate(Ket,nCSF,Label='Ket')
+call mma_allocate(Res,nCSF,Label='Res')
+
+Ket(:)=Zero
+Ket(J)=One
+
+Res(:)=Zero
+
+call SG_Epq_Psi( &
+     SGS(iState), &
+     CIS(iState), &
+     EXS(iState), &
+     p,q,One,LSM, &
+     Ket,Res )
+
+Value = Res(I)
+
+call mma_deallocate(Ket)
+call mma_deallocate(Res)
+
+end function MatEl_Epq_Ref
 
 end subroutine SG_Test_EpqErs_Ref
 
