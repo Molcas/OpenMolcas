@@ -37,12 +37,16 @@ real(kind=wp), intent(in) :: Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedM
 character(len=*), intent(in) :: Path
 logical(kind=iwp), intent(in) :: Do_Energy, Do_Intens
 #ifdef _HDF5_
-integer(kind=iwp) :: dsetid, fileid, iAll, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), iUnique, MaxDCR, nAll_Atoms, &
-                     nCoSet, nGen, nStab, nUnique_Atoms
-integer(kind=iwp), allocatable :: AtNum(:), AtNum_All(:)
-real(kind=wp), allocatable :: Charge(:), Coord(:,:), Coord_All(:,:), NMode(:,:,:)
+integer(kind=iwp) :: dsetid, fileid, iAll, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iSpin, iStab(0:7), iUnique, lcDmp, MaxDCR, &
+                     nAll_Atoms, nCnttp, nCoSet, nGen, nStab, nUnique_Atoms
+logical(kind=iwp) :: Found
+integer(kind=iwp), allocatable :: AtNum(:), AtNum_All(:), AtoB(:)
+real(kind=wp), allocatable :: Charge(:), Coord(:,:), Coord_All(:,:), Mass(:), NMode(:,:,:)
+character(len=8) :: Method
 character(len=LenIn), allocatable :: Label(:)
 character(len=LenIn+4), allocatable :: Label_All(:)
+character(len=80), allocatable :: Bsl(:), Bsl_Old(:)
+character(len=2*80), allocatable :: cDmp(:)
 integer(kind=iwp), external :: iChxyz
 
 call Symmetry_Info_Get()
@@ -62,6 +66,12 @@ call mh5_init_attr(fileid,'NATOMS_UNIQUE',nUnique_Atoms)
 if (nIrrep > 1) call mh5_init_attr(fileid,'NATOMS_ALL',nAll_Atoms)
 call mh5_init_attr(fileid,'NFREQ',nFreq)
 call mh5_init_attr(fileid,'HESSIAN_SOURCE',trim(Path))
+call Get_iScalar('Multiplicity',iSpin)
+call mh5_init_attr(fileid,'SPINMULT',iSpin)
+call Get_cArray('Relax Method',Method,8)
+call mh5_init_attr(fileid,'RELAX_METHOD',trim(Method))
+! LDV: nsRot is 0 when the thermochemistry did not run; it is never 0 after Rotation has run.
+if (nsRot > 0) call mh5_init_attr(fileid,'ROT_SYMMETRY_NUMBER',nsRot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -96,7 +106,53 @@ call mh5_init_attr(dsetid,'DESCRIPTION','Unique center coordinates in bohr, matr
                    'atom index varying slowest; the geometry the frequencies belong to')
 call mh5_put_dset(dsetid,Coord)
 call mh5_close_dset(dsetid)
-!                                                                      *
+
+! LDV: the masses are those of the RunFile, which both frequency analyses use for the real atoms; a dummy center has mass 0.
+call mma_allocate(Mass,nUnique_Atoms,label='Mass')
+call Get_Mass(Mass,nUnique_Atoms)
+dsetid = mh5_create_dset_real(fileid,'CENTER_MASSES',1,[nUnique_Atoms])
+call mh5_init_attr(dsetid,'DESCRIPTION','Nuclear masses in electron masses (atomic units of mass), stored as array of size '// &
+                   '[NATOMS_UNIQUE], including any isotope set in the input; 0 marks a dummy center; the images of a unique '// &
+                   'center share its mass')
+call mh5_put_dset(dsetid,Mass)
+call mh5_close_dset(dsetid)
+call mma_deallocate(Mass)
+
+! LDV: 'Atom -> Basis' gives the centre type of each unique atom, auxiliary, pseudo-charge and fragment types being left out
+! of it, and 'cDmp' holds the two labels of each centre type, 80 characters each, the library one then the one in the input.
+call mma_allocate(AtoB,nUnique_Atoms,label='AtoB')
+call Get_iArray('Atom -> Basis',AtoB,nUnique_Atoms)
+call Qpg_cArray('cDmp',Found,lcDmp)
+nCnttp = lcDmp/(2*80)
+call mma_allocate(cDmp,nCnttp,label='cDmp')
+call Get_cArray('cDmp',cDmp,lcDmp)
+call mma_allocate(Bsl,nUnique_Atoms,label='Bsl')
+call mma_allocate(Bsl_Old,nUnique_Atoms,label='Bsl_Old')
+do iUnique=1,nUnique_Atoms
+  Bsl(iUnique) = cDmp(AtoB(iUnique))(1:80)
+  Bsl_Old(iUnique) = cDmp(AtoB(iUnique))(81:160)
+end do
+call mma_deallocate(cDmp)
+call mma_deallocate(AtoB)
+
+dsetid = mh5_create_dset_str(fileid,'CENTER_BASIS_LABELS',1,[nUnique_Atoms],80)
+call mh5_init_attr(dsetid,'DESCRIPTION','Basis set labels of the unique centers, arranged as one [NATOMS_UNIQUE] block of '// &
+                   '80 characters, stored as kept by the program: the library form that the SEWARD output prints as the '// &
+                   'basis set label, in upper case, with the library name as translated by the basis set table, ending in '// &
+                   'a run of dots and then blanks; the images of a unique center share its basis set')
+call mh5_put_dset(dsetid,Bsl)
+call mh5_close_dset(dsetid)
+
+dsetid = mh5_create_dset_str(fileid,'CENTER_BASIS_INPUT_LABELS',1,[nUnique_Atoms],80)
+call mh5_init_attr(dsetid,'DESCRIPTION','Basis set labels of the unique centers as given in the input, arranged as one '// &
+                   '[NATOMS_UNIQUE] block of 80 characters, stored as kept by the program (the label is padded with dots to '// &
+                   '80 characters), in the form that the user wrote, which may differ from CENTER_BASIS_LABELS in the name of '// &
+                   'the basis set')
+call mh5_put_dset(dsetid,Bsl_Old)
+call mh5_close_dset(dsetid)
+call mma_deallocate(Bsl)
+call mma_deallocate(Bsl_Old)
+!                                                                   *
 !***********************************************************************
 !                                                                      *
 ! All centers, only with symmetry, in the order of the coordinates and normal modes of Freq_Molden: each unique center is
@@ -171,7 +227,10 @@ call mh5_init_attr(dsetid,'DESCRIPTION','Harmonic frequencies in cm-1, vector of
                    'otherwise; MOLCAS_VERSION, the version of the code; and HESSIAN_SOURCE, ANALYTIC for an analytic '// &
                    'Hessian, NUMERICAL for a Hessian obtained by finite differences of gradients, and UPDATED for the '// &
                    'approximate Hessian updated by the geometry optimizer, which is not a computed second derivative '// &
-                   'and must not be used for thermochemistry')
+                   'and must not be used for thermochemistry; SPINMULT, the spin multiplicity; RELAX_METHOD, the label of '// &
+                   'the method that produced the wavefunction; and ROT_SYMMETRY_NUMBER, present only when '// &
+                   'thermochemistry was done, the rotational symmetry number that it used, which is the one given in the '// &
+                   'input or 1 and is not determined from the geometry')
 call mh5_put_dset(dsetid,Freq)
 call mh5_close_dset(dsetid)
 
@@ -192,6 +251,25 @@ call mh5_init_attr(dsetid,'DESCRIPTION','Reduced masses of the normal modes in u
                    'FREQUENCIES')
 call mh5_put_dset(dsetid,RedMas)
 call mh5_close_dset(dsetid)
+
+! LDV: only written when the intensities were computed, never as zeros standing for 'not computed'.
+if (Do_Intens) then
+  dsetid = mh5_create_dset_real(fileid,'IR_INTENSITIES',1,[nFreq])
+  call mh5_init_attr(dsetid,'DESCRIPTION','Infrared intensities of the normal modes in km/mol, vector of size [NFREQ] '// &
+                     'in the order of FREQUENCIES; zero for a mode of an irreducible representation without a dipole '// &
+                     'component; present only when the intensities were computed')
+  call mh5_put_dset(dsetid,Intens)
+  call mh5_close_dset(dsetid)
+end if
+
+! LDV: the energy at the geometry of the frequencies, for the relaxation root; the caller says when it is not available.
+if (Do_Energy) then
+  dsetid = mh5_create_dset_real(fileid,'ENERGY')
+  call mh5_init_attr(dsetid,'DESCRIPTION','Total energy in hartree at the geometry of the frequencies, for the root '// &
+                     'that the geometry optimization follows; absent when the calculation averages two states')
+  call mh5_put_dset(dsetid,Energy)
+  call mh5_close_dset(dsetid)
+end if
 
 call mh5_close_file(fileid)
 #else
