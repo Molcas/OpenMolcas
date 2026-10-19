@@ -25,7 +25,7 @@ real(kind=wp), intent(in) :: H(nTri_Elem(nDisp)), elec(3*nDisp)
 logical(kind=iwp), intent(in) :: converged(8)
 real(kind=wp), intent(out) :: elout(3*nDisp)
 integer(kind=iwp) :: i, i1, i3, iCtl, ii, iNeg, ipNx, iSym, iT, ix, j, jpNx, jx, k, kk, ll, lModes, lnm_molpac, nEig, nModes, nx
-real(kind=wp) :: Fact, rNorm, Tmp
+real(kind=wp) :: Energy, Fact, rNorm, Tmp
 logical(kind=iwp) :: Do_Molden
 real(kind=wp), allocatable :: EVal(:), EVal2(:), EVec(:), EVec2(:,:), Intens(:), NMod(:), RedMas(:), Temp(:), Tmp3(:)
 integer(kind=iwp), external :: IsFreeUnit
@@ -194,7 +194,13 @@ call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nEig,.false.)
 
 ! Write stuff on Molden input file
 
-if (Do_Molden) call Freq_Molden(EVal,nModes,NMod,lModes,nSym,Intens,lDisp,RedMas)
+if (Do_Molden) then
+  call Freq_Molden(EVal,nModes,NMod,lModes,nSym,Intens,lDisp,RedMas)
+  ! The electric-field perturbations are always added to the input (rdinp_mclr), so the intensities are always computed.
+  ! nsRot holds the value used by the thermochemistry, as Thermo_Driver has modified it.
+  call Get_dScalar('Last energy',Energy)
+  call Freq_HDF5(EVal,nModes,NMod,lModes,nSym,Intens,lDisp,RedMas,'ANALYTIC',Energy,.true.,nsRot,.true.)
+end if
 
 call mma_deallocate(NMod)
 call mma_deallocate(evec)

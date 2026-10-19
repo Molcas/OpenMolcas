@@ -11,7 +11,7 @@
 
 subroutine HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,IRInt)
 
-use Slapaf_Info, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
+use Slapaf_Info, only: Energy, iState, lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -102,6 +102,11 @@ mDisp(:) = 0
 mDisp(1) = nInter
 call Print_Mode_Components(EVec,EVal,nModes,lModes,mDisp)
 call Freq_Molden(EVal,nModes,EVec,lModes,nSym,IRInt,mDisp,RedMas)
+! Energy(1) is the energy at the geometry of the Hessian, the displaced ones follow. The dipole derivatives are always formed
+! (nmhess), so the intensities are always computed. Thermo_Driver has run, and has modified nsRot, only if lTherm and there is
+! no symmetry.
+call Freq_HDF5(EVal,nModes,EVec,lModes,nSym,IRInt,mDisp,RedMas,'NUMERICAL',Energy(1),iState(2) <= 0, &
+               merge(nsRot,0,lTherm .and. (nIrrep == 1)),.true.)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

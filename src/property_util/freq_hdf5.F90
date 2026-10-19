@@ -1,0 +1,214 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+! Write the harmonic frequency analysis to the HDF5 file FREQH5.
+!
+! The first eight arguments are those of Freq_Molden, and the data they stand for are written in the same order, so that
+! the two files can be compared row by row. The others are what only the caller knows:
+!   Path       ANALYTIC, NUMERICAL or UPDATED (the optimizer's approximate Hessian)
+!   Energy     energy at the geometry of the frequencies, written only if Do_Energy
+!   nsRot      rotational symmetry number used by the thermochemistry, 0 if it did not run
+!   Do_Intens  whether Intens holds computed intensities
+! The file is created anew at every call.
+
+subroutine Freq_HDF5(Freq,nFreq,Vectors,nVectors,nSym,Intens,mDisp,RedMas,Path,Energy,Do_Energy,nsRot,Do_Intens)
+
+#ifdef _HDF5_
+use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, mh5_create_file, &
+               mh5_init_attr, mh5_put_dset
+use Symmetry_Info, only: ChOper, iOper, nIrrep, Symmetry_Info_Get
+use Molcas, only: LenIn
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+#endif
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nFreq, nVectors, nSym, mDisp(nSym), nsRot
+real(kind=wp), intent(in) :: Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedMas(nFreq), Energy
+character(len=*), intent(in) :: Path
+logical(kind=iwp), intent(in) :: Do_Energy, Do_Intens
+#ifdef _HDF5_
+integer(kind=iwp) :: dsetid, fileid, iAll, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), iUnique, MaxDCR, nAll_Atoms, &
+                     nCoSet, nGen, nStab, nUnique_Atoms
+integer(kind=iwp), allocatable :: AtNum(:), AtNum_All(:)
+real(kind=wp), allocatable :: Charge(:), Coord(:,:), Coord_All(:,:), NMode(:,:,:)
+character(len=LenIn), allocatable :: Label(:)
+character(len=LenIn+4), allocatable :: Label_All(:)
+integer(kind=iwp), external :: iChxyz
+
+call Symmetry_Info_Get()
+
+call Get_iScalar('Unique atoms',nUnique_Atoms)
+call Get_nAtoms_All(nAll_Atoms)
+
+fileid = mh5_create_file('FREQH5')
+
+if (trim(Path) == 'ANALYTIC') then
+  call mh5_init_attr(fileid,'MOLCAS_MODULE','MCLR')
+else
+  call mh5_init_attr(fileid,'MOLCAS_MODULE','SLAPAF')
+end if
+call mh5_init_attr(fileid,'NSYM',nIrrep)
+call mh5_init_attr(fileid,'NATOMS_UNIQUE',nUnique_Atoms)
+if (nIrrep > 1) call mh5_init_attr(fileid,'NATOMS_ALL',nAll_Atoms)
+call mh5_init_attr(fileid,'NFREQ',nFreq)
+call mh5_init_attr(fileid,'HESSIAN_SOURCE',trim(Path))
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Symmetry-unique centers, as in the wavefunction files.
+! LDV: pseudo-charge centers are not among 'Unique atoms', hence not among the centers written here, and neither are they
+! among the atoms of freq.molden.
+
+call mma_allocate(Label,nUnique_Atoms,label='Label')
+call Get_cArray('Unique Atom Names',Label,LenIn*nUnique_Atoms)
+dsetid = mh5_create_dset_str(fileid,'CENTER_LABELS',1,[nUnique_Atoms],LenIn)
+call mh5_init_attr(dsetid,'DESCRIPTION','Unique center labels arranged as one [NATOMS_UNIQUE] block; '// &
+                   'pseudo-charge centers are not included, as they are not atoms of the frequency analysis')
+call mh5_put_dset(dsetid,Label)
+call mh5_close_dset(dsetid)
+
+! LDV: the RunFile holds the atomic numbers of the unique centers as reals, 0 for a dummy center.
+call mma_allocate(Charge,nUnique_Atoms,label='Charge')
+call Get_dArray('Nuclear charge',Charge,nUnique_Atoms)
+call mma_allocate(AtNum,nUnique_Atoms,label='AtNum')
+AtNum(:) = nint(Charge)
+call mma_deallocate(Charge)
+dsetid = mh5_create_dset_int(fileid,'CENTER_ATNUMS',1,[nUnique_Atoms])
+call mh5_init_attr(dsetid,'DESCRIPTION','Atomic numbers of the unique centers, stored as array of size [NATOMS_UNIQUE]; '// &
+                   '0 marks a dummy center')
+call mh5_put_dset(dsetid,AtNum)
+call mh5_close_dset(dsetid)
+
+call mma_allocate(Coord,3,nUnique_Atoms,label='Coord')
+call Get_dArray('Unique Coordinates',Coord,3*nUnique_Atoms)
+dsetid = mh5_create_dset_real(fileid,'CENTER_COORDINATES',2,[3,nUnique_Atoms])
+call mh5_init_attr(dsetid,'DESCRIPTION','Unique center coordinates in bohr, matrix of size [NATOMS_UNIQUE,3], stored with '// &
+                   'atom index varying slowest; the geometry the frequencies belong to')
+call mh5_put_dset(dsetid,Coord)
+call mh5_close_dset(dsetid)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! All centers, only with symmetry, in the order of the coordinates and normal modes of Freq_Molden: each unique center is
+! followed by its images, in the order of its coset (the loop is that of Get_Coord_All_).
+
+if (nIrrep > 1) then
+  nGen = 0
+  if (nIrrep == 2) nGen = 1
+  if (nIrrep == 4) nGen = 2
+  if (nIrrep == 8) nGen = 3
+  if (nGen >= 1) iGen(1) = iOper(1)
+  if (nGen >= 2) iGen(2) = iOper(2)
+  if (nGen == 3) iGen(3) = iOper(4)
+
+  call mma_allocate(Label_All,nAll_Atoms,label='Label_All')
+  call mma_allocate(AtNum_All,nAll_Atoms,label='AtNum_All')
+  iAll = 0
+  MaxDCR = 0
+  do iUnique=1,nUnique_Atoms
+    iChAtom = iChxyz(Coord(:,iUnique),iGen,nGen)
+    call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
+    nCoSet = nIrrep/nStab
+    do iCo=0,nCoSet-1
+      iAll = iAll+1
+      Label_All(iAll) = Label(iUnique)//':'//ChOper(iCoSet(iCo,0))
+      AtNum_All(iAll) = AtNum(iUnique)
+    end do
+  end do
+
+  dsetid = mh5_create_dset_str(fileid,'DESYM_CENTER_LABELS',1,[nAll_Atoms],LenIn+4)
+  call mh5_init_attr(dsetid,'DESCRIPTION','Desymmetrized center labels arranged as one [NATOMS_ALL] block, each unique '// &
+                     "center followed by its images, labelled with the symmetry operation ('E', 'x', 'xy', ...) that "// &
+                     'generates them')
+  call mh5_put_dset(dsetid,Label_All)
+  call mh5_close_dset(dsetid)
+
+  dsetid = mh5_create_dset_int(fileid,'DESYM_CENTER_ATNUMS',1,[nAll_Atoms])
+  call mh5_init_attr(dsetid,'DESCRIPTION','Desymmetrized atomic numbers, stored as array of size [NATOMS_ALL]; 0 marks a '// &
+                     'dummy center')
+  call mh5_put_dset(dsetid,AtNum_All)
+  call mh5_close_dset(dsetid)
+
+  call mma_deallocate(Label_All)
+  call mma_deallocate(AtNum_All)
+end if
+call mma_deallocate(Label)
+call mma_deallocate(AtNum)
+call mma_deallocate(Coord)
+
+! All coordinates, as written to freq.molden (they are the unique ones when there is no symmetry).
+if (nIrrep > 1) then
+  call mma_allocate(Coord_All,3,nAll_Atoms,label='Coord_All')
+  call Get_Coord_All(Coord_All,nAll_Atoms)
+  dsetid = mh5_create_dset_real(fileid,'DESYM_CENTER_COORDINATES',2,[3,nAll_Atoms])
+  call mh5_init_attr(dsetid,'DESCRIPTION','Desymmetrized coordinates in bohr, size [NATOMS_ALL,3], stored with atom index '// &
+                     'varying slowest; the geometry the frequencies belong to')
+  call mh5_put_dset(dsetid,Coord_All)
+  call mh5_close_dset(dsetid)
+  call mma_deallocate(Coord_All)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Frequencies, normal modes and reduced masses, as in freq.molden.
+
+dsetid = mh5_create_dset_real(fileid,'FREQUENCIES',1,[nFreq])
+call mh5_init_attr(dsetid,'DESCRIPTION','Harmonic frequencies in cm-1, vector of size [NFREQ] in the order of '// &
+                   'freq.molden; a negative value is an imaginary frequency; the root attributes are NFREQ, the number '// &
+                   'of frequencies; NSYM, the number of operations of the point group used in the calculation; '// &
+                   'NATOMS_UNIQUE and, only when NSYM is larger than 1, NATOMS_ALL, the numbers of symmetry-unique and '// &
+                   'of all atoms; MOLCAS_MODULE, the module that wrote the file, MCLR for an analytic Hessian and SLAPAF '// &
+                   'otherwise; MOLCAS_VERSION, the version of the code; and HESSIAN_SOURCE, ANALYTIC for an analytic '// &
+                   'Hessian, NUMERICAL for a Hessian obtained by finite differences of gradients, and UPDATED for the '// &
+                   'approximate Hessian updated by the geometry optimizer, which is not a computed second derivative '// &
+                   'and must not be used for thermochemistry')
+call mh5_put_dset(dsetid,Freq)
+call mh5_close_dset(dsetid)
+
+call mma_allocate(NMode,3,nAll_Atoms,nFreq,label='NMode')
+NMode(:,:,:) = Zero
+call Get_NMode_All(Vectors,nVectors,nFreq,nUnique_Atoms,NMode,nAll_Atoms,mDisp)
+dsetid = mh5_create_dset_real(fileid,'NORMAL_MODES',3,[3,nAll_Atoms,nFreq])
+call mh5_init_attr(dsetid,'DESCRIPTION','Normal modes as written to freq.molden, array of size [NFREQ,NATOMS,3], stored '// &
+                   'with mode index varying slowest, then atom index, where NATOMS is NATOMS_ALL when NSYM is larger '// &
+                   'than 1 and NATOMS_UNIQUE otherwise, and the atoms are in the order of DESYM_CENTER_COORDINATES, or '// &
+                   'of CENTER_COORDINATES without symmetry')
+call mh5_put_dset(dsetid,NMode)
+call mh5_close_dset(dsetid)
+call mma_deallocate(NMode)
+
+dsetid = mh5_create_dset_real(fileid,'REDUCED_MASSES',1,[nFreq])
+call mh5_init_attr(dsetid,'DESCRIPTION','Reduced masses of the normal modes in u, vector of size [NFREQ] in the order of '// &
+                   'FREQUENCIES')
+call mh5_put_dset(dsetid,RedMas)
+call mh5_close_dset(dsetid)
+
+call mh5_close_file(fileid)
+#else
+#include "macros.fh"
+unused_var(Freq)
+unused_var(nFreq)
+unused_var(Vectors)
+unused_var(nVectors)
+unused_var(nSym)
+unused_var(Intens)
+unused_var(mDisp)
+unused_var(RedMas)
+unused_var(Path)
+unused_var(Energy)
+unused_var(Do_Energy)
+unused_var(nsRot)
+unused_var(Do_Intens)
+#endif
+
+end subroutine Freq_HDF5
