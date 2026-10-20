@@ -9,6 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2025, Andrew M. Sand                                   *
+!
+!The purpose of this code is to generate a MolEl.dat file that can be 
+!used for transport calculations in the pyRUQT code.
 !***********************************************************************
 
 subroutine molel_write()
