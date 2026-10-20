@@ -14,12 +14,12 @@ subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
 use Basis_Info, only: DBSC, nCnttp
 use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep
+use Molcas, only: LenIn
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
 implicit none
-#include "LenIn.fh"
 character(len=LenIn), intent(_OUT_) :: Label(*)
 integer(kind=iwp), intent(_OUT_) :: Ibas_Lab(*)
 real(kind=wp), intent(_OUT_) :: Coor(3,*), ZNUC(*)

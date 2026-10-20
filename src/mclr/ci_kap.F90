@@ -14,7 +14,8 @@ subroutine CI_KAP(ipcid,fock,fockOut,isym)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipnout !, W
 use MCLR_Data, only: ipCI, n2Dens, nDens, nNA
-use input_mclr, only: ntAsh, State_Sym
+use general_data, only: STSym
+use input_mclr, only: ntAsh
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -31,7 +32,7 @@ call ipnout(-1)
 call mma_allocate(De,ntash**2,Label='De')
 call mma_allocate(Pe,n2Dens,Label='Pe')
 
-call CIDens_SA(.true.,ipCI,ipCid,State_sym,State_Sym,Pe,De)
+call CIDens_SA(.true.,ipCI,ipCid,STSym,STSym,Pe,De)
 
 d0 = Zero
 ! ======================================================================

@@ -61,7 +61,7 @@ character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDS)
 ! Do setup if this is the first call.                                  *
 !----------------------------------------------------------------------*
 ! start pow mod ---
-!write(6,'(3a)') 'Runfile: put_dscalar field "',Label,'"'
+!write(u6,'(3a)') 'Runfile: put_dscalar field "',Label,'"'
 ! end pow mod ---
 call ffRun('dScalar labels',nData,iTmp)
 if (nData == 0) then

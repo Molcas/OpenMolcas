@@ -40,13 +40,14 @@ use Symmetry_Info, only: nIrrep
 use rctfld_module, only: iCharge_Ref
 use Disp, only: lDisp
 use Etwas, only: nAsh, nIsh
+use PrintLevel, only: nPrint, Show
+use k2_arrays, only: DeDe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "print.fh"
 integer(kind=iwp) :: i, iCnttp, iDummer, iopt, iPrint, irc, iRout, lLine, nDiff, nGrad, nHess, nsAtom
 real(kind=wp) :: dum1, dum2, dum3, TCpu1, TCpu2, Time, TWall1, TWall2
 character(len=120) :: Lines
@@ -229,12 +230,14 @@ if (.not. Onenly) then
     call Abend()
   end if
 
+  call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
   call Drvg2(Temp,nhess,lGrd,lHss)
+  call mma_deallocate(DeDe,safe='*')
 
   call CloseP()
 
   if (lHss) then
-    call GADSum(Temp,nHess)
+    call GADGOp(Temp,nHess,'+')
     Temp(:) = Half*Temp
     if (Show) call HssPrt(Temp,nHess)
 

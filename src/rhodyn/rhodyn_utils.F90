@@ -19,18 +19,19 @@ module rhodyn_utils
 !***********************************************************************
 
 use linalg_mod, only: mult
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use linalg_mod, only: abort_
 #endif
-use Constants, only: Zero, One, Two, Three, cZero
+use wigner_util, only: w3j
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, cZero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
 public :: check_hermicity, compare_matrices, dashes, get_kq_order, print_c_matrix, removeColumn, removeLineAndColumn, sortci, &
-          transform, W3J, W6J, WERDM, WERDM_back, WERSO, WERSO_back
+          transform, WERDM, WERDM_back, WERSO, WERSO_back
 
 interface removeLineAndColumn
   module procedure :: removeLineAndColumnR, removeLineAndColumnZ
@@ -342,87 +343,6 @@ subroutine compare_matrices(A,B,n,header,thrs)
 
 end subroutine compare_matrices
 
-function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
-  ! DCLEBS: real Clebsch-Gordan coefficients
-  ! From a modification of Racah''s formula. Coded: Malmqvist 1998
-  ! Note carefully: The input values XJ1..XM3 are REAL, not integers. Half-integer spins are allowed
-  ! Half-integers are assumed exactly represented
-
-  real(kind=wp) :: DCLEBS
-  real(kind=wp), intent(in) :: XJ1, XJ2, XJ3, XM1, XM2, XM3
-  integer(kind=iwp), parameter :: MAXJ = 10, MAXF = 3*MAXJ+1
-  integer(kind=iwp), save :: icall = 0
-  real(kind=wp), save :: DFACT(0:MAXF)
-  real(kind=wp) :: DF, den, PRE, PRE2, SUMMA, TERM, XJSUM
-  integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, IX, IX1, IX2, IY, IY0, JSUM
-
-  if (icall == 0) then
-    icall = icall+1
-    DF = One
-    DFACT(0) = DF
-    do i=1,MAXF
-      DF = real(i,kind=wp)*DF
-      DFACT(i) = DF
-    end do
-  end if
-  DCLEBS = Zero
-  XJSUM = XJ1+XJ2+XJ3
-  JSUM = nint(XJSUM)
-  if (XJSUM /= real(JSUM,kind=wp)) return
-  if (XM1+XM2 /= XM3) return
-  IA1 = nint(XJ1+XM1)
-  if (IA1 < 0) return
-  IB1 = nint(XJ1-XM1)
-  if (IB1 < 0) return
-  IA2 = nint(XJ2+XM2)
-  if (IA2 < 0) return
-  IB2 = nint(XJ2-XM2)
-  if (IB2 < 0) return
-  IA3 = nint(XJ3-XM3)
-  if (IA3 < 0) return
-  IB3 = nint(XJ3+XM3)
-  if (IB3 < 0) return
-  if (JSUM-IA1-IB1 < 0) return
-  if (JSUM-IA2-IB2 < 0) return
-  if (JSUM-IA3-IB3 < 0) return
-  PRE2 = real(1+IA3+IB3)*DFACT(JSUM-IA1-IB1) &
-         *DFACT(JSUM-IA2-IB2)*DFACT(JSUM-IA3-IB3) &
-         *DFACT(IA1)*DFACT(IA2)*DFACT(IA3) &
-         *DFACT(IB1)*DFACT(IB2)*DFACT(IB3) &
-         /DFACT(JSUM+1)
-  PRE = sqrt(PRE2)
-  IY0 = (JSUM-IA3-IB3)
-  IX1 = (IA2+IB1-JSUM)+IB2
-  IX2 = (IA2+IB1-JSUM)+IA1
-  IX = max(0,IX1,IX2)
-  IY = min(IY0,IB1,IA2)
-  SUMMA = Zero
-  do I=IX,IY
-    DEN = DFACT(I)*DFACT(I-IX1)*DFACT(I-IX2)*DFACT(IY0-I)*DFACT(IB1-I)*DFACT(IA2-I)
-    TERM = One/DEN
-    SUMMA = SUMMA+real((-1)**I,kind=wp)*TERM
-  end do
-  DCLEBS = PRE*SUMMA
-
-end function DCLEBS
-
-function W3J(j1,j2,j3,m1,m2,m3)
-  ! Calculates a Wigner 3-j symbol in the form
-  ! { j1 j2 j3 }
-  ! { m1 m2 m3 }
-
-  real(kind=wp) :: W3j
-  real(kind=wp), intent(in) :: j1, j2, j3, m1, m2, m3
-  integer(kind=iwp) :: i
-
-  W3J = DCLEBS(j1,j2,j3,m1,m2,-m3)
-  if (W3J == Zero) return
-  i = nint(j1-j2-m3)
-  if (i /= (i/2)*2) W3J = -W3J
-  W3J = W3J/sqrt(Two*j3+One)
-
-end function W3J
-
 subroutine ITO(n,k,q,spins,projs,T)
   ! calculates the matrix <SM|T^K_Q|S'M'> of irreducible tensor operator
 
@@ -629,117 +549,5 @@ function get_kq_order(k_prime,q_prime)
   end do
 
 end function get_kq_order
-
-function fct(n)
-  ! this function provides correct answer till n=169 only
-
-  real(kind=wp) :: fct
-  integer(kind=iwp), intent(in) :: n
-  integer(kind=iwp) :: i
-  real(kind=wp) :: xct
-
-  xct = One
-  fct = One
-  if (n < 0) then
-    write(u6,'(A,i0)') 'FCT:  N<0 !'
-    write(u6,'(A,i0)') 'N = ',N
-    write(u6,'(A   )') 'It is an impossible case.'
-    fct = -9.0e99_wp
-    return
-  else if (n == 0) then
-    return
-  else if (n <= 169) then
-    do i=1,n
-      xct = xct*real(i,kind=wp)
-    end do
-  else
-    write(u6,'(A,i0)') 'FCT:   N = ',N
-    write(u6,'(A)') 'Factorial of N>169 overflows on x86_64'
-    write(u6,'(A)') 'Use higher numerical precision, or rethink your algorithm.'
-  end if
-  fct = xct
-
-end function fct
-
-function W6J(a,b,c,d,e,f)
-  ! Calculates Wigner 6j symbol. Arguments a-f are positive integers
-  ! and are twice the true value of 6j's arguments, in the form
-  ! { a b c }
-  ! { d e f }
-
-  real(kind=wp) :: W6j
-  integer(kind=iwp), intent(in) :: a, b, c, d, e, f
-  integer(kind=iwp) :: n, nlow, nhig
-  real(kind=wp) :: isum, rsum
-
-  W6J = Zero
-  if (mod(a+b,2) /= mod(c,2)) return
-  if (mod(c+d,2) /= mod(e,2)) return
-  if (mod(a+e,2) /= mod(f,2)) return
-  if (mod(b+d,2) /= mod(f,2)) return
-  if ((abs(a-b) > c) .or. (a+b < c)) return
-  if ((abs(c-d) > e) .or. (c+d < e)) return
-  if ((abs(a-e) > f) .or. (a+e < f)) return
-  if ((abs(b-d) > f) .or. (b+d < f)) return
-  if (.not. check_triangle(a,b,c)) return
-  if (.not. check_triangle(c,d,e)) return
-  if (.not. check_triangle(a,e,f)) return
-  if (.not. check_triangle(b,d,f)) return
-  nlow = 0
-  nhig = 0
-  nlow = max((a+b+c)/2,(c+d+e)/2,(b+d+f)/2,(a+e+f)/2)
-  nhig = min((a+b+d+e)/2,(b+c+e+f)/2,(a+c+d+f)/2)
-  rsum = Zero
-  do n=nlow,nhig
-    isum = real(((-1)**n),kind=wp)*fct(n+1) &
-           /fct((a+c+d+f)/2-n) &
-           /fct((b+c+e+f)/2-n) &
-           /fct(n-(a+b+c)/2) &
-           /fct(n-(c+d+e)/2) &
-           /fct(n-(a+e+f)/2) &
-           /fct(n-(b+d+f)/2) &
-           /fct((a+b+d+e)/2-n)
-    rsum = rsum+isum
-  end do
-  W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*rsum
-
-end function W6J
-
-function dlt(a,b,c)
-  ! calculates the delta(a,b,c) function using the formula 8.2.1. from:
-  ! D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-  ! "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
-  ! a,b,c are positive integers, their values are double than their original value
-
-  real(kind=wp) :: dlt
-  integer(kind=iwp), intent(in) :: a, b, c
-
-  dlt = Zero
-  if ((abs(a-b) > c) .or. (a+b < c)) return
-  if ((abs(b-c) > a) .or. (b+c < a)) return
-  if ((abs(c-a) > b) .or. (c+a < b)) return
-  if (mod((a+b-c),2) == 1) return
-  if (mod((a-b+c),2) == 1) return
-  if (mod((-a+b+c),2) == 1) return
-  if (mod((a+b+c),2) == 1) return
-  if (.not. check_triangle(a,b,c)) return
-  ! special cases:
-  if (a == 0) dlt = One/sqrt(real((b+1),kind=wp))
-  if (b == 0) dlt = One/sqrt(real((a+1),kind=wp))
-  if (c == 0) dlt = One/sqrt(real((a+1),kind=wp))
-  dlt = sqrt(fct((a+b-c)/2)*fct((a-b+c)/2)*fct((-a+b+c)/2)/fct((a+b+c)/2+1))
-
-end function dlt
-
-function check_triangle(a,b,c)
-  ! boolean function, checks if arguments fulfill triangular rule
-
-  logical(kind=iwp) :: check_triangle
-  integer(kind=iwp), intent(in) :: a, b, c
-
-  check_triangle = .false.
-  if (((a+b) >= c) .and. ((b+c) >= a) .and. ((c+a) >= b)) check_triangle = .true.
-
-end function check_triangle
 
 end module rhodyn_utils

@@ -16,6 +16,7 @@
 module Basis_Info
 
 use define_af, only: iTabMx
+use Molcas, only: MxAO, Mxdbsc
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -26,8 +27,6 @@ public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc
           Extend_Shells, Gaussian_Type, icent, iCnttp_Dummy, lant, lmag, lnang, Max_Shells, mGaussian_Type, MolWgh, MxPrim, &
           MxrCof, nAngr, nBas, nBas_Aux, nBas_Frag, nBasisr, nCnttp, nFrag_LineWords, nPrimr, nrBas, nrSym, Nuclear_Model, PAMExp, &
           Point_Charge, r0, rCof, rExp, Seward_Activated, Shells
-
-#include "Molcas.fh"
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -192,8 +191,8 @@ contains
 !***********************************************************************
 !
 ! This to make either the initial allocation of dbsc and Shells according to the default sizes
-! as defined by the parameters in Molcas.fh or according to the actual sizes as recorded on the
-! run file.
+! as defined by the parameters in the Molcas module or according to the actual sizes as recorded
+! on the run file.
 
 subroutine Basis_Info_Init()
 
@@ -973,7 +972,7 @@ end subroutine Basis_Info_Free
 !***********************************************************************
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim, dbsc_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)

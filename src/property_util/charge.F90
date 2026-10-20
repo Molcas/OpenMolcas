@@ -17,14 +17,14 @@ subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 use SpinAV, only: Do_SpinAV, DSc
 use UnixInfo, only: ProgName
 use define_af, only: AngTp, iTabMx
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase
-character(len=LenIn8), intent(in) :: BNAME(*)
+character(len=LenIn+8), intent(in) :: BNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk, lSave
 integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, i, iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, IO, iPair, iPL, IS, ISMO, &
@@ -40,7 +40,7 @@ character(len=8) :: TMP
 integer(kind=iwp), allocatable :: center(:), ICNT(:), ITYP(:), nStab(:)
 real(kind=wp), allocatable, save :: Bonds(:), Chrg(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), DSswap(:,:), Fac(:), P(:,:), &
                                     PInv(:,:), Q2(:), QQ(:,:), QSUM(:), QSUM_TOT(:), qSwap(:), S(:,:), S_blo(:), S_tmp(:,:), Scr(:)
-character(len=LenIn4), allocatable :: LblCnt4(:)
+character(len=LenIn+4), allocatable :: LblCnt4(:)
 character(len=LenIn), allocatable :: CNAME(:)
 character(len=8), allocatable :: TNAME(:), TSwap(:)
 character(len=*), parameter :: AufBau(19) = ['01s',                   &
@@ -51,9 +51,8 @@ character(len=*), parameter :: AufBau(19) = ['01s',                   &
                                              '06s','04f','05d','06p', &
                                              '07s','05f','06d','07p']
 integer(kind=iwp), external :: iPrintLevel
-real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Reduce_Prt
-character(len=LenIn8), external :: Clean_BName
+character(len=LenIn+8), external :: Clean_BName
 !character(len=4), allocatable :: TLbl(:)
 !character(len=LenIn), allocatable :: LblCnt(:)
 
@@ -149,7 +148,7 @@ NXTYP = 0
 outer: do I=1,NBAST
   if (ICNT(I) < 0) cycle outer  ! skip pseudo center
   do J=1,I-1
-    if (BNAME(I)(LenIn1:LenIn8) == BNAME(J)(LenIn1:LenIn8)) then
+    if (BNAME(I)(LenIn+1:LenIn+8) == BNAME(J)(LenIn+1:LenIn+8)) then
       ITYP(I) = ITYP(J)
       cycle outer
     end if
@@ -163,7 +162,7 @@ do I=1,NBAST
   J = ITYP(I)
   if (J == 0) cycle
   if (TNAME(J) /= '') cycle
-  TNAME(J) = BNAME(I)(LenIn1:LenIn8)
+  TNAME(J) = BNAME(I)(LenIn+1:LenIn+8)
 end do
 
 lqSwap = NNUC+NNUC*NXTYP
@@ -335,7 +334,7 @@ call mma_deallocate(TSwap)
 do I=1,NBAST
   if (ICNT(I) < 0) cycle  ! skip pseudo center
   do J=1,NXTYP
-    if (BNAME(I)(LenIn1:LenIn8) == TNAME(J)) then
+    if (BNAME(I)(LenIn+1:LenIn+8) == TNAME(J)) then
       ITYP(I) = J
       exit
     end if
@@ -422,7 +421,7 @@ if (DoBond) then
   ! Atom labels plus symmetry generator
 
   call mma_allocate(LblCnt4,tNUC,label='LblCnt4')
-  call Get_cArray('LP_L',LblCnt4,LenIn4*tNUC)
+  call Get_cArray('LP_L',LblCnt4,(LenIn+4)*tNUC)
   !do i=1,tNUC
   !  LblCnt(i)(1:LenIn) = LblCnt4(i)(1:LenIn)
   !end do
@@ -565,9 +564,9 @@ if (DoBond) then
   write(u6,*) 'After Desymmetrization'
   !call RecPrt('Density Matrix = ',' ',D,NBAST,NBAST)
   !call RecPrt('Overlap Matrix = ',' ',S,NBAST,NBAST)
-  write(u6,*) 'Dens=',DDot_(nBast**2,D,1,D,1),DDot_(nBast**2,D,1,[One],0)
-  write(u6,*) 'Ovrl=',DDot_(nBast**2,S,1,S,1),DDot_(nBast**2,S,1,[One],0)
-  write(u6,*) 'DO  =',DDot_(nBast**2,S,1,D,1)
+  write(u6,*) 'Dens=',sum(D(:,:)**2),sum(D(:,:))
+  write(u6,*) 'Ovrl=',sum(S(:,:)**2),sum(S(:,:))
+  write(u6,*) 'DO  =',sum(S(:,:)*D(:,:))
   E = Zero
   do I=1,NBAST
     do J=1,NBAST
@@ -761,9 +760,9 @@ if ((iCase == 1) .and. (iPL >= 2)) then
   end do
   call mma_deallocate(Q2)
   write(u6,*)
-  write(u6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum_TOT,1)
+  write(u6,'(6X,A,F12.6)') 'Total electronic charge=',sum(QSum_TOT(:))
   write(u6,*)
-  write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Chrg,1)
+  write(u6,'(6X,A,F12.6)') 'Total            charge=',sum(Chrg(:))
 
 end if
 if (iCase == 1) then
@@ -808,13 +807,13 @@ if (((iCase == 2) .and. (iPL >= 2)) .or. ((iCase == 3) .and. (iPL >= 2))) then
   end do
   if (iCase == 3) then
     write(u6,*)
-    write(u6,'(6X,A,F12.6)') 'Total electronic spin=',DDot_(nNuc,[One],0,QSum,1)
+    write(u6,'(6X,A,F12.6)') 'Total electronic spin=',sum(QSum(:))
   else
     write(u6,*)
-    write(u6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum,1)
+    write(u6,'(6X,A,F12.6)') 'Total electronic charge=',sum(QSum(:))
     write(u6,*)
-    TCh = DDot_(nNuc,[One],0,Chrg,1)
-    write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Chrg,1)
+    TCh = sum(Chrg(:))
+    write(u6,'(6X,A,F12.6)') 'Total            charge=',TCh
     call xml_dDump('FormalCharge','Total charge','a.u',0,[TCh],1,1)
   end if
 end if

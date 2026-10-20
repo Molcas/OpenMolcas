@@ -24,14 +24,14 @@ subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGr
 
 use Symmetry_Info, only: nIrrep
 use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGrd, iTab, kAO, l_CASDFT, Lapl, List_G, Mem, &
-                   nGridMax, nR_Eff, nRho, Pax, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
+                   nGridMax, nR_Eff, nRho, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
 use nq_pdft, only: lft, lGGA, lmGGA1, lmGGA2
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
 use nq_Info, only: Functional_type, GGA_type, LDA_type, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
-                   number_of_subblocks, Other_type
+                   number_of_subblocks, Other_type, WriteGrid
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
-                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
+                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
 use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -100,7 +100,6 @@ end if
 NQNACPAR = (NQNAC**2+NQNAC)/2
 NQNACPR2 = (NQNACPAR**2+NQNACPAR)/2
 
-WriteGrid = .false.
 if (WriteGrid) then
   LuGridFile = IsFreeUnit(31)
   call Molcas_Open(LuGridFile,'GRIDFILE')
@@ -402,7 +401,6 @@ call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,List_bas,nShell,List
 !                                                                      *
 ! Deallocate the memory
 
-call mma_deallocate(Pax)
 if (Do_Grad) then
   call mma_deallocate(Temp)
   call mma_deallocate(iTab)

@@ -157,6 +157,8 @@ character(len=lw), parameter :: LabelsCA(nTocCA) = [ &
 !> - '``Last Dipole Moments``'
 !> - '``Un_cen Effective Charge``'
 !> - '``Un_cen Coordinates``'
+!> - '``D1ao_PCM``'                 One particle density matrix in AO that polarizes ASCs during RASSCF
+!> - '``SolventWeight``'            Weight of the density matrix used for generating reaction-field
 
 character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'Analytic Hessian','Center of Charge','Center of Mass  ','CMO_ab          ', & !   1-  4
@@ -209,7 +211,7 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'MSPDFTD6        ','TwoEIntegral    ','D1MOt           ','D1INTER         ', & ! 189-192
                                 'P2INTER         ','D1AO_MS         ','D1SAO_MS        ','MS_FINAL_ROT    ', & ! 193-196
                                 'F1_PDFT         ','F2_PDFT         ','FxyMS           ','SH_Ovlp_Save    ', & ! 297-200
-                                'Old_Phase       ','<rhoB|VnucA>    ','                ','                ', & ! 201-204
+                                'Old_Phase       ','<rhoB|VnucA>    ','D1ao_PCM        ','SolventWeight   ', & ! 201-204
                                 '                ','                ','                ','                ', & ! 205-208
                                 '                ','                ','                ','                ', & ! 209-212
                                 '                ','                ','                ','                ', & ! 213-216

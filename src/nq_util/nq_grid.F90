@@ -18,11 +18,12 @@ private
 
 ! nGridMax: size of the array Grid
 integer(kind=iwp) :: kAO = 0, nGridMax = 128, nRho = 0
+real(kind=wp) :: Pax(3,3)
 logical(kind=iwp) :: l_CASDFT = .false.
 integer(kind=iwp), allocatable :: Angular(:), iBfn_Index(:,:), IndGrd(:), iTab(:,:), List_G(:,:), nR_Eff(:)
 real(kind=wp), allocatable :: Coor(:,:), D1Unzip(:,:), Dens_AO(:,:,:), dRho_dR(:,:,:), dW_dR(:,:), F_xc(:), F_xca(:), F_xcb(:), &
-                              Fact(:,:), GradRho(:,:), Grid(:,:), Grid_AO(:,:,:,:), Lapl(:,:), Mem(:), P2Unzip(:,:,:,:), Pax(:,:), &
-                              Rho(:,:), Sigma(:,:), Tau(:,:), Temp(:), vLapl(:,:), vRho(:,:), vSigma(:,:), vTau(:,:), Weights(:)
+                              Fact(:,:), GradRho(:,:), Grid(:,:), Grid_AO(:,:,:,:), Lapl(:,:), Mem(:), P2Unzip(:,:,:,:), Rho(:,:), &
+                              Sigma(:,:), Tau(:,:), Temp(:), vLapl(:,:), vRho(:,:), vSigma(:,:), vTau(:,:), Weights(:)
 real(kind=wp), allocatable, target :: TabAO(:,:,:), TabAO_Short(:,:,:)
 real(kind=wp), pointer :: TabAO_pack(:) => null()
 

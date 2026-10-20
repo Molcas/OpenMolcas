@@ -25,6 +25,7 @@ use PCM_arrays, only: Centr, DCntr, dPnt, dRad, dTes, IntSph, MxVert, NewSph, nV
 use Isotopes, only: MaxAtomNum, PTab
 use UnixInfo, only: ProgName
 use rctfld_module, only: DoDeriv, iCharge_Ref, iSlPar, NoNEQ_Ref, nPCM_Info, nS, nTs, PCM, PCM_Info_Dmp
+use Molcas, only: MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -34,7 +35,6 @@ use Definitions, only: u6
 implicit none
 logical(kind=iwp), intent(in) :: NonEq
 integer(kind=iwp), intent(inout) :: iCharg
-#include "Molcas.fh"
 character(len=2) ::Elements(MxAtom*8)
 integer(kind=iwp) :: i, iPrint, j, lCnAtm, nAtoms
 real(kind=wp), allocatable :: Coor(:,:), LcCoor(:,:)

@@ -38,7 +38,8 @@ use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: Hss, lDisp, LuTEMP, nConf1, nDensC, nHess, XISPSM
-use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nSym, nTPert, State_Sym
+use general_data, only: nSym, STSym
+use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -99,7 +100,7 @@ do iSym=1,nSym
   ! Output: Commonblocks (Pointers.fh)
 
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(State_Sym,iSym)
+  PState_SYM = Mul(STSym,iSym)
   nconfM = max(ncsf(PState_Sym),nint(xispsm(Pstate_Sym,1)))
   nconf1 = ncsf(PState_Sym)
   CI = .false.
@@ -159,9 +160,9 @@ do iSym=1,nSym
       !write(u6,*) 'ddot orb-sigma',ddot_(nDensC,SKap,1,SKap,1)
       !write(u6,*) 'ddot orb-rhs',ddot_(nDensC,rKap1,1,rKap1,1)
 
-      call GADSum(Kap1,Length)
-      call GADSum(SKap,Length)
-      call GADSum(rKap1,Length)
+      call GADGOp(Kap1,Length,'+')
+      call GADGOp(SKap,Length,'+')
+      call GADGOp(rKap1,Length,'+')
 
       if (CI) then
         ilen = nconf1
@@ -182,33 +183,33 @@ do iSym=1,nSym
         !write(u6,*) 'ddot ci-sigma',ddot_(nConf1,W(ipSp)%A,1,W(ipSp)%A,1)
         !write(u6,*) 'ddot ci-rhs',ddot_(nConf1,W(iprp1)%A,1,W(iprp1)%A,1)
 
-        call GADSum(W(ipCIp1)%A,iLen)
-        call GADSum(W(ipSp)%A,iLen)
-        call GADSum(W(ipRp1)%A,iLen)
+        call GADGOp(W(ipCIp1)%A,iLen,'+')
+        call GADGOp(W(ipSp)%A,iLen,'+')
+        call GADGOp(W(ipRp1)%A,iLen,'+')
       end if
 
     else
 
       Length = nDensC
       Kap1(1:Length) = Zero
-      call GADSum(Kap1,Length)
+      call GADGOp(Kap1,Length,'+')
       sKap(1:Length) = Zero
-      call GADSum(SKap,Length)
+      call GADGOp(SKap,Length,'+')
       rKap1(1:Length) = Zero
-      call GADSum(rKap1,Length)
+      call GADGOp(rKap1,Length,'+')
 
       if (CI) then
 
         ilen = nconf1
         call ipin(ipCIp1)
         W(ipCIp1)%A(1:iLen) = Zero
-        call GADSum(W(ipCIp1)%A,iLen)
+        call GADGOp(W(ipCIp1)%A,iLen,'+')
         call ipin(ipSp)
         W(ipSp)%A(1:iLen) = Zero
-        call GADSum(W(ipSp)%A,iLen)
+        call GADGOp(W(ipSp)%A,iLen,'+')
         call ipin(ipRp1)
         W(ipRp1)%A(1:iLen) = Zero
-        call GADSum(W(ipRp1)%A,iLen)
+        call GADGOp(W(ipRp1)%A,iLen,'+')
 
       end if
 
@@ -242,8 +243,8 @@ do iSym=1,nSym
         call dDaFile(LuTemp,2,rKap2,Length,iDisk)
 
         call GASync()
-        call GADSum(Kap2,Length)
-        call GADSum(rKap2,Length)
+        call GADGOp(Kap2,Length,'+')
+        call GADGOp(rKap2,Length,'+')
 
         if (CI) then
           ilen = nconf1
@@ -257,8 +258,8 @@ do iSym=1,nSym
           rTempc1 = DDot_(nConf1,W(ipCIp2)%A,1,W(ipsp)%A,1)
 
           call GASync() ! <----------------- NOTE!
-          call GADSum(W(ipCIp2)%A,iLen)
-          call GADSum(W(iprp2)%A,iLen)
+          call GADGOp(W(ipCIp2)%A,iLen,'+')
+          call GADGOp(W(iprp2)%A,iLen,'+')
 
         else
           rtempc1 = Zero
@@ -269,18 +270,18 @@ do iSym=1,nSym
         call GASync()
         Length = nDensC
         Kap2(1:Length) = Zero
-        call GADSum(Kap2,Length)
+        call GADGOp(Kap2,Length,'+')
         rKap2(1:Length) = Zero
-        call GADSum(rKap2,Length)
+        call GADGOp(rKap2,Length,'+')
         if (CI) then
           ilen = nconf1
           call GASync()   ! <----------------- NOTE!
           call ipin(ipCIp2)
           W(ipCIp2)%A(1:iLen) = Zero
-          call GADSum(W(ipCIp2)%A,iLen)
+          call GADGOp(W(ipCIp2)%A,iLen,'+')
           call ipin(iprp2)
           W(iprp2)%A(1:iLen) = Zero
-          call GADSum(W(iprp2)%A,iLen)
+          call GADGOp(W(iprp2)%A,iLen,'+')
           call ipin(ipsp)
           rTempc1 = DDot_(nConf1,W(ipCIp2)%A,1,W(ipsp)%A,1)
         else
@@ -346,12 +347,15 @@ end do
 call mma_allocate(Hess,nHss,Label='Hess')
 Hess(:) = Zero
 call mma_allocate(Hess2,nHss,Label='Hess2')
+Hess2(:) = Zero
 call mma_allocate(Temp,nHss,Label='Temp')
 Temp(:) = Zero
 call mma_allocate(ELEC,3*ndisp,Label='ELEC')
 ELEC(:) = Zero
 call mma_allocate(EG,3*ndisp,Label='EG')
+EG(:) = Zero
 call mma_allocate(ELOUT,3*ndisp,Label='ELOUT')
+ELOUT(:) = Zero
 call ipclose(-1)
 
 !----------------------------------------------------------------------*
@@ -369,7 +373,7 @@ iopt = ibset(0,sLength)
 irc = 3*ndisp
 Label = 'DOTELGR'
 call drdMCk(irc,iopt,LaBeL,idum,EG,idum)
-call GADsum(Hss,nHss)
+call GADgop(Hss,nHss,'+')
 Hess2(:) = Hss(:)
 #ifdef _DEBUGPRINT_
 elec_On = .true.
@@ -471,11 +475,13 @@ if (.true.) then
   iRC = -1
   iOpt = 0
   call mma_allocate(NrDisp,ndisp,Label='NrDisp')
+  NrDisp(:) = -1
   Label = 'NRCTDISP'
   call RdMck(irc,iopt,Label,idum,NrDisp,idum)
   iRC = -1
   iOpt = 0
   call mma_allocate(DegDisp,ndisp,Label='DegDisp')
+  degdisp(:) = 0
   Label = 'DegDisp'
   call RdMck(irc,iopt,Label,idum,DegDisp,idum)
   if (iRC /= 0) then
@@ -493,13 +499,12 @@ if (.true.) then
   if (debug .and. elec_On) call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
 # endif
 
-  Lu_10 = 10
-  Lu_10 = IsFreeUnit(Lu_10)
+  Lu_10 = IsFreeUnit(10)
   call molcas_open(lu_10,'UNSYM')
-  !open(unit=Lu_10,file='UNSYM')
+  !open(Lu_10,file='UNSYM')
 
   if (Mckinley) then
-    call FreqAnal(DegDisp,NrDisp,Hess,converged,ELEC,ielec,elout,ldisp2,Lu_10)
+    call FreqAnal(nDisp,DegDisp,NrDisp,Hess,converged,ELEC,ielec,elout,ldisp2,Lu_10)
     call Niclas(Hess,coor,Lu_10)
   end if
   write(u6,*)

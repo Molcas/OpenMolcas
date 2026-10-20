@@ -36,6 +36,7 @@ subroutine TR2Sq(CMO,NCMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 ! Replace MXMA with DGEMM. P-AA Malmqvist 1992-05-06.
 
 use caspt2_global, only: LUHLF1, LUHLF2, LUHLF3, LUINTM
+use caspt2_module, only: nSym
 use Intgrl, only: IAD2M
 use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LMOS, LMOS2, LRUPQ, LTUPQ, LURPQ, NBP, NBPQ, &
                  NBQ, NBR, NBRS, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS, NPQ
@@ -49,7 +50,6 @@ integer(kind=iwp), intent(in) :: NCMO, lBuf
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*), X3(*)
 real(kind=wp), intent(inout) :: URPQ(*), RUPQ(*), TUPQ(*)
-#include "caspt2.fh"
 integer(kind=iwp) :: IAD1, IAD1S, IAD2, IAD2S, IAD3, IAD3S, iOpt, IOUT1, IOUT2, IOUT3, IPQ, IPQMX1, IPQMX2, IPQMX3, IPQST, IR, &
                      iRc, IRSST, IRU, ISPQRS, IST, ITU, IX2, KKTU, LAR, LPQ, LR, NA, NAT, NORU, NOTU, NOUR, NP, NQ, NQM, NR, &
                      NSYMP, NT, NTM, NTMAX, NU, NUM, NUMAX
@@ -261,7 +261,7 @@ if (NOCR*NOCS /= 0) then
       ! ONE BLOCK FOR EACH TU STARTING AT ADDRESS IAD2M(1,ISPQRS).
       ! TRIANGULAR IN AB AND TU IF ISP == ISQ ( AND ISR == ISS)
 
-      call GADSum(X2,IX2)
+      call GADGOp(X2,IX2,'+')
       call dDAFILE(LUINTM,1,X2,IX2,IAD13)
 
       ! EXTRACT INTEGRALS WITH ALL INDICES ACTIVE INTO TUVX
@@ -383,7 +383,7 @@ if ((ISP >= ISR) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOP*NOR)
+      call GADGOp(X2,NOP*NOR,'+')
       call dDAFILE(LUINTM,1,X2,NOP*NOR,IAD13)
     end do
   end do
@@ -475,7 +475,7 @@ if (((ISP /= ISQ) .and. (ISQ > ISR)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOR*NOQ)
+      call GADGOp(X2,NOR*NOQ,'+')
       call dDAFILE(LUINTM,1,X2,NOR*NOQ,IAD13)
     end do
   end do
@@ -575,7 +575,7 @@ if (((ISP /= ISQ) .and. (ISP > ISS)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOS*NOP)
+      call GADGOp(X2,NOS*NOP,'+')
       call dDAFILE(LUINTM,1,X2,NOS*NOP,IAD13)
     end do
   end do
@@ -686,7 +686,7 @@ if (((ISP /= ISQ) .and. (ISQ >= ISS)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOS*NOQ)
+      call GADGOp(X2,NOS*NOQ,'+')
       call dDAFILE(LUINTM,1,X2,NOS*NOQ,IAD13)
     end do
   end do

@@ -2057,7 +2057,7 @@ character(len=180), intent(in) :: DATA_FILE_NAME
 
 !#ifdef _ALONE_
 !ierr = 0
-!open(unit=DATA_FILE,file=DATA_FILE_NAME,form='formatted',status='old',access='sequential',action='write',iostat=ierr )
+!open(DATA_FILE,file=DATA_FILE_NAME,form='formatted',status='old',access='sequential',action='write',iostat=ierr )
 !if (ierr /= 0) call WarningMessage(2,'open_datafile_write:: Something went wrong opening DATA_FILE')
 !#else
 call molcas_open(DATA_FILE,DATA_FILE_NAME)
@@ -2080,7 +2080,7 @@ character(len=180), intent(in) :: ANISO_FILE_NAME
 
 !#ifdef _ALONE_
 !ierr = 0
-!open(unit=ANISO_FILE,form='formatted',status='old',access='sequential',action='write',iostat=ierr )
+!open(ANISO_FILE,form='formatted',status='old',access='sequential',action='write',iostat=ierr )
 !if (ierr /= 0) call WarningMessage(2,'open_datafile_write:: Something went wrong opening ANISO_FILE')
 !#else
 call molcas_open(ANISO_FILE,ANISO_FILE_NAME)
@@ -2103,7 +2103,7 @@ character(len=180), intent(in) :: DATA_FILE_NAME
 
 !#ifdef _ALONE_
 !ierr = 0
-!open(unit=DATA_FILE,form='FORMATTED',status='old',access='sequential',action='read',iostat=ierr )
+!open(DATA_FILE,form='FORMATTED',status='old',access='sequential',action='read',iostat=ierr )
 !if (ierr /= 0) call WarningMessage(2,'open_datafile_read:: Something went wrong opening DATA_FILE')
 !#else
 call molcas_open(DATA_FILE,DATA_FILE_NAME)
@@ -2122,7 +2122,7 @@ integer(kind=iwp), intent(in) :: DATA_FILE
 integer(kind=iwp) :: ierr
 
 ierr = 0
-close(unit=DATA_FILE,iostat=ierr)
+close(DATA_FILE,iostat=ierr)
 if (ierr /= 0) call WarningMessage(2,'close_datafile:: Something went wrong closing DATA_FILE')
 
 return
@@ -2138,7 +2138,7 @@ integer(kind=iwp), intent(in) :: ANISO_FILE
 integer(kind=iwp) :: ierr
 
 ierr = 0
-close(unit=ANISO_FILE,iostat=ierr)
+close(ANISO_FILE,iostat=ierr)
 if (ierr /= 0) call WarningMessage(2,'close_datafile:: Something went wrong closing ANISO_FILE')
 
 return

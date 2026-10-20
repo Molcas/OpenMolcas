@@ -25,12 +25,12 @@ use Center_Info, only: dc
 use RICD_Info, only: Thrshld_CD
 use DKH_Info, only: iRELMP
 use define_af, only: AngTp
+use PrintLevel, only: nPrint, Show
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
-#include "print.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iPrint, iRout, kSh, kShEnd, kShStr, lSh, mdc, nBasisk, nExpk
 character(len=4) :: DBas
 character :: ChCa, ChCo, ChSph

@@ -19,7 +19,7 @@ subroutine print_MCPDFT_2(e_nuc,e_cas,e_ot,state,e_mcscf)
 use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
 use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Tau_a1, Tau_a2, Tau_b1, Tau_b2
 use mspdft, only: mspdftmethod
-use printlevel, only: usual
+use PrintLevel, only: USUAL
 use mcpdft_output, only: iPrGlb
 use mcpdft_input, only: mcpdft_options
 use Constants, only: Zero, One
@@ -36,7 +36,7 @@ e_state = e_cas+e_ot
 e_pdft = e_state
 if (mcpdft_options%otfnal%is_hybrid()) e_state = mcpdft_options%otfnal%lambda*e_mcscf+(One-mcpdft_options%otfnal%lambda)*e_state
 
-if (iPrGlb >= usual) then
+if (iPrGlb >= USUAL) then
   write(Fmt2,'(A,I3.3,A)') '(6X,'
   Line = ''
   if (mcpdft_options%mspdft) then

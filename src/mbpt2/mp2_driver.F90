@@ -47,6 +47,7 @@ use ChoMP2, only: all_Vir, C_os, ChoAlg, DoDens, DoMP2, DoT1amp, EOSMP2, FNOMP2,
                   nActa, pEOcc => EOcc, pEVir => EVir, SOS_mp2, T1amp, ThrLov, vkept, Wref, XEMP2
 use transform_procedures, only: SetUp_CASPT2_Tra
 use trafo, only: IADOUT
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -61,8 +62,6 @@ character(len=8) :: Method, Method1
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: Cho_X_GetTol
 real(kind=wp), external :: ddot_, Seconds
-#include "Molcas.fh"
-#include "corbinf.fh"
 
 !                                                                      *
 !***********************************************************************

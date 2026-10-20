@@ -28,23 +28,27 @@ subroutine MltInt( &
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
-use Symmetry_Info, only: ChOper
 use rmat, only: RMat_Type_Integrals
 use NDDO, only: oneel_NDDO
+#ifdef _DEBUGPRINT_
+use Symmetry_Info, only: ChOper
+#endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iComp, iDCRT(0:7), ii, iIC, ipAxyz, ipBxyz, ipFnl, ipQxyz, iPrint, ipRnr, ipRxyz, iRout, iStabO(0:7), lDCRT, &
-                     llOper, LmbdT, lsum, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iComp, iDCRT(0:7), ipAxyz, ipBxyz, ipFnl, ipQxyz, ipRnr, ipRxyz, iStabO(0:7), lDCRT, llOper, LmbdT, lsum, &
+                     nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 logical(kind=iwp) :: ABeq(3)
-character(len=80) :: Label
 real(kind=wp), parameter :: Origin(3) = Zero
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii, iIC
+character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -52,9 +56,6 @@ unused_var(Beta)
 unused_var(ZInv)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
-iRout = 122
-iPrint = nPrint(iRout)
 
 rFinal(:,:,:,:) = Zero
 
@@ -92,15 +93,15 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 
-if (iPrint >= 49) then
-  call RecPrt(' In MltInt: A',' ',A,1,3)
-  call RecPrt(' In MltInt: RB',' ',RB,1,3)
-  call RecPrt(' In MltInt: CoorO',' ',CoorO,1,3)
-  call RecPrt(' In MltInt: Kappa',' ',rKappa,nAlpha,nBeta)
-  call RecPrt(' In MltInt: Zeta',' ',Zeta,nAlpha,nBeta)
-  call RecPrt(' In MltInt: P',' ',P,nZeta,3)
-  write(u6,*) ' In MltInt: la,lb=',la,lb
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In MltInt: A',' ',A,1,3)
+call RecPrt(' In MltInt: RB',' ',RB,1,3)
+call RecPrt(' In MltInt: CoorO',' ',CoorO,1,3)
+call RecPrt(' In MltInt: Kappa',' ',rKappa,nAlpha,nBeta)
+call RecPrt(' In MltInt: Zeta',' ',Zeta,nAlpha,nBeta)
+call RecPrt(' In MltInt: P',' ',P,nZeta,3)
+write(u6,*) ' In MltInt: la,lb=',la,lb
+#endif
 
 llOper = lOper(1)
 do iComp=2,nComp
@@ -133,15 +134,15 @@ if (RMat_type_integrals) then
 
   call SOS(iStabO,nStabO,llOper)
   call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-  if (iPrint >= 99) then
-    write(u6,*) ' m      =',nStabM
-    write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(u6,*) ' s      =',nStabO
-    write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
-    write(u6,*) ' LambdaT=',LmbdT
-    write(u6,*) ' t      =',nDCRT
-    write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' m      =',nStabM
+  write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+  write(u6,*) ' s      =',nStabO
+  write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
+  write(u6,*) ' LambdaT=',LmbdT
+  write(u6,*) ' t      =',nDCRT
+  write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+# endif
 
   do lDCRT=0,nDCRT-1
 
@@ -162,15 +163,15 @@ else
 
   call SOS(iStabO,nStabO,llOper)
   call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-  if (iPrint >= 99) then
-    write(u6,*) ' m      =',nStabM
-    write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(u6,*) ' s      =',nStabO
-    write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
-    write(u6,*) ' LambdaT=',LmbdT
-    write(u6,*) ' t      =',nDCRT
-    write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' m      =',nStabM
+  write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+  write(u6,*) ' s      =',nStabO
+  write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
+  write(u6,*) ' LambdaT=',LmbdT
+  write(u6,*) ' t      =',nDCRT
+  write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+# endif
 
   do lDCRT=0,nDCRT-1
     call OA(iDCRT(lDCRT),CoorO,TC)
@@ -198,19 +199,17 @@ else
 
 end if
 
-if (iPrint >= 99) then
-  write(u6,*)
-  write(u6,*) ' Result in MltInt'
-  write(u6,*)
-  write(u6,*) 'la,lb,nHer=',la,lb,nHer
-  write(u6,*) 'nComp=',nComp
-  write(u6,*)
-  do iIC=1,nIC
-    write(Label,'(A,I2,A)') ' MltInt(iIC=',iIC,')'
-    call RecPrt(Label,'(10G15.8) ',rFinal(:,:,:,iIC),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
-end if
-
-return
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' Result in MltInt'
+write(u6,*)
+write(u6,*) 'la,lb,nHer=',la,lb,nHer
+write(u6,*) 'nComp=',nComp
+write(u6,*)
+do iIC=1,nIC
+  write(Label,'(A,I2,A)') ' MltInt(iIC=',iIC,')'
+  call RecPrt(Label,'(10G15.8) ',rFinal(:,:,:,iIC),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
+#endif
 
 end subroutine MltInt

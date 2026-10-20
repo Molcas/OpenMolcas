@@ -35,6 +35,7 @@ subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 use sort_data, only: iDaTmp, iDaTwo, iDIBin, iDVBin, IndBin, lBin, LuTmp, LuTwo, mInt, ValBin
 use TwoDat, only: lDaRec, lStRec, lTop, nSect
 use Pack_mod, only: isPack
+use PrintLevel, only: nPrint
 use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
 implicit none
@@ -42,7 +43,6 @@ integer(kind=iwp), intent(in) :: iBin, lSrtA, lStk
 real(kind=wp), intent(inout) :: SrtArr(lSrtA)
 integer(kind=iwp), intent(out) :: IOStk(lStk)
 integer(kind=iwp), intent(inout) :: nStk
-#include "print.fh"
 integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, iOpt, iP_Storage, iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, &
                      mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
 real(kind=wp) :: PkVBin(lStRec)
@@ -175,8 +175,8 @@ do while (iDaTmp >= 0)
   iDaTmp = PkIBin(1)
   iDaTwo = int(PkVBin(1),kind=iwp)
 end do
-if (iPrint >= 99) call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
-
-return
+#ifdef _DEBUGPRINT_
+call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
+#endif
 
 end subroutine SORT2A

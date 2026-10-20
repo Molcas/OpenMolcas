@@ -248,8 +248,8 @@ if (isUHF) then
   do j=1,ik_ab
     do i=1,nMOs
       if (Sort_ab(i) == j) then
-        il_ab = il_ab
-        GRef_ab(il_ab+1) = i
+        il_ab = il_ab+1
+        GRef_ab(il_ab) = i
       end if
     end do
   end do

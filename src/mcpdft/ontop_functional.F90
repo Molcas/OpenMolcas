@@ -84,8 +84,8 @@ function new(otxc,lambda)
     write(u6,*) ' EXAMPLE:                          '
     write(u6,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
     write(u6,*) ' Usage:                            '
-    write(u6,*) '  KSDFT=T:PBE                      '
-    write(u6,*) '  LAMB =0.25                       '
+    write(u6,*) '  FUNC=T:PBE                       '
+    write(u6,*) '  LAMB=0.25                        '
     write(u6,*) ' **********************************'
     call abend()
   end if
@@ -191,7 +191,7 @@ function energy_ot(self,folded_dm1,folded_dm1s,casdm2,charge)
   use stdalloc, only: mma_allocate, mma_deallocate
 
   real(kind=wp) :: energy_ot
-  class(OTFNAL_t),intent(in) :: self
+  class(OTFNAL_t), intent(in) :: self
   real(kind=wp), intent(in) :: folded_dm1(ntot1), folded_dm1s(ntot1), casdm2(nacpr2)
   integer(kind=iwp), intent(in) :: charge
   integer(kind=iwp) :: charge_

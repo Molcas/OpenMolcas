@@ -35,6 +35,7 @@ use Symmetry_Info, only: ChOper, nIrrep
 use rmat, only: RMat_Type_Integrals
 use define_af, only: AngTp
 use property_label, only: PLabel
+use Molcas, only: LenIn, MxAtom
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -52,7 +53,6 @@ character(len=8), intent(in) :: Label
 real(kind=wp), intent(in) :: CoorO(3,nComp), PtChrg(nGrid)
 real(kind=wp), intent(out) :: SOInt(l_SOInt), Scrtch(nScrtch), ScrSph(nScrSph)
 real(kind=wp), target, intent(out) :: rFinal(nFinal), Kern(nKern)
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iab, iAng, iAO, iAtom, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ii, iiC, iIrrep, ipFnl, &
                      iPrim, ipX, ipY, ipZ, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, &
                      jPrim, jShell, jShll, kk, l_Coord, lA0, lA1, LambdT, lB0, lB1, lDCRR, lFinal, Lmbdr, lScrSph, lScrtch, mdci, &

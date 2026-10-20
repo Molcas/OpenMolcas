@@ -13,6 +13,7 @@ subroutine BJAI(IAD,EPSI,EPSE,E2BJAI,VECL2)
 
 use MBPT2_Global, only: LuIntM
 use Symmetry_Info, only: Mul
+use cOrbInf, only: nExt, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
@@ -28,7 +29,6 @@ logical(kind=iwp) :: DoCholesky
 real(kind=wp), allocatable :: INT1(:), INT2(:), AIBJ(:), AJBI(:)
 logical(kind=iwp), parameter :: Debug = .false.
 real(kind=wp), external :: ddot_
-#include "corbinf.fh"
 
 SKAL2 = -huge(SKAL2)
 IAD13 = 0

@@ -12,9 +12,14 @@
 subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
 
 use Slapaf_Info, only: Analytic_Hessian, ApproxNADC, Baker, Coor, Cx, dqInt, E_Delta, EDiffZero, eMEPTest, Energy, FindTS, GNrm, &
-                       GrdMax, Gx, HUpMet, iNeg, iOptC, Lbl, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, qInt, rMEP, Shift, &
-                       SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP
+                       GrdMax, Gx, HUpMet, iNeg, iOptC, Lbl, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, qInt, rMEP, SlStop, &
+                       ThrCons, ThrEne, ThrGrd, ThrMEP
+
+#ifdef _DEBUGPRINT_
+use Slapaf_Info, only: Shift
+#endif
 use Chkpnt, only: Chkpnt_update_MEP
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Six, Half
 use Definitions, only: wp, iwp, u6
@@ -24,7 +29,6 @@ integer(kind=iwp), intent(in) :: iter, kIter, nInter, MxItr, mIntEff, mTtAtm
 integer(kind=iwp), intent(out) :: iStop
 logical(kind=iwp), intent(in) :: GoOn, Just_Frequencies
 character, intent(in) :: Step_Trunc
-#include "print.fh"
 integer(kind=iwp) :: i, iFile, iMEP, iOff_Iter, iPrint, IRC, iRout, iSaddle, iSaddle_p, iSaddle_r, iter_S, j, jSaddle, kkIter, &
                      LuInput, nAtom, nBackward, nConst, nForward, nIRC, nSaddle, nSaddle_Max
 real(kind=wp) :: CumLen, E, E0, E1, E2, E_Prod, E_Reac, echng, eDiffMEP, Fabs, Maxed, MaxErr, prevDist, rDum(1,1,1,1), refDist, &
@@ -53,14 +57,14 @@ TSReg = btest(iOptC,13)
 nSaddle_Max = 100
 iRout = 116
 iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt('Convrg: Energy',' ',Energy,1,iter)
-  call RecPrt('Convrg: Shift',' ',Shift,nInter,iter)
-  call RecPrt('Convrg: qInt',' ',qInt,nInter,iter+1)
-  call RecPrt('Convrg: dqInt',' ',dqInt,nInter,iter)
-  call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
-  call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('Convrg: Energy',' ',Energy,1,iter)
+call RecPrt('Convrg: Shift',' ',Shift,nInter,iter)
+call RecPrt('Convrg: qInt',' ',qInt,nInter,iter+1)
+call RecPrt('Convrg: dqInt',' ',dqInt,nInter,iter)
+call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
+call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
+#endif
 
 call Get_iScalar('Saddle Iter',iter_S)
 if (iter_S == 0) then
@@ -479,12 +483,12 @@ if (Conv1 .and. Saddle) then
       !write(u6,*) 'Update reactant'
       Tmp(6*nAtom+1) = Energy(iter)
       E1 = Energy(iter)
-      Tmp(1:3*nAtom) = reshape(Cx(:,:,iter),[3*nAtom])
+      Tmp(1:3*nAtom) = pack(Cx(:,:,iter),.true.)
     else
       !write(u6,*) 'Update product'
       Tmp(6*nAtom+2) = Energy(iter)
       E2 = Energy(iter)
-      Tmp(3*nAtom+1:6*nAtom) = reshape(Cx(:,:,iter),[3*nAtom])
+      Tmp(3*nAtom+1:6*nAtom) = pack(Cx(:,:,iter),.true.)
     end if
     ! Set flag that seward should process the info! This should not
     ! be done for the final macro iteration.

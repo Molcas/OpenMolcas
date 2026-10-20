@@ -1,0 +1,835 @@
+*-------------------------------------------------------------------------------
+* System: C2H4 (as in test/additional/875.input)
+* Basis: 6-31G (as in test/additional/875.input)
+* Features tested: slapaf.h5 GRADIENT_DIFFERENCE / NAC / ROOT_INDICES /
+*                   APPROX_NADC structure for a conical-intersection
+*                   optimization on the full analytic-coupling path (the
+*                   nonadiabatic coupling vector is computed directly, not
+*                   approximated).
+* Responsible person: Luca De Vico
+*-------------------------------------------------------------------------------
+* This test verifies properties of the slapaf.h5 file itself for a conical
+* intersection search -- that the new CI/MECI datasets and attributes are
+* created, correctly shaped, and free of unwritten (fill-value) rows -- none
+* of which the ordinary checkfile mechanism can observe, since Add_Info only
+* ever sees the in-memory value at the call site and never the written file.
+* Numerical values remain the responsibility of the checkfile below.
+*-------------------------------------------------------------------------------
+
+* Test HDF5 support
+> RM -FORCE TEST_HDF5
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+> IF ( -FILE TEST_HDF5 )
+>   EXIT 36
+> ENDIF
+
+* Test h5py support (the structure check below needs it)
+> RM -FORCE TEST_H5PY
+> SHELL python3 -c "import h5py" || touch TEST_H5PY
+> IF ( -FILE TEST_H5PY )
+>   EXIT 36
+> ENDIF
+
+>FILE check_ci_full.py
+#
+# Structure check for slapaf.h5: conical-intersection datasets on the full
+# analytic-coupling path (the nonadiabatic coupling vector is computed
+# directly, not approximated).
+#
+# Asserts only what Add_Info cannot see: that GRADIENT_DIFFERENCE, NAC,
+# ROOT_INDICES and APPROX_NADC are created, correctly shaped, and free of
+# unwritten (fill-value) rows, and that the NADC/EDIFF_ZERO/TWO_RUNFILES
+# attributes carry the expected values for this system. Numerical values
+# remain the responsibility of the checkfile.
+#
+# Exits 0 on success, 1 on any failure. A nonzero exit trips MOLCAS_TRAP and is
+# reported by the verify script as a test failure.
+#
+import sys
+import glob
+
+import h5py
+import numpy as np
+
+failures = []
+notes = []
+
+
+def fail(msg):
+    failures.append(msg)
+
+
+def as_int(value):
+    """mh5 attributes may arrive as a scalar or as a length-1 array."""
+    arr = np.atleast_1d(np.asarray(value))
+    if arr.size != 1:
+        raise ValueError('expected a scalar attribute, got size %d' % arr.size)
+    return int(arr[0])
+
+
+def locate():
+    if len(sys.argv) > 1 and glob.glob(sys.argv[1]):
+        return sys.argv[1]
+    candidates = sorted(glob.glob('*.slapaf.h5'))
+    if not candidates:
+        sys.stderr.write('FATAL: no slapaf.h5 found (argv=%s)\n' % sys.argv[1:])
+        sys.exit(1)
+    if len(candidates) > 1:
+        notes.append('multiple slapaf.h5 present, using %s' % candidates[0])
+    return candidates[0]
+
+
+path = locate()
+
+with h5py.File(path, 'r') as f:
+
+    if 'ITERATIONS' not in f.attrs:
+        sys.stderr.write('FATAL: ITERATIONS attribute is missing\n')
+        sys.exit(1)
+    niter = as_int(f.attrs['ITERATIONS'])
+
+    if 'NATOMS_UNIQUE' not in f.attrs:
+        sys.stderr.write('FATAL: NATOMS_UNIQUE attribute is missing\n')
+        sys.exit(1)
+    natoms = as_int(f.attrs['NATOMS_UNIQUE'])
+
+    # --- B1: GRADIENT_DIFFERENCE and NAC exist, rank 3 ----------------------
+    for name in ('GRADIENT_DIFFERENCE', 'NAC'):
+        if name not in f:
+            fail('B1: %s dataset is missing' % name)
+    if failures:
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+
+    grad_diff = f['GRADIENT_DIFFERENCE'][...]
+    nac = f['NAC'][...]
+
+    if grad_diff.ndim != 3:
+        fail('B1: GRADIENT_DIFFERENCE has rank %d, expected 3' % grad_diff.ndim)
+    if nac.ndim != 3:
+        fail('B1: NAC has rank %d, expected 3' % nac.ndim)
+    if failures:
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+
+    # --- B2: exact shape (ITERATIONS, NATOMS_UNIQUE, 3) ---------------------
+    # This is a transpose check: it only catches a reversed/scrambled axis
+    # order because ITERATIONS, NATOMS_UNIQUE and 3 are mutually distinct for
+    # this system (5, 6 and 3). A future host system for this test must keep
+    # all three distinct, or a transposed dataset could accidentally pass.
+    expected = (niter, natoms, 3)
+    if grad_diff.shape != expected:
+        fail('B2: GRADIENT_DIFFERENCE shape is %s, expected %s' % (grad_diff.shape, expected))
+    if nac.shape != expected:
+        fail('B2: NAC shape is %s, expected %s' % (nac.shape, expected))
+
+    # --- B3: leading dimension agrees with ENERGIES/COORDINATES/FORCES -----
+    energies = f['ENERGIES'][...]
+    coords = f['COORDINATES'][...]
+    forces = f['FORCES'][...]
+    for name, arr in (('ENERGIES', energies), ('COORDINATES', coords), ('FORCES', forces)):
+        if arr.shape[0] != niter:
+            fail('B3: %s leading dimension %d != ITERATIONS %d' % (name, arr.shape[0], niter))
+    if grad_diff.shape[0] != niter:
+        fail('B3: GRADIENT_DIFFERENCE leading dimension %d != ITERATIONS %d' % (grad_diff.shape[0], niter))
+    if nac.shape[0] != niter:
+        fail('B3: NAC leading dimension %d != ITERATIONS %d' % (nac.shape[0], niter))
+
+    # --- B4: ROOT_INDICES exists, shape (ITERATIONS, 2), entries >= 1 -------
+    if 'ROOT_INDICES' not in f:
+        fail('B4: ROOT_INDICES dataset is missing')
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+    root_idx = f['ROOT_INDICES'][...]
+    if root_idx.shape != (niter, 2):
+        fail('B4: ROOT_INDICES shape is %s, expected %s' % (root_idx.shape, (niter, 2)))
+    elif np.any(root_idx < 1):
+        fail('B4: ROOT_INDICES has entries < 1: %s' % np.array2string(root_idx))
+
+    # --- B5: APPROX_NADC exists, shape (ITERATIONS,), all zero --------------
+    if 'APPROX_NADC' not in f:
+        fail('B5: APPROX_NADC dataset is missing')
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+    approx = f['APPROX_NADC'][...]
+    if approx.shape != (niter,):
+        fail('B5: APPROX_NADC shape is %s, expected %s' % (approx.shape, (niter,)))
+    elif np.any(approx != 0):
+        fail('B5: APPROX_NADC has %d nonzero entries, expected all 0 (full '
+             'analytic coupling should never fall back to the '
+             'branching-plane approximation for this system): %s'
+             % (int(np.sum(approx != 0)), np.array2string(approx)))
+
+    # --- B6: NADC / EDIFF_ZERO / TWO_RUNFILES attributes --------------------
+    expected_attrs = {'NADC': 1, 'EDIFF_ZERO': 1, 'TWO_RUNFILES': 0}
+    for attr, want in expected_attrs.items():
+        if attr not in f.attrs:
+            fail('B6: %s attribute is missing' % attr)
+            continue
+        got = as_int(f.attrs[attr])
+        if got != want:
+            fail('B6: %s = %d, expected %d' % (attr, got, want))
+
+    # --- B7: no non-finite entries, no all-zero (unwritten) row -------------
+    for name, arr in (('GRADIENT_DIFFERENCE', grad_diff), ('NAC', nac)):
+        if not np.all(np.isfinite(arr)):
+            bad = np.argwhere(~np.isfinite(arr))
+            fail('B7: %s has %d non-finite entries, first at %s'
+                 % (name, len(bad), tuple(bad[0])))
+        # An unwritten slot retains the HDF5 fill value (0.0) across the
+        # entire per-iteration row; a real gradient difference or coupling
+        # vector is never exactly zero in every component.
+        zero_rows = np.argwhere(np.all(arr == 0.0, axis=(1, 2)))
+        if len(zero_rows):
+            fail('B7: %s has %d all-zero row(s) (fill-value holes?), first '
+                 'at iteration %d' % (name, len(zero_rows), zero_rows[0][0]))
+
+if failures:
+    sys.stderr.write('\nslapaf.h5 structure check FAILED (%s)\n' % path)
+    for item in failures:
+        sys.stderr.write('  %s\n' % item)
+    sys.exit(1)
+
+for item in notes:
+    sys.stdout.write('  note: %s\n' % item)
+sys.stdout.write('slapaf.h5 CI structure check passed: ITERATIONS=%d '
+                 'NATOMS_UNIQUE=%d GRADIENT_DIFFERENCE=%s NAC=%s '
+                 'ROOT_INDICES=%s APPROX_NADC=%s\n'
+                 % (niter, natoms, grad_diff.shape, nac.shape, root_idx.shape, approx.shape))
+sys.exit(0)
+>EOF
+
+>>> EXPORT MOLCAS_REDUCE_PRT = NO
+
+&GATEWAY
+  Coord = 6
+    Angstrom
+    C -0.002171  0.088190 -0.422788
+    C -0.276343 -0.098573  0.986999
+    H  1.078233 -0.118376 -0.623315
+    H -0.048737  1.173250 -0.769635
+    H -0.491326 -0.603520 -1.092152
+    H -0.139657 -0.319971  2.041892
+  Basis = 6-31G
+  Group = NoSymm
+  Constraints
+    a = EDiff 1 2
+  Values
+    a = 0.0
+  End of Constraints
+NoCD
+
+>>> DoWhile
+
+&SEWARD
+
+&RASSCF
+  Spin = 1
+  Charge = 0
+  Ras2 = 2
+  NActElectrons = 2 0 0
+  CIRoot = 2 2 1
+
+&SLAPAF
+
+>>> EndDo
+
+* --- structure check of the resulting checkpoint file -------------------------
+> SHELL python3 check_ci_full.py $Project.slapaf.h5
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 26.06-1184-g81aa22589
+* Linux l19.cmt.physik.tu-dortmund.de 5.14.0-687.41.1.el9_8.x86_64 #1 SMP PREEMPT_DYNAMIC Fri Aug 21 09:00:30 EDT 2026 x86_64 x86_64 x86_64 GNU/Linux
+* Mon Aug 31 15:53:14 2026
+*
+#>>   1
+#> POTNUC="31.766941038136"/12
+#>>   2
+#> POTNUC="31.766941038136"/6
+#> SEWARD_MLTPL1X="0.194133264315"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-37.984065674607"/5
+#>>   3
+#> RASSCF_ITER="9"/8
+#> E_RASSCF[0]="-77.852285261812"/8
+#> E_RASSCF[1]="-77.851774685573"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.263288793384"/5
+#> MLTPL__1[1]="-0.046557022718"/5
+#> MLTPL__1[2]="-0.093018392731"/5
+#> MLTPL__2[0]="-1.353677601293"/5
+#> MLTPL__2[1]="0.112598784746"/5
+#> MLTPL__2[2]="0.386182454338"/5
+#> MLTPL__2[3]="-0.574441744397"/5
+#> MLTPL__2[4]="-0.502590947116"/5
+#> MLTPL__2[5]="1.928119345690"/5
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.274169718761"/5
+#> MLTPL__1[1]="-0.054688235710"/5
+#> MLTPL__1[2]="-0.095684266369"/5
+#> MLTPL__2[0]="-1.537351881405"/5
+#> MLTPL__2[1]="0.234307099003"/5
+#> MLTPL__2[2]="0.482435518283"/5
+#> MLTPL__2[3]="-0.404853916005"/5
+#> MLTPL__2[4]="-0.498866218618"/5
+#> MLTPL__2[5]="1.942205797410"/5
+#>>   4
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.266936180766"/5
+#> MLTPL__1[1]="-0.048633593093"/5
+#> MLTPL__1[2]="-0.089091411860"/5
+#> MLTPL__2[0]="-1.349588892456"/5
+#> MLTPL__2[1]="0.111378532440"/5
+#> MLTPL__2[2]="0.375585303299"/5
+#> MLTPL__2[3]="-0.579898228949"/5
+#> MLTPL__2[4]="-0.500149201645"/5
+#> MLTPL__2[5]="1.929487121405"/5
+#>>   5
+#> GRAD[0]="-0.051264215540"/6
+#> GRAD[1]="-0.024892830434"/6
+#> GRAD[2]="0.017771937916"/6
+#> GRAD[3]="0.016278428436"/6
+#> GRAD[4]="0.002731153022"/6
+#> GRAD[5]="-0.026424329227"/6
+#> GRAD[6]="0.009193878894"/6
+#> GRAD[7]="0.001138117706"/6
+#> GRAD[8]="-0.004881804987"/6
+#> GRAD[9]="0.014762490140"/6
+#> GRAD[10]="0.030934254726"/6
+#> GRAD[11]="-0.008213255853"/6
+#> GRAD[12]="0.014053515957"/6
+#> GRAD[13]="-0.006221026833"/6
+#> GRAD[14]="0.000675050754"/6
+#> GRAD[15]="-0.003024097887"/6
+#> GRAD[16]="-0.003689668188"/6
+#> GRAD[17]="0.021072401397"/6
+#>>   6
+#>>   7
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.270522331379"/5
+#> MLTPL__1[1]="-0.052611665335"/5
+#> MLTPL__1[2]="-0.099611247239"/5
+#> MLTPL__2[0]="-1.541440590242"/5
+#> MLTPL__2[1]="0.235527351309"/5
+#> MLTPL__2[2]="0.493032669322"/5
+#> MLTPL__2[3]="-0.399397431454"/5
+#> MLTPL__2[4]="-0.501307964089"/5
+#> MLTPL__2[5]="1.940838021695"/5
+#>>   8
+#> GRAD[0]="-0.057761601744"/6
+#> GRAD[1]="-0.023361966626"/6
+#> GRAD[2]="0.018501566746"/6
+#> GRAD[3]="0.022133612035"/6
+#> GRAD[4]="0.000911431000"/6
+#> GRAD[5]="-0.028107111770"/6
+#> GRAD[6]="0.010291357500"/6
+#> GRAD[7]="0.000539631193"/6
+#> GRAD[8]="-0.002870991013"/6
+#> GRAD[9]="0.015390126837"/6
+#> GRAD[10]="0.030710272538"/6
+#> GRAD[11]="-0.008925908195"/6
+#> GRAD[12]="0.014755397111"/6
+#> GRAD[13]="-0.005928759472"/6
+#> GRAD[14]="0.000015152465"/6
+#> GRAD[15]="-0.004808891739"/6
+#> GRAD[16]="-0.002870608634"/6
+#> GRAD[17]="0.021387291767"/6
+#>>   9
+#>>  10
+#>>  11
+#> GRAD[0]="0.000445829499"/6
+#> GRAD[1]="0.000754331401"/6
+#> GRAD[2]="0.000112219969"/6
+#> GRAD[3]="0.000875833419"/6
+#> GRAD[4]="0.001281136662"/6
+#> GRAD[5]="0.000094890053"/6
+#> GRAD[6]="0.000131185849"/6
+#> GRAD[7]="0.000103838776"/6
+#> GRAD[8]="0.000138294135"/6
+#> GRAD[9]="0.000447188251"/6
+#> GRAD[10]="0.000519759444"/6
+#> GRAD[11]="0.000421356463"/6
+#> GRAD[12]="0.000580534826"/6
+#> GRAD[13]="0.000024914226"/6
+#> GRAD[14]="0.000229571729"/6
+#> GRAD[15]="0.000432164645"/6
+#> GRAD[16]="0.000917811702"/6
+#> GRAD[17]="0.000153619423"/6
+#>>  12
+#>>  13
+#>>  14
+#>>  15
+#>>  16
+#>>  18
+#> POTNUC="31.972682573332"/6
+#> SEWARD_MLTPL1X="0.263171751320"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-37.998424377645"/5
+#>>  19
+#> RASSCF_ITER="9"/8
+#> E_RASSCF[0]="-77.858538996133"/8
+#> E_RASSCF[1]="-77.858109562252"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.252000414858"/5
+#> MLTPL__1[1]="-0.074382584751"/5
+#> MLTPL__1[2]="-0.120671053730"/5
+#> MLTPL__2[0]="-1.514056820240"/5
+#> MLTPL__2[1]="0.220110723539"/5
+#> MLTPL__2[2]="0.901021230361"/5
+#> MLTPL__2[3]="-0.304210567303"/5
+#> MLTPL__2[4]="-0.646389254540"/5
+#> MLTPL__2[5]="1.818267387543"/5
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.217522659499"/5
+#> MLTPL__1[1]="-0.034646076346"/5
+#> MLTPL__1[2]="-0.102776783213"/5
+#> MLTPL__2[0]="-1.044785307334"/5
+#> MLTPL__2[1]="-0.231877055101"/5
+#> MLTPL__2[2]="0.609071395915"/5
+#> MLTPL__2[3]="-0.713118011755"/5
+#> MLTPL__2[4]="-0.651354417768"/5
+#> MLTPL__2[5]="1.757903319089"/5
+#>>  20
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.244416854848"/5
+#> MLTPL__1[1]="-0.070207932669"/5
+#> MLTPL__1[2]="-0.125238690161"/5
+#> MLTPL__2[0]="-1.526218180753"/5
+#> MLTPL__2[1]="0.222669533368"/5
+#> MLTPL__2[2]="0.918626595521"/5
+#> MLTPL__2[3]="-0.296118092240"/5
+#> MLTPL__2[4]="-0.640974775027"/5
+#> MLTPL__2[5]="1.822336272993"/5
+#>>  21
+#> GRAD[0]="-0.026754206089"/6
+#> GRAD[1]="-0.004581003558"/6
+#> GRAD[2]="0.007902853790"/6
+#> GRAD[3]="0.030442731581"/6
+#> GRAD[4]="-0.007142571208"/6
+#> GRAD[5]="-0.013696304794"/6
+#> GRAD[6]="0.012165603808"/6
+#> GRAD[7]="-0.007344796768"/6
+#> GRAD[8]="0.009791766808"/6
+#> GRAD[9]="-0.006925155689"/6
+#> GRAD[10]="0.008587923445"/6
+#> GRAD[11]="-0.007610195623"/6
+#> GRAD[12]="0.001671988851"/6
+#> GRAD[13]="0.007332242917"/6
+#> GRAD[14]="-0.001376094305"/6
+#> GRAD[15]="-0.010600962462"/6
+#> GRAD[16]="0.003148205172"/6
+#> GRAD[17]="0.004987974124"/6
+#>>  22
+#>>  23
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.225106219510"/5
+#> MLTPL__1[1]="-0.038820728428"/5
+#> MLTPL__1[2]="-0.098209146782"/5
+#> MLTPL__2[0]="-1.032623946821"/5
+#> MLTPL__2[1]="-0.234435864930"/5
+#> MLTPL__2[2]="0.591466030755"/5
+#> MLTPL__2[3]="-0.721210486819"/5
+#> MLTPL__2[4]="-0.656768897280"/5
+#> MLTPL__2[5]="1.753834433640"/5
+#>>  24
+#> GRAD[0]="-0.014401113305"/6
+#> GRAD[1]="-0.008928530550"/6
+#> GRAD[2]="0.009686912856"/6
+#> GRAD[3]="0.016103463453"/6
+#> GRAD[4]="0.000020068215"/6
+#> GRAD[5]="-0.013050511848"/6
+#> GRAD[6]="0.011883201994"/6
+#> GRAD[7]="-0.006617127730"/6
+#> GRAD[8]="0.005264246494"/6
+#> GRAD[9]="-0.008884204885"/6
+#> GRAD[10]="0.008396242139"/6
+#> GRAD[11]="-0.006682625218"/6
+#> GRAD[12]="0.000777105761"/6
+#> GRAD[13]="0.007584993229"/6
+#> GRAD[14]="0.000753570634"/6
+#> GRAD[15]="-0.005478453018"/6
+#> GRAD[16]="-0.000455645303"/6
+#> GRAD[17]="0.004028407082"/6
+#>>  25
+#>>  26
+#>>  27
+#> GRAD[0]="0.002995795700"/6
+#> GRAD[1]="0.000396357983"/6
+#> GRAD[2]="0.000365017083"/6
+#> GRAD[3]="0.004226733014"/6
+#> GRAD[4]="0.003668762864"/6
+#> GRAD[5]="0.000680267283"/6
+#> GRAD[6]="0.000020530781"/6
+#> GRAD[7]="0.000541688136"/6
+#> GRAD[8]="0.000871207515"/6
+#> GRAD[9]="0.000157388110"/6
+#> GRAD[10]="0.000304495618"/6
+#> GRAD[11]="0.000881027871"/6
+#> GRAD[12]="0.000793402734"/6
+#> GRAD[13]="0.000354801667"/6
+#> GRAD[14]="0.000160418580"/6
+#> GRAD[15]="0.001846421157"/6
+#> GRAD[16]="0.002680410696"/6
+#> GRAD[17]="0.000465848425"/6
+#>>  28
+#>>  29
+#>>  30
+#>>  31
+#>>  32
+#>>  34
+#> POTNUC="31.954143282337"/6
+#> SEWARD_MLTPL1X="0.246825446666"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-37.993737497639"/5
+#>>  35
+#> RASSCF_ITER="8"/8
+#> E_RASSCF[0]="-77.859052618675"/8
+#> E_RASSCF[1]="-77.858995252418"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.258340235933"/5
+#> MLTPL__1[1]="-0.061518772592"/5
+#> MLTPL__1[2]="-0.118420963978"/5
+#> MLTPL__2[0]="-1.458540587712"/5
+#> MLTPL__2[1]="0.260998967069"/5
+#> MLTPL__2[2]="0.747142524802"/5
+#> MLTPL__2[3]="-0.340929724418"/5
+#> MLTPL__2[4]="-0.613056536592"/5
+#> MLTPL__2[5]="1.799470312130"/5
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.234805192625"/5
+#> MLTPL__1[1]="-0.025568816136"/5
+#> MLTPL__1[2]="-0.106091098908"/5
+#> MLTPL__2[0]="-1.128728861886"/5
+#> MLTPL__2[1]="-0.112592485937"/5
+#> MLTPL__2[2]="0.526254720285"/5
+#> MLTPL__2[3]="-0.632515366298"/5
+#> MLTPL__2[4]="-0.613500060797"/5
+#> MLTPL__2[5]="1.761244228184"/5
+#>>  36
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.252737444587"/5
+#> MLTPL__1[1]="-0.058078523076"/5
+#> MLTPL__1[2]="-0.122614866795"/5
+#> MLTPL__2[0]="-1.467785514518"/5
+#> MLTPL__2[1]="0.263136792897"/5
+#> MLTPL__2[2]="0.762197395572"/5
+#> MLTPL__2[3]="-0.335234880519"/5
+#> MLTPL__2[4]="-0.607822733396"/5
+#> MLTPL__2[5]="1.803020395037"/5
+#>>  37
+#> GRAD[0]="-0.025158064005"/6
+#> GRAD[1]="0.001345295245"/6
+#> GRAD[2]="0.002136922558"/6
+#> GRAD[3]="0.026723167755"/6
+#> GRAD[4]="-0.007494221513"/6
+#> GRAD[5]="-0.004707226910"/6
+#> GRAD[6]="0.003752752008"/6
+#> GRAD[7]="-0.001562442222"/6
+#> GRAD[8]="0.007835982632"/6
+#> GRAD[9]="0.002306788632"/6
+#> GRAD[10]="0.003992145065"/6
+#> GRAD[11]="-0.003807399074"/6
+#> GRAD[12]="0.001958427505"/6
+#> GRAD[13]="0.000326240902"/6
+#> GRAD[14]="-0.002691281485"/6
+#> GRAD[15]="-0.009583071895"/6
+#> GRAD[16]="0.003392982522"/6
+#> GRAD[17]="0.001233002278"/6
+#>>  38
+#>>  39
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.240407983971"/5
+#> MLTPL__1[1]="-0.029009065653"/5
+#> MLTPL__1[2]="-0.101897196092"/5
+#> MLTPL__2[0]="-1.119483935079"/5
+#> MLTPL__2[1]="-0.114730311766"/5
+#> MLTPL__2[2]="0.511199849516"/5
+#> MLTPL__2[3]="-0.638210210197"/5
+#> MLTPL__2[4]="-0.618733863993"/5
+#> MLTPL__2[5]="1.757694145276"/5
+#>>  40
+#> GRAD[0]="-0.015572205855"/6
+#> GRAD[1]="-0.002024641004"/6
+#> GRAD[2]="0.002852165281"/6
+#> GRAD[3]="0.016200767878"/6
+#> GRAD[4]="-0.001670549787"/6
+#> GRAD[5]="-0.003504896615"/6
+#> GRAD[6]="0.003233412019"/6
+#> GRAD[7]="-0.001080603465"/6
+#> GRAD[8]="0.004336684765"/6
+#> GRAD[9]="0.000685895810"/6
+#> GRAD[10]="0.004146855471"/6
+#> GRAD[11]="-0.003087192812"/6
+#> GRAD[12]="0.001403742266"/6
+#> GRAD[13]="0.000318028618"/6
+#> GRAD[14]="-0.001020366762"/6
+#> GRAD[15]="-0.005951612118"/6
+#> GRAD[16]="0.000310910168"/6
+#> GRAD[17]="0.000423606143"/6
+#>>  41
+#>>  42
+#>>  43
+#> GRAD[0]="0.002692530365"/6
+#> GRAD[1]="0.000127213333"/6
+#> GRAD[2]="0.000318144243"/6
+#> GRAD[3]="0.003648737903"/6
+#> GRAD[4]="0.002481375713"/6
+#> GRAD[5]="0.000413487255"/6
+#> GRAD[6]="0.000058908164"/6
+#> GRAD[7]="0.000462210066"/6
+#> GRAD[8]="0.000844227309"/6
+#> GRAD[9]="0.000199921959"/6
+#> GRAD[10]="0.000244032244"/6
+#> GRAD[11]="0.000734213928"/6
+#> GRAD[12]="0.000753465106"/6
+#> GRAD[13]="0.000242082938"/6
+#> GRAD[14]="0.000099526986"/6
+#> GRAD[15]="0.001568658850"/6
+#> GRAD[16]="0.001893901621"/6
+#> GRAD[17]="0.000304883379"/6
+#>>  44
+#>>  45
+#>>  46
+#>>  47
+#>>  48
+#>>  50
+#> POTNUC="31.951891556879"/6
+#> SEWARD_MLTPL1X="0.246127767328"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-37.992557572100"/5
+#>>  51
+#> RASSCF_ITER="7"/8
+#> E_RASSCF[0]="-77.858994784320"/8
+#> E_RASSCF[1]="-77.858992590826"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.252729350831"/5
+#> MLTPL__1[1]="-0.067128524532"/5
+#> MLTPL__1[2]="-0.121938655857"/5
+#> MLTPL__2[0]="-1.358360942174"/5
+#> MLTPL__2[1]="0.271150619804"/5
+#> MLTPL__2[2]="0.714807740131"/5
+#> MLTPL__2[3]="-0.438531974333"/5
+#> MLTPL__2[4]="-0.624139979569"/5
+#> MLTPL__2[5]="1.796892916507"/5
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.244255224488"/5
+#> MLTPL__1[1]="-0.014675119831"/5
+#> MLTPL__1[2]="-0.108154179731"/5
+#> MLTPL__2[0]="-1.236837281496"/5
+#> MLTPL__2[1]="-0.158466596230"/5
+#> MLTPL__2[2]="0.536899400616"/5
+#> MLTPL__2[3]="-0.542490557493"/5
+#> MLTPL__2[4]="-0.597135022188"/5
+#> MLTPL__2[5]="1.779327838989"/5
+#>>  52
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.249332285068"/5
+#> MLTPL__1[1]="-0.063775666972"/5
+#> MLTPL__1[2]="-0.124593255985"/5
+#> MLTPL__2[0]="-1.364504301046"/5
+#> MLTPL__2[1]="0.272341355108"/5
+#> MLTPL__2[2]="0.726920845062"/5
+#> MLTPL__2[3]="-0.437503832899"/5
+#> MLTPL__2[4]="-0.613560626316"/5
+#> MLTPL__2[5]="1.802008133945"/5
+#>>  53
+#> GRAD[0]="-0.021347125608"/6
+#> GRAD[1]="0.006518416206"/6
+#> GRAD[2]="-0.000850883074"/6
+#> GRAD[3]="0.024245477049"/6
+#> GRAD[4]="-0.008564872227"/6
+#> GRAD[5]="-0.001857407936"/6
+#> GRAD[6]="0.000862337958"/6
+#> GRAD[7]="-0.001544065071"/6
+#> GRAD[8]="0.007571889590"/6
+#> GRAD[9]="0.002872558515"/6
+#> GRAD[10]="-0.000317530507"/6
+#> GRAD[11]="-0.002207187706"/6
+#> GRAD[12]="0.002060866129"/6
+#> GRAD[13]="-0.000126825410"/6
+#> GRAD[14]="-0.003199506095"/6
+#> GRAD[15]="-0.008694114042"/6
+#> GRAD[16]="0.004034877009"/6
+#> GRAD[17]="0.000543095221"/6
+#>>  54
+#>>  55
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.247652290250"/5
+#> MLTPL__1[1]="-0.018027977391"/5
+#> MLTPL__1[2]="-0.105499579603"/5
+#> MLTPL__2[0]="-1.230693922624"/5
+#> MLTPL__2[1]="-0.159657331534"/5
+#> MLTPL__2[2]="0.524786295685"/5
+#> MLTPL__2[3]="-0.543518698927"/5
+#> MLTPL__2[4]="-0.607714375442"/5
+#> MLTPL__2[5]="1.774212621551"/5
+#>>  56
+#> GRAD[0]="-0.015178540474"/6
+#> GRAD[1]="0.003497253017"/6
+#> GRAD[2]="-0.000606800455"/6
+#> GRAD[3]="0.018103672150"/6
+#> GRAD[4]="-0.001578286998"/6
+#> GRAD[5]="-0.000363836014"/6
+#> GRAD[6]="0.000423454167"/6
+#> GRAD[7]="-0.001453148584"/6
+#> GRAD[8]="0.005180918989"/6
+#> GRAD[9]="0.001291360953"/6
+#> GRAD[10]="-0.000003515677"/6
+#> GRAD[11]="-0.002130646898"/6
+#> GRAD[12]="0.002211405305"/6
+#> GRAD[13]="-0.000341854435"/6
+#> GRAD[14]="-0.001680589302"/6
+#> GRAD[15]="-0.006851352101"/6
+#> GRAD[16]="-0.000120447323"/6
+#> GRAD[17]="-0.000399046321"/6
+#>>  57
+#>>  58
+#>>  59
+#> GRAD[0]="0.004239085330"/6
+#> GRAD[1]="0.000585036757"/6
+#> GRAD[2]="0.000409823073"/6
+#> GRAD[3]="0.005221418076"/6
+#> GRAD[4]="0.000940911328"/6
+#> GRAD[5]="0.000079421042"/6
+#> GRAD[6]="0.000167976919"/6
+#> GRAD[7]="0.000502368233"/6
+#> GRAD[8]="0.001424846556"/6
+#> GRAD[9]="0.000138406940"/6
+#> GRAD[10]="0.000173440919"/6
+#> GRAD[11]="0.000769813981"/6
+#> GRAD[12]="0.000782225181"/6
+#> GRAD[13]="0.000200032403"/6
+#> GRAD[14]="0.000229800804"/6
+#> GRAD[15]="0.002070941787"/6
+#> GRAD[16]="0.000996988368"/6
+#> GRAD[17]="0.000094829739"/6
+#>>  60
+#>>  61
+#>>  62
+#>>  63
+#>>  64
+#>>  66
+#> POTNUC="31.943233558354"/6
+#> SEWARD_MLTPL1X="0.246224036033"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-37.991513591170"/5
+#>>  67
+#> RASSCF_ITER="4"/8
+#> E_RASSCF[0]="-77.858992977343"/8
+#> E_RASSCF[1]="-77.858992934060"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.240811372120"/5
+#> MLTPL__1[1]="-0.071404069871"/5
+#> MLTPL__1[2]="-0.120702589396"/5
+#> MLTPL__2[0]="-1.188165383270"/5
+#> MLTPL__2[1]="0.252548547895"/5
+#> MLTPL__2[2]="0.661736532716"/5
+#> MLTPL__2[3]="-0.589670156909"/5
+#> MLTPL__2[4]="-0.641031321663"/5
+#> MLTPL__2[5]="1.777835540179"/5
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.256703577621"/5
+#> MLTPL__1[1]="-0.010159214837"/5
+#> MLTPL__1[2]="-0.109099521415"/5
+#> MLTPL__2[0]="-1.404156778583"/5
+#> MLTPL__2[1]="-0.136643919215"/5
+#> MLTPL__2[2]="0.595121875633"/5
+#> MLTPL__2[3]="-0.389540983226"/5
+#> MLTPL__2[4]="-0.582070364561"/5
+#> MLTPL__2[5]="1.793697761809"/5
+#>>  68
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.241477441604"/5
+#> MLTPL__1[1]="-0.069115072753"/5
+#> MLTPL__1[2]="-0.120197518056"/5
+#> MLTPL__2[0]="-1.187796623813"/5
+#> MLTPL__2[1]="0.252220852016"/5
+#> MLTPL__2[2]="0.665558676056"/5
+#> MLTPL__2[3]="-0.595947693246"/5
+#> MLTPL__2[4]="-0.626050222945"/5
+#> MLTPL__2[5]="1.783744317060"/5
+#>>  69
+#> GRAD[0]="-0.018032702064"/6
+#> GRAD[1]="0.005803396766"/6
+#> GRAD[2]="-0.001022341980"/6
+#> GRAD[3]="0.020176438573"/6
+#> GRAD[4]="-0.008333050641"/6
+#> GRAD[5]="-0.002119158875"/6
+#> GRAD[6]="0.000933435481"/6
+#> GRAD[7]="-0.001180564703"/6
+#> GRAD[8]="0.006545998746"/6
+#> GRAD[9]="0.002641378306"/6
+#> GRAD[10]="-0.000217110313"/6
+#> GRAD[11]="-0.001705686380"/6
+#> GRAD[12]="0.001404924705"/6
+#> GRAD[13]="-0.000135801901"/6
+#> GRAD[14]="-0.002771040557"/6
+#> GRAD[15]="-0.007123475001"/6
+#> GRAD[16]="0.004063130792"/6
+#> GRAD[17]="0.001072229046"/6
+#>>  70
+#>>  71
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.256037508136"/5
+#> MLTPL__1[1]="-0.012448211956"/5
+#> MLTPL__1[2]="-0.109604592754"/5
+#> MLTPL__2[0]="-1.404525538039"/5
+#> MLTPL__2[1]="-0.136316223337"/5
+#> MLTPL__2[2]="0.591299732293"/5
+#> MLTPL__2[3]="-0.383263446888"/5
+#> MLTPL__2[4]="-0.597051463279"/5
+#> MLTPL__2[5]="1.787788984928"/5
+#>>  72
+#> GRAD[0]="-0.018585669217"/6
+#> GRAD[1]="0.004200880329"/6
+#> GRAD[2]="-0.001348671405"/6
+#> GRAD[3]="0.022006392221"/6
+#> GRAD[4]="-0.001731433665"/6
+#> GRAD[5]="-0.000863142007"/6
+#> GRAD[6]="0.000803347853"/6
+#> GRAD[7]="-0.001740359519"/6
+#> GRAD[8]="0.006490854411"/6
+#> GRAD[9]="0.001590642083"/6
+#> GRAD[10]="0.000243245149"/6
+#> GRAD[11]="-0.002615265796"/6
+#> GRAD[12]="0.002497124663"/6
+#> GRAD[13]="-0.000559245694"/6
+#> GRAD[14]="-0.001886392545"/6
+#> GRAD[15]="-0.008311837603"/6
+#> GRAD[16]="-0.000413086600"/6
+#> GRAD[17]="0.000222617342"/6
+#>>  73
+#>>  74
+#>>  75
+#> GRAD[0]="0.005230220028"/6
+#> GRAD[1]="0.001404763789"/6
+#> GRAD[2]="0.000392603608"/6
+#> GRAD[3]="0.005985031464"/6
+#> GRAD[4]="0.001476960159"/6
+#> GRAD[5]="0.000412450735"/6
+#> GRAD[6]="0.000268099436"/6
+#> GRAD[7]="0.000417789131"/6
+#> GRAD[8]="0.001860830910"/6
+#> GRAD[9]="0.000604812736"/6
+#> GRAD[10]="0.000035098410"/6
+#> GRAD[11]="0.000621682164"/6
+#> GRAD[12]="0.000558271699"/6
+#> GRAD[13]="0.000085417528"/6
+#> GRAD[14]="0.000658044439"/6
+#> GRAD[15]="0.002185995306"/6
+#> GRAD[16]="0.000540304619"/6
+#> GRAD[17]="0.000223950036"/6
+#>>  76
+#>>  77
+#> PITCH="0.006984361381"/6
+#> ASYMMETRY="0.598980758385"/6
+#> TILT="4.438790271245"/5
+#> HEADING="0.001802737616"/4
+#> GEO_ITER="5"/8
+#>>  78
+#>>  79
+#>>  80
+>>EOF

@@ -105,7 +105,7 @@ if (Do_ChoInit) then
 end if
 
 if (Do_int) then
-  call GADSum(xInt,lXint)
+  call GADGOp(xInt,lXint,'+')
   kdisk = 0
   call ddafile(Lu_Xint,1,Xint,lXint,kdisk)
   call daclos(Lu_Xint)

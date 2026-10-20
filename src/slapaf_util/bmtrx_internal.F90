@@ -27,6 +27,7 @@ use Index_Functions, only: nTri_Elem
 use Slapaf_Info, only: Analytic_Hessian, BM, BMx, BSet, Cx, dBM, Degen, dqInt, dqInt_Aux, Gx, Gx0, HSet, HWRS, iBM, idBM, iOptC, &
                        KtB, lOld, MaxItr, mB_Tot, mdB_Tot, mq, NAC, nqBM, Numerical, PrQ, qInt, Smmtrc
 use Kriging_Mod, only: nSet
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five, deg2rad
 use Definitions, only: wp, iwp, u6
@@ -36,7 +37,6 @@ integer(kind=iwp), intent(in) :: nsAtom, nDimBC, nIter, mAtoms, iIter, mTR, iTab
                                  nBonds, iTabBonds(3,nBonds), iRef, nWndw
 real(kind=wp), intent(in) :: TRVec(nDimBC,mTR)
 integer(kind=iwp), intent(out) :: nQQ
-#include "print.fh"
 integer(kind=iwp) :: i, i_Dim, iAtom, iB, iDum(6), iEnd, iGhi, iGlow, iPrint, iq, iqA, iQD, iqO, iQQ, iqR, iqRF, iqT, iRout, iSt, &
                      iX, ixyz, jIter, LuIC, M, mIter, N, nB, nB_Tot, ndB_Tot, nK, nq, nqA, nqB, nqO, nqRF, nqT, NRHS, nX
 real(kind=wp) :: Alpha, Dum(1), Thr_ElRed, Thr_raw, Thr_small
@@ -56,9 +56,6 @@ integer(kind=iwp), external :: isfreeunit
 !                                                                      *
 iRout = 128
 iPrint = nPrint(iRout)+1
-#ifdef _DEBUGPRINT_
-iPrint = 99
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -211,14 +208,12 @@ end if
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-if (iPrint >= 49) then
-  write(u6,*) 'nq, nqB, nqA, nqT, nqO=',nq,nqB,nqA,nqT,nqO
-  call RecPrt('q-values',' ',qVal,nq,nIter)
-  call RecPrt('Force Constant matrix in redundant basis',' ',F_c,1,nq)
-  call RecPrt('Multiplicity factors',' ',Mult,1,nq)
-  call RecPrt('Cx',' ',Cx,3*nsAtom,nIter)
-  call RecPrt('Gx',' ',Gx,3*nsAtom,nIter)
-end if
+write(u6,*) 'nq, nqB, nqA, nqT, nqO=',nq,nqB,nqA,nqT,nqO
+call RecPrt('q-values',' ',qVal,nq,nIter)
+call RecPrt('Force Constant matrix in redundant basis',' ',F_c,1,nq)
+call RecPrt('Multiplicity factors',' ',Mult,1,nq)
+call RecPrt('Cx',' ',Cx,3*nsAtom,nIter)
+call RecPrt('Gx',' ',Gx,3*nsAtom,nIter)
 #endif
 
 ! Notation:
@@ -250,14 +245,12 @@ if (HWRS) then
     i = i+nB
   end do
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 99) then
-    i = 1
-    do iq=1,nq
-      nB = nqBM(iq)
-      call RecPrt('fcB',' ',BM(i),1,nB)
-      i = i+nB
-    end do
-  end if
+  i = 1
+  do iq=1,nq
+    nB = nqBM(iq)
+    call RecPrt('fcB',' ',BM(i),1,nB)
+    i = i+nB
+  end do
 # endif
 end if
 !                                                                      *
@@ -291,7 +284,7 @@ else
   call Get_dArray('K',K,nq*nQQ)
 end if
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) call RecPrt('K',' ',K,nq,nQQ)
+call RecPrt('K',' ',K,nq,nQQ)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -414,11 +407,9 @@ do jIter=iSt,iEnd,-1
     end do
   end do
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 99) then
-    call RecPrt(' The BM matrix',' ',BM(:),1,size(BM))
-    call RecPrt(' The K matrix',' ',K,nq,nQQ)
-    call RecPrt(' The K(t)B matrix',' ',KtBu,nQQ,nDimBC)
-  end if
+  call RecPrt(' The BM matrix',' ',BM(:),1,size(BM))
+  call RecPrt(' The K matrix',' ',K,nq,nQQ)
+  call RecPrt(' The K(t)B matrix',' ',KtBu,nQQ,nDimBC)
 # endif
   !                                                                    *
   !*********************************************************************
@@ -536,13 +527,11 @@ call DGEMM_('N','N',nQQ,mIter,nq,One,KtM,nQQ,qVal(:,jIter),nq,Zero,qInt(:,jIter)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-if (iPrint >= 49) then
-  call RecPrt(' The K Matrix',' ',K,nq,nQQ)
-  call RecPrt(' q-values',' ',qVal,nq,nIter)
-  call RecPrt('Q-values',' ',qInt,nQQ,nIter)
-  call RecPrt('Cx',' ',Cx,3*nsAtom,nIter)
-end if
-if (BSet .and. (iPrint >= 49)) then
+call RecPrt(' The K Matrix',' ',K,nq,nQQ)
+call RecPrt(' q-values',' ',qVal,nq,nIter)
+call RecPrt('Q-values',' ',qInt,nQQ,nIter)
+call RecPrt('Cx',' ',Cx,3*nsAtom,nIter)
+if (BSet) then
   call RecPrt('Q-gradients',' ',dqInt,nQQ,nIter)
   call RecPrt('Gx',' ',Gx,3*nsAtom,nIter)
 end if

@@ -49,7 +49,6 @@ integer(kind=iwp) :: iDisk, Sig_vec_PageNo, Sig_vec_RecNo
 real(kind=wp) :: dum1, dum2, dum3, Time(2)
 character(len=llab) :: KeyWord
 integer(kind=iwp), external :: PageNo, RecNo
-#include "rasdim.fh"
 
 call Timing(Time(1),dum1,dum2,dum3)
 

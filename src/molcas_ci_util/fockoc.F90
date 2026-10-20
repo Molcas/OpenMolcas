@@ -26,7 +26,8 @@ subroutine FOCKOC(FOCC,F,CMO)
 use Index_Functions, only: nTri_Elem
 use wadr, only: FockOcc
 use rasscf_global, only: IADR15, NO2M
-use general_data, only: JOBIPH, NASH, NBAS, NISH, NORB, NSYM, NTOT1
+use rasscf_files, only: JOBIPH
+use general_data, only: NASH, NBAS, NISH, NORB, NSYM, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

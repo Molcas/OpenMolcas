@@ -118,8 +118,8 @@ The following keywords are known to the
 
 :kword:`DIPO`
   Add the dipole moment perturbation operator. By default, the dipole moment
-  integrals are always computed with respect to the center of nuclear
-  charge. The keyword is followed by up to three additional input
+  integrals are always computed with respect to the center of mass.
+  The keyword is followed by up to three additional input
   lines. Each line consists of two entries, the component
   of the dipole operator and the perturbation length. The component is
   specified by a single letter (X, Y or Z).
@@ -133,8 +133,8 @@ The following keywords are known to the
               %%Values: i w
               %%Range: (X,Y,Z) (-1.,1.)
               Add the dipole moment perturbation operator. By default, the dipole moment
-              integrals are always computed with respect to the center of nuclear
-              charge. The keyword is followed by up to three additional input
+              integrals are always computed with respect to the center of mass.
+              The keyword is followed by up to three additional input
               lines. Each line consists of two entries, the component
               of the dipole operator and the perturbation length. The component is
               specified by a single letter (X, Y or Z).

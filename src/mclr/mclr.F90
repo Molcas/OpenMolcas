@@ -39,8 +39,6 @@ subroutine MCLR(ireturn)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use Basis_Info, only: Basis_Info_Free
-use Center_Info, only: Center_Info_Free
 use External_Centers, only: External_Centers_Free
 use Symmetry_Info, only: Symmetry_Info_Free
 use Str_Info, only: CFTP, CNSM, DFTP, DTOC
@@ -48,9 +46,11 @@ use ipPage, only: ipclose
 use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FAMO_SpinM, FAMO_SpinP, FIMO, Fm, Fp, G1m, G1p, G1t, G2mm, G2mp, G2pp, &
                      G2sq, G2t, Hss, iAllo, Int1, INT2, LuPT2, nA, nAcPar, nAcPr2, NACSTATES, nNA, nrec, PDFT_Ratio, pINT1, pINT2, &
                      SA, SFock, SS, WF_Ratio
+use PCM_grad, only: PCM_grad_final
 use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
-use input_mclr, only: double, Fail, iMCPD, iMethod, iMSPD, LuAChoVec, LuChoInt, LuIChoVec, McKinley, nAsh, nDisp, NewCho, nRS2, &
-                      nSym, ntAsh, ntASqr, ntAtri, PT2, RASSI, SpinPol, StepType, TimeDep, TwoStep
+use general_data, only: nAsh, nRS2, nSym
+use input_mclr, only: double, Fail, iMCPD, iMethod, iMSPD, LuAChoVec, LuChoInt, LuIChoVec, McKinley, nDisp, NewCho, ntAsh, ntASqr, &
+                      ntAtri, PT2, RASSI, SpinPol, StepType, TimeDep, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, RtoB
@@ -67,7 +67,7 @@ character(len=8) :: Method
 real(kind=wp) :: TCPU1, TCPU2, TCPU3, TWall1, TWall2, TWall3
 integer(kind=iwp), allocatable :: ifpCI(:), ifpK(:), ifpRHS(:), ifpRHSCI(:), ifpS(:), ifpSC(:)
 integer(kind=iwp), external :: get_MBl_wa, iPrintLevel, isFreeUnit
-logical(kind=iwp), external :: Reduce_Prt
+logical(kind=iwp), external :: Reduce_Prt, RF_On
 
 ! This used to be after the CWTIME() functional call
 !                                                                      *
@@ -185,7 +185,7 @@ doMCLR = .false.
 !  write(u6,*) 'nstates_RGLR ',nstates_RGLR
 !  write(u6,*) 'RGras2 : ',RGras2
 !  write(u6,*) 'LRras2 : ',LRras2
-!  open(unit=117,file='mclr_dets.initial')
+!  open(117,file='mclr_dets.initial')
 !end if
 !#endif
 !                                                                      *
@@ -311,8 +311,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call Basis_Info_Free()
-call Center_Info_Free()
+call ClsSew() ! corresponds to IniSew in RdInp_MCLR
 call Symmetry_Info_Free()
 call External_Centers_Free()
 !                                                                      *
@@ -382,6 +381,10 @@ call mma_deallocate(SS,safe='*')
 ! Close files
 
 call ClsFls_MCLR()
+if (RF_On() .and. (SA .or. PT2)) then
+  call Free_RctFld()
+  call PCM_grad_final()
+end if
 
 if (NewCho) then
   call Cho_X_Final(irc)

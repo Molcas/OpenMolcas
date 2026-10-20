@@ -219,7 +219,7 @@ Optional general keywords
   .. xmldoc:: </SELECT>
 
 :kword:`OCCUpied`
-  Requests that the occupied orbitals should be localised. This is the default
+  Requests that the occupied orbitals should be localised. This is the default,
   except for PAO where the default is virtual.
 
   .. xmldoc:: <SELECT MODULE="LOCALISATION" NAME="LOC_ORB" APPEAR="Orbitals to localise" CONTAINS="OCCU,VIRT,ALL">
@@ -229,7 +229,7 @@ Optional general keywords
               <HELP>
               Requests that the occupied orbitals should be localised.
               </HELP>
-              This is the default except for PAO where the default is virtual.
+              This is the default, except for PAO where the default is virtual.
               </KEYWORD>
 
 :kword:`VIRTual`
@@ -265,7 +265,8 @@ Optional general keywords
   .. xmldoc:: </SELECT>
 
 :kword:`PIPEk-Mezey`
-  Requests Pipek--Mezey localisation. This is the default.
+  Requests Pipek--Mezey localisation. This is the default,
+  except for calculations with symmetry where the default is Cholesky.
 
   .. xmldoc:: <SELECT MODULE="LOCALISATION" NAME="LOC_METHODS" APPEAR="Localisation method" CONTAINS="PIPE,BOYS,EDMI,CHOL,PAO,SKIP">
 
@@ -274,22 +275,24 @@ Optional general keywords
               <HELP>
               Requests Pipek-Mezey localisation.
               </HELP>
-              This is the default.
+              This is the default (or Cholesky with symmetry).
               </KEYWORD>
 
 :kword:`BOYS`
-  Requests Boys localisation. The default is Pipek--Mezey.
+  Requests Boys localisation. The default is Pipek--Mezey,
+  except for calculations with symmetry where the default is Cholesky.
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="BOYS" APPEAR="Boys-Forster" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="PIPE,EDMI,CHOL,PAO,SKIP">
               %%Keyword: BOYS <advanced>
               <HELP>
               Requests Boys localisation.
               </HELP>
-              The default is Pipek-Mezey.
+              The default is Pipek-Mezey (or Cholesky with symmetry).
               </KEYWORD>
 
 :kword:`EDMIston-Ruedenberg`
-  Requests Edmiston--Ruedenberg localisation. The default is Pipek--Mezey.
+  Requests Edmiston--Ruedenberg localisation. The default is Pipek--Mezey,
+  except for calculations with symmetry where the default is Cholesky.
   Note that this option requires that the Cholesky (or RI/DF) representation
   of the two-electron integrals has been produced by :program:`SEWARD`.
 
@@ -298,14 +301,15 @@ Optional general keywords
               <HELP>
               Requests Edmiston-Ruedenberg localisation.
               </HELP>
-              The default is Pipek-Mezey.
+              The default is Pipek-Mezey (or Cholesky with symmetry).
               Note that this option requires that the Cholesky (or RI/DF) representation
               of the two-electron integrals has been produced by SEWARD.
               </KEYWORD>
 
 :kword:`CHOLesky`
-  Requests Cholesky localisation (non-iterative). The default is Pipek--Mezey.
+  Requests Cholesky localisation (non-iterative).
   This and PAO are the only options that can handle point group symmetry.
+  This is the default for calculations with symmetry, otherwise the default is Pipek--Mezey.
   The decomposition threshold is by default 1.0d-8 but may be changed
   through the :kword:`THREshold` keyword.
 
@@ -314,23 +318,23 @@ Optional general keywords
               <HELP>
               Requests Cholesky localisation.
               </HELP>
-              The default is Pipek-Mezey.
+              This is the default with symmetry, otherwise it is Pipek-Mezey.
               </KEYWORD>
 
 :kword:`PAO`
   Requests PAO localisation (non-iterative) using Cholesky decomposition
   to remove linear dependence.
-  The default is Pipek--Mezey.
   This and Cholesky are the only options that can handle point group symmetry.
+  The default is Cholesky for calculations with symmetry, otherwise the default is Pipek--Mezey.
   The decomposition threshold is by default 1.0d-8 but may be changed
   through the :kword:`THREshold` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PAO" APPEAR="PAO" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="PIPE,BOYS,EDMI,CHOL,SKIP">
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PAO" APPEAR="Projected atomic orbitals" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="PIPE,BOYS,EDMI,CHOL,SKIP">
               %%Keyword: PAO <advanced>
               <HELP>
               Requests PAO localisation.
               </HELP>
-              The default is Pipek-Mezey.
+              The default is Pipek-Mezey (or Cholesky with symmetry).
               </KEYWORD>
 
 :kword:`SKIP`
@@ -380,16 +384,16 @@ Optional general keywords
 
 :kword:`THRGradient`
   The following line specifies the convergence threshold used for
-  the gradient of the localisation functional. The default is 1.0d-2.
+  the gradient of the localisation functional. The default is 1.0d-5.
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="THRG" APPEAR="Gradient threshold" LEVEL="ADVANCED" KIND="REAL">
               <HELP>
               Please, specify the convergence threshold used for
-              changes in the gradient of the localisation functional. The default is 1.0d-2.
+              changes in the gradient of the localisation functional. The default is 1.0d-5.
               </HELP>
               %%Keyword: THRG <advanced>
               The following line specifies the convergence threshold used for
-              the gradient of the localisation functional. The default is 1.0d-2.
+              the gradient of the localisation functional. The default is 1.0d-5.
               </KEYWORD>
 
 :kword:`THRRotations`
@@ -404,6 +408,90 @@ Optional general keywords
               %%Keyword: THRR <advanced>
               The following line specifies the screening threshold used in
               the Jacobi sweep optimisation algorithm. The default is 1.0d-10.
+              </KEYWORD>
+
+:kword:`OPTMethod`
+  The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
+  Options: 
+
+    - :kword:`JACObi` --- Jacobi Sweeps (default)
+    - :kword:`NEWTon` --- Newton--Raphson method
+    - :kword:`GEK` --- GEK method
+    - :kword:`SGEK` --- SGEK method (faster than :kword:`GEK` due to subspace construction)
+    - :kword:`HYBRid` --- hybrid method (starts with :kword:`JACObi` until no pos. Hessian diagonal elements then switches to :kword:`SGEK`)
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="CHOICE" LIST="Jacobi,Newton,GEK,SGEK,Hybrid" DEFAULT_VALUE="Jacobi" LEVEL="BASIC">
+              %%Keyword: OPTM <basic>
+              <HELP>
+              The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
+              Options: 
+
+              * JACObi -- Jacobi Sweeps (default)
+              * NEWTon -- Newton Raphson method
+              * GEK  -- GEK method
+              * SGEK -- SGEK method (faster than GEK due to subspace construction)
+              * HYBRid -- hybrid method (starts with JACObi until no pos. Hessian diagonal elements then switches to SGEK)
+              </HELP>
+              </KEYWORD>
+
+:kword:`PRNT`
+  The next line specifies when Pipek--Mezey's single orbital delocalization measure :math:`d_i` shall be printed.
+  Options:
+
+    - :kword:`AFTEr` --- only after localization
+    - :kword:`BOTH` --- before *and* after localization
+    - :kword:`OFF`  --- never (default)
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PRNT" APPEAR="Print option for charge-based single orbital delocalization" KIND="CHOICE" LIST="After,Both,Off" DEFAULT_VALUE="Off" LEVEL="BASIC">
+              %%Keyword: PRNT <basic>
+              <HELP>
+              The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
+              Options:
+
+              * AFTEr -- only after localization
+              * BOTH -- before AND after localization
+              * OFF  -- never (default)
+              </HELP>
+              </KEYWORD>
+
+:kword:`MOLDen`
+  Save the intermediate orbitals as a Molden file every :math:`n` iterations during the Pipek--Mezey localisation, where :math:`n` is the number specified after this keyword.
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="MOLD" APPEAR="Save intermediate orbitals every n iterations" KIND="INT" LEVEL="ADVANCED">
+              %%Keyword: MOLD <advanced>
+              <HELP>
+              Save intermediate orbitals as a Molden file every n iterations.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CHARgeType`
+  The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
+  Options: 
+
+    - :kword:`MULLiken` --- Mulliken charges (default)
+    - :kword:`LOWDin` --- Löwdin charges
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="CHOICE" LIST="Mulliken,Lowdin" DEFAULT_VALUE="Mulliken" LEVEL="BASIC">
+              %%Keyword: CHAR <basic>
+              <HELP>
+              The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
+              Options: 
+
+              * MULLiken -- Mulliken charges (default)
+              * LOWDin -- Lowdin charges
+              </HELP>
+              </KEYWORD>
+
+:kword:`SCRAmble`
+  The following line specifies a factor used in the scrambling of the start orbitals to break 
+  any symmetry if present. The default is 0.0.
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="SCRA" APPEAR="Scrambling factor" KIND="REAL" DEFAULT_VALUE="0.0" LEVEL="ADVANCED">
+              %%Keyword: SCRA <advanced>
+              <HELP>
+              The following line specifies a factor used in the scrambling of the start orbitals to break 
+              any symmetry if present. The default is 0.0.
+              </HELP>
               </KEYWORD>
 
 :kword:`CHOStart`

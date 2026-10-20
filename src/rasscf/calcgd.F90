@@ -1,0 +1,71 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2022, Jie J. Bao                                       *
+!***********************************************************************
+!*****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Apr. 11, 2022, created this file.               *
+!*****************************************************************
+
+! Subroutine relating to generalized 1-e density matrix (GD) called
+! in CMSNewton
+!     calculating GD with lucia.
+subroutine CalcGD(GD,nGD)
+
+use CI_interfaces, only: Mk_T1DM
+use rasscf_global, only: iADR15, lRoots, NAC
+use rasscf_files, only: JOBIPH
+use general_data, only: NCONF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nGD
+real(kind=wp), intent(out) :: GD(nGD)
+integer(kind=iwp) :: CIDisk1, CIDisk2, IOffNIJ1, IOffNIJ2, ipq, iqp, jRoot, kRoot, NAC2, p, q
+real(kind=wp), allocatable :: TmpD(:)
+real(kind=wp), allocatable, target :: VecL(:), VecR(:)
+
+NAC2 = NAC**2
+call mma_allocate(VecL,NConf,Label='VecL')
+call mma_allocate(VecR,NConf,Label='VecR')
+call mma_allocate(TmpD,NAC**2,Label='TmpD')
+
+CIDisk1 = IADR15(4)
+do jRoot=1,lRoots
+  call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
+  CIDisk2 = IADR15(4)
+  do kRoot=1,jRoot-1
+    call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
+    call Mk_T1DM(VECR,VECL,nConf,TMPD,NAC**2)
+    IOffNIJ1 = (lRoots*(jRoot-1)+kRoot-1)*NAC2
+    IOffNIJ2 = (lRoots*(kRoot-1)+jRoot-1)*NAC2
+    GD(IOffNIJ1+1:IOffNIJ1+NAC2) = TmpD(1:NAC2)
+    do q=1,NAC
+      do p=1,NAC
+        ipq = (q-1)*NAC+p
+        iqp = (p-1)*NAC+q
+        GD(IOffNIJ2+iqp) = TmpD(ipq)
+      end do
+    end do
+  end do
+  kRoot = jRoot
+  call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
+  call Mk_T1DM(VECR,VECL,nConf,TMPD,NAC**2)
+  IOffNIJ1 = (lRoots+1)*(jRoot-1)*NAC2
+  GD(IOffNIJ1+1:IOffNIJ1+NAC2) = TmpD(1:NAC2)
+end do
+
+call mma_deallocate(TmpD)
+call mma_deallocate(VecL)
+call mma_deallocate(VecR)
+
+end subroutine CalcGD

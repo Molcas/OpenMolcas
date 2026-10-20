@@ -111,6 +111,7 @@ use temptime, only: CHOGET_CPU, CHOGET_WALL
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -125,8 +126,6 @@ real(kind=wp), intent(in) :: Txy(nTxy)
 logical(kind=iwp), intent(in) :: DoExchange, lSA, DoCAS, Estimate, Update
 real(kind=wp), intent(_OUT_) :: V_k(nV_k,*), U_k(*)
 real(kind=wp), intent(inout) :: Z_p_k(nZ_p_k,*)
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iAdr, iaSh, iAvec, iBatch, ibcount, ibs, ibs_a, ibSh, iE, ij, ik, iLoc, iml, iMO1, iMO2, iMOleft, &
                      iMOright, ioff, iOffShb, iOffZp, iPrint, ipZp, ir, ired1, IREDC, iRout, iS, iSeed, ish, iShp, iSSa, iStart, &
                      iSwap, iSwap_lxy, ISYM, iSym1, iSym2, iSyma, iSymb, iSymv, iSymx, iSymy, it, itk, iTmp, iTxy, IVEC2, iVrs, j, &
@@ -1368,7 +1367,7 @@ do jSym=1,nSym
     if (DoExchange) then
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par() .and. Update .and. DoScreen) then
-        call GaDsum(DiagJ,nnBSTR(JSYM,1))
+        call GADgop(DiagJ,nnBSTR(JSYM,1),'+')
         Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+nnBstR(JSYM,1)) = Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+nnBstR(JSYM,1))- &
                                                                DiagJ(1:nnBSTR(JSYM,1))
         DiagJ(1:nnBSTR(JSYM,1)) = Zero

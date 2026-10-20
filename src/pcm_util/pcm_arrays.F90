@@ -36,10 +36,10 @@ integer(kind=iwp), parameter :: MxSph = 1000, MxTs = 6000, MxVert = 20
 integer(kind=iwp) :: nTiles
 real(kind=wp), parameter :: DiagScale = 1.0694_wp
 integer(kind=iwp), allocatable :: IntSph(:,:), NewSph(:,:), nVert(:), PCM_N(:), PCMiSph(:)
-real(kind=wp), allocatable :: C_Tessera(:,:), Centr(:,:,:), dCntr(:,:,:,:), dPnt(:,:,:,:), dRad(:,:,:), dTes(:,:,:), PCM_SQ(:,:), &
-                              PCMDM(:,:), PCMSph(:,:), PCMTess(:,:), Q_Tessera(:), SSph(:), Vert(:,:,:)
+real(kind=wp), allocatable :: C_Tessera(:,:), Centr(:,:,:), dCntr(:,:,:,:), dPnt(:,:,:,:), dRad(:,:,:), dTes(:,:,:), MM(:,:), &
+                              PCM_SQ(:,:), PCMDM(:,:), PCMSph(:,:), PCMTess(:,:), Q_Tessera(:), SSph(:), Vert(:,:,:)
 
-public :: C_Tessera, Centr, dCntr, DiagScale, dPnt, dRad, dTes, IntSph, MxSph, MxTs, MxVert, NewSph, nTiles, NVert, PCM_N, PCM_SQ, &
-          PCMDM, PCMiSph, PCMSph, PCMTess, Q_Tessera, SSph, Vert
+public :: C_Tessera, Centr, dCntr, DiagScale, dPnt, dRad, dTes, IntSph, MM, MxSph, MxTs, MxVert, NewSph, nTiles, NVert, PCM_N, &
+          PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess, Q_Tessera, SSph, Vert
 
 end module PCM_arrays

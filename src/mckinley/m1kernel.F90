@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nRys,nZeta,Alpha,Beta,Zeta,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd,indgrd, &
-                    ifhss,indhss,ifg,tr,nop,iuvwx,kCnttp,fact,loper,idcar)
+subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nZeta,Alpha,Beta,Zeta,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd,indgrd,ifhss, &
+                    indhss,ifg,tr,nop,iuvwx,kCnttp,fact,loper,idcar)
 
 use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc
@@ -20,8 +20,8 @@ use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nHess, nDAO, iAng(4), nRys, nZeta, nArray, indgrd(3,4,0:7), indhss(3,4,3,4,0:7), nop(4), &
-                                 iuvwx(4), kCnttp, loper, idcar
+integer(kind=iwp), intent(in) :: nHess, nDAO, iAng(4), nZeta, nArray, indgrd(3,4,0:7), indhss(3,4,3,4,0:7), nop(4), iuvwx(4), &
+                                 kCnttp, loper, idcar
 real(kind=wp), intent(inout) :: rFinal(*), Hess(nHess)
 real(kind=wp), intent(in) :: DAO(nZeta,nDAO), Alpha(nZeta), Beta(nZeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), TC(3), Coor(3,4), &
                              CoorAC(3,2), fact
@@ -109,7 +109,7 @@ do iM1xp=1,dbsc(kCnttp)%nM1
   jndgrd(:,:,0:nirrep-1) = indgrd(:,:,0:nirrep-1)
   jndhss(:,:,:,:,0:nirrep-1) = indhss(:,:,:,:,0:nirrep-1)
 
-  call Rysg2(iAng,nRys,nZeta,Alpha,Beta,[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx),nZeta,TC,1,Coori,Coor, &
+  call Rysg2(iAng,nZeta,Alpha,Beta,[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx),nZeta,TC,1,Coori,Coor, &
              CoorAC,Array(ip),nArray-ip+1,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Hess,nHess,jfGrd,jndGrd,jfHss,jndHss,nOp,iuvwx,jfg, &
              nGr,Indx,lgrad,lhess,tr)
   if (lGrad) then

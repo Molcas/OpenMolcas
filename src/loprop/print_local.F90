@@ -13,12 +13,12 @@ subroutine Print_Local(rMP,nij,nElem,Coor,nAtoms,C_o_C,Q_Nuc,lMax,Lbl_Center,rMP
                        nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,ChPolBB,LIonize)
 
 use Real_Spherical, only: Sphere, Sphere_Free
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, auToeV
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nij, nElem, nAtoms, lMax, iANr(nAtoms), nOcOb, MpProp_Level
 real(kind=wp), intent(inout) :: rMP(nij,nElem), Temp(nij)
 real(kind=wp), intent(in) :: Coor(3,nAtoms), C_o_C(3), Q_Nuc(nAtoms), rMPq(nElem), EC(3,nij), Polar(6,nij), Energy_Without_FFPT, &
@@ -32,7 +32,6 @@ real(kind=wp) :: A(3), Charge_center, CRN, CRX, CRY, CRZ, CX(3), Dip_Tot, DR, LA
 character(len=80) :: Banner_Line(2)
 logical(kind=iwp) :: Center_OK, Check_Bond, get_BasisType
 real(kind=wp), allocatable :: Scratch_New(:), Scratch_Org(:)
-real(kind=wp), external :: DDot_
 
 Sites = Zero
 LI_TOT = Zero
@@ -74,7 +73,7 @@ call Set_Binom()
 !                                                                      *
 ! Set up array for nuclear contributions.
 !
-call dCopy_(nij*nElem,[Zero],0,xnrMP,1)
+xnrMP(:,:) = Zero
 ij = 0
 do iAtom=1,nAtoms
   do jAtom=1,iAtom
@@ -295,7 +294,7 @@ do l=0,lMax
     do iy=l-ix,0,-1
       iz = l-ix-iy
       iElem = iElem+1
-      rMP_Tot_Electronic = DDot_(nij,[One],0,rMP(1,iElem),1)
+      rMP_Tot_Electronic = sum(rMP(:,iElem))
       rMP_Tot_Nuclear = rMPq(iElem)
       rMP_Tot = rMP_Tot_Nuclear+rMP_Tot_Electronic
       write(u6,'(3I1,3F16.8)') ix,iy,iz,rMP_Tot_Nuclear,rMP_Tot_Electronic,rMP_Tot
@@ -303,9 +302,7 @@ do l=0,lMax
   end do
 end do
 if (.not. NoField) then
-  do iPol=1,6
-    Polar_M(iPol) = DDot_(nij,[One],0,Polar(iPol,1),6)
-  end do
+  Polar_M(:) = sum(Polar(:,:),dim=2)
   call TriPrt('Molecular Polarizability Tensor',' ',Polar_M,3)
   !debug
   !call mma_allocate(EVec,9,label='EVec')

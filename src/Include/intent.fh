@@ -16,11 +16,7 @@
 ! does not depend on existing values in an allocatable,
 ! but depends on the fact that it is allocated.
 !
-! It should also be used for arguments of a user-defined type with
-! allocatable components. Or when only some elements of an array, or
-! components of a user-defined type are modified, and the rest are
-! supposed to be conserved. In particular it's recommended for
-! assumed-size arguments.
+! It should also be used for assumed-size arrays.
 
 #define _OUT_ inout
 

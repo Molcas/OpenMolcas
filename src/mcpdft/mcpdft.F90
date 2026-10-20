@@ -19,16 +19,17 @@
 
 subroutine mcpdft(ireturn)
 
+use ci_interfaces, only: CI_Timer
 use Fock_util_global, only: DoCholesky
 use timers, only: TimeInput, TimeOutput, TimeTotal, TimeTrans
 use write_pdft_job, only: writejob
-use printlevel, only: debug, insane, terse
+use PrintLevel, only: DEBUG, INSANE, TERSE
 use mcpdft_output, only: iPrLoc
 use mcpdft_input, only: mcpdft_options, parse_input
 use mspdft_util, only: replace_diag
 use mspdft, only: heff, mspdft_init, mspdft_finalize
 use wadr, only: FockOcc
-use general_data, only: ntot1, ntot2
+use general_data, only: nelec3, nhole1, ntot1, ntot2
 use rasscf_global, only: ExFac, IPR, lRoots, lSquare, NACPR2, nFint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -40,6 +41,7 @@ integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: iPrLev, iRC, state
 logical(kind=iwp) :: dscf
 real(kind=wp) :: dum1, dum2, dum3, time1(2), time2(2)
+character(len=8) :: Method
 real(kind=wp), allocatable :: cmo(:), D1A(:), D1I(:), e_mcscf(:), e_states(:), FA(:), FI(:), PUVX(:), tuvx(:)
 
 call StatusLine('MCPDFT:',' Just started.')
@@ -64,6 +66,19 @@ if (.not. DSCF) call Rd2Int_RASSCF()
 
 ! Process the input:
 call Proc_InpX(DSCF,iRc)
+
+! Delayed checks
+! (This should be in mcpdft_init, but nhole1, nelec3 are set in proc_inpx)
+if (mcpdft_options%grad) then
+  if ((nhole1 > 0) .or. (nelec3 > 1)) then
+    call WarningMessage(2,'MC-PDFT gradients with a RASSCF wave function not supported')
+    write(u6,*) ' ************* ERROR **************'
+    write(u6,*) ' MC-PDFT gradients are not         '
+    write(u6,*) ' implemented with RASSCF           '
+    write(u6,*) ' **********************************'
+    call Quit_OnUserError()
+  end if
+end if
 
 ! If something goes wrong in proc_inp:
 if (iRc /= _RC_ALL_IS_WELL_) then
@@ -119,8 +134,8 @@ if (mcpdft_options%grad .and. mcpdft_options%mspdft) then
   D1I(:) = Zero
   D1A(:) = Zero
   IPR = 0
-  if (IPRLOC(2) == debug) IPR = 5
-  if (IPRLOC(2) == insane) IPR = 10
+  if (IPRLOC(2) == DEBUG) IPR = 5
+  if (IPRLOC(2) == INSANE) IPR = 10
   call TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
   call Put_dArray('TwoEIntegral',PUVX,nFINT)
   call mma_deallocate(PUVX)
@@ -147,11 +162,11 @@ call Timing(dum1,dum2,time1(1),dum3)
 if (mcpdft_options%wjob .and. (.not. mcpdft_options%mspdft)) call writejob(e_states,lroots)
 
 if (mcpdft_options%mspdft) then
-  call Put_cArray('Relax Method','MSPDFT  ',8)
+  Method = 'MSPDFT'
   call replace_diag(heff,e_states,lroots)
   call mspdft_finalize(lroots)
 else
-  call Put_cArray('Relax Method','MCPDFT  ',8)
+  Method = 'MCPDFT'
   ! The following put_* calls should be combined with the MS-PDFT
   ! ones if a gradient call is initiated...
   call put_darray('Last energies',e_states,lroots)
@@ -160,12 +175,14 @@ else
     call put_iscalar('Relax CASSCF root',mcpdft_options%rlxroot)
     call put_carray('MCLR Root','****************',16)
   end if
-  if (iprlev >= terse) then
+  if (iprlev >= TERSE) then
     do state=1,lroots
       call PrintResult(u6,'(6X,A,I3,A,F16.8)','MCPDFT root number',state,' Total energy:',[e_states(state)],1)
     end do
   end if
 end if
+if ((nhole1 > 0) .or. (nelec3 > 0)) Method(7:8) = '-R'
+call Put_cArray('Relax Method',Method,8)
 
 if (mcpdft_options%transport) then
   call molel_write()
@@ -199,7 +216,7 @@ call Timing(dum1,dum2,time1(2),dum3)
 TimeTotal = time1(2)
 TimeOutput = TimeOutput+time1(2)-time1(1)
 if (IPRLEV >= 3) then
-  call PrtTim()
+  call CI_Timer('Print')
   call FastIO('STATUS')
 end if
 

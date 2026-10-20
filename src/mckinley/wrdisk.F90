@@ -21,6 +21,7 @@ use Basis_Info, only: nBas
 use pso_stuff, only: CMO, G1
 use Symmetry_Info, only: iOper, nIrrep
 use Etwas, only: nAsh, nIsh
+use PrintLevel, only: Show
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -28,7 +29,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nrIn, jDisp, iIrrep
 real(kind=wp), intent(in) :: rIn(nrIn)
-#include "print.fh"
 integer(kind=iwp) :: iii, iopt, ip(0:7), ip2(0:7), ipCC, ipCM(0:7), ipIn1, ipOut, irc, jAsh, jIrrep, kAsh, kIrrep, nA(0:7), nin, &
                      nIn2, nna
 real(kind=wp) :: rDe

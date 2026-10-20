@@ -18,14 +18,12 @@ use Data_Structures, only: SBA_Type, twxy_type
 use Constants, only: One
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(inout) :: irc
 type(twxy_type), intent(inout) :: Scr
 type(SBA_Type), intent(in) :: ChoV
 integer(kind=iwp), intent(in) :: nTUVX, nAorb(*), JSYM, NUMV
-real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
+real(kind=wp), intent(inout) :: TUVX(nTUVX)
 logical(kind=iwp), intent(in) :: DoReord
 integer(kind=iwp) :: iAorb(8), iRes, iSym, iSymt, iSymw, iSymx, iSymy, it, itG, itw, itwG, iw, iwG, ix, ixG, ixy, ixyG, iy, iyG, &
                      nTA, Ntw, Nxy

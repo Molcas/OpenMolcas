@@ -219,7 +219,8 @@ do
     call mma_deallocate(Err1)
     call mma_deallocate(Bij)
   else
-    do i=1,kOptim-1
+    j = kOptim-1
+    do i=1,j
       if (delta*sqrt(Bij(i,i)) > sqrt(Bij(kOptim,kOptim))) then
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'DIIS_X: Reduction of the subspace dimension due to numerical imbalance of the values in the B-Matrix'
@@ -234,7 +235,7 @@ do
         exit
       end if
     end do
-    if (i >= kOptim) exit
+    if (i > j) exit
   end if
 
 end do

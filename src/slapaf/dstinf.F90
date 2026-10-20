@@ -15,6 +15,8 @@ use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Coor, Cx, Dmp_Slapaf, dqInt, Energy, iOptC, iter, lOld_Implicit, Max_Center, MaxItr, MF, mTROld, &
                        Numerical, qInt, RtRnc, SlStop, Weights
 use UnixInfo, only: SuperName
+use PrintLevel, only: nPrint
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
@@ -22,8 +24,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iStop
 logical(kind=iwp), intent(in) :: Just_Frequencies
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iDo_dDipM, iIrrep, iOff, iPrint, iRout, isAtom, iTemp, j, jsAtom, LOut, Lu_xyz, N_ZMAT, nCoord, nsAtom_p, &
                      nTemp
 real(kind=wp) :: r, r_Iter, x1, x2, xWeight, y1, y2, z1, z2
@@ -241,7 +241,5 @@ end if
 !***********************************************************************
 !                                                                      *
 if (SlStop .or. do_printcoords) call CollapseOutput(0,'Geometry section')
-
-return
 
 end subroutine DstInf

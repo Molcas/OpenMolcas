@@ -17,6 +17,7 @@ subroutine cre_dyn()
 use mh5, only: mh5_create_file, mh5_init_attr, mh5_init_dset, mh5_create_dset_real, mh5_create_dset_str, mh5_create_dset_int, &
                mh5_put_dset, mh5_fetch_attr, mh5_close_file, mh5_open_file_r, mh5_exists_attr, mh5_close_dset
 use Dynamix_Globals, only: dyn_dt, dyn_etot, dyn_etot0, dyn_fileid, dyn_geom, dyn_mass, dyn_nh, dyn_time, dyn_vel, nh
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -24,7 +25,6 @@ implicit none
 integer(kind=iwp) :: natoms, nsym, nstates, nconfs, ndata, dyn_dsetid, surf_dsetid, wfn_fileid, ii
 character(len=8) :: method
 real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), oldphase(:), overlap_save(:)
-#include "Molcas.fh"
 character(len=LenIn), allocatable :: atomlbl(:)
 logical(kind=iwp) :: found
 complex(kind=wp), allocatable :: amatrix(:)
@@ -69,7 +69,7 @@ dyn_dsetid = mh5_create_dset_str(dyn_fileid,'CENTER_LABELS',1,[natoms],LENIN)
 call mh5_init_attr(dyn_dsetid,'DESCRIPTION','Center labels arranged as a [NATOMS] block')
 call mma_allocate(atomlbl,natoms)
 if (nsym > 1) then
-  call get_cArray('LP_L',atomlbl,LenIn4*natoms)
+  call get_cArray('LP_L',atomlbl,(LenIn+4)*natoms)
 else
   call Get_cArray('Unique Atom Names',atomlbl,LenIn*natoms)
 end if
@@ -251,6 +251,6 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
   call mh5_close_file(wfn_fileid)
 
 end if
-
 #endif
+
 end subroutine cre_dyn

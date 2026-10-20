@@ -15,7 +15,7 @@
 subroutine DiceCtl(W1,TUVX,IFINAL,IRST)
 
 #ifdef _MOLCAS_MPP_
-use MPI, only: MPI_COMM_WORLD
+use MPI_Wrapper, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
@@ -28,7 +28,6 @@ use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 real(kind=wp), intent(in) :: W1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL, IRST
 integer(kind=iwp) :: chemroot, iChMolpro(8), iErr, iOper(0:7), iOrb, iref_dice, iSigma, iSym, jOrb, LINSIZE, lSymMolpro, LUDICEIN, &

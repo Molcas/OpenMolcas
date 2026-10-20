@@ -22,6 +22,7 @@ subroutine DM_FNO_RHF(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,CMOI,EOcc,EVir,DM0,DM)
 
 use Index_Functions, only: nTri_Elem
 use ChoMP2, only: MP2_small
+use Molcas, only: MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -33,7 +34,6 @@ integer(kind=iwp), intent(out) :: iRC
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nSsh(nSym), nDel(nSym)
 real(kind=wp), intent(in) :: CMOI(*), EOcc(*), EVir(*)
 real(kind=wp), intent(_OUT_) :: DM0(*), DM(*)
-#include "Molcas.fh"
 integer(kind=iwp) :: i, ifr, ioff, iSkip, iSym, iTo, j, jD, jOcc, jOff, jp, jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lnDel(8), &
                      lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, nBasT, nBmx, nCMO, nOA, nOkk, nOrb, nSQ, nTri, nVV
 real(kind=wp) :: Dummy, SqOcc, tmp

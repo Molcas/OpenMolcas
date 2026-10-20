@@ -38,7 +38,8 @@ subroutine Dmat_MCLR(CMO,OCC,D)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: nBas, nSym
+use general_data, only: nSym
+use input_mclr, only: nBas
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 

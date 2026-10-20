@@ -13,6 +13,7 @@ subroutine Write_QMMM(Coord,nAtIn,Iter)
 
 use espf_global, only: MMI, MMO, QM
 use Isotopes, only: PTab
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp
@@ -20,7 +21,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: Iter, nAtIn
 real(kind=wp), intent(in) :: Coord(3*nAtIn,Iter)
-#include "LenIn.fh"
 integer(kind=iwp) :: i, iAtIn, iAtNum, iAtOut, iAtTot, iFirst, k, Lu_XYZ, nAtOut, nAtTot
 logical(kind=iwp) :: Found, isMMI, isMMO, isQM
 character(len=LenIn) :: Symbol

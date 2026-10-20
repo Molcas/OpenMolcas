@@ -20,11 +20,11 @@ subroutine Dihedr(Lbls,xyz,mCentr,rtrnc,Max_Center)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Molcas, only: LenIn
 use Constants, only: Zero, One, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: mCentr, Max_Center
 character(len=LenIn), intent(in) :: Lbls(mCentr)
 real(kind=wp), intent(in) :: xyz(3,mCentr), rtrnc

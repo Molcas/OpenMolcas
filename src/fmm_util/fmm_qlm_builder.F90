@@ -143,10 +143,10 @@ subroutine fmm_get_n_mms_from_file(LMAX_in)
 
   ! Read number of electronic moments
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file='multipoles.fmm1header',status='OLD',action='READ',form='UNFORMATTED')
+  open(LUINTM,file='multipoles.fmm1header',status='OLD',action='READ',form='UNFORMATTED')
   rewind(LUINTM)
   read(LUINTM) LMAX,nbas,n_mms%elec
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
   if (LMAX /= LMAX_in) then
     write(LUPRI,*) LMAX,LMAX_in
@@ -162,10 +162,10 @@ subroutine fmm_get_n_mms_from_file(LMAX_in)
 
   ! Read number of nuclear moments or potential grid points
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file='multipoles.fmm2header',status='OLD',action='READ',form='UNFORMATTED')
+  open(LUINTM,file='multipoles.fmm2header',status='OLD',action='READ',form='UNFORMATTED')
   rewind(LUINTM)
   read(LUINTM) n_mms%nuc
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
   n_mms%tot = n_mms%elec+n_mms%nuc
   stat_n_basis = nbas
@@ -272,7 +272,7 @@ subroutine fmm_read_in_raw_data(dens,mm_data)
 
   ! Read electronic multipole moments into core
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file='multipoles.fmm1',status='OLD',action='READ',form='UNFORMATTED')
+  open(LUINTM,file='multipoles.fmm1',status='OLD',action='READ',form='UNFORMATTED')
   rewind(LUINTM)
 
   readloop: do
@@ -303,14 +303,14 @@ subroutine fmm_read_in_raw_data(dens,mm_data)
 
   end do readloop
 
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
   ! Next read nuclei data: charge and location
   ! This is also used for passing the grid points when
   ! computing an arbitrary potential
   if (n_mms%nuc == 0) return
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file='multipoles.fmm2',status='OLD',action='READ',form='UNFORMATTED')
+  open(LUINTM,file='multipoles.fmm2',status='OLD',action='READ',form='UNFORMATTED')
   rewind(LUINTM)
 
   do J=1,n_mms%nuc
@@ -328,7 +328,7 @@ subroutine fmm_read_in_raw_data(dens,mm_data)
   mm_data%J_indices((n_mms%elec+1):)%i_indx = 0     ! not relevant
   mm_data%J_indices((n_mms%elec+1):)%j_indx = 0     ! not relevant
 
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
 end subroutine fmm_read_in_raw_data
 

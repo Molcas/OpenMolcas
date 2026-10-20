@@ -1,0 +1,67 @@
+&GATEWAY
+coord
+geometry_Fe2S2.xyz
+basis
+FE.ANO-RCC-VDZ, ANO-RCC-MB
+group
+nosym
+
+&SEWARD
+ Medium
+
+
+>>> COPY $CurrDir/Fe2S2.IterOrb.25 INPORB
+
+&RASSCF
+LumOrb
+peri
+guga
+NECI
+  totalwalkers=10000
+  nmCyc=10000
+  rdmsamplingiters=1000
+  calcrdmonfly=3 500 500
+NACTEL
+10 0 0
+Inactive
+88
+GASScf
+ 10
+   1
+   1 1
+   1
+   2 2
+   1
+   3 3
+   1
+   4 4
+   1
+   5 5
+   1
+   6 6
+   1
+   7 7
+   1
+   8 8
+   1
+   9 9
+   1
+   10 10
+Symmetry
+1
+Spin
+ 1
+Levshft
+ 1.0
+orblisting
+ all
+ITERation
+200 100
+CIMX
+ 200
+CIROOT
+ 1 1 1
+Sdav
+ 500
+PRWF
+0.000

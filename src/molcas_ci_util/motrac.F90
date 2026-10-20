@@ -21,7 +21,7 @@ subroutine MOTRAC(CMO,F,X1,X2)
 !
 ! ********** IBM-3090 RELEASE 86 12 05 **********
 
-use rasscf_global, only: iTRI
+use Index_Functions, only: nTri_Elem
 use general_data, only: NASH, NBAS, NFRO, NISH, NSYM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -46,10 +46,10 @@ do ISYM=1,NSYM
     call DGEMM_('N','N',NB,NA,NB,One,X1,NB,CMO(LMOP1),NB,Zero,X2,NB)
     call DGEMM_Tri('T','N',NA,NA,NB,One,X2,NB,CMO(LMOP1),NB,Zero,F(ISTFA),NA)
 
-    ISTFA = ISTFA+ITRI(NA+1)
+    ISTFA = ISTFA+nTri_Elem(NA)
   end if
   LMOP = LMOP+NB**2
-  ISTFP = ISTFP+ITRI(NB+1)
+  ISTFP = ISTFP+nTri_Elem(NB)
 end do
 
 end subroutine MOTRAC

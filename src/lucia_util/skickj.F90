@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1994,1997, Jeppe Olsen                                 *
+!               2026, Meng Wang                                        *
 !***********************************************************************
 
 !#define _DEBUGPRINT_
@@ -20,7 +21,12 @@ subroutine SKICKJ(SKII,CKJJ,NKA,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB
 !
 ! : Note : Route 1 has retired, March 97
 
-use lucia_data, only: MXPTSOB
+use lucia_data, only: MXPTSOB, SKICKJ_TINY_K_MAX, SKICKJ_TINY_N_MAX
+#ifdef _CUDA_BLAS_
+use, intrinsic :: iso_c_binding, only: c_int64_t
+use LUCIA_CUDA_INTERFACE, only: LUCIA_SKICKJ_CUDA_ROUTE3
+use Constants, only: One
+#endif
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
@@ -30,6 +36,9 @@ integer(kind=iwp), intent(in) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), K
 real(kind=wp), intent(in) :: CKJJ(*), XKBIB(MAXK,*), XKBJB(MAXK,*), FACS
 integer(kind=iwp) :: IB, ICOFF, IKINTOF, IMAX, INTOF, ISOFF, JB, JKINTOF, K, KB, KK, L, LL
 real(kind=wp) :: FACTOR, SGNK, SGNL, XIJILS(MXPTSOB)
+#ifdef _CUDA_BLAS_
+integer(kind=c_int64_t) :: CudaStatus, NIBCUDA, NJBCUDA
+#endif
 
 ! To get rid of annoying and incorrect compiler warnings
 JKINTOF = 0
@@ -44,6 +53,18 @@ end if
 
 if (IROUTE == 3) then
   ! S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
+# ifdef _CUDA_BLAS_
+  if ((NKA > 0) .and. (NKB > 0) .and. (NI > 0) .and. (NJ > 0) .and. (NK > 0) .and. (NL > 0) .and. (MAXK > 0) .and. (NKB <= MAXK) &
+      .and. ((IKORD == 0) .or. (IKORD == 1)) .and. (FACS == One)) then
+    NIBCUDA = maxval(KBIB(1:NKB,1:NK))
+    NJBCUDA = maxval(KBJB(1:NKB,1:NL))
+    if ((NIBCUDA > 0) .and. (NJBCUDA > 0)) then
+      CudaStatus = LUCIA_SKICKJ_CUDA_ROUTE3(SKII,CKJJ,XIJKL,NKA,NKB,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,NIBCUDA,NJBCUDA, &
+                                            FACS)
+      if (CudaStatus == 1_c_int64_t) return
+    end if
+  end if
+# endif
   do KB=1,NKB
     ! Number of nonvanishing connections from KB
     LL = 0
@@ -83,7 +104,11 @@ if (IROUTE == 3) then
                 XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
                 XIJKL(JKINTOF+L:JKINTOF-1+NL) = Zero
               end if
-              call MATML7(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NKA,NJ,NJ,IMAX,FACS,FACTOR,0)
+              if ((IMAX >= 1) .and. (IMAX <= SKICKJ_TINY_N_MAX) .and. (NJ >= 1) .and. (NJ <= SKICKJ_TINY_K_MAX)) then
+                call SKICKJ_MATML7_NN_TINY(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NJ,FACS,FACTOR)
+              else
+                call MATML7(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NKA,NJ,NJ,IMAX,FACS,FACTOR,0)
+              end if
               if (IKORD /= 0) then
                 XIJKL(JKINTOF-1+L:JKINTOF-1+NL) = XIJILS(L:NL)
                 !XIJ(JKINTOF:JKINTOF+NJ-1) = XIJILS(1:NJ)
@@ -205,5 +230,78 @@ else if (IROUTE == 1) then
   !end do
 end if
 ! End of IROUTE branchning
+
+contains
+
+subroutine SKICKJ_MATML7_NN_TINY(C,A,B,M,N,K,FACTORC,FACTORAB)
+
+  integer(kind=iwp), intent(in) :: M, N, K
+  real(kind=wp), intent(inout) :: C(M,*)
+  real(kind=wp), intent(in) :: A(M,*), B(K,*), FACTORC, FACTORAB
+  integer(kind=iwp) :: I, J
+  real(kind=wp) :: B1, B2, B3, B4
+
+  select case (K)
+    case (1)
+      do J=1,N
+        B1 = FACTORAB*B(1,J)
+        if (FACTORC == Zero) then
+          do I=1,M
+            C(I,J) = B1*A(I,1)
+          end do
+        else
+          do I=1,M
+            C(I,J) = FACTORC*C(I,J)+B1*A(I,1)
+          end do
+        end if
+      end do
+    case (2)
+      do J=1,N
+        B1 = FACTORAB*B(1,J)
+        B2 = FACTORAB*B(2,J)
+        if (FACTORC == Zero) then
+          do I=1,M
+            C(I,J) = B1*A(I,1)+B2*A(I,2)
+          end do
+        else
+          do I=1,M
+            C(I,J) = FACTORC*C(I,J)+B1*A(I,1)+B2*A(I,2)
+          end do
+        end if
+      end do
+    case (3)
+      do J=1,N
+        B1 = FACTORAB*B(1,J)
+        B2 = FACTORAB*B(2,J)
+        B3 = FACTORAB*B(3,J)
+        if (FACTORC == Zero) then
+          do I=1,M
+            C(I,J) = B1*A(I,1)+B2*A(I,2)+B3*A(I,3)
+          end do
+        else
+          do I=1,M
+            C(I,J) = FACTORC*C(I,J)+B1*A(I,1)+B2*A(I,2)+B3*A(I,3)
+          end do
+        end if
+      end do
+    case (4)
+      do J=1,N
+        B1 = FACTORAB*B(1,J)
+        B2 = FACTORAB*B(2,J)
+        B3 = FACTORAB*B(3,J)
+        B4 = FACTORAB*B(4,J)
+        if (FACTORC == Zero) then
+          do I=1,M
+            C(I,J) = B1*A(I,1)+B2*A(I,2)+B3*A(I,3)+B4*A(I,4)
+          end do
+        else
+          do I=1,M
+            C(I,J) = FACTORC*C(I,J)+B1*A(I,1)+B2*A(I,2)+B3*A(I,3)+B4*A(I,4)
+          end do
+        end if
+      end do
+  end select
+
+end subroutine SKICKJ_MATML7_NN_TINY
 
 end subroutine SKICKJ

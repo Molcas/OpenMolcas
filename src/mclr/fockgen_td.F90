@@ -26,7 +26,8 @@ subroutine FockGen_td(d_0,rDens1,rdens2,fock,idsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: FIMO, ipCM, ipMat, nA, nDens, nNA
-use input_mclr, only: nAsh, nBas, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp

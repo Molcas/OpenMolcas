@@ -16,6 +16,7 @@ subroutine Anasize_Localisation(Den,CMO,XMO,nShell,nOrb,iSym)
 !
 ! Purpose: sparsity analysis of shell-based matrices.
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -48,7 +49,7 @@ end do
 ! Density.
 ! --------
 
-lDLT = nShell*(nShell+1)/2
+lDLT = nTri_Elem(nShell)
 call mma_allocate(DLT,lDLT,label='LTDen')
 call Sq2Tri(Den,DLT,nShell)
 write(DHead,'(A34,I2)') 'Histogram of density matrix , sym.',iSym

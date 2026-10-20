@@ -16,24 +16,16 @@ subroutine reord2_cvb(cfrom,cto,imode)
 ! Front-end routine for molcas reord2, transforms
 ! from SGA CSFs to split-graph-GUGA CSFs.
 
-use csfbas, only: conf
-use lucia_data, only: cftp
-use rasscf_global, only: NAC
-use general_data, only: NACTEL, STSYM
-use stdalloc, only: mma_allocate, mma_deallocate
+use sguga, only: sg_reord
+use general_data, only: nConf, STSYM
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-real(kind=wp), intent(in) :: cfrom(*)
-real(kind=wp), intent(_OUT_) :: cto(*)
+real(kind=wp), intent(in) :: cfrom(nConf)
+real(kind=wp), intent(out) :: cto(nConf)
 integer(kind=iwp), intent(in) :: imode
-integer(kind=iwp), allocatable :: kcnf(:)
+integer(kind=iwp), parameter :: iState = 1
 
-call mma_allocate(kcnf,nactel,label='kcnf')
-call reord2(nac,nactel,stsym,imode,conf,cftp,cfrom,cto,kcnf)
-call mma_deallocate(kcnf)
-
+call sg_reord(iState,stsym,imode,nConf,cfrom,cto)
 
 end subroutine reord2_cvb

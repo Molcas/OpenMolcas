@@ -1,0 +1,62 @@
+Title
+
+System read
+    electrons  10
+    nonuniformrandexcits guga-gas-pchb localised
+    nobrillouintheorem
+    guga 0
+    freeformat
+
+      GAS-SPEC LOCAL 1
+        10 0 20
+        10*1
+
+      SPLITGAS-SPEC LOCAL 1
+        10 0 20
+        10*1
+
+    ignore-fcidump-header
+
+endsys
+
+calc
+    definedet 1 3 5 7 9 12 14 16 18 20
+    p1-from-file p1.list
+
+    totalwalkers 3e4
+    semi-stochastic 5000
+    pops-core 1000
+
+    tau-values         start user-defined 0.01
+
+    methods
+        method vertex fcimc
+    endmethods
+
+    diagshift .00
+    target-shiftdamp .2
+    stepsshift 10
+    proje-changeref 1.2
+    truncinitiator
+    addtoinitiator  3
+    allrealcoeff
+    realspawncutoff .20
+    jump-shift
+    memoryfacspawn 100.00
+    memoryfacpart 50.00
+    time 2000
+    startsinglepart 100
+
+endcalc
+
+logging
+    highlypopwrite 50
+    hdf5-pops
+    printonerdm
+    print-spin-resolved-rdms
+    write-spin-free-rdm
+    print-molcas-rdms
+    rdmlinspace 10000 10 1000
+endlog
+end
+        

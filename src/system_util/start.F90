@@ -196,7 +196,7 @@ write(u6,*) ' GRID initialized '
 ! At this point, everything should have been properly initialized!     *
 !***********************************************************************
 ! Finally, print useful runtime information about the module
-call getenvf('MOLCAS_PRINT',Prin)
+call get_environment_variable('MOLCAS_PRINT',Prin)
 if ((Prin(1:1) /= '0') .and. (Prin(1:1) /= 'S')) then
   call Print_Module_Header(ModuleName)
   ! Force output to be written to stdout, such that in case of problems

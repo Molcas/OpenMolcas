@@ -11,6 +11,7 @@
 
 module InfSCF
 
+use Molcas, only: LenIn, MxSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -126,7 +127,7 @@ private
 ! Atom    - name of atom *LenIn                                        *
 ! BType   - type of basis function *8                                  *
 ! BName   - Atom = BName(1:LenIn); BType = BName(LenIn+1:LenIn+8)      *
-! AccCon  - acceleration convergence scheeme used in iteration         *
+! AccCon  - acceleration convergence scheme used in iteration          *
 !----------------------------------------------------------------------*
 ! For second order update info                                         *
 !----------------------------------------------------------------------*
@@ -205,7 +206,6 @@ type Loosen_Type
   real(kind=wp) :: Thrs, Thrs2, Step, Factor
 end type Loosen_Type
 
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: IterSO_Max = 30, MxIter = 400, MxOptm = 20, nFld = 16, nStOpt = 8
 
 integer(kind=iwp) :: ALGO, Expand, fileorb_id, iAu_ab, iCoCo, iDisk(MxIter,2), iDKeep, iDMin, iDummy_run, indxC(16,2,8), InVec, &
@@ -237,7 +237,7 @@ real(kind=wp), allocatable :: CMO(:,:), CMO_ref(:,:), Darwin(:), EDFT(:), EOrb(:
                               OccNo(:,:), OneHam(:), Ovrlp(:), TrDD(:,:,:), TrDh(:,:,:), TrDP(:,:,:), TrM(:,:)
 real(kind=wp), allocatable :: OccSet_e(:,:), OccSet_m(:,:)
 real(kind=wp), allocatable, target :: Dens(:,:,:), FockMO(:,:), TwoHam(:,:,:), Vxc(:,:,:)
-character(len=LenIn8), allocatable :: BName(:)
+character(len=LenIn+8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: Atom(:)
 character(len=8), allocatable :: BType(:)
 

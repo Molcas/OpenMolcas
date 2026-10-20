@@ -11,7 +11,7 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine EdmistonRuedenberg_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,nBasis,nOrb2Loc,nMxIter,Maximisation,Converged,Debug,Silent)
+subroutine EdmistonRuedenberg_Iter(Functional,CMO,nBasis,nOrb2Loc,Converged)
 ! Thomas Bondo Pedersen, November 2005.
 !
 ! Purpose: ER localisation of orbitals.
@@ -26,16 +26,15 @@ subroutine EdmistonRuedenberg_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,nBasis,nOr
 ! Note that two-electron integrals (Cholesky decomposed) must be
 ! available and appropriately set up when calling this routine.
 
+use Localisation_globals, only: Debug, Maximisation, nMxIter, Silent, ThrGrad, ThrRot, Thrs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(out) :: Functional
-integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nMxIter
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
-real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
-logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, TimC, TimW, W1, W2
@@ -51,10 +50,9 @@ end if
 ! Print iteration table header.
 ! -----------------------------
 
-if (.not. Silent) then
+if (.not. Silent) &
   write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
                                'nIter      Functional ER        Delta     Gradient     (sec)     (sec)'
-end if
 
 ! Initialization.
 ! ---------------
@@ -86,7 +84,7 @@ end if
 
 do while ((nIter < nMxIter) .and. (.not. Converged))
   if (.not. Silent) call CWTime(C1,W1)
-  call RotateOrb_ER(Rmat,CMO,nBasis,nOrb2Loc,Debug)
+  call RotateOrb_ER(Rmat,CMO,nBasis,nOrb2Loc)
   call GetGrad_ER(Functional,GradNorm,Rmat,CMO,nBasis,nOrb2Loc,Timing)
   nIter = nIter+1
   Delta = Functional-OldFunctional

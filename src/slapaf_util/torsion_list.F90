@@ -9,15 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Torsion_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,iPrv,Proc_dB,iTabBonds,nBonds, &
                         iTabAI,mAtoms,iTabAtoms,nMax,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: A_Trsn, aAV, f_Const_Min, rAV, rkt
+use Molcas, only: LenIn
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom, deg2rad
 use Definitions, only: wp, iwp
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Slapaf_Info, only: BondType
 use Definitions, only: u6
@@ -31,7 +32,6 @@ real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter)
 logical(kind=iwp), intent(in) :: Process, Proc_dB
 real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
 character(len=14), intent(inout) :: qLbl(nB)
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 4*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDCR(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRX(0:7), iDCRY(0:7), &
                      iDeg, iE1, iE2, iE3, iE4, iF1, iF2, iF3, iF4, ij, ijDCR, iMagic, Ind(4), iNeighbor, ir, iStabM(0:7), &
@@ -45,7 +45,7 @@ real(kind=wp) :: A(3,4), Alpha, CosFact, CosFi, CosThr, Deg, delta, Diff, f_Cons
                  f_Const_ijk_Ref, f_Const_Ref, Fact, Fi2, Fi3, Grad(mB), Grad_ref(9), Hess(mB**2), Prv(3,4), r0, Range1, Range2, &
                  Range3, Rbc, RbcCov, Ref(3,4), rij2, rij2_Ref, rjk2, rjk2_Ref, rkl2, rkl2_Ref, Val, Val_Prv
 logical(kind=iwp) :: Help, MinBas
-character(len=LenIn4) :: Lbls(4)
+character(len=LenIn+4) :: Lbls(4)
 character(len=14) :: Label
 integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
 real(kind=wp), parameter :: f_Const_Min2 = 1.0e-1_wp

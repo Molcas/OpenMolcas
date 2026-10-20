@@ -15,6 +15,7 @@ subroutine Angle_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: A_Bend, aAV, f_Const_Min, rAV, rkf
+use Molcas, only: LenIn
 use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -29,7 +30,6 @@ real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter), Thr_small
 logical(kind=iwp), intent(in) :: Process, Proc_dB
 real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), dBM(ndB_Tot)
 character(len=14), intent(inout) :: qLbl(nB)
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 3*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iDCR(3), iDCRR(0:7), iDCRT(0:7), ideg, iE1, iE2, iE3, iF1, iF2, iF3, Ind(3), &
                      iNeighbor, ir, iStabM(0:7), iStabN(0:7), jAtom, jAtom_, jBond, jBondType, jNeighbor, jr, k, kDCR, kDCRR, &
@@ -41,7 +41,7 @@ integer(kind=iwp) :: i
 real(kind=wp) :: A(3,3), Alpha, Axis(3), BB, Deg, delta, f_Const, f_Const_Ref, Fact, Grad(mB), Grad_Ref(9), Hess(mB**2), &
                  Perp_Axis(3,2), Prv(3,3), r0, Ref(3,3), rim2, rim2_Ref, rmj2, rmj2_Ref, Val, Val_Ref
 logical(kind=iwp) :: Help, MinBas
-character(len=LenIn4) :: Lbls(3)
+character(len=LenIn+4) :: Lbls(3)
 character(len=14) :: Label
 integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
 character(len=*), parameter :: ChOp(0:7) = ['E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ']

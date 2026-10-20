@@ -15,13 +15,13 @@
 !               2000, Thorstein Thorsteinsson                          *
 !***********************************************************************
 
-subroutine DavCtl(LW1,TUVX,IFINAL)
+subroutine DavCtl(nFMO,FMO,nTUVX,TUVX,IFINAL)
 !***********************************************************************
 !                                                                      *
 !     CI control section                                               *
 !                                                                      *
 !     calling arguments:                                               *
-!     LW1     : active Fock matrix                                     *
+!     FMO     : active Fock matrix                                     *
 !               array of real                                          *
 !     TUVX    : array of real                                          *
 !               two-electron integrals (tu|vx)                         *
@@ -50,14 +50,16 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 
 use rasscf_global, only: Conv, Emy, Ener, hRoots, IADR15, ICICH, iCIOnly, Iter, ITERCI, kTight, lRoots, MAXJT, n_Keep, NAC, &
                          ThFact, ThrEn
-use general_data, only: JOBIPH, LUDAVID, NCONF, NSEL, STSYM
-use spinfo, only: N_ELIMINATED_GAS_MOLCAS, NCSF_HEXS, NDET
+use rasscf_files, only: JOBIPH, LUDAVID
+use general_data, only: NCONF, NDET, NSEL
+use spinfo, only: N_ELIMINATED_GAS, NCSF_HEXS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: LW1(*), TUVX(*)
+integer(kind=iwp), intent(in) :: nFMO, nTUVX
+real(kind=wp), intent(in) :: FMO(nFMO), TUVX(nTUVX)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: iDisk, ItLimit, jRoot, m_Sel, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule
@@ -78,7 +80,7 @@ call Ini_David(lRoots,nConf,nDet,nSel,n_keep,nAc,LuDavid)
 ! CIVEC: TEMPORARY CI VECTOR IN CSF BASIS
 
 call mma_allocate(CIVEC,NCONF,label='CIVEC')
-if (NAC > 0) call CIDIA(NCONF,STSYM,CIVEC,LUDAVID)
+if (NAC > 0) call CIDIA(NCONF,CIVEC,LUDAVID)
 
 !-----------------------------------------------------------------------
 ! OBTAIN STARTING VECTORS
@@ -91,9 +93,9 @@ call mma_allocate(iSel,m_Sel,label='iSel')
 call mma_allocate(ExplE,m_Sel,label='ExplE')
 call mma_allocate(ExplV,m_Sel,mSel,label='ExplV')
 nMaxSel = nConf
-if (N_ELIMINATED_GAS_MOLCAS > 0) nmaxSel = nCSF_HEXS
+if (N_ELIMINATED_GAS > 0) nmaxSel = nCSF_HEXS
 
-call CStart(CIVEC,LW1,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
+call CStart(CIVEC,FMO,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
 
 !-----------------------------------------------------------------------
 ! DIAGONALIZATION SECTION
@@ -125,7 +127,7 @@ ITERCI = 1
 if (NAC == 0) then
   ENER(1,ITER) = EMY
 else
-  if ((nSel == nConf) .or. ((N_ELIMINATED_GAS_MOLCAS > 0) .and. (nSel == nCSF_HEXS))) then
+  if ((nSel == nConf) .or. ((N_ELIMINATED_GAS > 0) .and. (nSel == nCSF_HEXS))) then
     do jRoot=1,lRoots-hRoots
       ENER(jRoot,ITER) = ExplE(jRoot)
     end do
@@ -140,10 +142,8 @@ else
       ITLIMIT = MAXJT
     end if
     ! PAM Feb 2009: New code in david5.
-    !call David5(nAc,stSym,nDet,MAXJT,ITERCI,
-    !call David5(nAc,stSym,nDet,ItLimit,ITERCI,CI_conv,Threshold,LW1,TUVX,iSel,ExplE,ExplV)
 
-    call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,LW1,TUVX)
+    call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,nFMO,FMO,nTUVX,TUVX)
 
     do jRoot=1,lRoots-hRoots
       ENER(jRoot,ITER) = CI_conv(1,jRoot,ITERCI)
@@ -164,7 +164,5 @@ lRoots = lRoots-hroots
 iDisk = IADR15(4)
 call Term_David(ICICH,ITERCI,lRoots,nConf,CIVEC,JOBIPH,LuDavid,iDisk)
 call mma_deallocate(CIVEC)
-
-return
 
 end subroutine DavCtl

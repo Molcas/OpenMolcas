@@ -24,6 +24,7 @@ subroutine IniBuf(nDisc,nCore)
 !             University of Lund, Sweden. October '98                  *
 !***********************************************************************
 
+use EAFmod, only: EAFOpen
 use IOBUF, only: Buffer, DiskMx_Byte, InCore, lBuf, LuTmp, nBuf, OnDisk
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Two, Ten

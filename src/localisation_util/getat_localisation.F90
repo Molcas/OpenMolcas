@@ -54,9 +54,7 @@ if (iOpt == 1) then
     end do
   end if
 else
-  if (m /= nBas) then
-    call SysAbendMsg('GetAt_Localisation','Fatal error','m != nBas')
-  end if
+  if (m /= nBas) call SysAbendMsg('GetAt_Localisation','Fatal error','m != nBas')
   XAt(:,1:nAtoms) = Zero
   if (myNorm == 'MAX') then
     do jAt=1,nAtoms

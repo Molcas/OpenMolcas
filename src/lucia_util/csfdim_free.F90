@@ -21,10 +21,10 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ISYM
+integer(kind=iwp), intent(inout) :: ISYM
 
-call Deallocate_DT(Z_PTDT)
-call Deallocate_DT(REO_PTDT)
+if (allocated(Z_PTDT)) call Deallocate_DT(Z_PTDT)
+if (allocated(REO_PTDT)) call Deallocate_DT(REO_PTDT)
 
 !LDET = NSD_PER_SYM(ISYM)
 !LCONF = 0
@@ -37,16 +37,18 @@ call Deallocate_DT(REO_PTDT)
 !end do
 !LCONF = max(LCONF,LLCONF)
 
-call mma_deallocate(DFTP)
-call mma_deallocate(CFTP)
-call mma_deallocate(DTOC)
+call mma_deallocate(DFTP,safe='*')
+call mma_deallocate(CFTP,safe='*')
+call mma_deallocate(DTOC,safe='*')
 
-call mma_deallocate(CONF_OCC(ISYM)%A)
-call mma_deallocate(CONF_REO(ISYM)%A)
-
-call mma_deallocate(SDREO_I(ISYM)%A)
+if ((iSym > 0) .and. (iSym < 9)) then
+  call mma_deallocate(CONF_OCC(ISYM)%A,safe='*')
+  call mma_deallocate(CONF_REO(ISYM)%A,safe='*')
+  call mma_deallocate(SDREO_I(ISYM)%A,safe='*')
+  iSym = -1
+end if
 nullify(SDREO)
 
-call mma_deallocate(IBCONF_ALL_SYM_FOR_OCCLS)
+call mma_deallocate(IBCONF_ALL_SYM_FOR_OCCLS,safe='*')
 
 end subroutine CSFDIM_FREE

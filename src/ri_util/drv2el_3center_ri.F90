@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Drv2El_3Center_RI(ThrAO)
 !***********************************************************************
 !                                                                      *
@@ -35,6 +36,7 @@ subroutine Drv2El_3Center_RI(ThrAO)
 !             Modified to out-of-core version Feb '07                  *
 !***********************************************************************
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Index_Functions, only: nTri_Elem
 use RI_procedures, only: Drv2El_2Center_RI
 use iSD_data, only: iSD
@@ -51,30 +53,23 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: ThrAO
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,0:7), IncVec, iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, &
-                     iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, &
-                     kCnttp, klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, &
-                     mMuNu, mQv, MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
-                     nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
+                     iPass, iPL, iPrint, irc, iRed, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, kCnttp, &
+                     klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, mMuNu, &
+                     mQv, MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, nSkal2, &
+                     nSkal_Auxiliary, nTask, NumVec, NumVec_
 real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all_a, TMax_all_v, TW0, TW1, TWall1, Twall2
 character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, Out_of_Core, Skip
 integer(kind=iwp), allocatable :: Addr(:), iRv(:), LBList(:), NuMu(:,:), TmpList(:)
-real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Scr(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), Tmp(:,:)
+real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), Tmp(:,:)
 procedure(int_wrout) :: Integral_RI_3
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
-logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
+logical(kind=iwp), external :: Reduce_Prt
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-iRout = 9
 
 ! Get global print level
 
@@ -88,14 +83,11 @@ else if (iPL == 4) then
 else if (iPL == 5) then
   iPL = 99
 end if
-nPrint(iRout) = iPL
+iPrint = iPL
 
 ! Reduce print level if iterating
 
-if (Reduce_Prt() .and. (iPL <= 5)) then
-  nPrint(iRout) = 4
-end if
-iPrint = nPrint(iRout)
+if (Reduce_Prt() .and. (iPL <= 5)) iPrint = iPL
 
 if (iPrint >= 6) call CWTime(TC0,TW0)
 !                                                                      *
@@ -233,7 +225,6 @@ do klS_=1,nSkal2
 end do
 
 call mma_allocate(Arr_3C,n3CMax,Label='Arr_3C')
-call mma_allocate(Scr,n3CMax,Label='Scr')
 call mma_allocate(Rv,nRvMax,Label='Rv')
 
 call mma_maxDBLE(MaxMem)
@@ -338,10 +329,7 @@ do while (Rsv_Tsk(id,klS))
       write(u6,*) 'A_Int,CutInt=',A_Int,CutInt
       write(u6,*)
 #     endif
-      if (A_Int >= CutInt) then
-        call Eval_IJKL(iS,jS,kS,lS,Scr,n3C)
-        Arr_3C(1:n3C) = Arr_3C(1:n3C)+Scr(1:n3C)
-      end if
+      if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C)
     end if
 
   end do    ! jS
@@ -412,7 +400,6 @@ call mma_deallocate(LBList)
 call mma_deallocate(TmpList)
 
 call mma_deallocate(Rv)
-call mma_deallocate(Scr)
 call mma_deallocate(Arr_3C)
 call mma_deallocate(Qv)
 call xRlsMem_Ints()

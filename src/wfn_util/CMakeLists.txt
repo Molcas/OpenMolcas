@@ -16,10 +16,6 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list
-     active_space_solver_cfg.F90
-     qcmaquis_info.F90
-     refwfn.F90
-)
+set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

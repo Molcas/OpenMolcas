@@ -89,7 +89,7 @@ integer(kind=iwp), external :: isFreeUnit
 !1 read INPDAT
 
 Lu = isFreeUnit(1)
-!open(unit=1,file='INPDAT',form='unformatted')
+!open(Lu,file='INPDAT',form='unformatted')
 call molcas_binaryopen_vanilla(Lu,'INPDAT')
 read(Lu) nactel,ispin,nsym,lsym,mmul,noa,nob,nva,nvb,norb,eps
 unused_var(nactel)

@@ -21,8 +21,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ISTATE, JSTATE
-real(kind=wp), intent(_OUT_) :: PROP(NRROOT,NRROOT,NPROP), SMAT(*)
+real(kind=wp), intent(inout) :: PROP(NRROOT,NRROOT,NPROP)
 real(kind=wp), intent(out) :: PINT(NBTRI+4), SFOLD(NBTRI), AFOLD(NBTRI)
+real(kind=wp), intent(_OUT_) :: SMAT(*)
 real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST), TDAO(NBAST,NBAST)
 integer(kind=iwp) :: I, ICALL = 0, ICOMP, IDUM(1), IDUMMY, IEND, IFROM, IJ, IOPT, IPROP, IRTC, ISTA, ISY, ISY1, ISY12, ISY2, &
                      ISYMLB, ITO, J, NB1, NB12, NB2, NSIZ

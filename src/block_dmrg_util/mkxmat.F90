@@ -16,10 +16,10 @@ subroutine MKXMAT(TORB,XMAT)
 ! from that stored for each symmetry in IAD1M(4)
 ! Written by N. Nakatani, Oct. 2014
 
+use caspt2_module, only: nAsh, nIsh, nRas1, nRas2, nRas3, nSsh, nSym
 use Definitions, only: wp, iwp
 
 implicit none
-#include "caspt2.fh"
 real(kind=wp), intent(in) :: TORB(NTORB)
 real(kind=wp), intent(out) :: XMAT(NASHT,NASHT)
 integer(kind=iwp) :: I, IR1, IR2, IR3, ISTART, ISYM, ITO, ITOEND, ITOSTA, J, JR1, JR2, JR3, NA, NI, NR1, NR2, NR3, NS
@@ -80,7 +80,5 @@ if (NASHT > 0) then
     end if
   end do
 end if
-
-return
 
 end subroutine MKXMAT

@@ -24,7 +24,7 @@ character(len=4096) :: RealName
 !RealName = f_Name
 call PrgmTranslate(f_Name,RealName,lRealName)
 !write(u6,*) 'DEBUG binopen ',RealName(1:lRealName)
-open(unit=Lu,file=RealName(1:lRealName),form='unformatted')
+open(Lu,file=RealName(1:lRealName),form='unformatted')
 
 return
 

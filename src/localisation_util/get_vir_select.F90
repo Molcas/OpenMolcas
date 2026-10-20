@@ -12,17 +12,17 @@
 subroutine Get_Vir_Select(irc,CMO,XMO,Eorb,Smat,BName,NamAct,ind_V,nSym,nActa,mOrb,nBas,ortho,n_OK)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: ind_V(*), nSym, nActa, mOrb(nSym), nBas(nSym)
 integer(kind=iwp), intent(out) :: irc, n_OK(nSym)
 real(kind=wp), intent(inout) :: CMO(*), Eorb(*)
 real(kind=wp), intent(in) :: XMO(*), Smat(*)
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 character(len=LenIn), intent(in) :: NamAct(nActa)
 logical(kind=iwp), intent(in) :: ortho
 integer(kind=iwp) :: i, iOff, iSym, j, ja, km, kx, lOff, mOx, n_KO, nBmx, nBx, nOrbmx, nOx
@@ -84,7 +84,6 @@ do iSym=1,nSym
   end do
 
   if (.not. ortho) then
-
     call Ortho_orb(X2,S%SB(iSym)%A2,nBas(iSym),n_OK(iSym),2,.false.)
     call Ortho_orb(Z,S%SB(iSym)%A2,nBas(iSym),n_KO,2,.false.)
   end if

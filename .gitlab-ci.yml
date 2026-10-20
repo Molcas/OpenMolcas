@@ -16,6 +16,11 @@ include:
   # Jobs for building the documentation
   - local: "/doc/.gitlab-ci.yml"
 
+# No timestamp every line from the runner, thank you
+
+variables:
+  FF_TIMESTAMPS: false
+
 # Prevent duplicate branch & MR pipelines
 
 workflow:

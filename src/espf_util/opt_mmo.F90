@@ -232,7 +232,7 @@ function mmslave_calc_energy_wrapper(gms,x,f,A,phi,energy)
   real(kind=wp), target, intent(in) :: x(*), f(*), A(*), phi(*)
   real(kind=wp), intent(out) :: energy
   interface
-    function mmslave_calc_energy(gms,x,f,A,phi,energy) bind(C,NAME='mmslave_calc_energy_')
+    function mmslave_calc_energy(gms,x,f,A,phi,energy) bind(C,name='mmslave_calc_energy_')
       use, intrinsic :: iso_c_binding, only: c_double, c_int, c_ptr
       integer(kind=c_int) :: mmslave_calc_energy
       type(c_ptr), value :: gms, x, f, A, phi

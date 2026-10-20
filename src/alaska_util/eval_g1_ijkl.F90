@@ -19,8 +19,9 @@ use k2_arrays, only: Create_BraKet, Destroy_BraKet, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Symmetry_Info, only: nIrrep
 use Gateway_Info, only: CutInt
-use setup, only: mSkal
-use RICD_Info, only: RI_2C, RI_3C
+use eval_arrays, only: PSO, Scr
+use setup, only: nSkal => mSkal
+use RICD_Info, only: RI_3C, RI_2C
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -32,18 +33,15 @@ implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nGrad
 real(kind=wp), intent(inout) :: Temp(nGrad)
 real(kind=wp), intent(in) :: A_Int
-integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, iCar, iFnc(4), ijklA, ipMem1, ipMem2, iSD4(0:nSD,4), iSh, jBasAO, jBasj, jBasn, &
-                     jBsInc, JndGrd(3,4), kBasAO, kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, Mem1, Mem2, MemMax, MemPrm, &
-                     MemPSO, nijkl, nPairs, nQuad, nRys, nSO
-real(kind=wp) :: Coor(3,4), PMax
-real(kind=wp), pointer :: PSO(:), Wrk2(:)
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, iCar, ijklA, iSD4(0:nSD,4), iSh, jBasAO, jBasj, jBasn, jBsInc, JndGrd(3,4), &
+                     kBasAO, kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, nijkl, nPairs, nQuad, nSO
 logical(kind=iwp) :: ABCDeq, JfGrad(3,4), No_batch
+real(kind=wp) :: Coor(3,4), PMax
 integer(kind=iwp), external :: MemSO2_P
 logical(kind=iwp), external :: EQ
 
-iFnc(:) = 0
 PMax = Zero
-nPairs = nTri_Elem(mSkal)
+nPairs = nTri_Elem(nSkal)
 nQuad = nTri_Elem(nPairs)
 
 if (.not. allocated(Sew_Scr)) then
@@ -53,34 +51,20 @@ if (.not. allocated(Sew_Scr)) then
 else
   MemMax = size(Sew_Scr)
 end if
-ipMem1 = 1
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 #endif
-!                                                                *
-!*****************************************************************
-!                                                                *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
 nSO = MemSO2_P(nSD,iSD4)
-No_batch = (nSO == 0)
+No_batch = nSO == 0
 if (No_batch) return
 
 call Coor_Setup(iSD4,nSD,Coor)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! -------> Memory Managment <--------
-!
-! Compute memory request for the primitives, i.e.
-! how much memory is needed up to the transfer
-! equation.
-
-call MemRys_g(iSD4,nSD,nRys,MemPrm)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
 ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
 if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) return
@@ -100,10 +84,7 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !
 ! Now check if all blocks can be computed and stored at once.
 
-call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
-
-PSO(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
-Wrk2(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
+call PSOAO1(nSO,MemMax,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -163,12 +144,12 @@ do iBasAO=1,iBasi,iBsInc
         ! Fetch the T_i,j,kappa, lambda corresponding to
         ! kappa = k, lambda = l
 
-        call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Wrk2,Mem2,nQuad,PMax,iSD4)
+        call PGet0(nijkl,PSO,nSO,Scr,size(Scr),nQuad,PMax,iSD4)
         if (A_Int*PMax < CutInt) return
 
         ! Compute gradients of shell quadruplet
 
-        call TwoEl_g(Coor,nRys,Temp,nGrad,JfGrad,JndGrd,PSO,nijkl,nSO,Sew_Scr(ipMem2),Mem2,iSD4)
+        call TwoEl_g(Coor,Temp,nGrad,JfGrad,JndGrd,PSO,nijkl,nSO,Scr,size(Scr),iSD4)
 
 #       ifdef _DEBUGPRINT_
         call PrGrad(' In Drvg1: Grad',Temp,nGrad)
@@ -179,6 +160,7 @@ do iBasAO=1,iBasi,iBsInc
 
   end do
 end do
+nullify(PSO,Scr)
 
 call Destroy_BraKet()
 

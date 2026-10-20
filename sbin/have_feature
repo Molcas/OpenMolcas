@@ -195,7 +195,7 @@ while [ -n "$1" ]; do
 
     "mpi")
       Echo "Processing feature: $FEATURE"
-      if ! find_symbol allgather caspt2 ; then
+      if ! find_symbol allgather caspt2 && ! find_symbol mpi_allgather caspt2 ; then
         Echo "Not compiled!"
         RC=1
       fi

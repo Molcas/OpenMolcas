@@ -13,10 +13,10 @@ subroutine Start_Alaska()
 
 use Slapaf_Info, only: iState, Request_Alaska, Request_RASSI
 use UnixInfo, only: ProgName
+use PrintLevel, only: nPrint
 use Definitions, only: iwp, u6
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: iEnd, istatus, LuInput, LuSpool, NACstatesOpt(2)
 logical(kind=iwp) :: Exists
 character(len=len(ProgName)) :: PName

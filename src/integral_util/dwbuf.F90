@@ -11,7 +11,7 @@
 
 subroutine dWBuf(Array,nArray)
 
-use dEAF, only: dEAFAWrite
+use EAFmod, only: dEAFAWrite, EAFWait
 use IOBUF, only: Buffer, Disk, Disk_1, Disk_2, DiskMx_Byte, iBuf, iD, InCore, IODone, iPos, lBuf, LuTmp, OnDisk
 use Definitions, only: wp, iwp, RtoB, RtoI
 

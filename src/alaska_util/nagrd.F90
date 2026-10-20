@@ -35,8 +35,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iComp, iDAO, iDCRT(0:7), iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iuvwx(4), &
-                     iZeta, j, JndGrd(3,4), jpDAO, kCnt, kCnttp, kdc, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, &
-                     nip, nRys
+                     iZeta, j, JndGrd(3,4), jpDAO, kCnt, kCnttp, kdc, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, nip
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappab, rKappcd, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
@@ -46,28 +45,19 @@ logical(kind=iwp), external :: TF
 procedure(cff2d_kernel) :: Cff2D, vCff2D
 procedure(modu2_kernel) :: Fake, ModU2
 procedure(tval1_kernel) :: TERI1, TNAI1
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
-#include "print.fh"
-#endif
 
 #include "macros.fh"
 unused_var(rFinal)
 unused_var(Ccoor(1))
 unused_var(nOrdOp)
 unused_var(nComp)
+unused_var(nHer)
 
 #ifdef _DEBUGPRINT_
-iRout = 150
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  write(u6,*) ' In NAGrd: nArr=',nArr
-  nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
-  call RecPrt('DAO',' ',DAO,nZeta,nDAO)
-end if
+write(u6,*) ' In NAGrd: nArr=',nArr
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
+call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 #endif
-
-nRys = nHer
 
 nip = 1
 ipA = nip
@@ -122,7 +112,7 @@ if (Nuclear_Model == Point_Charge) then
     end do
   end do
 end if
-!if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+!call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 
 ! Loop over nuclear centers
 
@@ -208,7 +198,7 @@ do kCnttp=1,nCnttp
         if (JfGrad(iCar,i)) mGrad = mGrad+1
       end do
     end do
-    !if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+    !write(u6,*) ' mGrad=',mGrad
     if (mGrad == 0) cycle
 
     do lDCRT=0,nDCRT-1
@@ -222,12 +212,12 @@ do kCnttp=1,nCnttp
       if (Nuclear_Model == Gaussian_Type) then
         Eta = dbsc(kCnttp)%ExpNuc
         EInv = One/Eta
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+        call Rysg1(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One], &
                    Zeta,ZInv,nZeta,[Eta],[EInv],1, &
                    P,nZeta,TC,1,Coori,Coori,CoorAC, &
                    Array(nip),nArray,TERI1,ModU2,vCff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
       else if (Nuclear_Model == Point_Charge) then
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+        call Rysg1(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One], &
                    Zeta,ZInv,nZeta,[One],[One],1, &
                    P,nZeta,TC,1,Coori,Coori,CoorAC, &
                    Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)

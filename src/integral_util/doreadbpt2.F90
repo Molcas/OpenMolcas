@@ -53,7 +53,7 @@ do i4=1,lCmp
       do kAOk=0,min(kBsInc,kBas)-1
         kSOk = kSO+kAOk
         nCalAO = nCalAO+1
-        !write(6,'("k,l = ",4i5)') ksok,lsol,ksok-kso0,lsol-lso0
+        !write(u6,'("k,l = ",4i5)') ksok,lsol,ksok-kso0,lsol-lso0
         read(LuGAMMA2,rec=nCalAO) B_PT2(1:nBasA,kSOk-kSO0,lSOl-lSO0)
       end do
     end do

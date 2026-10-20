@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2023, Ignacio Fdez. Galván                        *
+#               2014-2023,2026, Ignacio Fdez. Galván                   *
 #               2015, Stefan Knecht                                    *
 #               2020, Gerardo Raggi                                    *
 #***********************************************************************
@@ -45,8 +45,7 @@ endif ()
 
 # discover some necessary tools
 find_program (GIT "git")
-find_program (PERL "perl")
-mark_as_advanced (FORCE GIT PERL)
+mark_as_advanced (FORCE GIT)
 
 FIND_PACKAGE (Python COMPONENTS Interpreter)
 
@@ -605,13 +604,6 @@ if (MPI)
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
-  # MPICH and GCC > 10.0 requires explicit MPI interface
-  if ((MPI_IMPLEMENTATION STREQUAL "mpich" OR MPI_IMPLEMENTATION STREQUAL "impi") AND
-      CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
-      CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
-    add_compile_definitions (_NEED_EXPLICIT_MPI_INTERFACE_)
-  endif ()
-
   list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
 endif ()
 
@@ -1116,6 +1108,9 @@ if (CUBLAS OR NVBLAS)
     # CUDA needs to link to the C++ standard library, so enable CXX here to
     # be able to use it as a linker later on for the program executables
     enable_language (CXX)
+    enable_language (CUDA)
+    set (CMAKE_CUDA_STANDARD 14)
+    set (CMAKE_CUDA_STANDARD_REQUIRED ON)
 
     add_compile_definitions (_CUDA_BLAS_)
 
@@ -1199,13 +1194,22 @@ else ()
   # TODO: Solving this will require creating a wrapper main project that includes
   #       both Libxc and OpenMolcas as ExternalProject. This could also simplify
   #       the handling of other codes like GlobalArrays or QCMaquis.
+  set (Libxc_C_FLAGS ${CMAKE_C_FLAGS_DEFAULT})
+  if (CMAKE_C_COMPILER_ARG1)
+    set (Libxc_C_FLAGS "${CMAKE_C_COMPILER_ARG1} ${Libxc_C_FLAGS}")
+  endif ()
+  set (Libxc_Fortran_FLAGS ${CMAKE_Fortran_FLAGS_DEFAULT})
+  if (CMAKE_Fortran_COMPILER_ARG1)
+    set (Libxc_Fortran_FLAGS "${CMAKE_Fortran_COMPILER_ARG1} ${Libxc_Fortran_FLAGS}")
+  endif ()
   list (APPEND LibxcCMakeArgs
         -D CMAKE_BUILD_TYPE=${LIBXC_BUILD_TYPE}
         -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
         -D BUILD_SHARED_LIBS=NO
         -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
-        -D CMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS_DEFAULT}
+        -D CMAKE_C_FLAGS=${Libxc_C_FLAGS}
+        -D CMAKE_Fortran_FLAGS=${Libxc_Fortran_FLAGS}
         -D CMAKE_INSTALL_LIBDIR=lib
         -D ENABLE_FORTRAN=ON
         -D ENABLE_PYTHON=OFF
@@ -1214,6 +1218,10 @@ else ()
         -D DISABLE_LXC=ON
         -D BUILD_TESTING=NO
   )
+  # Workaround for newer CMake
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "4")
+    list (APPEND LibxcCMakeArgs "-D CMAKE_POLICY_VERSION_MINIMUM=3.5")
+  endif()
   # "Hidden" option to pass extra arguments to Libxc CMake
   list (APPEND LibxcCMakeArgs ${Libxc_EXTRA_CMakeArgs})
 
@@ -1238,6 +1246,7 @@ else ()
                        PREFIX ${EP_PATH}
                        GIT_REPOSITORY ${Libxc_REPO}
                        GIT_TAG ${Libxc_HASH}
+                       GIT_PROGRESS 1
                        CMAKE_ARGS ${LibxcCMakeArgs}
                        UPDATE_DISCONNECTED ${LibxcSkipUpdate}
   )
@@ -1270,6 +1279,36 @@ else ()
   endforeach ()
 endif ()
 
+# libwignernj settings
+# (exact evaluation of Wigner 3j/6j/9j symbols)
+#=====================
+find_package (wignernj 0.6 CONFIG QUIET)
+if (wignernj_FOUND)
+  message ("Using system libwignernj ${wignernj_VERSION} (${wignernj_DIR})")
+  get_target_property (WIGNERNJ_INCLUDE wignernj::wignernj_f03 INTERFACE_INCLUDE_DIRECTORIES)
+  if (WIGNERNJ_INCLUDE)
+    include_directories (${WIGNERNJ_INCLUDE})
+  endif ()
+  list (APPEND EXTERNAL_LIBRARIES wignernj::wignernj_f03)
+else ()
+  message ("System libwignernj not found; building bundled copy (v0.6.0)")
+
+  set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
+  set (proj_bin ${PROJECT_BINARY_DIR}/External/wignernj)
+
+  configure_file (${custom_dir}/wignernj.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
+  add_subdirectory (${proj_bin} ${proj_bin})
+
+  include_directories (${WIGNERNJ_INCLUDE})
+  list (APPEND EXTERNAL_LIBRARIES ${WIGNERNJ_LIBRARIES})
+  list (APPEND EXTERNAL_PROJECTS wignernj)
+
+  message ("-- WIGNERNJ_INCLUDE:   ${WIGNERNJ_INCLUDE}")
+  message ("-- WIGNERNJ_LIBRARIES: ${WIGNERNJ_LIBRARIES}")
+
+  set (WIGNERNJ_BUILD ON)
+endif ()
+
 # Global Arrays settings
 #=======================
 
@@ -1300,6 +1339,14 @@ if (GA AND MPI)
 
     target_files (LINALG_LIBRARIES_FILES ${LINALG_LIBRARIES})
     string (REPLACE ";" "|" LINALG_LIBRARIES_FILES "${LINALG_LIBRARIES_FILES}")
+    set (GA_C_FLAGS ${CMAKE_C_FLAGS_DEFAULT})
+    if (CMAKE_C_COMPILER_ARG1)
+      set (GA_C_FLAGS "${CMAKE_C_COMPILER_ARG1} ${GA_C_FLAGS}")
+    endif ()
+    set (GA_Fortran_FLAGS ${CMAKE_Fortran_FLAGS_DEFAULT})
+    if (CMAKE_Fortran_COMPILER_ARG1)
+      set (GA_Fortran_FLAGS "${CMAKE_Fortran_COMPILER_ARG1} ${GA_Fortran_FLAGS}")
+    endif ()
     list (APPEND GACMakeArgs
           -D CMAKE_BUILD_TYPE=${GA_BUILD_TYPE}
           -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
@@ -1307,6 +1354,8 @@ if (GA AND MPI)
           -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
           -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER}
           -D CMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
+          -D CMAKE_C_FLAGS=${GA_C_FLAGS}
+          -D CMAKE_Fortran_FLAGS=${GA_Fortran_FLAGS}
           -D GCCROOT=${GCCROOT}
           -D CMAKE_INSTALL_LIBDIR=lib
           -D ENABLE_FORTRAN=ON
@@ -1365,6 +1414,7 @@ if (GA AND MPI)
                          PREFIX ${EP_PATH}
                          GIT_REPOSITORY ${GA_REPO}
                          GIT_TAG ${GA_HASH}
+                         GIT_PROGRESS 1
                          CMAKE_ARGS ${GACMakeArgs}
                          UPDATE_DISCONNECTED ${GASkipUpdate}
                          LIST_SEPARATOR "|"
@@ -1594,7 +1644,7 @@ if (CHEMPS2)
   endif ()
 
   foreach (prog
-    wfn_util
+    molcas_ci_util
     caspt2
     rasscf
   )
@@ -1735,8 +1785,10 @@ if (DMRG)
     last_energy
     mclr
     mcpdft
+    molcas_ci_util
     mpssi
     nevpt2
+    caspt2
     rasscf
     rassi
     wfn_util
@@ -2008,6 +2060,7 @@ if (MolGUI)
   ExternalProject_Add (${projname}
                        GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
                        GIT_TAG 599b75e79fab49501adb313f3e2dfab9d8211795
+                       GIT_PROGRESS 1
                        PREFIX ${projdir}
                        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
                                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -2274,6 +2327,7 @@ if (HDF5 AND HDF5_FOUND)
     aniso_util
     gateway_util
     hyper_util
+    localisation_util
     molcas_ci_util
     msym_util
     oneint_util
@@ -2440,6 +2494,7 @@ if (DMRG)
     loprop
     mcpdft
     mpssi
+    caspt2
     nevpt2
     numerical_gradient
     rasscf
@@ -2539,8 +2594,9 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w -dcfuns")
 endif ()
 if (netlib_nowarn_flags)
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90 ${delayed_util_src}/*.f ${delayed_util_src}/*.F90)
+  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
+  set (delayed_util_flags ${netlib_nowarn_flags})
 endif ()
 
 ################################################################################
@@ -2589,6 +2645,9 @@ if (GA_BUILD AND MPI)
 endif ()
 if (GEN1INT)
   add_dependencies (mods_obj gen1int)
+endif ()
+if (WIGNERNJ_BUILD)
+  add_dependencies (mods_obj wignernj)
 endif ()
 if (BUILD_SHARED_LIBS)
   set_target_properties (mods_obj PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
@@ -2799,6 +2858,7 @@ configure_file (${OPENMOLCAS_DIR}/data/modalias.src     data/modalias.txt     CO
 configure_file (${OPENMOLCAS_DIR}/data/landing.src      data/landing.txt      COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/isotope_data.src data/isotope_data.txt COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/functionals.src  data/functionals.txt  COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/spin_data.src    data/spin_data.txt    COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
   foreach (f alias.plx auto.prgm landing.txt)
@@ -2973,7 +3033,7 @@ if (Python_FOUND)
       ERROR_VARIABLE XMLLINT_ERROR
       RESULT_VARIABLE XMLLINT_RESULT
     )
-    if (XMLLINT_ERROR)
+    if (XMLINT_ERROR)
       message (FATAL_ERROR "Extracted XML file is malformed: ${XMLLINT_ERROR}")
     endif ()
   endif ()

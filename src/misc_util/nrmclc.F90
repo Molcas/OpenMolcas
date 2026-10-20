@@ -36,7 +36,7 @@ subroutine NrmClc(Vec,lth,SubNam,MatNam)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -45,10 +45,9 @@ real(kind=wp), intent(in) :: Vec(lth)
 character(len=*), intent(in) :: SubNam, MatNam
 integer(kind=iwp) :: i
 real(kind=wp) :: Q, R, S
-real(kind=wp), external :: DDot_
 
-R = DDot_(lth,Vec,1,Vec,1)
-Q = DDot_(lth,[One],0,Vec,1)
+R = sum(Vec(:)**2)
+Q = sum(Vec(:))
 S = Zero
 do i=1,lth
   S = S+Vec(i)*real(i,kind=wp)

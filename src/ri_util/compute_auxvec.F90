@@ -30,7 +30,7 @@ integer(kind=iwp), intent(in) :: nProc, nVec, ipVk(nProc,nVec), ipZpk(nProc), my
 logical(kind=iwp), intent(in) :: CASPT2
 integer(kind=iwp) :: i, iADens, iAvec, iBas, iCount, iIrrep, ij, iOff, iOff2, iOffDSQ, ipTxy(0:7,0:7,2), irc, irun, iSO, isym, j, &
                      jCount, jIrrep, jp_U_k, jp_V_k, jp_Z_p_k, jrun, k, kIrrep, kOff1, l, mAO, MemMax, NChVMx, nIOrb(0:7), nnAorb, &
-                     nQMax, nQv, nQvMax, nSA, nU_l(0:7), nU_ls, nU_t(0:7), nV_l(0:7), nV_ls, nV_t(0:7)
+                     nQMax, nQv, nQvMax, nSA, nU_t(0:7), nV_l(0:7), nV_t(0:7)
 real(kind=wp) :: Cho_thrs, tmp
 logical(kind=iwp) :: DoCAS, DoExchange, Estimate, Update
 character(len=8) :: Method
@@ -44,10 +44,6 @@ DoExchange = Exfac /= Zero
 
 nV_l(0:nIrrep-1) = NumCho(1:nIrrep) ! local # of vecs in parallel run
 nV_t(0:nIrrep-1) = NumCho(1:nIrrep)
-nV_ls = 0
-do i=0,nIrrep-1
-  nV_ls = nV_ls+nV_l(i)
-end do
 call GAIGOP(nV_t,nIrrep,'+') ! total # of vecs
 if (nV_t(0) == 0) then
   call WarningMessage(2,'Compute_AuxVec: no total symmetric vectors!!')
@@ -59,12 +55,7 @@ if (iMp2prpt == 2) then
     write(u6,*) 'nVec < 2, no ipUk input present!'
     call Abend()
   end if
-  nU_l(0:nIrrep-1) = NumCho(1:nIrrep) ! local # of vecs in parallel run
   nU_t(0:nIrrep-1) = NumCho(1:nIrrep)
-  nU_ls = 0
-  do i=0,nIrrep-1
-    nU_ls = nU_ls+nU_l(i)
-  end do
   call GAIGOP(nU_t,nIrrep,'+') ! total # of vecs
   if (nU_t(0) == 0) then
     call WarningMessage(2,'Compute_AuxVec: no total symmetric vectors!!')
@@ -84,278 +75,274 @@ call mma_allocate(Scr,nQMax)
 
 DoCAS = lPSO
 
-if (nV_ls >= 1) then ! can be = 0 in a parallel run
+jp_V_k = ipVk(myProc,1)
+jp_Z_p_k = ipZpk(myProc)
+jp_U_k = 1
+if (iMp2prpt == 2) then
+  jp_U_k = ipVk(myProc,2)
+end if
+!***********************************************************************
+!                                                                      *
+!      Get (and transform) the density matrices                        *
+!                                                                      *
+!***********************************************************************
 
-  jp_V_k = ipVk(myProc,1)
-  jp_Z_p_k = ipZpk(myProc)
-  jp_U_k = 1
-  if (iMp2prpt == 2) then
-    jp_U_k = ipVk(myProc,2)
-  end if
-  !*********************************************************************
-  !                                                                    *
-  !      Get (and transform) the density matrices                      *
-  !                                                                    *
-  !*********************************************************************
+Timings = .false.
+!Timings = .true.
 
-  Timings = .false.
-  !Timings = .true.
+call Get_iArray('nIsh',nIOrb,nIrrep)
 
-  call Get_iArray('nIsh',nIOrb,nIrrep)
-
-  if (iMp2prpt /= 2) then
-    if (DoCAS .and. lSA) then
-      nSA = nJdens
-      do i=1,nSA
-        call Allocate_DT(DMLT(i),nBas,nBas,nSym,aCase='TRI')
-        DMLT(i)%A0(:) = D0(:,i)
+if (iMp2prpt /= 2) then
+  if (DoCAS .and. lSA) then
+    nSA = nJdens
+    do i=1,nSA
+      call Allocate_DT(DMLT(i),nBas,nBas,nSym,aCase='TRI')
+      DMLT(i)%A0(:) = D0(:,i)
+    end do
+    ! Refold some density matrices
+    do iIrrep=0,nIrrep-1
+      ij = 1
+      do iBas=2,nBas(iIrrep)
+        DMLT(1)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(1)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+        DMLT(3)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(3)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+        if (nSA > 4) DMLT(5)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(5)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+        ij = ij+iBas
       end do
-      ! Refold some density matrices
-      do iIrrep=0,nIrrep-1
-        ij = 1
-        do iBas=2,nBas(iIrrep)
-          DMLT(1)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(1)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
-          DMLT(3)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(3)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
-          if (nSA > 4) DMLT(5)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(5)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
-          ij = ij+iBas
-        end do
-      end do
-    else
-      call Allocate_DT(DMLT(1),nBas,nBas,nSym,aCase='TRI')
-      call Get_D1AO_Var(DMLT(1)%A0,nDens)
-    end if
+    end do
   else
     call Allocate_DT(DMLT(1),nBas,nBas,nSym,aCase='TRI')
-    call Get_dArray_chk('D1ao',DMLT(1)%A0,nDens)
+    call Get_D1AO_Var(DMLT(1)%A0,nDens)
   end if
+else
+  call Allocate_DT(DMLT(1),nBas,nBas,nSym,aCase='TRI')
+  call Get_dArray_chk('D1ao',DMLT(1)%A0,nDens)
+end if
 
-  if (nKdens == 2) then
-    call Allocate_DT(DMLT(2),nBas,nBas,nSym,aCase='TRI')
-    ! spin-density matrix
-    call Get_D1SAO_Var(DMLT(2)%A0,nDens)
-    DMLT(2)%A0(:) = Half*(DMLT(1)%A0-DMLT(2)%A0) ! beta DMAT
-    DMLT(1)%A0(:) = DMLT(1)%A0-DMLT(2)%A0 ! alpha DMAT
-  else if ((nKdens > 4) .or. (nKdens < 1)) then
-    call WarningMessage(2,'Compute_AuxVec: invalid nKdens!!')
-    call Abend()
-  end if
-  if (iMp2prpt == 2) then
-    call Allocate_DT(DLT2(1),nBas,nBas,nSym,aCase='TRI')
-    call Get_D1AO_Var(DLT2(1)%A0,nDens)
-    DLT2(1)%A0(:) = DLT2(1)%A0-DMLT(1)%A0
-  end if
-  !*********************************************************************
-  !                                                                    *
-  !     Compute Fr+In+Ac localized orbitals                            *
-  !     using Cholesky  decomposition for PD matrices                  *
-  !     using Eigenvalue decomposition for non-PD matrices (SA-CASSCF) *
-  !                                                                    *
-  !*********************************************************************
-  !DoExchange = Exfac /= Zero
+if (nKdens == 2) then
+  call Allocate_DT(DMLT(2),nBas,nBas,nSym,aCase='TRI')
+  ! spin-density matrix
+  call Get_D1SAO_Var(DMLT(2)%A0,nDens)
+  DMLT(2)%A0(:) = Half*(DMLT(1)%A0-DMLT(2)%A0) ! beta DMAT
+  DMLT(1)%A0(:) = DMLT(1)%A0-DMLT(2)%A0 ! alpha DMAT
+else if ((nKdens > 4) .or. (nKdens < 1)) then
+  call WarningMessage(2,'Compute_AuxVec: invalid nKdens!!')
+  call Abend()
+end if
+if (iMp2prpt == 2) then
+  call Allocate_DT(DLT2(1),nBas,nBas,nSym,aCase='TRI')
+  call Get_D1AO_Var(DLT2(1)%A0,nDens)
+  DLT2(1)%A0(:) = DLT2(1)%A0-DMLT(1)%A0
+end if
+!***********************************************************************
+!                                                                      *
+!     Compute Fr+In+Ac localized orbitals                              *
+!     using Cholesky  decomposition for PD matrices                    *
+!     using Eigenvalue decomposition for non-PD matrices (SA-CASSCF)   *
+!                                                                      *
+!***********************************************************************
+!DoExchange = Exfac /= Zero
 
-  call Get_cArray('Relax Method',Method,8)
-  if (Method == 'MCPDFT ') exfac = One
-  DoExchange = Exfac /= Zero
+call Get_cArray('Relax Method',Method,8)
+if (Method == 'MCPDFT ') exfac = One
+DoExchange = Exfac /= Zero
 
-  if (DoExchange .or. DoCAS) then
-    do i=1,nKdens
-      call Allocate_DT(ChM(i),nBas,nBas,nSym)
-    end do
-    if (lSA) then
-      call mma_allocate(TmpD,nDens,Label='TmpD')
-    end if
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! PD matrices
-
-    call Allocate_DT(DSQ,nBas,nBas,nSym)
-    do j=1,nKvec
-      if (lSA) then
-        if (j == 1) then
-          TmpD(:) = DMLT(1)%A0
-        else if (j == 2) then
-          TmpD(:) = DMLT(3)%A0
-        end if
-        call UnFold(TmpD,nDens,DSQ%A0,size(DSQ%A0),nIrrep,nBas)
-      else
-        call UnFold(DMLT(j)%A0,nDens,DSQ%A0,size(DSQ%A0),nIrrep,nBas)
-      end if
-
-      do i=0,nIrrep-1
-        call CD_InCore(DSQ%SB(i+1)%A2,nBas(i),ChM(j)%SB(i+1)%A2,nBas(i),nChOrb(i,j),1.0e-12_wp,irc)
-      end do
-      if (irc /= 0) then
-        write(u6,*) 'Compute_AuxVec: failed to get Cholesky MOs !'
-        call Abend()
-      end if
-    end do
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! non-PD matrices
-
-    if (lSA) then
-
-      do i=3,4
-
-        ! Get the appropriate density matrix
-
-        if (i == 3) then
-          TmpD(:) = DMLT(2)%A0
-        else if (i == 4) then
-          TmpD(:) = DMLT(4)%A0
-        end if
-
-        ! And eigenvalue-decompose it
-
-        iOffDSQ = 0
-        do isym=0,nIrrep-1
-
-          call unitmat(ChM(i)%SB(iSym+1)%A2,nBas(iSym))
-          call NIdiag(TmpD(1+iOffDSQ),ChM(i)%SB(iSym+1)%A2,nBas(isym),nBas(isym))
-
-          ! First sort eigenvectors and eigenvalues
-
-          do j=1,nBas(isym)
-            irun = iOffDSQ+nTri_Elem(j)
-            do k=j,nBas(isym)
-              jrun = iOffDSQ+nTri_Elem(k)
-              if (TmpD(irun) < TmpD(jrun)) then
-                tmp = TmpD(irun)
-                TmpD(irun) = TmpD(jrun)
-                TmpD(jrun) = tmp
-                do l=1,nBas(isym)
-                  tmp = ChM(i)%SB(iSym+1)%A2(l,j)
-                  ChM(i)%SB(iSym+1)%A2(l,j) = ChM(i)%SB(iSym+1)%A2(l,k)
-                  ChM(i)%SB(iSym+1)%A2(l,k) = tmp
-                end do
-              end if
-            end do
-          end do
-
-          Cho_thrs = 1.0e-12_wp
-
-          l = 0
-          do j=1,nBas(isym)
-            if (TmpD(iOffDSQ+nTri_Elem(j)) > Cho_thrs) then
-              l = l+1
-              tmp = sqrt(TmpD(iOffDSQ+nTri_Elem(j)))
-              ChM(i)%SB(iSym+1)%A2(:,l) = tmp*ChM(i)%SB(iSym+1)%A2(:,j)
-            end if
-          end do
-          npos(isym,i-2) = l
-
-          do j=1,nBas(isym)
-            if (-TmpD(iOffDSQ+nTri_Elem(j)) > Cho_thrs) then
-              l = l+1
-              irun = (l-1)*nBas(isym)
-              jrun = (j-1)*nBas(isym)
-              tmp = sqrt(-TmpD(iOffDSQ+nTri_Elem(j)))
-              ChM(i)%SB(iSym+1)%A2(:,l) = tmp*ChM(i)%SB(iSym+1)%A2(:,j)
-            end if
-          end do
-          nChOrb(isym,i) = l
-
-          iOffDSQ = iOffDSQ+nTri_Elem(nBas(isym))
-        end do
-
-      end do
-
-      ! Refold the other DM
-
-      do iIrrep=0,nIrrep-1
-        ij = 1
-        do iBas=2,nBas(iIrrep)
-          DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
-          DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
-          ij = ij+iBas
-        end do
-      end do
-    end if
-    call Deallocate_DT(DSQ)
-    if (lSA) call mma_deallocate(TmpD)
-  end if
-  !*********************************************************************
-  !                                                                    *
-  !      First contract the RI vectors with the density matrix         *
-  !                                                                    *
-  !*********************************************************************
-  ! Pointers to the Cholesky vectors of P2
-  mAO = 0
-  iOff = 0
-  do kIrrep=0,nIrrep-1 ! compound symmetry
-    iOff2 = 0
-    do jIrrep=0,nIrrep-1
-      iIrrep = Mul(jIrrep+1,kIrrep+1)-1
-      if (iIrrep < jIrrep) then
-        nnAorb = nASh(iIrrep)*nAsh(jIrrep)
-      else if (iIrrep == jIrrep) then
-        nnAorb = nTri_Elem(nAsh(iIrrep))
-      else
-        cycle
-      end if
-      ipTxy(iIrrep,jIrrep,1) = 1+iOff2+iOff
-      ipTxy(jIrrep,iIrrep,1) = ipTxy(iIrrep,jIrrep,1)
-      if (lSA) then
-        ipTxy(iIrrep,jIrrep,2) = ipTxy(iIrrep,jIrrep,1)+n_Txy
-        ipTxy(jIrrep,iIrrep,2) = ipTxy(iIrrep,jIrrep,2)
-      end if
-      iOff2 = iOff2+nnAorb
-    end do
-    iOff = iOff+iOff2*nnP(kIrrep)
-    mAO = mAO+nBas(kIrrep)*nASh(kIrrep)
+if (DoExchange .or. DoCAS) then
+  do i=1,nKdens
+    call Allocate_DT(ChM(i),nBas,nBas,nSym)
   end do
+  if (lSA) then
+    call mma_allocate(TmpD,nDens,Label='TmpD')
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! PD matrices
 
-  call Allocate_DT(AOrb,nADens,nAsh,nBas,nIrrep,label='AOrb')
+  call Allocate_DT(DSQ,nBas,nBas,nSym)
+  do j=1,nKvec
+    if (lSA) then
+      if (j == 1) then
+        TmpD(:) = DMLT(1)%A0
+      else if (j == 2) then
+        TmpD(:) = DMLT(3)%A0
+      end if
+      call UnFold(TmpD,nDens,DSQ%A0,size(DSQ%A0),nIrrep,nBas)
+    else
+      call UnFold(DMLT(j)%A0,nDens,DSQ%A0,size(DSQ%A0),nIrrep,nBas)
+    end if
 
-  ! Reordering of the active MOs :  C(a,v) ---> C(v,a)
+    do i=0,nIrrep-1
+      call CD_InCore(DSQ%SB(i+1)%A2,nBas(i),ChM(j)%SB(i+1)%A2,nBas(i),nChOrb(i,j),1.0e-12_wp,irc)
+    end do
+    if (irc /= 0) then
+      write(u6,*) 'Compute_AuxVec: failed to get Cholesky MOs !'
+      call Abend()
+    end if
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! non-PD matrices
 
-  iCount = 0
-  do iIrrep=0,nIrrep-1
+  if (lSA) then
 
-    jCount = iCount+nBas(iIrrep)*nIOrb(iIrrep)
+    do i=3,4
 
-    iCount = iCount+nBas(iIrrep)**2
-    if (nBas(iIrrep)*nASh(iIrrep) == 0) cycle
+      ! Get the appropriate density matrix
 
-    do iADens=1,nADens
+      if (i == 3) then
+        TmpD(:) = DMLT(2)%A0
+      else if (i == 4) then
+        TmpD(:) = DMLT(4)%A0
+      end if
 
-      do i=1,nASh(iIrrep)
-        kOff1 = 1+jCount+nBas(iIrrep)*(i-1)
-        AOrb(iADens)%SB(iIrrep+1)%A2(i,1:nBas(iIrrep)) = CMO(kOff1:kOff1-1+nBas(iIrrep),iADens)
+      ! And eigenvalue-decompose it
+
+      iOffDSQ = 0
+      do isym=0,nIrrep-1
+
+        call unitmat(ChM(i)%SB(iSym+1)%A2,nBas(iSym))
+        call NIdiag(TmpD(1+iOffDSQ),ChM(i)%SB(iSym+1)%A2,nBas(isym),nBas(isym))
+
+        ! First sort eigenvectors and eigenvalues
+
+        do j=1,nBas(isym)
+          irun = iOffDSQ+nTri_Elem(j)
+          do k=j,nBas(isym)
+            jrun = iOffDSQ+nTri_Elem(k)
+            if (TmpD(irun) < TmpD(jrun)) then
+              tmp = TmpD(irun)
+              TmpD(irun) = TmpD(jrun)
+              TmpD(jrun) = tmp
+              do l=1,nBas(isym)
+                tmp = ChM(i)%SB(iSym+1)%A2(l,j)
+                ChM(i)%SB(iSym+1)%A2(l,j) = ChM(i)%SB(iSym+1)%A2(l,k)
+                ChM(i)%SB(iSym+1)%A2(l,k) = tmp
+              end do
+            end if
+          end do
+        end do
+
+        Cho_thrs = 1.0e-12_wp
+
+        l = 0
+        do j=1,nBas(isym)
+          if (TmpD(iOffDSQ+nTri_Elem(j)) > Cho_thrs) then
+            l = l+1
+            tmp = sqrt(TmpD(iOffDSQ+nTri_Elem(j)))
+            ChM(i)%SB(iSym+1)%A2(:,l) = tmp*ChM(i)%SB(iSym+1)%A2(:,j)
+          end if
+        end do
+        npos(isym,i-2) = l
+
+        do j=1,nBas(isym)
+          if (-TmpD(iOffDSQ+nTri_Elem(j)) > Cho_thrs) then
+            l = l+1
+            irun = (l-1)*nBas(isym)
+            jrun = (j-1)*nBas(isym)
+            tmp = sqrt(-TmpD(iOffDSQ+nTri_Elem(j)))
+            ChM(i)%SB(iSym+1)%A2(:,l) = tmp*ChM(i)%SB(iSym+1)%A2(:,j)
+          end if
+        end do
+        nChOrb(isym,i) = l
+
+        iOffDSQ = iOffDSQ+nTri_Elem(nBas(isym))
       end do
 
-    end do ! iADens
+    end do
 
-  end do ! iIrrep
+    ! Refold the other DM
 
-  if (nKdens == 2) DMLT(1)%A0(:) = DMLT(1)%A0+DMLT(2)%A0 ! for Coulomb term
-
-  ! Add the density of the environment in a OFE calculation (Coulomb)
-
-  call OFembed_dmat(DMlt(1)%A0,nDens)
-
-  !nScreen = 10 ! Some default values for the screening parameters
-  !dmpK = One
-  Estimate = .false.
-  Update = .true.
-  call Cho_Get_Grad(irc,nKdens,DMLT,DLT2,ChM,Txy,n_Txy*nAdens,ipTxy,DoExchange,lSA,nChOrb,AOrb,nAsh,DoCAS,Estimate,Update, &
-                    V_k(jp_V_k,1),nV_k,U_k(jp_U_k),Z_p_k(jp_Z_p_k,1),nZ_p_k,nnP,npos)
-
-  if (irc /= 0) then
-    call WarningMessage(2,'Compute_AuxVec: failed in Cho_Get_Grad !!')
-    call Abend()
-  end if
-
-  if (DoCAS .or. DoExchange) then
-    do i=1,nKdens
-      call deallocate_DT(ChM(i))
+    do iIrrep=0,nIrrep-1
+      ij = 1
+      do iBas=2,nBas(iIrrep)
+        DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+        DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+        ij = ij+iBas
+      end do
     end do
   end if
-  if (iMp2prpt == 2) call deallocate_DT(DLT2(1))
+  call Deallocate_DT(DSQ)
+  if (lSA) call mma_deallocate(TmpD)
+end if
+!***********************************************************************
+!                                                                      *
+!      First contract the RI vectors with the density matrix           *
+!                                                                      *
+!***********************************************************************
+! Pointers to the Cholesky vectors of P2
+mAO = 0
+iOff = 0
+do kIrrep=0,nIrrep-1 ! compound symmetry
+  iOff2 = 0
+  do jIrrep=0,nIrrep-1
+    iIrrep = Mul(jIrrep+1,kIrrep+1)-1
+    if (iIrrep < jIrrep) then
+      nnAorb = nASh(iIrrep)*nAsh(jIrrep)
+    else if (iIrrep == jIrrep) then
+      nnAorb = nTri_Elem(nAsh(iIrrep))
+    else
+      cycle
+    end if
+    ipTxy(iIrrep,jIrrep,1) = 1+iOff2+iOff
+    ipTxy(jIrrep,iIrrep,1) = ipTxy(iIrrep,jIrrep,1)
+    if (lSA) then
+      ipTxy(iIrrep,jIrrep,2) = ipTxy(iIrrep,jIrrep,1)+n_Txy
+      ipTxy(jIrrep,iIrrep,2) = ipTxy(iIrrep,jIrrep,2)
+    end if
+    iOff2 = iOff2+nnAorb
+  end do
+  iOff = iOff+iOff2*nnP(kIrrep)
+  mAO = mAO+nBas(kIrrep)*nASh(kIrrep)
+end do
 
-end if ! no vectors on this node
+call Allocate_DT(AOrb,nADens,nAsh,nBas,nIrrep,label='AOrb')
+
+! Reordering of the active MOs :  C(a,v) ---> C(v,a)
+
+iCount = 0
+do iIrrep=0,nIrrep-1
+
+  jCount = iCount+nBas(iIrrep)*nIOrb(iIrrep)
+
+  iCount = iCount+nBas(iIrrep)**2
+  if (nBas(iIrrep)*nASh(iIrrep) == 0) cycle
+
+  do iADens=1,nADens
+
+    do i=1,nASh(iIrrep)
+      kOff1 = 1+jCount+nBas(iIrrep)*(i-1)
+      AOrb(iADens)%SB(iIrrep+1)%A2(i,1:nBas(iIrrep)) = CMO(kOff1:kOff1-1+nBas(iIrrep),iADens)
+    end do
+
+  end do ! iADens
+
+end do ! iIrrep
+
+if (nKdens == 2) DMLT(1)%A0(:) = DMLT(1)%A0+DMLT(2)%A0 ! for Coulomb term
+
+! Add the density of the environment in a OFE calculation (Coulomb)
+
+call OFembed_dmat(DMlt(1)%A0,nDens)
+
+!nScreen = 10 ! Some default values for the screening parameters
+!dmpK = One
+Estimate = .false.
+Update = .true.
+call Cho_Get_Grad(irc,nKdens,DMLT,DLT2,ChM,Txy,n_Txy*nAdens,ipTxy,DoExchange,lSA,nChOrb,AOrb,nAsh,DoCAS,Estimate,Update, &
+                  V_k(jp_V_k,1),nV_k,U_k(jp_U_k),Z_p_k(jp_Z_p_k,1),nZ_p_k,nnP,npos)
+
+if (irc /= 0) then
+  call WarningMessage(2,'Compute_AuxVec: failed in Cho_Get_Grad !!')
+  call Abend()
+end if
+
+if (DoCAS .or. DoExchange) then
+  do i=1,nKdens
+    call deallocate_DT(ChM(i))
+  end do
+end if
+if (iMp2prpt == 2) call deallocate_DT(DLT2(1))
 
 ! For parallel run: reordering of the V_k(tilde) vector from
 ! the "node storage" to the Q-vector storage

@@ -40,6 +40,9 @@ use pso_stuff, only: No_Nuc
 use Disp, only: HF_Force, IndxEq, InxDsp, lDisp, lEQ, TRSymm
 use NAC, only: DoCSF, EDiff, isNAC
 use spool, only: Close_LuSpool
+use PCM_alaska, only: lSA, PCM_alaska_lSA, PCM_alaska_final, PCM_alaska_prep
+use PrintLevel, only: nPrint
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -47,8 +50,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp), intent(out) :: ireturn
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCav, nCnttp_Valence, ndc, nDiff, nsAtom
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DoRys, Found
@@ -58,10 +59,11 @@ integer(kind=iwp), external :: isFreeUnit
 real(kind=wp), external :: dnrm2_
 logical(kind=iwp), external :: RF_On
 !*********** columbus interface ****************************************
-integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j
+integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j, DaoLen
 real(kind=wp), allocatable :: Cgrad(:,:)
-character(len=LenIn5), allocatable :: CNames(:)
+character(len=LenIn+5), allocatable :: CNames(:)
 character(len=80) :: Lab
+logical(kind=iwp) :: FoundDao
 
 !                                                                      *
 !***********************************************************************
@@ -96,6 +98,8 @@ if (RF_On()) then
     call Abend()
   end if
   call Init_RctFld(.false.,iCharge_Ref)
+  !! Check SA-CASSCF or not (and some initialization)
+  call PCM_alaska_lSA()
 end if
 !                                                                      *
 !***********************************************************************
@@ -111,10 +115,10 @@ if (RF_On()) then
     ! Get the multipole moments
     nCav = (lMax+1)*(lMax+2)*(lMax+3)/6
     call Get_dArray('RCTFLD',MM,nCav*2)
-    if (iPrint >= 99) then
-      call RecPrt('Total Multipole Moments',' ',MM(:,1),1,nCav)
-      call RecPrt('Total Electric Field',' ',MM(:,2),1,nCav)
-    end if
+#   ifdef _DEBUGPRINT_
+    call RecPrt('Total Multipole Moments',' ',MM(:,1),1,nCav)
+    call RecPrt('Total Electric Field',' ',MM(:,2),1,nCav)
+#   endif
   end if
 end if
 
@@ -139,6 +143,10 @@ call Close_LuSpool(LuSpool)
 call Get_iScalar('Columbus',Columbus)
 call Get_iScalar('colgradmode',colgradmode)
 
+! Some preparations for SA-CASSCF gradient
+! ASC charges have been overwritten in MCLR, so compute correct ones
+if (lRF .and. PCM .and. lSA) call PCM_alaska_prep()
+
 !-- Start computing the gradients
 !                                                                      *
 !***********************************************************************
@@ -148,9 +156,12 @@ call Get_iScalar('colgradmode',colgradmode)
 if (king() .or. HF_Force) then
 
   ! per default NADC must not have nuclear contributions added
+  ! If SA-CASSCF/PCM, call DrvN1 for PCM-related contributions
 
-  if (NO_NUC .or. ((Columbus == 1) .and. (colgradmode == 3))) then
+  if ((NO_NUC .and. (.not.(lRF .and. PCM .and. lSA))) .or. ((Columbus == 1) .and. (colgradmode == 3))) then
     write(u6,*) 'Skipping Nuclear Charge Contribution'
+    iRout = 33 !! as done in DrvN1
+    iPrint = nPrint(iRout)
   else
     call DrvN1(Grad,Temp,lDisp(0))
     if (iPrint >= 15) then
@@ -230,7 +241,7 @@ if (.not. Test) then
 
     !-- Accumulate contribution to the gradient
 
-    call GR_DArray(Grad,lDisp(0))
+    call GADGop(Grad,lDisp(0),'+')
     call DaXpY_(lDisp(0),One,Temp,1,Grad,1)
     !                                                                  *
     !*******************************************************************
@@ -247,10 +258,10 @@ if (.not. Test) then
   !-- Apply the translational and rotational invariance of the energy.
 
   if (TRSymm) then
-    if (iPrint >= 99) then
-      call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0))
-      call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
-    end if
+#   ifdef _DEBUGPRINT_
+    call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0))
+    call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
+#   endif
     Temp(1:lDisp(0)) = Grad(1:lDisp(0))
 
     call dGeMV_('N',lDisp(0),lDisp(0),One,Am,lDisp(0),Temp,1,Zero,Grad,1)
@@ -270,6 +281,7 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
 end if
+if (lRF) call PCM_alaska_final()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -371,19 +383,25 @@ call mma_deallocate(Rlx)
 ! print full cartesian gradient in Columbus format
 
 if (Columbus == 1) then
-  ! real Cgrad(3,mxatom)
-  ! character(len=9) CNames(MxAtom)
-  ! integer lcartgrd, iatom,icen,j
   call mma_allocate(CGrad,3,MxAtom,label='CGrad')
   call mma_allocate(CNames,MxAtom,label='CNames')
   call TrGrd_Alaska(CGrad,CNames,Grad,lDisp(0),iCen)
-  lcartgrd = 60
-  lcartgrd = isFreeUnit(lcartgrd)
+  lcartgrd = isFreeUnit(60)
   call Molcas_Open(lcartgrd,'cartgrd')
   do IATOM=1,iCen
-    write(60,1010) (CGrad(j,iatom),j=1,3)
+    write(lcartgrd,1010) (CGrad(j,iatom),j=1,3)
   end do
   close(lcartgrd)
+
+  ! CSF part
+  call Qpg_dArray('D1ao-',FoundDao,DaoLen)
+  if (FoundDao .and. (Daolen > 0)) then
+    call mma_Allocate(CSFG,lDisp(0),Label='CSFG')
+    call CSFGrad(CSFG,lDisp(0))
+    call PrGrad('CSF derivative coupling ',CSFG,lDisp(0))
+    call mma_deallocate(CSFG)
+  end if
+
   call mma_deallocate(CGrad)
   call mma_deallocate(CNames)
 end if

@@ -22,29 +22,29 @@ integer(kind=iwp) :: IGRP, ITP
 ! Offsets for occupation and reorder array of strings
 
 do IGRP=1,NGRP
-  call mma_deallocate(OCCSTR(IGRP)%A)
-  call mma_deallocate(STREO(IGRP)%A)
+  call mma_deallocate(OCCSTR(IGRP)%A,safe='*')
+  call mma_deallocate(STREO(IGRP)%A,safe='*')
 end do
 
 ! Number of strings per symmetry and offset for strings of given sym
 ! for groups
 
-call mma_deallocate(NSTSGP)
-call mma_deallocate(ISTSGP)
+call mma_deallocate(NSTSGP,safe='*')
+call mma_deallocate(ISTSGP,safe='*')
 
 ! Number of strings per symmetry and offset for strings of given sym
 ! for types
 
 do ITP=1,NSTTP
-  call mma_deallocate(NSTSO(ITP)%A)
-  call mma_deallocate(ISTSO(ITP)%A)
+  call mma_deallocate(NSTSO(ITP)%A,safe='*')
+  call mma_deallocate(ISTSO(ITP)%A,safe='*')
 end do
 
 ! Lexical addressing of arrays : use array indices for complete active space
 
 ! Not in use so
 do IGRP=1,NGRP
-  call mma_deallocate(Zmat(IGRP)%A)
+  call mma_deallocate(Zmat(IGRP)%A,safe='*')
 end do
 
 ! Mappings between different groups
@@ -52,20 +52,20 @@ end do
 do IGRP=1,NGRP
   ! IF creation is involve : Use full orbital notation
   ! If only annihilation is involved, compact form will be used
-  call mma_deallocate(STSTM(IGRP,1)%A)
-  call mma_deallocate(STSTM(IGRP,2)%A)
+  call mma_deallocate(STSTM(IGRP,1)%A,safe='*')
+  call mma_deallocate(STSTM(IGRP,2)%A,safe='*')
 end do
 
 ! Occupation classes
 
-call mma_deallocate(IOCLS)
+call mma_deallocate(IOCLS,safe='*')
 ! Annihilation/Creation map of supergroup types
-call mma_deallocate(SPGPAN)
-call mma_deallocate(SPGPCR)
+call mma_deallocate(SPGPAN,safe='*')
+call mma_deallocate(SPGPCR,safe='*')
 
 ! Allocated during strinf_gas call
-call mma_deallocate(ISMDFGP)
-call mma_deallocate(NACTSYM)
-call mma_deallocate(ISMSCR)
+call mma_deallocate(ISMDFGP,safe='*')
+call mma_deallocate(NACTSYM,safe='*')
+call mma_deallocate(ISMSCR,safe='*')
 
 end subroutine FREESTR_GAS

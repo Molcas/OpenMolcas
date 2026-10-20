@@ -15,6 +15,7 @@
 subroutine DiagMtrx_T(H,nH,iNeg)
 
 use Index_Functions, only: nTri_Elem
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -23,7 +24,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nH
 real(kind=wp), intent(in) :: H(nTri_Elem(nH))
 integer(kind=iwp), intent(out) :: iNeg
-#include "print.fh"
 integer(kind=iwp) :: i, iprint, iRout, j, LuTmp, nq, nQQ
 logical(kind=iwp) :: Exists
 character(len=16) :: filnam
@@ -109,8 +109,6 @@ end if
 
 call mma_deallocate(EVec)
 call mma_deallocate(EVal)
-
-return
 
 end subroutine DiagMtrx_T
 

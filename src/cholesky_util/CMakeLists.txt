@@ -395,6 +395,7 @@ set (sources
      ckaltd.F90
      ckaltt.F90
      conj_grad.F90
+     corbinf.F90
      decomat.F90
      dfinek.F90
      dfmp2e.F90

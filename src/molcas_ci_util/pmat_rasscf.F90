@@ -21,7 +21,8 @@ subroutine PMAT_RASSCF(P,X)
 ! ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
 use Symmetry_Info, only: Mul
-use rasscf_global, only: ISTORP, iTri
+use Index_Functions, only: iTri, nTri_Elem
+use rasscf_global, only: ISTORP
 use general_data, only: NASH, NSYM
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
@@ -34,8 +35,8 @@ use Definitions, only: u6
 implicit none
 real(kind=wp), intent(in) :: P(*)
 real(kind=wp), intent(_OUT_) :: X(*)
-integer(kind=iwp) :: IAT, IAU, IAV, IAX, INDF, INDX, LAT, LAT1, LAU, LAU1, LAV, LAX, LPMAT, LROW, NAP, NAQ, NAR, NAS, NAT, NAU, &
-                     NAV, NAX, NAXE, NSP, NSPQ, NSQ, NSR, NSS, NSS1, NSSM, NTU, NTUVX, NUVX, NVX
+integer(kind=iwp) :: IAT, IAU, IAV, IAX, INDF, INDX, LAT, LAU, LAV, LAX, LPMAT, LROW, NAP, NAQ, NAR, NAS, NAT, NAU, NAV, NAX, &
+                     NAXE, NSP, NSPQ, NSQ, NSR, NSS, NSS1, NSSM, NTU, NTUVX, NUVX, NVX
 real(kind=wp) :: FAC
 
 #ifdef _DEBUGPRINT_
@@ -90,16 +91,14 @@ do NSP=1,NSYM
 
                   ! Compute canonical index ntuvx and find prefactor
 
-                  LAT1 = max(LAT,LAU)
-                  LAU1 = min(LAT,LAU)
-                  NTU = ITRI(LAT1)+LAU1
-                  NVX = ITRI(LAV)+LAX
-                  NTUVX = ITRI(max(NTU,NVX))+min(NTU,NVX)
+                  NTU = iTri(LAT,LAU)
+                  NVX = nTri_Elem(LAV-1)+LAX
+                  NTUVX = iTri(NTU,NVX)
                   FAC = Two
                   if (NTU < NVX) then
-                    if ((LAT1 == LAU1) .and. (LAV /= LAX)) then
+                    if ((LAT == LAU) .and. (LAV /= LAX)) then
                       FAC = Four
-                    else if ((LAT1 /= LAU1) .and. (LAV == LAX)) then
+                    else if ((LAT /= LAU) .and. (LAV == LAX)) then
                       FAC = One
                     end if
                   end if

@@ -56,7 +56,6 @@ set (sources
      gs_order.F90
      hasnonnegativediagonal.F90
      i4len.F90
-     icopy.F90
      index_functions.F90
      inipkr8.F90
      init_getint.F90
@@ -119,6 +118,7 @@ set (sources
      rmass.F90
      rmassx.F90
      rotation.F90
+     scram.F90
      sortdiag.F90
      sorteig.F90
      sorting.F90
@@ -142,10 +142,10 @@ set (sources
      trnsps.F90
      twodat.F90
      unfold.F90
-     unused.F90
      upki4.F90
      upkr8.F90
      veig.F90
+     wigner_util.F90
      wr_motra_info.F90
      wr_rasscf_info.F90
      wrh.F90
@@ -158,12 +158,14 @@ set (sources
 set (modfile_list
      getint_mod.F90
      index_functions.F90
+     mckdat.F90
      onedat.F90
      pack_mod.F90
      sorting.F90
      sorting_funcs.F90
      spool.F90
      twodat.F90
+     wigner_util.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

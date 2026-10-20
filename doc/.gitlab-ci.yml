@@ -100,7 +100,6 @@ pages:
     - mv install_dir/doc/html public/sphinx
     - mv install_dir/doc/Manual.pdf public/
     - mv doc/doxygen/html public/doxygen
-    - mv doc/map public/
     - du -sh public/*
   needs:
     - doc

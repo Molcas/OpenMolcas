@@ -44,6 +44,7 @@ subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,JOBIPH,LuDavid,iDisk)
 !***********************************************************************
 
 use davctl_mod, only: disk_address, LblStk, memory_vectors
+use RASDim, only: MxCIIt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -54,7 +55,6 @@ real(kind=wp), intent(out) :: Vector(nConf)
 integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: iRoot
 real(kind=wp), allocatable :: Ovlp1(:,:), Ovlp2(:,:)
-#include "rasdim.fh"
 
 ! check input arguments
 if (nConf < 0) then

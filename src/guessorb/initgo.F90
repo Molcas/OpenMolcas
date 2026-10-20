@@ -26,11 +26,12 @@
 !#define _DEBUGPRINT_
 subroutine InitGO()
 
-use GuessOrb_Global, only: AtName, GapThr, iPrFmt, Label, MxAtom, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, &
-                           PrintPop, PrThr, SThr, TThr
+use GuessOrb_Global, only: AtName, GapThr, iPrFmt, Label, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, PrintPop, PrThr, &
+                           SThr, TThr
 #ifdef _OLD_
 use GuessOrb_Global, only: xCharge
 #endif
+use Molcas, only: MxAtom
 use Constants, only: Five
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

@@ -11,7 +11,7 @@
 
 subroutine DMATRIX(E,F,Z,IPRINT)
 ! THIS ROUTINE COMPUTES THE USUAL D-TENSOR ON THE BASIS OF COEFFICIENTS
-! OF THE STEVENS OPERATORS OF ORDER 2 (ES AND FS) AND DIAGONALIZE IT
+! OF THE STEVENS OPERATORS OF ORDER 2 (ES AND FS) AND DIAGONALIZES IT
 ! TO OBTAIN THE MAIN ANISOTROPY AXES
 
 use Constants, only: Zero, One, Two, Half, OneHalf
@@ -22,9 +22,10 @@ complex(kind=wp), intent(in) :: E(0:2), F(0:2)
 real(kind=wp), intent(in) :: Z(3,3)
 integer(kind=iwp), intent(in) :: iprint
 integer(kind=iwp) :: INFO, J
-real(kind=wp) :: CF, D_factor, daxes(3,3), diff12, diff23, DMATR(3,3), dtens(3), E_factor, SMAT(3,3), Unity(3,3), WD(3), ZD(3,3), &
-                 ZD2(3,3)
+real(kind=wp) :: CF, D_factor, daxes(3,3), diff12, diff23, diff31, DMATR(3,3), dtens(3), E_factor, SMAT(3,3), Unity(3,3), WD(3), &
+                 ZD(3,3), ZD2(3,3)
 complex(kind=wp) :: DMAT(3,3)
+character(len=2) :: Lx, Ly, Lz
 
 CF = sqrt(OneHalf)
 
@@ -158,13 +159,26 @@ call DGEMM_('N','N',3,3,3,One,Z,3,daxes,3,Zero,ZD2,3)
 
 diff12 = abs(dtens(1)-dtens(2))
 diff23 = abs(dtens(2)-dtens(3))
+diff31 = abs(dtens(3)-dtens(1))
 
-if (diff12 > diff23) then
+if ((diff12 >= diff23) .and. (diff31 >= diff23)) then
   D_factor = OneHalf*dtens(1)
   E_factor = (dtens(2)-dtens(3))*Half
+  Lx = 'Dy'
+  Ly = 'Dz'
+  Lz = 'Dx'
+else if (diff12 > diff31) then
+  D_factor = OneHalf*dtens(2)
+  E_factor = (dtens(3)-dtens(1))*Half
+  Lx = 'Dz'
+  Ly = 'Dx'
+  Lz = 'Dy'
 else
   D_factor = OneHalf*dtens(3)
   E_factor = (dtens(1)-dtens(2))*Half
+  Lx = 'Dx'
+  Ly = 'Dy'
+  Lz = 'Dz'
 end if
 
 if (iprint > 2) then
@@ -194,9 +208,9 @@ if (iprint >= 2) then
   write(u6,*)
   write(u6,'(A)') 'H_zfs^{2}= D * [S_{Za}^2 - S*(S+1)/3] + E * [S_{Xa}^2 - S_{Ya}^2]'
   write(u6,*)
-  write(u6,'(A)') 'Anisotropy parameters: D = 3/2 * Dz;  E = (Dx-Dy)/2;'
-  write(u6,'(a,F9.4)') 'D = ',D_factor
-  write(u6,'(a,F9.4)') 'E = ',E_factor
+  write(u6,'(7a)') 'Anisotropy parameters: D = 3/2 * ',Lz,';  E = (',Lx,'-',Ly,')/2;'
+  write(u6,'(a,F12.4)') 'D = ',D_factor
+  write(u6,'(a,F12.4)') 'E = ',E_factor
 end if
 
 return

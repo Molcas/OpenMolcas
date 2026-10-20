@@ -31,6 +31,8 @@ use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
 use Integral_interfaces, only: Int_PostProcess, int_wrout
 use define_af, only: iTabMx
+use PrintLevel, only: nPrint, Show
+use Molcas, only: Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -38,8 +40,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iCnttp
 logical(kind=iwp), intent(in) :: W2L
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iAng, iAngMax, iAngMin, iAO, iBS, iCho_c, iCho_p, iCmp, iCntrc, iDum, iExp_k, iExp_l, ijS, ijS_req, ijSO, &
                      ijT, ik, ikl, il, Indx, iOff, iOff_Ak, iOff_Qk, ip_Exp, iRC, iSeed, iShell, iShll, iShll_, iSO, iSph, &
                      istatus, iTheta, iTheta_full, iVal, iZ, j, jAng, jAngMax, jAngMin, jCho_p, jCnttp, jkl, jp_Exp, jp_Exp_Max, &

@@ -38,7 +38,7 @@
 #define _MMA_FUNC_ allocated
 #endif
 
-#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+#if (defined _GARBLE_) && (! defined _NO_GARBLE_)
 #define _GARBLE_FUNC_(ipos,length,vartyp) call garble(ipos,length,vartyp)
 #else
 #define _GARBLE_FUNC_(ipos,length,vartyp)
@@ -68,7 +68,7 @@ subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label,safe)
 
 use, intrinsic :: iso_c_binding, only: c_loc
 use mma_module, only: cptr2woff
-#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+#if (defined _GARBLE_) && (! defined _NO_GARBLE_)
 use mma_module, only: garble
 #endif
 #ifndef _IN_STDALLOC_MOD_
@@ -211,7 +211,7 @@ subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,l7,label,safe)
 
 use, intrinsic :: iso_c_binding, only: c_loc
 use mma_module, only: cptr2woff
-#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+#if (defined _GARBLE_) && (! defined _NO_GARBLE_)
 use mma_module, only: garble
 #endif
 #ifndef _IN_STDALLOC_MOD_

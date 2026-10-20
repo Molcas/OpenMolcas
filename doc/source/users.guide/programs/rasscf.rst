@@ -215,6 +215,14 @@ The program will do this automatically with the use of the
 input keyword :kword:`LINEAR`. Similarly, for single atoms, spherical
 symmetry can be enforced by the keyword :kword:`ATOM`.
 
+Lucia contraction optimizations
+-------------------------------
+
+The conventional Lucia CI solver uses optimized CPU paths for selected small
+contractions. In builds configured with ``CUBLAS=ON``, supported contractions
+use native Lucia CUDA kernels. Size and execution-mode constraints determine
+which contractions run on the CPU.
+
 .. _UG\:sec\:core-hole:
 
 States with a core hole
@@ -404,14 +412,27 @@ Optional important keywords are:
 .. class:: keywordlist
 
 :kword:`DMPO`
-  This keyword is used to generate the FCIDUMP file only. The program will deallocate memory and quit in a clean manner.
+  This keyword is used to produce the FCIDUMP file only. The program will deallocate memory and quit in a clean manner.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPO" APPEAR="Dump only" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: DMPO <advanced>
               <HELP>
-              This keyword is used in the context of the Stochastic-CASSCF method
-              to produce a FCIDUMP file in a ASCII format that can be recognized by
-              the NECI program and quit in a clean way (no CI or CASSCF calculation will be done).
+              This keyword is used to produce FCIDUMP files (ASCII and HDF5)
+              and quit in a clean way (no CI or CASSCF calculation will be done).
+              </HELP>
+              </KEYWORD>
+
+:kword:`DMPF`
+  This keyword is used to produce an :program:`MRCC`-compatible :file:`fort.55` integral file
+  and quit in a clean manner. The active orbitals are re-ordered into
+  ascending-energy order as expected by :program:`MRCC`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPF" APPEAR="Dump fort.55" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: DMPF <advanced>
+              <HELP>
+              This keyword is used to produce an MRCC-compatible fort.55 integral file
+              and quit in a clean way (no CI or CASSCF calculation will be done).
+              Active orbitals are re-ordered into ascending-energy order.
               </HELP>
               </KEYWORD>
 
@@ -686,6 +707,84 @@ A minimal input example to generate the wave functions that describe the ground 
 
 .. _UG\:sec\:rasscf_orbitals:
 
+Interface to :program:`MRCC`
+----------------------------
+
+.. warning::
+
+   This will only work with :program:`MRCC` installed
+
+Since the :program:`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in :program:`MRCC`'s :file:`fort.55` format for interfacing to :program:`MRCC`. The :file:`fort.55` dumping code automatically re-orders the active orbitals into ascending-energy order. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. The :file:`fort.55` file is automatically copied from :file:`$WorkDir` back to the output directory (:file:`$MOLCAS_OUTPUT`) after the calculation.
+
+Generating an :program:`MRCC` :file:`fort.55` file
+..................................................
+
+The :kword:`DMPF` keyword in the :program:`RASSCF` program can be used to produce a
+:file:`fort.55` integral file compatible with the external :program:`MRCC`
+program. The example below shows a full Ne atom calculation in :math:`D_{2h}`
+symmetry with the 6-31G basis set. The :kword:`OutOrbitals` = ``CANOnical``
+keyword is included so that the orbitals are diagonalized in the Fock matrix. ::
+
+  &GATEWAY
+    coord
+      1
+      angstrom
+      Ne  0.0 0.0 0.0
+    Basis = 6-31G
+  &SEWARD
+  &SCF
+    Threshold = 0.5D-14 0.5D-14 0.5D-14 0.5D-14
+  &RASSCF
+    OutOrbitals = CANOnical
+    nActEl = 10 0 0
+    Ras2 = 3 2 2 0 2 0 0 0
+    DMPF
+
+After a successful run, the output directory will contain a :file:`fort.55` file. The first three lines of
+:file:`fort.55` contain the number of active orbitals and electrons, the
+symmetry labels of each orbital (with :program:`MRCC`'s numbering convention for point groups), and a status flag
+(``150000``). The body contains the two-electron integrals in 4-fold
+format, followed by the one-electron Fock matrix elements and the core energy.
+A representative excerpt is shown below::
+
+  9 10
+  1 1 8 7 6 8 7 6 1
+   150000
+    0.59714357098308239458E+01    1    1    1    1
+   -0.61544791370099327654E+00    1    1    2    1
+    0.14511291442379423700E+01    1    1    2    2
+   ...
+   -0.49907071595579829193E+02    1    1    0    0
+    0.91075835830516549407E+00    2    1    0    0
+   -0.11077183024840106640E+02    2    2    0    0
+   ...
+    0.00000000000000000000E+00    0    0    0    0
+
+Input example for running :program:`MRCC` with OpenMolcas integrals
+...................................................................
+
+.. compound::
+
+  A complete workflow that runs |openmolcas| to generate the integral files and then calls the external :program:`MRCC` program can be submitted with the following SLURM script. The working directory must contain the |openmolcas| input file (e.g. ``in.input``) and the :program:`MRCC` input file ``MINP``. Using the |openmolcas| input file for the above Ne example, and naming the file ``in.input`` a minimal working SLURM script is::
+
+    #!/bin/sh
+
+    pymolcas in.input
+    dmrcc
+
+  with a minimal working :program:`MRCC` input file ``MINP`` as follows::
+
+    iface=cfour
+    calc=CCSDTQ
+    cctol=10
+    ccmaxit=999
+    scftype=RHF
+
+Whether the integrals are generated by |openmolcas| and CCSDTQ is calculated using :program:`MRCC` (|openmolcas|--:program:`MRCC`), or the integrals and CCSDTQ are both calculated using :program:`MRCC` (:program:`MRCC`--:program:`MRCC`), the total CCSDTQ energy is the same in the picohartree digit, confirming that the integrals are transferred correctly to :program:`MRCC`::
+
+  MRCC-MRCC       : -128.589 793 424 699
+  OpenMolcas-MRCC : -128.589 793 424 699
+
 RASSCF output orbitals
 ----------------------
 
@@ -823,6 +922,10 @@ Output files
   of individual states in an average-state calculation are also produced,
   and are named :file:`RASORB.1`, :file:`RASORB.2`, etc.
 
+:file:`FORT55`
+  :program:`MRCC`-compatible integral file (:file:`fort.55`). Produced when the
+  ``DMPF`` keyword is used.
+
 :file:`MCDENS`
   This ASCII file is generated for MC-PDFT calculations.
   It contains spin densities, total density and on-top pair density values on grid (coordinates in a.u.).
@@ -954,7 +1057,7 @@ A list of these keywords is given below:
 :kword:`STAVerage`
   Specifies the number of roots to include in a state-average calculation.
   This is a simplified for of the :kword:`CIROot` keyword, and ``STAVerage = n`` is equivalent to ``CIROot = n n 1`` (see below).
-  Only one of :kword:`STAverage` and :kword:`CIROot` should be given.
+  Only one of :kword:`STAVerage` and :kword:`CIROot` should be given.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="STAVERAGE" APPEAR="State average" LEVEL="BASIC" KIND="INT" EXCLUSIVE="CIROOT" DEFAULT_VALUE="1" MIN_VALUE="1">
               %%Keyword: STAVerage <basic>
@@ -1325,14 +1428,25 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`RFROot`
-  Enter the index of that particular root in a state-average
-  calculation for which the reaction-field is generated. It is used with the PCM model.
+  .. compound::
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RFROOT" APPEAR="Reaction field root" LEVEL="ADVANCED" KIND="INT">
+    Enter the index of that particular root in a state-average
+    calculation for which the reaction-field is generated. It is used with the PCM model.
+    With :kword:`RFROOT` = 0, the reaction-field is generated for the state-averaged density (this is unphysical).
+    More flexible state-averaging can be defined using the :kword:`CIROOT`-style input; e.g. ::
+
+      RFROOT = 3 3 ; 1 2 3 ; 1 1 0 
+
+    specifies the generation of a reaction-field using the averaged density of :math:`S_0` and :math:`S_1` from a three-state averaged MCSCF calculation.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RFROOT" APPEAR="Reaction field root" LEVEL="ADVANCED" KIND="CUSTOM" SIZE="3">
+              <ALTERNATE KIND="INT" SIZE="1" />
               %%Keyword: RFROot <advanced>
               <HELP>
               Enter the index number of that particular root in a state-average
               calculation for which the reaction-field is generated. Used with the PCM model.
+              With RFROOT = 0, the reaction-field is generated for the state-averaged density (this is unphysical).
+              More flexible state-averaging can be defined using the CIROOT-style input.
               </HELP>
               </KEYWORD>
 
@@ -2238,7 +2352,7 @@ A list of these keywords is given below:
   levels for various logical code sections. It has the following structure:
   IW IPR IPRSEC(I), I=1,7
 
-  * IW --- logical unit number of printed output (normally 6).
+  * IW --- logical unit number of printed output (not used).
   * IPR --- is the overall print level (normally 2).
   * IPRSEC(I) --- gives print levels in different sections of the program.
 
@@ -2630,6 +2744,19 @@ DMRG keywords
               </HELP>
               </KEYWORD>
 
+:kword:`HFOCcupations`
+  Specify an integer occupation guess for each active orbital. The entries
+  must sum to the number of active electrons. This guess is passed to the
+  Block and CheMPS2 DMRG solvers; if the sum is inconsistent, CheMPS2 falls
+  back to its noise-based initial guess.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="HFOCCUPATIONS" APPEAR="Active-orbital occupation guess (DMRG)" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="BASIC">
+              %%Keyword: HFOCcupations <basic>
+              <HELP>
+              Integer occupation guess for the active orbitals used by Block and CheMPS2.
+              </HELP>
+              </KEYWORD>
+
 Keywords for the QCMaquis DMRG interface:
 
 .. warning::
@@ -2681,6 +2808,34 @@ Keywords for the CheMPS2 DMRG interface:
               %%Keyword: 3RDM <basic>
               <HELP>
               Use this keyword to get the 3-particle and 4-particle reduced density matrices (3-RDM and F.4-RDM) for DMRG-CASPT2 with CheMPS2 interface.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CHNOcanonical`
+  Keep the final CheMPS2 wave function and reduced density matrices in the
+  optimized, noncanonical active-orbital basis. This overrides the automatic
+  pseudocanonical-orbital selection made by :kword:`3RDM` and reuses the
+  natural-orbital checkpoint for the final RDM evaluation. For a following
+  :program:`CASPT2` calculation, also specify :kword:`CHTRansform` so that the
+  external RDMs are transformed to the pseudocanonical basis used by CASPT2.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CHNOCANONICAL" APPEAR="Keep noncanonical active orbitals (CheMPS2)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: CHNOcanonical <basic>
+              <HELP>
+              Keep CheMPS2 RDMs in the optimized noncanonical active-orbital basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NO4RDM`
+  Suppress calculation of the CheMPS2 Fock-contracted four-particle RDM.
+  Use this together with :kword:`3RDM` when the following
+  :program:`CASPT2` calculation uses :kword:`CHCUmulant`. The three-particle
+  RDM and the CheMPS2 Fock matrix are still generated.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NO4RDM" APPEAR="Do not calculate the CheMPS2 F.4-RDM" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NO4RDM <basic>
+              <HELP>
+              Generate the CheMPS2 3-RDM without the F.4-RDM.
               </HELP>
               </KEYWORD>
 

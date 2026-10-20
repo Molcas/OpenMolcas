@@ -602,7 +602,7 @@ do jsym=1,nsym
             end do
             call DGEMM_('T','N',nvirt2,nvirt2,nBas(kSym2),One,Integral,nBas(kSym2),CMO(ipMO2),nBas(kSym2),Zero,iiab(ip2),nvirt2)
 
-            call GADSum(iiab(ip2),nvirt2**2)
+            call GADGOp(iiab(ip2),nvirt2**2,'+')
             call DDAFILE(LuChoInt(1),1,iiab(ip2),nvirt2**2,iAdr)
 
             ip2 = ip2+nBas(kSym2)**2
@@ -618,7 +618,7 @@ do jsym=1,nsym
         call DGEMM_('T','N',nvirt,nvirt,nBas(kSym),One,Integral,nBas(kSym),CMO(ipMO),nBas(kSym),Zero,iiab(ip1:),nvirt)
 
         iAdr = iAdr+sum((nBas(1:kSym-1)-nIsh(1:kSym-1))**2)
-        call GADSum(iiab(ip1:),nvirt**2)
+        call GADGOp(iiab(ip1:),nvirt**2,'+')
         call DDAFILE(LuChoInt(1),1,iiab(ip1:),nvirt**2,iAdr)
         iAdr = iAdr+sum((nBas(kSym+1:nSym)-nIsh(kSym+1:nSym))**2)
 
@@ -653,7 +653,7 @@ do jsym=1,nsym
             if (nBas(ksym2) > 0) then
               call DGEMM_('T','N',nBas(ksym2),nBas(kSym2),nBas(kSym2),One,Integral,nBas(kSym2),CMO(ipMO2),nBas(kSym2),Zero, &
                           tupq(ip2),nBas(kSym2))
-              call GADSum(tupq(ip2),nBas(kSym2)**2)
+              call GADGOp(tupq(ip2),nBas(kSym2)**2,'+')
               call DDAFILE(LuChoInt(2),1,tupq(ip2),nBas(kSym2)**2,iAdrtu)
 
               ip2 = ip2+nBas(kSym2)**2
@@ -670,7 +670,7 @@ do jsym=1,nsym
         call DGEMM_('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,Integral,nBas(iSym),CMO(ipMO),nBas(iSym),Zero,tupq(ip3),nBas(iSym))
         iAdrtu = iAdrtu+sum(nBas(1:iSym-1)**2)
 
-        call GADSum(tupq(ip3),nBas(iSym)**2)
+        call GADGOp(tupq(ip3),nBas(iSym)**2,'+')
         call DDAFILE(LuChoInt(2),1,tupq(ip3),nBas(iSym)**2,iAdrtu)
 
         iAdrtu = iAdrtu+sum(nBas(iSym+1:nSym)**2)

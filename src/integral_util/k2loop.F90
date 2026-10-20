@@ -40,7 +40,7 @@ use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
 use k2_arrays, only: DeDe, DoHess_
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
-use Dens_Stuff, only: ipDij, mDCRij, mDij
+use Dens_Stuff, only: ipDDij, mDCRij, mDij
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -58,29 +58,30 @@ integer(kind=iwp), intent(out) :: IndP(nZeta)
 real(kind=wp), intent(inout) :: Wrk(nWork2)
 integer(kind=iwp), intent(inout) :: nScree, mScree
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
+
 integer(kind=iwp) :: i_Int, iAnga(4), iCmp, iCmpa(4), iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShll(4), iShlla, iSmAng, iw2, iw3, &
                      iZeta, jCmpb_, Jnd, jShllb, la, lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, &
                      nDisp, ne, nT
-real(kind=wp) :: abConMax, abMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Q(3), TA(3), TB(3), TEMP, ZetaM
-real(kind=wp), target :: Dummy(1)
-real(kind=wp), pointer :: Dij(:,:)
+real(kind=wp) :: abConMax, abMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, ZetaM
 logical(kind=iwp) :: AeqB, NoSpecial
 procedure(cff2d_kernel) :: Cff2DS
 procedure(modu2_kernel) :: ModU2
 procedure(rys2d_kernel) :: Rys2D
 procedure(tval_kernel) :: TERIS
+real(kind=wp), pointer :: Dij(:,:)
 real(kind=wp), external :: EstI
 logical(kind=iwp), external :: EQ, TF
+
+if (DoFock) then
+  Dij(1:mDij,1:mDCRij) => DeDe(ipDDij:ipDDij+mDij*mDCRij-1)
+else
+  ! dummy association
+  Dij(1:1,1:1) => DeDe(lbound(DeDe,1):)
+end if
 
 iShll(:) = iSD4(0,:)
 iAnga(:) = iSD4(1,:)
 iCmpa(:) = iSD4(2,:)
-
-if (DoFock) then
-  Dij(1:mDij,1:mDCRij) => DeDe(ipDij:ipDij+mDij*mDCRij-1)
-else
-  Dij(1:1,1:1) => Dummy(1:1)
-end if
 
 !                                                                      *
 !***********************************************************************
@@ -358,5 +359,7 @@ do lDCRR=0,nDCRR-1
   call WrCheck(' HrrMtrx',k2Data(lDCRR+1)%HrrMtrx(:,:),ne*iCmpa_*jCmpb_)
 # endif
 end do ! lDCRR
+
+nullify(Dij)
 
 end subroutine k2Loop

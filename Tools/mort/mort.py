@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2021,2024,2025, Ignacio Fdez. Galván                   *
+# Copyright (C) 2021,2024-2026, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 import sys
@@ -19,7 +19,7 @@ import numpy as np
 from fractions import Fraction
 import h5py
 
-version = '2.2'
+version = '2.3'
 
 ################################################################################
 # FUNCTIONS
@@ -980,7 +980,7 @@ else:
 
     fo.attrs.create('MORT_version', np.array(f'MORT v{version}', dtype='S'))
 
-    module = fi.attrs['MOLCAS_MODULE'].decode()
+    module = fi.attrs.get('MOLCAS_MODULE', b'').decode()
 
     # Pick up the data needed for desymmetrization, which includes reordering MOs
     if do_desym:
@@ -1104,6 +1104,18 @@ else:
             fo[name][1,:] = fi[name][1,:]
             # We will need to translate the integrals instead
             translate_mltpl1 = do_trans
+
+      # angular momentum integrals follow similar logic as MLTPL1,
+      # but translation requires the linear momentum integrals, since
+      #     L = r × p upon translation changes into L' = (r + ∆r) × p
+      elif name == 'ANGMOM_ORIG':
+        copy_dataset(fi, fo, name)
+        if do_rot:
+          coor = fi[name]
+          fo[name][:] = coor @ R.T
+        if do_trans:
+          print('WARNING: Translating the AO_ANGMOM_X, _Y, _Z integrals is currently not supported.')
+          warning_item.extend([name, 'AO_ANGMOM_X', 'AO_ANGMOM_Y', 'AO_ANGMOM_Z'])
 
       # Other center data are reordered only
       elif name in ['CENTER_ATNUMS', 'CENTER_CHARGES', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_CHARGES']:
@@ -1237,6 +1249,24 @@ else:
           fo[name][:] = (V @ mtrx @ V.T).flatten()
         else:
           fo[name][:] = fi[name][:]
+
+      # Rank 1 Cartesian tensors transform among themselves, see below AO_MLTPL_{X,Y,Z}
+      elif name in ['AO_ANGMOM_X', 'AO_ANGMOM_Y', 'AO_ANGMOM_Z']:
+        comp = ['X', 'Y', 'Z']
+        if name.endswith(('_'+comp[1], '_'+comp[2])):
+          continue
+        ao_angmom = np.empty((len(comp), nb, nb))
+        for i,lab in enumerate(comp):
+          name = 'AO_ANGMOM_'+lab
+          copy_dataset(fi, fo, name)
+          ao_angmom[i,:,:] = fi[name]
+        if do_rot:
+          for i in range(len(comp)):
+            ao_angmom[i,:,:] = V @ ao_angmom[i,:,:] @ V.T
+          ao_angmom = np.tensordot(R, ao_angmom, axes=1)
+          for i,lab in enumerate(comp):
+            name = 'AO_ANGMOM_'+lab
+            fo[name][:] = ao_angmom[i,:,:]
 
       # Multipole AO matrices are further transformed among their components
       elif name in ['AO_MLTPL_X', 'AO_MLTPL_Y', 'AO_MLTPL_Z']:

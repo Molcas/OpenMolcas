@@ -22,7 +22,7 @@ real(kind=wp), intent(out) :: t1(nv*no,2), t1_tmp(nv*no), E2old
 integer(kind=iwp) :: dum
 real(kind=wp) :: E1old
 
-!open(unit=LunAux,File='RstFil',form='unformatted')
+!open(LunAux,File='RstFil',form='unformatted')
 call MOLCAS_BinaryOpen_Vanilla(LunAux,'RstFil')
 !mp write(u6,*) 'no, nv, length = ',no,nv,length
 read(LunAux) t1(:,1)

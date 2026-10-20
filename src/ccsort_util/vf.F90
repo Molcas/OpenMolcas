@@ -21,7 +21,7 @@ character(len=8), intent(in) :: fname
 integer(kind=iwp), intent(in) :: lun
 
 call molcas_open(lun,fname)
-!open(unit=lun,file=fname)
+!open(lun,file=fname)
 write(lun,*) ' File scratched'
 close(lun)
 

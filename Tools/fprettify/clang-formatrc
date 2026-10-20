@@ -1,0 +1,11 @@
+BasedOnStyle: GNU
+---
+Language: Cpp
+ColumnLimit: 132
+UseTab: Never
+SortIncludes: Never
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AllowShortFunctionsOnASingleLine: None
+BreakBeforeBraces: Attach
+SpaceBeforeParens: ControlStatements

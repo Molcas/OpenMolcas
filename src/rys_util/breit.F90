@@ -13,14 +13,16 @@
 
 module Breit
 
-use Definitions, only: iwp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
 integer(kind=iwp) :: nComp = 1, nOrdOp = 0
+real(kind=wp) :: D_tensor(3,3) = Zero
+logical(kind=iwp) :: Do_BP_integrals = .false.
 
-public :: nComp, nOrdOp
+public :: D_tensor, Do_BP_integrals, nComp, nOrdOp
 
 end module Breit
-

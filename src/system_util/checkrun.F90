@@ -37,7 +37,7 @@ implicit none
 character(len=256) :: Molcas
 
 Molcas = ' '
-call getenvf('MOLCAS_STAMP',Molcas)
+call get_environment_variable('MOLCAS_STAMP',Molcas)
 if (Molcas(1:1) == 'A') then
   return
 end if

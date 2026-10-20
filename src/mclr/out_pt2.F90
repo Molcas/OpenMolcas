@@ -15,7 +15,11 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO, ESTERR, ipCI, ipCM, ipMat, IRLXROOT, ISNAC, ISTATE, LuJob, LuPT2, LuTEMP, n1Dens, n2Dens, nA, NACSTATES, &
                      nConf1, nDens, nDensC, OVERRIDE
-use input_mclr, only: iRoot, iTOC, nAsh, nBas, nCSF, nDisp, nIsh, nRoots, nSym, ntAsh, PT2, State_Sym
+use general_data, only: nAsh, nIsh, nSym, STSym
+use input_mclr, only: iRoot, iTOC, nBas, nCSF, nDisp, nRoots, ntAsh, ntBtri, PT2
+use PCM_grad, only: DSCFAO, DSSAO, PCM_grad_D2v, PCMSCFAO, PCMSCFMO
+use rctfld_module, only: lRF
+use ISRotation, only: ISR_final2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half, Quart
@@ -72,7 +76,7 @@ call mma_allocate(Dtmp,nDens,Label='DTmp')
 ! All multipliers are introduced as densities
 
 if (CI) then
-  nconf1 = ncsf(State_sym)
+  nconf1 = ncsf(STSym)
   ilen = nconf1*nroots ! nroot = # of roots in SA
   ipcip = ipget(nconf1*nroots)
   iDisk = iCIDisp(1)
@@ -81,7 +85,7 @@ if (CI) then
 
   ! Calculate the densities that correct the nonvariational CI stuff
 
-  call CIDens_sa(.true.,ipCIp,ipCI,State_sym,State_sym,P_CI,D_CI) ! \bar{d} and \bar{D}
+  call CIDens_sa(.true.,ipCIp,ipCI,STSym,STSym,P_CI,D_CI) ! \bar{d} and \bar{D}
 
   ! ====================================================================
   if (doDMRG) then  ! yma
@@ -635,6 +639,14 @@ end if
 if (override) mstate(1:1) = '+'
 call Put_cArray('MCLR Root',mstate,16)
 
+!! In the end, it may be useful to generate ASCs using the relaxed
+!! density matrix for non-equilibrium solvation model
+if (lRF) then
+  call Get_dArray('D1aoVar',DSSAO,ntBtri)
+  call unfold(DSSAO,ntot1,DSCFAO,nLCMO,nSym,nBas)
+  call PCM_grad_D2V(DSCFAO,PCMSCFMO,PCMSCFAO,.false.,.false.,.false.,.false.)
+end if
+
 call mma_deallocate(K1)
 call mma_deallocate(K2)
 call mma_deallocate(DAO)
@@ -647,6 +659,7 @@ call mma_deallocate(OCCU)
 call mma_deallocate(CMON)
 call mma_deallocate(Dtmp)
 call mma_deallocate(D_K)
+call ISR_final2()
 
 call ipclose(-1)
 

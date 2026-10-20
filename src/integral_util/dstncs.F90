@@ -21,12 +21,12 @@ subroutine Dstncs(Lbls,xyz,mCentr,Angstr,Max_Center,iCols)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Three
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: mCentr, Max_Center, iCols
 character(len=LenIn), intent(in) :: Lbls(mCentr)
 real(kind=wp), intent(in) :: xyz(3,mCentr), Angstr

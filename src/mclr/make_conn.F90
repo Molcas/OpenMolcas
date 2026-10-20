@@ -12,7 +12,9 @@
 subroutine Make_Conn(F,Kappa,P,D)
 
 use MCLR_Data, only: F0SQMO, ipMat, n2Dens, nDens
-use input_mclr, only: nBas, nSym
+use PCM_grad, only: do_RF, PCM_grad_TimesE2
+use general_data, only: nSym
+use input_mclr, only: nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One
 use Definitions, only: wp, iwp
@@ -20,7 +22,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(inout) :: F(*)
 real(kind=wp), intent(in) :: Kappa(*), P(*), D(*)
-integer(kind=iwp) :: iB, ijB, ipTmp, ipTmp1, ipTmp2, iS, jB
+integer(kind=iwp) :: iB, idSym, ijB, ipdum, ipTmp, ipTmp1, ipTmp2, iS, jB
 real(kind=wp) :: dum(1), Fact
 real(kind=wp), allocatable :: T1(:), T2(:), T3(:), T4(:)
 
@@ -38,6 +40,12 @@ call mma_allocate(T4,nDens,Label='F2')
 ! T1 = Dtilde
 
 call Rint_generic(kappa,T1,dum,T2,T3,T4,F,1,-One,0)
+if (do_RF) then
+  idSym = 1
+  ipdum = 1
+  !! consider both MO and CI parts
+  call PCM_grad_TimesE2(idSym,Kappa,F,ipdum)
+end if
 F(1:nDens) = Half*F(1:nDens)
 
 ! T2 = Fbar The ci part or the active Fock matrix

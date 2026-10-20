@@ -63,7 +63,7 @@ if (request == 1) then
   if (iokey == 1) then
     ! Fortran IO
     call molcas_open_ext2(lun,filename(lun),'sequential','unformatted',ierr,.false.,1,'unknown',is_error)
-    !open(unit=lun,file=filename(lun),status='unknown',form='unformatted',iostat=ierr)
+    !open(lun,file=filename(lun),status='unknown',form='unformatted',iostat=ierr)
 
   else
     ! MOLCAS IO
@@ -134,7 +134,7 @@ else if (request == 3) then
       ! close and scratch
       close(lun)
       call molcas_open(lun,filename(lun))
-      !open(unit=lun,file=filename(lun))
+      !open(lun,file=filename(lun))
       write(lun,*) ' File scratched'
       close(lun)
       !call sqname(lun,filename'lun')
@@ -182,7 +182,7 @@ else if (request == 4) then
   if (iokey == 1) then
     ! Fortran IO
     call molcas_open_ext2(lun,filename(lun),'sequential','unformatted',ierr,.false.,1,'unknown',is_error)
-    !open(unit=lun,file=filename(lun),status='unknown',form='unformatted',iostat=ierr)
+    !open(lun,file=filename(lun),status='unknown',form='unformatted',iostat=ierr)
 
   else
     ! MOLCAS IO

@@ -18,12 +18,10 @@ use GetInt_mod, only: nBas
 use TwoDat, only: rcTwo
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq, Nrs
-real(kind=wp), intent(_OUT_) :: Xint(Nrs)
+real(kind=wp), intent(out) :: Xint(Nrs)
 
 integer(kind=iwp) :: Npq
 

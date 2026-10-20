@@ -11,7 +11,7 @@
 
 subroutine WLBuf()
 
-use dEAF, only: dEAFWrite
+use EAFmod, only: dEAFWrite, EAFWait
 use IOBUF, only: Buffer, Disk, Disk_1, Disk_2, DiskMx_Byte, iBuf, ID, InCore, iPos, iStatIO, lBuf, LuTmp, Mode_Read, OnDisk
 use Constants, only: Zero
 use Definitions, only: wp, u6, RtoB, RtoI

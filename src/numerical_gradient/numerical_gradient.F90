@@ -14,18 +14,21 @@ subroutine Numerical_Gradient(ireturn)
 #ifndef _HAVE_EXTRA_
 use Prgm, only: PrgmFree
 #endif
+use Index_Functions, only: nTri_Elem1
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+use Task_Manager, only: Free_Tsk_Even, Init_Tsk_Even, Rsv_Tsk_Even
 use Para_Info, only: King
 #endif
 use spool, only: disable_spool, LuWr
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "LenIn.fh"
 real(kind=wp) :: Dsp, EMinus, Energy_Ref, EPlus, FX(3), Grada, Gradb, rDeg, rDelta, rDum(1), rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
 integer(kind=iwp) :: error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, iCoSet(0:7,0:7), id_Tsk, iData, iDisp, iDispXYZ(3), iEm, &
@@ -45,12 +48,11 @@ real(kind=wp), allocatable :: AllC(:,:), BMtrx(:,:), C(:,:), Coor(:,:), Deg(:,:)
 character(len=LenIn), allocatable :: AtomLbl(:)
 real(kind=wp), parameter :: ToHartree = One/auTokcalmol
 integer(kind=iwp), external :: iChAtm, iDeg, iPrintLevel, IsFreeUnit, Read_Grad
-logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
+logical(kind=iwp), external :: Reduce_Prt
 character(len=180), external :: Get_Ln
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 character(len=80) :: SSTMNGR
 integer(kind=iwp) :: SSTMODE
-logical(kind=iwp), external :: Rsv_Tsk_Even
 #endif
 
 #include "warnings.h"
@@ -134,20 +136,20 @@ if (Exists) then
   IPotFl = IsFreeUnit(15)
   call Molcas_Open(IPotFl,'ESPF.DATA')
   Line = ' '
-  do while (index(Line,'ENDOFESPF ') == 0)
+  do while (index(Line,'ENDOFESPF') == 0)
     Line = Get_Ln(IPotFl)
-    if (index(Line,'TINKER ') /= 0) then
+    if (index(Line,'TINKER') /= 0) then
       DoTinker = .true.
-    else if (index(Line,'DIRECT ') /= 0) then
+    else if (index(Line,'DIRECT') /= 0) then
       DoDirect = .true.
-    else if (index(Line,'MLTORD ') /= 0) then
+    else if (index(Line,'MLTORD') /= 0) then
       call Get_I1(2,MltOrd)
       ibla = 0
       do ii=0,MltOrd
-        ibla = ibla+(ii+2)*(ii+1)/2
+        ibla = ibla+nTri_Elem1(ii)
       end do
       MltOrd = ibla
-    else if (index(Line,'MULTIPOLE ') /= 0) then
+    else if (index(Line,'MULTIPOLE') /= 0) then
       call Get_I1(2,nMult)
       call mma_allocate(Mltp,nMult,Label='Mltp')
       do iMlt=1,nMult,MltOrd
@@ -315,7 +317,10 @@ else
 
     ! If this is a MM atom, do not make displacements
 
-    if (DoTinker .and. (IsMM(i) == 1)) iDispXYZ(:) = 0
+    if (DoTinker) then
+      !! IsMM is not allocated if DoTinker = .false.
+      if (IsMM(i) == 1) iDispXYZ(:) = 0
+    end if
     DispX = iDispXYZ(1) /= 0
     DispY = iDispXYZ(2) /= 0
     DispZ = iDispXYZ(3) /= 0
@@ -458,28 +463,36 @@ if (MyRank /= 0) then
 end if
 
 ! FM 16/4/2013
-! ESPF charges are set to zero so that no microiterations will be
-! performed during numerical gradient
+! ESPF multipoles are set to zero so that no MM microiterations
+! will be performed during numerical gradient
 ! IFG: swap files, as now NG uses a subdirectory
 
-iSave = 15
 if (Do_ESPF) then
-  iSave = IsFreeUnit(iSave)
+  iSave = IsFreeUnit(15)
   call Molcas_Open(iSave,'ESPF.SAV')
-  iData = IsFreeUnit(iSave)
+  iData = IsFreeUnit(iSave+1)
   call Molcas_Open(iData,'ESPF.DATA')
   do
     Line = Get_Ln(iData)
     ESPFKey = Line(1:10)
-    if (ESPFKey == 'ENDOFESPF ') then
-      write(iSave,'(A132)') Line
+    if (ESPFKey == 'ENDOFESPF') then
+      write(iSave,'(A)') trim(Line)
       exit
     else
-      if (ESPFKey /= 'MULTIPOLE ') then
-        write(iSave,'(A132)') Line
+      if (ESPFKey /= 'MULTIPOLE') then
+        write(iSave,'(A)') trim(Line)
+        if (ESPFKey == 'MLTORD') then
+          !Line = Get_Ln(iData)
+          call Get_I1(2,MltOrd)
+          ibla = 0
+          do ii=0,MltOrd
+            ibla = ibla+nTri_Elem1(ii)
+          end do
+          MltOrd = ibla
+        end if
       else
         call Get_I1(2,nMult)
-        do iMlt=1,nMult
+        do iMlt=1,nMult,MltOrd
           Line = Get_Ln(iData)
         end do
       end if
@@ -496,7 +509,7 @@ end if
 ! Reserve task on global task list and get task range in return.
 ! Function will be false if no more tasks to execute.
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-call getenvf('MOLCAS_SSTMNGR',SSTMNGR)
+call get_environment_variable('MOLCAS_SSTMNGR',SSTMNGR)
 if (SSTMNGR(1:1) == 'Y') then
   SSTMODE = 1
 else
@@ -761,7 +774,7 @@ end if
 #else
 call Free_Tsk(id_Tsk)
 #endif
-call GADSum(EnergyArray,nRoots*mDisp)
+call GADGOp(EnergyArray,nRoots*mDisp,'+')
 call mma_deallocate(C)
 call mma_deallocate(XYZ)
 !                                                                      *

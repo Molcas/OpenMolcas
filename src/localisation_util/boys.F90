@@ -11,34 +11,32 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
+subroutine Boys(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
 ! Author: T.B. Pedersen
 !
 ! Purpose: Boys localisation of occupied orbitals.
 
-use OneDat, only: sNoOri
+use Index_Functions, only: nTri_Elem
+use Localisation_globals, only: Debug
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
-real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
-logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iCmp, iComp, iOpt, irc, iSym, kOffC, lAux, nBasT, nFroT, nOrb2LocT
 character(len=8) :: Label
-real(kind=wp), allocatable :: Aux(:), Lbl(:,:,:), Lbl_AO(:,:,:)
+real(kind=wp), allocatable :: Aux(:), Lbl(:,:,:), Lbl_AO(:,:,:), SMat(:)
+real(kind=wp) :: CoM(3)
 integer(kind=iwp), parameter :: nComp = 3 ! 3 components of dipole operator
 character(len=*), parameter :: SecNam = 'Boys'
 
 ! Symmetry is NOT allowed!!
 ! -------------------------
 
-if (nSym /= 1) then
-  call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
-end if
+if (nSym /= 1) call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
 
 ! Initializations.
 ! ----------------
@@ -56,13 +54,23 @@ Converged = .false.
 
 call mma_allocate(Lbl_AO,nBasT,nBasT,nComp,label='Dipole')
 
-lAux = nBasT*(nBasT+1)/2+4
+lAux = nTri_Elem(nBasT)+4
+
+call mma_allocate(SMat,lAux,label='SMat')
+Label = 'Mltpl  0'
+iCmp = 1
+irc = -1
+iOpt = 0
+iSym = 1
+call RdOne(irc,iOpt,Label,iCmp,SMat,iSym)
+call Get_dArray('Center of Mass',CoM,3)
+
 call mma_allocate(Aux,lAux,label='DipAux')
 Label = 'Mltpl  1'
 do iComp=1,nComp
   iCmp = iComp
   irc = -1
-  iOpt = ibset(0,sNoOri)
+  iOpt = 0
   iSym = 1
   call RdOne(irc,iOpt,Label,iCmp,Aux,iSym)
   if (irc /= 0) then
@@ -77,8 +85,10 @@ do iComp=1,nComp
     write(u6,*) ' Component: ',iComp
     call TriPrt(' ',' ',Aux,nBasT)
   end if
-  call Tri2Rec(Aux,Lbl_AO(:,:,iComp),nBasT,Debug)
+  Aux(:) = Aux(:)+CoM(iComp)*SMat(:)
+  call Tri2Rec(Aux,Lbl_AO(:,:,iComp),nBasT)
 end do
+call mma_deallocate(SMat)
 call mma_deallocate(Aux)
 
 ! Allocate MO arrays.
@@ -90,8 +100,7 @@ call mma_allocate(Lbl,nOrb2LocT,nOrb2LocT,nComp,label='MO_dip')
 ! ------------------
 
 kOffC = 1+nBasT*nFroT
-call Boys_Iter(Functional,CMO(kOffC),Thrs,ThrRot,ThrGrad,Lbl_AO,Lbl,nBasT,nOrb2LocT,nComp,nMxIter,Maximisation,Converged,Debug, &
-               Silent)
+call Boys_Iter(Functional,CMO(kOffC),Lbl_AO,Lbl,nBasT,nOrb2LocT,nComp,Converged)
 
 ! De-allocations.
 ! ---------------

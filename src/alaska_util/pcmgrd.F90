@@ -14,7 +14,7 @@
 subroutine PCMgrd( &
 #                 define _CALLING_
 #                 include "grd_interface.fh"
-                 )
+  )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of nuclear attraction     *
@@ -37,18 +37,14 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
-                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
-                     nDiff, nip, nStb
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, iStb(0:7), iTs, &
+                     iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nip, nStb
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 procedure(cff2d_kernel) :: XCff2D
 procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-#include "print.fh"
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(rFinal)
@@ -56,16 +52,13 @@ unused_var(nHer)
 unused_var(Ccoor(1))
 unused_var(nComp)
 
-iRout = 151
-iPrint = nPrint(iRout)
-
 nip = 1
 ipA = nip
 nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(nOrdOp)
+nip = nip+nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(nOrdOp)
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
   call Abend()
@@ -102,14 +95,16 @@ end do
 
 ! Modify the density matrix with the prefactor
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 do iDAO=1,nDAO
   do iZeta=1,nZeta
     Fact = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
     DAO(iZeta,iDAO) = Fact*DAO(iZeta,iDAO)
   end do
 end do
-if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#ifdef _DEBUGPRINT_
+call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#endif
 
 ! Generate stabilizer of C, i.e. a center of a tile.
 
@@ -124,7 +119,9 @@ do iTs=1,nTs
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
-  if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
+# ifdef _DEBUGPRINT_
+  call RecPrt('C',' ',C,1,3)
+# endif
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -Q*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
@@ -156,7 +153,9 @@ do iTs=1,nTs
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' mGrad=',mGrad
+# endif
   if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1
@@ -169,14 +168,12 @@ do iTs=1,nTs
 
     ! Compute integrals with the Rys quadrature.
 
-    nDiff = 1
-    mRys = (la+lb+2+nDiff+nOrdOp)/2
     Eta = One
     EInv = One
-    call Rysg1(iAnga,mRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+    call Rysg1(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One], &
                Zeta,ZInv,nZeta,[Eta],[EInv],1, &
                P,nZeta,TC,1,Coori,Coori,CoorAC, &
-               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nElem(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In PCMgrd:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs

@@ -16,11 +16,9 @@ subroutine expandfok(wrk,wrksize,fok)
 use ccsort_global, only: map2, NORB, NSYM
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 real(kind=wp), intent(in) :: fok(*)
 integer(kind=iwp) :: p, postemp, pqfok, pqwrk, q, qpwrk, symp
 

@@ -34,6 +34,8 @@ subroutine Drvh1(Grad,Temp,nGrad)
 !***********************************************************************
 
 use PCM_arrays, only: PCM_SQ
+use PCM_alaska, only: DSA_AO, lSA, PCM_SQ_ind
+use NAC, only: isNAC
 use External_Centers, only: nWel, XF, Wel_Info
 use Basis_Info, only: nCnttp, dbsc, ExpB, nBas, r0
 use Symmetry_Info, only: nIrrep
@@ -42,8 +44,9 @@ use finfld, only: force
 #endif
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
-use rctfld_module, only: lLangevin, lMax, lRF, PCM
+use rctfld_module, only: lLangevin, lMax, lRF, nTS, PCM
 use Disp, only: HF_Force
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -52,13 +55,16 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: i, iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nCompf, nDens, nFock, nOrdOp, nOrdOpf
+integer(kind=iwp) :: i, iComp, iCOSMO, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nCompf, nDens, nFock, nOrdOp, nOrdOpf
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 real(kind=wp) :: Fact, TCpu1, TCpu2, TWall1, TWall2
 character(len=80) :: Label
 character(len=8) :: Method
 logical(kind=iwp) :: DiffOp, lECP, lFAIEMP, lPP
 integer(kind=iwp), allocatable :: lOper(:), lOperf(:)
-real(kind=wp), allocatable :: Coor(:,:), Coorf(:,:), D_Var(:), Fock(:)
+real(kind=wp), allocatable :: Coor(:,:), Coorf(:,:), D_Var(:), Fock(:), TempPCM(:)
 procedure(grd_kernel) :: COSGrd, FragPGrd, KneGrd, M1Grd, M2Grd, NAGrd, OvrGrd, PCMGrd, PPGrd, PrjGrd, RFGrd, SROGrd, WelGrd, XFdGrd
 procedure(grd_mem) :: FragPMmG, KneMmG, M1MmG, M2MmG, NAMmG, OvrMmG, PCMMmG, PPMmG, PrjMmG, RFMmg, SROMmG, WelMmg, XFdMmg
 #ifdef _NEXTFFIELD_
@@ -69,7 +75,6 @@ procedure(grd_kernel) :: MltGrd
 procedure(grd_mem) :: MltMmG
 !AOM>
 #endif
-#include "print.fh"
 
 ! Prologue
 iRout = 131
@@ -104,15 +109,15 @@ call Get_cArray('Relax Method',Method,8)
 
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_Var,nDens)
-if (iPrint >= 99) then
-  write(u6,*) 'variational 1st order density matrix'
-  ii = 1
-  do iIrrep=0,nIrrep-1
-    write(Label,*) 'symmetry block',iIrrep
-    call TriPrt(Label,' ',D_Var(ii),nBas(iIrrep))
-    ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'variational 1st order density matrix'
+ii = 1
+do iIrrep=0,nIrrep-1
+  write(Label,*) 'symmetry block',iIrrep
+  call TriPrt(Label,' ',D_Var(ii),nBas(iIrrep))
+  ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+end do
+#endif
 
 ! Read the generalized Fock matrix
 ! Fock matrix in AO/SO basis
@@ -120,15 +125,15 @@ end if
 if (.not. HF_Force) then
   call mma_allocate(Fock,nDens,Label='Fock')
   call Get_dArray_chk('FockOcc',Fock,nDens)
-  if (iPrint >= 99) then
-    write(u6,*) 'generalized Fock matrix'
-    ii = 1
-    do iIrrep=0,nIrrep-1
-      write(Label,*) 'symmetry block',iIrrep
-      call TriPrt(Label,' ',Fock(ii),nBas(iIrrep))
-      ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
-    end do
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'generalized Fock matrix'
+  ii = 1
+  do iIrrep=0,nIrrep-1
+    write(Label,*) 'symmetry block',iIrrep
+    call TriPrt(Label,' ',Fock(ii),nBas(iIrrep))
+    ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  end do
+# endif
 end if
 !                                                                      *
 !***********************************************************************
@@ -353,8 +358,8 @@ if (.not. HF_Force) then
     ! The PCM / COSMO model
 
     if (iCOSMO <= 0) then
-      iPrint = 15
       PCM_SQ(:,:) = PCM_SQ(:,:)/real(nIrrep,kind=wp)
+      if (lSA) PCM_SQ_ind(:,:) = PCM_SQ_ind(:,:)/real(nIrrep,kind=wp)
     end if
     lOper(1) = 1
     DiffOp = .true.
@@ -367,8 +372,36 @@ if (.not. HF_Force) then
         call PrGrad(Label,Temp,nGrad)
       end if
     else
+      ! PCM_SQ is used inside the OneEl_g
+      ! PCM_SQ = polarized by state-averaged density
       Label = ' The Electronic Reaction Field Contribution (PCM)'
       call OneEl_g(PCMGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+      if (lSA) then
+        ! PCM_SQ is induced by the state-averaged density matrix (not effective density)
+        ! The above is the explicit part of D^SS*(V^N + V^{e,SA})
+        call mma_allocate(TempPCM,nGrad,Label='TempPCM')
+
+        ! -q^{e,SA}*C*q^{e,SA}/2 term
+        ! implicit part of D^SS*V^{e,SA} and -D^{e,SA}*V^{e,SA}/2 -> -(D^SA-D^SS)*V^SA
+        if (isNAC) then
+          call dswap_(2*nTS,PCM_SQ_ind,1,PCM_SQ,1)
+          PCM_SQ(1,:) = Zero
+          ! PCM_SQ contains q^{e,SS} only (no nuclear contributions)
+        else
+          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS)-PCM_SQ_ind(1:2,1:nTS)
+          ! PCM_SQ contains q^{e,SA} - q^{e,SS} only (no nuclear contributions)
+        end if
+        call OneEl_g(PCMGrd,PCMMmG,TempPCM,nGrad,DiffOp,Coor,DSA_AO,nDens,lOper,nComp,nOrdOp,Label)
+        if (isNAC) then
+          PCM_SQ(1,:) = PCM_SQ_ind(1,:)
+          call dswap_(2*nTS,PCM_SQ_ind,1,PCM_SQ,1)
+          Temp(1:nGrad) = Temp(1:nGrad)+TempPCM(1:nGrad)
+        else
+          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS)+PCM_SQ_ind(1:2,1:nTS)
+          Temp(1:nGrad) = Temp(1:nGrad)-TempPCM(1:nGrad)
+        end if
+        call mma_deallocate(TempPCM)
+      end if
       if (iPrint >= 15) then
         Label = ' Reaction Field (PCM) Contribution'
         call PrGrad(Label,Temp,nGrad)
@@ -376,7 +409,10 @@ if (.not. HF_Force) then
     end if
 
     Grad(:) = Grad(:)+Temp(:)
-    if (iCOSMO == 0) PCM_SQ(:,:) = PCM_SQ(:,:)*real(nIrrep,kind=wp)
+    if (iCOSMO == 0) then
+      PCM_SQ(:,:) = PCM_SQ(:,:)*real(nIrrep,kind=wp)
+      if (lSA) PCM_SQ_ind(:,:) = PCM_SQ_ind(:,:)*real(nIrrep,kind=wp)
+    end if
 
   end if
 end if

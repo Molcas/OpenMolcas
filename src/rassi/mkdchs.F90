@@ -1,0 +1,82 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Bruno Tenorio                                    *
+!***********************************************************************
+
+subroutine MKDCHS(IFSBTAB1,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,IF20,IF02,NDCHSM,DCHSM,OrbTab)
+! Given two CI expansions, using a biorthonormal set of SD's,
+! calculate the matrix elements relevant to DCH state intensities
+! in the biorthonormal active orbital basis.
+!
+!  'I,J,|< N-2 | anni_right anni_right | N >|**2'
+
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: IFSBTAB1(*), IFSBTAB2(*), ISSTAB(*), MAPORB(*), NDCHSM, OrbTab(*)
+real(kind=wp), intent(in) :: DET1(*), DET2(*)
+logical(kind=iwp), intent(in) :: IF20, IF02
+real(kind=wp), intent(out) :: DCHSM(NDCHSM)
+integer(kind=iwp) :: IAJB, IBJA, IJTABS, IORB, IORBA, IORBB, ITABS, JORB, JORBA, JORBB, JTABS, NASHT, NASORB, NSDCHSM
+real(kind=wp) :: GAB, GBA, GVAL
+real(kind=wp), allocatable :: SDCHSM(:)
+
+! Pick out nr of active orbitals from orbital table:
+NASORB = ORBTAB(4)
+NASHT = NASORB/2
+NSDCHSM = nTri_Elem(NASORB-1)
+call mma_allocate(SDCHSM,nSDCHSM,Label='SDCHSM')
+SDCHSM(:) = Zero
+
+call SDCHS(ORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,DET1,DET2,IF20,IF02,SDCHSM)
+
+! Mapping from active spin-orbital to active orbital in external order.
+! Note that these differ, not just because of the existence of two
+! spin-orbitals for each orbital, but also because the active orbitals
+! (external order) are grouped by symmetry and then RAS space, but the
+! spin orbitals are grouped by subpartition.
+
+IAJB = 0 ! dummy initialize
+IBJA = 0 ! dummy initialize
+
+do IORB=1,NASHT
+  IORBA = 2*IORB-1
+  IORBB = 2*IORB
+  ITABS = MAPORB(IORBA)
+  do JORB=1,NASHT
+    JORBA = 2*JORB-1
+    JORBB = 2*JORB
+    JTABS = MAPORB(JORBA)
+    GVAL = Zero
+    if (IORB > JORB) then
+      IAJB = nTri_Elem(IORBA-2)+JORBB
+      IBJA = nTri_Elem(IORBB-2)+JORBA
+    else if (JORB == IORB) then
+      IAJB = nTri_Elem(IORBA-2)+JORBB
+      IBJA = nTri_Elem(IORBB-2)+JORBA
+      GAB = SDCHSM(IAJB)
+      GBA = SDCHSM(IBJA)
+      GVAL = GAB+GBA
+    else if (IORB < JORB) then
+      IBJA = nTri_Elem(JORBA-2)+IORBB
+      IAJB = nTri_Elem(JORBB-2)+IORBA
+    end if
+    IJTABS = JTABS+NASHT*(ITABS-1)
+    DCHSM(IJTABS) = GVAL**2
+  end do
+end do
+
+call mma_deallocate(SDCHSM)
+
+end subroutine MKDCHS

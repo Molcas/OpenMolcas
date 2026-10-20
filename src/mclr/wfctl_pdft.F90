@@ -24,8 +24,8 @@ use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, ipCI, ipDia, ipMat, IRLXROOT, ISNAC, LuTemp, nAcPar, nAcPr2, NACSTATES, nConf1, nDens, nDensC, &
                      nNA, PDFT_Ratio, WF_Ratio, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nAsh, nBas, nCSF, nDisp, nIter, nRoots, nRs2, &
-                      nSym, ntAsh, State_Sym, Weight
+use general_data, only: nAsh, nRs2, nSym, STSym
+use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nBas, nCSF, nDisp, nIter, nRoots, ntAsh, Weight
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -64,7 +64,7 @@ iDis = 0
 fail = .false.
 Converged(:) = .true.
 !MGD I think this is nice when printed...
-lprint = .true.
+lprint = btest(kprint,0)
 debug = .false.
 reco = -One
 Lu_50 = 50
@@ -73,15 +73,14 @@ if (lSAVE) then
   write(u6,*) 'WfCtl_SA: SAVE option not implemented'
   call Abend()
 end if
-if (btest(kprint,1)) lprint = .true.
 isym = 1
-nconf1 = ncsf(State_Sym)
+nconf1 = ncsf(STSym)
 
 CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(Mul(iSym,State_Sym),State_sym)
+call InCSFSD(Mul(iSym,STSym),STSym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
@@ -92,7 +91,7 @@ call InCSFSD(Mul(iSym,State_Sym),State_sym)
 !
 ! Output: Commonblocks (Pointers.fh)
 
-nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
+nConf3 = nint(max(xispsm(STSym,1),xispsm(STSym,1)))
 
 call Setup_MCLR(iSym)
 
@@ -106,7 +105,7 @@ call mma_allocate(rCHC,nRoots,Label='rCHC')
 !AMS - what to do here?
 ! What should rCHC be?  is it computed with E(mcscf) or E(pdft)?
 !____________________
-call CIDia_SA(State_Sym,rCHC,Fancy)
+call CIDia_SA(STSym,rCHC,Fancy)
 call mma_deallocate(rCHC)
 call ipOut(ipdia)
 
@@ -226,7 +225,7 @@ do iDisp=1,nDisp
 
   call get_darray('F2_PDFT',FMO2t,nacpr2)
 
-  call CISigma_sa(0,State_sym,State_sym,FMO1,nDens,FMO2t,size(FMO2t),rdum,1,ipci,ipST,.true.)
+  call CISigma_sa(0,STSym,STSym,FMO1,nDens,FMO2t,size(FMO2t),rdum,1,ipci,ipST,.true.)
   call mma_deallocate(FMO2t)
 
   troot = (irlxroot-1)
@@ -282,7 +281,7 @@ do iDisp=1,nDisp
     call Get_dArray_chk('FockOcc',FOTr,nTri)
     ! note that the Fock matrix will be overwritten with the wf one
     ! ini rhs_sa
-    call rhs_sa(WForb,rDum)
+    call rhs_sa(WForb,rDum,ipS2)
     Temp5(:) = Temp5(:)+WF_Ratio*WForb(:)
     call mma_deallocate(WForb)
   end if
@@ -444,7 +443,7 @@ do iDisp=1,nDisp
   call DMInvKap(W(ipPre2)%A,iPre,Sigma,dKappa,Sc1,iSym,iter)
   call opOut(ippre2)
   r2 = ddot_(nDensC,dKappa,1,dKappa,1)
-  if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
+  if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
   call mma_deallocate(kap_new)
   call mma_deallocate(kap_new_temp)

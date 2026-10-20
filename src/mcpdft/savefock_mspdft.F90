@@ -16,7 +16,7 @@
 
 subroutine SaveFock_msPDFT(cmo,h1e,D1Act,NQ,p2d,state)
 
-use printlevel, only: debug
+use PrintLevel, only: DEBUG
 use mcpdft_output, only: iPrLoc
 use wadr, only: fockocc
 use rasscf_global, only: ISTORP, nacpar, nacpr2, nFint, ntot4

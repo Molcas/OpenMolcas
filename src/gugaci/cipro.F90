@@ -13,12 +13,12 @@ subroutine cipro()
 
 use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_root, mroot, ng_sm, nlsm_all, nlsm_bas, pror
 use OneDat, only: sNoNuc, sNoOri, sOpSiz, sRdFst
+use Molcas, only: MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: maxmolcasorb = 5000, maxpro = 50
 integer(kind=iwp) :: i, icall, icomp, idisk, idummy(1), idx_idisk0(64), iend, im, iopt, ipc, iprop, irec, iroot, irtc, ista, &
                      isymlb, nc, nc0, nc1, nc2, nlsm_del(mxSym), nmo, npro, nsiz

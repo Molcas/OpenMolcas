@@ -24,6 +24,7 @@ subroutine genCxCTL(iStop,Cartesian,rDelta)
 use Slapaf_Info, only: BMx, BSet, Coor, Curvilinear, Free_Slapaf, HSet, iRef, iter, mTROld, mTtAtm, nDimBC, nLambda, Numerical, &
                        nWndw, PrQ, qInt, Shift
 use spool, only: Close_LuSpool, Spoolinp
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -32,7 +33,6 @@ implicit none
 integer(kind=iwp), intent(out) :: iStop
 logical(kind=iwp), intent(out) :: Cartesian
 real(kind=wp), intent(in) :: rDelta
-#include "print.fh"
 integer(kind=iwp) :: iDisp, iRow_c, jInter, Jter, LuSpool, mInt
 logical(kind=iwp) :: Found, TSC, Error
 real(kind=wp), allocatable :: DList(:), CList(:,:), du(:), TMx(:), RefCoor(:,:)

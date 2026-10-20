@@ -88,7 +88,7 @@ logical(kind=iwp), intent(in) :: Do_structure_abc, old_aniso_format, fitCHI, fit
 logical(kind=iwp), intent(inout) :: compute_barrier, m_paranoid, compute_susceptibility
 integer(kind=iwp) :: i, icount_B_sites, iH, iproj1, iproj2, irank1, irank2, iT, j, jEnd, k, l, m, n
 logical(kind=iwp) :: ab_initio_all, nosym
-character(len=180) fmtline
+character(len=180) :: fmtline
 integer(kind=iwp), parameter :: ngrid_map(32) = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,20,23,26,29,32,35,38,41,44,47,50,53,56,59, &
                                                  62,65]
 

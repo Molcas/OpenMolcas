@@ -10,4 +10,5 @@
 ***********************************************************************/
  (prgm)  "$MOLCAS"/bin/surfacehop.exe             executable
  (file)  SURFAINP "$WorkDir/$Project."Surfacehop.Input rwi
- (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph     rw
+ (file)  JOBIPH   "$WorkDir/$Project$SubProject."JobIph     r
+ (file)  JOBMIX   "$WorkDir/$Project$SubProject."JobMix     r

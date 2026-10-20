@@ -12,7 +12,6 @@
 module OutPut_RAS
 !------------------------------------------------------
 ! Used by any rasscf subroutine that writes output
-! LF = Logfile unit number, usually = 6 for standard out
 !------------------------------------------------------
 !***********************************************************************
 !                                                                      *
@@ -31,8 +30,8 @@ use Definitions, only: iwp
 implicit none
 private
 
-integer(kind=iwp) :: IPRGLB, IPRLOC(7), LF, Rc_CI, Rc_SX
+integer(kind=iwp) :: IPRGLB, IPRLOC(7), Rc_CI, Rc_SX
 
-public :: IPRGLB, IPRLOC, LF, Rc_CI, Rc_SX
+public :: IPRGLB, IPRLOC, Rc_CI, Rc_SX
 
 end module OutPut_RAS

@@ -15,6 +15,7 @@ use RI_glob, only: Chunk
 #ifdef _MOLCAS_MPP_
 use RI_glob, only: iMap, ip_Chunk
 use Para_Info, only: Is_Real_Par, MyRank, nProcs
+use GA_Wrapper, only: MT_DBL
 use Constants, only: Zero
 use Definitions, only: wp, u6
 #endif
@@ -25,7 +26,6 @@ implicit none
 integer(kind=iwp), intent(in) :: LenVec, NumVec
 integer(kind=iwp), intent(out) :: IncVec
 #ifdef _MOLCAS_MPP_
-#include "mafdecls.fh"
 integer(kind=iwp) :: i, IncVec0, iNode, iNode0, iStart, itmp, myMap(2), nBlocks
 real(kind=wp) :: FullSize, TotalMemory
 logical(kind=iwp) :: ok

@@ -37,20 +37,20 @@ use Cholesky, only: Cho_1Center
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
 use spool, only: Close_LuSpool, Spoolinp
+use PrintLevel, only: nPrint
+use Molcas, only: LenIn, MaxBfn, MaxBfn_aux, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iNuc, iOption, iRc, iter_S, LuSpool, mdc, nDNA, nNuc
 integer(kind=iwp), parameter :: nMamn = MaxBfn+MaxBfn_Aux
 character(len=LenIn) :: xLblCnt(MxAtom)
 logical(kind=iwp) :: lOPTO, Pseudo, Do_OneEl, IsBorn, Found
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
-character(len=LenIn8), allocatable :: Mamn(:)
+character(len=LenIn+8), allocatable :: Mamn(:)
 real(kind=wp), allocatable :: DCo(:,:), DCh(:), DCh_Eff(:)
 integer(kind=iwp), allocatable :: nStab(:)
 integer(kind=iwp), external :: AixRm
@@ -177,7 +177,7 @@ call DmpInf()
 
 call Drvn0()
 
-call Put_cArray('Unique Basis Names',Mamn(1),(LenIn8)*S%nDim)
+call Put_cArray('Unique Basis Names',Mamn(1),(LenIn+8)*S%nDim)
 call Put_iArray('NBAS',nBas,nIrrep)
 call basis2run()
 call mma_deallocate(Mamn)

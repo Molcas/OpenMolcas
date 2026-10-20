@@ -50,6 +50,7 @@ use Symmetry_Info, only: Mul
 use MckDat, only: AuxMck, LenOp, lTocMck, MxOp, NaN, NotNaN, nTitle, oAddr, oComp, oLabel, oSymLb, pASh, pBas, pchdisp, pdegdisp, &
                   pEnd, pFID, pish, pldisp, pndisp, pNext, pnrdisp, pOp, pPert, pSym, pSymOp, ptdisp, pTitle, pVersN, rcMck, sDbg, &
                   sLength, TocMck
+use Molcas, only: MxSym
 use Definitions, only: iwp, u6, RtoI, ItoB
 
 #include "intent.fh"
@@ -59,7 +60,6 @@ integer(kind=iwp), intent(inout) :: rc
 integer(kind=iwp), intent(in) :: Option, iComp, iSymLab
 character(len=*), intent(in) :: InLab
 integer(kind=iwp), intent(_IN_) :: iData(*)
-#include "Molcas.fh"
 integer(kind=iwp) :: Comp, i, iBas, icpi, iDisk, ij, ijS, iS, iSym, j, jBas, jS, k, Len_, Length, LuMCK, nA, SymLab, &
                      LabTmp(2)
 logical(kind=iwp) :: Debug

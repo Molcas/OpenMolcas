@@ -39,7 +39,7 @@ subroutine Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,var,Short,iUHF,ifallorb)
 !***********************************************************************
 
 use OneDat, only: sOpSiz
-use hfc_logical, only: MAG_X2C, UHF_HFC
+use hfc_logical, only: MagX2C_Avail, UHF_HFC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -166,14 +166,14 @@ call mma_deallocate(El,safe='*')
 ! in C1 symmetry. Since for UHF the spin density matrix is easily
 ! obtained.
 
-MAG_X2C = .false.
+MagX2C_Avail = .false.
 irc = -1
 iopt = ibset(0,sOpSiz)
 label = 'MAGXP  1'
 iComp = 1
 call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
 if (irc == 0) then
-  MAG_X2C = .true.
+  MagX2C_Avail = .true.
   !if (Method == 'UHF-SCF ') then
   if (iUHF == 1) then
     if (UHF_HFC) then
@@ -271,7 +271,7 @@ do iEF=0,2
     ! set MAG_X2C to avoid tests of electric field properties when
     ! wavefunction is X2C transformed (there is no way to tell but we
     ! can kind of tell by reading MAG x2c integrals) This is a workaround.
-    if (.not. MAG_X2C) then
+    if (.not. MagX2C_Avail) then
       write(label,'(a,i1,a)') 'EF',iEF,'   el'
       call Add_Info(label,ElSum,nComp,iTol)
       write(label,'(a,i1,a)') 'EF',iEF,'  nuc'
@@ -355,7 +355,7 @@ if (nCen > 0) then
   ! (assuming error scales with sqrt(ncen))
   iTol = 5
   iTol = iTol-nint(Half*log10(real(nCen,kind=wp)))
-  if (.not. MAG_X2C) then
+  if (.not. MagX2C_Avail) then
     write(label,'(a,a)') 'CNT','   el'
     call Add_Info(label,ElSum,nComp,iTol)
     write(label,'(a,a)') 'CNT','  nuc'

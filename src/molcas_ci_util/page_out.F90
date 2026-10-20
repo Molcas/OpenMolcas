@@ -50,7 +50,6 @@ character(len=llab), intent(in) :: KeyWord
 integer(kind=iwp), intent(in) :: nConf, LuDavid
 real(kind=wp), intent(_IN_) :: Vector(nConf)
 integer(kind=iwp) :: iDisk, iStk, nStk
-#include "rasdim.fh"
 
 ! check input arguments
 if (nConf < 0) then

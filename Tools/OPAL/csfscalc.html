@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<!--
+  OPAL — OpenMolcas Orbitals, Plotting, Analysis and Layout
+  CSFsCalc — RASSCF Configuration State Function Calculator
+
+  Copyright (C) 2025–2026 Luca De Vico
+  Università degli Studi di Siena
+
+  This file is part of OPAL.
+
+  OPAL is free software: you can redistribute it and/or modify it under
+  the terms of the GNU Lesser General Public License as published by the
+  Free Software Foundation, either version 2.1 of the License, or
+  (at your option) any later version.
+
+  OPAL is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+  License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with OPAL. If not, see <https://www.gnu.org/licenses/>.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSFsCalc · OpenMolcas OPAL</title>
+<meta name="description" content="OpenMolcas OPAL — Orbitals, Plotting, Analysis and Layout">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style>
+/* ─── Design-system tokens ─────────────────────────────────────────── */
+:root {
+  --bg:      #12172a;
+  --panel:   #16213e;
+  --panel2:  #0f3460;
+  --border:  #252d4a;
+  --border2: #353d5e;
+  --accent:  #e94560;
+  --blue:    #3498db;
+  --green:   #2ecc71;
+  --yellow:  #f39c12;
+  --red:     #e74c3c;
+  --txt:     #e0e6f0;
+  --txt2:    #b0bcd0;
+  --txt3:    #90a0c0;
+  --txt4:    #606a8a;
+  --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, 'Cascadia Code', 'SF Mono', monospace;
+  --r:  4px;
+  --r2: 8px;
+}
+
+/* ─── Reset & base ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ─── Toolbar ───────────────────────────────────────────────────────── */
+#toolbar {
+  position: sticky; top: 0; z-index: 100;
+  min-height: 44px;        /* baseline, NOT height — height clips wrapped rows */
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  flex-wrap: wrap;         /* wrap onto extra rows rather than clipping */
+  flex-shrink: 0;          /* never the flex item that gets squeezed */
+  padding: 6px 14px; gap: 10px;
+}
+#toolbar img {
+  height: 28px; width: auto; opacity: .9;
+  flex-shrink: 0;
+}
+#toolbar .logo {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+}
+#ver-badge{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.06em;
+  color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 15%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);
+  border-radius:4px;
+  padding:1px 5px;
+  margin-right:6px;
+  white-space:nowrap;
+  user-select:none;
+}
+#toolbar .spacer { flex: 1; }
+#toolbar .tagline {
+  font-size: 11px;
+  color: var(--txt2);
+  font-family: var(--mono);
+  white-space: nowrap;
+  display: none;
+}
+@media (min-width: 600px) {
+  #toolbar .tagline { display: block; }
+}
+
+/* ─── Page layout ───────────────────────────────────────────────────── */
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── Info banner ───────────────────────────────────────────────────── */
+.info-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--r2);
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  color: var(--txt2);
+  line-height: 1.6;
+}
+
+/* ─── Collapsible section (.psect) ─────────────────────────────────── */
+.psect {
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.psect-title {
+  background: var(--panel2);
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt3);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.psect-title:hover { filter: brightness(1.15); }
+.psect-body {
+  background: var(--panel);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.psect-body.collapsed { display: none; }
+
+/* ─── Two-column inputs grid ────────────────────────────────────────── */
+.inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+/* ─── Input group ───────────────────────────────────────────────────── */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-group label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--txt3);
+  font-family: var(--sans);
+}
+.input-group input {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--txt);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 6px 8px;
+  width: 100%;
+  transition: border-color .15s;
+}
+.input-group input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ─── Results panel ─────────────────────────────────────────────────── */
+.results-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.results-panel-title {
+  background: var(--panel2);
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt3);
+}
+.results-panel-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.result-card {
+  background: rgba(233,69,96,.08);
+  border: 1px solid rgba(233,69,96,.2);
+  border-radius: var(--r2);
+  padding: 12px 14px;
+}
+.result-card-label {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+.result-card-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--accent);
+  line-height: 1.1;
+}
+.result-card-sub {
+  font-size: 11px;
+  color: var(--txt4);
+  margin-top: 3px;
+  font-family: var(--mono);
+}
+
+.result-final {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  padding: 12px 14px;
+}
+.result-final-label {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+.result-final-value {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  line-height: 1.1;
+}
+.result-final-value.determinants { color: var(--blue); }
+.result-final-value.csfs { color: var(--green); }
+
+/* ─── RAS notation badge ────────────────────────────────────────────── */
+.ras-notation {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  letter-spacing: .03em;
+}
+
+/* ─── Determinant note ──────────────────────────────────────────────── */
+.determinant-note {
+  background: rgba(243,156,18,.07);
+  border: 1px solid rgba(243,156,18,.25);
+  border-radius: var(--r2);
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--txt2);
+}
+.determinant-note h5 {
+  color: var(--yellow);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-family: var(--sans);
+}
+.determinant-note p { margin-bottom: 6px; }
+.determinant-note .formula {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt3);
+  margin: 6px 0;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: var(--r);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--txt3); cursor: pointer;
+  font-family: var(--sans); font-size: 12px;
+  transition: all .15s; white-space: nowrap;
+}
+.btn:hover { background: var(--panel2); border-color: var(--border2); color: var(--txt); }
+.btn.primary { border-color: var(--accent); color: var(--accent); }
+.btn.primary:hover { background: rgba(233,69,96,.12); }
+
+/* ─── Debug box ─────────────────────────────────────────────────────── */
+.debug-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 12px 14px;
+  display: none;
+  margin-top: 4px;
+}
+.debug-box.visible { display: block; }
+.debug-box h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--txt3);
+  margin-bottom: 8px;
+}
+.debug-content {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt4);
+  max-height: 280px;
+  overflow-y: auto;
+}
+.debug-content div {
+  padding: 2px 0;
+  border-bottom: 1px solid var(--border);
+}
+.debug-content div:last-child { border-bottom: none; }
+
+/* ─── Basis reference list ──────────────────────────────────────────── */
+.basis-refs {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+.basis-refs-title {
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--txt4);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 5px;
+}
+.basis-refs ul {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.basis-refs li {
+  font-size: 11px;
+  color: var(--txt4);
+  font-family: var(--mono);
+  line-height: 1.45;
+  padding-left: 12px;
+  position: relative;
+}
+.basis-refs li::before {
+  content: "·";
+  position: absolute; left: 2px;
+  color: var(--txt4);
+}
+.basis-refs li a {
+  color: var(--txt4);
+  text-decoration: none;
+}
+.basis-refs li a:hover {
+  color: var(--blue);
+  text-decoration: underline;
+}
+
+.attribution-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 10px 14px;
+  text-align: center;
+  color: var(--txt4);
+  font-size: 11px;
+  font-family: var(--mono);
+  margin-bottom: 14px;
+}
+
+/* ─── References box ────────────────────────────────────────────────── */
+.references-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.references-box h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--txt3);
+  margin-bottom: 10px;
+}
+.references-box ul {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.references-box li {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--txt2);
+  padding-left: 20px;
+  position: relative;
+}
+.references-box li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+/* ─── Notation box ──────────────────────────────────────────────────── */
+.notation-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  border-radius: var(--r2);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.notation-box h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--txt3);
+  margin-bottom: 10px;
+}
+.notation-formula {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--green);
+  text-align: center;
+  margin: 10px 0;
+}
+.notation-box p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--txt2);
+  margin-bottom: 6px;
+}
+.param-list {
+  list-style: none;
+  padding-left: 10px;
+  margin: 6px 0;
+}
+.param-list li {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--txt2);
+}
+.param-list strong {
+  color: var(--green);
+  font-family: var(--mono);
+}
+.notation-box .example {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 8px 10px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--txt2);
+  line-height: 1.55;
+}
+.current-notation {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 8px 14px;
+  margin-top: 10px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--blue);
+}
+.notation-box .ref-note {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--txt4);
+  line-height: 1.55;
+}
+
+/* ─── XYZ drop zone ─────────────────────────────────────────────────── */
+.drop-zone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--r2);
+  padding: 18px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  color: var(--txt3);
+  font-size: 12px;
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(233,69,96,.05);
+}
+.drop-zone input[type="file"] {
+  /* longhand first: `inset` is unsupported below Safari 14.1 / Firefox 66 */
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.drop-zone .dz-icon { font-size: 20px; margin-bottom: 4px; }
+.drop-zone .dz-label { font-weight: 500; color: var(--txt2); }
+.drop-zone .dz-sub { font-size: 11px; color: var(--txt4); margin-top: 2px; }
+
+/* Loaded state */
+.drop-zone.loaded {
+  border-color: var(--green);
+  background: rgba(46,204,113,.05);
+}
+.drop-zone.loaded .dz-icon { color: var(--green); }
+
+/* ─── Atom count chips ───────────────────────────────────────────────── */
+.atom-chips {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-top: 8px;
+}
+.atom-chip {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--txt2);
+  white-space: nowrap;
+}
+
+/* ─── Basis set selector ─────────────────────────────────────────────── */
+.basis-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 480px) { .basis-row { grid-template-columns: 1fr; } }
+
+.basis-select {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--txt);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 6px 8px;
+  width: 100%;
+  cursor: pointer;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2390a0c0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.basis-select:focus { outline: none; border-color: var(--accent); }
+
+/* ─── nBas summary badge ─────────────────────────────────────────────── */
+.nbas-badge {
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.nbas-badge-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.nbas-badge-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--blue);
+}
+.nbas-badge-note {
+  font-size: 11px;
+  color: var(--txt4);
+  font-family: var(--mono);
+}
+.nbas-unknown {
+  font-size: 11px;
+  color: var(--yellow);
+  font-family: var(--mono);
+  padding: 6px 10px;
+  background: rgba(243,156,18,.06);
+  border: 1px solid rgba(243,156,18,.2);
+  border-radius: var(--r);
+}
+.nbas-unknown-list {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--yellow);
+  margin-top: 3px;
+}
+/* ─── Toggle switch ──────────────────────────────────────────────────── */
+.toggle-row {
+  display: flex; align-items: center; gap: 8px; margin-top: 2px;
+}
+.toggle-switch {
+  position: relative; display: inline-block;
+  width: 36px; height: 20px; flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  /* longhand first: without `inset` support the slider would collapse to
+     zero size and the switch would become invisible and unclickable */
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  cursor: pointer;
+  background: var(--border2); border-radius: 20px; transition: background .2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; border-radius: 50%;
+  left: 3px; top: 3px;
+  background: var(--txt4); transition: transform .2s, background .2s;
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--green); }
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(16px); background: #fff;
+}
+.toggle-label { font-size: 12px; color: var(--txt2); font-family: var(--sans); }
+
+/* ─── Memory estimate panel ─────────────────────────────────────────── */
+.mem-panel {
+  background: var(--panel2); border: 1px solid var(--border2);
+  border-radius: var(--r2); padding: 12px 14px; margin-top: 8px;
+}
+.mem-total {
+  display: flex; align-items: baseline; justify-content: space-between;
+  flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
+}
+.mem-total-label {
+  font-size: 11px; font-family: var(--mono);
+  color: var(--txt3); text-transform: uppercase; letter-spacing: .06em;
+}
+.mem-total-value {
+  font-size: 2rem; font-weight: 700; font-family: var(--mono); color: var(--yellow);
+}
+.mem-breakdown {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-bottom: 8px;
+}
+.mem-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 11px; font-family: var(--mono); color: var(--txt4); gap: 8px;
+}
+.mem-row .mem-item-label { color: var(--txt3); }
+.mem-row .mem-item-val   { color: var(--txt2); white-space: nowrap; }
+.mem-note {
+  font-size: 10px; color: var(--txt4); font-family: var(--mono);
+  border-top: 1px solid var(--border); padding-top: 6px; margin-top: 4px; line-height: 1.5;
+}
+.mem-warn {
+  font-size: 11px; color: var(--yellow); font-family: var(--mono);
+  background: rgba(243,156,18,.06); border: 1px solid rgba(243,156,18,.2);
+  border-radius: var(--r); padding: 5px 8px; margin-top: 6px; line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<!-- ─── Toolbar ─────────────────────────────────────────────────────── -->
+<div id="toolbar">
+  <img src="data:image/png;base64,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" style="height:28px;width:auto;opacity:.9;margin-right:4px" alt="OpenMolcas">
+  <span class="logo">CSFsCalc <span style="color:var(--txt4)">· OpenMolcas</span></span><span id="ver-badge" title="CSFsCalc version"></span>
+  <span class="spacer"></span>
+  <span class="tagline">RASSCF Configuration Calculator</span>
+</div>
+
+<!-- ─── Page ─────────────────────────────────────────────────────────── -->
+<div class="page">
+
+  <div class="info-box">
+    Calculates the number of Configuration State Functions (CSFs) and Slater determinants for RASSCF active spaces using the Weyl-Paldus formula.
+  </div>
+
+  <div class="inputs-grid">
+
+    <!-- RAS Orbitals section -->
+    <div class="psect">
+      <div class="psect-title" onclick="toggleSect(this)">
+        RAS Space Orbitals <span class="arr">▾</span>
+      </div>
+      <div class="psect-body">
+        <div class="input-group">
+          <label for="ras1">RAS1 Orbitals</label>
+          <input type="number" id="ras1" value="4" min="0">
+        </div>
+        <div class="input-group">
+          <label for="ras2">RAS2 Orbitals</label>
+          <input type="number" id="ras2" value="6" min="0">
+        </div>
+        <div class="input-group">
+          <label for="ras3">RAS3 Orbitals</label>
+          <input type="number" id="ras3" value="4" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Electrons & Constraints section -->
+    <div class="psect">
+      <div class="psect-title" onclick="toggleSect(this)">
+        Electrons &amp; Constraints <span class="arr">▾</span>
+      </div>
+      <div class="psect-body">
+        <div class="input-group">
+          <label for="nAlpha">Alpha Electrons</label>
+          <input type="number" id="nAlpha" value="7" min="0">
+        </div>
+        <div class="input-group">
+          <label for="nBeta">Beta Electrons</label>
+          <input type="number" id="nBeta" value="7" min="0">
+        </div>
+        <div class="input-group">
+          <label for="maxHoles">Max Holes in RAS1</label>
+          <input type="number" id="maxHoles" value="2" min="0" title="Maximum number of holes (missing electrons) allowed in RAS1 orbitals">
+        </div>
+        <div class="input-group">
+          <label for="maxExcitations">Max Excitations in RAS3</label>
+          <input type="number" id="maxExcitations" value="2" min="0" title="Maximum number of electrons (excitations) allowed in RAS3 orbitals">
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .inputs-grid -->
+
+
+  <!-- Results -->
+  <div class="results-panel">
+    <div class="results-panel-title">Results</div>
+    <div class="results-panel-body">
+
+      <div class="results-grid">
+        <div class="result-card">
+          <div class="result-card-label">Total Electrons</div>
+          <div class="result-card-value" id="nTotal">14</div>
+          <div class="result-card-sub" id="electronBreakdown">(7 α, 7 β)</div>
+        </div>
+        <div class="result-card">
+          <div class="result-card-label">Spin State</div>
+          <div class="result-card-value" id="spinState">S = 0.0</div>
+          <div class="result-card-sub" id="multiplicity">Singlet</div>
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-final">
+          <div class="result-final-label">Slater Determinants (Combinatorial)</div>
+          <div class="result-final-value determinants" id="numDeterminants">-</div>
+        </div>
+        <div class="result-final">
+          <div class="result-final-label">Slater Determinants (GUGA-adapted)</div>
+          <div class="result-final-value determinants" id="numDeterminantsGUGA">-</div>
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-final" style="grid-column: 1 / -1;">
+          <div class="result-final-label">Configuration State Functions</div>
+          <div class="result-final-value csfs" id="numCSFs">-</div>
+        </div>
+      </div>
+
+      <div class="determinant-note">
+        <h5>ℹ About the Two Determinant Counts</h5>
+        <p><strong style="color:var(--txt)">Combinatorial Count:</strong> Total number of ways to distribute α and β electrons independently: C(n,n_α) × C(n,n_β). This is the mathematical maximum of possible Slater determinant products.</p>
+        <p><strong style="color:var(--txt)">GUGA-adapted Count:</strong> Approximate count of distinct spin-coupled determinants used in actual GUGA-based CI calculations (as in OpenMolcas, GAMESS). Each CSF is a linear combination of determinants with specific Clebsch-Gordan coefficients.</p>
+        <p><strong style="color:var(--txt)">Relationship:</strong> For singlets, Det ≈ 2×CSF + √CSF. The exact expansion depends on the genealogical spin coupling scheme. Programs like OpenMolcas work primarily with the compact CSF basis.</p>
+        <div class="formula">References: Shavitt (1977, 1981) on GUGA formalism; Dobrautz et al. (2019) on spin-adapted FCIQMC</div>
+      </div>
+
+      <div class="ras-notation" id="rasNotation">RAS(14, 2, 2; 4, 6, 4)</div>
+
+    </div>
+  </div><!-- .results-panel -->
+
+  <!-- Optional: Molecule & Basis Set -->
+  <div class="psect" id="psect-molbasis" style="margin-bottom:14px">
+    <div class="psect-title" onclick="toggleSect(this)">
+      Molecule &amp; Basis Set <span style="font-size:9px;margin-left:6px;color:var(--green);font-weight:400;text-transform:none;letter-spacing:0">optional</span> <span class="arr">▾</span>
+    </div>
+    <div class="psect-body">
+
+      <!-- XYZ upload -->
+      <div class="input-group">
+        <label>Upload XYZ File</label>
+        <div class="drop-zone" id="xyzDropZone">
+          <input type="file" id="xyzInput">
+          <div class="dz-icon">📂</div>
+          <div class="dz-label">Drop .xyz file here or click to browse</div>
+          <div class="dz-sub">Standard XYZ format (Ångström)</div>
+        </div>
+        <div class="atom-chips" id="atomChips"></div>
+      </div>
+
+      <!-- Basis set family + contraction level -->
+      <div class="input-group">
+        <label>Basis Set Family</label>
+        <div class="basis-row">
+          <select class="basis-select" id="basisFamily" onchange="onBasisChange()">
+            <optgroup label="ANO — OpenMolcas native">
+              <option value="ANO-RCC">ANO-RCC (relativistic DKH, H–Cm, 5 levels)</option>
+              <option value="ANO-R">ANO-R (relativistic X2C, H–Rn, R0–R3)</option>
+              <option value="ANO-L">ANO-L (non-relativistic, H–Zn, 5 levels)</option>
+              <option value="ANO-S">ANO-S (small, H–Kr, 4 levels)</option>
+              <option value="ANO-XS">ANO-XS (extra-small, H–Ca+Cr, 3 levels)</option>
+              <option value="ANO-ORCA">ANO-ORCA (Neese, H–Ar, pVDZ–pV5Z)</option>
+            </optgroup>
+            <optgroup label="Pople">
+              <option value="STO-3G">STO-3G (minimal)</option>
+              <option value="3-21G">3-21G</option>
+              <option value="6-31G">6-31G</option>
+              <option value="6-31G*">6-31G*</option>
+              <option value="6-31G**">6-31G**</option>
+              <option value="6-311G**">6-311G**</option>
+            </optgroup>
+            <optgroup label="Dunning (correlation-consistent)">
+              <option value="cc-pVDZ">cc-pVDZ</option>
+              <option value="cc-pVTZ">cc-pVTZ</option>
+              <option value="cc-pVQZ">cc-pVQZ</option>
+              <option value="cc-pV5Z">cc-pV5Z</option>
+              <option value="aug-cc-pVDZ">aug-cc-pVDZ</option>
+              <option value="aug-cc-pVTZ">aug-cc-pVTZ</option>
+              <option value="aug-cc-pVQZ">aug-cc-pVQZ</option>
+              <option value="aug-cc-pV5Z">aug-cc-pV5Z</option>
+            </optgroup>
+            <optgroup label="Ahlrichs / def2">
+              <option value="def2-SVP">def2-SVP</option>
+              <option value="def2-TZVP">def2-TZVP</option>
+              <option value="def2-TZVPP">def2-TZVPP</option>
+            </optgroup>
+          </select>
+
+          <select class="basis-select" id="basisLevel" onchange="onBasisChange()">
+            <option value="VDZP">VDZP (double-ζ + polarisation)</option>
+            <option value="VTZP" selected>VTZP (triple-ζ + polarisation)</option>
+            <option value="VQZP">VQZP (quadruple-ζ + polarisation)</option>
+            <option value="VDZ">VDZ (double-ζ)</option>
+            <option value="MB">MB (minimal)</option>
+            <!-- ANO-R levels -->
+            <option value="R0" class="ano-r-level">R0 (minimal)</option>
+            <option value="R1" class="ano-r-level">R1 (double-ζ quality)</option>
+            <option value="R2" class="ano-r-level">R2 (triple-ζ quality)</option>
+            <option value="R3" class="ano-r-level">R3 (quadruple-ζ quality)</option>
+            <!-- ANO-ORCA levels -->
+            <option value="pVDZ" class="orca-level">pVDZ</option>
+            <option value="pVTZ" class="orca-level">pVTZ</option>
+            <option value="pVQZ" class="orca-level">pVQZ</option>
+            <option value="pV5Z" class="orca-level">pV5Z</option>
+          </select>
+        </div>
+        <div style="font-size:11px;color:var(--txt4);margin-top:4px" id="basisDesc">
+          ANO-RCC VTZP: scalar relativistic, recommended for CASSCF/CASPT2. Use DKH or X2C Hamiltonian.
+        </div>
+      </div>
+
+      <!-- Calculation options -->
+      <div class="input-group" style="margin-top:2px">
+        <label for="nRoots">Number of Roots (States)</label>
+        <input type="number" id="nRoots" value="1" min="1" max="100" oninput="updateNbas()">
+      </div>
+
+      <div class="input-group">
+        <label>Cholesky Decomposition</label>
+        <div class="toggle-row">
+          <label class="toggle-switch">
+            <input type="checkbox" id="useCholesky" checked onchange="updateNbas()">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label" id="choleskyLabel">Enabled (recommended)</span>
+        </div>
+      </div>
+
+      <!-- nBas result -->
+      <div id="nbasResult"></div>
+
+      <!-- RAM estimate -->
+      <div id="ramResult"></div>
+
+    </div>
+  </div>
+
+
+  <!-- Debug toggle -->
+  <div style="margin-bottom:14px">
+    <button class="btn" onclick="toggleDebug()">Show CSF Distribution Details</button>
+    <div class="debug-box" id="debugBox" style="margin-top:8px">
+      <h4>CSF Contributions by Electron Distribution</h4>
+      <div class="debug-content" id="debugContent"></div>
+    </div>
+  </div>
+
+  <!-- Attribution -->
+  <div class="attribution-box">
+    Luca De Vico (together with Gemini and Claude), University of Siena, 2025
+  </div>
+
+  <!-- Notation box -->
+  <div class="notation-box">
+    <h4>Standard RASSCF Notation</h4>
+    <div class="notation-formula">RAS(n, l, m; i, j, k)</div>
+    <p>This notation, established in the literature, specifies the RASSCF active space as follows:</p>
+    <ul class="param-list">
+      <li><strong>n</strong> = number of active electrons</li>
+      <li><strong>l</strong> = maximum number of holes allowed in RAS1</li>
+      <li><strong>m</strong> = maximum number of electrons (excitations) in RAS3</li>
+      <li><strong>i</strong> = number of orbitals in RAS1</li>
+      <li><strong>j</strong> = number of orbitals in RAS2</li>
+      <li><strong>k</strong> = number of orbitals in RAS3</li>
+    </ul>
+    <div class="example">
+      <strong>Example:</strong> RAS(14, 2, 2; 4, 6, 4) means 14 active electrons, with up to 2 holes in RAS1 (4 orbitals),
+      up to 2 excitations in RAS3 (4 orbitals), and 6 orbitals in RAS2.
+    </div>
+    <p class="ref-note">
+      <strong>Reference:</strong> Sauri, V.; Serrano-Andrés, L.; Shahi, A. R. M.; et al.
+      "Multiconfigurational Second-Order Perturbation Theory Restricted Active Space (RASPT2) Method for Electronic Excited States: A Benchmark Study."
+      <em>J. Chem. Theory Comput.</em> <strong>2011</strong>, <em>7</em>, 153–168.
+      DOI: <a href="https://doi.org/10.1021/ct100478d" target="_blank">10.1021/ct100478d</a>
+    </p>
+  </div>
+
+  <!-- References -->
+  <div class="references-box">
+    <h4>References: Weyl-Paldus Formula and GUGA</h4>
+    <ul>
+      <li>
+        <strong>Paldus, J.</strong> (1975). "A Pattern Calculus for the Unitary Group Approach to the Electronic Correlation Problem."
+        <em>Int. J. Quantum Chem., Symp.</em> <strong>9</strong>, 165–174.
+      </li>
+      <li>
+        <strong>Paldus, J.</strong> (1976). "Many-Electron Correlation Problem: A Group Theoretical Approach."
+        In <em>Theoretical Chemistry: Advances and Perspectives</em>, Vol. 2, edited by H. Eyring and D. J. Henderson,
+        Academic Press, New York, pp. 131–290.
+      </li>
+      <li>
+        <strong>Shavitt, I.</strong> (1977). "Graph theoretical concepts for the unitary group approach to the many-electron correlation problem."
+        <em>Int. J. Quantum Chem., Symp.</em> <strong>11</strong>, 131–148.
+        [<a href="https://doi.org/10.1002/qua.560120114" target="_blank">DOI</a>]
+      </li>
+      <li>
+        <strong>Shavitt, I.</strong> (1977). "The method of configuration interaction."
+        In <em>Methods of Electronic Structure Theory</em>, edited by H. F. Schaefer III,
+        Plenum Press, New York, pp. 189–275.
+      </li>
+      <li>
+        <strong>Shavitt, I.</strong> (1981). "The Graphical Unitary Group Approach and Its Application to Direct Configuration Interaction Calculations."
+        In <em>The Unitary Group for the Evaluation of Electronic Energy Matrix Elements</em>,
+        Lecture Notes in Chemistry, Vol. 22, edited by J. Hinze, Springer, Berlin.
+        [<a href="https://doi.org/10.1007/978-3-642-93163-5_2" target="_blank">DOI</a>]
+      </li>
+      <li>
+        <strong>Dobrautz, W., et al.</strong> (2019). "Efficient formulation of full configuration interaction quantum Monte Carlo in a spin eigenbasis via the graphical unitary group approach."
+        <em>J. Chem. Phys.</em> <strong>151</strong>, 094104.
+        [<a href="https://doi.org/10.1063/1.5108908" target="_blank">DOI</a>]
+      </li>
+      <li>
+        <strong>Wikipedia:</strong> <a href="https://en.wikipedia.org/wiki/Graphical_unitary_group_approach" target="_blank">Graphical Unitary Group Approach (GUGA)</a>
+      </li>
+    </ul>
+  </div>
+
+</div><!-- .page -->
+
+<script>
+// ── Version ──────────────────────────────────────────────────────────────────
+// Bump this string every time a new fix or feature is deployed so that the
+// version is visible in the UI.  Format: v<major>.<minor>.  The major
+// component is frozen at 0 until the suite-wide v1.0 release, so increment
+// the minor component only — it is an unbounded counter, not a two-digit
+// field (v0.99 is followed by v0.100).
+const CSFSCALC_VERSION = 'v0.50';
+
+/* ─── UI helpers ─────────────────────────────────────────────────────── */
+function toggleSect(titleEl) {
+  const body = titleEl.nextElementSibling;
+  const arr  = titleEl.querySelector('.arr');
+  body.classList.toggle('collapsed');
+  arr.textContent = body.classList.contains('collapsed') ? '▸' : '▾';
+}
+
+function toggleDebug() {
+  const debugBox = document.getElementById('debugBox');
+  const button   = document.querySelector('.btn');
+  if (debugBox.classList.contains('visible')) {
+    debugBox.classList.remove('visible');
+    button.textContent = 'Show CSF Distribution Details';
+  } else {
+    debugBox.classList.add('visible');
+    button.textContent = 'Hide CSF Distribution Details';
+  }
+}
+
+/* ─── Mathematics (unchanged) ────────────────────────────────────────── */
+function binom(n, k) {
+  if (k < 0 || k > n) return 0;
+  if (k === 0 || k === n) return 1;
+  let result = 1;
+  for (let i = 1; i <= k; i++) {
+    result *= (n - i + 1) / i;
+  }
+  return Math.round(result);
+}
+
+function countSlaterDeterminants(n1, n2, n3, nAlpha, nBeta, maxHoles, maxExcitations) {
+  let total = 0;
+  for (let b3 = 0; b3 <= maxExcitations; b3++) {
+    for (let a3 = 0; a3 <= maxExcitations; a3++) {
+      if ((a3 + b3) > maxExcitations) continue;
+      for (let b1 = n1 - maxHoles; b1 <= n1; b1++) {
+        for (let a1 = n1 - maxHoles; a1 <= n1; a1++) {
+          if ((a1 + b1) < 2 * n1 - maxHoles) continue;
+          const a2 = nAlpha - a1 - a3;
+          const b2 = nBeta - b1 - b3;
+          if (a2 >= 0 && a2 <= n2 && b2 >= 0 && b2 <= n2) {
+            total += binom(n1, a1) * binom(n1, b1) *
+                     binom(n3, a3) * binom(n3, b3) *
+                     binom(n2, a2) * binom(n2, b2);
+          }
+        }
+      }
+    }
+  }
+  return total;
+}
+
+function weylPaldusK(nOrbitals, nElectrons, spin) {
+  const n = nOrbitals;
+  const N = nElectrons;
+  const twoS = Math.round(2 * spin);
+  if ((N % 2) !== (twoS % 2)) return 0;
+  const k      = (N - twoS) / 2;
+  const kPrime = (N + twoS) / 2 + 1;
+  if (k < 0 || kPrime < 0 || k > (n + 1) || kPrime > (n + 1)) return 0;
+  if (n === -1) return 0;
+  if (n === 0 && N === 0 && spin === 0) return 1;
+  const value = (twoS + 1) / (n + 1) * binom(n + 1, k) * binom(n + 1, kPrime);
+  return Math.round(value);
+}
+
+function countSpinAdaptedDeterminants(numCSFs, STotal) {
+  if (numCSFs === 0) return 0;
+  if (STotal === 0) {
+    return Math.round(2 * numCSFs + Math.sqrt(numCSFs));
+  } else {
+    const multiplicity = 2 * STotal + 1;
+    return Math.round(numCSFs * multiplicity);
+  }
+}
+
+function canCoupleSpins(S1, S2, S3, STarget) {
+  const S12Min = Math.abs(S1 - S2);
+  const S12Max = S1 + S2;
+  const S12ReqMin = Math.abs(S3 - STarget);
+  const S12ReqMax = S3 + STarget;
+  const overlapMin = Math.max(S12Min, S12ReqMin);
+  const overlapMax = Math.min(S12Max, S12ReqMax);
+  if (overlapMin > overlapMax) return false;
+  const parityS1S2   = (Math.round(2*S1) + Math.round(2*S2)) % 2;
+  const parityS3Stot = (Math.round(2*S3) + Math.round(2*STarget)) % 2;
+  if (parityS1S2 !== parityS3Stot) return false;
+  const startParity = Math.round(2 * overlapMin) % 2;
+  if (startParity === parityS1S2) return true;
+  return (overlapMin + 1.0) <= overlapMax;
+}
+
+function getSpinRange(nOrbitals, nElectrons) {
+  if (nElectrons < 0 || nElectrons > 2 * nOrbitals) return [0.0, -1.0];
+  const SMin = nElectrons % 2 !== 0 ? 0.5 : 0.0;
+  const SMax = Math.min(nElectrons, 2 * nOrbitals - nElectrons) / 2.0;
+  return [SMin, SMax];
+}
+
+function countCSFs(n1, n2, n3, NTotal, STotal, maxHoles, maxExcitations) {
+  let totalCSF = 0;
+  const debugLines = [];
+  const minN1 = 2 * n1 - maxHoles;
+  const maxN1 = 2 * n1;
+  const minN3 = 0;
+  const maxN3 = maxExcitations;
+  for (let N1 = minN1; N1 <= maxN1; N1++) {
+    for (let N3 = minN3; N3 <= maxN3; N3++) {
+      const N2 = NTotal - N1 - N3;
+      if (N2 < 0 || N2 > 2 * n2) continue;
+      let distributionCSF = 0;
+      const [S1Min, S1Max] = getSpinRange(n1, N1);
+      const [S2Min, S2Max] = getSpinRange(n2, N2);
+      const [S3Min, S3Max] = getSpinRange(n3, N3);
+      for (let S1 = S1Min; S1 <= S1Max; S1 += 1.0) {
+        const K1 = weylPaldusK(n1, N1, S1);
+        if (K1 > 0) {
+          for (let S2 = S2Min; S2 <= S2Max; S2 += 1.0) {
+            const K2 = weylPaldusK(n2, N2, S2);
+            if (K2 > 0) {
+              for (let S3 = S3Min; S3 <= S3Max; S3 += 1.0) {
+                const K3 = weylPaldusK(n3, N3, S3);
+                if (K3 > 0 && canCoupleSpins(S1, S2, S3, STotal)) {
+                  distributionCSF += K1 * K2 * K3;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (distributionCSF > 0) {
+        debugLines.push(`(N1=${N1}, N2=${N2}, N3=${N3}) → ${distributionCSF} CSFs`);
+        totalCSF += distributionCSF;
+      }
+    }
+  }
+  return { totalCSF, debugLines };
+}
+
+const multiplicityNames = {
+  1: 'Singlet', 2: 'Doublet', 3: 'Triplet', 4: 'Quartet',
+  5: 'Quintet', 6: 'Sextet',  7: 'Septet',  8: 'Octet'
+};
+
+function calculate() {
+  const ras1           = parseInt(document.getElementById('ras1').value)           || 0;
+  const ras2           = parseInt(document.getElementById('ras2').value)           || 0;
+  const ras3           = parseInt(document.getElementById('ras3').value)           || 0;
+  const nAlpha         = parseInt(document.getElementById('nAlpha').value)         || 0;
+  const nBeta          = parseInt(document.getElementById('nBeta').value)          || 0;
+  const maxHoles       = parseInt(document.getElementById('maxHoles').value)       || 0;
+  const maxExcitations = parseInt(document.getElementById('maxExcitations').value) || 0;
+
+  const nTotal      = nAlpha + nBeta;
+  const sTotal      = Math.abs(nAlpha - nBeta) / 2.0;
+  const multiplicity = Math.abs(nAlpha - nBeta) + 1;
+
+  document.getElementById('nTotal').textContent          = nTotal;
+  document.getElementById('electronBreakdown').textContent = `(${nAlpha} α, ${nBeta} β)`;
+  document.getElementById('spinState').textContent       = `S = ${sTotal.toFixed(1)}`;
+  document.getElementById('multiplicity').textContent    =
+    multiplicityNames[multiplicity] || `Multiplicity ${multiplicity}`;
+
+  const numDeterminants = countSlaterDeterminants(
+    ras1, ras2, ras3, nAlpha, nBeta, maxHoles, maxExcitations
+  );
+  const csfResult = countCSFs(
+    ras1, ras2, ras3, nTotal, sTotal, maxHoles, maxExcitations
+  );
+  const numDeterminantsGUGA = countSpinAdaptedDeterminants(
+    csfResult.totalCSF, sTotal
+  );
+
+  document.getElementById('numDeterminants').textContent    = numDeterminants.toLocaleString();
+  document.getElementById('numDeterminantsGUGA').textContent = numDeterminantsGUGA.toLocaleString();
+  document.getElementById('numCSFs').textContent             = csfResult.totalCSF.toLocaleString();
+
+  document.getElementById('rasNotation').textContent =
+    `RAS(${nTotal}, ${maxHoles}, ${maxExcitations}; ${ras1}, ${ras2}, ${ras3})`;
+
+  const debugContent = document.getElementById('debugContent');
+  debugContent.innerHTML = '';
+  csfResult.debugLines.forEach(line => {
+    const div = document.createElement('div');
+    div.textContent = line;
+    debugContent.appendChild(div);
+  });
+}
+
+// Wire inputs
+['ras1', 'ras2', 'ras3', 'nAlpha', 'nBeta', 'maxHoles', 'maxExcitations', 'nRoots'].forEach(id => {
+  document.getElementById(id).addEventListener('input', calculate);
+});
+
+// Initial calculation
+calculate();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASIS SET DATA
+   nBas per atom: number of contracted spherical basis functions.
+   Sources: OpenMolcas manual §4.2.59, basis.tbl, ANO header files.
+   For ANO types: contraction levels MB / VDZ / VDZP / VTZP / VQZP.
+   For fixed basis sets (Pople/Dunning): one entry keyed "DEFAULT".
+
+   Angular momentum counts (spherical Gaussians):
+     s=1, p=3, d=5, f=7, g=9, h=11
+═══════════════════════════════════════════════════════════════════════════ */
+const BASIS_DATA = {
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     SOURCE: OpenMolcas GitLab master — basis_library/basis.tbl (ANO families)
+     and actual basis files (Pople/Dunning/def2). All nBas values are
+     spherical (2l+1 per shell), consistent with OpenMolcas convention.
+  ═══════════════════════════════════════════════════════════════════════ */
+
+  /* ── ANO-XS (extra-small; H–Ca + Cr only, 3 levels) ─────────────────── */
+  'ANO-XS': {
+    MB:   {Al:9, B:5, Be:2, C:5, Ca:10, Cl:9, F:5, H:1, K:10, Li:2, Mg:6, N:5, Na:6, O:5, P:9, S:9, Si:9},
+    VDZ:  {Al:13, B:9, Be:3, C:9, Ca:14, Cl:13, F:9, H:2, K:14, Li:3, Mg:10, N:9, Na:10, O:9, P:13, S:13, Si:13},
+    VDZP: {Al:18, B:14, Be:6, C:14, Ca:19, Cl:18, F:14, H:5, K:19, Li:6, Mg:15, N:14, Na:15, O:14, P:18, S:18, Si:18},
+  },
+
+  /* ── ANO-S (H–Kr, no H/He at VTZP) ─────────────────────────────────── */
+  'ANO-S': {
+    MB:   {Al:9, Ar:9, As:18, B:5, Be:5, Br:18, C:5, Ca:13, Cl:9, Co:18, Cr:18, Cu:18, F:5, Fe:18, Ga:18, Ge:18, H:1, He:1, K:13, Kr:18, Li:5, Mg:9, Mn:18, N:5, Na:9, Ne:5, Ni:18, O:5, P:9, S:9, Sc:18, Se:18, Si:9, Ti:18, V:18, Zn:18},
+    VDZ:  {Al:13, Ar:13, As:22, B:9, Be:9, Br:22, C:9, Ca:17, Cl:13, Co:27, Cr:27, Cu:27, F:9, Fe:27, Ga:22, Ge:22, H:2, He:2, K:17, Kr:22, Li:9, Mg:13, Mn:27, N:9, Na:13, Ne:9, Ni:27, O:9, P:13, S:13, Sc:27, Se:22, Si:13, Ti:27, V:27, Zn:27},
+    VDZP: {Al:18, Ar:18, As:27, B:14, Be:14, Br:27, C:14, Ca:22, Cl:18, Co:34, Cr:34, Cu:34, F:14, Fe:34, Ga:27, Ge:27, H:5, He:5, K:22, Kr:27, Li:14, Mg:18, Mn:34, N:14, Na:18, Ne:14, Ni:34, O:14, P:18, S:18, Sc:34, Se:27, Si:18, Ti:34, V:34, Zn:34},
+    VTZP: {Al:27, Ar:27, As:36, B:23, Be:23, Br:36, C:23, Ca:31, Cl:27, Co:50, Cr:50, Cu:50, F:23, Fe:50, Ga:36, Ge:36, K:31, Kr:36, Li:23, Mg:27, Mn:50, N:23, Na:27, Ne:23, Ni:50, O:23, P:27, S:27, Sc:50, Se:36, Si:27, Ti:50, V:50, Zn:50},  /* H/He absent */
+  },
+
+  /* ── ANO-L (H–Zn; K and Ca absent) ──────────────────────────────────── */
+  'ANO-L': {
+    MB:   {Al:9, Ar:9, B:5, Be:5, C:5, Cl:9, Co:18, Cr:18, Cu:18, F:5, Fe:18, H:1, He:1, Li:5, Mg:9, Mn:18, N:5, Na:9, Ne:5, Ni:18, O:5, P:9, S:9, Sc:18, Si:9, Ti:18, V:18, Zn:18},
+    VDZ:  {Al:13, Ar:13, B:9, Be:9, C:9, Cl:13, Co:27, Cr:27, Cu:27, F:9, Fe:27, H:2, He:2, Li:9, Mg:13, Mn:27, N:9, Na:13, Ne:9, Ni:27, O:9, P:13, S:13, Sc:27, Si:13, Ti:27, V:27, Zn:27},
+    VDZP: {Al:18, Ar:18, B:14, Be:14, C:14, Cl:18, Co:34, Cr:34, Cu:34, F:14, Fe:34, H:5, He:5, Li:14, Mg:18, Mn:34, N:14, Na:18, Ne:14, Ni:34, O:14, P:18, S:18, Sc:34, Si:18, Ti:34, V:34, Zn:34},
+    VTZP: {Al:34, Ar:34, B:30, Be:30, C:30, Cl:34, Co:59, Cr:59, Cu:59, F:30, Fe:59, H:14, He:14, Li:30, Mg:34, Mn:59, N:30, Na:34, Ne:30, Ni:59, O:30, P:34, S:34, Sc:59, Si:34, Ti:59, V:59, Zn:59},
+    VQZP: {Al:50, Ar:50, B:46, Be:46, C:46, Cl:50, Co:84, Cr:84, Cu:84, F:46, Fe:84, H:23, He:23, Li:46, Mg:50, Mn:84, N:46, Na:50, Ne:46, Ni:84, O:46, P:50, S:50, Sc:84, Si:50, Ti:84, V:84, Zn:84},
+  },
+
+  /* ── ANO-RCC (H–Cm, 96 elements; relativistic DKH) ──────────────────── */
+  'ANO-RCC': {
+    MB:   {Ac:59, Ag:27, Al:9, Am:59, Ar:9, As:18, At:43, Au:43, B:5, Ba:31, Be:5, Bi:43, Br:18, C:5, Ca:13, Cd:27, Ce:43, Cl:9, Cm:59, Co:18, Cr:18, Cs:31, Cu:18, Dy:43, Er:43, Eu:43, F:5, Fe:18, Fr:47, Ga:18, Gd:43, Ge:18, H:1, He:1, Hf:43, Hg:43, Ho:43, I:27, In:27, Ir:43, K:13, Kr:18, La:43, Li:5, Lu:43, Mg:9, Mn:18, Mo:27, N:5, Na:9, Nb:27, Nd:43, Ne:5, Ni:18, Np:59, O:5, Os:43, P:9, Pa:59, Pb:43, Pd:27, Pm:43, Po:43, Pr:43, Pt:43, Pu:59, Ra:47, Rb:22, Re:43, Rh:27, Rn:43, Ru:27, S:9, Sb:27, Sc:18, Se:18, Si:9, Sm:43, Sn:27, Sr:22, Ta:43, Tb:43, Tc:27, Te:27, Th:59, Ti:18, Tl:43, Tm:43, U:59, V:18, W:43, Xe:27, Y:27, Yb:43, Zn:18, Zr:27},
+    VDZ:  {Ac:75, Ag:36, Al:13, Am:75, Ar:13, As:22, At:47, Au:52, B:9, Ba:35, Be:9, Bi:47, Br:22, C:9, Ca:17, Cd:36, Ce:59, Cl:13, Cm:75, Co:27, Cr:27, Cs:35, Cu:27, Dy:59, Er:59, Eu:59, F:9, Fe:27, Fr:51, Ga:22, Gd:59, Ge:22, H:2, He:2, Hf:59, Hg:52, Ho:59, I:31, In:31, Ir:52, K:17, Kr:22, La:59, Li:9, Lu:59, Mg:13, Mn:27, Mo:36, N:9, Na:13, Nb:36, Nd:59, Ne:9, Ni:27, Np:75, O:9, Os:59, P:13, Pa:75, Pb:47, Pd:36, Pm:59, Po:47, Pr:59, Pt:52, Pu:75, Ra:51, Rb:26, Re:59, Rh:36, Rn:47, Ru:36, S:13, Sb:31, Sc:27, Se:22, Si:13, Sm:59, Sn:31, Sr:26, Ta:59, Tb:59, Tc:36, Te:31, Th:75, Ti:27, Tl:47, Tm:59, U:75, V:27, W:59, Xe:31, Y:36, Yb:59, Zn:27, Zr:36},
+    VDZP: {Ac:84, Ag:43, Al:18, Am:84, Ar:18, As:27, At:68, Au:59, B:14, Ba:47, Be:14, Bi:68, Br:27, C:14, Ca:22, Cd:43, Ce:68, Cl:18, Cm:84, Co:34, Cr:34, Cs:47, Cu:34, Dy:68, Er:68, Eu:68, F:14, Fe:34, Fr:72, Ga:27, Gd:68, Ge:27, H:5, He:5, Hf:68, Hg:59, Ho:68, I:43, In:43, Ir:59, K:22, Kr:27, La:68, Li:14, Lu:68, Mg:18, Mn:34, Mo:43, N:14, Na:18, Nb:43, Nd:68, Ne:14, Ni:34, Np:84, O:14, Os:68, P:18, Pa:84, Pb:68, Pd:43, Pm:68, Po:68, Pr:68, Pt:59, Pu:84, Ra:72, Rb:31, Re:68, Rh:43, Rn:68, Ru:43, S:18, Sb:43, Sc:34, Se:27, Si:18, Sm:68, Sn:43, Sr:31, Ta:68, Tb:68, Tc:43, Te:43, Th:84, Ti:34, Tl:68, Tm:68, U:84, V:34, W:68, Xe:43, Y:43, Yb:68, Zn:34, Zr:43},
+    VTZP: {Ac:120, Ag:68, Al:34, Am:120, Ar:34, As:43, At:93, Au:84, B:30, Ba:72, Be:30, Bi:93, Br:43, C:30, Ca:38, Cd:68, Ce:104, Cl:34, Cm:120, Co:59, Cr:59, Cs:72, Cu:59, Dy:104, Er:104, Eu:104, F:30, Fe:59, Fr:97, Ga:43, Gd:104, Ge:43, H:14, He:14, Hf:104, Hg:84, Ho:104, I:68, In:68, Ir:84, K:38, Kr:43, La:104, Li:30, Lu:104, Mg:34, Mn:59, Mo:68, N:30, Na:34, Nb:68, Nd:104, Ne:30, Ni:59, Np:120, O:30, Os:104, P:34, Pa:120, Pb:93, Pd:68, Pm:104, Po:93, Pr:104, Pt:84, Pu:120, Ra:97, Rb:47, Re:104, Rh:68, Rn:93, Ru:68, S:34, Sb:68, Sc:59, Se:43, Si:34, Sm:104, Sn:68, Sr:47, Ta:104, Tb:104, Tc:68, Te:68, Th:120, Ti:59, Tl:93, Tm:104, U:120, V:59, W:104, Xe:68, Y:68, Yb:104, Zn:59, Zr:68},
+    VQZP: {Ac:156, Ag:104, Al:59, Am:156, Ar:59, As:68, At:118, Au:120, B:55, Ba:97, Be:55, Bi:118, Br:68, C:55, Ca:63, Cd:104, Ce:140, Cl:59, Cm:156, Co:95, Cr:95, Cs:97, Cu:95, Dy:140, Er:140, Eu:140, F:55, Fe:95, Fr:113, Ga:68, Gd:140, Ge:68, H:30, He:30, Hf:140, Hg:120, Ho:140, I:93, In:93, Ir:120, K:63, Kr:68, La:140, Li:55, Lu:140, Mg:59, Mn:95, Mo:104, N:55, Na:59, Nb:104, Nd:140, Ne:55, Ni:95, Np:156, O:55, Os:140, P:59, Pa:156, Pb:118, Pd:104, Pm:140, Po:118, Pr:140, Pt:120, Pu:156, Ra:113, Rb:72, Re:140, Rh:104, Rn:118, Ru:104, S:59, Sb:93, Sc:95, Se:68, Si:59, Sm:140, Sn:93, Sr:72, Ta:140, Tb:140, Tc:104, Te:93, Th:156, Ti:95, Tl:118, Tm:140, U:156, V:95, W:140, Xe:93, Y:104, Yb:140, Zn:95, Zr:104},
+  },
+
+  /* ── ANO-R (H–Rn; relativistic X2C; levels R0–R3) ───────────────────── */
+  'ANO-R': {
+    R0: {Ag:24, Al:9, Ar:9, As:18, At:43, Au:40, B:5, Ba:28, Be:2, Bi:43, Br:18, C:5, Ca:10, Cd:24, Ce:40, Cl:9, Co:15, Cr:15, Cs:28, Cu:15, Dy:35, Er:35, Eu:35, F:5, Fe:15, Ga:18, Gd:40, Ge:18, H:1, He:1, Hf:40, Hg:40, Ho:35, I:27, In:27, Ir:40, K:10, Kr:18, La:33, Li:2, Lu:40, Mg:6, Mn:15, Mo:24, N:5, Na:6, Nb:24, Nd:35, Ne:5, Ni:15, O:5, Os:40, P:9, Pb:43, Pd:24, Pm:35, Po:43, Pr:35, Pt:40, Rb:19, Re:40, Rh:24, Rn:43, Ru:24, S:9, Sb:27, Sc:15, Se:18, Si:9, Sm:35, Sn:27, Sr:19, Ta:40, Tb:35, Tc:24, Te:27, Ti:15, Tl:43, Tm:35, V:15, W:40, Xe:27, Y:24, Yb:35, Zn:15, Zr:24},
+    R1: {Ag:40, Al:18, Ar:18, As:39, At:59, Au:56, B:14, Ba:47, Be:6, Bi:59, Br:39, C:14, Ca:18, Cd:40, Ce:56, Cl:18, Co:31, Cr:36, Cs:44, Cu:31, Dy:51, Er:51, Eu:51, F:14, Fe:34, Ga:39, Gd:56, Ge:39, H:5, He:5, Hf:56, Hg:56, Ho:51, I:43, In:43, Ir:56, K:18, Kr:39, La:49, Li:6, Lu:56, Mg:18, Mn:36, Mo:40, N:14, Na:15, Nb:40, Nd:51, Ne:14, Ni:34, O:14, Os:56, P:18, Pb:59, Pd:40, Pm:51, Po:59, Pr:51, Pt:56, Rb:27, Re:56, Rh:40, Rn:59, Ru:40, S:18, Sb:43, Sc:34, Se:39, Si:18, Sm:51, Sn:43, Sr:27, Ta:56, Tb:51, Tc:40, Te:43, Ti:39, Tl:59, Tm:51, V:36, W:56, Xe:43, Y:39, Yb:51, Zn:34, Zr:40},
+    R2: {Ag:65, Al:42, Ar:39, As:71, At:84, Au:81, B:33, Ba:69, Be:18, Bi:84, Br:64, C:33, Ca:43, Cd:65, Ce:74, Cl:39, Co:65, Cr:52, Cs:61, Cu:61, Dy:79, Er:77, Eu:76, F:33, Fe:64, Ga:71, Gd:81, Ge:71, H:14, He:14, Hf:81, Hg:81, Ho:76, I:68, In:68, Ir:81, K:34, Kr:71, La:74, Li:10, Lu:81, Mg:52, Mn:62, Mo:65, N:33, Na:34, Nb:65, Nd:79, Ne:33, Ni:64, O:33, Os:81, P:39, Pb:84, Pd:65, Pm:83, Po:84, Pr:71, Pt:81, Rb:43, Re:81, Rh:65, Rn:84, Ru:65, S:39, Sb:68, Sc:64, Se:74, Si:39, Sm:81, Sn:68, Sr:43, Ta:81, Tb:76, Tc:65, Te:68, Ti:64, Tl:84, Tm:76, V:61, W:90, Xe:68, Y:65, Yb:76, Zn:64, Zr:65},
+    R3: {Ag:101, Al:64, Ar:64, As:89, At:133, Au:128, B:33, Ba:100, Be:34, Bi:113, Br:96, C:33, Ca:75, Cd:101, Ce:126, Cl:71, Co:98, Cr:77, Cs:83, Cu:97, Dy:142, Er:143, Eu:136, F:33, Fe:97, Ga:96, Gd:141, Ge:96, H:14, He:14, Hf:131, Hg:109, Ho:142, I:131, In:104, Ir:128, K:59, Kr:107, La:115, Li:10, Lu:162, Mg:52, Mn:98, Mo:101, N:33, Na:34, Nb:106, Nd:131, Ne:33, Ni:97, O:33, Os:138, P:64, Pb:113, Pd:101, Pm:128, Po:133, Pr:123, Pt:128, Rb:68, Re:118, Rh:101, Rn:133, Ru:101, S:71, Sb:104, Sc:86, Se:96, Si:64, Sm:136, Sn:104, Sr:90, Ta:137, Tb:142, Tc:101, Te:131, Ti:97, Tl:118, Tm:142, V:97, W:137, Xe:131, Y:106, Yb:142, Zn:97, Zr:101},
+  },
+
+  /* ── ANO-ORCA (H–Si/Ar, 4 levels) ───────────────────────────────────── */
+  'ANO-ORCA': {
+    pVDZ: {Al:18, Ar:18, B:14, Be:6, C:14, Cl:18, F:14, H:5, He:5, Li:6, Mg:7, N:14, Na:7, Ne:14, O:14, P:18, S:18, Si:18},
+    pVTZ: {Al:34, Ar:34, B:30, Be:15, C:30, Cl:34, F:30, H:14, He:14, Li:15, Mg:16, N:30, Na:16, Ne:30, O:30, P:34, S:34, Si:34},
+    pVQZ: {Al:59, Ar:59, B:55, Be:31, C:55, Cl:59, F:55, H:30, He:30, Li:31, Mg:32, N:55, Na:32, Ne:55, O:55, P:59, S:59, Si:59},
+    pV5Z: {Al:95, Ar:95, B:91, Be:56, C:91, Cl:95, F:91, H:30, He:55, Li:56, Mg:57, N:91, Na:57, Ne:91, O:91, P:95, S:95, Si:95},
+  },
+
+  /* ── Pople ───────────────────────────────────────────────────────────── */
+  'STO-3G':    { DEFAULT: {Ag:27, Al:9, Ar:9, As:18, B:5, Be:5, Br:18, C:5, Ca:13, Cd:27, Cl:9, Co:18, Cr:18, Cu:18, F:5, Fe:18, Ga:18, Ge:18, H:1, He:1, I:27, In:27, K:13, Kr:18, Li:5, Mg:9, Mn:18, Mo:27, N:5, Na:9, Nb:27, Ne:5, Ni:18, O:5, P:9, Pd:27, Rb:22, Rh:27, Ru:27, S:9, Sb:27, Sc:18, Se:18, Si:9, Sn:27, Sr:22, Tc:27, Te:27, Ti:18, V:18, Xe:27, Y:27, Zn:18, Zr:27} },
+  '3-21G':     { DEFAULT: {Ag:36, Al:13, Ar:13, As:22, B:9, Be:9, Br:22, C:9, Ca:17, Cd:36, Cl:13, Co:27, Cr:27, Cs:35, Cu:27, F:9, Fe:27, Ga:22, Ge:22, H:2, He:2, I:31, In:31, K:17, Kr:22, Li:9, Mg:13, Mn:27, Mo:36, N:9, Na:13, Nb:36, Ne:9, Ni:27, O:9, P:13, Pd:36, Rb:26, Rh:36, Ru:36, S:13, Sb:31, Sc:27, Se:22, Si:13, Sn:31, Sr:26, Tc:36, Te:31, Ti:27, V:27, Xe:31, Y:36, Zn:27, Zr:36} },
+  '6-31G':     { DEFAULT: {Al:13, Ar:13, As:27, B:9, Be:9, Br:27, C:9, Ca:27, Cl:13, Co:27, Cr:27, Cu:27, F:9, Fe:27, Ga:27, Ge:27, H:2, He:2, K:27, Kr:27, Li:9, Mg:13, Mn:27, N:9, Na:13, Ne:9, Ni:27, O:9, P:13, S:13, Sc:27, Se:27, Si:13, Ti:27, V:27, Zn:27} },
+  '6-31G*':    { DEFAULT: {Al:18, Ar:18, As:32, B:14, Be:14, Br:32, C:14, Ca:32, Cl:18, Co:34, Cr:34, Cu:34, F:14, Fe:34, Ga:32, Ge:32, H:2, He:2, K:32, Kr:32, Li:14, Mg:18, Mn:34, N:14, Na:18, Ne:14, Ni:34, O:14, P:18, S:18, Sc:34, Se:32, Si:18, Ti:34, V:34, Zn:34} },
+  '6-31G**':   { DEFAULT: {Al:18, Ar:18, As:32, B:14, Be:14, Br:32, C:14, Ca:32, Cl:18, Co:34, Cr:34, Cu:34, F:14, Fe:34, Ga:32, Ge:32, H:5, He:5, K:32, Kr:32, Li:14, Mg:18, Mn:34, N:14, Na:18, Ne:14, Ni:34, O:14, P:18, S:18, Sc:34, Se:32, Si:18, Ti:34, V:34, Zn:34} },
+  '6-311G**':  { DEFAULT: {Al:26, Ar:26, As:44, B:18, Be:18, Br:44, C:18, Ca:39, Cl:26, F:18, Ga:44, Ge:44, H:6, He:6, I:62, K:39, Kr:44, Li:18, Mg:26, N:18, Na:26, Ne:18, O:18, P:26, S:26, Se:44, Si:26} },
+
+  /* ── Dunning ─────────────────────────────────────────────────────────── */
+  'cc-pVDZ':      { DEFAULT: {Al:18, Ar:18, As:27, B:14, Be:14, Br:27, C:14, Ca:27, Cl:18, Co:43, Cr:43, Cu:43, F:14, Fe:43, Ga:27, Ge:27, H:5, He:5, Kr:27, Li:14, Mg:18, Mn:43, N:14, Na:18, Ne:14, Ni:43, O:14, P:18, S:18, Sc:43, Se:27, Si:18, Ti:43, V:43, Zn:43} },
+  'cc-pVTZ':      { DEFAULT: {Al:34, Ar:34, As:43, B:30, Be:30, Br:43, C:30, Ca:43, Cl:34, Co:68, Cr:68, Cu:68, F:30, Fe:68, Ga:43, Ge:43, H:14, He:14, Kr:43, Li:30, Mg:34, Mn:68, N:30, Na:34, Ne:30, Ni:68, O:30, P:34, S:34, Sc:68, Se:43, Si:34, Ti:68, V:68, Zn:68} },
+  'cc-pVQZ':      { DEFAULT: {Al:59, Ar:59, As:68, B:55, Be:55, Br:68, C:55, Ca:68, Cl:59, Co:104, Cr:104, Cu:104, F:55, Fe:104, Ga:68, Ge:68, H:30, He:30, Kr:68, Li:55, Mg:59, Mn:104, N:55, Na:59, Ne:55, Ni:104, O:55, P:59, S:59, Sc:104, Se:68, Si:59, Ti:104, V:104, Zn:104} },
+  'cc-pV5Z':      { DEFAULT: {Al:95, Ar:95, As:104, B:91, Be:91, Br:104, C:91, Ca:104, Cl:95, Co:153, Cr:153, Cu:153, F:91, Fe:153, Ga:104, Ge:104, H:55, He:55, Kr:104, Li:91, Mg:95, Mn:153, N:91, Na:95, Ne:91, Ni:153, O:91, P:95, S:95, Sc:153, Se:104, Si:95, Ti:153, V:153, Zn:153} },
+  'aug-cc-pVDZ':  { DEFAULT: {Al:27, Ar:27, As:36, B:23, Be:23, Br:36, C:23, Cl:27, Co:59, Cr:59, Cu:59, F:23, Fe:59, Ga:36, Ge:36, H:9, He:9, Kr:36, Li:23, Mg:27, Mn:59, N:23, Na:27, Ne:23, Ni:59, O:23, P:27, S:27, Sc:59, Se:36, Si:27, Ti:59, V:59, Zn:59} },
+  'aug-cc-pVTZ':  { DEFAULT: {Al:50, Ar:50, As:59, B:46, Be:46, Br:59, C:46, Cl:50, Co:93, Cr:93, Cu:93, F:46, Fe:93, Ga:59, Ge:59, H:23, He:23, Kr:59, Li:46, Mg:50, Mn:93, N:46, Na:50, Ne:46, Ni:93, O:46, P:50, S:50, Sc:93, Se:59, Si:50, Ti:93, V:93, Zn:93} },
+  'aug-cc-pVQZ':  { DEFAULT: {Al:84, Ar:84, As:93, B:80, Be:80, Br:93, C:80, Cl:84, Co:140, Cr:140, Cu:140, F:80, Fe:140, Ga:93, Ge:93, H:46, He:46, Kr:93, Li:80, Mg:84, Mn:140, N:80, Na:84, Ne:80, Ni:140, O:80, P:84, S:84, Sc:140, Se:93, Si:84, Ti:140, V:140, Zn:140} },
+  'aug-cc-pV5Z':  { DEFAULT: {Al:131, Ar:131, As:140, B:127, Be:127, Br:140, C:127, Cl:131, Co:202, Cr:202, Cu:202, F:127, Fe:202, Ga:140, Ge:140, H:80, He:80, Kr:140, Li:127, Mg:131, Mn:202, N:127, Na:131, Ne:127, Ni:202, O:127, P:131, S:131, Sc:202, Se:140, Si:131, Ti:202, V:202, Zn:202} },
+
+  /* ── Ahlrichs / def2 ─────────────────────────────────────────────────── */
+  'def2-SVP':   { DEFAULT: {Al:18, Ar:18, As:32, B:14, Be:9, Br:32, C:14, Ca:24, Cl:18, Co:31, Cr:31, Cu:31, F:14, Fe:31, Ga:32, Ge:32, H:5, He:5, K:24, Kr:32, Li:9, Mg:18, Mn:31, N:14, Na:15, Ne:14, Ni:31, O:14, P:18, S:18, Sc:31, Se:32, Si:18, Ti:31, V:31, Zn:31} },
+  'def2-TZVP':  { DEFAULT: {Al:37, Ar:37, As:48, B:31, Be:19, Br:48, C:31, Ca:36, Cl:37, Co:45, Cr:45, Cu:45, F:31, Fe:45, Ga:48, Ge:48, H:6, He:6, K:33, Kr:48, Li:14, Mg:32, Mn:45, N:31, Na:32, Ne:31, Ni:45, O:31, P:37, S:37, Sc:45, Se:48, Si:37, Ti:45, V:45, Zn:48} },
+  'def2-TZVPP': { DEFAULT: {Al:42, Ar:42, As:48, B:31, Be:19, Br:48, C:31, Ca:36, Cl:42, Co:64, Cr:64, Cu:64, F:31, Fe:64, Ga:48, Ge:48, H:14, He:14, K:33, Kr:48, Li:19, Mg:32, Mn:64, N:31, Na:32, Ne:31, Ni:64, O:31, P:42, S:42, Sc:64, Se:48, Si:42, Ti:64, V:64, Zn:64} },
+
+};
+
+/* Descriptions shown below the basis selector */
+const BASIS_DESC = {
+  'ANO-XS':      'ANO-XS: extra-small ANO (H–Ca + Cr only, 3 levels). Very compact; for large molecules or pre-screening.',
+  'ANO-S':       'ANO-S: small ANO (H–Kr, 4 levels). Good structural properties; H/He have no VTZP contraction.',
+  'ANO-L':       'ANO-L: large ANO (H–Zn, 5 levels). Non-relativistic; K and Ca not available — use ANO-S or ANO-RCC instead.',
+  'ANO-RCC':     'ANO-RCC: relativistic ANO-DKH (H–Cm, 96 elements, 5 levels). Recommended for CASSCF/CASPT2. Use DKH or X2C Hamiltonian.',
+  'ANO-R':       'ANO-R: relativistic ANO-X2C (H–Rn, 4 levels R0–R3). More compact primitives than ANO-RCC. Bates & Sherrill JCTC 2020. Use X2C Hamiltonian.',
+  'ANO-ORCA':    'ANO-ORCA: Neese ANO basis (H–Si/Ar, 4 levels pVDZ–pV5Z). Designed for coupled-cluster / ORCA compatibility.',
+  'STO-3G':      'STO-3G: minimal Slater-type orbital basis (H–Xe). Qualitative only; not recommended for quantitative CASSCF.',
+  '3-21G':       '3-21G: split-valence Pople (H–Xe). Acceptable for geometry; poor for correlated methods.',
+  '6-31G':       '6-31G: standard split-valence Pople (H–Zn). Usable for CASSCF with small active spaces.',
+  '6-31G*':      '6-31G*: 6-31G + d polarisation on heavy atoms (H unchanged). Common choice for organic molecules.',
+  '6-31G**':     '6-31G**: 6-31G* + p on H. Recommended over 6-31G* when H participates in bonding.',
+  '6-311G**':    '6-311G**: triple-split Pople + polarisation on all atoms. Good balance for small-to-medium systems.',
+  'cc-pVDZ':     'cc-pVDZ: Dunning double-ζ (H–Kr + transition metals). Balanced, systematically improvable.',
+  'cc-pVTZ':     'cc-pVTZ: Dunning triple-ζ. Recommended baseline for quantitative CASSCF/CASPT2.',
+  'cc-pVQZ':     'cc-pVQZ: Dunning quadruple-ζ. Large; use for basis-set limit extrapolation.',
+  'cc-pV5Z':     'cc-pV5Z: Dunning quintuple-ζ. Very large; mainly for benchmark extrapolations.',
+  'aug-cc-pVDZ': 'aug-cc-pVDZ: cc-pVDZ + diffuse functions. Important for anions, excited states, and Rydberg states.',
+  'aug-cc-pVTZ': 'aug-cc-pVTZ: cc-pVTZ + diffuse. Reliable for excited-state CASPT2.',
+  'aug-cc-pVQZ': 'aug-cc-pVQZ: cc-pVQZ + diffuse. Large; excellent for converged excited-state properties.',
+  'aug-cc-pV5Z': 'aug-cc-pV5Z: cc-pV5Z + diffuse. Near-CBS quality for ground and excited states.',
+  'def2-SVP':    'def2-SVP: Ahlrichs def2 double-ζ (H–Rn, effective core for heavy elements). Good balance for geometry.',
+  'def2-TZVP':   'def2-TZVP: Ahlrichs def2 triple-ζ + valence polarisation. Recommended for accurate energetics.',
+  'def2-TZVPP':  'def2-TZVPP: def2-TZVP + polarisation on H. Better for H-bond-dominated systems.',
+};
+
+/* ── Basis set references (from basis library files) ────────────────── */
+/* Each entry is an array of citation strings, exactly as in the files. */
+const BASIS_REFS = {
+  'ANO-XS': [
+    'P.-O. Widmark, J.P. Zobel, V.P. Vysotskiy, T. Tsuchiya, V. Veryazov. J. Chem. Phys. 149 (2018) 194102. doi:10.1063/1.5047280',
+  ],
+  'ANO-S': [
+    'K. Pierloot, B. Dumez, P.-O. Widmark, B.O. Roos. Theor. Chim. Acta 90 (1995) 87-114. doi:10.1007/bf01113842',
+  ],
+  'ANO-L': [
+    'P.-O. Widmark, P.-A. Malmqvist, B.O. Roos. Theor. Chim. Acta 77 (1990) 291-306. doi:10.1007/bf01120130',
+    'P.-O. Widmark, B.J. Persson, B.O. Roos. Theor. Chim. Acta 79 (1991) 419-432. doi:10.1007/bf01112569',
+    'R. Pou-Amerigo, M. Merchan, I. Nebot-Gil, P.-O. Widmark, B.O. Roos. Theor. Chim. Acta 92 (1995) 149-181. doi:10.1007/bf01114922',
+    'H. Partridge. J. Chem. Phys. 90 (1989) 1043. (K, Ca)',
+  ],
+  'ANO-RCC': [
+    'V. Veryazov, P.-O. Widmark, B.O. Roos. Theor. Chem. Acc. 111 (2004) 345-351. doi:10.1007/s00214-003-0537-0',
+    'B.O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, P.-O. Widmark. J. Phys. Chem. A 108 (2004) 2851-2858. doi:10.1021/jp031064+',
+    'B.O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, P.-O. Widmark. J. Phys. Chem. A 109 (2005) 6575-6579. doi:10.1021/jp0581126',
+    'B.O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, P.-O. Widmark. Chem. Phys. Lett. 409 (2005) 295-299. doi:10.1016/j.cplett.2005.05.011',
+    'P.-O. Widmark, P.-A. Malmqvist, B.O. Roos. Theor. Chim. Acta 77 (1990) 291-306. doi:10.1007/bf01120130',
+    'B.O. Roos, R. Lindh, P.-A. Malmqvist, V. Veryazov, P.-O. Widmark, A.C. Borin. J. Phys. Chem. A 112 (2008) 11431-11435. doi:10.1021/jp803213j',
+  ],
+  'ANO-R': [
+    'J.P. Zobel, P.-O. Widmark, V. Veryazov. J. Chem. Theory Comput. 16 (2020) 278-294. doi:10.1021/acs.jctc.9b00873',
+  ],
+  'ANO-ORCA': [
+    'F. Neese, E. Valeev. J. Chem. Theory Comput. 7 (2011) 33-43. doi:10.1021/ct100396y',
+  ],
+  'STO-3G': [
+    'W.J. Hehre, R.F. Stewart, J.A. Pople. J. Chem. Phys. 51 (1969) 2657-2664. doi:10.1063/1.1672392',
+    'W.J. Hehre, R. Ditchfield, R.F. Stewart, J.A. Pople. J. Chem. Phys. 52 (1970) 2769-2773. doi:10.1063/1.1673374',
+    'W.J. Pietro, B.A. Levi, W.J. Hehre, R.F. Stewart. Inorg. Chem. 19 (1980) 2225-2229. doi:10.1021/ic50210a005',
+    'W.J. Pietro, E.S. Blurock, R.F. Hout, W.J. Hehre, D.J. DeFrees, R.F. Stewart. Inorg. Chem. 20 (1981) 3650-3654. doi:10.1021/ic50225a013',
+    'W.J. Pietro, W.J. Hehre. J. Comput. Chem. 4 (1983) 241-251. doi:10.1002/jcc.540040215',
+  ],
+  '3-21G': [
+    'J.S. Binkley, J.A. Pople, W.J. Hehre. J. Am. Chem. Soc. 102 (1980) 939-947. doi:10.1021/ja00523a008',
+    'M.S. Gordon, J.S. Binkley, J.A. Pople, W.J. Pietro, W.J. Hehre. J. Am. Chem. Soc. 104 (1982) 2797-2803. doi:10.1021/ja00374a017',
+    'K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 7 (1986) 359-378. doi:10.1002/jcc.540070313',
+    'K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 861-879. doi:10.1002/jcc.540080614',
+    'K.D. Dobbs, W.J. Hehre. J. Comput. Chem. 8 (1987) 880-893. doi:10.1002/jcc.540080615',
+    'E.D. Glendening, D. Feller. J. Phys. Chem. 99 (1995) 3060-3067. doi:10.1021/j100010a015',
+  ],
+  '6-31G': [
+    'R. Ditchfield, W.J. Hehre, J.A. Pople. J. Chem. Phys. 54 (1971) 724-728. doi:10.1063/1.1674902',
+    'W.J. Hehre, R. Ditchfield, J.A. Pople. J. Chem. Phys. 56 (1972) 2257-2261. doi:10.1063/1.1677527',
+    'J.D. Dill, J.A. Pople. J. Chem. Phys. 62 (1975) 2921-2923. doi:10.1063/1.430801',
+    'J.S. Binkley, J.A. Pople. J. Chem. Phys. 66 (1977) 879-880. doi:10.1063/1.433929',
+    'M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267',
+    'V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673',
+    'V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs',
+  ],
+  '6-31G*': [
+    'P.C. Hariharan, J.A. Pople. Theor. Chim. Acta 28 (1973) 213-222. doi:10.1007/bf00533485',
+    'M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267',
+    'V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673',
+    'V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs',
+  ],
+  '6-31G**': [
+    'P.C. Hariharan, J.A. Pople. Theor. Chim. Acta 28 (1973) 213-222. doi:10.1007/bf00533485',
+    'M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267',
+    'V.A. Rassolov, J.A. Pople, M.A. Ratner, T.L. Windus. J. Chem. Phys. 109 (1998) 1223-1229. doi:10.1063/1.476673',
+    'V.A. Rassolov, M.A. Ratner, J.A. Pople, P.C. Redfern, L.A. Curtiss. J. Comput. Chem. 22 (2001) 976-984. doi:10.1002/jcc.1058.abs',
+  ],
+  '6-311G**': [
+    'R. Krishnan, J.S. Binkley, R. Seeger, J.A. Pople. J. Chem. Phys. 72 (1980) 650-654. doi:10.1063/1.438955',
+    'M.M. Francl, W.J. Pietro, W.J. Hehre, J.S. Binkley, M.S. Gordon, D.J. DeFrees, J.A. Pople. J. Chem. Phys. 77 (1982) 3654-3665. doi:10.1063/1.444267',
+    'L.A. Curtiss, M.P. McGrath, J.-P. Blaudeau, N.E. Davis, R.C. Binning, L. Radom. J. Chem. Phys. 103 (1995) 6104-6113. doi:10.1063/1.470438',
+    'J.-P. Blaudeau, M.P. McGrath, L.A. Curtiss, L. Radom. J. Chem. Phys. 107 (1997) 5016-5021. doi:10.1063/1.474865',
+    'M.N. Glukhovtsev, A. Pross, M.P. McGrath, L. Radom. J. Chem. Phys. 103 (1995) 1878-1885. doi:10.1063/1.469712',
+  ],
+  'cc-pVDZ': [
+    'T.H. Dunning. J. Chem. Phys. 90 (1989) 1007-1023. doi:10.1063/1.456153',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 98 (1993) 1358-1371. doi:10.1063/1.464303',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 100 (1994) 2975-2988. doi:10.1063/1.466439',
+    'A.K. Wilson, D.E. Woon, K.A. Peterson, T.H. Dunning. J. Chem. Phys. 110 (1999) 7667-7676. doi:10.1063/1.478678',
+    'N.B. Balabanov, K.A. Peterson. J. Chem. Phys. 125 (2006) 074110. doi:10.1063/1.2335444',
+    'J. Koput, K.A. Peterson. J. Phys. Chem. A 106 (2002) 9595-9599. doi:10.1021/jp026283u',
+    'B.P. Prascher, D.E. Woon, K.A. Peterson, T.H. Dunning, A.K. Wilson. Theor. Chem. Acc. 128 (2011) 69-82. doi:10.1007/s00214-010-0764-0',
+  ],
+  'cc-pVTZ': [
+    'T.H. Dunning. J. Chem. Phys. 90 (1989) 1007-1023. doi:10.1063/1.456153',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 98 (1993) 1358-1371. doi:10.1063/1.464303',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 100 (1994) 2975-2988. doi:10.1063/1.466439',
+    'A.K. Wilson, D.E. Woon, K.A. Peterson, T.H. Dunning. J. Chem. Phys. 110 (1999) 7667-7676. doi:10.1063/1.478678',
+    'N.B. Balabanov, K.A. Peterson. J. Chem. Phys. 123 (2005) 064107. doi:10.1063/1.1998907',
+    'J. Koput, K.A. Peterson. J. Phys. Chem. A 106 (2002) 9595-9599. doi:10.1021/jp026283u',
+    'B.P. Prascher, D.E. Woon, K.A. Peterson, T.H. Dunning, A.K. Wilson. Theor. Chem. Acc. 128 (2011) 69-82. doi:10.1007/s00214-010-0764-0',
+  ],
+  'cc-pVQZ': [
+    'T.H. Dunning. J. Chem. Phys. 90 (1989) 1007-1023. doi:10.1063/1.456153',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 98 (1993) 1358-1371. doi:10.1063/1.464303',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 100 (1994) 2975-2988. doi:10.1063/1.466439',
+    'A.K. Wilson, D.E. Woon, K.A. Peterson, T.H. Dunning. J. Chem. Phys. 110 (1999) 7667-7676. doi:10.1063/1.478678',
+    'N.B. Balabanov, K.A. Peterson. J. Chem. Phys. 123 (2005) 064107. doi:10.1063/1.1998907',
+    'J. Koput, K.A. Peterson. J. Phys. Chem. A 106 (2002) 9595-9599. doi:10.1021/jp026283u',
+    'B.P. Prascher, D.E. Woon, K.A. Peterson, T.H. Dunning, A.K. Wilson. Theor. Chem. Acc. 128 (2011) 69-82. doi:10.1007/s00214-010-0764-0',
+  ],
+  'cc-pV5Z': [
+    'T.H. Dunning. J. Chem. Phys. 90 (1989) 1007-1023. doi:10.1063/1.456153',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 98 (1993) 1358-1371. doi:10.1063/1.464303',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 100 (1994) 2975-2988. doi:10.1063/1.466439',
+    'A.K. Wilson, D.E. Woon, K.A. Peterson, T.H. Dunning. J. Chem. Phys. 110 (1999) 7667-7676. doi:10.1063/1.478678',
+    'N.B. Balabanov, K.A. Peterson. J. Chem. Phys. 123 (2005) 064107. doi:10.1063/1.1998907',
+    'J. Koput, K.A. Peterson. J. Phys. Chem. A 106 (2002) 9595-9599. doi:10.1021/jp026283u',
+    'B.P. Prascher, D.E. Woon, K.A. Peterson, T.H. Dunning, A.K. Wilson. Theor. Chem. Acc. 128 (2011) 69-82. doi:10.1007/s00214-010-0764-0',
+  ],
+  'aug-cc-pVDZ': [
+    'T.H. Dunning. J. Chem. Phys. 90 (1989) 1007-1023. doi:10.1063/1.456153',
+    'R.A. Kendall, T.H. Dunning, R.J. Harrison. J. Chem. Phys. 96 (1992) 6796-6806. doi:10.1063/1.462569',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 98 (1993) 1358-1371. doi:10.1063/1.464303',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 100 (1994) 2975-2988. doi:10.1063/1.466439',
+    'A.K. Wilson, D.E. Woon, K.A. Peterson, T.H. Dunning. J. Chem. Phys. 110 (1999) 7667-7676. doi:10.1063/1.478678',
+    'N.B. Balabanov, K.A. Peterson. J. Chem. Phys. 123 (2005) 064107. doi:10.1063/1.1998907',
+    'B.P. Prascher, D.E. Woon, K.A. Peterson, T.H. Dunning, A.K. Wilson. Theor. Chem. Acc. 128 (2011) 69-82. doi:10.1007/s00214-010-0764-0',
+  ],
+  'aug-cc-pVTZ': [
+    'T.H. Dunning. J. Chem. Phys. 90 (1989) 1007-1023. doi:10.1063/1.456153',
+    'R.A. Kendall, T.H. Dunning, R.J. Harrison. J. Chem. Phys. 96 (1992) 6796-6806. doi:10.1063/1.462569',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 98 (1993) 1358-1371. doi:10.1063/1.464303',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 100 (1994) 2975-2988. doi:10.1063/1.466439',
+    'A.K. Wilson, D.E. Woon, K.A. Peterson, T.H. Dunning. J. Chem. Phys. 110 (1999) 7667-7676. doi:10.1063/1.478678',
+    'N.B. Balabanov, K.A. Peterson. J. Chem. Phys. 123 (2005) 064107. doi:10.1063/1.1998907',
+    'B.P. Prascher, D.E. Woon, K.A. Peterson, T.H. Dunning, A.K. Wilson. Theor. Chem. Acc. 128 (2011) 69-82. doi:10.1007/s00214-010-0764-0',
+  ],
+  'aug-cc-pVQZ': [
+    'T.H. Dunning. J. Chem. Phys. 90 (1989) 1007-1023. doi:10.1063/1.456153',
+    'R.A. Kendall, T.H. Dunning, R.J. Harrison. J. Chem. Phys. 96 (1992) 6796-6806. doi:10.1063/1.462569',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 98 (1993) 1358-1371. doi:10.1063/1.464303',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 100 (1994) 2975-2988. doi:10.1063/1.466439',
+    'A.K. Wilson, D.E. Woon, K.A. Peterson, T.H. Dunning. J. Chem. Phys. 110 (1999) 7667-7676. doi:10.1063/1.478678',
+    'N.B. Balabanov, K.A. Peterson. J. Chem. Phys. 123 (2005) 064107. doi:10.1063/1.1998907',
+    'B.P. Prascher, D.E. Woon, K.A. Peterson, T.H. Dunning, A.K. Wilson. Theor. Chem. Acc. 128 (2011) 69-82. doi:10.1007/s00214-010-0764-0',
+  ],
+  'aug-cc-pV5Z': [
+    'T.H. Dunning. J. Chem. Phys. 90 (1989) 1007-1023. doi:10.1063/1.456153',
+    'R.A. Kendall, T.H. Dunning, R.J. Harrison. J. Chem. Phys. 96 (1992) 6796-6806. doi:10.1063/1.462569',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 98 (1993) 1358-1371. doi:10.1063/1.464303',
+    'D.E. Woon, T.H. Dunning. J. Chem. Phys. 100 (1994) 2975-2988. doi:10.1063/1.466439',
+    'A.K. Wilson, D.E. Woon, K.A. Peterson, T.H. Dunning. J. Chem. Phys. 110 (1999) 7667-7676. doi:10.1063/1.478678',
+    'N.B. Balabanov, K.A. Peterson. J. Chem. Phys. 123 (2005) 064107. doi:10.1063/1.1998907',
+    'B.P. Prascher, D.E. Woon, K.A. Peterson, T.H. Dunning, A.K. Wilson. Theor. Chem. Acc. 128 (2011) 69-82. doi:10.1007/s00214-010-0764-0',
+  ],
+  'def2-SVP': [
+    'F. Weigend, R. Ahlrichs. Phys. Chem. Chem. Phys. 7 (2005) 3297. doi:10.1039/b508541a',
+    'D. Andrae, U. Haussermann, M. Dolg, H. Stoll, H. Preuss. Theor. Chim. Acta 77 (1990) 123-141. doi:10.1007/bf01114537',
+    'B. Metz, H. Stoll, M. Dolg. J. Chem. Phys. 113 (2000) 2563-2569. doi:10.1063/1.1305880',
+    'B. Metz, M. Schweizer, H. Stoll, M. Dolg, W. Liu. Theor. Chim. Acta 104 (2000) 22-28. doi:10.1007/s002149900101',
+    'M. Dolg, H. Stoll, H. Preuss. J. Chem. Phys. 90 (1989) 1730-1734. doi:10.1063/1.456066',
+    'M. Dolg, H. Stoll, H. Preuss. Theor. Chim. Acta 85 (1993) 441-450. doi:10.1007/bf01112983',
+    'M. Kaupp, P.v.R. Schleyer, H. Stoll, H. Preuss. J. Chem. Phys. 94 (1991) 1360-1366. doi:10.1063/1.459993',
+    'T. Leininger, A. Nicklass, W. Kuchle, H. Stoll, M. Dolg, A. Bergner. Chem. Phys. Lett. 255 (1996) 274-280. doi:10.1016/0009-2614(96)00382-x',
+    'K.A. Peterson, D. Figgen, E. Goll, H. Stoll, M. Dolg. J. Chem. Phys. 119 (2003) 11113-11123. doi:10.1063/1.1622924',
+    'X. Cao, M. Dolg. J. Chem. Phys. 115 (2001) 7348. doi:10.1063/1.1406535',
+  ],
+  'def2-TZVP': [
+    'F. Weigend, R. Ahlrichs. Phys. Chem. Chem. Phys. 7 (2005) 3297. doi:10.1039/b508541a',
+    'D. Andrae, U. Haussermann, M. Dolg, H. Stoll, H. Preuss. Theor. Chim. Acta 77 (1990) 123-141. doi:10.1007/bf01114537',
+    'B. Metz, H. Stoll, M. Dolg. J. Chem. Phys. 113 (2000) 2563-2569. doi:10.1063/1.1305880',
+    'B. Metz, M. Schweizer, H. Stoll, M. Dolg, W. Liu. Theor. Chim. Acta 104 (2000) 22-28. doi:10.1007/s002149900101',
+    'M. Dolg, H. Stoll, H. Preuss. J. Chem. Phys. 90 (1989) 1730-1734. doi:10.1063/1.456066',
+    'M. Dolg, H. Stoll, H. Preuss. Theor. Chim. Acta 85 (1993) 441-450. doi:10.1007/bf01112983',
+    'M. Kaupp, P.v.R. Schleyer, H. Stoll, H. Preuss. J. Chem. Phys. 94 (1991) 1360-1366. doi:10.1063/1.459993',
+    'T. Leininger, A. Nicklass, W. Kuchle, H. Stoll, M. Dolg, A. Bergner. Chem. Phys. Lett. 255 (1996) 274-280. doi:10.1016/0009-2614(96)00382-x',
+    'K.A. Peterson, D. Figgen, E. Goll, H. Stoll, M. Dolg. J. Chem. Phys. 119 (2003) 11113-11123. doi:10.1063/1.1622924',
+    'X. Cao, M. Dolg. J. Chem. Phys. 115 (2001) 7348. doi:10.1063/1.1406535',
+  ],
+  'def2-TZVPP': [
+    'F. Weigend, R. Ahlrichs. Phys. Chem. Chem. Phys. 7 (2005) 3297. doi:10.1039/b508541a',
+    'D. Andrae, U. Haussermann, M. Dolg, H. Stoll, H. Preuss. Theor. Chim. Acta 77 (1990) 123-141. doi:10.1007/bf01114537',
+    'B. Metz, H. Stoll, M. Dolg. J. Chem. Phys. 113 (2000) 2563-2569. doi:10.1063/1.1305880',
+    'B. Metz, M. Schweizer, H. Stoll, M. Dolg, W. Liu. Theor. Chim. Acta 104 (2000) 22-28. doi:10.1007/s002149900101',
+    'M. Dolg, H. Stoll, H. Preuss. J. Chem. Phys. 90 (1989) 1730-1734. doi:10.1063/1.456066',
+    'M. Dolg, H. Stoll, H. Preuss. Theor. Chim. Acta 85 (1993) 441-450. doi:10.1007/bf01112983',
+    'M. Kaupp, P.v.R. Schleyer, H. Stoll, H. Preuss. J. Chem. Phys. 94 (1991) 1360-1366. doi:10.1063/1.459993',
+    'T. Leininger, A. Nicklass, W. Kuchle, H. Stoll, M. Dolg, A. Bergner. Chem. Phys. Lett. 255 (1996) 274-280. doi:10.1016/0009-2614(96)00382-x',
+    'K.A. Peterson, D. Figgen, E. Goll, H. Stoll, M. Dolg. J. Chem. Phys. 119 (2003) 11113-11123. doi:10.1063/1.1622924',
+    'X. Cao, M. Dolg. J. Chem. Phys. 115 (2001) 7348. doi:10.1063/1.1406535',
+  ],
+};
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ATOMIC NUMBERS  (used to compute total molecular electrons → nInactive)
+═══════════════════════════════════════════════════════════════════════ */
+const ATOMIC_NUM = {
+  H:1,  He:2, Li:3, Be:4, B:5,  C:6,  N:7,  O:8,  F:9,  Ne:10,
+  Na:11,Mg:12,Al:13,Si:14,P:15, S:16, Cl:17,Ar:18,K:19, Ca:20,
+  Sc:21,Ti:22,V:23, Cr:24,Mn:25,Fe:26,Co:27,Ni:28,Cu:29,Zn:30,
+  Ga:31,Ge:32,As:33,Se:34,Br:35,Kr:36,Rb:37,Sr:38,Y:39, Zr:40,
+  Nb:41,Mo:42,Tc:43,Ru:44,Rh:45,Pd:46,Ag:47,Cd:48,In:49,Sn:50,
+  Sb:51,Te:52,I:53, Xe:54,Cs:55,Ba:56,La:57,Ce:58,Pr:59,Nd:60,
+  Pm:61,Sm:62,Eu:63,Gd:64,Tb:65,Dy:66,Ho:67,Er:68,Tm:69,Yb:70,
+  Lu:71,Hf:72,Ta:73,W:74, Re:75,Os:76,Ir:77,Pt:78,Au:79,Hg:80,
+  Tl:81,Pb:82,Bi:83,Po:84,At:85,Rn:86,Fr:87,Ra:88,Ac:89,Th:90,
+  Pa:91,U:92, Np:93,Pu:94,Am:95,Cm:96,
+};
+
+function computeInactive(atoms, nActiveElec) {
+  /* Try charges in {0, -1, +1, -2, +2} to find which gives a non-negative
+     even number of inactive electrons (closed-shell pairs). */
+  let totalZ = 0;
+  const unknown = [];
+  atoms.forEach(a => {
+    const Z = ATOMIC_NUM[a.element];
+    if (Z !== undefined) totalZ += Z;
+    else if (!unknown.includes(a.element)) unknown.push(a.element);
+  });
+  for (const q of [0, -1, 1, -2, 2]) {
+    const totalElec = totalZ - q;
+    const nInact2 = totalElec - nActiveElec;
+    if (nInact2 >= 0 && nInact2 % 2 === 0) {
+      return { nInactive: nInact2 / 2, charge: q, totalElec, unknown };
+    }
+  }
+  const nInact2 = Math.max(0, totalZ - nActiveElec);
+  return { nInactive: Math.floor(nInact2 / 2), charge: 0, totalElec: totalZ, unknown, approx: true };
+}
+
+function formatGB(gb) {
+  if (gb < 0.001) return '< 0.001 GB';
+  if (gb < 1)    return gb.toFixed(3) + ' GB';
+  return gb.toFixed(1) + ' GB';
+}
+
+function estimateRAM() {
+  const ramDiv = document.getElementById('ramResult');
+  if (!ramDiv) return;
+
+  // Read nBas from the badge rendered by updateNbas()
+  const badge = document.querySelector('.nbas-badge-value');
+  const nBas  = badge ? parseInt(badge.textContent.replace(/,/g,'')) || 0 : 0;
+
+  const ras1   = parseInt(document.getElementById('ras1').value)           || 0;
+  const ras2   = parseInt(document.getElementById('ras2').value)           || 0;
+  const ras3   = parseInt(document.getElementById('ras3').value)           || 0;
+  const nAlpha = parseInt(document.getElementById('nAlpha').value)         || 0;
+  const nBeta  = parseInt(document.getElementById('nBeta').value)          || 0;
+  const nRoots = Math.max(1, parseInt(document.getElementById('nRoots').value) || 1);
+  const cholesky = document.getElementById('useCholesky').checked;
+  const nCSFs  = (() => {
+    const el = document.getElementById('numCSFs');
+    return el ? (parseInt(el.textContent.replace(/,/g,'')) || 1) : 1;
+  })();
+
+  // Update Cholesky label
+  const lbl = document.getElementById('choleskyLabel');
+  if (lbl) lbl.textContent = cholesky ? 'Enabled (recommended)' : 'Disabled (conventional)';
+
+  if (nBas === 0) { ramDiv.innerHTML = ''; return; }
+
+  const nAct  = ras1 + ras2 + ras3;
+  const nActE = nAlpha + nBeta;
+
+  // Inactive orbitals
+  let nInact = 0, chargeStr = '', warnUnknown = '', warnApprox = '';
+  if (xyzAtoms.length > 0) {
+    const r = computeInactive(xyzAtoms, nActE);
+    nInact = r.nInactive;
+    chargeStr = r.charge === 0 ? 'neutral' : (r.charge > 0 ? `charge +${r.charge}` : `charge ${r.charge}`);
+    if (r.unknown.length) warnUnknown = `No Z for: ${r.unknown.join(', ')}. nInactive may be off. `;
+    if (r.approx) warnApprox = 'Charge outside {−1,0,+1}: using approximate inactive count. ';
+  } else {
+    nInact = Math.round(nBas / 4);  // crude heuristic when no molecule loaded
+    chargeStr = 'estimated (no molecule)';
+  }
+
+  const nOcc = nInact + nAct;
+  const GB   = 1e9;
+  const terms = {};
+
+  if (cholesky) {
+    const nChol = 5 * nBas;  // typical N_chol ≈ 3–7 × nBas; 5 is a reasonable midpoint
+    terms['Chol. vectors (disk)']    = nBas * nBas * nChol * 8 / GB;
+    terms['3-idx tensor (RAM peak)'] = nChol * nOcc * nBas * 8 / GB;
+    terms['K-matrix buffer']         = nOcc * nOcc * nBas * nBas * 8 / GB;
+  } else {
+    terms['AO 2e integrals']         = Math.pow(nBas, 4) / 8 * 8 / GB;
+    terms['Half-transform buffer']   = nOcc * nOcc * nBas * nBas * 8 / GB;
+  }
+
+  terms['Active MO integrals']     = nAct > 0 ? Math.pow(nAct, 4) * 8 / GB : 0;
+  terms['CI vectors (all roots)']  = nCSFs * nRoots * 4 * 8 / GB;  // ×4: sigma+trial+residual+old
+  terms['Density matrices']        = (nAct*nAct + Math.pow(nAct,4)/8) * 8 / GB;
+  terms['Orbital working arrays']  = 5 * nBas * nBas * 8 / GB;
+
+  const rawTotal  = Object.values(terms).reduce((s,v) => s + v, 0);
+  const safeTotal = rawTotal * 1.5;
+
+  const rowsHTML = Object.entries(terms)
+    .filter(([,v]) => v > 1e-6)
+    .map(([k,v]) =>
+      `<div class="mem-row">
+        <span class="mem-item-label">${k}</span>
+        <span class="mem-item-val">${formatGB(v)}</span>
+      </div>`
+    ).join('');
+
+  const modeStr  = cholesky ? 'Cholesky/CD' : 'Conventional';
+  const inactStr = xyzAtoms.length > 0
+    ? `${nInact} inactive orb. (${chargeStr}, ${nActE} active e⁻)`
+    : `~${nInact} inactive orb. (${chargeStr})`;
+
+  const warns = [warnUnknown, warnApprox].filter(Boolean).join('');
+
+  ramDiv.innerHTML = `<div class="mem-panel">
+    <div class="mem-total">
+      <div>
+        <div class="mem-total-label">Est. RAM — ${modeStr}, ${nRoots} root${nRoots>1?'s':''} (×1.5 safety)</div>
+        <div style="font-size:10px;color:var(--txt4);font-family:var(--mono);margin-top:2px">${inactStr}</div>
+      </div>
+      <div class="mem-total-value">${formatGB(safeTotal)}</div>
+    </div>
+    <div class="mem-breakdown">${rowsHTML}</div>
+    <div class="mem-note">
+      Take this with a grain of salt — actual usage depends on screening, integral batching,
+      OpenMolcas version, and RASSCF algorithm path.
+      Symmetry is not accounted for (point-group symmetry can reduce the integral count
+      by up to N<sub>irrep</sub>²).
+      ${cholesky
+        ? 'Cholesky vectors live on disk; only the current batch is in RAM.'
+        : 'Conventional mode requires the full AO integral tensor in memory.'}
+    </div>
+    ${warns ? `<div class="mem-warn">⚠ ${warns}</div>` : ''}
+  </div>`;
+}
+
+/* ── XYZ state ──────────────────────────────────────────────────────── */
+let xyzAtoms = [];  // [{element, x, y, z}, ...]
+
+// Handle on the currently in-flight FileReader, or null when no read is
+// outstanding. Module-level rather than local to loadXYZFile() so that
+// disposeSession() — not the loader — owns the teardown. See disposeSession()
+// item 0 for why the distinction matters.
+let xyzReader = null;
+
+function parseXYZ(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 3) throw new Error('Not a valid XYZ file');
+  const n = parseInt(lines[0]);
+  if (isNaN(n)) throw new Error('First line must be atom count');
+  const atoms = [];
+  for (let i = 2; i < 2 + n && i < lines.length; i++) {
+    const parts = lines[i].trim().split(/\s+/);
+    if (parts.length < 4) continue;
+    const el = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+    atoms.push({ element: el, x: parseFloat(parts[1]), y: parseFloat(parts[2]), z: parseFloat(parts[3]) });
+  }
+  if (atoms.length === 0) throw new Error('No atoms parsed');
+  return atoms;
+}
+
+function elementCounts(atoms) {
+  const counts = {};
+  atoms.forEach(a => { counts[a.element] = (counts[a.element] || 0) + 1; });
+  return counts;
+}
+
+function renderAtomChips(atoms) {
+  const counts = elementCounts(atoms);
+  const chips = document.getElementById('atomChips');
+  chips.innerHTML = '';
+  let total = 0;
+  Object.entries(counts).sort().forEach(([el, n]) => {
+    total += n;
+    const chip = document.createElement('span');
+    chip.className = 'atom-chip';
+    chip.textContent = el + (n > 1 ? ' ×' + n : '');
+    chips.appendChild(chip);
+  });
+  const totalChip = document.createElement('span');
+  totalChip.className = 'atom-chip';
+  totalChip.style.cssText = 'background:var(--panel2);border-color:var(--accent);color:var(--accent)';
+  totalChip.textContent = total + ' atoms';
+  chips.appendChild(totalChip);
+}
+
+/**
+ * Release everything held from the previously loaded molecule and return the
+ * drop zone to its empty state. This MUST be the first call in every load /
+ * reset handler, before any new data is parsed, so that a failed parse can
+ * never leave the tool displaying a mixture of the old and new session.
+ * (memory-management skill, §2–§3 and §8d.)
+ */
+function disposeSession() {
+  // 0. In-flight file read. The reader is created by loadXYZFile(), but the
+  //    loader cannot own its teardown: loadXYZFile() calls disposeSession()
+  //    first and only then starts a new read, so a read already in progress
+  //    would survive and settle afterwards — writing the *previous* file's
+  //    atoms, filename and chips back over the fresh session, and leaving
+  //    which molecule ends up loaded a race on read-completion order.
+  //    Ownership therefore belongs here, not in the loader. This is the same
+  //    shape as the OrbViz compute worker (orbviz.html, disposeSession
+  //    item 0), reached through a different resource. abort() on a settled or
+  //    never-started reader is a no-op, so this is safe unconditionally.
+  if (xyzReader) { xyzReader.abort(); xyzReader = null; }
+
+  // Drop the reference to the previous atom list before a replacement is
+  // allocated, so the old array is collectable (§1c).
+  xyzAtoms = [];
+
+  // Detached DOM: the chip elements are removed and nothing in JS retains a
+  // reference to them (§8d).
+  const chips = document.getElementById('atomChips');
+  if (chips) chips.innerHTML = '';
+
+  const dz = document.getElementById('xyzDropZone');
+  if (dz) {
+    dz.classList.remove('loaded', 'drag-over');
+    dz.querySelector('.dz-icon').textContent  = '📂';
+    dz.querySelector('.dz-label').textContent = 'Drop .xyz file here or click to browse';
+    dz.querySelector('.dz-sub').textContent   = 'Standard XYZ format (Ångström)';
+  }
+
+  // Refresh every derived readout so no stale nbas / RAM figure survives.
+  updateNbas();   // also triggers estimateRAM via wrapper
+}
+
+function loadXYZFile(file) {
+  disposeSession();            // step 1 — release the previous session first
+
+  const reader = new FileReader();
+  xyzReader = reader;          // hand ownership of the read to disposeSession()
+
+  reader.onload = e => {
+    // A superseded read must never write to the session. abort() is specified
+    // to suppress the load event, so this should be unreachable — but the
+    // guard costs one line and removes the need to rely on that.
+    if (reader !== xyzReader) return;
+    xyzReader = null;          // this read has settled; nothing to abort
+
+    let atoms;
+    try {
+      atoms = parseXYZ(e.target.result);
+    } catch (err) {
+      alert('XYZ parse error: ' + err.message);
+      return;                  // disposeSession() already left a clean state
+    }
+    xyzAtoms = atoms;
+    const dz = document.getElementById('xyzDropZone');
+    dz.classList.add('loaded');
+    dz.querySelector('.dz-icon').textContent  = '✅';
+    dz.querySelector('.dz-label').textContent = file.name;
+    dz.querySelector('.dz-sub').textContent   = xyzAtoms.length + ' atoms loaded';
+    renderAtomChips(xyzAtoms);
+    updateNbas();              // also triggers estimateRAM via wrapper
+  };
+
+  reader.onerror = () => {
+    if (reader !== xyzReader) return;
+    xyzReader = null;
+    alert('Could not read ' + file.name);
+  };
+
+  reader.readAsText(file);
+}
+
+/* ── Basis set helpers ──────────────────────────────────────────────── */
+function isANO(family)   { return family.startsWith('ANO-'); }
+function isANOR(family)  { return family === 'ANO-R'; }
+function isORCA(family)  { return family === 'ANO-ORCA'; }
+function hasLevels(family) { return isANO(family); }
+
+function getLevelKey(family) {
+  if (!hasLevels(family)) return 'DEFAULT';
+  return document.getElementById('basisLevel').value;
+}
+
+function getDefaultLevel(family) {
+  if (isANOR(family))  return 'R2';
+  if (isORCA(family))  return 'pVTZ';
+  if (family === 'ANO-XS') return 'VDZP';
+  return 'VTZP';
+}
+
+function computeNbas(atoms, family, level) {
+  const data = BASIS_DATA[family];
+  if (!data) return null;
+  const levelData = data[level];
+  if (!levelData) return null;
+
+  const counts = elementCounts(atoms);
+  let total = 0;
+  const unknown = [];
+
+  Object.entries(counts).forEach(([el, n]) => {
+    if (levelData[el] !== undefined) {
+      total += levelData[el] * n;
+    } else {
+      unknown.push(el);
+    }
+  });
+
+  return { total, unknown };
+}
+
+function updateNbas() {
+  const family = document.getElementById('basisFamily').value;
+  const level  = getLevelKey(family);
+  const container = document.getElementById('nbasResult');
+
+  // Update description
+  const desc = document.getElementById('basisDesc');
+  if (desc) {
+    desc.textContent = BASIS_DESC[family] || '';
+  }
+
+  if (xyzAtoms.length === 0) {
+    // Show refs even without molecule
+    const refs = BASIS_REFS[family];
+    let msg = '<div style="font-size:11px;color:var(--txt4);padding:6px 0">Upload an XYZ file to compute n<sub>bas</sub>.</div>';
+    if (refs && refs.length > 0) {
+      const refItems = refs.map(r => {
+        const linked = r.replace(/doi:([\S]+)/i, (m, doi) =>
+          `<a href="https://doi.org/${doi}" target="_blank">doi:${doi}</a>`);
+        return `<li>${linked}</li>`;
+      }).join('\n        ');
+      msg += `<div class="basis-refs" style="margin-top:6px">
+        <div class="basis-refs-title">References</div>
+        <ul>${refItems}</ul>
+      </div>`;
+    }
+    container.innerHTML = msg;
+    estimateRAM();
+    return;
+  }
+
+  const result = computeNbas(xyzAtoms, family, level);
+  if (!result) {
+    container.innerHTML = '<div class="nbas-unknown">Basis set data not available for this combination.</div>';
+    estimateRAM();
+    return;
+  }
+
+  const { total, unknown } = result;
+  // Build a human-readable label
+  let label = family;
+  if (isANOR(family))       label = `ANO-R ${level}`;
+  else if (isORCA(family))  label = `ANO-ORCA ${level}`;
+  else if (hasLevels(family)) label = `${family} ${level}`;
+
+  let html = `<div class="nbas-badge">
+    <div>
+      <div class="nbas-badge-label">Total contracted basis functions (n<sub>bas</sub>)</div>
+      <div class="nbas-badge-note">${label}</div>
+    </div>
+    <div class="nbas-badge-value">${total.toLocaleString()}</div>
+  </div>`;
+
+  if (unknown.length > 0) {
+    html += `<div class="nbas-unknown" style="margin-top:6px">
+      ⚠ No data for: ${unknown.join(', ')} — n<sub>bas</sub> is a lower bound.
+    </div>`;
+  }
+
+  // References for this basis set
+  const refs = BASIS_REFS[family];
+  if (refs && refs.length > 0) {
+    const refItems = refs.map(r => {
+      // Make DOI into a clickable link
+      const linked = r.replace(/doi:([\S]+)/i, (m, doi) =>
+        `<a href="https://doi.org/${doi}" target="_blank">doi:${doi}</a>`);
+      return `<li>${linked}</li>`;
+    }).join('\n        ');
+    html += `<div class="basis-refs">
+      <div class="basis-refs-title">References</div>
+      <ul>${refItems}</ul>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+  estimateRAM();
+}
+
+function onBasisChange() {
+  const family   = document.getElementById('basisFamily').value;
+  const levelSel = document.getElementById('basisLevel');
+
+  if (!hasLevels(family)) {
+    levelSel.style.display = 'none';
+  } else {
+    levelSel.style.display = '';
+    // Show only the relevant option groups
+    const allOpts = Array.from(levelSel.options);
+    allOpts.forEach(o => {
+      const isRLevel    = o.classList.contains('ano-r-level');
+      const isOrcaLevel = o.classList.contains('orca-level');
+      const isStdLevel  = !isRLevel && !isOrcaLevel;
+      if (isANOR(family))       o.style.display = isRLevel    ? '' : 'none';
+      else if (isORCA(family))  o.style.display = isOrcaLevel ? '' : 'none';
+      else                       o.style.display = isStdLevel  ? '' : 'none';
+    });
+    // Set a sensible default when switching families
+    const current = levelSel.value;
+    const defaultL = getDefaultLevel(family);
+    const currentVisible = Array.from(levelSel.options)
+      .find(o => o.value === current && o.style.display !== 'none');
+    if (!currentVisible) {
+      levelSel.value = defaultL;
+    }
+  }
+
+  updateNbas();
+}
+
+// Detects iOS/iPadOS. The second condition catches iPads on iPadOS 13+,
+// which report navigator.platform as 'MacIntel' to receive desktop sites.
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+function applyFileInputAccept(inputId, acceptString) {
+  if (!IS_IOS) {
+    document.getElementById(inputId).setAttribute('accept', acceptString);
+  }
+}
+
+/* ── Wire up XYZ drop zone ──────────────────────────────────────────── */
+(function initXYZ() {
+  const dz  = document.getElementById('xyzDropZone');
+  const inp = document.getElementById('xyzInput');
+
+  inp.addEventListener('change', e => {
+    const f = e.target.files[0];
+    // Clear the input after handing the File off: without this, re-selecting
+    // the same file fires no `change` event, and the input keeps the File
+    // reference alive for the lifetime of the page (§8f).
+    e.target.value = '';
+    if (f) loadXYZFile(f);
+  });
+
+  // Apply .xyz accept filter only on non-iOS (iOS ignores accept and
+  // shows a broken UI when it is set on file inputs in web apps)
+  applyFileInputAccept('xyzInput', '.xyz');
+
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) loadXYZFile(e.dataTransfer.files[0]);
+  });
+
+  // Initial state
+  updateNbas();
+  onBasisChange();
+})();
+
+// Populate the toolbar version badge from the single source of truth, once,
+// at the very end of the script — never hard-coded into the HTML.
+document.getElementById('ver-badge').textContent = CSFSCALC_VERSION;
+
+</script>
+</body>
+</html>

@@ -11,19 +11,19 @@
 
 module motra_global
 
+use Molcas, only: LenIn, MxSym
 use Definitions, only: wp, iwp
 
 implicit none
 private
 
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: MxTit = 1
 !----------------------------------------------------------------------*
 ! Allocate space to store the system description                       *
 !----------------------------------------------------------------------*
 integer(kind=iwp) :: nBas(mxSym), nDel(mxSym), nFro(mxSym), nOrb(mxSym), nSym
 real(kind=wp) :: PotNuc
-character(len=LenIn8), allocatable :: BsLbl(:)
+character(len=LenIn+8), allocatable :: BsLbl(:)
 
 !----------------------------------------------------------------------*
 ! Allocate space to store the MO-coefficients and occupations          *

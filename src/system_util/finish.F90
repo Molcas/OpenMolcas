@@ -49,7 +49,7 @@ call AixCheck()
 call xml_close('module')
 
 #ifdef _DELAYED_
-call close_BLAS()
+call Close_BLAS()
 #endif
 
 call xquit(rc)

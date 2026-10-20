@@ -28,7 +28,7 @@
 program based exclusively on the Cholesky (or RI) decomposed 2-electron integrals
 aimed towards calculation of large systems on highly parallel architectures. Use of
 point-group symmetry is not implemented. Main advantage compared to the
-:program:`CCSDT` module is |molcas| is in its more efficient parallelization and
+:program:`CCSDT` module in |molcas| is in its more efficient parallelization and
 dramatically lowered memory (and eventually disk) requirements.
 
 .. For further details the reader is referred to :numref:`TUT:sec:cht3`.

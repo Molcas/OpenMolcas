@@ -65,6 +65,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 
 # ifdef _HDF5_
   use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
+  use Molcas, only: LenIn
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Angstrom
@@ -80,11 +81,10 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   type(XYZAtom), allocatable :: ThisGeom(:), TmpGeom(:)
   integer(kind=iwp), external :: IsFreeUnit
 # ifdef _HDF5_
-# include "Molcas.fh"
   integer(kind=iwp) :: c, Coord_id, j, nSym
   logical(kind=iwp) :: isH5
   real(kind=wp), allocatable :: Coords(:,:)
-  character(len=LenIn4), allocatable :: Labels4(:)
+  character(len=LenIn+4), allocatable :: Labels4(:)
   character(len=LenIn), allocatable :: Labels(:)
   isH5 = .false.
 # endif
@@ -117,7 +117,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
     read(Line,'(A)') FName
     Found = .false.
     if (index(Line,'/') == 0) then
-      call GetEnvF('CurrDir',CurrDir)
+      call get_environment_variable('CurrDir',CurrDir)
       CurrDir = trim(CurrDir)//'/'//FName
       call F_Inquire(CurrDir,Found)
       if (Found) FName = CurrDir
@@ -768,7 +768,7 @@ subroutine TransformGeom(G,M)
 end subroutine TransformGeom
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define xyz_mma_allo_1D, xyz_mma_allo_1D_lim, xyz_mma_free_1D
 #define _TYPE_ type(XYZAtom)

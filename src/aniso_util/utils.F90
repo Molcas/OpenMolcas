@@ -71,7 +71,7 @@ character(len=*), intent(in) :: a
 integer(kind=iwp), intent(in) :: n
 complex(kind=wp), intent(in) :: M(n,n)
 integer(kind=iwp) :: i, j
-character(len=50) fmtline
+character(len=50) :: fmtline
 
 write(u6,*)
 write(u6,'(2a)') 'print: ',a
@@ -93,7 +93,7 @@ character(len=*), intent(in) :: a
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: M(n,n)
 integer(kind=iwp) :: i, j
-character(len=50) fmtline
+character(len=50) :: fmtline
 
 write(u6,*)
 write(u6,'(2a)') 'print: ',a
@@ -408,7 +408,7 @@ write(u6,'(A)') '          Y(k,q)             CG(J,M2,k,q,J,M1)'
 write(u6,'(A)') ' < J,M1 | ------ | J,M2 >  = -----------------'
 write(u6,'(A)') '          Y(k,0)              CG(J,J,k,0,J,J) '
 write(u6,'(A)')
-write(u6,'(A)') '  CG - Clebsh-Gordan Coefficient:'
+write(u6,'(A)') '  CG - Clebsch-Gordan Coefficient:'
 write(u6,'(A)') '                            c,gm     '
 write(u6,'(A)') '      CG(a,al,b,bt,c,gm) = C         '
 write(u6,'(A)') '                            a,al,b,bt'

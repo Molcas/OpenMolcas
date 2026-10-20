@@ -27,12 +27,12 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, lIrrep
 use Sizes_of_Seward, only: S
 use UnixInfo, only: SuperName
+use Molcas, only: LenIn, MaxBfn, MaxBfn_aux, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: iUHF
 character(len=*), intent(in) :: FName, Filename
 integer(kind=iwp) :: i, iAngMx_Valence, iatom, iB, iCntr, iCnttp, icontr, iD, iData, iDeg, iDummy(1), iErr, ii, iIrrep, ik, iPL, &
@@ -45,8 +45,8 @@ character(len=8) :: Env
 integer(kind=iwp), allocatable :: Cent(:,:), Cent2(:), Cent3(:), ibas_lab(:), Phase(:,:)
 real(kind=wp), allocatable :: AdCMO(:), AdCMO_ab(:), AdEor(:), AdEor_ab(:), AdOcc(:), AdOcc_ab(:), C2(:,:), C2_ab(:,:), Coor(:,:), &
                               Mull(:), r_Norm(:), V(:,:), V_ab(:,:), Znuc(:)
-character(len=LenIn8+1), allocatable :: gtolabel(:)
-character(len=LenIn8), allocatable :: label(:)
+character(len=LenIn+9), allocatable :: gtolabel(:)
+character(len=LenIn+8), allocatable :: label(:)
 character(len=LenIn), allocatable :: AtomLabel(:)
 character(len=8), allocatable :: MO_Label(:)
 real(kind=wp), parameter :: EorbThr = 50.0_wp
@@ -88,7 +88,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call GetEnvf('MOLCAS_MOLDEN',Env)
+call get_environment_variable('MOLCAS_MOLDEN',Env)
 !if ((Env == ' ') .or. (Env == 'OFF')) then
 if (Env == 'OFF') then
   if (jPL >= 2) then

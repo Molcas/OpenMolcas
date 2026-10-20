@@ -23,10 +23,11 @@ implicit none
 integer(kind=iwp), intent(in) :: symi, symj, i, j
 real(kind=wp), intent(in) :: eaaa, eaab, eabb, ebbb
 integer(kind=iwp) :: lun
+integer(kind=iwp), external :: isFreeUnit
 
-lun = 1
+lun = isFreeUnit(15)
 call Molcas_Open(lun,'T3tEne')
-!open(unit=lun,file='T3tEne')
+!open(lun,file='T3tEne')
 
 write(lun,97) symimin,imin,symjmin,jmin
 write(lun,98) symi,symj

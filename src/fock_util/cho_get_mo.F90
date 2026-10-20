@@ -17,13 +17,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(out) :: iOK
 integer(kind=iwp), intent(in) :: nDen, nSym, nBas(nSym), nIsh(nSym)
 type(DSBA_Type), intent(in) :: CM(nDen)
-type(DSBA_Type), intent(_OUT_) :: MSQ(nDen)
+type(DSBA_Type), intent(inout) :: MSQ(nDen)
 integer(kind=iwp) :: i, iComp, ikc, iOpt, irc, iSyLbl, iSym, ja, nBm, NumV
 real(kind=wp) :: Thr, Ymax
 character(len=8) :: Label

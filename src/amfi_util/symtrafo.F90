@@ -15,6 +15,7 @@ subroutine SymTrafo(LUPROP,lOper,nComp,nBas,nIrrep,Label,MolWgh)
 
 use AMFI_global, only: Lmax, MxCart
 use index_functions, only: iTri, nTri_Elem
+use Molcas, only: MxAtom, MxOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -22,7 +23,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: LUPROP, nComp, lOper(nComp), nIrrep, nBas(0:nIrrep-1), MolWgh
 character(len=8), intent(in) :: Label
-#include "Molcas.fh"
 integer(kind=iwp) :: I, iBas, icc, iCent, icentprev, icoeff, iComp, idummy(8), iIrrep, ijSO, ilcentprev, imcentprev, indx, indexi, &
                      indexj, iOff, iOff2, iOpt, iorb, ipSCR, iRC, irun, isame, iSmLbl, iSO, iSO_a, iSO_r, istatus, isymunit, &
                      iunit, j1, j12, j2, jcent, jcentprev, jlcentprev, jmcentprev, jrun, jsame, jSO, jSO_r, lauf, laufalt, &
@@ -68,7 +68,7 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'there are totally ',numboffunct,' functions'
 #endif
-if (numboffunct > MxOrb) call SysAbendMsg('symtrafo','increase MxOrb in Molcas.fh',' ')
+if (numboffunct > MxOrb) call SysAbendMsg('symtrafo','increase MxOrb in the Molcas module',' ')
 rewind(isymunit)
 read(isymunit,*)
 read(isymunit,*)
@@ -334,7 +334,7 @@ do iComp=1,nComp
   iOpt = 0
   iRC = -1
   iSmLbl = lOper(iComp)
-  call GADSum(SOInt(ip(iComp)),n2Tri(iSmLbl))
+  call GADGOp(SOInt(ip(iComp)),n2Tri(iSmLbl),'+')
   call WrOne(iRC,iOpt,Label,iComp,SOInt(ip(iComp)),iSmLbl)
   if (iRC /= 0) call SysAbendMsg('symtrafo','     Error in subroutine ONEEL ','     Abend in subroutine WrOne')
 

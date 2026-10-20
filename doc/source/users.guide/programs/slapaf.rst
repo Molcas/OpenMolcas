@@ -134,6 +134,9 @@ files.
 :file:`MD_FREQ`
   Molden input file for harmonic frequency analysis.
 
+:file:`MD_BP`
+  Molden input file for branching plane analysis.
+
 :file:`UNSYM`
   ASCII file where all essential information, like geometry, Hessian normal modes and dipole
   derivatives are stored.

@@ -29,11 +29,11 @@ set (sources
      fortran_strings.F90
      get_genome.c
      getenvc.c
-     getenvf.F90
      init_linalg.F90
      iprintlevel.F90
      isstructure.F90
      locase.F90
+     molcas.F90
      molcascontrol.F90
      molcascontrolinit.F90
      normal.F90
@@ -97,6 +97,7 @@ set (modfile_list
      definitions.F90
      filesystem.F90
      fortran_strings.F90
+     molcas.F90
      para_info.F90
      printlevel.F90
      unixinfo.F90

@@ -1,6 +1,8 @@
 OpenMolcas
 ==========
 
+**Home page**: https://molcas.gitlab.io
+
 OpenMolcas is a quantum chemistry software package developed by scientists
 and intended to be used by scientists. It includes programs to apply many
 different electronic structure methods to chemical systems, but its key
@@ -10,7 +12,7 @@ CASPT2.
 OpenMolcas is not a fork or reimplementation of
 [Molcas](http://www.molcas.org), it *is* a large part of the Molcas codebase
 that has been released as free and open-source software (FOSS) under the Lesser
-General Public License (LGPL). Some parts of Molcas remain under a different
+General Public License (LGPL) version 2.1. Some parts of Molcas remain under a different
 license by decision of their authors (or impossibility to reach them), and are
 therefore not included in OpenMolcas.
 
@@ -108,9 +110,7 @@ Contributing
 Since OpenMolcas is FOSS, you can download it, modify it and distribute it
 freely (according to the terms of the LGPL). If you would like your
 contributions to be included in the main repository, please contact one of the
-developers, write a message in the
-[forum](https://molcasforum.univie.ac.at) or submit a
-[merge
-request](https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html).
+developers, write a message in the [forum](https://molcasforum.univie.ac.at) or
+submit a [merge request](https://docs.gitlab.com/user/project/merge_requests).
 Everyone is welcome to send patches, suggestions and bug reports, but please
 let us know if you would like to be a "developer" member of the `Molcas` group.

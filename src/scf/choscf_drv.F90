@@ -233,7 +233,7 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
     end if
 
     !-------------------------------------------------------------------
-    call GADSum(FLT(1)%A0,nFLT)
+    call GADGOp(FLT(1)%A0,nFLT,'+')
 
     nullify(pNocc(1)%I1)
     call Deallocate_DT(MSQ(1))
@@ -454,8 +454,8 @@ subroutine CHOSCF_DRV_Inner(nD,nSym,nBas,W_DSQ,W_DLT,W_DSQ_ab,W_DLT_ab,W_FLT,W_F
     if ((ALGO < 3) .and. (ExFac /= Zero)) call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
     !-------------------------------------------------------------------
-    call GADSum(FLT(1)%A0,nFLT)
-    call GADSum(FLT(2)%A0,nFLT)
+    call GADGOp(FLT(1)%A0,nFLT,'+')
+    call GADGOp(FLT(2)%A0,nFLT,'+')
 
     ! --- Restore the Beta-density matrix ---
     ! Copy the lower triangular of DSQ(3))

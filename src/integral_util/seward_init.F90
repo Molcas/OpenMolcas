@@ -30,11 +30,11 @@ use rmat, only: bParm, dipol, Dipol1, Epsabs, Epsq, Epsrel, keyr, lgamma, nagint
 use DCR_mod, only: DCR_Init
 use NAC, only: isCSF, isNAC
 use NDDO, only: twoel_NDDO
+use PrintLevel, only: nPrint, Show
 use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: iPL
 character(len=180) :: Env
 integer(kind=iwp), external :: iPrintLevel
@@ -49,7 +49,7 @@ Seward_Activated = .false.
 
 ! LInfo
 
-call GetEnvF('MOLCAS_NEW_DEFAULTS',Env)
+call get_environment_variable('MOLCAS_NEW_DEFAULTS',Env)
 call UpCase(Env)
 if (Env == 'YES') then
   Do_RI = .true.

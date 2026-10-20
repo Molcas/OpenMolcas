@@ -75,7 +75,8 @@ subroutine desym(ireturn)
   use Center_Info, only: dc
   use linalg_mod, only: verify_
   use Symmetry_Info, only: nIrrep
-  use info_expbas_mod, only: DoExpbas, EB_FileOrb, LenIn, MxAtom, mxsym, n_orb_kinds
+  use info_expbas_mod, only: DoExpbas, EB_FileOrb, n_orb_kinds
+  use Molcas, only: LenIn, MxAtom, MxSym
   use Constants, only: Zero
 
   integer(kind=iwp), intent(out) :: ireturn

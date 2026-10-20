@@ -21,7 +21,8 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, CMO_Inv, FAMO, FIMO, G1t, G2t, ipCM, ipMat, ipMatBA, nA, nDens, nMBA
-use input_mclr, only: iMethod, IsPop, LuAChoVec, LuIChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: iMethod, IsPop, LuAChoVec, LuIChoVec, nBas, NewCho, nOrb
 #ifdef _DEBUGPRINT_
 use Spool, only: LuWr
 #endif
@@ -146,8 +147,9 @@ else  ! Cho-Fock
 
   ! Form active density and MO coefficients
 
+  nAct = sum(nAsh(1:nSym))
+  nAtri = nTri_Elem(nTri_Elem(nAct))
   if (iMethod == 2) then
-    nAct = sum(nAsh(1:nSym))
     nG2 = 0
     do iSym=1,nSym
       nAG2 = 0
@@ -156,7 +158,6 @@ else  ! Cho-Fock
       end do
       nG2 = nG2+nAG2**2
     end do
-    nAtri = nTri_Elem(nTri_Elem(nAct))
 
     call Allocate_DT(CVa(1),nAsh,nOrb,nSym)
     call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
@@ -251,10 +252,9 @@ else  ! Cho-Fock
   call Deallocate_DT(KI)
   call Deallocate_DT(JI(1))
   call Deallocate_DT(Kappa)
-  call GADSum(FockI,nDens)
-  call GADSum(FockA,nDens)
+  call GADGOp(FockI,nDens,'+')
+  call GADGOp(FockA,nDens,'+')
 # ifdef _DEBUGPRINT_
-  nAct = sum(nAsh(1:nSym))
   do iSym=1,nSym
     write(u6,*) 'iSym=',iSym
     !call RecPrt('FIMO ',' ',FIMO(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
@@ -263,7 +263,6 @@ else  ! Cho-Fock
     call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     !call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
   end do
-  nAtri = nTri_Elem(nTri_Elem(nAct))
   !call RecPrt('MO1',' ',rMOs,1,nAtri)
 # endif
 
@@ -299,8 +298,8 @@ else  ! Cho-Fock
   call deallocate_DT(DLT(1))
   call deallocate_DT(DI)
 
-  call GADSum(Q,nDens)
-  call GADSum(rMOs,nAtri)
+  call GADGOp(Q,nDens,'+')
+  call GADGOp(rMOs,nAtri,'+')
 
 # ifdef _DEBUGPRINT_
   do iSym=1,nSym

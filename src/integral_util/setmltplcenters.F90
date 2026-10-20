@@ -34,17 +34,14 @@ if (S%nMltpl < 0) then
 end if
 
 ! Allocate center array
-call mma_allocate(Coor_MPM,3,S%nMltpl+1,label='Coor_MPM')
-
+call mma_allocate(Coor_MPM,[1,3],[0,S%nMltpl],label='Coor_MPM')
 ! Set origin as center for overlap (0th order)
-Coor_MPM(:,1) = Zero
+Coor_MPM(:,:) = Zero
 
-! Set origin as center for dipole (1st order) and
 ! center of mass as center for higher-order multipoles
 if (S%nMltpl > 0) then
-  Coor_MPM(:,2) = Zero
-  do i=2,S%nMltpl
-    Coor_MPM(:,i+1) = CoM(:)
+  do i=1,S%nMltpl
+    Coor_MPM(:,i) = CoM(:)
   end do
 end if
 

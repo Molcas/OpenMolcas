@@ -14,7 +14,8 @@ subroutine ABXpY(Array1,Array2,idsym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMO, NA
-use input_mclr, only: nAsh, nIsh, nOrb, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nOrb
 use Definitions, only: wp, iwp
 
 implicit none

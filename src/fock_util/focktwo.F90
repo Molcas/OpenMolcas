@@ -193,7 +193,7 @@ do ISYM=1,NSYM
   end do
 end do
 
-call GADSum(W_FLT,nFlt)
+call GADGOp(W_FLT,nFlt,'+')
 
 #ifdef _DEBUGPRINT_
 write(u6,'(6X,A)') 'FROZEN FOCK MATRIX IN AO BASIS:'

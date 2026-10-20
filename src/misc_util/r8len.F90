@@ -55,7 +55,7 @@ integer(kind=iwp) :: i, iZero, Kase
 !----------------------------------------------------------------------*
 
 if (.not. isPack) then
-  call ICOPY(nData,[RtoB],0,iLen,1)
+  iLen(1:nData) = RtoB
 else
   !call ERIlen(nData,PkThrs,Buf,iLen)
   Kase = ibits(iOpt,0,4)
@@ -64,7 +64,7 @@ else
     Init_do_setup_l = 0
   else
     iZero = 8
-    call iCopy(nData,[8],0,iLen,1)
+    iLen(1:nData) = 8
     do i=1,nData
       if (abs(Buf(i)) < PkThrs) then
         iLen(i) = iZero

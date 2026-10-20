@@ -34,21 +34,21 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas_Valence(0:7), nBT, nBVT
-#include "print.fh"
-integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, ipTmp1, iSpin, jBas, nAct, nDens_Valence, nsa, nTst, iRout, iPrint, iComp
+integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, iSpin, jBas, nAct, nDens_Valence, nsa, nTst
 logical(kind=iwp) :: lPrint
 real(kind=wp) :: CoefX, CoefR
-character(len=8) :: RlxLbl, Method
+character(len=8) :: Method
 character(len=80) :: KSDFT
 real(kind=wp), allocatable :: D1AV(:), Tmp(:)
 real(kind=wp), external :: Get_ExFac
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ipTmp1
+character(len=8) :: RlxLbl
+#endif
 
 !...  Prologue
-iRout = 205
-iPrint = nPrint(iRout)
 lPrint = .true.
 iD0Lbl = 1
-iComp = 1
 
 nDens = nBT
 nDens_Valence = nBVT
@@ -198,16 +198,16 @@ do iIrrep=0,nIrrep-1
     ij = ij+1
   end do
 end do
-if (iPrint >= 99) then
-  RlxLbl = 'D1AO    '
-  call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
-  RlxLbl = 'D1AO-Var'
-  call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
-  RlxLbl = 'DSAO    '
-  call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
-  RlxLbl = 'DSAO-Var'
-  call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
-end if
+#ifdef _DEBUGPRINT_
+RlxLbl = 'D1AO    '
+call PrMtrx(RlxLbl,[iD0Lbl],1,[1],D0)
+RlxLbl = 'D1AO-Var'
+call PrMtrx(RlxLbl,[iD0Lbl],1,[1],DVar)
+RlxLbl = 'DSAO    '
+call PrMtrx(RlxLbl,[iD0Lbl],1,[1],DS)
+RlxLbl = 'DSAO-Var'
+call PrMtrx(RlxLbl,[iD0Lbl],1,[1],DSVar)
+#endif
 
 !...  Get the MO-coefficients
 if (Method == 'UHF-SCF ' .or. Method == 'ROHF    ' .or. Method == 'Corr. WF') then
@@ -219,13 +219,13 @@ end if
 kCMO = nsa
 call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
 call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
-if (iPrint >= 99) then
-  ipTmp1 = 1
-  do iIrrep=0,nIrrep-1
-    call RecPrt(' CMO''s',' ',CMO(ipTmp1,1),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
-    ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
-  end do
-end if
+#ifdef _DEBUGPRINT_
+ipTmp1 = 1
+do iIrrep=0,nIrrep-1
+  call RecPrt(' CMO''s',' ',CMO(ipTmp1,1),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
+  ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
+end do
+#endif
 
 !...  Get additional information in the case of a RASSCF wave function
 !...  Get the number of inactive, active and frozen orbitals
@@ -234,11 +234,11 @@ if (lpso) then
   call Get_iArray('nIsh',nIsh,i)
   call Get_iArray('nAsh',nAsh,i)
   call Get_iArray('nFro',nFro,i)
-  if (iPrint >= 99) then
-    write(u6,*) ' nISh=',nISh
-    write(u6,*) ' nASh=',nASh
-    write(u6,*) ' nFro=',nFro
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' nISh=',nISh
+  write(u6,*) ' nASh=',nASh
+  write(u6,*) ' nFro=',nFro
+# endif
   nAct = 0
   nTst = 0
   do iIrrep=0,nIrrep-1
@@ -262,7 +262,9 @@ if (lpso) then
   call mma_allocate(G1,nG1,mG1,Label='G1')
   if (nsa > 0) then
     call Get_dArray_chk('D1mo',G1(:,1),nG1)
-    if (iPrint >= 99) call TriPrt(' G1',' ',G1(:,1),nAct)
+#   ifdef _DEBUGPRINT_
+    call TriPrt(' G1',' ',G1(:,1),nAct)
+#   endif
   end if
 
   !...  Get the two body density for the active orbitals
@@ -272,7 +274,9 @@ if (lpso) then
   mG2 = nsa
   call mma_allocate(G2,nG2,mG2,Label='G2')
   call Get_dArray_chk('P2MO',G2(:,1),nG2)
-  if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
+# ifdef _DEBUGPRINT_
+  call TriPrt(' G2',' ',G2(1,1),nG1)
+# endif
   if (lsa) then
 
     ! CMO1 Ordinary CMO's
@@ -280,13 +284,13 @@ if (lpso) then
     ! CMO2 CMO*Kappa
 
     call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
-    if (iPrint >= 99) then
-      ipTmp1 = 1
-      do iIrrep=0,nIrrep-1
-        call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
-        ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
-      end do
-    end if
+#   ifdef _DEBUGPRINT_
+    ipTmp1 = 1
+    do iIrrep=0,nIrrep-1
+      call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
+      ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
+    end do
+#   endif
 
     ! P are stored as
     !                              _                     _
@@ -295,11 +299,15 @@ if (lpso) then
 
     call Get_dArray_chk('PLMO',G2(:,2),nG2)
     call Daxpy_(nG2,One,G2(:,2),1,G2(:,1),1)
-    if (iPrint >= 99) call TriPrt(' G2L',' ',G2(:,2),nG1)
-    if (iPrint >= 99) call TriPrt(' G2T',' ',G2(:,1),nG1)
+#   ifdef _DEBUGPRINT_
+    call TriPrt(' G2L',' ',G2(:,2),nG1)
+    call TriPrt(' G2T',' ',G2(:,1),nG1)
+#   endif
 
     call Get_dArray_chk('D2av',G2(:,2),nG2)
-    if (iPrint >= 99) call TriPrt('G2A',' ',G2(:,2),nG2)
+#   ifdef _DEBUGPRINT_
+    call TriPrt('G2A',' ',G2(:,2),nG2)
+#   endif
 
     ! Densities are stored as:
     !
@@ -321,7 +329,9 @@ if (lpso) then
 
     call dcopy_(nDens_Valence,DVar,1,D0(1,2),1)
     if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-    if (iprint > 90) call PrMtrx('D0',[iD0Lbl],iComp,[1],D0)
+#   ifdef _DEBUGPRINT_
+    call PrMtrx('D0',[iD0Lbl],1,[1],D0)
+#   endif
 
     ! This is necessary for the kap-lag
 
@@ -333,7 +343,9 @@ if (lpso) then
 
     call Get_dArray_chk('DLAO',D0(1,4),nDens)
   end if
-  if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
+# ifdef _DEBUGPRINT_
+  call TriPrt(' G2',' ',G2(1,1),nG1)
+# endif
 
 end if
 

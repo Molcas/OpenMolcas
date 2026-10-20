@@ -11,6 +11,7 @@
 
 module MckDat
 
+use Molcas, only: MxSym
 use Definitions, only: iwp, ItoB
 
 implicit none
@@ -73,8 +74,6 @@ private
 !   oAddr  - Disk address                                              *
 !                                                                      *
 !----------------------------------------------------------------------*
-
-#include "Molcas.fh"
 
 type FInfo_type
   integer(kind=iwp) :: ID = 4097, VN = 1024

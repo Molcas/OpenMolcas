@@ -11,14 +11,11 @@
 
 module info_expbas_mod
 
+use Molcas, only: MxSym
 use Definitions, only: iwp
 
 implicit none
 private
-
-#include "Molcas.fh"
-! Exporting some useful parameters
-public :: LenIn, MxAtom, mxsym
 
 !> Different kinds of orbitals
 !> f, i, 1, 2, 3, s, d

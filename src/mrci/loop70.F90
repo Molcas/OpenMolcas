@@ -42,7 +42,7 @@ do IASYM=1,NSYM
       ! CASE 1, IASYM > ICSYM AND IBSYM > ICSYM
       IPF = IPOF(IASYM)+1
       F(1:IAB) = CPL*AIBJ(IPF:IPF+IAB-1)+CPLA*ABIJ(IPF:IPF+IAB-1)
-      if (INDA == INDB) call DCOPY_(NVIRA,[Zero],0,F,NVIRA+1)
+      if (INDA == INDB) F(1:NVIRA**2:NVIRA+1) = Zero
       call DGEMM_('N','N',NVIRC,NVIRB,NVIRA,FACS,C(INMY+IPOA(IASYM)),NVIRC,F,NVIRA,One,S(INNY+IPOB(IBSYM)),NVIRC)
       if (INDA /= INDB) then
         IPF = IPOF(IBSYM)+1
@@ -94,7 +94,7 @@ do IASYM=1,NSYM
       ! CASE 4, ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
       IPF = IPOF(IBSYM)+1
       F(1:IAB) = CPL*AJBI(IPF:IPF+IAB-1)+CPLA*ABIJ(IPF:IPF+IAB-1)
-      if (INDA == INDB) call DCOPY_(NVIRA,[Zero],0,F,NVIRA+1)
+      if (INDA == INDB) F(1:NVIRA**2:NVIRA+1) = Zero
       if ((MYL == 1) .and. (NYL == 1)) then
 
         if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIRA)

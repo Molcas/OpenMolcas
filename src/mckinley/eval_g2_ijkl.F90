@@ -29,17 +29,15 @@ integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nD
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(nBuffer), DTemp(nDens), DInAc(nDens)
 logical(kind=iwp), intent(inout) :: Post_Process
 logical(kind=iwp), intent(in) :: lGrad, lHess, lPick
-integer(kind=iwp) :: iAng(4), iBasAO, iBasi, iBasn, iBsInc, iDer, iFnc(4), ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, ipPSO, &
-                     iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kBasAO, kBask, kBasn, &
-                     kBsInc, kCmp, lBasAO, lBasl, lBasn, lBsInc, lCmp, Mem1, Mem2, Mem3, Mem4, MemCMO, MemFck, MemFin, MemMax, &
-                     MemPrm, MemPSO, MemX, nijkl, nRys, nSO, nTemp
 real(kind=wp) :: Coor(3,4), PMax
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, ipPSO, iSD4(0:nSD,4), jBasAO, &
+                     jBasj, jBasn, jBsInc, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kBasAO, kBask, kBasn, kBsInc, kCmp, lBasAO, &
+                     lBasl, lBasn, lBsInc, lCmp, Mem1, Mem2, Mem3, Mem4, MemCMO, MemFck, MemFin, MemMax, MemX, nijkl, nSO, nTemp
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), lDot, lDot2, lTri
-real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Temp(:), Work2(:), Work3(:), Work4(:), WorkX(:)
+real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:), Temp(:)
 logical(kind=iwp), parameter :: n8 = .true.
 integer(kind=iwp), external :: MemSO2_P
 
-iFnc(:) = -99
 PMax = Zero
 if (.not. allocated(Sew_Scr)) then
   call mma_MaxDBLE(MemMax)
@@ -90,14 +88,6 @@ if (lTri .and. lPick) call Dens_Infos(nMethod)
 nSO = MemSO2_P(nSD,iSD4)
 ldot2 = ldot
 if (nSO == 0) ldot2 = .false.
-
-! Compute memory request for the primitives.
-
-iDer = 2
-if (.not. ldot2) iDer = 1
-iAng(:) = iSD4(1,:)
-call MemRg2(iAng,nRys,MemPrm,iDer)
-
 !----------------------------------------------------------------------*
 !
 ! Calculate which derivatives should be made.
@@ -113,7 +103,7 @@ call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 !
 !----------------------------------------------------------------------*
 
-call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
+call PSOAO2(nSO,MemMax,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -216,23 +206,16 @@ do iBasAO=1,iBasi,iBsInc
         !--------------------------------------------------------------*
 
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
-        if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Temp,nTemp,nQuad,PMax,iSD4)
+        if (ldot2) call PGet0(nijkl,PSO,nSO,Work2,Mem2,nQuad,PMax,iSD4)
 
         ! Compute gradients of shell quadruplet
 
-        call TwoEl_mck(Coor,nRys,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux, &
+        call TwoEl_mck(Coor,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux, &
                        WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,nBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                        MOC,MemCMO,iSD4)
         Post_Process = .true.
 
-        nullify(MOC)
-        nullify(Fin)
-        nullify(PSO)
-        nullify(Work2)
-        nullify(Work3)
-        nullify(WorkX)
-        nullify(Work4)
-        nullify(Temp)
+        nullify(MOC,Fin,PSO,Work2,Work3,WorkX,Work4,Temp)
 
         !--------------------------------------------------------------*
 

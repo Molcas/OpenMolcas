@@ -113,18 +113,22 @@ implicit none
 integer(kind=iwp), intent(in) :: iTraType, LUINTM, NCMO
 real(kind=wp), intent(in) :: CMO(NCMO)
 logical(kind=iwp), intent(in) :: DoExch2
-integer(kind=iwp) :: i, iAddrIAD2M, iBatch, IPRX, irc, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, &
+integer(kind=iwp) :: i, iAddrIAD2M, iBatch, iPL, IPRX, irc, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, &
                      iType, j, jSym, k, LenIAD2M, lUCHFV, nBasT, nBatch, nData, nFVec, NumV, nVec
 real(kind=wp) :: CPE, CPU0, CPU1, CPU2, CPU3, CPU4, CPU_Gen, CPU_Tot, CPU_Tra, tcpu_reo, TCR1, TCR2, TIO0, TIO1, TIO2, TIO3, TIO4, &
                  TIO_Gen, TIO_Tot, TIO_Tra, TIOE, TWR1, TWR2
 logical(kind=iwp) :: Found
 character(len=6) :: CHName
 character(len=*), parameter :: CHNm = 'CHFV'
+integer(kind=iwp), external:: iPrintLevel
+logical(kind=iwp), external:: Reduce_Prt
 
 !-----------------------------------------------------------------------
 IfTest = .false.
 !IfTest = .true.
 !DoExch2 = .true.
+iPL = iPrintLevel(-1)
+if (Reduce_Prt() .and. (iPL < 3)) iPL = iPL-1
 !-----------------------------------------------------------------------
 
 call Timing(CPU0,CPE,TIO0,TIOE)
@@ -145,10 +149,12 @@ end if
 call Cho_X_final(irc)
 call CWTIME(TCR2,TWR2)
 tcpu_reo = (TCR2-TCR1)
-write(u6,*) ' Reordering of the Cholesky vectors to full storage. '
-write(u6,*) ' Elapsed time for the reordering section: ',tcpu_reo
-write(u6,*) ' CPU time for the reordering section: ',tcpu_reo
-write(u6,*)
+if (iPL >= 2) then
+  write(u6,*) ' Reordering of the Cholesky vectors to full storage.'
+  write(u6,*) ' Elapsed time for the reordering section: ',tcpu_reo
+  write(u6,*) ' CPU time for the reordering section: ',tcpu_reo
+  write(u6,*)
+end if
 
 ! Define what has to be calculated.
 !  DoExc2 flag for the generation of Exch-2 integrals
@@ -273,7 +279,7 @@ do iSymL=1,nSym
     call XFlush(u6)
   end if
   !---------------------------------------------------------------------
-  if ((nVec <= 0) .or. (nFVec <= 0)) then
+  if ((NumCho(iSymL) > 0) .and. ((nVec <= 0) .or. (nFVec <= 0))) then
     write(u6,*)
     write(u6,*) ' ************************************'
     write(u6,*) ' *  Insufficient memory for batch ! *'
@@ -282,7 +288,11 @@ do iSymL=1,nSym
     call XFlush(u6)
     call Abend()
   end if
-  nBatch = (NumCho(iSymL)-1)/nVec+1
+  if (NumCho(iSymL) == 0) then
+    nBatch = 1
+  else
+    nBatch = (NumCho(iSymL)-1)/nVec+1
+  end if
 
   ! START LOOP iBatch
   do iBatch=1,nBatch
@@ -304,42 +314,44 @@ do iSymL=1,nSym
     ! Start Transformation of Cholesy Vectors  CHFV -> TCVx
     call Timing(CPU1,CPE,TIO1,TIOE)
 
-    ! Start Loop on CHFV-iSym-jSym
-    do iSym=1,nSym
-      lUCHFV = -1
-      if (nBas(iSym) > 0) then
-        do jSym=1,iSym
-          lUCHFV = -1
-          if ((nBas(jSym) > 0) .and. (Mul(iSym,jSym) == iSymL)) then
-            lUCHFV = 7
-            iStrtVec_AB = nVec*(iBatch-1)+1
-            write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
-            call dAName_MF_WA(lUCHFV,CHName)
-            !-----------------------------------------------------------
-            !if (IfTest) then
-            !  write(u6,*) ' - Open ',CHName,' unit=',lUCHFV,' Vect=',iStrtVec_AB
-            !  call XFlush(u6)
-            !end if
-            !-----------------------------------------------------------
+    if (NumV > 0) then
+      ! Start Loop on CHFV-iSym-jSym
+      do iSym=1,nSym
+        lUCHFV = -1
+        if (nBas(iSym) > 0) then
+          do jSym=1,iSym
+            lUCHFV = -1
+            if ((nBas(jSym) > 0) .and. (Mul(iSym,jSym) == iSymL)) then
+              lUCHFV = 7
+              iStrtVec_AB = nVec*(iBatch-1)+1
+              write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
+              call dAName_MF_WA(lUCHFV,CHName)
+              !-----------------------------------------------------------
+              !if (IfTest) then
+              !  write(u6,*) ' - Open ',CHName,' unit=',lUCHFV,' Vect=',iStrtVec_AB
+              !  call XFlush(u6)
+              !end if
+              !-----------------------------------------------------------
 
-            if (iSym == jSym) then
-              call Cho_TraS(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
-            else
-              call Cho_TraA(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              if (iSym == jSym) then
+                call Cho_TraS(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              else
+                call Cho_TraA(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              end if
+
+              call dAClos(lUCHFV)
+              !-----------------------------------------------------------
+              !if (IfTest) then
+              !  write(u6,*) ' - Closed ',CHName
+              !  call XFlush(u6)
+              !end if
+              !-----------------------------------------------------------
             end if
-
-            call dAClos(lUCHFV)
-            !-----------------------------------------------------------
-            !if (IfTest) then
-            !  write(u6,*) ' - Closed ',CHName
-            !  call XFlush(u6)
-            !end if
-            !-----------------------------------------------------------
-          end if
-        end do
-      end if
-    end do
-    ! End Loop on CHFV-iSym-jSym
+          end do
+        end if
+      end do
+      ! End Loop on CHFV-iSym-jSym
+    end if
 
     call Timing(CPU2,CPE,TIO2,TIOE)
     CPU_Tra = CPU_Tra+CPU2-CPU1
@@ -394,14 +406,18 @@ end do
 iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-write(u6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0e2_wp*CPU_Tra/max(One,TIO_Tra),TIO_Tra
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0e2_wp*CPU_Gen/max(One,TIO_Gen),TIO_Gen
+if (iPL >= 2) then
+  write(u6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
+  write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0e2_wp*CPU_Tra/max(One,TIO_Tra),TIO_Tra
+  write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0e2_wp*CPU_Gen/max(One,TIO_Gen),TIO_Gen
+end if
 call Timing(CPU4,CPE,TIO4,TIOE)
 CPU_Tot = CPU4-CPU0
 TIO_Tot = TIO4-TIO0
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0e2_wp*CPU_Tot/max(One,TIO_Tot),TIO_Tot
-write(u6,*)
+if (iPL >= 2) then
+  write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0e2_wp*CPU_Tot/max(One,TIO_Tot),TIO_Tot
+  write(u6,*)
+end if
 call XFlush(u6)
 !-----------------------------------------------------------------------
 if (IfTest) then
@@ -418,7 +434,5 @@ NSYMZ = NSYM
 NORBZ(:) = NORB(:)
 NOSHZ(:) = NOSH(:)
 LUINTMZ = LUINTM
-
-return
 
 end subroutine Cho_TraCtl

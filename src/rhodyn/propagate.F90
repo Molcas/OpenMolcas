@@ -29,7 +29,7 @@ use Constants, only: Zero, Five, Ten, Quart, auToFs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ihh, ii, imm, iss, jj, kk, Ntime, Noutstep
+integer(kind=iwp) :: ihh, ii, imm, iss, jj, kk, Ntime
 real(kind=wp) :: dum(3), error_rk, oldstep, t_temp, time, timer(3)
 real(kind=wp), allocatable :: dgl_csf(:)
 complex(kind=wp), allocatable :: density_csf(:,:)
@@ -45,7 +45,6 @@ ii = 1 ! counts output of populations
 Ntime = 1 !counts steps
 Nstep = int((finaltime-initialtime)/timestep)+1
 Npop = int((finaltime-initialtime)/tout)+1
-Noutstep = int(tout/timestep)
 Ntime_tmp_dm = int(finaltime/time_fdm)+1 !fdm
 time = initialtime
 oldstep = timestep
@@ -81,7 +80,7 @@ call mma_allocate(ak6,d,d,label='ak6')
 
 call mma_allocate(dgl_csf,nconftot,label='dgl_csf')
 call mma_allocate(density_csf,nconftot,nconftot,label='density_csf')
-call pop(time,ii,dgl_csf,density_csf) ! write 0th iteration (initial values)
+call pop(time,ii,-1,dgl_csf,density_csf) ! write 0th iteration (initial values)
 
 if ((method == 'RKCK') .or. (method == 'RK45')) then
   !*********************************************************************
@@ -101,7 +100,7 @@ if ((method == 'RKCK') .or. (method == 'RK45')) then
     call Timing(dum(1),dum(2),timer(1),dum(3))
     ! calculate hamiltonian with pulse at the current time:
     if (flag_pulse) then
-      if (time >= (initialtime+timestep*(kk-1))) then
+      if (time >= initialtime+timestep*(kk-1)) then
         call pulse(hamiltonian,hamiltoniant,time,kk)
         kk = kk+1
       else
@@ -133,15 +132,12 @@ if ((method == 'RKCK') .or. (method == 'RK45')) then
     ! write info and elapsed time
     if (time >= (initialtime+tout*ii)) then
       ii = ii+1
-      call pop(time,ii,dgl_csf,density_csf)
-    end if
-    if (flag_fdm .and. (time >= time_fdm*jj)) then
-      ! should be moved to procedure pop
-      call mh5_put_dset(out_tfdm,[time*auToFs],[1],[jj])
-      ! density0 is stored as temporary storage for dm in required basis in pop
-      call mh5_put_dset(out_fdmr,real(density0),[1,d,d],[jj,0,0])
-      call mh5_put_dset(out_fdmi,aimag(density0),[1,d,d],[jj,0,0])
-      jj = jj+1
+      if (flag_fdm .and. (time >= time_fdm*jj)) then
+        call pop(time,ii,jj,dgl_csf,density_csf)
+        jj = jj+1
+      else
+        call pop(time,ii,-1,dgl_csf,density_csf)
+      end if
     end if
     call Timing(dum(1),dum(2),timer(2),dum(3))
     timer(3) = timer(2)-timer(1)
@@ -183,10 +179,17 @@ else
         call rk5(time,densityt)
     end select
     time = initialtime+timestep*Ntime
-    if (mod(Ntime,Noutstep) == 0) then
+
+    if (time >= initialtime+tout*ii) then
       ii = ii+1
-      call pop(time,ii,dgl_csf,density_csf)
+      if (flag_fdm .and. (time >= time_fdm*jj)) then
+        call pop(time,ii,jj,dgl_csf,density_csf)
+        jj = jj+1
+      else
+        call pop(time,ii,-1,dgl_csf,density_csf)
+      end if
     end if
+
   end do
 end if
 call mma_deallocate(dgl_csf)

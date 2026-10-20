@@ -18,6 +18,7 @@ subroutine MP2Dens_drv(E2BJAI,REFC)
 
 use MBPT2_Global, only: CMO, Density, DiaA, EMP2, iPoVec, MP2Lagr, VECL2, WDensity
 use Data_Structures, only: Deallocate_DT
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -28,7 +29,6 @@ integer(kind=iwp) :: i, iA, iAdr, iI, iSym, iSymIA, iSymJB, Iter, iVecOff(8), j,
 real(kind=wp) :: Eps, res, TotLagr
 logical(kind=iwp) :: Done
 real(kind=wp), allocatable :: AP(:), AOTriDens(:), Mult(:), MultN(:), P(:), PN(:), R(:), RN(:), WAOTriDens(:), Z(:), ZN(:)
-#include "corbinf.fh"
 
 !                                                                      *
 !***********************************************************************

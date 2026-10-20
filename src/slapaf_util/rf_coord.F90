@@ -18,7 +18,10 @@ use Slapaf_Info, only: dMass, iCoSet, nStab
 use ddvdt, only: Rot_Const, Trans_Const
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nsAtom, iIter, nIter, nB, iRef, LuIC, nB_Tot, ndB_Tot
@@ -27,29 +30,22 @@ real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter)
 logical(kind=iwp), intent(in) :: Process, Proc_dB
 real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
 character(len=14), intent(inout) :: qLbl(nB)
-#include "print.fh"
-integer(kind=iwp) :: i, iAtom, iCent, iDeg, iPrint, iRout, iSym, iTest, ixyz, jxyz, kxyz, mB, nCent, nMass, nOrder, nqRF
+integer(kind=iwp) :: i, iAtom, iCent, iDeg, iSym, iTest, ixyz, jxyz, kxyz, mB, nCent, nMass, nOrder, nqRF
 real(kind=wp) :: COM_xyz, Deg, RotAng, RotMat(3,3), RotVec(3), TMass, Trans(3), Val
-logical(kind=iwp) :: Invariant, PSPrint
+logical(kind=iwp) :: Invariant
 character(len=14) :: Label
 integer(kind=iwp), allocatable :: iDCR(:), Ind(:)
 real(kind=wp), allocatable :: currXYZ(:,:), d2RV(:,:,:), dRVdxyz(:,:,:), Grad(:,:), Hess(:,:), Ref123(:,:), xMass(:)
 character(len=*), parameter :: TR_type(6) = ['Tx ','Ty ','Tz ','Ryz','Rzx','Rxy']
-
-iRout = 151
-iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
-iPrint = 99
-#endif
 
 if ((.not. VarR) .and. (.not. VarT)) return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 nqRF = 0
-PSPrint = .false.
-if (iPrint >= 99) PSPrint = .true.
-if (PSPrint) write(u6,*) ' Enter RF_Coords.'
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Enter RF_Coords.'
+#endif
 
 ! Find nCent and allocate
 

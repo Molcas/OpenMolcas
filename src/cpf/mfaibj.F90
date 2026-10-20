@@ -161,7 +161,7 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
             if (IIN /= 0) then
               IPF = IPOF(MYL)
               F(1:IIN) = CPL*AIBJ(IPF+1:IPF+IIN)+CPLA*ABIJ(IPF+1:IPF+IIN)
-              if (INDA == INDB) call DCOPY_(NVIR(MYL),[Zero],0,F,NVIR(MYL)+1)
+              if (INDA == INDB) F(1:NVIR(MYL)**2:NVIR(MYL)+1) = Zero
               call FMMM(C(INMY),F,A,1,NVIR(NYL),NVIR(MYL))
               S(INNY:INNY+NVIR(NYL)-1) = S(INNY:INNY+NVIR(NYL)-1)+FACS*A(1:NVIR(NYL))
               W(INNY:INNY+NVIR(NYL)-1) = W(INNY:INNY+NVIR(NYL)-1)+FACWB*A(1:NVIR(NYL))
@@ -188,7 +188,7 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
                   ! CASE 1 , IASYM > ICSYM AND IBSYM > ICSYM
                   IPF = IPOF(IASYM)
                   F(1:IAB) = CPL*AIBJ(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
-                  if (INDA == INDB) call DCOPY_(NVIR(IASYM),[Zero],0,F,NVIR(IASYM)+1)
+                  if (INDA == INDB) F(1:NVIR(IASYM)**2:NVIR(IASYM)+1) = Zero
                   call FMMM(C(INMY+IPOA(IASYM)),F,A,NVIR(ICSYM),NVIR(IBSYM),NVIR(IASYM))
                   S(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1) = S(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1)+FACS*A(1:NBC)
                   W(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1) = W(INNY+IPOB(IBSYM):INNY+IPOB(IBSYM)+NBC-1)+FACWB*A(1:NBC)
@@ -272,7 +272,7 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
                   ! CASE 4 , ICSYM > OR = IASYM AND ICSYM > OR = IBSYM
                   IPF = IPOF(IBSYM)
                   F(1:IAB) = CPL*AJBI(IPF+1:IPF+IAB)+CPLA*ABIJ(IPF+1:IPF+IAB)
-                  if (INDA == INDB) call DCOPY_(NVIR(IASYM),[Zero],0,F,NVIR(IASYM)+1)
+                  if (INDA == INDB) F(1:NVIR(IASYM)**2:NVIR(IASYM)+1) = Zero
                   if (MYL == 1) then
                     if (IFTA == 0) call SQUAR(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))
                     if (IFTA == 1) call SQUARM(C(INMY+IPOA(IASYM)),A,NVIR(IASYM))

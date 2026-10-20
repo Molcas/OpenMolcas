@@ -49,13 +49,13 @@ subroutine Ini_David(nRoots,nConf,nDet,nSel,n_keep,ntAsh,LuDavid)
 use davctl_mod, only: disk_address, in_core, istart, LblStk, memory_vectors, mixed_mode_1, mixed_mode_2, mxDiskStk, mxMemStk, &
                       n_Roots, nDiskStk, nkeep, nMemStk, nvec, on_disk, save_in_memory, save_mode
 use lucia_data, only: Memory_Needed_Lucia
+use Molcas, only: MxAct, MxRoot
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nRoots, nConf, nDet, nSel, n_keep, ntAsh, LuDavid
-#include "rasdim.fh"
 integer(kind=iwp) :: CI_vec_RecNo, H_diag_RecNo, iDisk, iRoot, lTmp1, lTmp2, lTmp3, Max_free_Mem, Max_used_Mem, Memory_Needed, &
                      nStk, Sig_vec_RecNo, tmp_CI_vec_RecNo, tmp_Sig_vec_RecNo
 real(kind=wp) :: Dum(1)

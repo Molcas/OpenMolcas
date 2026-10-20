@@ -112,7 +112,7 @@ subroutine fmm_build_multipoles(basis,MaxMul,sh_pairs)
 
   FBuf = trim(FName)//'.fmm1'
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
+  open(LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
   rewind(LUINTM)
 
   nmoms = 0
@@ -152,13 +152,13 @@ subroutine fmm_build_multipoles(basis,MaxMul,sh_pairs)
 
   ! Mark end of file with negative L-index
   write(LUINTM) 0,-1,0,0,0,zero,zero,zero,zero
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
   FBuf = trim(FName)//'.fmm1header'
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
+  open(LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
   write(LUINTM) MaxMul,basis%nbas,nmoms
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
   call fmm_free_car_to_sph()
 

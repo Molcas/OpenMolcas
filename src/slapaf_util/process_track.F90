@@ -14,12 +14,12 @@
 subroutine Process_Track()
 
 use Slapaf_Info, only: Request_RASSI, RootMap
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: i, MaxId(2), nOv, nRoots
 logical(kind=iwp) :: Done, Found
 character(len=8) :: Method

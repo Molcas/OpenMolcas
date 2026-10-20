@@ -34,7 +34,8 @@ subroutine Precibb(ib,is,js,nd,rout,no,Temp1,Scr,Temp2,fockii,fockai,focki,focka
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: nAsh, nIsh, nOrb
+use general_data, only: nAsh, nIsh
+use input_mclr, only: nOrb
 use Constants, only: Four, Twelve
 use Definitions, only: wp, iwp
 

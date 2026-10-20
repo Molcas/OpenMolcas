@@ -35,7 +35,7 @@ real(kind=wp), external :: DDOT_
 
 IK = 0 ! dummy initialize
 NOB2 = IROW(NORBT+1)
-!if (IDENS == 1) write(6,876) (FC(I),I=1,NOB2)
+!if (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
 ICHK = 0
 if (IDENS /= 1) then
   NOB2 = IROW(NORBT+1)

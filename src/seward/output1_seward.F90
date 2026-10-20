@@ -38,13 +38,12 @@ use Symmetry_Info, only: nIrrep
 use Gateway_global, only: GS_Mode, Onenly, Run_Mode, Prprt, Test
 use rctfld_module, only: lLangevin, lRF, PCM
 use rmat, only: RMat_On
+use PrintLevel, only: nPrint
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nTtl
 real(kind=wp) :: temp
 logical(kind=iwp) :: l_aCD_Thr, Found, lNoPair, lPam2, lECP, lPP
@@ -218,7 +217,7 @@ else
   if (allocated(DMS_Centers)) write(LuWr,'(15X,A,I6,A)') '   Diamagnetic shielding integrals for',nDMS,' points'
   if (allocated(OAM_Center)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Orbital angular momentum around (',(OAM_Center(i),i=1,3),')'
   if (allocated(OMQ_Center)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Orbital magnetic quadrupole around (',(OMQ_Center(i),i=1,3),')'
-  if (Vlct .and. (S%nMltpl >= 2)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Velocity quadrupole around (',(Coor_MPM(i,3),i=1,3),')'
+  if (Vlct .and. (S%nMltpl >= 2)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Velocity quadrupole around (',(Coor_MPM(i,2),i=1,3),')'
   if (allocated(AMP_Center)) &
     write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
   if (nWel /= 0) write(LuWr,'(15X,A,I4,A)') '   Spherical well for',nWel,' exponent(s) added to the one-electron Hamiltonian'

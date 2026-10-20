@@ -29,17 +29,18 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 
 use Basis_Info, only: dbsc, Extend_Shells, nCnttp, Shells
 use DKH_Info, only: iRELMP
 use define_af, only: AngTp, iTabMx
+use Molcas, only: MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "Molcas.fh"
 character(len=*), intent(in) :: DDname, ExtBasDir
 character(len=80), intent(inout) :: BSLbl
 integer(kind=iwp), intent(inout) :: iShll, iSTDINP
@@ -48,9 +49,9 @@ logical(kind=iwp), intent(in) :: UnNorm, L_STDINP, Expert
 integer(kind=iwp), intent(in) :: LuRd
 integer(kind=iwp), intent(out) :: BasisTypes(4)
 character(len=180), intent(in) :: STDINP(MxAtom*2)
-integer(kind=iwp) :: i, iAIMP, iAng, iDominantSet, iEnd, iErr, iFlgOne, iFrst, iMPShll, iNow, iPrevNow, iPrim, iPrint, &
-                     iPrSh, iValSh, j, j1, j2, jNow, jPrSh, jValSh, lAng, lUnit, LUQRP, mCGTO(0:iTabMx), mDel, mSOC, mVal, nAdded, &
-                     nAIMP, nCGTO(0:iTabMx), nCntrc, nEorb, nPrim, nProj, Nwords
+integer(kind=iwp) :: i, iAIMP, iAng, iDominantSet, iEnd, iErr, iFlgOne, iFrst, iMPShll, iNow, iPrevNow, iPrim, iPrint, iPrSh, &
+                     iValSh, j, j1, j2, jNow, jPrSh, jValSh, lAng, lUnit, LUQRP, mCGTO(0:iTabMx), mDel, mSOC, mVal, nAdded, nAIMP, &
+                     nCGTO(0:iTabMx), nCntrc, nEorb, nPrim, nProj, Nwords
 real(kind=wp) :: Coeff, RatioThres
 character(len=263) :: Filename
 character(len=256) :: Basis_Lib, DirName

@@ -27,10 +27,10 @@ subroutine MkSrt2()
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
 use sort_data, only: iDIBin, iDVBin, mSyBlk, n_Int, nRec, nSln
+use PrintLevel, only: nPrint
 use Definitions, only: iwp, u6
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: iBin, iPrint, iRout, iSlice, iSyBlk, nSlice
 
 iRout = 80

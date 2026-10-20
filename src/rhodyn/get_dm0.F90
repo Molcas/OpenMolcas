@@ -229,7 +229,11 @@ else
       end if
       DM0_bas(N_Populated,N_Populated) = cOne
       ! transform DM to CSF basis by default
-      if (runmode /= 4) call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      if (runmode /= 4) then
+        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      else
+        DM0(:,:) =  DM0_bas
+      endif
 
     case ('SO')
       call dashes()
@@ -261,7 +265,11 @@ else
         DM0_bas(i,i) = exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
       end do
       ! transform DM to CSF basis by default
-      if (runmode /= 4) call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      if (runmode /= 4) then
+        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      else
+        DM0(:,:) = DM0_bas
+      endif
 
     case ('FROMFILE')
       ! DM is read from file supposed to be in CSF basis

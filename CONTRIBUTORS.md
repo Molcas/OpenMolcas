@@ -56,6 +56,7 @@ Kerstin Andersson
 János G. Ángyán  
 Imaad Ansari  
 Francesco Aquilante  
+Vic Austen  
 Jochen Autschbach  
 Jie J. Bao  
 Maria Barysz  
@@ -103,9 +104,9 @@ Alexander Gaenko
 Laura Gagliardi  
 Walter Gautschi  
 Giovanni Ghigo  
-Coen de Graaf  
 Joseph Golab  
 Gene H. Golub  
+Coen de Graaf  
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
@@ -115,6 +116,7 @@ José Manuel Hermida-Ramón
 Bernd Artur Heß  
 Asbjørn Holt  
 Chad E. Hoyer  
+Bhavnesh Jangid  
 Denis Jelovina  
 Marcus Johansson  
 Andy Kaiser  
@@ -124,6 +126,7 @@ Stefan Knecht
 Vladislav Kochetov  
 Jesper Wisborg Krogh  
 Teodoro Laino  
+Dong Q. Le  
 Susi Lehtola  
 Giovanni Li Manni  
 Roland Lindh  
@@ -133,12 +136,14 @@ Yingjin Ma
 Per Åke Malmqvist  
 Neil Martinsen-Burrell  
 Andy May  
+Jaafar Mehrez  
 Manuela Merchán  
 Isabella C. D. Merritt  
 Deyan Mihaylov  
 Samuel Mikes  
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
+Prashant J. Nair  
 Takahito Nakajima  
 Naoki Nakatani  
 Pavel Neogrády  
@@ -158,6 +163,7 @@ Ben Pritchard
 Juraj Raab  
 Gerardo Raggi  
 Markus Reiher  
+Alistair Rendell  
 H. Rieger  
 Thies Romig  
 Björn O. Roos  
@@ -169,12 +175,13 @@ Andrew M. Sand
 Michael A. Saunders  
 Igor Schapiro  
 Bernd Schimmelpfennig  
+Lukas Schreder  
 Martin Schütz  
 Thais Scott  
 Luis Seijo  
 Luis Serrano-Andrés  
-Kamal Sharkas  
 Grigory A. Shamov  
+Kamal Sharkas  
 Prachi Sharma  
 Per E. M. Siegbahn  
 Pär Söderhjelm  
@@ -184,6 +191,7 @@ Hermann Stoll
 Tjerk P. Straatsma  
 Bingbing Suo  
 Ben Swerts  
+Kalman Szenes  
 Akio Takatsuka  
 Bruno N. C. Tenorio  
 Thorstein Thorsteinsson  
@@ -196,6 +204,7 @@ Steven Vancoillie
 Valera Veryazov  
 Victor P. Vysotskiy  
 Ulf Wahlgren  
+Meng Wang  
 Yubin Wang  
 Mark A. Watson  
 Hans-Joachim Werner  
@@ -205,6 +214,7 @@ Małgorzata Wierzbowska
 Alexander Wolf  
 Sebastian Wouters  
 Felipe Zapata  
+Lila Zapp  
 Alexander Zech  
 Yan Zhao  
 Chen Zhou  

@@ -368,7 +368,7 @@ Below is a list of keywords that should cover the needs of most users.
   Use this keyword to do density functional theory calculations.
   This keyword should be followed by a functional keyword.
   Use :command:`pymolcas help_func` to see a list of available keywords,
-  you can also specify a `Libxc <https://www.tddft.org/programs/libxc/>`_ functional name, or a number :math:`N` followed
+  you can also specify a `Libxc <https://libxc.gitlab.io/>`_ functional name, or a number :math:`N` followed
   by :math:`N` lines, each of them containing a weight factor and a Libxc
   functional name (or ``HF_X`` for exact exchange).
   Examples (all three should be equivalent): ::

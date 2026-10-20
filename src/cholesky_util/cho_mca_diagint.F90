@@ -18,6 +18,7 @@ use Integral_interfaces, only: Int_PostProcess, int_wrout
 use Cholesky, only: LuPri
 use Gateway_Info, only: CutInt, ThrInt
 #endif
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -36,6 +37,7 @@ CUTINT1 = CutInt
 THRINT1 = ThrInt
 #endif
 
+SCR(:) = Zero
 call EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR)
 
 nullify(Int_PostProcess)

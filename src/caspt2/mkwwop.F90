@@ -1,0 +1,45 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
+! Presently symmetry blocking is disregarded for OP2, OP3, but
+! index pair C permutation symmetry is used.
+! NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
+! NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
+
+! Given the coefficients for two excitation operators in the
+! vectors numbered IVEC and C JVEC on file, construct the
+! zero-, one-, two-, and three-body
+! expansions of the product (Op in IVEC conjugated)(Op in JVEC)
+! as operating on the CASSCF space.
+
+use caspt2_module, only: NASHT
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: IVEC, JVEC, NOP2, NOP3
+real(kind=wp), intent(out) :: OP0, OP1(NASHT,NASHT), OP2(NOP2), OP3(NOP3)
+
+OP0 = Zero
+OP1(:,:) = Zero
+OP2(:) = Zero
+OP3(:) = Zero
+call MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
+call MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
+call MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
+call MKWWOPD(IVEC,JVEC,OP1,NOP2,OP2)
+call MKWWOPE(IVEC,JVEC,OP0,OP1)
+call MKWWOPF(IVEC,JVEC,NOP2,OP2)
+call MKWWOPG(IVEC,JVEC,OP1)
+call MKWWOPH(IVEC,JVEC,OP0)
+
+end subroutine MKWWOP

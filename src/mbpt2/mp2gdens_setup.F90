@@ -13,12 +13,12 @@ subroutine MP2gDens_setup()
 
 use MBPT2_Global, only: Density, DiaA, mAdDel, mAdFro, mAdOcc, mAdVir, Mp2Lagr, WDensity
 use Data_Structures, only: Allocate_DT
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iSym, nExtT, nOccT
-#include "corbinf.fh"
 
 !                                                                      *
 !***********************************************************************

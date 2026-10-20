@@ -26,16 +26,16 @@ subroutine OutRAS(iKapDisp,iCiDisp)
 
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
-use gugx, only: SGS, CIS, EXS
 use MCLR_Data, only: DspVec, lDisp, LuTEMP, nConf1, nDens, nDensC
-use input_mclr, only: iMethod, iSpin, kPrint, nActEl, nConf, nCSF, nDisp, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, nTPert, State_Sym
+use general_data, only: nSym, STSym
+use input_mclr, only: iMethod, kPrint, nCSF, nDisp, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
-integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym
+integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iMode, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, nConfm, Pstate_sym
 logical(kind=iwp) :: CI
 character(len=8) :: Label
 real(kind=wp), allocatable :: CIp1(:), Kap1(:), Kap2(:), Kap3(:)
@@ -53,7 +53,7 @@ write(u6,*)
 idisp = 0
 do iSym=1,nSym
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(State_Sym,iSym)
+  PState_SYM = Mul(STSym,iSym)
   nconfM = ncsf(PState_Sym)
   nconf1 = ncsf(PState_Sym)
   CI = .false.
@@ -67,7 +67,7 @@ do iSym=1,nSym
   call mma_allocate(Kap3,nDens,Label='Kap3')
   if (CI) then
     call mma_allocate(CIp1,nconfM,Label='CIp1')
-    call InCSFSD(Pstate_sym,State_sym)
+    call InCSFSD(Pstate_sym,STSym)
   end if
   do jDisp=1,lDisp(iSym)
     iDisp = iDisp+1
@@ -76,8 +76,7 @@ do iSym=1,nSym
 
       iDisk = iKapDisp(iDisp)
       if (iDisk /= -1) then
-        Length = nDensC
-        call dDaFile(LuTemp,2,Kap1,Length,iDisk)
+        call dDaFile(LuTemp,2,Kap1,nDensC,iDisk)
         call Uncompress(Kap1,Kap3,isym)
         if (CI) then
           ilen = nconfM
@@ -87,13 +86,11 @@ do iSym=1,nSym
         call GASync()
       else
         call GASync()
-        Length = nDensC
-        Kap1(1:Length) = Zero
-        call GADSum(Kap1,Length)
+        Kap1(1:nDensC) = Zero
+        call GADGOp(Kap1,nDensC,'+')
         if (CI) then
-          Length = nconfM
-          CIp1(1:Length) = Zero
-          call GADSum(CIp1,Length)
+          CIp1(1:nconfM) = Zero
+          call GADGOp(CIp1,nconfM,'+')
         end if
       end if
       call GASync()
@@ -114,10 +111,8 @@ do iSym=1,nSym
 
       if (btest(kprint,3)) write(u6,*) 'Perturbation ',ipert
       if (CI) then
-        call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1,0,pstate_sym,State_Sym)
-        NCSF(1:nSym) = CIS%NCSF(1:nSym)
-        NCONF = CIS%NCSF(pstate_sym)
-        call mkGuga_Free(SGS,CIS,EXS)
+        iMode = 0
+        call SG2SymG(CIp1,nconfM,iMode,pState_Sym)
       end if
 
       if ((imethod == 2) .and. (.not. CI) .and. (nconfM == 1)) CIp1(1) = Zero

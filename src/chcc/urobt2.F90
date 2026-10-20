@@ -38,7 +38,7 @@ do aGrp=1,NaGrp
     call RNFill(len_,T2,schem)
 
     !1.3 open proper file
-    !open(unit=LunAux,file=T2Name(aGrp,beGrp),form='unformatted')
+    !open(LunAux,file=T2Name(aGrp,beGrp),form='unformatted')
     call MOLCAS_BinaryOpen_Vanilla(LunAux,T2Name(aGrp,beGrp))
 
     !1.4 write T2 into proper file

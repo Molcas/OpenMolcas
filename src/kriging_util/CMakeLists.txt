@@ -19,6 +19,7 @@ set (sources
      energy_kriging.F90
      energy_kriging_layer.F90
      finishing_kriging.F90
+     gek_optimizer.F90
      gradient_kriging.F90
      gradient_kriging_layer.F90
      hessian_kriging.F90

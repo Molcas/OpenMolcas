@@ -11,21 +11,23 @@
 
 module HFC_logical
 
-! UHF_HFC: to control the calculation of hyperfine coupling tensor
-! matrix in unrestricted Hartree-Fock scf calculations.
-! It is mainly used in scf program and the related integral_util
-! directory.
-!
-! MAG_X2C: true when x2c-transformed hyperfine magnetic integrals
-! are calculated.
-
 use Definitions, only: iwp
 
 implicit none
 private
 
-logical(kind=iwp) :: MAG_X2C, UHF_HFC
+logical(kind=iwp) :: MagX2C_Avail, UHF_HFC
 
-public :: MAG_X2C, UHF_HFC
+! VARIABLE DESCRIPTION
+!
+!  UHF_HFC     : to control the calculation of hyperfine coupling tensor
+!               matrix in unrestricted Hartree-Fock scf calculations.
+!               It is mainly used in scf program and the related integral_util
+!               directory.
+!
+! MagX2C_Avail : is controlled by iRdOne.
+!             = .TRUE. when MagX2C integral is accessible and vice versa
+
+public :: MagX2C_Avail, UHF_HFC
 
 end module HFC_logical

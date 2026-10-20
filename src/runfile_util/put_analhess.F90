@@ -40,9 +40,9 @@ call Put_dArray('Analytic Hessian',AnalHess,nAnalHess)
 iSI1(2) = 0
 call Qpg_iArray('Slapaf Info 1',Found,iTmp)
 if (Found) call Get_iArray('Slapaf Info 1',iSI1,7)
-call Getenvf('MOLCAS_ITER',Label)
+call get_environment_variable('MOLCAS_ITER',Label)
 read(Label,'(I80)') iTmp
-call Getenvf('EMIL_InLoop',Label)
+call get_environment_variable('EMIL_InLoop',Label)
 read(Label,*,IOStat=irderr) inLoop
 if (irderr /= 0) inLoop = 0
 if (inLoop < 1) iTmp = 0

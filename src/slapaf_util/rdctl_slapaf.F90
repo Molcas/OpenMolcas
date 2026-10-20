@@ -20,6 +20,7 @@ use Slapaf_Info, only: Atom, Baker, Beta, Beta_Disp, CallLast, CnstWght, Coor, C
                        ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, User_Def, UserP, UserT, WeightedConstraints, Weights
 use kriging_mod, only: blavAI, Kriging, Max_Microiterations, nD_In
 use UnixInfo, only: SuperName
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Ten, Half, Angstrom
 use Definitions, only: wp, iwp, u6
@@ -27,7 +28,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 logical(kind=iwp), intent(in) :: Dummy_Call
-#include "print.fh"
 integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, istatus, iTmp, j, jStrt, kPrint, Lu_UDC, &
                      Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, nSupSy
 real(kind=wp) :: HSR, HSR0, Update, Valu, xWeight
@@ -42,17 +42,17 @@ character(len=180), external :: Get_Ln
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 2
 Expert = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Initiate some parameters
 
+iRout = 2
+iPrint = nPrint(iRout)
 call Symmetry_Info_Get()
 call Init_Slapaf()
 nsAtom = size(Coor,2)
-iPrint = nPrint(iRout)
 
 call f_Inquire('UDC.Gateway',External_UDC)
 

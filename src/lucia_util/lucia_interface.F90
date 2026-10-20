@@ -36,15 +36,15 @@ contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
+subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
   use lucia_data, only: IREFSM, MXNTTS
 
   implicit none
   character(len=*), intent(in) :: ModLab
-  integer(kind=iwp), intent(in), optional :: iSym, LU
+  integer(kind=iwp), intent(in), optional :: iSym, LU, nTU, nTUVX
   integer(kind=iwp), intent(inout), optional :: iDisk
-  real(kind=wp), intent(in), optional :: Array(:), RVEC(:)
+  real(kind=wp), intent(in), optional :: Array(:), RVEC(:), TU(:), TUVX(:)
   real(kind=wp), intent(_IN_), optional :: CI_Vector(:)
   real(kind=wp), intent(out), optional :: SIGMA_Vector(:)
   character(len=72) :: Module_
@@ -64,40 +64,54 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
   ! Call the appropriate routines according to ModLab
 
   if (Module_(1:4) == 'DIAG') then
-    call Diag_Master()
+
+    call Diag_Master(nTU,TU,nTUVX,TUVX)
+
   else if (Module_(1:9) == 'SIGMA_CVB') then
+
     ! iSym_LI is the symmetry to be used.
-    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym)
+    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym,nTU,TU,nTUVX,TUVX)
+
   else if (Module_(1:5) == 'SIGMA') then
-    !write(u6,*) 'blubbbbbbhc'
-    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR)
+
+    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
+
   else if (Module_(1:5) == 'TRACI') then
+
     !write(u6,*) 'blubbbbbbtraci'
     ! iDisk is the initial disk address (for read/write of JOBIPH)
     ! Lu is the file unit for JOBIPH
     ! Array is the transformation matrix (not sorted as LUCIA needs it).
     call mma_allocate(lVec,MXNTTS,Label='lVec')
-    call Traci_Master(iDisk,LU,Array,lVec)
+    call Traci_Master(iDisk,LU,Array,lVec,nTUVX,TUVX)
     call mma_deallocate(lVec)
+
   else if (Module_(1:5) == 'DENSI') then
+
     if (present(RVEC)) then
       call Densi_Master(CI_VECTOR,RVEC=RVEC(:))
     else
       call Densi_Master(CI_VECTOR)
     end if
+
   else if (Module_(1:3) == 'INI') then
+
     call Lucia_Ini()
     call DetCtl_Gas()
+
   else if (Module_(1:5) == 'CLOSE') then
+
     call CSFDIM_FREE(IREFSM)
-    call LUCIA2MOLCAS_FREE()
     call Lucia_Close()
+
   else
+
     write(u6,*) 'Unknown module requested in Lucia_Util.'
     write(u6,*) 'Module = ',ModLab
     write(u6,*) 'Known modules are:'
     write(u6,*) 'Diag, Sigma, Sigma_CVB, Densi, DetCtl, Ini'
     call Abend()
+
   end if
 
 # ifdef _DEBUGPRINT_
@@ -110,8 +124,8 @@ subroutine densi_master(CIVec,RVec)
   ! Controls the calculation of the densities, when Lucia is called
   ! from Molcas Rasscf.
 
-  use lucia_data, only: DSTmp, Dtmp, DTOC, IDISK, IREFSM, LCSBLK, kvec3_length, LUC, LUHC, LUSC1, LUSC34, MXNTTS, MXSOOB, &
-                        NCSF_PER_SYM, NSD_PER_SYM, NTOOB, PAtmp, PSSIGN, Ptmp, RHO1, SDREO, Sigma_on_Disk, SRHO1, VEC3, XISPSM
+  use lucia_data, only: DSTmp, Dtmp, IDISK, IREFSM, kvec3_length, LCSBLK, LUC, LUHC, LUSC1, LUSC34, MXNTTS, MXSOOB, NCSF_PER_SYM, &
+                        NSD_PER_SYM, NTOOB, PAtmp, PSSIGN, Ptmp, RHO1, Sigma_on_Disk, SRHO1, VEC3, XISPSM
   use Constants, only: Zero
 
   implicit none
@@ -143,12 +157,12 @@ subroutine densi_master(CIVec,RVec)
     call mma_allocate(SCR4,NSD,Label='SCR4')
 
     SCR3(1:NCSF) = rvec(1:NCSF)
-    call CSDTVC(SCR3,SCR4,1,DTOC,SDREO,IREFSM,1)
+    call CSDTVC(SCR3,SCR4,1,IREFSM,1)
     call CPCIVC1(SCR3,NSD,LUHC,MXNTTS,IREFSM,lVec)
     call mma_deallocate(SCR3)
     call mma_deallocate(SCR4)
   end if
-  call CSDTVC(SCR1,SCR2,1,DTOC,SDREO,IREFSM,1)
+  call CSDTVC(SCR1,SCR2,1,IREFSM,1)
   call CPCIVC1(SCR1,NSD,LUC,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)
 
@@ -222,7 +236,7 @@ subroutine densi_master(CIVec,RVec)
     call TriPak(srho1,DStmp,ntoob,ntoob)
   end if
 
-  call CSDTVC(scr1,scr2,2,dtoc,SDREO,iRefSm,1)
+  call CSDTVC(scr1,scr2,2,iRefSm,1)
 
   call mma_deallocate(SCR1)
   call mma_deallocate(SCR2)
@@ -232,17 +246,19 @@ subroutine densi_master(CIVec,RVec)
 
 end subroutine densi_master
 
-subroutine sigma_master(CIVEC,SIGMAVEC)
+subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
   ! Controls the calculation of the sigma vector, when Lucia is called
   ! from Molcas Rasscf.
 
-  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
-                        SIGMA_VEC, VEC3
+  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NGAS, NGSSH, NIRREP, &
+                        NSD_PER_SYM, SIGMA_VEC, VEC3
+  use Constants, only: Zero
 
-  implicit none
   real(kind=wp), intent(_IN_) :: CIVEC(:)
   real(kind=wp), intent(out) :: SIGMAVEC(:)
-  integer(kind=iwp) :: nSD
+  integer(kind=iwp), intent(in) :: nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  integer(kind=iwp) :: IADD, iSym, ITU, MTU, NAT, nSD, NT, NU
   integer(kind=iwp), allocatable :: lVec(:)
 
   nSD = NSD_PER_SYM(IREFSM)
@@ -251,12 +267,28 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
 
   if (INI_H0 == 0) ECORE = ECORE_ORIG
   INI_H0 = 0
-  INT1(:) = INT1O(:)
   ECORE_ORIG = ECORE
-  !if (IUSE_PH == 1) then
-  !  call FI(INT1,ECORE_HEX,1)
-  !  ECORE = ECORE+ECORE_HEX
-  !end if
+
+  ! Move over the one-electron integrals + Potnuc (embedded) to where Lucia
+  ! stores them.
+  INT1(:) = Zero
+  MTU = 0
+  ITU = 0
+  IADD = 0
+  do iSym=1,nIrrep
+    NAT = sum(NGSSH(iSym,1:nGAS))
+    if (NAT == 0) cycle
+    do NT=1,NAT
+      MTU = MTU+IADD
+      do NU=1,NT
+        MTU = MTU+1
+        ITU = ITU+1
+        INT1(ITU) = TU(MTU)
+      end do
+    end do
+    IADD = IADD+NAT
+  end do
+
   call mma_allocate(lVec,MXNTTS,Label='lVec')
   call CPCIVC1(CIVEC,nSD,LUC,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)
@@ -269,7 +301,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
 
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
   ! Note that CI_VEC is used as a scratch array!
-  call MV7(CI_VEC,SIGMA_VEC,LUC,LUSC34)
+  call MV7(CI_VEC,SIGMA_VEC,LUC,LUSC34,nTUVX,TUVX)
   call mma_deallocate(VEC3)
 
   ! Export lusc34 to RASSCF
@@ -280,17 +312,18 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
 
 end subroutine SIGMA_MASTER
 
-subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
+subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTU,TU,nTUVX,TUVX)
 
   use CandS, only: ICSM, ISSM
-  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
-                        SIGMA_ON_DISK, VEC3
+  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NGAS, NGSSH, NIRREP, &
+                        NSD_PER_SYM, SIGMA_ON_DISK, VEC3
+  use Constants, only: Zero
 
-  implicit none
-  integer(kind=iwp), intent(in) :: IREFSM_CASVB
   real(kind=wp), intent(_IN_) :: CIVEC(:)
   real(kind=wp), intent(out) :: SIGMAVEC(:)
-  integer(kind=iwp) :: nSD
+  integer(kind=iwp), intent(in) :: IREFSM_CASVB, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  integer(kind=iwp) :: IADD, iSym, ITU, MTU, NAT, nSD, NT, NU
   integer(kind=iwp), allocatable :: lVec(:)
 
   ! Set ICSM and ISSM (from module CandS to the correct symmetry for this call
@@ -305,12 +338,27 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
 
   if (INI_H0 == 0) ECORE = ECORE_ORIG
   INI_H0 = 0
-  INT1(:) = INT1O(:)
   ECORE_ORIG = ECORE
-  !if (IUSE_PH == 1) then
-  !  call FI(INT1,ECORE_HEX,1)
-  !  ECORE = ECORE+ECORE_HEX
-  !end if
+
+  ! Move over the one-electron integrals + Potnuc (embedded) to where Lucia
+  ! stores them.
+  INT1(:) = Zero
+  MTU = 0
+  ITU = 0
+  IADD = 0
+  do iSym=1,nIrrep
+    NAT = sum(NGSSH(iSym,1:nGAS))
+    if (NAT == 0) cycle
+    do NT=1,NAT
+      MTU = MTU+IADD
+      do NU=1,NT
+        MTU = MTU+1
+        ITU = ITU+1
+        INT1(ITU) = TU(MTU)
+      end do
+    end do
+    IADD = IADD+NAT
+  end do
 
   ! Write CI-vector to disc
 
@@ -320,10 +368,10 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
 
   ! Calculate the sigma vector:
 
-  call DIAG_MASTER()
+  call DIAG_MASTER(nTU,TU,nTUVX,TUVX)
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
   ! Note that CI_VEC is used as a scratch array!
-  call MV7(CI_VEC,SIGMAVec,LUC,LUSC34)
+  call MV7(CI_VEC,SIGMAVec,LUC,LUSC34,nTUVX,TUVX)
   call mma_deallocate(VEC3)
 
   ! Export lusc34 to RASSCF

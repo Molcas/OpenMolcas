@@ -27,7 +27,7 @@ real(kind=wp), intent(inout) :: MOValue(mAO*nCoor,nMOs)
 integer(kind=iwp) :: i1, iCMO, iDeg, iIrrep, iMO, iOff, iOff_CMO(0:7), iOff_MO(0:7), iSO, itmp1, itmp2
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'SODist: MO-Coefficients'
+write(u6,*) 'SODist: MO-Coefficients'
 iOff = 1
 do iIrrep=0,nIrrep-1
   if (nBas(iIrrep) > 0) then

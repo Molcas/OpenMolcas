@@ -11,6 +11,7 @@
 ! Copyright (C) 1994, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,Beta,nFix,iP,Energy,Step_Trunc,Thr_RS)
 !***********************************************************************
 !                                                                      *
@@ -22,6 +23,7 @@ subroutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,Beta,nFix,iP,Ener
 !***********************************************************************
 
 use Slapaf_Info, only: E_Delta, iOptC, Line_Search, UpMeth
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -33,11 +35,9 @@ real(kind=wp), intent(out) :: error(nInter,nIter+1), B((nIter+1)**2), RHS(nIter+
 real(kind=wp), intent(in) :: Beta, Energy(nIter), Thr_RS
 integer(kind=iwp), intent(out) :: iP(nIter)
 character, intent(inout) :: Step_Trunc
-#include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, MinWdw
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iSave, ix
+integer(kind=iwp) :: ix
 #endif
 real(kind=wp) :: Beta_New
 real(kind=wp), allocatable :: t_dq(:), t_g(:), t_q(:)
@@ -50,10 +50,7 @@ write(u6,*) ' Newq: nIter,Beta=',nIter,Beta
 call RecPrt(' Newq (Enter): q',' ',q,nInter,nIter+1)
 call RecPrt(' Newq (Enter): dq',' ',dq,nInter,nIter)
 call RecPrt(' Newq (Enter): g',' ',g,nInter,nIter)
-iSave = nPrint(21)
-nPrint(21) = 99
 call DiagMtrx(H,nInter,ix)
-nPrint(21) = iSave
 #endif
 
 E_Delta = Zero
@@ -189,22 +186,22 @@ end if
 ! In case of a line search restore some data and add the replacements.
 
 if (Line_Search .and. (nIter >= 2)) then
-  if (iPrint >= 99) then
-    call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
-    call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
-    call RecPrt(' Newq: g ',' ',g,nInter,nIter)
-  end if
+# ifdef _DEBUGPRINT_
+  call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
+  call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
+  call RecPrt(' Newq: g ',' ',g,nInter,nIter)
+# endif
   q(:,nIter+1) = q(:,nIter)+dq(:,nIter)
   q(:,nIter) = t_q(:)
   dq(:,nIter) = q(:,nIter+1)-q(:,nIter)
 
   dq(:,nIter-1) = t_dq(:)
   g(:,nIter) = t_g(:)
-  if (iPrint >= 99) then
-    call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
-    call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
-    call RecPrt(' Newq: g ',' ',g,nInter,nIter)
-  end if
+# ifdef _DEBUGPRINT_
+  call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
+  call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
+  call RecPrt(' Newq: g ',' ',g,nInter,nIter)
+# endif
 
   call mma_deallocate(t_q)
   call mma_deallocate(t_g)
@@ -234,7 +231,5 @@ call RecPrt('Newq (Exit): q',' ',q,nInter,nIter+1)
 call RecPrt('Newq (Exit): dq',' ',dq,nInter,nIter)
 call RecPrt('Newq (Exit): g',' ',g,nInter,nIter)
 #endif
-
-return
 
 end subroutine Newq

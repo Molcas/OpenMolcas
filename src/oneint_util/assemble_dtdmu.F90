@@ -24,47 +24,47 @@ subroutine Assemble_dTdmu(nZeta,rFinal,la,lb,Elalbp,Elalbm,Beta)
 
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3)
 real(kind=wp), intent(in) :: Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), Elalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3), &
                              Beta(nZeta)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, ib_max, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb, iZeta
 real(kind=wp) :: xyTmp, xzTmp, yxTmp, yzTmp, zxTmp, zyTmp
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, ib_max, iComp
 character(len=80) :: Label
 
-iRout = 231
-iPrint = nPrint(iRout)
-
 !Fact = -1.0e6_wp*Half/c_in_au**2
-if (iPrint >= 99) then
-  write(u6,*) ' In Assemble_dTdmu la,lb=',la,lb
-  do ia=1,nTri_Elem1(la)
-    do ib=1,nTri_Elem1(lb+1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,1),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,2),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',z)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,3),nZeta,1)
-    end do
+write(u6,*) ' In Assemble_dTdmu la,lb=',la,lb
+do ia=1,nTri_Elem1(la)
+  do ib=1,nTri_Elem1(lb+1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,1),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,2),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',z)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,3),nZeta,1)
   end do
-  do ia=1,nTri_Elem1(la)
-    ib_max = nTri_Elem1(lb-1)
-    if (lb == 0) ib_max = 0
-    do ib=1,ib_max
-      write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',x)'
-      call RecPrt(Label,' ',Elalbm(:,ia,ib,1),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',y)'
-      call RecPrt(Label,' ',Elalbm(:,ia,ib,2),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',z)'
-      call RecPrt(Label,' ',Elalbm(:,ia,ib,3),nZeta,1)
-    end do
+end do
+do ia=1,nTri_Elem1(la)
+  ib_max = nTri_Elem1(lb-1)
+  if (lb == 0) ib_max = 0
+  do ib=1,ib_max
+    write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',x)'
+    call RecPrt(Label,' ',Elalbm(:,ia,ib,1),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',y)'
+    call RecPrt(Label,' ',Elalbm(:,ia,ib,2),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',z)'
+    call RecPrt(Label,' ',Elalbm(:,ia,ib,3),nZeta,1)
   end do
-end if
+end do
+#endif
 
 do ixa=la,0,-1
   do iya=la-ixa,0,-1
@@ -106,13 +106,11 @@ do ixa=la,0,-1
   end do
 end do
 
-if (iPrint >= 49) then
-  do iComp=1,3
-    write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
-    call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
-end if
-
-return
+#ifdef _DEBUGPRINT_
+do iComp=1,3
+  write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
+  call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
+#endif
 
 end subroutine Assemble_dTdmu

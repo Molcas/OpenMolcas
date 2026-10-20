@@ -52,7 +52,8 @@
 !#define _ENABLE_POINTERS_
 module stdalloc
 
-use Definitions, only: wp, iwp, byte, MPIInt, u6, ItoB, RtoB
+use, intrinsic :: iso_fortran_env, only: int32
+use Definitions, only: wp, iwp, byte, u6, ItoB, RtoB
 
 implicit none
 private
@@ -117,7 +118,10 @@ subroutine mma_oom(label,bufsize,mma_avail)
 
   character(len=*), intent(in) :: label
   integer(kind=iwp), intent(in) :: bufsize, mma_avail
+  integer(kind=iwp) :: iDum
 
+  iDum = 0
+  call getmem('Finish','LIST','REAL',iDum,0)
   write(u6,'(1x,a)') '?mma_allo_?D: error: out-of-memory'
   write(u6,'(1x,a,a)') 'label: ',trim(label)
   write(u6,'(1x,a,1x,i12)') ' available (kB):',nint(mma_avail*1.0e-3_wp)
@@ -310,11 +314,11 @@ end subroutine mma_maxBYTES
 #undef _TYPE_
 #undef _DATA_NAME_
 
-! integer(kind=MPIInt) variants
+#ifdef _I8_
+! integer(kind=int32) variants
 
 #define _SUBR_NAME_ i4mma
-#define _TYPE_ integer(kind=MPIInt)
-#define _DATA_NAME_ 'INTE'
+#define _TYPE_ integer(kind=int32)
 
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'i4mma_1D'
@@ -324,7 +328,8 @@ end subroutine mma_maxBYTES
 
 #undef _SUBR_NAME_
 #undef _TYPE_
-#undef _DATA_NAME_
+
+#endif
 
 ! byte variants
 

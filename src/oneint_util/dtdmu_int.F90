@@ -30,9 +30,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, iPrint, ipS1, ipS2, iRout, iStabO(0:7), lDCRT, llOper, &
-                     LmbdT, mArr, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, ipS1, ipS2, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, &
+                     nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3,2)
 integer(kind=iwp), external :: NrOpr
 
@@ -41,13 +40,12 @@ unused_var(nHer)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 230
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) then
-  call RecPrt(' In dTdmu_int: Alpha',' ',Alpha,nAlpha,1)
-  call RecPrt(' In dTdmu_int: Beta',' ',Beta,nBeta,1)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In dTdmu_int: Alpha',' ',Alpha,nAlpha,1)
+call RecPrt(' In dTdmu_int: Beta',' ',Beta,nBeta,1)
+#else
+unused_var(alpha)
+#endif
 
 nip = 1
 ipS1 = nip
@@ -103,7 +101,5 @@ do lDCRT=0,nDCRT-1
   call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
-
-return
 
 end subroutine dTdmu_int

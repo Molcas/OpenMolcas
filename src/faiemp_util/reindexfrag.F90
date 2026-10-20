@@ -39,8 +39,8 @@ do iIrrep=nIrrep-1,0,-1
   indexLarge = indexLarge-nBas(iIrrep)
   indexSmall = indexSmall-nBas_Valence(iIrrep)
   ! move the data
-  call dcopy_(nBas_Valence(iIrrep),Array(indexSmall),1,Array(indexLarge),1)
-  call dcopy_(nBas_Valence(iIrrep),[Zero],0,Array(indexSmall),1)
+  Array(indexLarge:indexLarge+nBas_Valence(iIrrep)-1) = Array(indexSmall:indexSmall+nBas_Valence(iIrrep)-1)
+  Array(indexSmall:indexSmall+nBas_Valence(iIrrep)-1) = Zero
 end do
 
 return

@@ -37,28 +37,20 @@ use Constants, only: One
 use Definitions, only: u6
 #endif
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nTInt, mTInt, &
                                  iTOff, iOffij, iOffkl
 real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
-real(kind=wp), intent(_OUT_) :: TInt(nTInt,mTInt)
+real(kind=wp), intent(inout) :: TInt(nTInt,mTInt)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, ijSOij, iSO, iSOi, iSOij, iSOkl, &
                      iSOs(4), jSO, jSOj, klSOkl, kSO, kSOk, lSO, lSOl, nijkl
-#ifdef _DEBUGPRINT_
-real(kind=wp) :: r1, r2
-real(kind=wp), external :: ddot_
-#endif
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
-r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-write(u6,*) ' Sum=',r1
-write(u6,*) ' Dot=',r2
+write(u6,*) ' Sum=',sum(AOInt(:,:,:,:,:))
+write(u6,*) ' Dot=',sum(AOInt(:,:,:,:,:)**2)
 call RecPrt(' In PLF_RICD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 

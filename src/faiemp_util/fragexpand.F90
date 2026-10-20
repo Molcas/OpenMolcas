@@ -29,13 +29,13 @@ subroutine FragExpand(LuRd)
 use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
+use Molcas, only: LenIn, MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: storageSize = 200, LineWords = storageSize/8
 real(kind=wp) :: eqBasis(LineWords), x1, y1, z1
 integer(kind=iwp) :: BasisTypes(4), LenLbl, iAtom, ib, iBas, iCnttp, iCntr, ii, Indx, iSh, iShll, jShll, lAng, Last, LenBSL, &
@@ -220,7 +220,7 @@ do iCnttp=1,mCnttp
       else
         write(label,'(i4)') mdc
       end if
-      dc(mdc)%LblCnt(5:LenIn2) = label
+      dc(mdc)%LblCnt(5:LenIn+2) = label
 #     ifdef _DEBUGPRINT_
       write(u6,'(2A)') 'Label=',label
       write(u6,'(2A)') 'LblCnt(mdc)=',dc(mdc)%LblCnt

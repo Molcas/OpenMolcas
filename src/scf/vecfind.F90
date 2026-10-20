@@ -204,7 +204,7 @@ if (.not. Found) then
         write(cList(n1:n2),'(a)') 'Unknown, '
     end select
   end do
-  call SysAbendMsg('SCF:','Cannot find start orbitals according to list:',cList)
+  call SysAbendMsg('SCF:','Cannot find start orbitals according to list: ',cList)
 end if
 !----------------------------------------------------------------------*
 ! What are the defaults for the different cases?                       *

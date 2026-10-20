@@ -135,7 +135,7 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
           !  end do
           !else
           !  ! PACKING NOT implemented
-          !  !open(unit=38,file='testgr_'//cint//'.txt')
+          !  !open(38,file='testgr_'//cint//'.txt')
           !  do j=1,min(mcoor,10)
           !    iexpnt = int(log10(abs(DOut(j))))
           !    write(u6,*) 'num=',DOut(j),'exp = ',iexpnt

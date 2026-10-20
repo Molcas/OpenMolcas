@@ -43,6 +43,7 @@ use SCFWFn, only: wfn_mocoef, wfn_mocoef_a, wfn_mocoef_b, wfn_occnum, wfn_occnum
 use Embedding_Global, only: embPot, embWriteEsp
 use InfSCF, only: nAtoms
 #endif
+use Molcas, only: MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -59,7 +60,6 @@ character(len=8) :: Method, RlxLbl, What
 real(kind=wp), allocatable :: CMOn(:), DMat(:,:), E_Or(:,:), Epsn(:), Etan(:), GVFck(:,:), Scrt1(:,:), Scrt2(:,:), Temp(:)
 logical(kind=iwp), external :: RF_On, Langevin_On, PCM_On
 #ifdef _HDF5_
-#include "Molcas.fh"
 integer(kind=iwp) :: IndTypeT(8,7), nSSh(mxSym), nZero(mxSym)
 character, allocatable :: typestring(:)
 #endif

@@ -12,13 +12,13 @@
 subroutine PRORB(CNO,OCC)
 
 use mrci_global, only: BNAME, NBAS, NBAST, NCMO, NSYM, THRORB
+use Molcas, only: LenIn
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST)
-#include "Molcas.fh"
 integer(kind=iwp) :: I, IEB, IEM, IEND, IST, ISYM, J, JEMO, JSMO, NB, NDIV, NPRT
-character(len=LenIn8), external :: CLEAN_BNAME
+character(len=LenIn+8), external :: CLEAN_BNAME
 
 write(u6,*)
 write(u6,*) 'NATURAL ORBITALS IN AO BASIS. IN EACH SYMMETRY,'
@@ -52,7 +52,5 @@ do ISYM=1,NSYM
   IEB = IEB+NB
   IEM = IEM+NB*NB
 end do
-
-return
 
 end subroutine PRORB

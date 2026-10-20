@@ -33,6 +33,7 @@ subroutine Loc_Nat_orb(irc,Cmo,Xmo,OccN,mOrb)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use Localisation_globals, only: nActa, NamAct, BName, nBas, nFro, nSym, ThrSel
 use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -61,7 +62,7 @@ nnB = 0
 nBmx = 0
 nOrbmx = 0
 do iSym=1,nSym
-  nnB = nnB+nBas(iSym)*(nBas(iSym)+1)/2
+  nnB = nnB+nTri_Elem(nBas(iSym))
   nBmx = max(nBmx,nBas(iSym))
   nOrbmx = max(nOrbmx,mOrb(iSym))
 end do
@@ -108,12 +109,12 @@ do iSym=1,nSym
   end do
   do ia=1,nBa
     jb = jD(ia)
-    jfr = kOff+jb*(jb-1)/2+1
+    jfr = kOff+nTri_Elem(jb-1)+1
     jto = nBas(iSym)*(ia-1)+1
     call dcopy_(jb,S(jfr),1,SQ(jto),1)
     jto = jto+jb
     do ka=jb+1,nBas(iSym)
-      iab = kOff+ka*(ka-1)/2+jb
+      iab = kOff+iTri(ka,jb)
       SQ(jto) = S(iab)
       jto = jto+1
     end do
@@ -176,7 +177,7 @@ do iSym=1,nSym
 
   iOff = iOff+nBas(iSym)
   jOff = jOff+nBas(iSym)*mOrb(iSym)
-  kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
+  kOff = kOff+nTri_Elem(nBas(iSym))
 end do
 
 call mma_deallocate(jD)

@@ -309,6 +309,17 @@ def test_standard(lines, kind, size, computed=False, choice=None):
           l = ll
           gv.lookup[size] = n
           n += 1
+    elif (size == 'ANY'):
+      n = 1
+      ll = 0
+      while (ll is not None):
+        ll = test_standard(lines, 'REALS', n)
+        if (ll):
+          l = ll
+          n += 1
+        else:
+          if (n == 1):
+            return None
 
   # choice type
   elif (kind == 'CHOICE'):
@@ -1220,7 +1231,7 @@ def test_custom(lines, keyword):
       return None
 
   elif (module == 'RASSCF'):
-    if (name == 'CIROOT'):
+    if (name in ['CIROOT', 'RFROOT']):
       try:
         parts = fortran_split(lines[l])
         n1, n2 = to_int(parts[0:2])

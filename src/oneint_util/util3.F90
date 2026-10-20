@@ -11,6 +11,7 @@
 ! Copyright (C) 1991,2015, Roland Lindh                                *
 !               2015, Lasse Kragh Soerensen                            *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine Util3(Beta,nZeta,rFinal,la,lb,Slalbp,Slalb,Slalbm)
 !***********************************************************************
@@ -27,7 +28,6 @@ subroutine Util3(Beta,nZeta,rFinal,la,lb,Slalbp,Slalb,Slalbm)
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -46,9 +46,7 @@ integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ia, ib, iElem, jElem
 character(len=80) :: Label
-#endif
 
-#ifdef _DEBUGPRINT_
 write(u6,*) ' In Util3 la,lb=',la,lb
 call RecPrt('Beta',' ',Beta,nZeta,1)
 do ia=1,nTri_Elem1(la)

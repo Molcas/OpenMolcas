@@ -19,7 +19,8 @@ subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: nDens, nNA
-use input_mclr, only: nAsh, nOrb, nRoots, nSym, ntAsh, ntBas
+use general_data, only: nAsh, nSym
+use input_mclr, only: nOrb, nRoots, ntAsh, ntBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

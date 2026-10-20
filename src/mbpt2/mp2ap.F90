@@ -13,6 +13,7 @@ subroutine MP2Ap(iSymIA,iSymJB,AP,P)
 ! A subroutine that calculates A*p_k in the PCG-algorithm
 
 use MBPT2_Global, only: EOcc, EVir, iPoVec, mAdDel, mAdFro, mAdOcc, mAdVir
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four, Half
 use Definitions, only: wp, iwp
@@ -24,7 +25,6 @@ real(kind=wp), intent(in) :: P(*)
 integer(kind=iwp) :: iA, iB, iI, iJ, index1, index2, iSym1, iSym2, nB, nJ, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, Fac, xiajb, xibja, xijab
 real(kind=wp), allocatable :: Int1(:), Int2(:), IntC(:), Scr1(:)
-#include "corbinf.fh"
 
 nMaxOrb = 0
 do iSym1=1,nSym

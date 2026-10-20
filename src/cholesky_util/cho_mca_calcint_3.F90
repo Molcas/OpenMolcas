@@ -107,6 +107,7 @@ do ISHLCD=1,NNSHL
     ! --------------------
 
     call CWTIME(C1,W1)
+    XINT(1:LINT) = Zero
     call CHO_MCA_INT_1(ISHLCD,ISHLAB,XINT,LINT,LOCDBG .or. (IPRINT >= 100))
     call CWTIME(C2,W2)
     TINTEG(1,1) = TINTEG(1,1)+C2-C1

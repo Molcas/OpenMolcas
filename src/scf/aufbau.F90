@@ -30,6 +30,7 @@ subroutine Aufbau(nAuf,Occup,nOccup,iOK,nD)
 !***********************************************************************
 
 use InfSCF, only: EOrb, nFro, nOcc, nOrb, nSym, rTemp, TEEE
+use Molcas, only: MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, Half
 use Definitions, only: wp, iwp
@@ -41,7 +42,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nAuf(2), nOccup, nD
 real(kind=wp), intent(out) :: Occup(nOccup,nD)
 integer(kind=iwp), intent(out) :: iOK
-#include "Molcas.fh"
 integer(kind=iwp) :: iD, iOrb, iOrBas, ipOcc, iSym, jOrBas, mD, mOrb_AS(2), nElec, nEOrb, nOrb_AS(2), nOrBas, Tmp
 ! These occupation number vectors are used to determine if we have convergence.
 integer(kind=iwp) :: kOccAuf = 1, nOccAuf(MxSym,2,2) = -1

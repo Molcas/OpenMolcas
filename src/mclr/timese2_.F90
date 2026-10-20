@@ -16,7 +16,8 @@ subroutine TimesE2_(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
 use MCLR_Data, only: n2Dens, nConf1, nDens, nDensC
-use input_mclr, only: nAsh, nRoots, nRs2
+use general_data, only: nAsh, nRs2
+use input_mclr, only: nRoots
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

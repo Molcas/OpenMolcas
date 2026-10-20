@@ -15,6 +15,7 @@ subroutine Bond_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,fconst,rMult,
 use Symmetry_Info, only: nIrrep, iOper
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, iOptC, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: A_StrH, aAV, alpha_vdW, f_Const_Min, r_ref_vdW, rAV, rkr, rkr_vdW
+use Molcas, only: LenIn
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -29,7 +30,6 @@ real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter)
 logical(kind=iwp), intent(in) :: Process, Proc_dB
 real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
 character(len=14), intent(inout) :: qLbl(nB)
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 2*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDeg, iDCR(2), iDCRR(0:7), iE1, iE2, iF1, iF2, Ind(2), iRow, &
                      iStabM(0:7), jAtom, jAtom_, jRow, kDCRR, Lambda, nCent, nDCRR, nqB, nStabM
@@ -39,7 +39,7 @@ integer(kind=iwp) :: i
 real(kind=wp) :: A(3,2), Alpha, Deg, f_Const, Grad(mB), Hess(mB**2), r0, Rab, RabCov, Rij2, Val
 logical(kind=iwp) :: Help
 character(len=14) :: Label
-character(len=LenIn4) :: Lbls(2)
+character(len=LenIn+4) :: Lbls(2)
 integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
 character(len=*), parameter :: ChOp(0:7) = ['E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ']
 real(kind=wp), external :: CovRad

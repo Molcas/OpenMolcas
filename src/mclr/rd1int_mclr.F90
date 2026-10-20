@@ -21,11 +21,12 @@ subroutine Rd1Int_MCLR()
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: AtLbl, ChIrr, Coor, Header1I, iMethod, nAtoms, nBas, nSym, ntBas, ntBSqr, ntBTri, PotNuc
+use general_data, only: nSym
+use input_mclr, only: AtLbl, ChIrr, Coor, Header1I, iMethod, nAtoms, nBas, ntBas, ntBSqr, ntBTri, PotNuc
+use Molcas, only: LenIn
 use Definitions, only: iwp
 
 implicit none
-#include "LenIn.fh"
 integer(kind=iwp) :: iSym
 character(len=8) :: Method
 

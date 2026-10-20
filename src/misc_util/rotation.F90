@@ -12,6 +12,7 @@
 subroutine Rotation(TotalM,TRotA,TRotB,TRotC,nsRot,nFAtoms,lSlapaf)
 
 use Index_Functions, only: iTri, nTri_Elem
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, Angstrom, auTocm, auTokJ, auToHz, kBoltzmann, uToau
 use Definitions, only: wp, iwp, u6
@@ -21,7 +22,6 @@ real(kind=wp), intent(out) :: TotalM, TRotA, TRotB, TRotC
 integer(kind=iwp), intent(inout) :: nsRot
 integer(kind=iwp), intent(out) :: nFAtoms
 logical(kind=iwp), intent(in) :: lSlapaf
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAtom, j, nrot
 real(kind=wp) :: CM(3), dEV, dSum, dVec(3), dX, dY, dZ, EVal(nTri_Elem(3)), Inrt(3,3), RotE(3), Vec(3,3)
 real(kind=wp), allocatable :: CCoor(:,:), FCoor(:,:), Mass(:), SOCoor(:,:)

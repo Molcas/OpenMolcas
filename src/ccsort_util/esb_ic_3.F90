@@ -22,11 +22,9 @@ use TraToc, only: NTRABUF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: symp, dimp
-real(kind=wp), intent(_OUT_) :: Vic((dimp*(dimp+1)/2)*((dimp*(dimp+1)/2)+1)/2)
+real(kind=wp), intent(out) :: Vic((dimp*(dimp+1)/2)*((dimp*(dimp+1)/2)+1)/2)
 integer(kind=iwp), intent(out) :: pqind(mbas,mbas)
 integer(kind=iwp) :: i, i1, idis13, ik, ikjl, ilow, ind(4), indtemp, iold, iup, j, j1, jl, jlow, jold, jup, k1, kold, kup, l1, &
                      lold, lup, maxx, ni, nj, nk, nl, nsi, nsj, nsk, nsl

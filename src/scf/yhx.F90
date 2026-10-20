@@ -45,8 +45,8 @@ real(kind=wp), pointer :: Fock(:,:), XP(:,:), YP(:,:)
 !write(u6,*)
 !call NrmClc(FockMO,SIZE(FockMO),'yHx','FockMO(:,:)')
 !call NrmClc(X,SIZE(X),'yHx','X(:)')
-!call RecPrt('yHx: FockMO',' ',FockMO,Size(FockMO,1),Size(FockMO,2))
-!call RecPrt('yHx: X',' ',X,1,Size(X))
+!call RecPrt('yHx: FockMO',' ',FockMO,size(FockMO,1),size(FockMO,2))
+!call RecPrt('yHx: X',' ',X,1,size(X))
 
 nD = size(FockMO,2)
 iOff_XY = 0

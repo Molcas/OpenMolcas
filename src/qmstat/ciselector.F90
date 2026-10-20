@@ -12,7 +12,7 @@
 subroutine CiSelector(nEqState,nState,STC,nCIRef,iCIInd,dCIRef)
 
 use Constants, only: Zero, Half
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: nEqState
@@ -46,8 +46,8 @@ end do
 ! If maximum overlap is small, scream!
 
 if (dScalMAX < sqrt(Half)) then
-  write(6,*)
-  write(6,*) '   WARNING! Less than 50% of CISElect reference found. Consider to redefine reference!'
+  write(u6,*)
+  write(u6,*) '   WARNING! Less than 50% of CISElect reference found. Consider to redefine reference!'
 end if
 
 ! Now set nEqState

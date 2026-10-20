@@ -50,7 +50,6 @@ set (sources
      crtcmp.F90
      dcr.F90
      dcr_mod.F90
-     deaf.F90
      def_shells.F90
      define_af.F90
      dens_info.F90
@@ -68,6 +67,7 @@ set (sources
      drv1_pcm.F90
      drv1_rf.F90
      drv2_rf.F90
+     drv2el.F90
      drv2el_ijij.F90
      drvefp.F90
      drvk2.F90
@@ -89,6 +89,7 @@ set (sources
      eq.F90
      esti.F90
      etwas.F90
+     eval_arrays.F90
      eval_ijkl.F90
      exparr.F90
      expnd_i.F90
@@ -149,6 +150,7 @@ set (sources
      integral_ijij.F90
      integral_interfaces.F90
      integral_wrout2.F90
+     integral_wrout2_BP.F90
      inter.F90
      inter1.F90
      iobuf.F90
@@ -215,6 +217,7 @@ set (sources
      picky.F90
      picky_inner.F90
      plf2.F90
+     plf2_BP.F90
      poti.F90
      prepp.F90
      priwel.F90
@@ -320,6 +323,7 @@ set (modfile_list
      efp_.F90
      efp_module.F90
      etwas.F90
+     eval_arrays.F90
      getline_mod.F90
      int_options.F90
      integral_interfaces.F90

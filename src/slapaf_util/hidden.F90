@@ -20,6 +20,7 @@ subroutine Hidden(Coor,AN,nHidden)
 
 use Slapaf_Info, only: rHidden
 use Isotopes, only: MaxAtomNum, PTab
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Angstrom
 use Definitions, only: wp, iwp, u6
@@ -28,7 +29,6 @@ implicit none
 real(kind=wp), allocatable, intent(inout) :: Coor(:,:)
 integer(kind=iwp), allocatable, intent(inout) :: AN(:)
 integer(kind=iwp), intent(out) :: nHidden
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAtNum, iHidden, iKept, iPL, ITkQMMM, mTot, mTtAtm, nKept
 real(kind=wp) :: XYZ(3)
 logical(kind=iwp) :: Do_ESPF, Exists

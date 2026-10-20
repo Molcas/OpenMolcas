@@ -55,7 +55,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: iType, iPart
 logical(kind=iwp), intent(in) :: DoExch2
-#include "caspt2.fh"
 logical(kind=iwp) :: DoCholesky
 character(len=*), parameter :: SECNAM = 'TraCtl_Drv'
 
@@ -85,7 +84,7 @@ if (DoCholesky) then
 
 else
 
-  call TRACTL(iPart)
+  call TRACTL(nCMO,CMO,iPart)
 
 end if
 

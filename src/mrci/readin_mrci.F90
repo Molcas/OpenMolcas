@@ -17,12 +17,12 @@ use mrci_global, only: BNAME, CISEL, CSEL, CSPCK, CTRSH, ENP, ETHRE, GFAC, ICH, 
                        NDEL, NDMO, NELEC, NFMO, NFRO, NISH, NORB, NORBT, NREF, NRROOT, NSEL, NSM, NSYM, NVIR, NVIRP, NVIRT, &
                        POTNUC, SSEL, SQNLIM, THRORB
 use guga_util_global, only: IAD10, nIOCR
+use Molcas, only: LenIn, MxOrb
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: I, IADD10, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, ISC(4), istatus, ISUM, &
                      ISYM, IT, IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, &
                      NAMSIZ, NASHI, NASHT, NBASI, NC, NCSH(8), NCSHI, NDELI, NDELT, NDMOI, NDMOT, NFMOI, NFMOT, NFROI, NFROT, &
@@ -74,7 +74,7 @@ nTit = 0
 
 ! Read the header of the ONEINT file
 
-NAMSIZ = LENIN8*MXORB
+NAMSIZ = (LenIn+8)*MXORB
 IDISK = 0
 call WR_MOTRA_Info(LUONE,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NFMO,NDMO,8,BNAME,NAMSIZ)
 

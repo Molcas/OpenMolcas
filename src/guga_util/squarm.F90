@@ -20,13 +20,14 @@ integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(out) :: B(N,N)
 integer(kind=iwp) :: I, IIN
 
+B(1,1) = Zero
 IIN = 2
 do I=2,N
   B(1:I-1,I) = -A(IIN:IIN+I-2)
   B(I,1:I-1) = A(IIN:IIN+I-2)
+  B(I,I) = Zero
   IIN = IIN+I
 end do
-call DCOPY_(N,[Zero],0,B,N+1)
 
 return
 

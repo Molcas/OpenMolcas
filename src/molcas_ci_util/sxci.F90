@@ -11,13 +11,13 @@
 
 module sxci
 
+use Molcas, only: MxAct
 use Definitions, only: iwp
 
 implicit none
 private
 
 ! For the mxAct var
-#include "Molcas.fh"
 
 integer(kind=iwp) :: idxci(mxAct), idxsx(mxAct)
 

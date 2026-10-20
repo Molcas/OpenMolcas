@@ -11,6 +11,8 @@
 
 module BLAS_MOD_F90
 
+implicit none
+
 contains
 
 #define _F90_

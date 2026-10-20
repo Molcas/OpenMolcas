@@ -43,7 +43,7 @@ type NQ_data_t
   integer(kind=iwp) :: Fact = 0
 end type NQ_data_t
 
-type(Info_Ang_t) Info_Ang(LMax_NQ)
+type(Info_Ang_t) :: Info_Ang(LMax_NQ)
 type(NQ_data_t), allocatable :: NQ_data(:)
 
 public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, LMax_NQ, NQ_data, Open_NQ_Data
@@ -101,7 +101,7 @@ subroutine Close_NQ_Data()
 end subroutine Close_NQ_Data
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim, nqdata_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)

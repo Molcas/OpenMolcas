@@ -20,13 +20,13 @@ subroutine Angles(Lbls,xyz,mCentr,rtrnc,Max_Center)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Molcas, only: LenIn
 use Constants, only: Zero, One, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: mCentr, Max_Center
-character(len=LenIn) Lbls(mCentr)
+character(len=LenIn) :: Lbls(mCentr)
 real(kind=wp) :: xyz(3,mCentr), rtrnc
 integer(kind=iwp) :: ic, jc, kc
 logical(kind=iwp) :: tp

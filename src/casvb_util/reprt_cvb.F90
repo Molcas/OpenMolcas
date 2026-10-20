@@ -84,7 +84,7 @@ end if
 if (lcalcsvb .and. (ipr(5) >= 1)) then
   write(u6,'(a)') ' '
   write(u6,formE) ' Svb :      ',svb
-  if ((lcalcevb .and. (ipr(5) >= 1)) .or. ((icrit == 2) .and. (ipr(3) < 0) .and. (ipr(5) >= 1))) write(6,formE) ' Evb :      ',evb
+  if ((lcalcevb .and. (ipr(5) >= 1)) .or. ((icrit == 2) .and. (ipr(3) < 0) .and. (ipr(5) >= 1))) write(u6,formE) ' Evb :      ',evb
 else
   if ((lcalcevb .and. (ipr(5) >= 1)) .or. ((icrit == 2) .and. (ipr(3) < 0) .and. (ipr(5) >= 1))) then
     write(u6,'(a)') ' '

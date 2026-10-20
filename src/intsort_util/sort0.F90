@@ -72,11 +72,11 @@ use sort_data, only: iDaTmp, iDaTw0, iDaTwo, IndBin, lBin, lIndx, lInts, LuTmp, 
 use Symmetry_Info, only: nIrrep, iSkip
 use Gateway_global, only: iPack
 use Gateway_Info, only: PkAcc
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: iDisk, iOpt, iPrint, iRc, iRout, Kase
 logical(kind=iwp) :: PkMode
 integer(kind=iwp), external :: isfreeunit
