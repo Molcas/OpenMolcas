@@ -6563,10 +6563,10 @@ integer(kind=iwp), allocatable :: IRight(:)
 
 real(kind=wp), allocatable :: XVal(:)
 
-real(kind=wp) :: XLL, XREF
+real(kind=wp) :: XLU, XREF
 integer(kind=iwp) :: MVI, ISYUPI,IUPI,IDWNI
 integer(kind=iwp) :: MVJ, ISYUPJ,IUPJ,IDWNJ
-integer(kind=iwp) :: INDEO1
+integer(kind=iwp) :: INDEO1, NERROR
 
 
 write(u6,*)
@@ -6596,149 +6596,37 @@ do I=1,CIS(iState)%NCSF(LSM)
 end do
 
 
-#ifdef _SCRAP_
-!call Print_Epq_Matrix( &
-!     iState, &
-!     LSM, &
-!     2,1 )
-call Print_Epq_Matrix( &
-     iState, &
-     LSM, &
-     4,3 )
+NError = 0
 
-Call Print_CSF_Walks(SGS(iState),CIS(istate),LSM)
+do I=1,CIS(iState)%NCSF(LSM)
+   do J=1,CIS(iState)%NCSF(LSM)
 
-!call Contract_ICoup_Blocks( &
-!     EXS(iState), &
-!     10,1,3, &
-!     10,1,3, &
-!     nTerm,ILeft,IRight,XVal )
-
-!write(6,*) 'NTERM=',nTerm
-
-!do k=1,nTerm
-!   write(6,'(2I6,F24.15)') &
-!        ILeft(k),IRight(k),XVal(k)
-!end do
-
-call Decode_Upper_Operator(SGS(iState),4,3,INDEO1)
-write(6,*) 'INDEO43=',INDEO1
-
-call Contract_ICoup_Blocks( &
-     EXS(iState), &
-     INDEO1,1,3, &
-     INDEO1,1,3, &
-     nTerm,ILeft,IRight,XVal )
-
-write(6,*)
-write(6,*) '========================================='
-write(6,*) ' UU CONTRACTED BLOCK'
-write(6,*) '========================================='
-write(6,*)
-
-write(6,'(A,I6)') 'INDEO =',INDEO1
-write(6,'(A,I6)') 'MV    =',3
-write(6,'(A,I6)') 'NTERM =',nTerm
-
-do k=1,nTerm
-
-   write(6,'(2I6,F24.15)') &
-        ILeft(k), &
-        IRight(k), &
-        XVal(k)
-
-end do
-
-write(6,*)
-
-write(6,*)
-write(6,*) '========================================='
-write(6,*) ' FIRST OPERATOR COMPARISON'
-write(6,*) '========================================='
-
-!p=2
-!q=1
-!r=2
-!s=1
-p=4
-q=3
-r=4
-s=3
-do I=6,14
-   do J=6,14
-
-      XREF = MatEl_Ref(I,J,p,q,r,s)
-
-      XLL  = MatEl_EpqErs_UU( &
-                 SGS(iState), &
-                 CIS(iState), &
-                 EXS(iState), &
-                 LSM, &
+      XREF = MatEl_Ref( &
                  I,J, &
-                 p,q,r,s )
+                 4,3, &
+                 2,1 )
 
-!     XLL  = MatEl_EpqErs_LL( &
-!                SGS(iState), &
-!                CIS(iState), &
-!                EXS(iState), &
-!                LSM, &
-!                I,J, &
-!                p,q,r,s )
+      XLU = MatEl_EpqErs_UL( &
+                SGS(iState), &
+                CIS(iState), &
+                EXS(iState), &
+                LSM, &
+                I,J, &
+                4,3, &
+                2,1 )
 
-      if (abs(XREF) > 1.0e-10_wp .or. &
-          abs(XLL ) > 1.0e-10_wp) then
+      if (abs(XREF-XLU) > 1.0e-12_wp) then
+         NError = NError + 1
 
-         write(6,'(2I6,2F20.12)') &
-              I,J,XREF,XLL
-
-      end if
-
-   end do
-end do
-#endif
-
-#ifdef _SCRAP_
-write(6,*)
-write(6,*) '========================================='
-write(6,*) ' FIRST LL MATRIX ELEMENT TEST'
-write(6,*) '========================================='
-write(6,*)
-
-do I=1,min(10,CIS(iState)%NCSF(LSM))
-   do J=1,min(10,CIS(iState)%NCSF(LSM))
-
-      XLL = MatEl_LL( &
-              CIS(iState), &
-              EXS(iState), &
-              LSM, &
-              I, J, &
-              1,1,2, &
-              4,1,2 )
-      Write (6,*) 'XLL=',XLL
-
-      if (abs(XLL) > 1.0e-12_wp) then
-
-         call Decode_CSF( &
-              CIS(iState),LSM,I, &
-              MVI,ISYUPI,IUPI,IDWNI )
-
-         call Decode_CSF( &
-              CIS(iState),LSM,J, &
-              MVJ,ISYUPJ,IUPJ,IDWNJ )
-
-         write(6,'(2I6,8I4,F20.12)') &
-              I,J, &
-              MVI,ISYUPI,IUPI,IDWNI, &
-              MVJ,ISYUPJ,IUPJ,IDWNJ, &
-              XLL
-
+         write(6,'(2I6,3F20.12)') &
+              I,J,XREF,XLU,XREF-XLU
       end if
 
    end do
 end do
 
 write(6,*)
-#endif
+write(6,'(A,I0)') 'Number of UL discrepancies: ',NError
 
 nI=Min(size(IList),CIS(iState)%nCSF(LSM))
 nJ=Min(size(JList),CIS(iState)%nCSF(LSM))
@@ -6945,31 +6833,6 @@ do ICP1=1,NCP1
    end do
 
 end do
-
-#ifdef _SCRAP_
-write(6,*)
-write(6,*) '========================================='
-write(6,*) ' CONTRACTED BLOCK'
-write(6,*) '========================================='
-
-write(6,'(A,3I6)') 'BLOCK1 =',INDEO1,ISYM1,MV1
-
-write(6,'(A,3I6)') 'BLOCK2 =',INDEO2,ISYM2,MV2
-
-write(6,'(A,I6)') 'NTERM =',nTerm
-
-do i=1,nTerm
-
-   write(6,'(A,2I6,F20.12)') &
-      'TERM =', &
-      ILeft(i), &
-      IRight(i), &
-      XVal(i)
-
-end do
-
-write(6,*)
-#endif
 
 end subroutine Contract_ICoup_Blocks
 
@@ -7749,60 +7612,244 @@ end do
 
 end function MatEl_Upper_Closed
 
+
 function MatEl_EpqErs_LU( &
            SGS,CIS,EXS, &
            ISYCI, &
            I,J, &
            p,q,r,s ) result(Value)
 
+   use Constants,   only: Zero
+   use Definitions, only: wp, iwp
+
+   implicit none
+
    type(SGStruct), intent(in) :: SGS
    type(CIStruct), intent(in) :: CIS
    type(EXStruct), intent(in) :: EXS
 
    integer(kind=iwp), intent(in) :: ISYCI
-   integer(kind=iwp), intent(in) :: I,J
-   integer(kind=iwp), intent(in) :: p,q,r,s
+   integer(kind=iwp), intent(in) :: I
+   integer(kind=iwp), intent(in) :: J
+   integer(kind=iwp), intent(in) :: p
+   integer(kind=iwp), intent(in) :: q
+   integer(kind=iwp), intent(in) :: r
+   integer(kind=iwp), intent(in) :: s
 
    integer(kind=iwp) :: INDEOL
    integer(kind=iwp) :: INDEOU
 
-   integer(kind=iwp) :: MVI,MVJ
-   integer(kind=iwp) :: ISYUPI,ISYUPJ
-   integer(kind=iwp) :: IUPI,IUPJ
-   integer(kind=iwp) :: IDWNI,IDWNJ
+   integer(kind=iwp) :: MVI
+   integer(kind=iwp) :: MVJ
+   integer(kind=iwp) :: ISYUPI
+   integer(kind=iwp) :: ISYUPJ
+   integer(kind=iwp) :: IUPI
+   integer(kind=iwp) :: IUPJ
+   integer(kind=iwp) :: IDWNI
+   integer(kind=iwp) :: IDWNJ
+
+   integer(kind=iwp) :: K
 
    real(kind=wp) :: XL
    real(kind=wp) :: XU
    real(kind=wp) :: Value
 
+   Value = Zero
+
+   !
+   ! Decode the lower- and upper-half operators.
+   !
    call Decode_Lower_Operator(SGS,p,q,INDEOL)
    call Decode_Upper_Operator(SGS,r,s,INDEOU)
 
-   call Decode_CSF(CIS,ISYCI,I, &
-                   MVI,ISYUPI,IUPI,IDWNI)
+   !
+   ! Decode
+   !
+   !     I = (IUPI,IDWNI)
+   !     J = (IUPJ,IDWNJ)
+   !
+   call Decode_CSF( &
+        CIS,ISYCI,I, &
+        MVI,ISYUPI,IUPI,IDWNI )
 
-   call Decode_CSF(CIS,ISYCI,J, &
-                   MVJ,ISYUPJ,IUPJ,IDWNJ)
+   call Decode_CSF( &
+        CIS,ISYCI,J, &
+        MVJ,ISYUPJ,IUPJ,IDWNJ )
 
-   Value = Zero
-
-   if (MVI    /= MVJ   ) return
+   !
+   ! The upper and lower half-walks must belong to the same
+   ! split-graph block in order to form the hybrid CSF
+   !
+   !     K = (I_U,J_L).
+   !
+   if (MVI /= MVJ) return
    if (ISYUPI /= ISYUPJ) return
 
+   !
+   ! Resolution of the identity:
+   !
+   ! <I_U,I_L| E_pq E_rs |J_U,J_L>
+   !
+   !   = <I_U,I_L| E_pq |I_U,J_L>
+   !     <I_U,J_L| E_rs |J_U,J_L>.
+   !
+   ! Construct
+   !
+   !     K = (I_U,J_L)
+   !       = (IUPI,IDWNJ).
+   !
+   call Encode_CSF( &
+        CIS,ISYCI, &
+        MVI,ISYUPI,IUPI,IDWNJ, &
+        K )
+
+   !
+   ! Lower-half factor:
+   !
+   !     XL = <I|E_pq|K>.
+   !
+   ! I and K have the same upper half-walk.
+   !
    XL = MatEl_Lower_Closed( &
            CIS,EXS,ISYCI, &
-           I,J, &
+           I,K, &
            INDEOL,ISYUPI,MVI )
 
+   if (abs(XL) <= 1.0e-15_wp) return
+
+   !
+   ! Upper-half factor:
+   !
+   !     XU = <K|E_rs|J>.
+   !
+   ! K and J have the same lower half-walk.
+   !
    XU = MatEl_Upper_Closed( &
            CIS,EXS,ISYCI, &
-           I,J, &
+           K,J, &
            INDEOU,ISYUPI,MVI )
 
-   Value = XL * XU
+   Value = XL*XU
 
 end function MatEl_EpqErs_LU
 
+function MatEl_EpqErs_UL( &
+           SGS,CIS,EXS, &
+           ISYCI, &
+           I,J, &
+           p,q,r,s ) result(Value)
+
+   use Constants,   only: Zero
+   use Definitions, only: wp, iwp
+
+   implicit none
+
+   type(SGStruct), intent(in) :: SGS
+   type(CIStruct), intent(in) :: CIS
+   type(EXStruct), intent(in) :: EXS
+
+   integer(kind=iwp), intent(in) :: ISYCI
+   integer(kind=iwp), intent(in) :: I
+   integer(kind=iwp), intent(in) :: J
+   integer(kind=iwp), intent(in) :: p
+   integer(kind=iwp), intent(in) :: q
+   integer(kind=iwp), intent(in) :: r
+   integer(kind=iwp), intent(in) :: s
+
+   integer(kind=iwp) :: INDEOU
+   integer(kind=iwp) :: INDEOL
+
+   integer(kind=iwp) :: MVI
+   integer(kind=iwp) :: MVJ
+   integer(kind=iwp) :: ISYUPI
+   integer(kind=iwp) :: ISYUPJ
+   integer(kind=iwp) :: IUPI
+   integer(kind=iwp) :: IUPJ
+   integer(kind=iwp) :: IDWNI
+   integer(kind=iwp) :: IDWNJ
+
+   integer(kind=iwp) :: K
+
+   real(kind=wp) :: XU
+   real(kind=wp) :: XL
+   real(kind=wp) :: Value
+
+   Value = Zero
+
+   !
+   ! The first operator acts on the upper half.
+   ! The second operator acts on the lower half.
+   !
+   call Decode_Upper_Operator(SGS,p,q,INDEOU)
+   call Decode_Lower_Operator(SGS,r,s,INDEOL)
+
+   !
+   ! Decode
+   !
+   !     I = (IUPI,IDWNI)
+   !     J = (IUPJ,IDWNJ).
+   !
+   call Decode_CSF( &
+        CIS,ISYCI,I, &
+        MVI,ISYUPI,IUPI,IDWNI )
+
+   call Decode_CSF( &
+        CIS,ISYCI,J, &
+        MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+   !
+   ! I and J must belong to compatible split-graph blocks.
+   !
+   if (MVI /= MVJ) return
+   if (ISYUPI /= ISYUPJ) return
+
+   !
+   ! Resolution of identity for the UL ordering:
+   !
+   ! <I_U,I_L| E^U_pq E^L_rs |J_U,J_L>
+   !
+   !   = <I_U,I_L| E^U_pq |J_U,I_L>
+   !     <J_U,I_L| E^L_rs |J_U,J_L>.
+   !
+   ! Construct the hybrid intermediate CSF
+   !
+   !     K = (J_U,I_L)
+   !       = (IUPJ,IDWNI).
+   !
+   call Encode_CSF( &
+        CIS,ISYCI, &
+        MVI,ISYUPI,IUPJ,IDWNI, &
+        K )
+
+   !
+   ! Upper factor:
+   !
+   !     XU = <I|E^U_pq|K>.
+   !
+   ! I and K have the same lower half-walk.
+   !
+   XU = MatEl_Upper_Closed( &
+           CIS,EXS,ISYCI, &
+           I,K, &
+           INDEOU,ISYUPI,MVI )
+
+   if (abs(XU) <= 1.0e-15_wp) return
+
+   !
+   ! Lower factor:
+   !
+   !     XL = <K|E^L_rs|J>.
+   !
+   ! K and J have the same upper half-walk.
+   !
+   XL = MatEl_Lower_Closed( &
+           CIS,EXS,ISYCI, &
+           K,J, &
+           INDEOL,ISYUPI,MVI )
+
+   Value = XU*XL
+
+end function MatEl_EpqErs_UL
 end subroutine SG_Test_EpqErs_Ref
 
 end module SGUGA
