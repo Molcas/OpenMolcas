@@ -23,7 +23,7 @@ use Constants, only: One, Zero
 implicit none
 #include "warnings.h"
 integer(kind=iwp) :: comp, opt, rc, sylbl, counter, i, ibas, tot_el
-integer(kind=iwp) :: ios, iovmat, isym, itmp0, j, nactorb, nAOs, offset
+integer(kind=iwp) :: ios, isym, j, nactorb, nAOs, offset
 character(len=8) :: label
 character(len=80) :: FMT1
 real(kind=wp), allocatable :: int1e_ovlp(:), OvMat(:), CMO(:), F1_PDFT(:), tmp1(:), tmp2(:), &
@@ -69,8 +69,6 @@ do isym=1,nsym
          write(1099,FMT1) i+offset,j+offset,int1e_ovlp(1+counter)
          OvMat(1+(i+offset-1)*ntot+(j+offset-1)) = int1e_ovlp(1+counter)
          OvMat(1+(j+offset-1)*ntot+(i+offset-1)) = int1e_ovlp(1+counter)
-!         Work(iOvMat+(i+offset-1)*ntot+(j+offset-1))= Work(iTmp0+counter)
-!         Work(iOvMat+(j+offset-1)*ntot+(i+offset-1))= Work(iTmp0+counter)
          counter = counter + 1
       end do
    end do
