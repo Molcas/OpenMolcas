@@ -246,7 +246,9 @@ call mh5_init_attr(dsetid,'DESCRIPTION','Harmonic frequencies in cm-1, vector of
                    'and must not be used for thermochemistry; SPINMULT, the spin multiplicity, and RELAX_METHOD, the '// &
                    'label of the method that produced the wavefunction, each absent if the calculation did not record it; '// &
                    'and ROT_SYMMETRY_NUMBER, present only when thermochemistry was done, the rotational symmetry number '// &
-                   'that it used, which is the one given in the input or 1 and is not determined from the geometry')
+                   'that it used, which is the value given in the input, or 1 if none was given, except that '// &
+                   'thermochemistry uses 2 for a homonuclear diatomic molecule whatever the input says, and is not '// &
+                   'determined from the geometry')
 call mh5_put_dset(dsetid,Freq)
 call mh5_close_dset(dsetid)
 
@@ -281,8 +283,9 @@ end if
 ! LDV: the energy at the geometry of the frequencies, for the relaxation root; the caller says when it is not available.
 if (Do_Energy) then
   dsetid = mh5_create_dset_real(fileid,'ENERGY')
-  call mh5_init_attr(dsetid,'DESCRIPTION','Total energy in hartree at the geometry of the frequencies, for the root '// &
-                     'that the geometry optimization follows; absent when the calculation averages two states')
+  call mh5_init_attr(dsetid,'DESCRIPTION','Total energy in hartree at the geometry of the frequencies, for the '// &
+                     'relaxation root, the root whose gradient and Hessian are computed; absent when the calculation '// &
+                     'averages two states')
   call mh5_put_dset(dsetid,Energy)
   call mh5_close_dset(dsetid)
 end if
