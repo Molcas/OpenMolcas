@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2025, Andrew M. Sand                                   *
-!
-!The purpose of this code is to generate a MolEl.dat file that can be 
-!used for transport calculations in the pyRUQT code.
+!                                                                      *
+!The purpose of this code is to generate a MolEl.dat file that can be  *
+!used for transport calculations in the pyRUQT code.                   *
 !***********************************************************************
 
 subroutine molel_write()
@@ -43,7 +43,7 @@ label = 'Mltpl  0'
 call mma_allocate(int1e_ovlp,ntot1+4,label='int1e_ovlp')
 call mma_allocate(OvMat,ntot**2,label='OvMat')
 call rdone(rc,opt,label,comp,int1e_ovlp,sylbl)
-Open(unit=1099,file='MolEl.dat', action='write',iostat=ios)
+!Open(unit=1099,file='MolEl.dat', action='write',iostat=ios)
 call molcas_open(1099,'MolEl.dat')
 nAOs = 0
 do isym=1,nsym
