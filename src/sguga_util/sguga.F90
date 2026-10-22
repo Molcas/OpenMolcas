@@ -6562,50 +6562,14 @@ integer(kind=iwp) :: nOperatorPairs
 integer(kind=iwp) :: nMatrixElements
 integer(kind=iwp) :: nDiscrepancies
 
-!
-! Diagonal-status classes:
-!
-!     CC: closed   x closed
-!     DC: diagonal x closed
-!     CD: closed   x diagonal
-!     DD: diagonal x diagonal
-!
-integer(kind=iwp) :: nOpClosedClosed
-integer(kind=iwp) :: nOpDiagonalClosed
-integer(kind=iwp) :: nOpClosedDiagonal
-integer(kind=iwp) :: nOpDiagonalDiagonal
-
-integer(kind=iwp) :: nErrClosedClosed
-integer(kind=iwp) :: nErrDiagonalClosed
-integer(kind=iwp) :: nErrClosedDiagonal
-integer(kind=iwp) :: nErrDiagonalDiagonal
-
-!
-! Orientation classes for the closed x closed case:
-!
-!     CC: canonical x canonical
-!     RC: reverse   x canonical
-!     CR: canonical x reverse
-!     RR: reverse   x reverse
-!
-integer(kind=iwp) :: nOpCanCan
-integer(kind=iwp) :: nOpRevCan
-integer(kind=iwp) :: nOpCanRev
-integer(kind=iwp) :: nOpRevRev
-
-integer(kind=iwp) :: nErrCanCan
-integer(kind=iwp) :: nErrRevCan
-integer(kind=iwp) :: nErrCanRev
-integer(kind=iwp) :: nErrRevRev
-
 real(kind=wp) :: XRef
-real(kind=wp) :: XUU
+real(kind=wp) :: XLL
 
 real(kind=wp), parameter :: Threshold = 1.0e-12_wp
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' GENERAL UU OPERATOR TEST'
+write(u6,*) ' CANONICAL NON-DIAGONAL LL TEST'
 write(u6,*) '========================================='
 write(u6,'(A,I0)') 'Number of graph levels: ', &
                     SGS(iState)%nLev
@@ -6613,116 +6577,36 @@ write(u6,'(A,I0)') 'Split-graph midlevel:   ', &
                     SGS(iState)%MidLev
 write(u6,*)
 
-!
-! Initialize the total counters.
-!
 nOperatorPairs  = 0
 nMatrixElements = 0
 nDiscrepancies  = 0
 
 !
-! Initialize the diagonal-status counters.
+! Canonical non-diagonal lower operators:
 !
-nOpClosedClosed     = 0
-nOpDiagonalClosed   = 0
-nOpClosedDiagonal   = 0
-nOpDiagonalDiagonal = 0
-
-nErrClosedClosed     = 0
-nErrDiagonalClosed   = 0
-nErrClosedDiagonal   = 0
-nErrDiagonalDiagonal = 0
-
+!     p > q
+!     r > s
 !
-! Initialize the closed-loop orientation counters.
+! with every orbital index in the lower graph.
 !
-nOpCanCan = 0
-nOpRevCan = 0
-nOpCanRev = 0
-nOpRevRev = 0
-
-nErrCanCan = 0
-nErrRevCan = 0
-nErrCanRev = 0
-nErrRevRev = 0
-
-!
-! Enumerate all upper-half operators E_pq and E_rs.
-!
-! Unlike the previous test, p=q and r=s are included.
-! Consequently, the test covers:
-!
-!     closed   x closed
-!     diagonal x closed
-!     closed   x diagonal
-!     diagonal x diagonal
-!
-do p=SGS(iState)%MidLev+1,SGS(iState)%nLev
-   do q=SGS(iState)%MidLev+1,SGS(iState)%nLev
+do p=2,SGS(iState)%MidLev
+   do q=1,p-1
 
       !
-      ! Retain only operators that preserve the spatial
-      ! symmetry of the CI space in this test.
+      ! For this initial test, retain only operators that
+      ! preserve the spatial symmetry of the CI space.
       !
       if (SGS(iState)%ISM(p) /= &
           SGS(iState)%ISM(q)) cycle
 
-      do r=SGS(iState)%MidLev+1,SGS(iState)%nLev
-         do s=SGS(iState)%MidLev+1,SGS(iState)%nLev
+      do r=2,SGS(iState)%MidLev
+         do s=1,r-1
 
             if (SGS(iState)%ISM(r) /= &
                 SGS(iState)%ISM(s)) cycle
 
             nOperatorPairs = nOperatorPairs + 1
 
-            !
-            ! Classify the operator pair according to whether
-            ! the individual operators are diagonal or closed.
-            !
-            if (p /= q .and. r /= s) then
-
-               nOpClosedClosed = nOpClosedClosed + 1
-
-               !
-               ! Further classify closed x closed according
-               ! to the orientations of the two stored loops.
-               !
-               if (p > q .and. r > s) then
-
-                  nOpCanCan = nOpCanCan + 1
-
-               else if (p < q .and. r > s) then
-
-                  nOpRevCan = nOpRevCan + 1
-
-               else if (p > q .and. r < s) then
-
-                  nOpCanRev = nOpCanRev + 1
-
-               else
-
-                  nOpRevRev = nOpRevRev + 1
-
-               end if
-
-            else if (p == q .and. r /= s) then
-
-               nOpDiagonalClosed = nOpDiagonalClosed + 1
-
-            else if (p /= q .and. r == s) then
-
-               nOpClosedDiagonal = nOpClosedDiagonal + 1
-
-            else
-
-               nOpDiagonalDiagonal = &
-                    nOpDiagonalDiagonal + 1
-
-            end if
-
-            !
-            ! Compare the complete CSF matrices.
-            !
             do I=1,CIS(iState)%NCSF(LSM)
                do J=1,CIS(iState)%NCSF(LSM)
 
@@ -6731,78 +6615,23 @@ do p=SGS(iState)%MidLev+1,SGS(iState)%nLev
                              p,q, &
                              r,s )
 
-                  XUU = MatEl_EpqErs_UU( &
-                            LSM, &
+                  XLL = MatEl_EpqErs_LL( &
                             I,J, &
                             p,q, &
                             r,s )
 
                   nMatrixElements = nMatrixElements + 1
 
-                  if (abs(XRef-XUU) <= Threshold) cycle
+                  if (abs(XRef-XLL) <= Threshold) cycle
 
                   nDiscrepancies = nDiscrepancies + 1
 
-                  !
-                  ! Count the discrepancy in the corresponding
-                  ! diagonal-status class.
-                  !
-                  if (p /= q .and. r /= s) then
-
-                     nErrClosedClosed = &
-                          nErrClosedClosed + 1
-
-                     !
-                     ! Also count its orientation class.
-                     !
-                     if (p > q .and. r > s) then
-
-                        nErrCanCan = nErrCanCan + 1
-
-                     else if (p < q .and. r > s) then
-
-                        nErrRevCan = nErrRevCan + 1
-
-                     else if (p > q .and. r < s) then
-
-                        nErrCanRev = nErrCanRev + 1
-
-                     else
-
-                        nErrRevRev = nErrRevRev + 1
-
-                     end if
-
-                  else if (p == q .and. r /= s) then
-
-                     nErrDiagonalClosed = &
-                          nErrDiagonalClosed + 1
-
-                  else if (p /= q .and. r == s) then
-
-                     nErrClosedDiagonal = &
-                          nErrClosedDiagonal + 1
-
-                  else
-
-                     nErrDiagonalDiagonal = &
-                          nErrDiagonalDiagonal + 1
-
-                  end if
-
-                  !
-                  ! Print discrepancies only.
-                  !
-                  ! Columns:
-                  !
-                  !     p q r s I J XRef XUU XRef-XUU
-                  !
                   write(u6, &
                      '(A,1X,4I4,1X,2I7,3(1X,ES22.14))') &
-                     'UU', &
+                     'LL', &
                      p,q,r,s, &
                      I,J, &
-                     XRef,XUU,XRef-XUU
+                     XRef,XLL,XRef-XLL
 
                end do
             end do
@@ -6815,73 +6644,188 @@ end do
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' GENERAL UU TEST SUMMARY'
+write(u6,*) ' CANONICAL LL TEST SUMMARY'
 write(u6,*) '========================================='
 
 write(u6,'(A,I0)') &
-     'UU operator pairs:  ',nOperatorPairs
+     'LL operator pairs:  ',nOperatorPairs
 
 write(u6,'(A,I0)') &
-     'UU matrix elements: ',nMatrixElements
+     'LL matrix elements: ',nMatrixElements
 
 write(u6,'(A,I0)') &
-     'UU discrepancies:   ',nDiscrepancies
-
-write(u6,*)
-write(u6,*) 'Diagonal-status classes:'
-
-write(u6,'(A,I0,A,I0)') &
-     'Closed x closed:     pairs = ', &
-     nOpClosedClosed, &
-     ', discrepancies = ', &
-     nErrClosedClosed
-
-write(u6,'(A,I0,A,I0)') &
-     'Diagonal x closed:   pairs = ', &
-     nOpDiagonalClosed, &
-     ', discrepancies = ', &
-     nErrDiagonalClosed
-
-write(u6,'(A,I0,A,I0)') &
-     'Closed x diagonal:   pairs = ', &
-     nOpClosedDiagonal, &
-     ', discrepancies = ', &
-     nErrClosedDiagonal
-
-write(u6,'(A,I0,A,I0)') &
-     'Diagonal x diagonal: pairs = ', &
-     nOpDiagonalDiagonal, &
-     ', discrepancies = ', &
-     nErrDiagonalDiagonal
-
-write(u6,*)
-write(u6,*) 'Closed x closed orientation classes:'
-
-write(u6,'(A,I0,A,I0)') &
-     'Canonical x canonical: pairs = ', &
-     nOpCanCan, &
-     ', discrepancies = ', &
-     nErrCanCan
-
-write(u6,'(A,I0,A,I0)') &
-     'Reverse x canonical:   pairs = ', &
-     nOpRevCan, &
-     ', discrepancies = ', &
-     nErrRevCan
-
-write(u6,'(A,I0,A,I0)') &
-     'Canonical x reverse:   pairs = ', &
-     nOpCanRev, &
-     ', discrepancies = ', &
-     nErrCanRev
-
-write(u6,'(A,I0,A,I0)') &
-     'Reverse x reverse:     pairs = ', &
-     nOpRevRev, &
-     ', discrepancies = ', &
-     nErrRevRev
+     'LL discrepancies:   ',nDiscrepancies
 
 contains
+
+subroutine Contract_Lower_Blocks( &
+           INDEO_Right, &
+           INDEO_Left, &
+           ISYUP,MV, &
+           nTerm, &
+           IFrom,ITo,XVal )
+
+use Definitions, only: iwp, wp
+use stdalloc,    only: mma_allocate
+
+implicit none
+
+!
+! Contract the ordered lower-walk product
+!
+!     E_Left E_Right.
+!
+! The rightmost operator acts first:
+!
+!     IFrom --E_Right--> K --E_Left--> ITo.
+!
+! This initial version handles canonical orientations only:
+!
+!     p > q
+!     r > s.
+!
+
+integer(kind=iwp), intent(in) :: INDEO_Right
+integer(kind=iwp), intent(in) :: INDEO_Left
+
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+
+integer(kind=iwp), intent(out) :: nTerm
+
+integer(kind=iwp), allocatable, intent(out) :: IFrom(:)
+integer(kind=iwp), allocatable, intent(out) :: ITo(:)
+
+real(kind=wp), allocatable, intent(out) :: XVal(:)
+
+integer(kind=iwp) :: NRight
+integer(kind=iwp) :: NLeft
+
+integer(kind=iwp) :: OffRight
+integer(kind=iwp) :: OffLeft
+
+integer(kind=iwp) :: iRight
+integer(kind=iwp) :: iLeft
+integer(kind=iwp) :: iTerm
+
+integer(kind=iwp) :: FromRight
+integer(kind=iwp) :: ToRight
+
+integer(kind=iwp) :: FromLeft
+integer(kind=iwp) :: ToLeft
+
+integer(kind=iwp) :: iValueRight
+integer(kind=iwp) :: iValueLeft
+
+real(kind=wp) :: XRight
+real(kind=wp) :: XLeft
+real(kind=wp) :: X
+
+logical :: Found
+
+NRight = EXS(iState)%NOCP( &
+              INDEO_Right,ISYUP,MV )
+
+NLeft = EXS(iState)%NOCP( &
+             INDEO_Left,ISYUP,MV )
+
+if (NRight == 0 .or. NLeft == 0) then
+
+   nTerm = 0
+
+   call mma_allocate(IFrom,1,Label='IFrom')
+   call mma_allocate(ITo,  1,Label='ITo')
+   call mma_allocate(XVal, 1,Label='XVal')
+
+   return
+
+end if
+
+OffRight = EXS(iState)%IOCP( &
+               INDEO_Right,ISYUP,MV )
+
+OffLeft = EXS(iState)%IOCP( &
+              INDEO_Left,ISYUP,MV )
+
+call mma_allocate( &
+     IFrom,NRight*NLeft,Label='IFrom')
+
+call mma_allocate( &
+     ITo,NRight*NLeft,Label='ITo')
+
+call mma_allocate( &
+     XVal,NRight*NLeft,Label='XVal')
+
+nTerm = 0
+
+!
+! The rightmost operator acts first:
+!
+!     FromRight --E_Right--> ToRight.
+!
+do iRight=1,NRight
+
+   FromRight = EXS(iState)%ICoup(1,OffRight+iRight)
+   ToRight   = EXS(iState)%ICoup(2,OffRight+iRight)
+
+   iValueRight = EXS(iState)%ICoup(3,OffRight+iRight)
+   XRight = EXS(iState)%VTab(iValueRight)
+
+   !
+   ! The left operator acts second:
+   !
+   !     FromLeft --E_Left--> ToLeft.
+   !
+   do iLeft=1,NLeft
+
+      FromLeft = EXS(iState)%ICoup(1,OffLeft+iLeft)
+      ToLeft   = EXS(iState)%ICoup(2,OffLeft+iLeft)
+
+      !
+      ! Resolution-of-identity contraction over the
+      ! intermediate lower walk:
+      !
+      !     ToRight = FromLeft = K_L.
+      !
+      if (ToRight /= FromLeft) cycle
+
+      iValueLeft = EXS(iState)%ICoup(3,OffLeft+iLeft)
+      XLeft = EXS(iState)%VTab(iValueLeft)
+
+      X = XLeft*XRight
+
+      !
+      ! Accumulate all contributions having the same
+      ! initial and final lower walks.
+      !
+      Found = .false.
+
+      do iTerm=1,nTerm
+
+         if (IFrom(iTerm) /= FromRight) cycle
+         if (ITo(iTerm)   /= ToLeft)    cycle
+
+         XVal(iTerm) = XVal(iTerm) + X
+
+         Found = .true.
+         exit
+
+      end do
+
+      if (.not. Found) then
+
+         nTerm = nTerm + 1
+
+         IFrom(nTerm) = FromRight
+         ITo(nTerm)   = ToLeft
+         XVal(nTerm)  = X
+
+      end if
+
+   end do
+end do
+
+end subroutine Contract_Lower_Blocks
 
 function Upper_Diagonal_Value( &
            ISYUP,MV,IUP,p ) result(Value)
@@ -7312,12 +7256,10 @@ end do
 
 end subroutine Contract_Upper_Blocks
 
-
 function MatEl_LL( &
-           CIS,EXS,ISYCI, &
            I,J, &
-           INDEO1,ISYM1,MV1, &
-           INDEO2,ISYM2,MV2 ) result(Value)
+           INDEO_Left, &
+           INDEO_Right ) result(Value)
 
 use Constants,   only: Zero
 use Definitions, only: wp, iwp
@@ -7325,21 +7267,11 @@ use stdalloc,    only: mma_deallocate
 
 implicit none
 
-type(CIStruct), intent(in) :: CIS
-type(EXStruct), intent(in) :: EXS
-
-integer(kind=iwp), intent(in) :: ISYCI
-
 integer(kind=iwp), intent(in) :: I
 integer(kind=iwp), intent(in) :: J
 
-integer(kind=iwp), intent(in) :: INDEO1
-integer(kind=iwp), intent(in) :: ISYM1
-integer(kind=iwp), intent(in) :: MV1
-
-integer(kind=iwp), intent(in) :: INDEO2
-integer(kind=iwp), intent(in) :: ISYM2
-integer(kind=iwp), intent(in) :: MV2
+integer(kind=iwp), intent(in) :: INDEO_Left
+integer(kind=iwp), intent(in) :: INDEO_Right
 
 real(kind=wp) :: Value
 
@@ -7356,53 +7288,60 @@ integer(kind=iwp) :: IDWNI
 integer(kind=iwp) :: IDWNJ
 
 integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: k
+integer(kind=iwp) :: iTerm
 
-integer(kind=iwp), allocatable :: ILeft(:)
-integer(kind=iwp), allocatable :: IRight(:)
+integer(kind=iwp), allocatable :: IFrom(:)
+integer(kind=iwp), allocatable :: ITo(:)
 
 real(kind=wp), allocatable :: XVal(:)
 
 Value = Zero
 
 call Decode_CSF( &
-     CIS,ISYCI, &
+     CIS(iState),LSM, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
 call Decode_CSF( &
-     CIS,ISYCI, &
+     CIS(iState),LSM, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
 !
-! lower-loop operator leaves upper walk unchanged
+! Both operators act entirely on the lower half.
+! The upper half-walk must therefore be unchanged.
 !
-
-if (MVI /= MVJ) return
+if (MVI    /= MVJ)    return
 if (ISYUPI /= ISYUPJ) return
-if (IUPI /= IUPJ) return
+if (IUPI   /= IUPJ)   return
 
-call Contract_ICoup_Blocks( &
-     EXS, &
-     INDEO1,ISYM1,MVI, &
-     INDEO2,ISYM2,MVJ, &
+!
+! For
+!
+!     <I|E_Left E_Right|J>,
+!
+! the rightmost operator acts first:
+!
+!     J_L --E_Right--> K_L --E_Left--> I_L.
+!
+call Contract_Lower_Blocks( &
+     INDEO_Right, &
+     INDEO_Left, &
+     ISYUPI,MVI, &
      nTerm, &
-     ILeft, &
-     IRight, &
-     XVal )
+     IFrom,ITo,XVal )
 
-do k=1,nTerm
+do iTerm=1,nTerm
 
-   if (ILeft(k)  /= IDWNJ) cycle
-   if (IRight(k) /= IDWNI) cycle
+   if (IFrom(iTerm) /= IDWNJ) cycle
+   if (ITo(iTerm)   /= IDWNI) cycle
 
-   Value = Value + XVal(k)
+   Value = Value + XVal(iTerm)
 
 end do
 
-call mma_deallocate(ILeft)
-call mma_deallocate(IRight)
+call mma_deallocate(IFrom)
+call mma_deallocate(ITo)
 call mma_deallocate(XVal)
 
 end function MatEl_LL
@@ -7794,20 +7733,32 @@ INDEO = merge( 2*SGS%nLev + (q*(q-1))/2 + p, &
 
 end subroutine Decode_Upper_Operator
 
+
 subroutine Decode_Lower_Operator(SGS,p,q,INDEO)
 
+implicit none
+
 type(SGStruct), intent(in) :: SGS
-integer(kind=iwp), intent(in)  :: p,q
+
+integer(kind=iwp), intent(in)  :: p
+integer(kind=iwp), intent(in)  :: q
 integer(kind=iwp), intent(out) :: INDEO
 
-if (q > p) then
-   INDEO = 2*SGS%nLev + (p*(p-1))/2 + q
-else
-   INDEO = 2*SGS%nLev + (q*(q-1))/2 + p
-endif
+integer(kind=iwp) :: iHigh
+integer(kind=iwp) :: iLow
+
+!
+! The closed-loop table is indexed by the unordered orbital pair.
+! Store the larger orbital index in iHigh and the smaller one
+! in iLow.
+!
+iHigh = max(p,q)
+iLow  = min(p,q)
+
+INDEO = 2*SGS%nLev + &
+        (iHigh*(iHigh-1))/2 + iLow
 
 end subroutine Decode_Lower_Operator
-
 
 function MatEl_EpqErs_UU( &
            ISYCI, &
@@ -8001,55 +7952,67 @@ Value = MatEl_UU( &
            INDEO_Right,Reverse_Right )
 
 end function MatEl_EpqErs_UU
+
 function MatEl_EpqErs_LL( &
-           SGS,CIS,EXS, &
-           ISYCI, &
            I,J, &
            p,q,r,s ) result(Value)
 
-   type(SGStruct), intent(in) :: SGS
-   type(CIStruct), intent(in) :: CIS
-   type(EXStruct), intent(in) :: EXS
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
 
-   integer(kind=iwp), intent(in) :: ISYCI
-   integer(kind=iwp), intent(in) :: I,J
-   integer(kind=iwp), intent(in) :: p,q,r,s
+implicit none
 
-   integer(kind=iwp) :: MVI
-   integer(kind=iwp) :: MVJ
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
 
-   integer(kind=iwp) :: ISYUPI
-   integer(kind=iwp) :: ISYUPJ
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+integer(kind=iwp), intent(in) :: r
+integer(kind=iwp), intent(in) :: s
 
-   integer(kind=iwp) :: IUPI
-   integer(kind=iwp) :: IUPJ
+integer(kind=iwp) :: INDEO_Left
+integer(kind=iwp) :: INDEO_Right
 
-   integer(kind=iwp) :: IDWNI
-   integer(kind=iwp) :: IDWNJ
+real(kind=wp) :: Value
 
-   integer(kind=iwp) :: INDEO1
-   integer(kind=iwp) :: INDEO2
+Value = Zero
 
-   real(kind=wp) :: Value
+!
+! This initial LL implementation handles canonical,
+! non-diagonal lower closed loops:
+!
+!     p > q
+!     r > s.
+!
+if (p <= q) return
+if (r <= s) return
 
-   call Decode_Lower_Operator(SGS,p,q,INDEO1)
-   call Decode_Lower_Operator(SGS,r,s,INDEO2)
+!
+! Both operators must lie completely in the lower graph.
+!
+if (p > SGS(iState)%MidLev) return
+if (q > SGS(iState)%MidLev) return
 
-   call Decode_CSF(CIS,ISYCI,I,MVI,ISYUPI,IUPI,IDWNI )
-   call Decode_CSF(CIS,ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ )
+if (r > SGS(iState)%MidLev) return
+if (s > SGS(iState)%MidLev) return
 
-   Value = Zero
+!
+! E_pq is the left operator.
+! E_rs is the right operator and acts first.
+!
+call Decode_Lower_Operator( &
+     SGS(iState),p,q,INDEO_Left )
 
-   if (MVI /= MVJ) return
-   if (ISYUPI /= ISYUPJ) return
+call Decode_Lower_Operator( &
+     SGS(iState),r,s,INDEO_Right )
 
-   Value = MatEl_LL( &
-              CIS,EXS,ISYCI, &
-              I,J, &
-              INDEO1,ISYUPI,MVI, &
-              INDEO2,ISYUPI,MVI )
+Value = MatEl_LL( &
+           I,J, &
+           INDEO_Left, &
+           INDEO_Right )
 
 end function MatEl_EpqErs_LL
+
 
 subroutine Print_Epq_Matrix(iState,LSM,p,q)
 
