@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine POLY1_CLag(NCONF,NLEV,CI,CLag,RDMEIG)
+subroutine POLY1_CLag(NCONF,NLEV,CI,CLag,DRDM)
 ! PER-AAKE MALMQUIST, 92-12-07
 ! THIS PROGRAM CALCULATES THE 1-EL DENSITY
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
@@ -22,13 +22,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, NLEV
-real(kind=wp), intent(in) :: CI(NCONF), RDMEIG(NLEV**2)
+real(kind=wp), intent(in) :: CI(NCONF), DRDM(NLEV**2)
 real(kind=wp), intent(inout) :: CLag(NCONF)
 real(kind=wp), allocatable :: SGM1(:)
 
 if (NLEV > 0) then
   call MMA_ALLOCATE(SGM1,MXCI,LABEL='SGM1')
-  call DENS1_RPT2_CLag(CI,NCONF,SGM1,MXCI,CLag,NCONF,RDMEIG,nLev)
+  call DENS1_RPT2_CLag(CI,NCONF,SGM1,MXCI,CLag,NCONF,DRDM,nLev)
 end if
 !return !! for test purpose
 

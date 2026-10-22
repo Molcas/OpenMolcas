@@ -39,7 +39,7 @@ if (NACTEL <= 1) then
   return
 end if
 
-call chemps2_load2pdm(NAC,PT,jRoot)
+call chemps2_load2pdm(NAC,PT,jRoot,.false.)
 IJ_pack = 1
 do J=1,NAC
   do I=1,J

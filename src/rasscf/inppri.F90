@@ -48,8 +48,8 @@ use qcmaquis_interface_utility_routines, only: print_dmrg_info
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_Restart, dice_SampleN, Dice_Stoc, diceocc, nRef_Dice
 #endif
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
-use rasscf_global, only: ChemPS2_blb, ChemPS2_lreStart, ChemPS2_Noise, ChemPS2_Restart, Davidson_tol, Do3RDM, HFOcc, &
-                         Max_canonical, Max_Sweep, MXDMRG
+use rasscf_global, only: ChemPS2_blb, ChemPS2_lreStart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, Davidson_tol, Do3RDM, &
+                         HFOcc, Max_canonical, Max_Sweep, MXDMRG
 #endif
 use PrintLevel, only: SILENT, USUAL
 use output_ras, only: IPRLOC
@@ -246,6 +246,7 @@ if (IPRLEV > SILENT) then
       write(u6,Fmt2//'A,T45,ES10.3)') 'Noise prefactor',chemps2_noise
       write(u6,Fmt2//'A,T45,L6)') 'Restart from previous calculation',chemps2_restart
       write(u6,Fmt2//'A,T45,L6)') 'Calculate 3-RDM and F.4-RDM',Do3RDM
+      write(u6,Fmt2//'A,T45,L6)') 'Disable F.4-RDM',chemps2_no4rdm
       write(u6,Fmt2//'A,T45,I6)') 'Restart scheme in 3-RDM and F.4-RDM',chemps2_lrestart
       write(SNAC,'(I3)') NAC
       write(u6,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)') 'Occupation guess',(HFOCC(ihfocc),ihfocc=1,NAC)

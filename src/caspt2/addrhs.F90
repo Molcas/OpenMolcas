@@ -105,7 +105,7 @@ subroutine ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,nBuff,Buff,idxBuf,Cho_Br
   else if (iParRHS == 2) then
     ! Note that iParRHS = 2 only when is_real_par() is true and
     ! PRHS = 2 is specified in the input file (see procinp_caspt2)
-    call GADSUM_ADDRHS(TJVX,NT*NJ*NV*NX)
+    call GADGOP(TJVX,NT*NJ*NV*NX,'+')
     myRank = GA_NodeID()
     call GA_Distribution(lg_A,myRank,ILOV,IHIV,JLOV,JHIV)
     if (JLOV > 0) then
@@ -206,7 +206,7 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
   !                                                                    *
   call DGEMM_('N','T',NT*NJ,NV*NL,NCHO,One,Cho_Bra,NT*NJ,Cho_Ket,NV*NL,Zero,TJVL,NT*NJ)
 # ifdef _MOLCAS_MPP_
-  if (iParRHS == 2) call GADSUM_ADDRHS(TJVL,NT*NJ*NV*NL)
+  if (iParRHS == 2) call GADGOP(TJVL,NT*NJ*NV*NL,'+')
 # endif
   if (NWBP > 0) then
 
@@ -304,6 +304,7 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
   !                                                                    *
   !*********************************************************************
   !                                                                    *
+  if (NWBM <= 0) return
   if ((NINDEP(ISYM,3) > 0) .or. Do_SC) then
     ! The minus combination:
     ICASE = 3
@@ -476,7 +477,7 @@ subroutine ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,nBuff,Buff,idxBuf,Cho_Br
     if (IBUF /= 0) call RHS_SCATTER(LDC,lg_C,Buff,idxBuf,IBUF)
 # ifdef _MOLCAS_MPP_
   else if (iParRHS == 2) then
-    call GADSUM_ADDRHS(AUVX,NA*NU*NV*NX)
+    call GADGOP(AUVX,NA*NU*NV*NX,'+')
     myRank = GA_NodeID()
     call GA_Distribution(lg_C,myRank,ILOV,IHIV,JLOV,JHIV)
     if (JLOV > 0) then
@@ -622,7 +623,7 @@ subroutine ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,nBuff,Buff,idxBuf,Cho_B
         if (IBUF /= 0) call RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
 #     ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-        call GADSUM_ADDRHS(AJVX,NV*NX*NASZ*NJSZ)
+        call GADGOP(AJVX,NV*NX*NASZ*NJSZ,'+')
         if (JLOV > 0) then
           IAJ = 0
           do IJ=IJSTA,IJEND
@@ -751,7 +752,7 @@ subroutine ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,nBuff,Buff,idxBuf,Cho_B
     if (IBUF /= 0) call RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
 # ifdef _MOLCAS_MPP_
   else if (iParRHS == 2) then
-    call GADSUM_ADDRHS(AUVL,NA*NU*NV*NL)
+    call GADGOP(AUVL,NA*NU*NV*NL,'+')
     myRank = GA_NodeID()
     call GA_Distribution(lg_D,myRank,ILOV,IHIV,JLOV,JHIV)
     if (JLOV > 0) then
@@ -860,7 +861,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
   if (DGEMM_ONCE) then
     call DGEMM_('N','T',NV*NL,NA*NJ,NCHO,One,Cho_Ket,NV*NL,Cho_Bra,NA*NJ,Zero,AJVL,NV*NL)
 #   ifdef _MOLCAS_MPP_
-    if (iParRHS == 2) call GADSUM_ADDRHS(AJVL,NV*NL*NA*NJ)
+    if (iParRHS == 2) call GADGOP(AJVL,NV*NL*NA*NJ,'+')
 #   endif
   end if
 
@@ -924,7 +925,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
           if (IBUF /= 0) call RHS_SCATTER(LDEP,lg_EP,Buff,idxBuf,IBUF)
 #       ifdef _MOLCAS_MPP_
         else
-          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AJVL,NV*NL*NASZ*NJSZ)
+          if (.not. DGEMM_ONCE) call GADGOP(AJVL,NV*NL*NASZ*NJSZ,'+')
           if (JLOV > 0) then
             IAJ = 0
             do IJ=IJSTA,IJEND
@@ -1028,7 +1029,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
           if (IBUF /= 0) call RHS_SCATTER(LDEM,lg_EM,Buff,idxBuf,IBUF)
 #       ifdef _MOLCAS_MPP_
         else if (iParRHS == 2) then
-          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AJVL,NV*NL*NASZ*NJSZ)
+          if (.not. DGEMM_ONCE) call GADGOP(AJVL,NV*NL*NASZ*NJSZ,'+')
           if (JLOV > 0) then
             IAJ = 0
             do IJ=IJSTA,IJEND
@@ -1082,9 +1083,6 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
 
   use SUPERINDEX, only: KAGEB, KAGTB, KTGEU, KTGTU
   use caspt2_module, only: NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NINDEP, NSES, NTGEU, NTGEUES, NTGTU, NTGTUES
-# ifdef _MOLCAS_MPP_
-  use Para_Info, only: Is_Real_Par
-# endif
 
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYU, ISYX, NA, NU, NC, NX, nBuff, NCHO
   real(kind=wp), intent(out) :: AUCX(NA,NU,NC,NX), Buff(nBuff)
@@ -1140,7 +1138,7 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
   !                                                                    *
   call DGEMM_('N','T',NA*NU,NC*NX,NCHO,One,Cho_Bra,NA*NU,Cho_Ket,NC*NX,Zero,AUCX,NA*NU)
 # ifdef _MOLCAS_MPP_
-  if (iParRHS == 2) call GADSUM_ADDRHS(AUCX,NA*NU*NC*NX)
+  if (iParRHS == 2) call GADGOP(AUCX,NA*NU*NC*NX,'+')
 # endif
 
   if (NWFP > 0) then
@@ -1251,13 +1249,6 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
     ! Read WM:
     call RHS_ALLO(NASM,NISM,lg_FM)
     call RHS_READ(NASM,NISM,lg_FM,iCASE,iSYM,iVEC)
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      myRank = GA_NodeID()
-      call GA_Distribution(lg_FM,myRank,ILOV,IHIV,JLOV,JHIV)
-      if (JLOV > 0) call GA_Access(lg_FM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
-    end if
-#   endif
 
     if (iParRHS == 1) then
       IBUF = 0
@@ -1298,7 +1289,10 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
       if (IBUF /= 0) call RHS_SCATTER(LDFM,lg_FM,Buff,idxBuf,IBUF)
 #   ifdef _MOLCAS_MPP_
     else if (iParRHS == 2) then
+      myRank = GA_NodeID()
+      call GA_Distribution(lg_FM,myRank,ILOV,IHIV,JLOV,JHIV)
       if (JLOV > 0) then
+        call GA_Access(lg_FM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
         do IU=1,NU
           IUABS = IU+NAES(ISYU)
           IXMAX = NX
@@ -1422,7 +1416,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
   if (DGEMM_ONCE) then
     call DGEMM_('N','T',NA*NU,NC*NL,NCHO,One,Cho_Bra,NA*NU,Cho_Ket,NC*NL,Zero,AUCL,NA*NU)
 #   ifdef _MOLCAS_MPP_
-    if (iParRHS == 2) call GADSUM_ADDRHS(AUCL,NA*NU*NC*NL)
+    if (iParRHS == 2) call GADGOP(AUCL,NA*NU*NC*NL,'+')
 #   endif
   end if
 
@@ -1486,7 +1480,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
           if (IBUF /= 0) call RHS_SCATTER(LDGP,lg_GP,Buff,idxBuf,IBUF)
 #       ifdef _MOLCAS_MPP_
         else if (iParRHS == 2) then
-          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AUCL,NA*NU*NCSZ*NLSZ)
+          if (.not. DGEMM_ONCE) call GADGOP(AUCL,NA*NU*NCSZ*NLSZ,'+')
           if (JLOV > 0) then
             ICL = 0
             do IL=ILSTA,ILEND
@@ -1602,7 +1596,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
           if (IBUF /= 0) call RHS_SCATTER(LDGM,lg_GM,Buff,idxBuf,IBUF)
 #       ifdef _MOLCAS_MPP_
         else if (iParRHS == 2) then
-          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AUCL,NA*NU*NCSZ*NLSZ)
+          if (.not. DGEMM_ONCE) call GADGOP(AUCL,NA*NU*NCSZ*NLSZ,'+')
           if (JLOV > 0) then
             ICL = 0
             do IL=ILSTA,ILEND
@@ -1740,7 +1734,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
   if (DGEMM_ONCE) then
     call DGEMM_('N','T',NC*NL,NA*NJ,NCHO,One,Cho_Ket,NC*NL,Cho_Bra,NA*NJ,Zero,AJCL,NC*NL)
 #   ifdef _MOLCAS_MPP_
-    if (iParRHS == 2) call GADSUM_ADDRHS(AJCL,NC*NL*NA*NJ)
+    if (iParRHS == 2) call GADGOP(AJCL,NC*NL*NA*NJ,'+')
 #   endif
   end if
 
@@ -1828,7 +1822,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
           end do
 #       ifdef _MOLCAS_MPP_
         else if (iParRHS == 2) then
-          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AJCL,NC*NL*NASZ*NJSZ)
+          if (.not. DGEMM_ONCE) call GADGOP(AJCL,NC*NL*NASZ*NJSZ,'+')
           if (JLOV > 0) then
 
             do ICSTA=1,NC,NBXSZC
@@ -1977,7 +1971,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
         end do
 #     ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-        if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AJCL,NC*NL*NASZ*NJSZ)
+        if (.not. DGEMM_ONCE) call GADGOP(AJCL,NC*NL*NASZ*NJSZ,'+')
         if (JLOV > 0) then
 
           do ICSTA=1,NC,NBXSZC
@@ -2044,22 +2038,5 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
   !*********************************************************************
   !                                                                    *
 end subroutine ADDRHSH
-
-#ifdef _MOLCAS_MPP_
-subroutine GADSUM_ADDRHS(buff,nbuff)
-
-  use caspt2_global, only: MAXBUF
-
-  integer(kind=iwp), intent(in) :: nbuff
-  real(kind=wp), intent(inout) :: buff(nbuff)
-  integer(kind=iwp) :: istart
-
-  ! GADGOP wrapper: avoid the 2 GB limit of 32-bit MPI
-  do istart=1,nbuff,MAXBUF
-    call GADGOP(buff(istart),min(nbuff-istart+1,MAXBUF),'+')
-  end do
-
-end subroutine GADSUM_ADDRHS
-#endif
 
 end module ADDRHS

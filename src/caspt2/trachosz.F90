@@ -147,34 +147,35 @@ IDLOC_CHOGROUP = 0
 IDISK = 0
 IBATCH_TOT = 0
 do JSYM=1,NSYM
-  if (NUMCHO_PT2(JSYM) <= 0) cycle
-  JRED1 = InfVec(1,2,jSym)
-  JRED2 = InfVec(NumCho_PT2(jSym),2,jSym)
+  if (NUMCHO_PT2(JSYM) > 0) then
+    JRED1 = InfVec(1,2,jSym)
+    JRED2 = InfVec(NumCho_PT2(jSym),2,jSym)
 
-  do JRED=JRED1,JRED2
-    call Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
-    ! It happens that a reduced set is empty:
-    if (NVECS_RED == 0) cycle
+    do JRED=JRED1,JRED2
+      call Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
+      ! It happens that a reduced set is empty:
+      if (NVECS_RED == 0) cycle
 
-    NBATCH = 1+(NVECS_RED-1)/MXNVC
-    NV = 1+(NVECS_RED-1)/NBATCH
-    NVACC = 0
-    do IB=1,NBATCH
-      IBATCH_TOT = IBATCH_TOT+1
-      ! number of vectors
-      NVACT = min(NVECS_RED-NVACC,NV)
-      NVLOC_CHOBATCH(IBATCH_TOT) = NVACT
-      NVACC = NVACC+NVACT
-      ! disk address offsets
-      do ISYQ=1,NSYM
-        do ICASE=1,4
-          NPQ = NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
-          IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IBATCH_TOT) = IDISK
-          call DDAFILE(LUDRA,0,DUMMY,NPQ*NVACT,IDISK)
+      NBATCH = 1+(NVECS_RED-1)/MXNVC
+      NV = 1+(NVECS_RED-1)/NBATCH
+      NVACC = 0
+      do IB=1,NBATCH
+        IBATCH_TOT = IBATCH_TOT+1
+        ! number of vectors
+        NVACT = min(NVECS_RED-NVACC,NV)
+        NVLOC_CHOBATCH(IBATCH_TOT) = NVACT
+        NVACC = NVACC+NVACT
+        ! disk address offsets
+        do ISYQ=1,NSYM
+          do ICASE=1,4
+            NPQ = NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
+            IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IBATCH_TOT) = IDISK
+            call DDAFILE(LUDRA,0,DUMMY,NPQ*NVACT,IDISK)
+          end do
         end do
       end do
     end do
-  end do
+  end if
   ! set remaining batches to 0
   NBATCH = IBATCH_TOT-NBTCHES(JSYM)
   do IB=NBATCH+1,NBTCH(JSYM)

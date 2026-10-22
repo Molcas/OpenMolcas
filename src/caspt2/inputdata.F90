@@ -153,6 +153,10 @@ type InputTable
   ! DMRG-related keywords
   ! CUMU
   logical(kind=iwp) :: doCumulant = .false.
+  ! CHTR  transform external CheMPS2 RDMs to pseudocanonical orbitals
+  logical(kind=iwp) :: DoTranRDM = .false.
+  ! CHCU  approximate the CheMPS2 F.4-RDM by cumulant reconstruction
+  logical(kind=iwp) :: DoApproRDM = .false.
   ! DMRG  DMRG-CASPT2 using QCMaquis
   logical(kind=iwp) :: DMRG = .false.
 
@@ -211,6 +215,9 @@ type InputTable
   logical(kind=iwp) :: DOSC = .true.
   ! SC_thres  Threshold for avoiding vanishing denominators
   real(kind=wp) :: SC_thres = 1.0e-9_wp
+  ! SCPF      Choose the SC-NEVPT2 perturber functions
+  !           'SPLIT' = P and M kept apart, 'MERGE' = one per index set (consistent with QCMaquis etc.)
+  character(len=5) :: SCPF = 'SPLIT'
 
 end type ! end of type InputTable
 
@@ -383,7 +390,7 @@ subroutine readin_CASPT2(LuIn,nSym)
         read(Line,*,iostat=iError) Input%RlxRoot
         if (iError /= 0) call IOError(Line)
 
-        ! freeze-deleted control
+      ! freeze-deleted control
 
       case ('FROZ')
         Input%FROZ = .true.
@@ -644,6 +651,12 @@ subroutine readin_CASPT2(LuIn,nSym)
         Input%doCumulant = .true.
         dochemps2 = .true.
 
+      case ('CHTR')
+        Input%DoTranRDM = .true.
+
+      case ('CHCU')
+        Input%DoApproRDM = .true.
+
 #     elif _DMRG_
       case ('DMRG')
         Input%DMRG = .true.
@@ -752,7 +765,11 @@ subroutine readin_CASPT2(LuIn,nSym)
         read(Line,*,iostat=iError) Input%SC_thres
         if (iError /= 0) call IOError(Line)
 
-        ! OBSOLETE KEYWORDS
+      case ('SCPF')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        call StdFmt(Line,Input%SCPF)
+
+      ! OBSOLETE KEYWORDS
 
       case ('GRAD')
         call WarningMessage(2,'Obsolete keyword: '//Command)
@@ -801,6 +818,10 @@ subroutine readin_CASPT2(LuIn,nSym)
   ! Check if nState>1
   if (dochemps2 .and. (nStates > 1)) then
     write(u6,*) 'CHEMPS2> Only State Specific calculation supported'
+    call Quit_OnUserError()
+  end if
+  if (Input%DoApproRDM .and. (.not. dochemps2)) then
+    write(u6,*) 'CHEMPS2> CHCU requires the CHEM keyword'
     call Quit_OnUserError()
   end if
 # endif

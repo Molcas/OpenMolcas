@@ -21,9 +21,11 @@ subroutine SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nLev,mG3)
 ! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 ! OR CLOSED-SHELL SCF CASE.
 
+use Index_Functions, only: nTri_Elem
 use sguga, only: SGS
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use caspt2_module, only: ETA, iSCF, NG3
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, byte
 
@@ -31,9 +33,10 @@ implicit none
 integer(kind=iwp), intent(in) :: nLev, mG3
 real(kind=wp), intent(out) :: G1(nLev,nLev), G2(nLev,nLev,nLev,nLev), G3(mG3), F1(nLev,nLev), F2(nLev,nLev,nLev,nLev), F3(mG3)
 integer(kind=byte), intent(out) :: idxG3(6,mG3)
-integer(kind=iwp) :: ID, IG3, IND1, IND2, IND3, IT, IT1, IT2, IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1, LU2, LU3, NLEV2, NLEV4, &
-                     NTASK
+integer(kind=iwp) :: I, ID, IDX, IG3, IND1, IND1MX, IND2, IND3, IT, IT1, IT2, IT3, ITASK, IU, IU1, IU2, IU3, J, JDX, LT, LU, LU1, &
+                     LU2, LU3, NLEV2, NLEV4, NTASK, NTRI1, NTRI2
 real(kind=wp) :: ESUM, Occ, Val
+integer(kind=iwp), allocatable :: IDX2IJ(:,:), IJ2IDX(:,:)
 integer(kind=iwp), parameter :: istate = 1
 
 G1(:,:) = Zero
@@ -85,6 +88,38 @@ end do
 NLEV2 = NLEV**2
 NLEV4 = NLEV**4
 
+! Pair index used in MKFG3
+call mma_allocate(IJ2IDX,nLev,nLev,Label='IJ2IDX')
+call mma_allocate(IDX2IJ,2,nLev**2,Label='IDX2IJ')
+IJ2IDX(:,:) = -1
+IDX2IJ(:,:) = -1
+
+! Special pair index idx2ij allows true RAS cases to be handled:
+ntri1 = nTri_Elem(nlev-1)
+ntri2 = nTri_Elem(nlev)
+idx = 0
+do i=1,nlev-1
+  do j=i+1,nlev
+    ! i<j
+    idx = idx+1
+    ij2idx(i,j) = idx
+    idx2ij(1,idx) = i
+    idx2ij(2,idx) = j
+    ! i>j
+    jdx = nlev2+1-idx ! note the reverse indexation, ...-idx!
+    ij2idx(j,i) = jdx
+    idx2ij(1,jdx) = j
+    idx2ij(2,jdx) = i
+  end do
+end do
+! i=j
+do i=1,nlev
+  idx = ntri1+i
+  ij2idx(i,i) = idx
+  idx2ij(1,idx) = i
+  idx2ij(2,idx) = i
+end do
+
 iG3 = 0
 nTask = NLEV4
 ! SVC20100908 initialize the series of tasks
@@ -99,20 +134,26 @@ Outer: do
     if (.not. Rsv_Tsk(ID,iTask)) exit Outer
     IND1 = mod(iTask-1,NLEV2)+1
     IND2 = ((iTask-IND1)/(NLEV2))+1
-    if (IND2 <= IND1) exit Inner
+    if (IND2 <= min(IND1,NTRI2)) exit Inner
   end do Inner
 
-  IT1 = mod(IND1-1,nLev)+1
-  IU1 = (IND1-IT1)/nLev+1
+  IT1 = IDX2IJ(1,IND1)
+  IU1 = IDX2IJ(2,IND1)
   LU1 = SGS(istate)%LEVEL(IU1)
-  IT2 = mod(IND2-1,nLev)+1
-  IU2 = (IND2-IT2)/nLev+1
+  IT2 = IDX2IJ(1,IND2)
+  IU2 = IDX2IJ(2,IND2)
   LU2 = SGS(istate)%LEVEL(IU2)
 
-  do IT3=1,NLEV
-    do IU3=1,NLEV
-      IND3 = IT3+nLev*(IU3-1)
-      if (IND3 > IND2) cycle
+  do IND3=1,IND2
+    IT3 = IDX2IJ(1,IND3)
+    IU3 = IDX2IJ(2,IND3)
+    ! Upper limit of the first pair index as in MKFG3
+    IND1MX = NTRI2
+    if (IND3 <= NTRI1) then
+      IND1MX = NLEV2
+      if (IND2 > NTRI1) IND1MX = IJ2IDX(IU3,IT3)
+    end if
+    if (IND1 <= IND1MX) then
       LU3 = SGS(istate)%LEVEL(IU3)
       VAL = G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)
 
@@ -145,7 +186,7 @@ Outer: do
       G3(iG3) = VAL
       F3(iG3) = (ESUM*OCC-ETA(LU1)-ETA(LU2)-ETA(LU3))*VAL
 
-    end do
+    end if
   end do
 
   !SVC: The master node now continues to only handle task scheduling,
@@ -157,6 +198,9 @@ end do Outer
 
 ! SVC2010: no more tasks, wait here for the others.
 call Free_Tsk(ID)
+
+call mma_deallocate(IJ2IDX)
+call mma_deallocate(IDX2IJ)
 
 NG3 = iG3
 

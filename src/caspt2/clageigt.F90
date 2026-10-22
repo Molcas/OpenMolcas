@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine CLagEigT(CLag,RDMEIG,SLag,EINACT)
+subroutine CLagEigT(CLag,DRDM,SLag,EINACT)
 
 use caspt2_module, only: ISCF, NCONF, NSTATE
 #ifdef _MOLCAS_MPP_
@@ -23,12 +23,12 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: CLag(nConf,nState)
-real(kind=wp), intent(in) :: RDMEIG(*), SLag(*), EINACT
+real(kind=wp), intent(in) :: DRDM(*), SLag(*), EINACT
 real(kind=wp), allocatable :: CI1(:), CI2(:)
 real(kind=wp) :: Scal
 integer(kind=iwp) :: iStat, jStat
 
-! RDMEIG
+! DRDM
 call mma_allocate(CI1,nConf,Label='CI1')
 call mma_allocate(CI2,nConf,Label='CI2')
 do iStat=1,nState
@@ -50,7 +50,7 @@ do iStat=1,nState
     Scal = SLag(iStat+nState*(jStat-1))*Two
     if (abs(Scal) <= 1.0e-9_wp) cycle
 
-    call Poly1_CLagT(CI1,CI2,CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
+    call Poly1_CLagT(CI1,CI2,CLag(1,iStat),CLag(1,jStat),DRDM,Scal)
     !! Inactive terms
 #   ifdef _MOLCAS_MPP_
     !! The inactive contributions are computed in all processes,

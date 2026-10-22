@@ -206,10 +206,10 @@ do JRED=JRED1,JRED2
 
       ! sending in Salpha and then print ddot of the result
       call Cho_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,Salpha,Ya,DoRead)
-#ifdef _DEBUGPRINT_
+#     ifdef _DEBUGPRINT_
       write(u6,*) 'ddot Y * Y from Salpha'
       write(u6,*) ddot_(dimX,Ya(1)%A0,1,Ya(1)%A0,1)
-#endif
+#     endif
       iAddr = 0
       call dDaFile(LuT1,1,Ya(1)%A0(1),dimX,iAddr)
       call Deallocate_DT(Ya(1))

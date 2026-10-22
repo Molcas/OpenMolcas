@@ -32,7 +32,7 @@ real(kind=wp), intent(in) :: H0(nState,nState), U0(nState,nState), OMGDER(nState
 real(kind=wp), intent(inout) :: UEFF(nState,nState)
 integer(kind=iwp) :: I, iStat, iState, jAsh, jStat, kStat, nBasI, nCor, nLev, nOrbI, NTG1, NTG3
 real(kind=wp) :: EDIFF, EEI, EEJ, EINACT, fact, OVL, Scal, TRC, Wgt
-real(kind=wp), allocatable :: CI1(:), CI2(:), DG1(:), DG2(:), DG3(:), DPT2(:), DPT2_AO(:), G1(:,:), RDMEIG(:,:), RDMSA(:,:), &
+real(kind=wp), allocatable :: CI1(:), CI2(:), DG1(:), DG2(:), DG3(:), DPT2(:), DPT2_AO(:), DRDMSA(:,:), G1(:,:), RDMSA(:,:), &
                               SGM1(:), SGM2(:), SLag(:,:), TG1(:,:), TG2(:), Trf(:), WRK1(:), WRK2(:)
 integer(kind=iwp), parameter :: jstate = 1
 real(kind=wp), external :: ddot_
@@ -177,11 +177,12 @@ if (IFXMS .or. IFRMS) then
 
   ! ----- Calculate orbital derivatives -----
 
-  call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
+  call mma_allocate(DRDMSA,nAshT,nAshT,Label='DRDMSA')
   call mma_allocate(DPT2,NBSQT,Label='DPT2')
   DPT2(:) = Zero
 
   call mma_allocate(Trf,NBSQT,Label='TRFMAT')
+  ! Equally state-averaged density used in the XMS procedure
   call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
   call mma_allocate(WRK1,NBSQT,Label='WRK1')
   call mma_allocate(WRK2,NBSQT,Label='WRK2')
@@ -216,9 +217,9 @@ if (IFXMS .or. IFRMS) then
 
   !! Orbital derivatives of FIFA
   !! Both explicit and implicit orbital derivatives are computed
-  !! Also, compute G(D) and put the active contribution to RDMEIG
+  !! Also, compute G(D) and put the active contribution to DRDMSA
   OLag(:) = Zero
-  call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,G1,WRK1,WRK2)
+  call EigDer2(NBSQT,nAshT,DRDMSA,Trf,FIFA_all,RDMSA,G1,WRK1,WRK2)
 
   !! Add to PT2 density
   !! No inactive contributions. Correct as long as CASSCF CI
@@ -248,9 +249,8 @@ if (IFXMS .or. IFRMS) then
     call mma_deallocate(CI1)
     !! WRK2 is the SCF density (for nstate=nroots)
     call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
-    RDMSA(:,:) = RDMSA(:,:)-reshape(WRK2(1:nAshT**2),[nAshT,nAshT])
-    !! Construct the SS minus SA density matrix in WRK1
-    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
+    !! Construct the SA minus SCF density matrix in WRK1
+    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA-reshape(WRK2(1:nAshT**2),[nAshT,nAshT]),Trf)
     !! Subtract the inactive part
     WRK1(1:nBasT**2) = WRK1(1:nBasT**2)-WRK2(1:nBasT**2)
     !! Save
@@ -284,8 +284,8 @@ if (IFXMS .or. IFRMS) then
   !call sqprt(FIFA_all,nasht)
   call DGemm_('N','T',nAshT,nAshT,nAshT,One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,Zero,G1,nAshT)
   !call sqprt(g1,nasht)
-  call DGemm_('N','N',nAshT,nAshT,nAshT,One,Trf(1+nBasT*nCor+nCor),nBasT,RDMEIG,nAshT,Zero,FIFA_all,nAshT)
-  call DGemm_('N','T',nAshT,nAshT,nAshT,One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,Zero,RDMEIG,nAshT)
+  call DGemm_('N','N',nAshT,nAshT,nAshT,One,Trf(1+nBasT*nCor+nCor),nBasT,DRDMSA,nAshT,Zero,FIFA_all,nAshT)
+  call DGemm_('N','T',nAshT,nAshT,nAshT,One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,Zero,DRDMSA,nAshT)
   call mma_deallocate(Trf)
 
   !! b: FIFA in the inactive space
@@ -309,13 +309,13 @@ if (IFXMS .or. IFRMS) then
   call CLagEigT(CLag,G1,SLag,EINACT)
 
   !! 2) Implicit CI derivative
-  call CLagEig(.false.,.true.,nConf,nRoots,nState,nLev,CLag,RDMEIG)
+  call CLagEig(.false.,.true.,nConf,nRoots,nState,nLev,CLag,DRDMSA)
 
 # ifdef _MOLCAS_MPP_
   if (is_real_par()) call GADGOP(CLag,nConf*nState,'+')
 # endif
 
-  call mma_deallocate(RDMEIG)
+  call mma_deallocate(DRDMSA)
   call mma_deallocate(G1)
 
 end if

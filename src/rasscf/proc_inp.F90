@@ -19,7 +19,7 @@ use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
 use write_orbital_files, only: OrbFiles, write_orb_per_iter
-use fcidump, only: DumpOnly, DmpMode
+use fcidump, only: DmpMode, DumpOnly
 use fcidump_reorder, only: ReOrFlag, ReOrInp
 use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in, tNonDiagStochPT2, tPrepStochCASPT2
 use fciqmc_read_RDM, only: MCM7, WRMA
@@ -56,8 +56,8 @@ use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, C
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
 #ifdef _ENABLE_CHEMPS2_DMRG_
-use rasscf_global, only: ChemPS2_BLB, ChemPS2_lRestart, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, Do3RDM, Max_Canonical, &
-                         Max_Sweep, MxDMRG
+use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, &
+                         Davidson_Tol, Do3RDM, Max_Canonical, Max_Sweep, MxDMRG
 #endif
 #ifdef _DMRG_
 use qcmaquis_interface_cfg, only: dmrg_input, qcmaquis_param
@@ -130,6 +130,8 @@ DoBlockDMRG = .false.
 ! Quan.16: CheMPS2 default flags
 chemps2_restart = .false.
 chemps2_lrestart = 0
+chemps2_can = .true.
+chemps2_no4rdm = .false.
 davidson_tol = 1.0e-7_wp
 chemps2_blb = 0.5e-2_wp
 max_sweep = 8
@@ -3572,6 +3574,24 @@ else
   end if
 
 # ifdef _ENABLE_CHEMPS2_DMRG_
+  !---  Process NO4R command
+  if (Key('NO4R')) then
+    write(u6,*) 'CHEMPS2> Disable F.4-RDM calculation'
+    chemps2_no4rdm = .true.
+    call SetPos(LUInput,'NO4R',Line,iRc)
+    call ChkIfKey()
+  end if
+
+  !---  Process CHNO command
+  if (Key('CHNO')) then
+    write(u6,*) 'CHEMPS2> Using noncanonical active orbitals'
+    iOrbTyp = 1
+    IPT2 = 0
+    chemps2_can = .false.
+    call SetPos(LUInput,'CHNO',Line,iRc)
+    call ChkIfKey()
+  end if
+
   !---  Process DAVT command
   if (Key('DAVT')) then
     call SetPos(LUInput,'DAVT',Line,iRc)
@@ -4055,7 +4075,7 @@ if (DOFARO .and. (NSYM > 1)) then
   write(u6,'(1X,A)') 'FARO keyword was used, but NSYM > 1,'
   write(u6,'(1X,A)') 'switching to LUCIA as the CI backend.'
   DOFARO = .false.
-endif
+end if
 ! ======================================================================
 
 if (.not. SkipGUGA) then
@@ -4077,7 +4097,7 @@ if (.not. SkipGUGA) then
     DoFaro = .true.
 # endif
 
-  call CI_Initialize(.NOT. iDoGAS, DOFARO)
+  call CI_Initialize(.not. iDoGAS,DOFARO)
 
 end if
 

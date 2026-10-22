@@ -1433,7 +1433,7 @@ Keywords
 
   Keyword requirements are the same as :kword:`HFCAt` (see below).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCOP" APPEAR="Hyperfine RMS Hamiltonian" KIND="SINGLE" REQUIRE="SPIN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCOP" APPEAR="Hyperfine RMS Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: HFCOp <advanced>
               <HELP>
               Calculate effective hyperfine hamiltonian.
@@ -1457,13 +1457,13 @@ Keywords
 
   To convert isotropic values to MHz, the nuclear g-factors of the corresponding atoms could be defined by specifying one of the following keywords: :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC` and/or :kword:`HISO`.
 
-  By default, most-abudance non-zero nuclear g-factor will be selected if all keywords :kword:`NMASs`, :kword:`NSPIn`, :kword:`GNUC` are absent.
+  By default, most-abudance nonzero nuclear g-factor will be selected if all keywords :kword:`NMASs`, :kword:`NSPIn`, :kword:`GNUC` are absent.
 
   Keywords :kword:`AMFI`, :kword:`RX2C`, :kword:`MXTC` (in :program:`SEWARD`) and :kword:`SPINorbit` (in :program:`RASSI`) are required. |openmolcas| must be built with option :command:`-D GEN1INT=ON` for the current implementation (SO-X2C) :cite:`Feng_JChemTheoryComput_Electron_2021`.
 
   To obtain results in the non-relativistic limit, users can set :kword:`CLIGht` in :program:`SEWARD` to a large value (e.g., :math:`10^{6}`).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAT" APPEAR="HFC Atoms" KIND="INTS_COMPUTED" SIZE="1" REQUIRE="SPIN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAT" APPEAR="HFC Atoms" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED">
               %<ALTERNATE KIND="CHOICE" LIST="all" />
               %Keyword: HFCAt <advanced>
               <HELP>
@@ -1520,10 +1520,10 @@ Keywords
   This keyword disables the feature that automatically selects the most abundant isotope with a nonzero nuclear g-factor,
   indicating nonzero hyperfine coupling. Isotope information will be obtained from :program:`SEWARD` or :program:`GATEWAY` using the :kword:`ISOT` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DAUG" APPEAR="Disable AutoSelect non-zero g-factors" KIND="SINGLE" REQUIRE="HFCAT" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DAUG" APPEAR="Disable autoselect nonzero g-factors" KIND="SINGLE" REQUIRE="HFCAT" LEVEL="ADVANCED">
               %%Keyword: DAUG <advanced>
               <HELP>
-              Disable auto-selection of non-zero g-factor.
+              Disable auto-selection of nonzero g-factor.
               </HELP>
               </KEYWORD>
 

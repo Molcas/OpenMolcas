@@ -157,11 +157,12 @@ real(kind=wp) :: ALPHZ, BANGRES, BETAE, BINCRE, BSTART, CITHR, COOR(3,MXATOM), D
                  OSTHR_QIPR, PNUC(MXPROP) = Zero, PORIG(3,MXPROP) = Zero, RSTHR, SOTHR_PRT, TDIPMIN, TINCRE, TMAXP, TMAXS, &
                  TMGr_thrs, TMINP, TMINS, TOLERANCE, TSTART
 logical(kind=iwp) :: AutoSel_GFac, BINA, ChkHop, CIH5, DCHS, DIPR, Do_Pol, Do_SK, Do_TMOM, DOCD, DoGSOR, DQVD, DYSEXPORT, DYSO, &
-                     Force_NON_AO_TDM, GNuc_set, HAVE_DIAG, HAVE_HEFF, HOP, HypF_rms_Req, IFARGU, IFCURD, IfDCpl, IFEJOB, IFGCAL, &
-                     IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IfNTO, IFSHFT, IFSO, IFTDM, IFTRD1, &
-                     IFTRD2, IFVANVLECK, IFXCAL, LHAMI, LPRPR, NATO, NMass_set, NOHAM, NOSO, NSpin_set, ONLY_OVERLAPS, PRCI, &
-                     PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, QDPT2EV, &
-                     QDPT2SC, QIALL, QIPR, REDUCELOOP, RFpert, RHODyn, RSPR, SaveDens, SECOND_TIME, TDYS, ToFile, TRACK, SDFlip
+                     E_HFC_Req, Force_NON_AO_TDM, GNuc_set, HAVE_DIAG, HAVE_HEFF, HOP, HypF_rms_Req, IFARGU, IFCURD, IfDCpl, &
+                     IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IfNTO, IFSHFT, IFSO, &
+                     IFTDM, IFTRD1, IFTRD2, IFVANVLECK, IFXCAL, LHAMI, LPRPR, NATO, NMass_set, NOHAM, NOSO, NSpin_set, &
+                     ONLY_OVERLAPS, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, &
+                     PRXVR, PRXVS, QDPT2EV, QDPT2SC, QIALL, QIPR, REDUCELOOP, RFpert, RHODyn, RSPR, SaveDens, SDFlip, SECOND_TIME, &
+                     TDYS, ToFile, TRACK
 character(len=LenIn+8) :: bNAME(mxOrb)
 character(len=128) :: JBNAME(MXJOB), MINAME(MXJOB)
 character(len=16) :: OCAA(20)
@@ -169,25 +170,24 @@ character(len=8) :: FnEig, FnToM, PNAME(MXPROP), PTYPE(MXPROP), RASTYP(MXJOB), S
                     SOPRTP(MXPROP)
 character(len=4) :: TITLE1(18,mxTit)
 character(len=2) :: HEAD1(72)
-integer(kind=iwp), allocatable :: AngMom_idx(:), ASD_idx(:,:), LCSTATES(:), NucMass(:), PSO_idx(:,:), SODIAG(:), SONAT(:), &
-                                  SONTO(:,:)
+integer(kind=iwp), allocatable :: LCSTATES(:), NucMass(:), SODIAG(:), SONAT(:), SONTO(:,:)
 real(kind=wp), allocatable :: GNuc(:), HEff(:,:), NucSpin(:), RefEne(:)
 logical(kind=iwp), allocatable :: Atens_Req(:), HypoIso(:), pNMR_req(:)
 
-public :: ALGO, AlphZ, AngMom_idx, ASD_idx, Atens_Req, AutoSel_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, &
-          CIH5, CITHR, Coor, DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, &
-          DYSEXPSO, DYSO, EMin, EPRThr, ERFNuc, FnEig, FnTOM, FORCE_NON_AO_TDM, GNuc, GNuc_set, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, &
-          HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IDCMO, IfArgu, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, &
-          IFHCOM, IFHDIA, IFHEFF, IFHEXT, IfJ2, IfJz, IFMCAL, IFNTO, IFSHFT, IFSO, IfTDM, IfTrD1, IFTRD2, IfvanVleck, IFXCAL, &
-          IPUSED, IROOT1, IRREP, ISOCMP, ISTAT, ISTATE1, ISTATE2, iToc15, JBNAME, L_Eff, LCSTATES, LHAMI, LOOPDIVIDE, LOOPMAX, &
-          LPRPR, LROT1, lSym1, lSym2, LuEig, LuExc, LuIph, LuMck, LuOne, LuOrd, LuTDM, LUTOM, MINAME, MLTPLT, MORSBITS, MPLET1, &
-          MULTIP, MXJOB, MXPROP, NACTE, NACTE1, NASH1, NATens_Calc, NATO, nAtoms, NBAS1, NBINA, NBSTep, nCI1, nCI2, NCONF, NCONF1, &
-          NCOUP, NDEL1, NDET, NELE3, NELE31, NFRO1, NHOL11, NHOLE1, NISH1, NJOB, NMass_set, NOHAM, NOSO, NPNMR_Calc, NPROP, NQUAD, &
+public :: ALGO, AlphZ, Atens_Req, AutoSel_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, CITHR, Coor, DCHO, &
+          DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, DYSO, &
+          E_HFC_Req, EMin, EPRThr, ERFNuc, FnEig, FnTOM, FORCE_NON_AO_TDM, GNuc, GNuc_set, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, HOP, &
+          HypF_rms_Req, HypoIso, IBINA, ICOMP, IDCMO, IfArgu, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, &
+          IFHDIA, IFHEFF, IFHEXT, IfJ2, IfJz, IFMCAL, IFNTO, IFSHFT, IFSO, IfTDM, IfTrD1, IFTRD2, IfvanVleck, IFXCAL, IPUSED, &
+          IROOT1, IRREP, ISOCMP, ISTAT, ISTATE1, ISTATE2, iToc15, JBNAME, L_Eff, LCSTATES, LHAMI, LOOPDIVIDE, LOOPMAX, LPRPR, &
+          LROT1, lSym1, lSym2, LuEig, LuExc, LuIph, LuMck, LuOne, LuOrd, LuTDM, LUTOM, MINAME, MLTPLT, MORSBITS, MPLET1, MULTIP, &
+          MXJOB, MXPROP, NACTE, NACTE1, NASH1, NATens_Calc, NATO, nAtoms, NBAS1, NBINA, NBSTep, nCI1, nCI2, NCONF, NCONF1, NCOUP, &
+          NDEL1, NDET, NELE3, NELE31, NFRO1, NHOL11, NHOLE1, NISH1, NJOB, NMass_set, NOHAM, NOSO, NPNMR_Calc, NPROP, NQUAD, &
           NrNATO, NROOT1, NROOTS, NRS11, NRS21, NRS31, Nscreen, NSOPR, NSOThr_Prt, NSpin_set, NSTAT, NSTATE, NSYM1, NTP, NTS, &
           nTStep, NucMass, NucSpin, OCAA, OCAN, ONLY_OVERLAPS, OSThr_DiPr, OSThr_QIPR, PNAME, pNMR_req, PNUC, PORIG, PRCI, &
-          PRDIPCOM, PrDipVec, PRMEE, PRMER, PRMES, PRORB, PrRaw, PRSXY, PRTRA, PrWeight, PRXVE, PRXVR, PRXVS, PSO_idx, PTYPE, &
-          QDPT2EV, QDPT2SC, QIAll, QIPR, RASTYP, REDUCELOOP, RefEne, RFPert, RhoDyn, RSPR, RSThr, SAVEDENS, SECOND_TIME, SODIAG, &
-          SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDipMin, TDYS, TIncre, TITLE1, TMAXP, &
-          TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart, SDFlip
+          PRDIPCOM, PrDipVec, PRMEE, PRMER, PRMES, PRORB, PrRaw, PRSXY, PRTRA, PrWeight, PRXVE, PRXVR, PRXVS, PTYPE, QDPT2EV, &
+          QDPT2SC, QIAll, QIPR, RASTYP, REDUCELOOP, RefEne, RFPert, RhoDyn, RSPR, RSThr, SAVEDENS, SDFlip, SECOND_TIME, SODIAG, &
+          SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDipMin, TDYS, TIncre, TITLE1, TMaxp, &
+          TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart
 
 end module Cntrl

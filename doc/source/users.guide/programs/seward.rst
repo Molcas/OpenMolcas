@@ -622,7 +622,7 @@ Keywords associated to one-electron integrals
   Following this, one entry for each operator, the order of
   the multipole operator and the coordinates of the center (in au) of
   expansion are specified.
-  The default is the origin for 0th and 1st multipoles, and the center of mass for higher-order multipoles.
+  The default is the origin for 0th multipoles, and the center of mass for higher-order multipoles.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="CENT" KIND="REALS_COMPUTED" APPEAR="Multipole moments origins" SIZE="4" LEVEL="ADVANCED">
               %%Keyword: Center <advanced>

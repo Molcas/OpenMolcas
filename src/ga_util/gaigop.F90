@@ -21,6 +21,7 @@ subroutine GAIGOP(k,n,op)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 use GA_Wrapper, only: MT_INT
+use Definitions, only: ItoB
 #endif
 use Definitions, only: iwp
 
@@ -28,9 +29,22 @@ implicit none
 integer(kind=iwp), intent(in) :: n
 integer(kind=iwp), intent(inout) :: k(n)
 character(len=*), intent(in) :: op
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iblk
+! Limit to \approx 1 GB, because an additional array is allocated internally
+integer(kind=iwp), parameter :: MAXBUF = 2**30/ItoB
+#endif
 
 #ifdef _MOLCAS_MPP_
-if (Is_Real_Par()) call ga_igop(MT_INT,k,n,op)
+if (Is_Real_Par()) then
+  if (n < MAXBUF) then
+    call ga_igop(MT_INT,k,n,op)
+  else
+    do iblk=0,(n-1)/MAXBUF
+      call ga_igop(MT_INT,k(1+MAXBUF*iblk),min(n-MAXBUF*iblk,MAXBUF),op)
+    end do
+  end if
+end if
 #else
 #include "macros.fh"
 unused_var(k)

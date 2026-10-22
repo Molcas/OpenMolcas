@@ -18,14 +18,14 @@ use PrintLevel, only: TERSE
 use UnixInfo, only: SuperName
 use Molcas, only: MxRoot, MxSym
 use caspt2_global, only: cmpThr, cntThr, CompressMPS, ConvInvar, dnmThr, do_csf, do_grad, do_lindep, do_nac, if_equalW, if_invar, &
-                         if_invaria, if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, MAXBUF, real_shift, &
+                         if_invaria, if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, &
                          sigma_p_epsilon, sigma_p_exponent, Weight
 use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, CPT2Method, DMRG, DoCumulant, DWType, FockType, G1SECIN, HZero, IfChol, &
                          IfDens, IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, &
-                         mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, nRas1T, nRas3T, nRoots, nRoots, &
+                         mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, NRAS1, NRAS3, nRoots, nRoots, &
                          nSsh, nState, nSym, OrbIn, OutFmt, PrOrb, PRSD, PT2Method, RFPERT, RHSDirect, Root2State, SDECOM, &
                          SMatrix, ThrConv, ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_amplitude, SC_prop, SC_thres
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_amplitude, SC_merge, SC_prop, SC_thres
 #ifdef _DMRG_
 use qcmaquis_info, only: qcm_group_names
 use qcmaquis_interface_cfg, only: dmrg_file, qcmaquis_param
@@ -34,7 +34,6 @@ use PrintLevel, only: VERBOSE
 use stdalloc, only: mma_allocate
 #endif
 #ifdef _MOLCAS_MPP_
-use, intrinsic :: iso_c_binding, only: c_int
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
 #if 0
@@ -42,7 +41,7 @@ use Para_Info, only: Is_Real_Par, nProcs
 use OFembed, only: Do_OFemb
 #endif
 use Constants, only: Zero, Quart
-use Definitions, only: wp, iwp, u6, RtoB
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: I, iDNG, iDummy, iGroup, iOff, iSym, J, nCore(mxSym), nDiff, NFI, NSD
@@ -153,12 +152,8 @@ if (Is_Real_Par() .and. ((Input%PRHS == 'DEFAULT') .or. (Input%PRHS == 'NEW')) .
 ! A striped algorithm: gather the Cholesky vectors instead of reducing the integral blocks,
 ! and let each process evaluate only the RHS columns it owns.
 if (Is_Real_Par() .and. (Input%PRHS == 'STRIPED') .and. (.not. RHSDIRECT)) iParRHS = 4
-! maximum number of real values handled by a single GADGOP (ARMCI) call
-! compilers complain about huge(xxx)/RtoB with -Werror=integer-division
-MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB
 #else
 RHSDIRECT = .false.
-MAXBUF = (huge(RtoB)-mod(huge(RtoB),RtoB))/RtoB
 #endif
 
 ! Cholesky: set defaults if it was not called during input
@@ -536,7 +531,17 @@ if (HZERO == 'DYALL') then
   SC_prop = input%SCPROP .or. (.not. Do_FIC)
   SC_amplitude = SC_prop
   SC_thres = abs(input%SC_thres)
-  if (NRAS1T+NRAS3T > 0) then
+  ! Choose the perturber function for SC-NEVPT2
+  select case (input%SCPF)
+    case ('MERGE')
+      SC_merge = .true.
+    case ('SPLIT')
+      SC_merge = .false.
+    case default
+      call warningMessage(2,'invalid SCPF option: '//trim(input%SCPF))
+      call quit_onUserError()
+  end select
+  if (sum(NRAS1(1:nSym))+sum(NRAS3(1:nSym)) > 0) then
     call warningMessage(2,'NEVPT2 calculations with a RAS reference wavefunction are not supported')
     call quit_onUserError()
   end if
@@ -616,7 +621,7 @@ if ((input%GRDT .or. input%NAC) .and. (SuperName(1:18) /= 'numerical_gradient') 
   if (ipea_shift /= Zero) do_lindep = .true.
 
   ! only allow analytic gradients either with nstate = nroots or with sadref
-  if ((nState /= nRoots) .and. (.not. ifsadref)) then
+  if ((nState /= nRoots) .and. (.not. input%SADREF)) then
     call warningMessage(2,'Analytic gradients available only if all CASSCF roots are included in the CASPT2 calculation or '// &
                         'with the SADRef keyword.')
     call quit_onUserError()
@@ -629,7 +634,7 @@ if ((input%GRDT .or. input%NAC) .and. (SuperName(1:18) /= 'numerical_gradient') 
   end if
 
   ! CASPT2 analytic gradients with state-dependent density available only with DF or CD
-  if ((.not. ifChol) .and. (.not. input%SADREF) .and. (nRoots /= 1)) then
+  if ((.not. ifChol) .and. ((.not. input%SADREF) .or. any(Weight(2:nRoots) /= Weight(1))) .and. (nRoots /= 1)) then
     call warningMessage(2,'Analytic gradients with state-dependent density available only with density fitting or Cholesky '// &
                         'decomposition.')
     call quit_onUserError()
@@ -669,7 +674,7 @@ if (isStructure() == 1) then
     ! check weaker constraints, if not met, revert to numerical gradients
     if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
     if ((ipea_shift /= Zero) .and. (.not. ifChol)) do_grad = .false.
-    if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
+    if ((nState /= nRoots) .and. (.not. input%SADREF)) do_grad = .false.
   end if
 end if
 
@@ -729,6 +734,12 @@ if ((ipea_shift /= Zero) .and. do_grad .and. (.not. IFDORTHO)) then
   call quit_onUserError()
 end if
 
+if (do_grad .and. (.not. if_invaria) .and. (.not. IfChol)) then
+  call warningMessage(2,'Analytic gradients that are not invariant with respect to rotations among the inactive and among the '// &
+                      'secondary orbitals require Cholesky decomposition or RI (&SEWARD RICD).')
+  call quit_onUserError()
+end if
+
 #ifdef _MOLCAS_MPP_
 if (do_grad .and. (sigma_p_epsilon /= Zero) .and. (nProcs > 1)) then
   call warningMessage(2,'Analytic gradients without the sigma^P regularization not available in parallel executions.')
@@ -765,9 +776,9 @@ if (do_grad) then
 end if
 
 !! issue #448
-if ((IFDENS .and. (.not. do_grad)) .and. (NRAS1T+NRAS3T > 0)) then
-  call warningMessage(2,'DENS keyword cannot be combined with RAS.')
-  call quit_onUserError()
+if ((IFDENS .and. (.not. do_grad)) .and. (sum(NRAS1(1:nSym))+sum(NRAS3(1:nSym)) > 0)) then
+  call warningMessage(1,'DENS keyword with RAS gives an inaccurate active density.')
+! call quit_onUserError()
 end if
 
 if (do_grad .and. (HZERO == 'DYALL')) then

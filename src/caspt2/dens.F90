@@ -52,8 +52,8 @@ integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, IDM, IDMOFF, IDRF, IDSOFF, I
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
 integer(kind=iwp), allocatable :: ISAV(:)
 real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), &
-                              DPT2C_AO(:), DSUM(:), EigT(:,:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), OMGT(:,:), RDMEIG(:,:), &
-                              RDMSA(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
+                              DPT2C_AO(:), DRDMFock(:,:), DSUM(:), EigT(:,:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), &
+                              OMGT(:,:), RDMFock(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
 real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
 real(kind=wp), pointer :: DPT2Canti(:)
 integer(kind=iwp), parameter :: kstate = 1
@@ -176,10 +176,10 @@ if (do_grad) then
   if (IfChol) nch = nvloc_chobatch(1)
   call mma_allocate(WRK1,max(nBasT**2,nch),Label='WRK1')
   call mma_allocate(WRK2,max(nBasT**2,nch),Label='WRK2')
-  !! state-averaged density
-  call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
-  !! Derivative of state-averaged density
-  call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
+  !! density used for this PT2 state
+  call mma_allocate(RDMFock,nAshT,nAshT,Label='RDMFock')
+  !! Derivative contributions of RDMFock
+  call mma_allocate(DRDMFock,nAshT,nAshT,Label='DRDMFock')
   NLEV = SGS(kstate)%NLEV
   if (nAshT /= SGS(kstate)%NLEV) then
     write(u6,*) 'Analytical gradients for nAshT /= SGS(kstate)%NLEV (GASPT2?) does not work'
@@ -200,8 +200,8 @@ if (do_grad) then
     FIMO_all(:) = Zero
     FIFA_all(:) = Zero
   end if
-  RDMSA(:,:) = Zero
-  RDMEIG(:,:) = Zero
+  RDMFock(:,:) = Zero
+  DRDMFock(:,:) = Zero
 
   CLag(:,:) = Zero
   OLag(:) = Zero
@@ -253,9 +253,9 @@ if (do_grad) then
   else
     WRK1(1:nDRef) = DMix(1:nDRef,jState)
   end if
-  call SQUARE(WRK1,RDMSA,1,nAshT,nAshT)
-  !write(u6,*) 'state-averaged density matrix'
-  !call sqprt(rdmsa,nasht)
+  call SQUARE(WRK1,RDMFock,1,nAshT,nAshT)
+  !write(u6,*) 'density matrix of the Fock operator'
+  !call sqprt(rdmfock,nasht)
 
   ! ----- Construct configuration Lagrangian -----
 
@@ -414,7 +414,7 @@ if (do_grad) then
 
     !! Get density matrix (DIA) and inactive density
     !! matrix (DI) to compute FIFA and FIMO.
-    call OLagFroD(NBSQT,nAshT,DIA,DI,RDMSA,Trf)
+    call OLagFroD(NBSQT,nAshT,DIA,DI,RDMFock,Trf)
   end if
 
   !! Construct orbital Lagrangian that comes from the derivative
@@ -624,14 +624,14 @@ if (do_grad) then
   !call sqprt(olag,nbast)
   !write(u6,*) 'fpt2'
   !call sqprt(fpt2,nbast)
-  call EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,CMOPT2,Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
+  call EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2_AO,FPT2C_AO,DRDMFock,CMOPT2,Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMFock)
   !call test2_dens(olag,depsa)
   !write(u6,*) 'olag after eigder'
   !call sqprt(olag,nbast)
   !write(u6,*) 'Wlag after eigder'
   !call sqprt(wlag,nbast)
-  !write(u6,*) 'rdmeig'
-  !call sqprt(rdmeig,nasht)
+  !write(u6,*) 'drdmfock'
+  !call sqprt(drdmfock,nasht)
   !call abend()
 
   !! Calculate the configuration Lagrangian again.
@@ -639,13 +639,13 @@ if (do_grad) then
   !! It seems that TRACI_RPT2 uses CI coefficients of RASSCF,
   !! so canonical -> natural transformation is required.
   !ipTrfL = 1+nAshT*nBasT+nAshT
-  !call DGemm_('N','N',nAshT,nAshT,nAshT,One,Trf(ipTrfL),nBasT,RDMEIG,nAshT,Zero,WRK1,nAshT)
-  !call DGemm_('N','T',nAshT,nAshT,nAshT,One,WRK1,nAshT,Trf(ipTrfL),nBasT,Zero,RDMEIG,nAshT)
+  !call DGemm_('N','N',nAshT,nAshT,nAshT,One,Trf(ipTrfL),nBasT,DRDMFock,nAshT,Zero,WRK1,nAshT)
+  !call DGemm_('N','T',nAshT,nAshT,nAshT,One,WRK1,nAshT,Trf(ipTrfL),nBasT,Zero,DRDMFock,nAshT)
   if (.not. if_invar) then !test
     call mma_allocate(CLagT,nConf,nState,Label='CLagT')
     call mma_allocate(EigT,nAshT,nAshT,Label='EigT')
     CLagT(:,:) = CLag(:,:)
-    EigT(:,:) = RDMEIG(:,:)
+    EigT(:,:) = DRDMFock(:,:)
     if (IFDW .and. (zeta >= Zero)) then
       call mma_allocate(OMGT,nState,nState,Label='OMGT')
       OMGT(:,:) = OMGDER(:,:)
@@ -656,7 +656,7 @@ if (do_grad) then
   ISAV(:) = IDCIEX(:)
   IDCIEX(:) = IDTCEX(:)
   !! Now, compute the configuration Lagrangian
-  call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,RDMEIG)
+  call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,DRDMFock)
 # ifdef _MOLCAS_MPP_
   if (Is_Real_Par()) call GADGOP(CLag,nCLag,'+')
 # endif
@@ -698,11 +698,11 @@ if (do_grad) then
       call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
     end if
     !! Some transformations similar to EigDer
-    call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,DEPSA,WRK1,WRK2)
+    call EigDer2(NBSQT,nAshT,DRDMFock,Trf,FIFA_all,RDMFock,DEPSA,WRK1,WRK2)
 
     CLag(:,:) = CLagT(:,:) !test
     ! test
-    RDMEIG(:,:) = RDMEIG(:,:)+EigT(:,:)
+    DRDMFock(:,:) = DRDMFock(:,:)+EigT(:,:)
     SLag(:,:) = Zero
     call mma_deallocate(CLagT)
     call mma_deallocate(EigT)
@@ -710,10 +710,10 @@ if (do_grad) then
       OMGDER(:,:) = OMGT(:,:)
       call mma_deallocate(OMGT)
     end if
-    !! RDMEIG contributions
+    !! DRDMFock contributions
     !! Use canonical CSFs rather than natural CSFs
     !! Now, compute the configuration Lagrangian
-    call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,RDMEIG)
+    call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,DRDMFock)
 #   ifdef _MOLCAS_MPP_
     if (Is_Real_Par()) call GADGOP(CLag,nCLag,'+')
 #   endif
@@ -771,7 +771,7 @@ if (do_grad) then
   !  iSQ = iSQ+nSQ
   !end do
   !call abend()
-  !call sqprt(RDMEIG,nAshT)
+  !call sqprt(DRDMFock,nAshT)
 
   !! square -> triangle so that the MCLR module can use the AO
   !! densities. Do this for DPT2AO and DPT2CAO (defined in
@@ -833,10 +833,10 @@ if (do_grad) then
     call mma_deallocate(CI1)
     !! WRK2 is the SCF density (for nstate=nroots)
     call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
-    RDMSA(:,:) = RDMSA(:,:)-reshape(WRK2(1:nAshT**2),[nAshT,nAshT])
+    RDMFock(:,:) = RDMFock(:,:)-reshape(WRK2(1:nAshT**2),[nAshT,nAshT])
 
     !! Construct the SS minus SA density matrix in WRK1
-    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
+    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMFock,Trf)
     !! Subtract the inactive part
     WRK1(1:nBasT**2) = WRK1(1:nBasT**2)-WRK2(1:nBasT**2)
     !! Here we should use DPT2_AO??
@@ -881,8 +881,8 @@ if (do_grad) then
   call mma_deallocate(TRF)
   call mma_deallocate(WRK1)
   call mma_deallocate(WRK2)
-  call mma_deallocate(RDMSA)
-  call mma_deallocate(RDMEIG)
+  call mma_deallocate(RDMFock)
+  call mma_deallocate(DRDMFock)
   call mma_deallocate(VECROT)
   DENORM = One
   !! end of with gradient

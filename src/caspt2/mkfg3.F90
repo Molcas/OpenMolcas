@@ -173,8 +173,8 @@ if (do_grad .or. (nStpGrd == 2)) then
   !! allocated in DENS
   memmax_safe = memmax_safe-16*NBAST**2-3*NASHT**2
   !! allocated (additionally) in CLagX
-  memmax_safe = memmax_safe-2*(NG1+NG2+NG3)
-  nbuf1 = max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+  memmax_safe = memmax_safe-2*(NG1+NG2)-NG3
+  nbuf1 = max(1,min(nlev2,(memmax_safe-(3+nlev)*mxci)/mxci/3))
   nbuf1_grad = nbuf1
 end if
 call mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')

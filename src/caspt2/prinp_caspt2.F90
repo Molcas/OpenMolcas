@@ -39,7 +39,7 @@ use general_data, only: ISPIN, NACTEL, NASH, nElec3, nHole1, STSym
 use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, mState, &
                          nAshT, nBas, nConf, nDel, nFro, nIsh, nIshT, nRoots, nSsh, nSshT, nState, nSym, Orbin, PT2Method, RFPert, &
                          Zeta
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_thres
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_merge, SC_prop, SC_thres
 #ifdef _DMRG_
 use caspt2_global, only: compressMPS
 use caspt2_module, only: DMRG
@@ -49,6 +49,9 @@ use caspt2_module, only: DoCumulant
 #endif
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
+#ifdef _ENABLE_CHEMPS2_DMRG_
+use InputData, only: Input
+#endif
 
 implicit none
 integer(kind=iwp) :: i, iSym, left, lLine, lPaper
@@ -126,7 +129,13 @@ if (iprglb >= USUAL) then
 #     ifdef _ENABLE_BLOCK_DMRG_
       if (DoCumulant) write(u6,fmt1) 'Using 4-RDM cumulant approximation, activated by 3RDM keyword in RASSCF'
 #     elif _ENABLE_CHEMPS2_DMRG_
-      if (DoCumulant) write(u6,fmt1) 'This is a DMRG reference with exact 4-RDM, activated by 3RDM keyword in RASSCF'
+      if (DoCumulant) then
+        if (Input%DoApproRDM) then
+          write(u6,fmt1) 'This is a DMRG reference with an approximate 4-RDM, activated by CHCU in CASPT2'
+        else
+          write(u6,fmt1) 'This is a DMRG reference with exact 4-RDM, activated by 3RDM keyword in RASSCF'
+        end if
+      end if
 #     elif _DMRG_
       if (DMRG) then
         write(u6,fmt1) 'This is a DMRG reference wave function, from QCMaquis'
@@ -238,7 +247,14 @@ if (iprglb >= TERSE) then
         write(u6,fmt2//'A,T50,A)') '','(PC-NEVPT2)'
       end if
     end if
-    if (Do_SC) write(u6,fmt2//'A,T50,ES8.2)') 'Denominator threshold for SC-NEVPT2',SC_thres
+    if (Do_SC) then
+      write(u6,fmt2//'A,T50,ES8.2)') 'Denominator threshold for SC-NEVPT2',SC_thres
+      if (SC_merge) then
+        write(u6,fmt2//'A,T50,A)') 'Perturber functions for SC-NEVPT2','Merge'
+      else
+        write(u6,fmt2//'A,T50,A)') 'Perturber functions for SC-NEVPT2','Split'
+      end if
+    end if
   end if
 
   write(u6,fmt2//'A,T50,A)') 'Fock operator',trim(FockOpType)
