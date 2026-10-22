@@ -377,7 +377,6 @@ if (Is_Real_Par()) call mma_deallocate(map2)
 
 A_PT2(:,:) = Two*A_PT2(:,:)
 
-if (NBGRP /= 0) SCLNEL = SCLNEL/real(NBGRP,kind=wp)
 DPT2C(1:NBSQT) = DPT2C(1:NBSQT)*SCLNEL
 if (do_csf) DPT2Canti(1:NBSQT) = DPT2Canti(1:NBSQT)*SCLNEL
 
@@ -563,7 +562,7 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
 
       do IV=1,NV
         IVABS = IV+NAES(ISYV)
-        if (ISYV == ISYX) then !! not sure
+        if ((ISYV == ISYX) .and. (IBGRP == 1)) then !! not sure
           !! ONEADD contributions
           IW1 = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
           IW2 = IJ
@@ -862,8 +861,10 @@ subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
           IW = IW1+NAS*(IW2-1)
 
           ValCF = GA_Arrays(ipT)%A(IW)*Two
-          DPT2C(iAtot+nOrbA*(iUtot-1)) = DPT2C(iAtot+nOrbA*(iUtot-1))+ValCF
-          if (do_csf) DPT2Canti(iAtot+nOrbA*(iUtot-1)) = DPT2Canti(iAtot+nOrbA*(iUtot-1))+Two*GA_Arrays(ipTanti)%A(IW)
+          if (IBGRP == 1) then
+            DPT2C(iAtot+nOrbA*(iUtot-1)) = DPT2C(iAtot+nOrbA*(iUtot-1))+ValCF
+            if (do_csf) DPT2Canti(iAtot+nOrbA*(iUtot-1)) = DPT2Canti(iAtot+nOrbA*(iUtot-1))+Two*GA_Arrays(ipTanti)%A(IW)
+          end if
           ValCF = ValCF*SCLNEL
         end if
         do IX=1,NX
@@ -998,7 +999,7 @@ subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_
               IW2 = IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
               IW = IW1+NAS*(IW2-1)
 
-              if (iVtot == iXtot) then
+              if ((iVtot == iXtot) .and. (IBGRP == 1)) then
                 DPT2C(iAtot+nOrbA*(iJtot-1)) = DPT2C(iAtot+nOrbA*(iJtot-1))+Two*GA_Arrays(ipT)%A(IW)
                 if (do_csf) DPT2Canti(iAtot+nOrbA*(iJtot-1)) = DPT2Canti(iAtot+nOrbA*(iJtot-1))+Two*GA_Arrays(ipTanti)%A(IW)
               end if
