@@ -222,7 +222,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DM
   mstate1(1:1) = mstate2(1:1)
   MCLR_Ready = (iGO == 1) .and. (mstate1 == mstate2)
 
-  if (MCLR_Ready .or. ((iGO == 1) .or. (iGo == 2))) then
+  if (MCLR_Ready .or. (iGo == 2)) then
     call Alaska(LuSpool,iRC)
 
     ! Add ESPF contribution
