@@ -84,6 +84,7 @@ use general_data, only: NACTEL, NASH
 use caspt2_module, only: HZERO, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, NIGEJES, NIGTJ, &
                          NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, &
                          NTUES, NTUV, NTUVES
+use SC_NEVPT2, only: SC_NEVPT2_NINDEP, SC_Prop
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -115,6 +116,7 @@ nSh(1:nSym,Active) = NASH(1:nSym)
 nSh(1:nSym,Virtual) = NSSH(1:nSym)
 
 if (IPRGLB >= VERBOSE) write(u6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
+if (SC_Prop) call SC_NEVPT2_NINDEP(1)
 
 !iVec = iVecX
 iSym = iSym0
@@ -388,6 +390,7 @@ A_PT2(:,:) = Two*A_PT2(:,:)
 
 DPT2C(1:NBSQT) = DPT2C(1:NBSQT)*SCLNEL
 if (do_csf) DPT2Canti(1:NBSQT) = DPT2Canti(1:NBSQT)*SCLNEL
+if (SC_Prop) call SC_NEVPT2_NINDEP(2)
 
 #ifdef _MOLCAS_MPP_
 if (is_real_par()) call GADGOP(A_PT2,MaxVec_PT2**2,'+')

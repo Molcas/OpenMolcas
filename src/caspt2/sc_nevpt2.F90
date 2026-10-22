@@ -18,7 +18,7 @@ module SC_NEVPT2
 
 use Index_Functions, only: iTri, nTri_Elem
 use caspt2_global, only: imag_shift, iPrGlb, jStLag, LUSBT, real_shift, sigma_p_epsilon
-use caspt2_module, only: CASES, EREF, IfChol, JSTATE, MXCASE, NASUP, NISUP, NSTATE, NSYM
+use caspt2_module, only: CASES, EREF, IfChol, JSTATE, MXCASE, NASUP, NINDEP, NISUP, NSTATE, NSYM
 use EQSOLV, only: IDBMAT, IDSMAT, IVECC, IVECC2, IVECW
 use fake_GA, only: GA_Arrays
 # ifdef _MOLCAS_MPP_
@@ -57,8 +57,8 @@ logical(kind=iwp) :: Do_FIC, Do_SC, SC_amplitude = .false., SC_merge = .false., 
 real(kind=wp), allocatable :: ENERGY_SC(:), HEFF_SC(:,:), UEFF_SC(:,:)
 
 public :: Do_FIC, Do_SC, DVALUE_SC, ECORR_SC, ENERGY_SC, HEFF_SC, IDBMAT_NEVPT2, OVLAPS_SC, SC_amplitude, SC_merge, &
-          SC_NEVPT2_amplitude, SC_NEVPT2_CLagD, SC_NEVPT2_final, SC_NEVPT2_initial, SC_NEVPT2_Print, SC_NEVPT2_res, SC_prop, &
-          SC_thres, UEFF_SC
+          SC_NEVPT2_amplitude, SC_NEVPT2_CLagD, SC_NEVPT2_final, SC_NEVPT2_initial, SC_NEVPT2_Print, SC_NEVPT2_res, &
+          SC_NEVPT2_NINDEP, SC_prop, SC_thres, UEFF_SC
 
 contains
 
@@ -85,6 +85,26 @@ subroutine SC_NEVPT2_final()
   call mma_deallocate(UEFF_SC)
 
 end subroutine SC_NEVPT2_final
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_NINDEP(mode)
+
+  integer(kind=iwp), intent(in) :: mode
+  integer(kind=iwp), allocatable, save :: NINDEP_tmp(:,:)
+
+  ! SC-NEVPT2 does not use linearly-dependence basis, so replace NINDEP with NASUP
+
+  if (mode == 1) then
+    call mma_allocate(NINDEP_tmp,8,MXCASE,Label='NINDEP_tmp')
+    NINDEP_tmp(:,:) = NINDEP(:,:)
+    where (NISUP(:,:) > 0) NINDEP(:,:) = NASUP(:,:)
+  else if (mode == 2) then
+    NINDEP(:,:) = NINDEP_tmp(:,:)
+    call mma_deallocate(NINDEP_tmp)
+  end if
+
+end subroutine SC_NEVPT2_NINDEP
 
 !-----------------------------------------------------------------------
 
