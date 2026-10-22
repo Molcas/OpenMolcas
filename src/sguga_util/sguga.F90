@@ -7040,38 +7040,31 @@ integer(kind=iwp) :: iValue
 
 logical :: Reverse
 
-Value = Zero
 
-!
-! Determine the symmetry carried by the lower partial walk.
-!
-ISYDWN = MUL(ISYCI,ISYUP)
+Value = Zero
 
 if (p < 1) return
 if (q < 1) return
 if (p > SGS(iState)%MidLev) return
 if (q > SGS(iState)%MidLev) return
 
-!
-! Diagonal lower-half operator.
-!
 if (p == q) then
    if (IDWNI /= IDWNJ) return
 
-   !
-   ! This helper accepts ISYUP and computes the corresponding
-   ! lower-walk symmetry internally.
-   !
    Value = Lower_Diagonal_Value( &
               ISYUP,MV,IDWNI,p )
 
    return
 end if
 
-Reverse = p < q
+!
+! The lower coupling tables are indexed by the symmetry of
+! the lower partial walk.
+!
+ISYDWN = MUL(ISYCI,ISYUP)
 
-call Decode_Lower_Operator( &
-     SGS(iState),p,q,INDEO )
+Reverse = p < q
+call Decode_Lower_Operator(SGS(iState),p,q,INDEO )
 
 !
 ! Off-diagonal lower coupling paths are indexed by the
