@@ -6562,28 +6562,50 @@ integer(kind=iwp) :: nOperatorPairs
 integer(kind=iwp) :: nMatrixElements
 integer(kind=iwp) :: nDiscrepancies
 
+!
+! Diagonal-status classes:
+!
+!     CC: closed   x closed
+!     DC: diagonal x closed
+!     CD: closed   x diagonal
+!     DD: diagonal x diagonal
+!
+integer(kind=iwp) :: nOpClosedClosed
+integer(kind=iwp) :: nOpDiagonalClosed
+integer(kind=iwp) :: nOpClosedDiagonal
+integer(kind=iwp) :: nOpDiagonalDiagonal
+
+integer(kind=iwp) :: nErrClosedClosed
+integer(kind=iwp) :: nErrDiagonalClosed
+integer(kind=iwp) :: nErrClosedDiagonal
+integer(kind=iwp) :: nErrDiagonalDiagonal
+
+!
+! Orientation classes for the closed x closed case:
+!
+!     CC: canonical x canonical
+!     RC: reverse   x canonical
+!     CR: canonical x reverse
+!     RR: reverse   x reverse
+!
+integer(kind=iwp) :: nOpCanCan
+integer(kind=iwp) :: nOpRevCan
+integer(kind=iwp) :: nOpCanRev
+integer(kind=iwp) :: nOpRevRev
+
+integer(kind=iwp) :: nErrCanCan
+integer(kind=iwp) :: nErrRevCan
+integer(kind=iwp) :: nErrCanRev
+integer(kind=iwp) :: nErrRevRev
+
 real(kind=wp) :: XRef
 real(kind=wp) :: XUU
 
 real(kind=wp), parameter :: Threshold = 1.0e-12_wp
 
-integer(kind=iwp) :: nOpCC
-integer(kind=iwp) :: nOpRC
-integer(kind=iwp) :: nOpCR
-integer(kind=iwp) :: nOpRR
-
-integer(kind=iwp) :: nErrCC
-integer(kind=iwp) :: nErrRC
-integer(kind=iwp) :: nErrCR
-integer(kind=iwp) :: nErrRR
-
-!
-! The UU regression test checks the complete CSF matrix.
-!
-
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' GENERAL ORIENTED UU CLOSED-LOOP TEST'
+write(u6,*) ' GENERAL UU OPERATOR TEST'
 write(u6,*) '========================================='
 write(u6,'(A,I0)') 'Number of graph levels: ', &
                     SGS(iState)%nLev
@@ -6591,35 +6613,62 @@ write(u6,'(A,I0)') 'Split-graph midlevel:   ', &
                     SGS(iState)%MidLev
 write(u6,*)
 
+!
+! Initialize the total counters.
+!
 nOperatorPairs  = 0
 nMatrixElements = 0
 nDiscrepancies  = 0
 
-nOpCC = 0
-nOpRC = 0
-nOpCR = 0
-nOpRR = 0
+!
+! Initialize the diagonal-status counters.
+!
+nOpClosedClosed     = 0
+nOpDiagonalClosed   = 0
+nOpClosedDiagonal   = 0
+nOpDiagonalDiagonal = 0
 
-nErrCC = 0
-nErrRC = 0
-nErrCR = 0
-nErrRR = 0
+nErrClosedClosed     = 0
+nErrDiagonalClosed   = 0
+nErrClosedDiagonal   = 0
+nErrDiagonalDiagonal = 0
 
 !
-! Enumerate all directed, non-diagonal upper operators.
+! Initialize the closed-loop orientation counters.
+!
+nOpCanCan = 0
+nOpRevCan = 0
+nOpCanRev = 0
+nOpRevRev = 0
+
+nErrCanCan = 0
+nErrRevCan = 0
+nErrCanRev = 0
+nErrRevRev = 0
+
+!
+! Enumerate all upper-half operators E_pq and E_rs.
+!
+! Unlike the previous test, p=q and r=s are included.
+! Consequently, the test covers:
+!
+!     closed   x closed
+!     diagonal x closed
+!     closed   x diagonal
+!     diagonal x diagonal
 !
 do p=SGS(iState)%MidLev+1,SGS(iState)%nLev
    do q=SGS(iState)%MidLev+1,SGS(iState)%nLev
 
-      if (p == q) cycle
-
+      !
+      ! Retain only operators that preserve the spatial
+      ! symmetry of the CI space in this test.
+      !
       if (SGS(iState)%ISM(p) /= &
           SGS(iState)%ISM(q)) cycle
 
       do r=SGS(iState)%MidLev+1,SGS(iState)%nLev
          do s=SGS(iState)%MidLev+1,SGS(iState)%nLev
-
-            if (r == s) cycle
 
             if (SGS(iState)%ISM(r) /= &
                 SGS(iState)%ISM(s)) cycle
@@ -6627,26 +6676,53 @@ do p=SGS(iState)%MidLev+1,SGS(iState)%nLev
             nOperatorPairs = nOperatorPairs + 1
 
             !
-            ! Count the four orientation classes.
+            ! Classify the operator pair according to whether
+            ! the individual operators are diagonal or closed.
             !
-            if (p > q .and. r > s) then
+            if (p /= q .and. r /= s) then
 
-               nOpCC = nOpCC + 1
+               nOpClosedClosed = nOpClosedClosed + 1
 
-            else if (p < q .and. r > s) then
+               !
+               ! Further classify closed x closed according
+               ! to the orientations of the two stored loops.
+               !
+               if (p > q .and. r > s) then
 
-               nOpRC = nOpRC + 1
+                  nOpCanCan = nOpCanCan + 1
 
-            else if (p > q .and. r < s) then
+               else if (p < q .and. r > s) then
 
-               nOpCR = nOpCR + 1
+                  nOpRevCan = nOpRevCan + 1
+
+               else if (p > q .and. r < s) then
+
+                  nOpCanRev = nOpCanRev + 1
+
+               else
+
+                  nOpRevRev = nOpRevRev + 1
+
+               end if
+
+            else if (p == q .and. r /= s) then
+
+               nOpDiagonalClosed = nOpDiagonalClosed + 1
+
+            else if (p /= q .and. r == s) then
+
+               nOpClosedDiagonal = nOpClosedDiagonal + 1
 
             else
 
-               nOpRR = nOpRR + 1
+               nOpDiagonalDiagonal = &
+                    nOpDiagonalDiagonal + 1
 
             end if
 
+            !
+            ! Compare the complete CSF matrices.
+            !
             do I=1,CIS(iState)%NCSF(LSM)
                do J=1,CIS(iState)%NCSF(LSM)
 
@@ -6667,24 +6743,60 @@ do p=SGS(iState)%MidLev+1,SGS(iState)%nLev
 
                   nDiscrepancies = nDiscrepancies + 1
 
-                  if (p > q .and. r > s) then
+                  !
+                  ! Count the discrepancy in the corresponding
+                  ! diagonal-status class.
+                  !
+                  if (p /= q .and. r /= s) then
 
-                     nErrCC = nErrCC + 1
+                     nErrClosedClosed = &
+                          nErrClosedClosed + 1
 
-                  else if (p < q .and. r > s) then
+                     !
+                     ! Also count its orientation class.
+                     !
+                     if (p > q .and. r > s) then
 
-                     nErrRC = nErrRC + 1
+                        nErrCanCan = nErrCanCan + 1
 
-                  else if (p > q .and. r < s) then
+                     else if (p < q .and. r > s) then
 
-                     nErrCR = nErrCR + 1
+                        nErrRevCan = nErrRevCan + 1
+
+                     else if (p > q .and. r < s) then
+
+                        nErrCanRev = nErrCanRev + 1
+
+                     else
+
+                        nErrRevRev = nErrRevRev + 1
+
+                     end if
+
+                  else if (p == q .and. r /= s) then
+
+                     nErrDiagonalClosed = &
+                          nErrDiagonalClosed + 1
+
+                  else if (p /= q .and. r == s) then
+
+                     nErrClosedDiagonal = &
+                          nErrClosedDiagonal + 1
 
                   else
 
-                     nErrRR = nErrRR + 1
+                     nErrDiagonalDiagonal = &
+                          nErrDiagonalDiagonal + 1
 
                   end if
 
+                  !
+                  ! Print discrepancies only.
+                  !
+                  ! Columns:
+                  !
+                  !     p q r s I J XRef XUU XRef-XUU
+                  !
                   write(u6, &
                      '(A,1X,4I4,1X,2I7,3(1X,ES22.14))') &
                      'UU', &
@@ -6703,7 +6815,7 @@ end do
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' ORIENTED UU TEST SUMMARY'
+write(u6,*) ' GENERAL UU TEST SUMMARY'
 write(u6,*) '========================================='
 
 write(u6,'(A,I0)') &
@@ -6716,24 +6828,244 @@ write(u6,'(A,I0)') &
      'UU discrepancies:   ',nDiscrepancies
 
 write(u6,*)
+write(u6,*) 'Diagonal-status classes:'
 
 write(u6,'(A,I0,A,I0)') &
-     'Canonical x canonical: pairs = ',nOpCC, &
-     ', discrepancies = ',nErrCC
+     'Closed x closed:     pairs = ', &
+     nOpClosedClosed, &
+     ', discrepancies = ', &
+     nErrClosedClosed
 
 write(u6,'(A,I0,A,I0)') &
-     'Reverse x canonical:   pairs = ',nOpRC, &
-     ', discrepancies = ',nErrRC
+     'Diagonal x closed:   pairs = ', &
+     nOpDiagonalClosed, &
+     ', discrepancies = ', &
+     nErrDiagonalClosed
 
 write(u6,'(A,I0,A,I0)') &
-     'Canonical x reverse:   pairs = ',nOpCR, &
-     ', discrepancies = ',nErrCR
+     'Closed x diagonal:   pairs = ', &
+     nOpClosedDiagonal, &
+     ', discrepancies = ', &
+     nErrClosedDiagonal
 
 write(u6,'(A,I0,A,I0)') &
-     'Reverse x reverse:     pairs = ',nOpRR, &
-     ', discrepancies = ',nErrRR
+     'Diagonal x diagonal: pairs = ', &
+     nOpDiagonalDiagonal, &
+     ', discrepancies = ', &
+     nErrDiagonalDiagonal
+
+write(u6,*)
+write(u6,*) 'Closed x closed orientation classes:'
+
+write(u6,'(A,I0,A,I0)') &
+     'Canonical x canonical: pairs = ', &
+     nOpCanCan, &
+     ', discrepancies = ', &
+     nErrCanCan
+
+write(u6,'(A,I0,A,I0)') &
+     'Reverse x canonical:   pairs = ', &
+     nOpRevCan, &
+     ', discrepancies = ', &
+     nErrRevCan
+
+write(u6,'(A,I0,A,I0)') &
+     'Canonical x reverse:   pairs = ', &
+     nOpCanRev, &
+     ', discrepancies = ', &
+     nErrCanRev
+
+write(u6,'(A,I0,A,I0)') &
+     'Reverse x reverse:     pairs = ', &
+     nOpRevRev, &
+     ', discrepancies = ', &
+     nErrRevRev
 
 contains
+
+function Upper_Diagonal_Value( &
+           ISYUP,MV,IUP,p ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: IUP
+integer(kind=iwp), intent(in) :: p
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: IOUW
+integer(kind=iwp) :: IPSHFT
+integer(kind=iwp) :: IPPOW
+integer(kind=iwp) :: LUW
+integer(kind=iwp) :: IC
+integer(kind=iwp) :: ICS
+
+Value = Zero
+
+!
+! This routine evaluates the upper-walk diagonal matrix element
+!
+!     <I_U|E_pp|I_U>.
+!
+if (p <= SGS(iState)%MidLev) return
+if (p >  SGS(iState)%nLev)   return
+
+!
+! Starting position of the upper walks belonging to this
+! split-graph block.
+!
+IOUW = CIS(iState)%IOW(1,ISYUP,MV)
+
+!
+! Each step vector occupies two packed bits.
+!
+IPSHFT = 2*(p-1-SGS(iState)%MidLev)
+
+!
+! Select the packed integer containing the step vector at level p.
+!
+LUW = 1 + IOUW - CIS(iState)%nIpWlk + &
+      IPSHFT/(2*nPack)
+
+IPSHFT = mod(IPSHFT,2*nPack)
+IPPOW  = 2**IPSHFT
+
+!
+! Extract the step vector of upper walk IUP at level p.
+!
+IC = CIS(iState)%ICase( &
+        LUW + IUP*CIS(iState)%nIpWlk )
+
+ICS = mod(IC/IPPOW,4)
+
+!
+! The diagonal segment values are:
+!
+!     step 0 -> 0
+!     step 1 -> 1
+!     step 2 -> 1
+!     step 3 -> 2
+!
+if (ICS /= 0) then
+   Value = real((1+ICS)/2,kind=wp)
+end if
+
+end function Upper_Diagonal_Value
+
+function MatEl_Upper_One( &
+           ISYCI, &
+           I,J, &
+           p,q ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCI
+
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+
+integer(kind=iwp) :: IFrom
+integer(kind=iwp) :: ITo
+integer(kind=iwp) :: iValue
+
+logical :: Reverse
+
+Value = Zero
+
+!
+! This helper handles only a non-diagonal upper operator.
+!
+if (p == q) return
+
+if (p <= SGS(iState)%MidLev) return
+if (q <= SGS(iState)%MidLev) return
+
+call Decode_CSF( &
+     CIS(iState),ISYCI, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS(iState),ISYCI, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! An upper operator leaves the lower walk unchanged.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
+if (IDWNI  /= IDWNJ)  return
+
+Reverse = p < q
+
+call Decode_Upper_Operator( &
+     SGS(iState),p,q,INDEO )
+
+NCP = EXS(iState)%NOCP(INDEO,ISYUPI,MVI)
+
+if (NCP == 0) return
+
+IOFF = EXS(iState)%IOCP(INDEO,ISYUPI,MVI)
+
+do ICP=1,NCP
+
+   if (.not. Reverse) then
+
+      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
+
+   else
+
+      !
+      ! E_pq = E_qp^dagger.
+      !
+      IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
+
+   end if
+
+   if (IFrom /= IUPJ) cycle
+   if (ITo   /= IUPI) cycle
+
+   iValue = EXS(iState)%ICoup(3,IOFF+ICP)
+
+   Value = Value + EXS(iState)%VTab(iValue)
+
+end do
+
+end function MatEl_Upper_One
+
 
 function MatEl_Ref(I,J,p,q,r,s) result(Value)
 
@@ -7476,6 +7808,7 @@ endif
 
 end subroutine Decode_Lower_Operator
 
+
 function MatEl_EpqErs_UU( &
            ISYCI, &
            I,J, &
@@ -7499,44 +7832,162 @@ integer(kind=iwp), intent(in) :: s
 integer(kind=iwp) :: INDEO_Left
 integer(kind=iwp) :: INDEO_Right
 
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+logical :: Diagonal_Left
+logical :: Diagonal_Right
+
 logical :: Reverse_Left
 logical :: Reverse_Right
+
+real(kind=wp) :: XClosed
+real(kind=wp) :: WLeft
+real(kind=wp) :: WRight
 
 real(kind=wp) :: Value
 
 Value = Zero
 
 !
-! Diagonal operators are not handled in this version.
-! They will be added after all non-diagonal orientations
-! have been validated.
-!
-if (p == q) return
-if (r == s) return
-
-!
-! Both operators must lie completely within the upper graph.
+! Both operators must lie completely in the upper graph.
 !
 if (p <= SGS(iState)%MidLev) return
 if (q <= SGS(iState)%MidLev) return
-
 if (r <= SGS(iState)%MidLev) return
 if (s <= SGS(iState)%MidLev) return
 
+Diagonal_Left  = p == q
+Diagonal_Right = r == s
+
 !
-! The coupling tables store the canonical orientation with
-! the larger orbital index first.
+! Decode the bra and ket CSFs. The decoded upper walks are
+! required for diagonal weights.
 !
-! If the requested operator has the smaller index first,
-! its stored coupling transition must be reversed.
+call Decode_CSF( &
+     CIS(iState),ISYCI, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS(iState),ISYCI, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! Every UU operator product leaves the lower walk unchanged.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
+if (IDWNI  /= IDWNJ)  return
+
+!
+! ============================================================
+! Case 1: diagonal x diagonal
+!
+!     <I|E_pp E_rr|J>
+!
+! Both operators are diagonal, so the complete upper walk must
+! also be unchanged.
+! ============================================================
+!
+if (Diagonal_Left .and. Diagonal_Right) then
+
+   if (IUPI /= IUPJ) return
+
+   WLeft = Upper_Diagonal_Value( &
+              ISYUPI,MVI,IUPI,p )
+
+   if (WLeft == Zero) return
+
+   WRight = Upper_Diagonal_Value( &
+               ISYUPI,MVI,IUPI,r )
+
+   Value = WLeft*WRight
+
+   return
+
+end if
+
+!
+! ============================================================
+! Case 2: diagonal x closed
+!
+!     <I|E_pp E_rs|J>
+!
+! Since E_pp is the left operator, its weight is evaluated on
+! the final bra-side upper walk I_U:
+!
+!     w_p(I_U) <I|E_rs|J>.
+! ============================================================
+!
+if (Diagonal_Left) then
+
+   WLeft = Upper_Diagonal_Value( &
+              ISYUPI,MVI,IUPI,p )
+
+   if (WLeft == Zero) return
+
+   XClosed = MatEl_Upper_One( &
+                ISYCI, &
+                I,J, &
+                r,s )
+
+   Value = WLeft*XClosed
+
+   return
+
+end if
+
+!
+! ============================================================
+! Case 3: closed x diagonal
+!
+!     <I|E_pq E_rr|J>
+!
+! Since E_rr is the rightmost operator, its weight is evaluated
+! on the initial ket-side upper walk J_U:
+!
+!     <I|E_pq|J> w_r(J_U).
+! ============================================================
+!
+if (Diagonal_Right) then
+
+   XClosed = MatEl_Upper_One( &
+                ISYCI, &
+                I,J, &
+                p,q )
+
+   if (XClosed == Zero) return
+
+   WRight = Upper_Diagonal_Value( &
+               ISYUPJ,MVJ,IUPJ,r )
+
+   Value = XClosed*WRight
+
+   return
+
+end if
+
+!
+! ============================================================
+! Case 4: closed x closed
+!
+! Use the already validated general ordered contraction.
+! ============================================================
 !
 Reverse_Left  = p < q
 Reverse_Right = r < s
 
-!
-! E_pq is the left operator.
-! E_rs is the right operator and acts first.
-!
 call Decode_Upper_Operator( &
      SGS(iState),p,q,INDEO_Left )
 
