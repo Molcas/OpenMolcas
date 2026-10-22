@@ -6567,14 +6567,23 @@ real(kind=wp) :: XUU
 
 real(kind=wp), parameter :: Threshold = 1.0e-12_wp
 
+integer(kind=iwp) :: nOpCC
+integer(kind=iwp) :: nOpRC
+integer(kind=iwp) :: nOpCR
+integer(kind=iwp) :: nOpRR
+
+integer(kind=iwp) :: nErrCC
+integer(kind=iwp) :: nErrRC
+integer(kind=iwp) :: nErrCR
+integer(kind=iwp) :: nErrRR
+
 !
-! IList and JList are retained in the interface for compatibility.
 ! The UU regression test checks the complete CSF matrix.
 !
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' GENERAL UU CLOSED-LOOP TEST'
+write(u6,*) ' GENERAL ORIENTED UU CLOSED-LOOP TEST'
 write(u6,*) '========================================='
 write(u6,'(A,I0)') 'Number of graph levels: ', &
                     SGS(iState)%nLev
@@ -6582,34 +6591,61 @@ write(u6,'(A,I0)') 'Split-graph midlevel:   ', &
                     SGS(iState)%MidLev
 write(u6,*)
 
-nOperatorPairs = 0
+nOperatorPairs  = 0
 nMatrixElements = 0
-nDiscrepancies = 0
+nDiscrepancies  = 0
+
+nOpCC = 0
+nOpRC = 0
+nOpCR = 0
+nOpRR = 0
+
+nErrCC = 0
+nErrRC = 0
+nErrCR = 0
+nErrRR = 0
 
 !
-! Test canonical, non-diagonal, upper-half closed loops:
+! Enumerate all directed, non-diagonal upper operators.
 !
-!     p > q > MidLev
-!     r > s > MidLev.
-!
-! The reverse orientations and diagonal operators will be
-! enabled separately after the canonical UU contraction passes.
-!
-do p=SGS(iState)%MidLev+2,SGS(iState)%nLev
-   do q=SGS(iState)%MidLev+1,p-1
+do p=SGS(iState)%MidLev+1,SGS(iState)%nLev
+   do q=SGS(iState)%MidLev+1,SGS(iState)%nLev
 
-      !
-      ! E_pq must preserve the spatial symmetry of the CI space
-      ! in this first test.
-      !
-      if (SGS(iState)%ISM(p) /= SGS(iState)%ISM(q)) cycle
+      if (p == q) cycle
 
-      do r=SGS(iState)%MidLev+2,SGS(iState)%nLev
-         do s=SGS(iState)%MidLev+1,r-1
+      if (SGS(iState)%ISM(p) /= &
+          SGS(iState)%ISM(q)) cycle
 
-            if (SGS(iState)%ISM(r) /= SGS(iState)%ISM(s)) cycle
+      do r=SGS(iState)%MidLev+1,SGS(iState)%nLev
+         do s=SGS(iState)%MidLev+1,SGS(iState)%nLev
+
+            if (r == s) cycle
+
+            if (SGS(iState)%ISM(r) /= &
+                SGS(iState)%ISM(s)) cycle
 
             nOperatorPairs = nOperatorPairs + 1
+
+            !
+            ! Count the four orientation classes.
+            !
+            if (p > q .and. r > s) then
+
+               nOpCC = nOpCC + 1
+
+            else if (p < q .and. r > s) then
+
+               nOpRC = nOpRC + 1
+
+            else if (p > q .and. r < s) then
+
+               nOpCR = nOpCR + 1
+
+            else
+
+               nOpRR = nOpRR + 1
+
+            end if
 
             do I=1,CIS(iState)%NCSF(LSM)
                do J=1,CIS(iState)%NCSF(LSM)
@@ -6620,6 +6656,7 @@ do p=SGS(iState)%MidLev+2,SGS(iState)%nLev
                              r,s )
 
                   XUU = MatEl_EpqErs_UU( &
+                            LSM, &
                             I,J, &
                             p,q, &
                             r,s )
@@ -6629,6 +6666,24 @@ do p=SGS(iState)%MidLev+2,SGS(iState)%nLev
                   if (abs(XRef-XUU) <= Threshold) cycle
 
                   nDiscrepancies = nDiscrepancies + 1
+
+                  if (p > q .and. r > s) then
+
+                     nErrCC = nErrCC + 1
+
+                  else if (p < q .and. r > s) then
+
+                     nErrRC = nErrRC + 1
+
+                  else if (p > q .and. r < s) then
+
+                     nErrCR = nErrCR + 1
+
+                  else
+
+                     nErrRR = nErrRR + 1
+
+                  end if
 
                   write(u6, &
                      '(A,1X,4I4,1X,2I7,3(1X,ES22.14))') &
@@ -6648,14 +6703,35 @@ end do
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' UU CLOSED-LOOP TEST SUMMARY'
+write(u6,*) ' ORIENTED UU TEST SUMMARY'
 write(u6,*) '========================================='
+
 write(u6,'(A,I0)') &
      'UU operator pairs:  ',nOperatorPairs
+
 write(u6,'(A,I0)') &
      'UU matrix elements: ',nMatrixElements
+
 write(u6,'(A,I0)') &
      'UU discrepancies:   ',nDiscrepancies
+
+write(u6,*)
+
+write(u6,'(A,I0,A,I0)') &
+     'Canonical x canonical: pairs = ',nOpCC, &
+     ', discrepancies = ',nErrCC
+
+write(u6,'(A,I0,A,I0)') &
+     'Reverse x canonical:   pairs = ',nOpRC, &
+     ', discrepancies = ',nErrRC
+
+write(u6,'(A,I0,A,I0)') &
+     'Canonical x reverse:   pairs = ',nOpCR, &
+     ', discrepancies = ',nErrCR
+
+write(u6,'(A,I0,A,I0)') &
+     'Reverse x reverse:     pairs = ',nOpRR, &
+     ', discrepancies = ',nErrRR
 
 contains
 
@@ -6705,10 +6781,9 @@ function MatEl_Ref(I,J,p,q,r,s) result(Value)
 
 end function MatEl_Ref
 
-
 subroutine Contract_Upper_Blocks( &
-           INDEO_Right, &
-           INDEO_Left, &
+           INDEO_Right,Reverse_Right, &
+           INDEO_Left, Reverse_Left,  &
            ISYUP,MV, &
            nTerm, &
            IFrom,ITo,XVal )
@@ -6727,9 +6802,17 @@ implicit none
 !
 !     IFrom --E_Right--> K --E_Left--> ITo.
 !
+! The stored coupling blocks use the canonical orientation
+! with the larger orbital index first. Reverse_Right and
+! Reverse_Left transpose the corresponding stored transitions.
+!
 
 integer(kind=iwp), intent(in) :: INDEO_Right
 integer(kind=iwp), intent(in) :: INDEO_Left
+
+logical, intent(in) :: Reverse_Right
+logical, intent(in) :: Reverse_Left
+
 integer(kind=iwp), intent(in) :: ISYUP
 integer(kind=iwp), intent(in) :: MV
 
@@ -6748,6 +6831,7 @@ integer(kind=iwp) :: OffLeft
 
 integer(kind=iwp) :: iRight
 integer(kind=iwp) :: iLeft
+integer(kind=iwp) :: iTerm
 
 integer(kind=iwp) :: FromRight
 integer(kind=iwp) :: ToRight
@@ -6758,8 +6842,6 @@ integer(kind=iwp) :: ToLeft
 integer(kind=iwp) :: iValueRight
 integer(kind=iwp) :: iValueLeft
 
-integer(kind=iwp) :: iTerm
-
 real(kind=wp) :: XRight
 real(kind=wp) :: XLeft
 real(kind=wp) :: X
@@ -6767,22 +6849,22 @@ real(kind=wp) :: X
 logical :: Found
 
 NRight = EXS(iState)%NOCP(INDEO_Right,ISYUP,MV)
-NLeft  = EXS(iState)%NOCP(INDEO_Left ,ISYUP,MV)
+NLeft  = EXS(iState)%NOCP(INDEO_Left, ISYUP,MV)
 
 if (NRight == 0 .or. NLeft == 0) then
 
    nTerm = 0
 
    call mma_allocate(IFrom,1,Label='IFrom')
-   call mma_allocate(ITo  ,1,Label='ITo')
-   call mma_allocate(XVal ,1,Label='XVal')
+   call mma_allocate(ITo,  1,Label='ITo')
+   call mma_allocate(XVal, 1,Label='XVal')
 
    return
 
 end if
 
 OffRight = EXS(iState)%IOCP(INDEO_Right,ISYUP,MV)
-OffLeft  = EXS(iState)%IOCP(INDEO_Left ,ISYUP,MV)
+OffLeft  = EXS(iState)%IOCP(INDEO_Left, ISYUP,MV)
 
 call mma_allocate( &
      IFrom,NRight*NLeft,Label='IFrom')
@@ -6796,46 +6878,85 @@ call mma_allocate( &
 nTerm = 0
 
 !
-! Rightmost operator acts first:
+! The rightmost operator acts first:
 !
-!     FromRight -> ToRight.
+!     FromRight --E_Right--> ToRight.
 !
 do iRight=1,NRight
 
-   FromRight = EXS(iState)%ICoup(1,OffRight+iRight)
-   ToRight   = EXS(iState)%ICoup(2,OffRight+iRight)
+   if (.not. Reverse_Right) then
+
+      !
+      ! Canonical orientation.
+      !
+      FromRight = EXS(iState)%ICoup(1,OffRight+iRight)
+      ToRight   = EXS(iState)%ICoup(2,OffRight+iRight)
+
+   else
+
+      !
+      ! Reverse orientation:
+      !
+      !     E_rs = E_sr^dagger.
+      !
+      FromRight = EXS(iState)%ICoup(2,OffRight+iRight)
+      ToRight   = EXS(iState)%ICoup(1,OffRight+iRight)
+
+   end if
 
    iValueRight = EXS(iState)%ICoup(3,OffRight+iRight)
    XRight = EXS(iState)%VTab(iValueRight)
 
    !
-   ! Left operator acts second:
+   ! The left operator acts second:
    !
-   !     FromLeft -> ToLeft.
+   !     FromLeft --E_Left--> ToLeft.
    !
    do iLeft=1,NLeft
 
-      FromLeft = EXS(iState)%ICoup(1,OffLeft+iLeft)
+      if (.not. Reverse_Left) then
+
+         !
+         ! Canonical orientation.
+         !
+         FromLeft = EXS(iState)%ICoup(1,OffLeft+iLeft)
+         ToLeft   = EXS(iState)%ICoup(2,OffLeft+iLeft)
+
+      else
+
+         !
+         ! Reverse orientation:
+         !
+         !     E_pq = E_qp^dagger.
+         !
+         FromLeft = EXS(iState)%ICoup(2,OffLeft+iLeft)
+         ToLeft   = EXS(iState)%ICoup(1,OffLeft+iLeft)
+
+      end if
 
       !
       ! Resolution-of-identity contraction over the
-      ! intermediate upper walk.
+      ! intermediate upper walk:
+      !
+      !     ToRight = FromLeft = K.
       !
       if (ToRight /= FromLeft) cycle
-
-      ToLeft = EXS(iState)%ICoup(2,OffLeft+iLeft)
 
       iValueLeft = EXS(iState)%ICoup(3,OffLeft+iLeft)
       XLeft = EXS(iState)%VTab(iValueLeft)
 
       X = XLeft*XRight
 
+      !
+      ! Accumulate all contributions having the same
+      ! initial and final upper walks.
+      !
       Found = .false.
 
       do iTerm=1,nTerm
 
          if (IFrom(iTerm) /= FromRight) cycle
-         if (ITo(iTerm)   /= ToLeft  ) cycle
+         if (ITo(iTerm)   /= ToLeft)    cycle
 
          XVal(iTerm) = XVal(iTerm) + X
 
@@ -6858,6 +6979,7 @@ do iRight=1,NRight
 end do
 
 end subroutine Contract_Upper_Blocks
+
 
 function MatEl_LL( &
            CIS,EXS,ISYCI, &
@@ -6956,8 +7078,8 @@ end function MatEl_LL
 function MatEl_UU( &
            ISYCI, &
            I,J, &
-           INDEO_Left, &
-           INDEO_Right ) result(Value)
+           INDEO_Left,Reverse_Left, &
+           INDEO_Right,Reverse_Right ) result(Value)
 
 use Constants,   only: Zero
 use Definitions, only: wp, iwp
@@ -6966,11 +7088,15 @@ use stdalloc,    only: mma_deallocate
 implicit none
 
 integer(kind=iwp), intent(in) :: ISYCI
+
 integer(kind=iwp), intent(in) :: I
 integer(kind=iwp), intent(in) :: J
 
 integer(kind=iwp), intent(in) :: INDEO_Left
 integer(kind=iwp), intent(in) :: INDEO_Right
+
+logical, intent(in) :: Reverse_Left
+logical, intent(in) :: Reverse_Right
 
 real(kind=wp) :: Value
 
@@ -7007,12 +7133,12 @@ call Decode_CSF( &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
 !
-! Both operators act on the upper half. Consequently,
-! the lower half-walk is a spectator.
+! Both operators act entirely on the upper half.
+! The lower half-walk must therefore be unchanged.
 !
-if (MVI    /= MVJ   ) return
+if (MVI    /= MVJ)    return
 if (ISYUPI /= ISYUPJ) return
-if (IDWNI  /= IDWNJ ) return
+if (IDWNI  /= IDWNJ)  return
 
 !
 ! For
@@ -7024,8 +7150,8 @@ if (IDWNI  /= IDWNJ ) return
 !     J_U --E_Right--> K_U --E_Left--> I_U.
 !
 call Contract_Upper_Blocks( &
-     INDEO_Right, &
-     INDEO_Left, &
+     INDEO_Right,Reverse_Right, &
+     INDEO_Left, Reverse_Left,  &
      ISYUPI,MVI, &
      nTerm, &
      IFrom,ITo,XVal )
@@ -7044,7 +7170,6 @@ call mma_deallocate(ITo)
 call mma_deallocate(XVal)
 
 end function MatEl_UU
-
 subroutine Print_CSF_Decoding(CIS,ISYCI)
 
 use Definitions, only: iwp,u6
@@ -7351,8 +7476,8 @@ endif
 
 end subroutine Decode_Lower_Operator
 
-
 function MatEl_EpqErs_UU( &
+           ISYCI, &
            I,J, &
            p,q,r,s ) result(Value)
 
@@ -7360,6 +7485,8 @@ use Constants,   only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
+
+integer(kind=iwp), intent(in) :: ISYCI
 
 integer(kind=iwp), intent(in) :: I
 integer(kind=iwp), intent(in) :: J
@@ -7372,22 +7499,39 @@ integer(kind=iwp), intent(in) :: s
 integer(kind=iwp) :: INDEO_Left
 integer(kind=iwp) :: INDEO_Right
 
+logical :: Reverse_Left
+logical :: Reverse_Right
+
 real(kind=wp) :: Value
 
 Value = Zero
 
 !
-! This first implementation handles only canonical,
-! non-diagonal upper closed loops:
+! Diagonal operators are not handled in this version.
+! They will be added after all non-diagonal orientations
+! have been validated.
 !
-!     p > q > MidLev
-!     r > s > MidLev.
-!
-if (p <= q) return
-if (r <= s) return
+if (p == q) return
+if (r == s) return
 
+!
+! Both operators must lie completely within the upper graph.
+!
+if (p <= SGS(iState)%MidLev) return
 if (q <= SGS(iState)%MidLev) return
+
+if (r <= SGS(iState)%MidLev) return
 if (s <= SGS(iState)%MidLev) return
+
+!
+! The coupling tables store the canonical orientation with
+! the larger orbital index first.
+!
+! If the requested operator has the smaller index first,
+! its stored coupling transition must be reversed.
+!
+Reverse_Left  = p < q
+Reverse_Right = r < s
 
 !
 ! E_pq is the left operator.
@@ -7400,13 +7544,12 @@ call Decode_Upper_Operator( &
      SGS(iState),r,s,INDEO_Right )
 
 Value = MatEl_UU( &
-           LSM, &
+           ISYCI, &
            I,J, &
-           INDEO_Left, &
-           INDEO_Right )
+           INDEO_Left, Reverse_Left, &
+           INDEO_Right,Reverse_Right )
 
 end function MatEl_EpqErs_UU
-
 function MatEl_EpqErs_LL( &
            SGS,CIS,EXS, &
            ISYCI, &
