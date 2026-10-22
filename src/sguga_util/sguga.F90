@@ -6558,14 +6558,38 @@ integer(kind=iwp) :: s
 integer(kind=iwp) :: I
 integer(kind=iwp) :: J
 
+integer(kind=iwp) :: nCSF
+
 integer(kind=iwp) :: nOperatorPairs
 integer(kind=iwp) :: nMatrixElements
 integer(kind=iwp) :: nDiscrepancies
 
-integer(kind=iwp) :: nOpCanCan
-integer(kind=iwp) :: nOpRevCan
-integer(kind=iwp) :: nOpCanRev
-integer(kind=iwp) :: nOpRevRev
+!
+! Counts according to diagonal status:
+!
+!     C = closed, off-diagonal operator
+!     D = diagonal operator
+!
+integer(kind=iwp) :: nPairCC
+integer(kind=iwp) :: nPairDC
+integer(kind=iwp) :: nPairCD
+integer(kind=iwp) :: nPairDD
+
+integer(kind=iwp) :: nErrCC
+integer(kind=iwp) :: nErrDC
+integer(kind=iwp) :: nErrCD
+integer(kind=iwp) :: nErrDD
+
+!
+! Orientation counts for closed x closed.
+!
+!     C = canonical orientation, p > q
+!     R = reverse orientation,   p < q
+!
+integer(kind=iwp) :: nPairCanCan
+integer(kind=iwp) :: nPairRevCan
+integer(kind=iwp) :: nPairCanRev
+integer(kind=iwp) :: nPairRevRev
 
 integer(kind=iwp) :: nErrCanCan
 integer(kind=iwp) :: nErrRevCan
@@ -6574,77 +6598,167 @@ integer(kind=iwp) :: nErrRevRev
 
 real(kind=wp) :: XRef
 real(kind=wp) :: XLL
+real(kind=wp) :: Difference
 
 real(kind=wp), parameter :: Threshold = 1.0e-12_wp
 
-write(u6,*)
-write(u6,*) '========================================='
-write(u6,*) ' ORIENTED NON-DIAGONAL LL TEST'
-write(u6,*) '========================================='
-write(u6,'(A,I0)') 'Number of graph levels: ', &
-                    SGS(iState)%nLev
-write(u6,'(A,I0)') 'Split-graph midlevel:   ', &
-                    SGS(iState)%MidLev
-write(u6,*)
+logical :: FirstDiagonal
+logical :: SecondDiagonal
+
+logical :: FirstCanonical
+logical :: SecondCanonical
+
+character(len=2) :: DiagonalCase
+character(len=2) :: OrientationCase
+
+nCSF = CIS(iState)%NCSF(LSM)
 
 nOperatorPairs  = 0
 nMatrixElements = 0
 nDiscrepancies  = 0
 
-nOpCanCan = 0
-nOpRevCan = 0
-nOpCanRev = 0
-nOpRevRev = 0
+nPairCC = 0
+nPairDC = 0
+nPairCD = 0
+nPairDD = 0
+
+nErrCC = 0
+nErrDC = 0
+nErrCD = 0
+nErrDD = 0
+
+nPairCanCan = 0
+nPairRevCan = 0
+nPairCanRev = 0
+nPairRevRev = 0
 
 nErrCanCan = 0
 nErrRevCan = 0
 nErrCanRev = 0
 nErrRevRev = 0
 
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' GENERAL LL OPERATOR TEST'
+write(u6,*) ' INCLUDING DIAGONAL OPERATORS'
+write(u6,*) '========================================='
+write(u6,'(A,I0)') 'Number of graph levels: ', &
+                    SGS(iState)%nLev
+write(u6,'(A,I0)') 'Split-graph midlevel:   ', &
+                    SGS(iState)%MidLev
+write(u6,'(A,I0)') 'Number of CSFs:         ', &
+                    nCSF
+write(u6,*)
+
 !
-! Enumerate all directed, non-diagonal lower operators.
+! Enumerate every ordered lower-half operator
+!
+!     E_pq E_rs,
+!
+! where
+!
+!     1 <= p,q,r,s <= MidLev.
+!
+! This includes:
+!
+!     p > q   canonical closed loop
+!     p < q   reverse closed loop
+!     p = q   diagonal operator
 !
 do p=1,SGS(iState)%MidLev
    do q=1,SGS(iState)%MidLev
 
-      if (p == q) cycle
+      FirstDiagonal  = p == q
+      FirstCanonical = p > q
 
-      if (SGS(iState)%ISM(p) /= &
-          SGS(iState)%ISM(q)) cycle
+      !
+      ! An off-diagonal operator must preserve the spatial
+      ! symmetry of the tested CI space. A diagonal operator
+      ! is automatically totally symmetric.
+      !
+      if (.not. FirstDiagonal) then
+         if (SGS(iState)%ISM(p) /= &
+             SGS(iState)%ISM(q)) cycle
+      end if
 
       do r=1,SGS(iState)%MidLev
          do s=1,SGS(iState)%MidLev
 
-            if (r == s) cycle
+            SecondDiagonal  = r == s
+            SecondCanonical = r > s
 
-            if (SGS(iState)%ISM(r) /= &
-                SGS(iState)%ISM(s)) cycle
+            if (.not. SecondDiagonal) then
+               if (SGS(iState)%ISM(r) /= &
+                   SGS(iState)%ISM(s)) cycle
+            end if
 
             nOperatorPairs = nOperatorPairs + 1
 
             !
-            ! Classify the two non-diagonal orientations.
+            ! Classify according to diagonal status.
             !
-            if (p > q .and. r > s) then
+            if (.not. FirstDiagonal .and. &
+                .not. SecondDiagonal) then
 
-               nOpCanCan = nOpCanCan + 1
+               DiagonalCase = 'CC'
+               nPairCC = nPairCC + 1
 
-            else if (p < q .and. r > s) then
+               !
+               ! Classify orientations in the closed x closed
+               ! branch.
+               !
+               if (FirstCanonical .and. &
+                   SecondCanonical) then
 
-               nOpRevCan = nOpRevCan + 1
+                  OrientationCase = 'CC'
+                  nPairCanCan = nPairCanCan + 1
 
-            else if (p > q .and. r < s) then
+               else if (.not. FirstCanonical .and. &
+                         SecondCanonical) then
 
-               nOpCanRev = nOpCanRev + 1
+                  OrientationCase = 'RC'
+                  nPairRevCan = nPairRevCan + 1
+
+               else if (FirstCanonical .and. &
+                        .not. SecondCanonical) then
+
+                  OrientationCase = 'CR'
+                  nPairCanRev = nPairCanRev + 1
+
+               else
+
+                  OrientationCase = 'RR'
+                  nPairRevRev = nPairRevRev + 1
+
+               end if
+
+            else if (FirstDiagonal .and. &
+                    .not. SecondDiagonal) then
+
+               DiagonalCase    = 'DC'
+               OrientationCase = '  '
+               nPairDC = nPairDC + 1
+
+            else if (.not. FirstDiagonal .and. &
+                     SecondDiagonal) then
+
+               DiagonalCase    = 'CD'
+               OrientationCase = '  '
+               nPairCD = nPairCD + 1
 
             else
 
-               nOpRevRev = nOpRevRev + 1
+               DiagonalCase    = 'DD'
+               OrientationCase = '  '
+               nPairDD = nPairDD + 1
 
             end if
 
-            do I=1,CIS(iState)%NCSF(LSM)
-               do J=1,CIS(iState)%NCSF(LSM)
+            !
+            ! Compare the complete CSF matrices.
+            !
+            do I=1,nCSF
+               do J=1,nCSF
 
                   XRef = MatEl_Ref( &
                              I,J, &
@@ -6658,34 +6772,81 @@ do p=1,SGS(iState)%MidLev
 
                   nMatrixElements = nMatrixElements + 1
 
-                  if (abs(XRef-XLL) <= Threshold) cycle
+                  Difference = XRef-XLL
+
+                  if (abs(Difference) <= Threshold) cycle
 
                   nDiscrepancies = nDiscrepancies + 1
 
-                  if (p > q .and. r > s) then
+                  select case (DiagonalCase)
 
-                     nErrCanCan = nErrCanCan + 1
+                  case ('CC')
 
-                  else if (p < q .and. r > s) then
+                     nErrCC = nErrCC + 1
 
-                     nErrRevCan = nErrRevCan + 1
+                     select case (OrientationCase)
 
-                  else if (p > q .and. r < s) then
+                     case ('CC')
+                        nErrCanCan = nErrCanCan + 1
 
-                     nErrCanRev = nErrCanRev + 1
+                     case ('RC')
+                        nErrRevCan = nErrRevCan + 1
 
-                  else
+                     case ('CR')
+                        nErrCanRev = nErrCanRev + 1
 
-                     nErrRevRev = nErrRevRev + 1
+                     case ('RR')
+                        nErrRevRev = nErrRevRev + 1
 
-                  end if
+                     case default
 
+                        write(u6,'(A,A)') &
+                           'Illegal LL orientation case: ', &
+                           OrientationCase
+                        call Abend()
+
+                     end select
+
+                  case ('DC')
+
+                     nErrDC = nErrDC + 1
+
+                  case ('CD')
+
+                     nErrCD = nErrCD + 1
+
+                  case ('DD')
+
+                     nErrDD = nErrDD + 1
+
+                  case default
+
+                     write(u6,'(A,A)') &
+                        'Illegal LL diagonal case: ', &
+                        DiagonalCase
+                     call Abend()
+
+                  end select
+
+                  !
+                  ! Columns:
+                  !
+                  !   LL
+                  !   diagonal-status class
+                  !   orientation class
+                  !   p q r s
+                  !   I J
+                  !   XRef XLL Difference
+                  !
                   write(u6, &
-                     '(A,1X,4I4,1X,2I7,3(1X,ES22.14))') &
+                     '(A,1X,A,1X,A,1X,4I4,1X,2I7,' // &
+                     '3(1X,ES22.14))') &
                      'LL', &
+                     DiagonalCase, &
+                     OrientationCase, &
                      p,q,r,s, &
                      I,J, &
-                     XRef,XLL,XRef-XLL
+                     XRef,XLL,Difference
 
                end do
             end do
@@ -6698,47 +6859,255 @@ end do
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' ORIENTED LL TEST SUMMARY'
+write(u6,*) ' GENERAL LL TEST SUMMARY'
 write(u6,*) '========================================='
 
 write(u6,'(A,I0)') &
-     'LL operator pairs:  ',nOperatorPairs
+     'LL operator pairs:       ',nOperatorPairs
 
 write(u6,'(A,I0)') &
-     'LL matrix elements: ',nMatrixElements
+     'LL matrix elements:      ',nMatrixElements
 
 write(u6,'(A,I0)') &
-     'LL discrepancies:   ',nDiscrepancies
+     'LL discrepancies:        ',nDiscrepancies
 
 write(u6,*)
 
 write(u6,'(A,I0,A,I0)') &
-     'Canonical x canonical: pairs = ', &
-     nOpCanCan, &
-     ', discrepancies = ', &
-     nErrCanCan
+     'Closed x closed:         pairs = ',nPairCC, &
+     ', discrepancies = ',nErrCC
 
 write(u6,'(A,I0,A,I0)') &
-     'Reverse x canonical:   pairs = ', &
-     nOpRevCan, &
-     ', discrepancies = ', &
-     nErrRevCan
+     'Diagonal x closed:       pairs = ',nPairDC, &
+     ', discrepancies = ',nErrDC
 
 write(u6,'(A,I0,A,I0)') &
-     'Canonical x reverse:   pairs = ', &
-     nOpCanRev, &
-     ', discrepancies = ', &
-     nErrCanRev
+     'Closed x diagonal:       pairs = ',nPairCD, &
+     ', discrepancies = ',nErrCD
 
 write(u6,'(A,I0,A,I0)') &
-     'Reverse x reverse:     pairs = ', &
-     nOpRevRev, &
-     ', discrepancies = ', &
-     nErrRevRev
+     'Diagonal x diagonal:     pairs = ',nPairDD, &
+     ', discrepancies = ',nErrDD
+
+write(u6,*)
+
+write(u6,'(A,I0,A,I0)') &
+     'Canonical x canonical:   pairs = ',nPairCanCan, &
+     ', discrepancies = ',nErrCanCan
+
+write(u6,'(A,I0,A,I0)') &
+     'Reverse x canonical:     pairs = ',nPairRevCan, &
+     ', discrepancies = ',nErrRevCan
+
+write(u6,'(A,I0,A,I0)') &
+     'Canonical x reverse:     pairs = ',nPairCanRev, &
+     ', discrepancies = ',nErrCanRev
+
+write(u6,'(A,I0,A,I0)') &
+     'Reverse x reverse:       pairs = ',nPairRevRev, &
+     ', discrepancies = ',nErrRevRev
+
+write(u6,*)
 
 contains
 
 
+function Lower_Diagonal_Value( &
+           ISYUP,MV,IDWN,p ) result(Value)
+
+use Constants,     only: Zero
+use Definitions,   only: wp, iwp
+use Symmetry_Info, only: Mul
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: IDWN
+integer(kind=iwp), intent(in) :: p
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: ISYDOWN
+integer(kind=iwp) :: IOLW
+integer(kind=iwp) :: IPSHFT
+integer(kind=iwp) :: IPPOW
+integer(kind=iwp) :: LLW
+integer(kind=iwp) :: JC
+integer(kind=iwp) :: ICS
+
+Value = Zero
+
+!
+! Evaluate
+!
+!     <I_L|E_pp|I_L>
+!
+! for a lower-half walk.
+!
+if (p < 1) return
+if (p > SGS(iState)%MidLev) return
+
+!
+! The symmetry of the lower walk follows from the upper-walk
+! symmetry and the symmetry of the complete CI state.
+!
+ISYDOWN = Mul(ISYUP,LSM)
+
+!
+! Starting position of the lower walks in this split-graph block.
+!
+IOLW = CIS(iState)%IOW(2,ISYDOWN,MV)
+
+!
+! Each step vector occupies two packed bits.
+!
+IPSHFT = 2*(p-1)
+
+!
+! Locate the packed integer containing the step vector at p.
+!
+LLW = 1 + IOLW - CIS(iState)%nIpWlk + &
+      IPSHFT/(2*nPack)
+
+IPSHFT = mod(IPSHFT,2*nPack)
+IPPOW  = 2**IPSHFT
+
+!
+! Extract the step vector belonging to lower walk IDWN.
+!
+JC = CIS(iState)%ICase( &
+        LLW + IDWN*CIS(iState)%nIpWlk )
+
+ICS = mod(JC/IPPOW,4)
+
+!
+! Diagonal segment values:
+!
+!     step 0 -> 0
+!     step 1 -> 1
+!     step 2 -> 1
+!     step 3 -> 2
+!
+if (ICS /= 0) then
+   Value = real((1+ICS)/2,kind=wp)
+end if
+
+end function Lower_Diagonal_Value
+
+function MatEl_Lower_One( &
+           I,J, &
+           p,q ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+
+integer(kind=iwp) :: IFrom
+integer(kind=iwp) :: ITo
+integer(kind=iwp) :: iValue
+
+logical :: Reverse
+
+Value = Zero
+
+!
+! This helper handles one non-diagonal lower operator.
+!
+if (p == q) return
+
+if (p < 1) return
+if (q < 1) return
+
+if (p > SGS(iState)%MidLev) return
+if (q > SGS(iState)%MidLev) return
+
+call Decode_CSF( &
+     CIS(iState),LSM, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS(iState),LSM, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! A lower operator leaves the upper walk unchanged.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
+if (IUPI   /= IUPJ)   return
+
+Reverse = p < q
+
+call Decode_Lower_Operator( &
+     SGS(iState),p,q,INDEO )
+
+NCP = EXS(iState)%NOCP(INDEO,ISYUPI,MVI)
+
+if (NCP == 0) return
+
+IOFF = EXS(iState)%IOCP(INDEO,ISYUPI,MVI)
+
+do ICP=1,NCP
+
+   if (.not. Reverse) then
+
+      !
+      ! Canonical orientation.
+      !
+      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
+
+   else
+
+      !
+      ! Reverse orientation:
+      !
+      !     E_pq = E_qp^dagger.
+      !
+      IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
+
+   end if
+
+   if (IFrom /= IDWNJ) cycle
+   if (ITo   /= IDWNI) cycle
+
+   iValue = EXS(iState)%ICoup(3,IOFF+ICP)
+
+   Value = Value + EXS(iState)%VTab(iValue)
+
+end do
+
+end function MatEl_Lower_One
 subroutine Contract_Lower_Blocks( &
            INDEO_Right,Reverse_Right, &
            INDEO_Left, Reverse_Left,  &
@@ -8092,39 +8461,163 @@ integer(kind=iwp), intent(in) :: s
 integer(kind=iwp) :: INDEO_Left
 integer(kind=iwp) :: INDEO_Right
 
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+logical :: Diagonal_Left
+logical :: Diagonal_Right
+
 logical :: Reverse_Left
 logical :: Reverse_Right
+
+real(kind=wp) :: XClosed
+real(kind=wp) :: WLeft
+real(kind=wp) :: WRight
 
 real(kind=wp) :: Value
 
 Value = Zero
 
 !
-! Diagonal operators are not handled in this version.
+! Both operators must lie completely inside the lower graph.
 !
-if (p == q) return
-if (r == s) return
+if (p < 1 .or. q < 1) return
+if (r < 1 .or. s < 1) return
 
-!
-! Both operators must lie completely within the lower graph.
-!
 if (p > SGS(iState)%MidLev) return
 if (q > SGS(iState)%MidLev) return
 
 if (r > SGS(iState)%MidLev) return
 if (s > SGS(iState)%MidLev) return
 
+Diagonal_Left  = p == q
+Diagonal_Right = r == s
+
 !
-! The closed-loop tables store the canonical orientation
-! with the larger orbital index first.
+! Decode the bra and ket CSFs.
+!
+call Decode_CSF( &
+     CIS(iState),LSM, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS(iState),LSM, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! Every LL product leaves the upper walk unchanged.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
+if (IUPI   /= IUPJ)   return
+
+!
+! ============================================================
+! Case 1: diagonal x diagonal
+!
+!     <I|E_pp E_rr|J>
+!
+! Both operators are diagonal. Consequently, the lower walk
+! must also remain unchanged.
+! ============================================================
+!
+if (Diagonal_Left .and. Diagonal_Right) then
+
+   if (IDWNI /= IDWNJ) return
+
+   WLeft = Lower_Diagonal_Value( &
+              ISYUPI,MVI,IDWNI,p )
+
+   if (WLeft == Zero) return
+
+   WRight = Lower_Diagonal_Value( &
+               ISYUPI,MVI,IDWNI,r )
+
+   Value = WLeft*WRight
+
+   return
+
+end if
+
+!
+! ============================================================
+! Case 2: diagonal x closed
+!
+!     <I|E_pp E_rs|J>
+!
+! E_pp is the left operator. Its weight is therefore evaluated
+! on the final bra-side lower walk:
+!
+!     w_p(I_L) <I|E_rs|J>.
+! ============================================================
+!
+if (Diagonal_Left) then
+
+   WLeft = Lower_Diagonal_Value( &
+              ISYUPI,MVI,IDWNI,p )
+
+   if (WLeft == Zero) return
+
+   XClosed = MatEl_Lower_One( &
+                I,J, &
+                r,s )
+
+   Value = WLeft*XClosed
+
+   return
+
+end if
+
+!
+! ============================================================
+! Case 3: closed x diagonal
+!
+!     <I|E_pq E_rr|J>
+!
+! E_rr is the rightmost operator and acts first. Its weight is
+! evaluated on the initial ket-side lower walk:
+!
+!     <I|E_pq|J> w_r(J_L).
+! ============================================================
+!
+if (Diagonal_Right) then
+
+   XClosed = MatEl_Lower_One( &
+                I,J, &
+                p,q )
+
+   if (XClosed == Zero) return
+
+   WRight = Lower_Diagonal_Value( &
+               ISYUPJ,MVJ,IDWNJ,r )
+
+   Value = XClosed*WRight
+
+   return
+
+end if
+
+!
+! ============================================================
+! Case 4: closed x closed
+!
+! Use the already validated oriented LL contraction.
+! ============================================================
 !
 Reverse_Left  = p < q
 Reverse_Right = r < s
 
-!
-! E_pq is the left operator.
-! E_rs is the right operator and acts first.
-!
 call Decode_Lower_Operator( &
      SGS(iState),p,q,INDEO_Left )
 
@@ -8137,7 +8630,6 @@ Value = MatEl_LL( &
            INDEO_Right,Reverse_Right )
 
 end function MatEl_EpqErs_LL
-
 subroutine Print_Epq_Matrix(iState,LSM,p,q)
 
 use Constants, only: Zero
