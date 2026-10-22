@@ -6562,6 +6562,16 @@ integer(kind=iwp) :: nOperatorPairs
 integer(kind=iwp) :: nMatrixElements
 integer(kind=iwp) :: nDiscrepancies
 
+integer(kind=iwp) :: nOpCanCan
+integer(kind=iwp) :: nOpRevCan
+integer(kind=iwp) :: nOpCanRev
+integer(kind=iwp) :: nOpRevRev
+
+integer(kind=iwp) :: nErrCanCan
+integer(kind=iwp) :: nErrRevCan
+integer(kind=iwp) :: nErrCanRev
+integer(kind=iwp) :: nErrRevRev
+
 real(kind=wp) :: XRef
 real(kind=wp) :: XLL
 
@@ -6569,7 +6579,7 @@ real(kind=wp), parameter :: Threshold = 1.0e-12_wp
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' CANONICAL NON-DIAGONAL LL TEST'
+write(u6,*) ' ORIENTED NON-DIAGONAL LL TEST'
 write(u6,*) '========================================='
 write(u6,'(A,I0)') 'Number of graph levels: ', &
                     SGS(iState)%nLev
@@ -6581,31 +6591,57 @@ nOperatorPairs  = 0
 nMatrixElements = 0
 nDiscrepancies  = 0
 
-!
-! Canonical non-diagonal lower operators:
-!
-!     p > q
-!     r > s
-!
-! with every orbital index in the lower graph.
-!
-do p=2,SGS(iState)%MidLev
-   do q=1,p-1
+nOpCanCan = 0
+nOpRevCan = 0
+nOpCanRev = 0
+nOpRevRev = 0
 
-      !
-      ! For this initial test, retain only operators that
-      ! preserve the spatial symmetry of the CI space.
-      !
+nErrCanCan = 0
+nErrRevCan = 0
+nErrCanRev = 0
+nErrRevRev = 0
+
+!
+! Enumerate all directed, non-diagonal lower operators.
+!
+do p=1,SGS(iState)%MidLev
+   do q=1,SGS(iState)%MidLev
+
+      if (p == q) cycle
+
       if (SGS(iState)%ISM(p) /= &
           SGS(iState)%ISM(q)) cycle
 
-      do r=2,SGS(iState)%MidLev
-         do s=1,r-1
+      do r=1,SGS(iState)%MidLev
+         do s=1,SGS(iState)%MidLev
+
+            if (r == s) cycle
 
             if (SGS(iState)%ISM(r) /= &
                 SGS(iState)%ISM(s)) cycle
 
             nOperatorPairs = nOperatorPairs + 1
+
+            !
+            ! Classify the two non-diagonal orientations.
+            !
+            if (p > q .and. r > s) then
+
+               nOpCanCan = nOpCanCan + 1
+
+            else if (p < q .and. r > s) then
+
+               nOpRevCan = nOpRevCan + 1
+
+            else if (p > q .and. r < s) then
+
+               nOpCanRev = nOpCanRev + 1
+
+            else
+
+               nOpRevRev = nOpRevRev + 1
+
+            end if
 
             do I=1,CIS(iState)%NCSF(LSM)
                do J=1,CIS(iState)%NCSF(LSM)
@@ -6626,6 +6662,24 @@ do p=2,SGS(iState)%MidLev
 
                   nDiscrepancies = nDiscrepancies + 1
 
+                  if (p > q .and. r > s) then
+
+                     nErrCanCan = nErrCanCan + 1
+
+                  else if (p < q .and. r > s) then
+
+                     nErrRevCan = nErrRevCan + 1
+
+                  else if (p > q .and. r < s) then
+
+                     nErrCanRev = nErrCanRev + 1
+
+                  else
+
+                     nErrRevRev = nErrRevRev + 1
+
+                  end if
+
                   write(u6, &
                      '(A,1X,4I4,1X,2I7,3(1X,ES22.14))') &
                      'LL', &
@@ -6644,7 +6698,7 @@ end do
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' CANONICAL LL TEST SUMMARY'
+write(u6,*) ' ORIENTED LL TEST SUMMARY'
 write(u6,*) '========================================='
 
 write(u6,'(A,I0)') &
@@ -6656,11 +6710,38 @@ write(u6,'(A,I0)') &
 write(u6,'(A,I0)') &
      'LL discrepancies:   ',nDiscrepancies
 
+write(u6,*)
+
+write(u6,'(A,I0,A,I0)') &
+     'Canonical x canonical: pairs = ', &
+     nOpCanCan, &
+     ', discrepancies = ', &
+     nErrCanCan
+
+write(u6,'(A,I0,A,I0)') &
+     'Reverse x canonical:   pairs = ', &
+     nOpRevCan, &
+     ', discrepancies = ', &
+     nErrRevCan
+
+write(u6,'(A,I0,A,I0)') &
+     'Canonical x reverse:   pairs = ', &
+     nOpCanRev, &
+     ', discrepancies = ', &
+     nErrCanRev
+
+write(u6,'(A,I0,A,I0)') &
+     'Reverse x reverse:     pairs = ', &
+     nOpRevRev, &
+     ', discrepancies = ', &
+     nErrRevRev
+
 contains
 
+
 subroutine Contract_Lower_Blocks( &
-           INDEO_Right, &
-           INDEO_Left, &
+           INDEO_Right,Reverse_Right, &
+           INDEO_Left, Reverse_Left,  &
            ISYUP,MV, &
            nTerm, &
            IFrom,ITo,XVal )
@@ -6679,14 +6760,16 @@ implicit none
 !
 !     IFrom --E_Right--> K --E_Left--> ITo.
 !
-! This initial version handles canonical orientations only:
-!
-!     p > q
-!     r > s.
+! The coupling tables store the canonical orientation with
+! the larger orbital index first. Reverse_Right and
+! Reverse_Left transpose the corresponding transitions.
 !
 
 integer(kind=iwp), intent(in) :: INDEO_Right
 integer(kind=iwp), intent(in) :: INDEO_Left
+
+logical, intent(in) :: Reverse_Right
+logical, intent(in) :: Reverse_Left
 
 integer(kind=iwp), intent(in) :: ISYUP
 integer(kind=iwp), intent(in) :: MV
@@ -6765,8 +6848,25 @@ nTerm = 0
 !
 do iRight=1,NRight
 
-   FromRight = EXS(iState)%ICoup(1,OffRight+iRight)
-   ToRight   = EXS(iState)%ICoup(2,OffRight+iRight)
+   if (.not. Reverse_Right) then
+
+      !
+      ! Canonical orientation.
+      !
+      FromRight = EXS(iState)%ICoup(1,OffRight+iRight)
+      ToRight   = EXS(iState)%ICoup(2,OffRight+iRight)
+
+   else
+
+      !
+      ! Reverse orientation:
+      !
+      !     E_rs = E_sr^dagger.
+      !
+      FromRight = EXS(iState)%ICoup(2,OffRight+iRight)
+      ToRight   = EXS(iState)%ICoup(1,OffRight+iRight)
+
+   end if
 
    iValueRight = EXS(iState)%ICoup(3,OffRight+iRight)
    XRight = EXS(iState)%VTab(iValueRight)
@@ -6778,8 +6878,25 @@ do iRight=1,NRight
    !
    do iLeft=1,NLeft
 
-      FromLeft = EXS(iState)%ICoup(1,OffLeft+iLeft)
-      ToLeft   = EXS(iState)%ICoup(2,OffLeft+iLeft)
+      if (.not. Reverse_Left) then
+
+         !
+         ! Canonical orientation.
+         !
+         FromLeft = EXS(iState)%ICoup(1,OffLeft+iLeft)
+         ToLeft   = EXS(iState)%ICoup(2,OffLeft+iLeft)
+
+      else
+
+         !
+         ! Reverse orientation:
+         !
+         !     E_pq = E_qp^dagger.
+         !
+         FromLeft = EXS(iState)%ICoup(2,OffLeft+iLeft)
+         ToLeft   = EXS(iState)%ICoup(1,OffLeft+iLeft)
+
+      end if
 
       !
       ! Resolution-of-identity contraction over the
@@ -6795,8 +6912,8 @@ do iRight=1,NRight
       X = XLeft*XRight
 
       !
-      ! Accumulate all contributions having the same
-      ! initial and final lower walks.
+      ! Accumulate contributions with identical initial
+      ! and final lower walks.
       !
       Found = .false.
 
@@ -6826,7 +6943,6 @@ do iRight=1,NRight
 end do
 
 end subroutine Contract_Lower_Blocks
-
 function Upper_Diagonal_Value( &
            ISYUP,MV,IUP,p ) result(Value)
 
@@ -7256,10 +7372,11 @@ end do
 
 end subroutine Contract_Upper_Blocks
 
+
 function MatEl_LL( &
            I,J, &
-           INDEO_Left, &
-           INDEO_Right ) result(Value)
+           INDEO_Left,Reverse_Left, &
+           INDEO_Right,Reverse_Right ) result(Value)
 
 use Constants,   only: Zero
 use Definitions, only: wp, iwp
@@ -7272,6 +7389,9 @@ integer(kind=iwp), intent(in) :: J
 
 integer(kind=iwp), intent(in) :: INDEO_Left
 integer(kind=iwp), intent(in) :: INDEO_Right
+
+logical, intent(in) :: Reverse_Left
+logical, intent(in) :: Reverse_Right
 
 real(kind=wp) :: Value
 
@@ -7309,7 +7429,7 @@ call Decode_CSF( &
 
 !
 ! Both operators act entirely on the lower half.
-! The upper half-walk must therefore be unchanged.
+! The upper half-walk is a spectator.
 !
 if (MVI    /= MVJ)    return
 if (ISYUPI /= ISYUPJ) return
@@ -7325,8 +7445,8 @@ if (IUPI   /= IUPJ)   return
 !     J_L --E_Right--> K_L --E_Left--> I_L.
 !
 call Contract_Lower_Blocks( &
-     INDEO_Right, &
-     INDEO_Left, &
+     INDEO_Right,Reverse_Right, &
+     INDEO_Left, Reverse_Left,  &
      ISYUPI,MVI, &
      nTerm, &
      IFrom,ITo,XVal )
@@ -7345,7 +7465,6 @@ call mma_deallocate(ITo)
 call mma_deallocate(XVal)
 
 end function MatEl_LL
-
 function MatEl_UU( &
            ISYCI, &
            I,J, &
@@ -7973,28 +8092,34 @@ integer(kind=iwp), intent(in) :: s
 integer(kind=iwp) :: INDEO_Left
 integer(kind=iwp) :: INDEO_Right
 
+logical :: Reverse_Left
+logical :: Reverse_Right
+
 real(kind=wp) :: Value
 
 Value = Zero
 
 !
-! This initial LL implementation handles canonical,
-! non-diagonal lower closed loops:
+! Diagonal operators are not handled in this version.
 !
-!     p > q
-!     r > s.
-!
-if (p <= q) return
-if (r <= s) return
+if (p == q) return
+if (r == s) return
 
 !
-! Both operators must lie completely in the lower graph.
+! Both operators must lie completely within the lower graph.
 !
 if (p > SGS(iState)%MidLev) return
 if (q > SGS(iState)%MidLev) return
 
 if (r > SGS(iState)%MidLev) return
 if (s > SGS(iState)%MidLev) return
+
+!
+! The closed-loop tables store the canonical orientation
+! with the larger orbital index first.
+!
+Reverse_Left  = p < q
+Reverse_Right = r < s
 
 !
 ! E_pq is the left operator.
@@ -8008,11 +8133,10 @@ call Decode_Lower_Operator( &
 
 Value = MatEl_LL( &
            I,J, &
-           INDEO_Left, &
-           INDEO_Right )
+           INDEO_Left, Reverse_Left, &
+           INDEO_Right,Reverse_Right )
 
 end function MatEl_EpqErs_LL
-
 
 subroutine Print_Epq_Matrix(iState,LSM,p,q)
 
