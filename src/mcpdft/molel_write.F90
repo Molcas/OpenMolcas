@@ -23,7 +23,7 @@ use Constants, only: One, Zero
 implicit none
 #include "warnings.h"
 integer(kind=iwp) :: comp, opt, rc, sylbl, counter, i, ibas, tot_el
-integer(kind=iwp) :: ios, isym, j, nactorb, nAOs, offset
+integer(kind=iwp) :: isym, j, nactorb, nAOs, offset
 character(len=8) :: label
 character(len=80) :: FMT1
 real(kind=wp), allocatable :: int1e_ovlp(:), OvMat(:), CMO(:), F1_PDFT(:), tmp1(:), tmp2(:), &
@@ -137,12 +137,6 @@ do i=1,ntot
     counter = counter + 1
   end do
 end do
-!do iSym=1,nSym
-!  iBas = nBas(iSym)
-!  iOrb = nOrb(iSym)
-!  if ((iBas == 0) .or. (iOrb == 0)) cycle
-!  iFro = nFro(iSym)
-!end do
 
 Close(1099)
 
