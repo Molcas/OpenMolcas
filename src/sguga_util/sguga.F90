@@ -6550,67 +6550,108 @@ implicit none
 integer(kind=iwp), intent(in) :: iState
 integer(kind=iwp), intent(in) :: LSM
 
+!
+! Operator-product topologies.
+!
+integer(kind=iwp), parameter :: iUU = 1
+integer(kind=iwp), parameter :: iLL = 2
+integer(kind=iwp), parameter :: iUL = 3
+integer(kind=iwp), parameter :: iLU = 4
+
+integer(kind=iwp), parameter :: nTopology = 4
+
+character(len=2), parameter :: TopologyName(nTopology) = &
+   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU' ]
+
+!
+! Diagonal-status classes.
+!
+!     CC: closed   x closed
+!     DC: diagonal x closed
+!     CD: closed   x diagonal
+!     DD: diagonal x diagonal
+!
+integer(kind=iwp), parameter :: iCC = 1
+integer(kind=iwp), parameter :: iDC = 2
+integer(kind=iwp), parameter :: iCD = 3
+integer(kind=iwp), parameter :: iDD = 4
+
+integer(kind=iwp), parameter :: nDiagonalCase = 4
+
+character(len=2), parameter :: DiagonalName(nDiagonalCase) = &
+   [ character(len=2) :: 'CC', 'DC', 'CD', 'DD' ]
+
+!
+! Orientation classes for closed x closed products.
+!
+!     CC: canonical x canonical
+!     RC: reverse   x canonical
+!     CR: canonical x reverse
+!     RR: reverse   x reverse
+!
+integer(kind=iwp), parameter :: iCanCan = 1
+integer(kind=iwp), parameter :: iRevCan = 2
+integer(kind=iwp), parameter :: iCanRev = 3
+integer(kind=iwp), parameter :: iRevRev = 4
+
+integer(kind=iwp), parameter :: nOrientationCase = 4
+
+character(len=2), parameter :: &
+   OrientationName(nOrientationCase) = &
+   [ character(len=2) :: 'CC', 'RC', 'CR', 'RR' ]
+
+integer(kind=iwp) :: iTopology
+integer(kind=iwp) :: iDiagonalCase
+integer(kind=iwp) :: iOrientationCase
+
 integer(kind=iwp) :: p
 integer(kind=iwp) :: q
 integer(kind=iwp) :: r
 integer(kind=iwp) :: s
+
+integer(kind=iwp) :: pMin
+integer(kind=iwp) :: pMax
+integer(kind=iwp) :: rMin
+integer(kind=iwp) :: rMax
 
 integer(kind=iwp) :: I
 integer(kind=iwp) :: J
 
 integer(kind=iwp) :: nCSF
 
-integer(kind=iwp) :: nOperatorPairs
-integer(kind=iwp) :: nMatrixElements
-integer(kind=iwp) :: nDiscrepancies
+!
+! Counters indexed by operator-product topology.
+!
+integer(kind=iwp) :: nOperatorPairs(nTopology)
+integer(kind=iwp) :: nMatrixElements(nTopology)
+integer(kind=iwp) :: nDiscrepancies(nTopology)
 
 !
-! Counts according to diagonal status:
+! Diagonal-status counters:
 !
-!     C = closed, off-diagonal operator
-!     D = diagonal operator
+!     first index  = topology
+!     second index = CC, DC, CD, or DD
 !
-! The first character refers to the lower operator E_pq.
-! The second character refers to the upper operator E_rs.
-!
-integer(kind=iwp) :: nPairCC
-integer(kind=iwp) :: nPairDC
-integer(kind=iwp) :: nPairCD
-integer(kind=iwp) :: nPairDD
+integer(kind=iwp) :: nPairDiagonal( &
+                           nTopology,nDiagonalCase )
 
-integer(kind=iwp) :: nErrCC
-integer(kind=iwp) :: nErrDC
-integer(kind=iwp) :: nErrCD
-integer(kind=iwp) :: nErrDD
+integer(kind=iwp) :: nErrDiagonal( &
+                           nTopology,nDiagonalCase )
 
 !
-! Orientation counts for closed x closed.
+! Orientation counters for closed x closed products:
 !
-!     C = canonical orientation
-!     R = reverse orientation
+!     first index  = topology
+!     second index = CC, RC, CR, or RR
 !
-! For the lower operator:
-!
-!     C: p > q
-!     R: p < q
-!
-! For the upper operator:
-!
-!     C: r > s
-!     R: r < s
-!
-integer(kind=iwp) :: nPairCanCan
-integer(kind=iwp) :: nPairRevCan
-integer(kind=iwp) :: nPairCanRev
-integer(kind=iwp) :: nPairRevRev
+integer(kind=iwp) :: nPairOrientation( &
+                           nTopology,nOrientationCase )
 
-integer(kind=iwp) :: nErrCanCan
-integer(kind=iwp) :: nErrRevCan
-integer(kind=iwp) :: nErrCanRev
-integer(kind=iwp) :: nErrRevRev
+integer(kind=iwp) :: nErrOrientation( &
+                           nTopology,nOrientationCase )
 
 real(kind=wp) :: XRef
-real(kind=wp) :: XLU
+real(kind=wp) :: XTest
 real(kind=wp) :: Difference
 
 real(kind=wp), parameter :: Threshold = 1.0e-12_wp
@@ -6621,39 +6662,22 @@ logical :: SecondDiagonal
 logical :: FirstCanonical
 logical :: SecondCanonical
 
-character(len=2) :: DiagonalCase
-character(len=2) :: OrientationCase
-
 nCSF = CIS(iState)%NCSF(LSM)
 
 nOperatorPairs  = 0
 nMatrixElements = 0
 nDiscrepancies  = 0
 
-nPairCC = 0
-nPairDC = 0
-nPairCD = 0
-nPairDD = 0
+nPairDiagonal = 0
+nErrDiagonal  = 0
 
-nErrCC = 0
-nErrDC = 0
-nErrCD = 0
-nErrDD = 0
-
-nPairCanCan = 0
-nPairRevCan = 0
-nPairCanRev = 0
-nPairRevRev = 0
-
-nErrCanCan = 0
-nErrRevCan = 0
-nErrCanRev = 0
-nErrRevRev = 0
+nPairOrientation = 0
+nErrOrientation  = 0
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' GENERAL LU OPERATOR TEST'
-write(u6,*) ' E_pq(LOWER) E_rs(UPPER)'
+write(u6,*) ' GENERAL TWO-OPERATOR TEST'
+write(u6,*) ' UU, LL, UL, AND LU'
 write(u6,*) ' INCLUDING DIAGONAL OPERATORS'
 write(u6,*) '========================================='
 write(u6,'(A,I0)') 'Number of graph levels: ', &
@@ -6665,273 +6689,366 @@ write(u6,'(A,I0)') 'Number of CSFs:         ', &
 write(u6,*)
 
 !
-! Enumerate every ordered LU operator product
+! Test all four operator-product topologies:
 !
-!     E_pq(lower) E_rs(upper),
+!     UU: E_pq(upper) E_rs(upper)
+!     LL: E_pq(lower) E_rs(lower)
+!     UL: E_pq(upper) E_rs(lower)
+!     LU: E_pq(lower) E_rs(upper)
 !
-! where
-!
-!     1 <= p,q <= MidLev
-!
-! and
-!
-!     MidLev < r,s <= nLev.
-!
-! For each half, this includes:
-!
-!     first index > second index: canonical closed loop
-!     first index < second index: reverse closed loop
-!     first index = second index: diagonal operator
-!
-do p=1,SGS(iState)%MidLev
-   do q=1,SGS(iState)%MidLev
+do iTopology=1,nTopology
 
-      FirstDiagonal  = p == q
-      FirstCanonical = p > q
+   select case (iTopology)
 
-      !
-      ! The lower operator must individually preserve spatial
-      ! symmetry in the present test. A diagonal operator is
-      ! automatically totally symmetric.
-      !
-      if (.not. FirstDiagonal) then
-         if (SGS(iState)%ISM(p) /= &
-             SGS(iState)%ISM(q)) cycle
-      end if
+   case (iUU)
 
-      do r=SGS(iState)%MidLev+1,SGS(iState)%nLev
-         do s=SGS(iState)%MidLev+1,SGS(iState)%nLev
+      pMin = SGS(iState)%MidLev+1
+      pMax = SGS(iState)%nLev
 
-            SecondDiagonal  = r == s
-            SecondCanonical = r > s
+      rMin = SGS(iState)%MidLev+1
+      rMax = SGS(iState)%nLev
 
-            !
-            ! The upper operator must individually preserve
-            ! spatial symmetry in the present test.
-            !
-            if (.not. SecondDiagonal) then
-               if (SGS(iState)%ISM(r) /= &
-                   SGS(iState)%ISM(s)) cycle
-            end if
+   case (iLL)
 
-            nOperatorPairs = nOperatorPairs + 1
+      pMin = 1
+      pMax = SGS(iState)%MidLev
 
-            !
-            ! Classify according to diagonal status.
-            !
-            if (.not. FirstDiagonal .and. &
-                .not. SecondDiagonal) then
+      rMin = 1
+      rMax = SGS(iState)%MidLev
 
-               DiagonalCase = 'CC'
-               nPairCC = nPairCC + 1
+   case (iUL)
+
+      pMin = SGS(iState)%MidLev+1
+      pMax = SGS(iState)%nLev
+
+      rMin = 1
+      rMax = SGS(iState)%MidLev
+
+   case (iLU)
+
+      pMin = 1
+      pMax = SGS(iState)%MidLev
+
+      rMin = SGS(iState)%MidLev+1
+      rMax = SGS(iState)%nLev
+
+   case default
+
+      write(u6,'(A,I0)') &
+         'Illegal operator-product topology: ',iTopology
+      call Abend()
+
+   end select
+
+   write(u6,'(A,A)') &
+      'Testing operator-product topology: ', &
+      TopologyName(iTopology)
+
+   !
+   ! Enumerate every ordered operator product E_pq E_rs
+   ! belonging to the current topology.
+   !
+   do p=pMin,pMax
+      do q=pMin,pMax
+
+         FirstDiagonal  = p == q
+         FirstCanonical = p > q
+
+         !
+         ! The present test covers operators that individually
+         ! preserve spatial symmetry. Diagonal operators are
+         ! automatically totally symmetric.
+         !
+         if (.not. FirstDiagonal) then
+            if (SGS(iState)%ISM(p) /= &
+                SGS(iState)%ISM(q)) cycle
+         end if
+
+         do r=rMin,rMax
+            do s=rMin,rMax
+
+               SecondDiagonal  = r == s
+               SecondCanonical = r > s
+
+               if (.not. SecondDiagonal) then
+                  if (SGS(iState)%ISM(r) /= &
+                      SGS(iState)%ISM(s)) cycle
+               end if
+
+               nOperatorPairs(iTopology) = &
+                  nOperatorPairs(iTopology)+1
 
                !
-               ! Classify orientations in the closed x closed
-               ! branch. The first character refers to the
-               ! lower operator and the second to the upper
-               ! operator.
+               ! Classify according to diagonal status.
                !
-               if (FirstCanonical .and. &
-                   SecondCanonical) then
+               if (.not. FirstDiagonal .and. &
+                   .not. SecondDiagonal) then
 
-                  OrientationCase = 'CC'
-                  nPairCanCan = nPairCanCan + 1
+                  iDiagonalCase = iCC
 
-               else if (.not. FirstCanonical .and. &
-                         SecondCanonical) then
+                  if (FirstCanonical .and. &
+                      SecondCanonical) then
 
-                  OrientationCase = 'RC'
-                  nPairRevCan = nPairRevCan + 1
+                     iOrientationCase = iCanCan
 
-               else if (FirstCanonical .and. &
-                        .not. SecondCanonical) then
+                  else if (.not. FirstCanonical .and. &
+                            SecondCanonical) then
 
-                  OrientationCase = 'CR'
-                  nPairCanRev = nPairCanRev + 1
+                     iOrientationCase = iRevCan
+
+                  else if (FirstCanonical .and. &
+                           .not. SecondCanonical) then
+
+                     iOrientationCase = iCanRev
+
+                  else
+
+                     iOrientationCase = iRevRev
+
+                  end if
+
+                  nPairOrientation( &
+                     iTopology,iOrientationCase ) = &
+                     nPairOrientation( &
+                     iTopology,iOrientationCase )+1
+
+               else if (FirstDiagonal .and. &
+                       .not. SecondDiagonal) then
+
+                  iDiagonalCase    = iDC
+                  iOrientationCase = 0
+
+               else if (.not. FirstDiagonal .and. &
+                        SecondDiagonal) then
+
+                  iDiagonalCase    = iCD
+                  iOrientationCase = 0
 
                else
 
-                  OrientationCase = 'RR'
-                  nPairRevRev = nPairRevRev + 1
+                  iDiagonalCase    = iDD
+                  iOrientationCase = 0
 
                end if
 
-            else if (FirstDiagonal .and. &
-                    .not. SecondDiagonal) then
+               nPairDiagonal( &
+                  iTopology,iDiagonalCase ) = &
+                  nPairDiagonal( &
+                  iTopology,iDiagonalCase )+1
 
-               DiagonalCase    = 'DC'
-               OrientationCase = '  '
-               nPairDC = nPairDC + 1
+               !
+               ! Compare the complete CSF matrices.
+               !
+               do I=1,nCSF
+                  do J=1,nCSF
 
-            else if (.not. FirstDiagonal .and. &
-                     SecondDiagonal) then
+                     XRef = MatEl_Ref( &
+                                I,J, &
+                                p,q, &
+                                r,s )
 
-               DiagonalCase    = 'CD'
-               OrientationCase = '  '
-               nPairCD = nPairCD + 1
+                     select case (iTopology)
 
-            else
+                     case (iUU)
 
-               DiagonalCase    = 'DD'
-               OrientationCase = '  '
-               nPairDD = nPairDD + 1
+                        XTest = MatEl_EpqErs_UU( &
+                                   LSM, &
+                                   I,J, &
+                                   p,q, &
+                                   r,s )
 
-            end if
+                     case (iLL)
 
-            !
-            ! Compare the complete CSF matrices.
-            !
-            do I=1,nCSF
-               do J=1,nCSF
+                        XTest = MatEl_EpqErs_LL( &
+                                   LSM, &
+                                   I,J, &
+                                   p,q, &
+                                   r,s )
 
-                  XRef = MatEl_Ref( &
-                             I,J, &
-                             p,q, &
-                             r,s )
+                     case (iUL)
 
-                  XLU = MatEl_EpqErs_LU( &
-                            LSM, &
-                            I,J, &
-                            p,q, &
-                            r,s )
+                        XTest = MatEl_EpqErs_UL( &
+                                   LSM, &
+                                   I,J, &
+                                   p,q, &
+                                   r,s )
 
-                  nMatrixElements = nMatrixElements + 1
+                     case (iLU)
 
-                  Difference = XRef-XLU
-
-                  if (abs(Difference) <= Threshold) cycle
-
-                  nDiscrepancies = nDiscrepancies + 1
-
-                  select case (DiagonalCase)
-
-                  case ('CC')
-
-                     nErrCC = nErrCC + 1
-
-                     select case (OrientationCase)
-
-                     case ('CC')
-                        nErrCanCan = nErrCanCan + 1
-
-                     case ('RC')
-                        nErrRevCan = nErrRevCan + 1
-
-                     case ('CR')
-                        nErrCanRev = nErrCanRev + 1
-
-                     case ('RR')
-                        nErrRevRev = nErrRevRev + 1
+                        XTest = MatEl_EpqErs_LU( &
+                                   LSM, &
+                                   I,J, &
+                                   p,q, &
+                                   r,s )
 
                      case default
 
-                        write(u6,'(A,A)') &
-                           'Illegal LU orientation case: ', &
-                           OrientationCase
+                        write(u6,'(A,I0)') &
+                           'Illegal topology in comparison: ', &
+                           iTopology
                         call Abend()
 
                      end select
 
-                  case ('DC')
+                     nMatrixElements(iTopology) = &
+                        nMatrixElements(iTopology)+1
 
-                     nErrDC = nErrDC + 1
+                     Difference = XRef-XTest
 
-                  case ('CD')
+                     if (abs(Difference) <= Threshold) cycle
 
-                     nErrCD = nErrCD + 1
+                     nDiscrepancies(iTopology) = &
+                        nDiscrepancies(iTopology)+1
 
-                  case ('DD')
+                     nErrDiagonal( &
+                        iTopology,iDiagonalCase ) = &
+                        nErrDiagonal( &
+                        iTopology,iDiagonalCase )+1
 
-                     nErrDD = nErrDD + 1
+                     if (iDiagonalCase == iCC) then
 
-                  case default
+                        nErrOrientation( &
+                           iTopology,iOrientationCase ) = &
+                           nErrOrientation( &
+                           iTopology,iOrientationCase )+1
 
-                     write(u6,'(A,A)') &
-                        'Illegal LU diagonal case: ', &
-                        DiagonalCase
-                     call Abend()
+                     end if
 
-                  end select
+                     !
+                     ! Columns:
+                     !
+                     !   topology
+                     !   diagonal-status class
+                     !   orientation class
+                     !   p q r s
+                     !   I J
+                     !   XRef XTest Difference
+                     !
+                     if (iDiagonalCase == iCC) then
 
-                  !
-                  ! Columns:
-                  !
-                  !   LU
-                  !   diagonal-status class
-                  !   orientation class
-                  !   p q r s
-                  !   I J
-                  !   XRef XLU Difference
-                  !
-                  write(u6, &
-                     '(A,1X,A,1X,A,1X,4I4,1X,2I7,' // &
-                     '3(1X,ES22.14))') &
-                     'LU', &
-                     DiagonalCase, &
-                     OrientationCase, &
-                     p,q,r,s, &
-                     I,J, &
-                     XRef,XLU,Difference
+                        write(u6, &
+                           '(A,1X,A,1X,A,1X,4I4,' // &
+                           '1X,2I7,3(1X,ES22.14))') &
+                           TopologyName(iTopology), &
+                           DiagonalName(iDiagonalCase), &
+                           OrientationName( &
+                              iOrientationCase), &
+                           p,q,r,s, &
+                           I,J, &
+                           XRef,XTest,Difference
 
+                     else
+
+                        write(u6, &
+                           '(A,1X,A,1X,A,1X,4I4,' // &
+                           '1X,2I7,3(1X,ES22.14))') &
+                           TopologyName(iTopology), &
+                           DiagonalName(iDiagonalCase), &
+                           '  ', &
+                           p,q,r,s, &
+                           I,J, &
+                           XRef,XTest,Difference
+
+                     end if
+
+                  end do
                end do
+
             end do
-
          end do
-      end do
 
+      end do
    end do
+
+   write(u6,*)
+
+end do
+
+!
+! Print separate summaries for UU, LL, UL, and LU.
+!
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' TWO-OPERATOR TEST SUMMARY'
+write(u6,*) '========================================='
+
+do iTopology=1,nTopology
+
+   write(u6,*)
+   write(u6,'(A,A)') &
+      'Topology:               ', &
+      TopologyName(iTopology)
+
+   write(u6,'(A,I0)') &
+      'Operator pairs:         ', &
+      nOperatorPairs(iTopology)
+
+   write(u6,'(A,I0)') &
+      'Matrix elements:        ', &
+      nMatrixElements(iTopology)
+
+   write(u6,'(A,I0)') &
+      'Discrepancies:          ', &
+      nDiscrepancies(iTopology)
+
+   write(u6,*)
+
+   write(u6,'(A,I0,A,I0)') &
+      'Closed x closed:        pairs = ', &
+      nPairDiagonal(iTopology,iCC), &
+      ', discrepancies = ', &
+      nErrDiagonal(iTopology,iCC)
+
+   write(u6,'(A,I0,A,I0)') &
+      'Diagonal x closed:      pairs = ', &
+      nPairDiagonal(iTopology,iDC), &
+      ', discrepancies = ', &
+      nErrDiagonal(iTopology,iDC)
+
+   write(u6,'(A,I0,A,I0)') &
+      'Closed x diagonal:      pairs = ', &
+      nPairDiagonal(iTopology,iCD), &
+      ', discrepancies = ', &
+      nErrDiagonal(iTopology,iCD)
+
+   write(u6,'(A,I0,A,I0)') &
+      'Diagonal x diagonal:    pairs = ', &
+      nPairDiagonal(iTopology,iDD), &
+      ', discrepancies = ', &
+      nErrDiagonal(iTopology,iDD)
+
+   write(u6,*)
+
+   write(u6,'(A,I0,A,I0)') &
+      'Canonical x canonical:  pairs = ', &
+      nPairOrientation(iTopology,iCanCan), &
+      ', discrepancies = ', &
+      nErrOrientation(iTopology,iCanCan)
+
+   write(u6,'(A,I0,A,I0)') &
+      'Reverse x canonical:    pairs = ', &
+      nPairOrientation(iTopology,iRevCan), &
+      ', discrepancies = ', &
+      nErrOrientation(iTopology,iRevCan)
+
+   write(u6,'(A,I0,A,I0)') &
+      'Canonical x reverse:    pairs = ', &
+      nPairOrientation(iTopology,iCanRev), &
+      ', discrepancies = ', &
+      nErrOrientation(iTopology,iCanRev)
+
+   write(u6,'(A,I0,A,I0)') &
+      'Reverse x reverse:      pairs = ', &
+      nPairOrientation(iTopology,iRevRev), &
+      ', discrepancies = ', &
+      nErrOrientation(iTopology,iRevRev)
+
 end do
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' GENERAL LU TEST SUMMARY'
+write(u6,*) ' END OF TWO-OPERATOR TEST'
 write(u6,*) '========================================='
-
-write(u6,'(A,I0)') &
-     'LU operator pairs:       ',nOperatorPairs
-
-write(u6,'(A,I0)') &
-     'LU matrix elements:      ',nMatrixElements
-
-write(u6,'(A,I0)') &
-     'LU discrepancies:        ',nDiscrepancies
-
-write(u6,*)
-
-write(u6,'(A,I0,A,I0)') &
-     'Closed x closed:         pairs = ',nPairCC, &
-     ', discrepancies = ',nErrCC
-
-write(u6,'(A,I0,A,I0)') &
-     'Diagonal x closed:       pairs = ',nPairDC, &
-     ', discrepancies = ',nErrDC
-
-write(u6,'(A,I0,A,I0)') &
-     'Closed x diagonal:       pairs = ',nPairCD, &
-     ', discrepancies = ',nErrCD
-
-write(u6,'(A,I0,A,I0)') &
-     'Diagonal x diagonal:     pairs = ',nPairDD, &
-     ', discrepancies = ',nErrDD
-
-write(u6,*)
-
-write(u6,'(A,I0,A,I0)') &
-     'Canonical x canonical:   pairs = ',nPairCanCan, &
-     ', discrepancies = ',nErrCanCan
-
-write(u6,'(A,I0,A,I0)') &
-     'Reverse x canonical:     pairs = ',nPairRevCan, &
-     ', discrepancies = ',nErrRevCan
-
-write(u6,'(A,I0,A,I0)') &
-     'Canonical x reverse:     pairs = ',nPairCanRev, &
-     ', discrepancies = ',nErrCanRev
-
-write(u6,'(A,I0,A,I0)') &
-     'Reverse x reverse:       pairs = ',nPairRevRev, &
-     ', discrepancies = ',nErrRevRev
-
 write(u6,*)
 
 contains
@@ -7180,6 +7297,7 @@ end if
 end function Lower_Diagonal_Value
 
 function MatEl_Lower_One( &
+           ISYCI, &
            I,J, &
            p,q ) result(Value)
 
@@ -7188,6 +7306,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 
+integer(kind=iwp), intent(in) :: ISYCI
 integer(kind=iwp), intent(in) :: I
 integer(kind=iwp), intent(in) :: J
 
@@ -7201,6 +7320,7 @@ integer(kind=iwp) :: MVJ
 
 integer(kind=iwp) :: ISYUPI
 integer(kind=iwp) :: ISYUPJ
+integer(kind=iwp) :: ISYDWN
 
 integer(kind=iwp) :: IUPI
 integer(kind=iwp) :: IUPJ
@@ -7233,12 +7353,12 @@ if (p > SGS(iState)%MidLev) return
 if (q > SGS(iState)%MidLev) return
 
 call Decode_CSF( &
-     CIS(iState),LSM, &
+     CIS(iState),ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
 call Decode_CSF( &
-     CIS(iState),LSM, &
+     CIS(iState),ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -7249,28 +7369,25 @@ if (MVI    /= MVJ)    return
 if (ISYUPI /= ISYUPJ) return
 if (IUPI   /= IUPJ)   return
 
+!
+! Lower coupling tables are indexed by the symmetry carried
+! by the lower partial walk.
+!
+ISYDWN = Mul(ISYCI,ISYUPI)
+
 Reverse = p < q
 
 call Decode_Lower_Operator( &
      SGS(iState),p,q,INDEO )
 
-NCP = EXS(iState)%NOCP(INDEO,ISYUPI,MVI)
-
+NCP = EXS(iState)%NOCP(INDEO,ISYDWN,MVI)
 if (NCP == 0) return
 
-IOFF = EXS(iState)%IOCP(INDEO,ISYUPI,MVI)
+IOFF = EXS(iState)%IOCP(INDEO,ISYDWN,MVI)
 
 do ICP=1,NCP
 
-   if (.not. Reverse) then
-
-      !
-      ! Canonical orientation.
-      !
-      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
-
-   else
+   if (Reverse) then
 
       !
       ! Reverse orientation:
@@ -7279,6 +7396,14 @@ do ICP=1,NCP
       !
       IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
       ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
+
+   else
+
+      !
+      ! Canonical orientation.
+      !
+      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
 
    end if
 
@@ -7292,10 +7417,11 @@ do ICP=1,NCP
 end do
 
 end function MatEl_Lower_One
+
 subroutine Contract_Lower_Blocks( &
            INDEO_Right,Reverse_Right, &
            INDEO_Left, Reverse_Left,  &
-           ISYUP,MV, &
+           ISYDWN,MV, &
            nTerm, &
            IFrom,ITo,XVal )
 
@@ -7324,7 +7450,7 @@ integer(kind=iwp), intent(in) :: INDEO_Left
 logical, intent(in) :: Reverse_Right
 logical, intent(in) :: Reverse_Left
 
-integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: ISYDWN
 integer(kind=iwp), intent(in) :: MV
 
 integer(kind=iwp), intent(out) :: nTerm
@@ -7360,10 +7486,10 @@ real(kind=wp) :: X
 logical :: Found
 
 NRight = EXS(iState)%NOCP( &
-              INDEO_Right,ISYUP,MV )
+              INDEO_Right,ISYDWN,MV )
 
 NLeft = EXS(iState)%NOCP( &
-             INDEO_Left,ISYUP,MV )
+             INDEO_Left,ISYDWN,MV )
 
 if (NRight == 0 .or. NLeft == 0) then
 
@@ -7378,10 +7504,10 @@ if (NRight == 0 .or. NLeft == 0) then
 end if
 
 OffRight = EXS(iState)%IOCP( &
-               INDEO_Right,ISYUP,MV )
+               INDEO_Right,ISYDWN,MV )
 
 OffLeft = EXS(iState)%IOCP( &
-              INDEO_Left,ISYUP,MV )
+              INDEO_Left,ISYDWN,MV )
 
 call mma_allocate( &
      IFrom,NRight*NLeft,Label='IFrom')
@@ -7953,6 +8079,7 @@ integer(kind=iwp) :: MVJ
 
 integer(kind=iwp) :: ISYUPI
 integer(kind=iwp) :: ISYUPJ
+integer(kind=iwp) :: ISYDWN
 
 integer(kind=iwp) :: IUPI
 integer(kind=iwp) :: IUPJ
@@ -7997,10 +8124,16 @@ if (IUPI   /= IUPJ)   return
 !
 !     J_L --E_Right--> K_L --E_Left--> I_L.
 !
+!
+! Lower coupling blocks are indexed by the symmetry carried
+! by the lower partial walk, not by the upper-walk symmetry.
+!
+ISYDWN = Mul(LSM,ISYUPI)
+
 call Contract_Lower_Blocks( &
      INDEO_Right,Reverse_Right, &
      INDEO_Left, Reverse_Left,  &
-     ISYUPI,MVI, &
+     ISYDWN,MVI, &
      nTerm, &
      IFrom,ITo,XVal )
 
@@ -8626,6 +8759,7 @@ Value = MatEl_UU( &
 end function MatEl_EpqErs_UU
 
 function MatEl_EpqErs_LL( &
+           ISYCI, &
            I,J, &
            p,q,r,s ) result(Value)
 
@@ -8634,6 +8768,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 
+integer(kind=iwp), intent(in) :: ISYCI
 integer(kind=iwp), intent(in) :: I
 integer(kind=iwp), intent(in) :: J
 
@@ -8690,12 +8825,12 @@ Diagonal_Right = r == s
 ! Decode the bra and ket CSFs.
 !
 call Decode_CSF( &
-     CIS(iState),LSM, &
+     CIS(iState),ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
 call Decode_CSF( &
-     CIS(iState),LSM, &
+     CIS(iState),ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -8754,6 +8889,7 @@ if (Diagonal_Left) then
    if (WLeft == Zero) return
 
    XClosed = MatEl_Lower_One( &
+                ISYCI, &
                 I,J, &
                 r,s )
 
@@ -8778,6 +8914,7 @@ end if
 if (Diagonal_Right) then
 
    XClosed = MatEl_Lower_One( &
+                ISYCI, &
                 I,J, &
                 p,q )
 
@@ -8899,110 +9036,6 @@ call mma_deallocate(Res)
 
 end function MatEl_Epq_Ref
 
-function MatEl_Lower_Closed( &
-           CIS,EXS,ISYCI, &
-           I,J, &
-           INDEO,ISYM,MV ) result(Value)
-
-use Constants, only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-
-type(CIStruct), intent(in) :: CIS
-type(EXStruct), intent(in) :: EXS
-
-integer(kind=iwp), intent(in) :: ISYCI
-integer(kind=iwp), intent(in) :: I,J
-integer(kind=iwp), intent(in) :: INDEO
-integer(kind=iwp), intent(in) :: ISYM
-integer(kind=iwp), intent(in) :: MV
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: MVI,MVJ
-integer(kind=iwp) :: ISYUPI,ISYUPJ
-integer(kind=iwp) :: IUPI,IUPJ
-integer(kind=iwp) :: IDWNI,IDWNJ
-
-integer(kind=iwp) :: NCP
-integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: ICP
-
-Value = Zero
-
-call Decode_CSF(CIS,ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
-call Decode_CSF(CIS,ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
-
-if (MVI    /= MVJ   ) return
-if (ISYUPI /= ISYUPJ) return
-if (IUPI   /= IUPJ  ) return
-
-NCP  = EXS%NOCP(INDEO,ISYM,MVI)
-IOFF = EXS%IOCP(INDEO,ISYM,MVI)
-
-do ICP=1,NCP
-
-   if (EXS%ICoup(1,IOFF+ICP) /= IDWNJ) cycle
-   if (EXS%ICoup(2,IOFF+ICP) /= IDWNI) cycle
-
-   Value = Value + EXS%VTab(EXS%ICoup(3,IOFF+ICP))
-
-end do
-
-end function MatEl_Lower_Closed
-
-function MatEl_Upper_Closed( &
-           CIS,EXS,ISYCI, &
-           I,J, &
-           INDEO,ISYM,MV ) result(Value)
-
-use Constants, only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-
-type(CIStruct), intent(in) :: CIS
-type(EXStruct), intent(in) :: EXS
-
-integer(kind=iwp), intent(in) :: ISYCI
-integer(kind=iwp), intent(in) :: I,J
-integer(kind=iwp), intent(in) :: INDEO
-integer(kind=iwp), intent(in) :: ISYM
-integer(kind=iwp), intent(in) :: MV
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: MVI,MVJ
-integer(kind=iwp) :: ISYUPI,ISYUPJ
-integer(kind=iwp) :: IUPI,IUPJ
-integer(kind=iwp) :: IDWNI,IDWNJ
-
-integer(kind=iwp) :: NCP
-integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: ICP
-
-Value = Zero
-
-call Decode_CSF(CIS,ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
-call Decode_CSF(CIS,ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
-
-if (MVI   /= MVJ  ) return
-if (IDWNI /= IDWNJ) return
-
-NCP  = EXS%NOCP(INDEO,ISYUPI,MVI)
-IOFF = EXS%IOCP(INDEO,ISYUPI,MVI)
-
-do ICP=1,NCP
-
-   if (EXS%ICoup(1,IOFF+ICP) /= IUPJ) cycle
-   if (EXS%ICoup(2,IOFF+ICP) /= IUPI) cycle
-
-   Value = Value + EXS%VTab(EXS%ICoup(3,IOFF+ICP))
-
-end do
-
-end function MatEl_Upper_Closed
 
 function MatEl_EpqErs_LU( &
            ISYCI, &
@@ -9078,122 +9111,97 @@ Value = XL*XU
 end function MatEl_EpqErs_LU
 
 function MatEl_EpqErs_UL( &
-           SGS,CIS,EXS, &
            ISYCI, &
            I,J, &
            p,q,r,s ) result(Value)
 
-   use Constants,   only: Zero
-   use Definitions, only: wp, iwp
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+implicit none
 
-   implicit none
+integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+integer(kind=iwp), intent(in) :: r
+integer(kind=iwp), intent(in) :: s
 
-   type(SGStruct), intent(in) :: SGS
-   type(CIStruct), intent(in) :: CIS
-   type(EXStruct), intent(in) :: EXS
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
 
-   integer(kind=iwp), intent(in) :: ISYCI
-   integer(kind=iwp), intent(in) :: I
-   integer(kind=iwp), intent(in) :: J
-   integer(kind=iwp), intent(in) :: p
-   integer(kind=iwp), intent(in) :: q
-   integer(kind=iwp), intent(in) :: r
-   integer(kind=iwp), intent(in) :: s
+real(kind=wp) :: XU
+real(kind=wp) :: XL
+real(kind=wp) :: Value
 
-   integer(kind=iwp) :: INDEOU
-   integer(kind=iwp) :: INDEOL
+Value = Zero
 
-   integer(kind=iwp) :: MVI
-   integer(kind=iwp) :: MVJ
-   integer(kind=iwp) :: ISYUPI
-   integer(kind=iwp) :: ISYUPJ
-   integer(kind=iwp) :: IUPI
-   integer(kind=iwp) :: IUPJ
-   integer(kind=iwp) :: IDWNI
-   integer(kind=iwp) :: IDWNJ
+!
+! Left operator E_pq acts on the upper half.
+! Right operator E_rs acts on the lower half.
+!
+if (p <= SGS(iState)%MidLev) return
+if (q <= SGS(iState)%MidLev) return
+if (p >  SGS(iState)%nLev)   return
+if (q >  SGS(iState)%nLev)   return
 
-   integer(kind=iwp) :: K
+if (r < 1) return
+if (s < 1) return
+if (r > SGS(iState)%MidLev) return
+if (s > SGS(iState)%MidLev) return
 
-   real(kind=wp) :: XU
-   real(kind=wp) :: XL
-   real(kind=wp) :: Value
+call Decode_CSF( &
+     CIS(iState),ISYCI,I, &
+     MVI,ISYUPI,IUPI,IDWNI )
 
-   Value = Zero
+call Decode_CSF( &
+     CIS(iState),ISYCI,J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
 
-   !
-   ! The first operator acts on the upper half.
-   ! The second operator acts on the lower half.
-   !
-   call Decode_Upper_Operator(SGS,p,q,INDEOU)
-   call Decode_Lower_Operator(SGS,r,s,INDEOL)
+!
+! The present implementation requires both individual operators
+! to preserve spatial symmetry. Bra and ket must consequently
+! belong to the same split-graph block.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
 
-   !
-   ! Decode
-   !
-   !     I = (IUPI,IDWNI)
-   !     J = (IUPJ,IDWNJ).
-   !
-   call Decode_CSF( &
-        CIS,ISYCI,I, &
-        MVI,ISYUPI,IUPI,IDWNI )
+!
+! Upper-half factor:
+!
+!     <I_U|E_pq|J_U>
+!
+XU = MatEl_Upper_Half( &
+        ISYUPI,MVI, &
+        IUPI,IUPJ, &
+        p,q )
 
-   call Decode_CSF( &
-        CIS,ISYCI,J, &
-        MVJ,ISYUPJ,IUPJ,IDWNJ )
+if (abs(XU) <= 1.0e-15_wp) return
 
-   !
-   ! I and J must belong to compatible split-graph blocks.
-   !
-   if (MVI /= MVJ) return
-   if (ISYUPI /= ISYUPJ) return
+!
+! Lower-half factor:
+!
+!     <I_L|E_rs|J_L>
+!
+! MatEl_Lower_Half derives the lower-walk symmetry as
+!
+!     ISYDWN = Mul(ISYCI,ISYUPI).
+!
+XL = MatEl_Lower_Half( &
+        ISYCI,ISYUPI,MVI, &
+        IDWNI,IDWNJ, &
+        r,s )
 
-   !
-   ! Resolution of identity for the UL ordering:
-   !
-   ! <I_U,I_L| E^U_pq E^L_rs |J_U,J_L>
-   !
-   !   = <I_U,I_L| E^U_pq |J_U,I_L>
-   !     <J_U,I_L| E^L_rs |J_U,J_L>.
-   !
-   ! Construct the hybrid intermediate CSF
-   !
-   !     K = (J_U,I_L)
-   !       = (IUPJ,IDWNI).
-   !
-   call Encode_CSF( &
-        CIS,ISYCI, &
-        MVI,ISYUPI,IUPJ,IDWNI, &
-        K )
-
-   !
-   ! Upper factor:
-   !
-   !     XU = <I|E^U_pq|K>.
-   !
-   ! I and K have the same lower half-walk.
-   !
-   XU = MatEl_Upper_Closed( &
-           CIS,EXS,ISYCI, &
-           I,K, &
-           INDEOU,ISYUPI,MVI )
-
-   if (abs(XU) <= 1.0e-15_wp) return
-
-   !
-   ! Lower factor:
-   !
-   !     XL = <K|E^L_rs|J>.
-   !
-   ! K and J have the same upper half-walk.
-   !
-   XL = MatEl_Lower_Closed( &
-           CIS,EXS,ISYCI, &
-           K,J, &
-           INDEOL,ISYUPI,MVI )
-
-   Value = XU*XL
+Value = XU*XL
 
 end function MatEl_EpqErs_UL
+
 end subroutine SG_Test_EpqErs_Ref
 
 end module SGUGA
