@@ -56,7 +56,7 @@ call Get_nAtoms_All(nAll_Atoms)
 
 fileid = mh5_create_file('FREQH5')
 
-if (trim(Path) == 'ANALYTIC') then
+if (Path == 'ANALYTIC') then
   call mh5_init_attr(fileid,'MOLCAS_MODULE','MCLR')
 else
   call mh5_init_attr(fileid,'MOLCAS_MODULE','SLAPAF')
