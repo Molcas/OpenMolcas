@@ -694,7 +694,6 @@ use spinfo, only: ncsasm, ndtasm
 
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
-integer(kind=iwp) :: IList(3), JList(3)
 integer(kind=iwp), parameter :: iState=1
 
 ! Construct the determinant tables
@@ -714,9 +713,7 @@ If (Do_SGUGA) Then
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
 #endif
    call SG_Setup_RASSCF()
-   IList = [1,2,3]
-   JList = [1,2,3]
-   call SG_Test_EpqErs_Ref(iState,STSym,IList,JList)
+   call SG_Test_EpqErs_Ref(iState,STSym)
 End If
 
 ! faroald initializations
