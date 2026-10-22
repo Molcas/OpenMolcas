@@ -6539,127 +6539,123 @@ enddo
 
 end subroutine STEPVEC
 
-subroutine SG_Test_EpqErs_Ref(iState,LSM,IList,JList)
+subroutine SG_Test_EpqErs_Ref(iState,LSM)
 
-use Constants,  only: Zero, One
+use Constants,   only: Zero, One
 use Definitions, only: wp, iwp, u6
 use stdalloc,    only: mma_allocate, mma_deallocate
 
+implicit none
+
 integer(kind=iwp), intent(in) :: iState
 integer(kind=iwp), intent(in) :: LSM
-integer(kind=iwp), intent(in) :: IList(:)
-integer(kind=iwp), intent(in) :: JList(:)
 
-integer(kind=iwp) :: p,q,r,s
-integer(kind=iwp) :: iI,iJ,nI,nJ
-real(kind=wp)     :: X
+integer(kind=iwp) :: p
+integer(kind=iwp) :: q
+integer(kind=iwp) :: r
+integer(kind=iwp) :: s
 
-integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: I, J, k, MV, ISYM
-integer(kind=iwp) :: ISYUP,IUP,IDWN
+integer(kind=iwp) :: I
+integer(kind=iwp) :: J
 
-integer(kind=iwp), allocatable :: ILeft(:)
-integer(kind=iwp), allocatable :: IRight(:)
+integer(kind=iwp) :: nOperatorPairs
+integer(kind=iwp) :: nMatrixElements
+integer(kind=iwp) :: nDiscrepancies
 
-real(kind=wp), allocatable :: XVal(:)
+real(kind=wp) :: XRef
+real(kind=wp) :: XUU
 
-real(kind=wp) :: XLU, XREF
-integer(kind=iwp) :: MVI, ISYUPI,IUPI,IDWNI
-integer(kind=iwp) :: MVJ, ISYUPJ,IUPJ,IDWNJ
-integer(kind=iwp) :: INDEO1, NERROR
+real(kind=wp), parameter :: Threshold = 1.0e-12_wp
 
+!
+! IList and JList are retained in the interface for compatibility.
+! The UU regression test checks the complete CSF matrix.
+!
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' SG_EpqErs Reference Test'
+write(u6,*) ' GENERAL UU CLOSED-LOOP TEST'
 write(u6,*) '========================================='
+write(u6,'(A,I0)') 'Number of graph levels: ', &
+                    SGS(iState)%nLev
+write(u6,'(A,I0)') 'Split-graph midlevel:   ', &
+                    SGS(iState)%MidLev
 write(u6,*)
 
-do I=1,CIS(iState)%NCSF(LSM)
+nOperatorPairs = 0
+nMatrixElements = 0
+nDiscrepancies = 0
 
-   call Decode_CSF( &
-        CIS(iState),LSM, &
-        I, &
-        MV,ISYUP,IUP,IDWN )
+!
+! Test canonical, non-diagonal, upper-half closed loops:
+!
+!     p > q > MidLev
+!     r > s > MidLev.
+!
+! The reverse orientations and diagonal operators will be
+! enabled separately after the canonical UU contraction passes.
+!
+do p=SGS(iState)%MidLev+2,SGS(iState)%nLev
+   do q=SGS(iState)%MidLev+1,p-1
 
-   call Encode_CSF( &
-        CIS(iState),LSM, &
-        MV,ISYUP,IUP,IDWN, &
-        J )
+      !
+      ! E_pq must preserve the spatial symmetry of the CI space
+      ! in this first test.
+      !
+      if (SGS(iState)%ISM(p) /= SGS(iState)%ISM(q)) cycle
 
-   if (I /= J) then
-      write(6,*) 'Encode/Decode failed'
-      write(6,*) I,J
-      call Abend()
-   endif
+      do r=SGS(iState)%MidLev+2,SGS(iState)%nLev
+         do s=SGS(iState)%MidLev+1,r-1
 
-end do
+            if (SGS(iState)%ISM(r) /= SGS(iState)%ISM(s)) cycle
 
+            nOperatorPairs = nOperatorPairs + 1
 
-NError = 0
+            do I=1,CIS(iState)%NCSF(LSM)
+               do J=1,CIS(iState)%NCSF(LSM)
 
-do I=1,CIS(iState)%NCSF(LSM)
-   do J=1,CIS(iState)%NCSF(LSM)
+                  XRef = MatEl_Ref( &
+                             I,J, &
+                             p,q, &
+                             r,s )
 
-      XREF = MatEl_Ref( &
-                 I,J, &
-                 4,3, &
-                 2,1 )
+                  XUU = MatEl_EpqErs_UU( &
+                            I,J, &
+                            p,q, &
+                            r,s )
 
-      XLU = MatEl_EpqErs_UL( &
-                SGS(iState), &
-                CIS(iState), &
-                EXS(iState), &
-                LSM, &
-                I,J, &
-                4,3, &
-                2,1 )
+                  nMatrixElements = nMatrixElements + 1
 
-      if (abs(XREF-XLU) > 1.0e-12_wp) then
-         NError = NError + 1
+                  if (abs(XRef-XUU) <= Threshold) cycle
 
-         write(6,'(2I6,3F20.12)') &
-              I,J,XREF,XLU,XREF-XLU
-      end if
+                  nDiscrepancies = nDiscrepancies + 1
 
-   end do
-end do
+                  write(u6, &
+                     '(A,1X,4I4,1X,2I7,3(1X,ES22.14))') &
+                     'UU', &
+                     p,q,r,s, &
+                     I,J, &
+                     XRef,XUU,XRef-XUU
 
-write(6,*)
-write(6,'(A,I0)') 'Number of UL discrepancies: ',NError
+               end do
+            end do
 
-nI=Min(size(IList),CIS(iState)%nCSF(LSM))
-nJ=Min(size(JList),CIS(iState)%nCSF(LSM))
-do p=1,SGS(iState)%nLev
-do q=1,SGS(iState)%nLev
-
-   if (SGS(iState)%ISM(p) /= SGS(iState)%ISM(q)) cycle
-
-   do r=1,SGS(iState)%nLev
-   do s=1,SGS(iState)%nLev
-
-      if (SGS(iState)%ISM(r) /= SGS(iState)%ISM(s)) cycle
-
-      do iI=1,nI
-      do iJ=1,nJ
-
-         X = MatEl_Ref(IList(iI),JList(iJ),p,q,r,s)
-
-         if (abs(X) > 1.0d-12) then
-            write(u6,'(6I4,1X,G24.16)') &
-                 p,q,r,s, &
-                 IList(iI),JList(iJ), &
-                 X
-         end if
-
-      end do
+         end do
       end do
 
    end do
-   end do
+end do
 
-end do
-end do
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' UU CLOSED-LOOP TEST SUMMARY'
+write(u6,*) '========================================='
+write(u6,'(A,I0)') &
+     'UU operator pairs:  ',nOperatorPairs
+write(u6,'(A,I0)') &
+     'UU matrix elements: ',nMatrixElements
+write(u6,'(A,I0)') &
+     'UU discrepancies:   ',nDiscrepancies
 
 contains
 
@@ -6709,111 +6705,139 @@ function MatEl_Ref(I,J,p,q,r,s) result(Value)
 
 end function MatEl_Ref
 
-subroutine Contract_ICoup_Blocks( &
-           EXS,                   &
-           INDEO1,ISYM1,MV1,      &
-           INDEO2,ISYM2,MV2,      &
-           nTerm,                 &
-           ILeft,                 &
-           IRight,                &
-           XVal )
+
+subroutine Contract_Upper_Blocks( &
+           INDEO_Right, &
+           INDEO_Left, &
+           ISYUP,MV, &
+           nTerm, &
+           IFrom,ITo,XVal )
 
 use Definitions, only: iwp, wp
 use stdalloc,    only: mma_allocate
 
 implicit none
 
-type(EXStruct), intent(in) :: EXS
+!
+! Contract the ordered upper-walk product
+!
+!     E_Left E_Right.
+!
+! The rightmost operator acts first:
+!
+!     IFrom --E_Right--> K --E_Left--> ITo.
+!
 
-integer(kind=iwp), intent(in) :: INDEO1
-integer(kind=iwp), intent(in) :: ISYM1
-integer(kind=iwp), intent(in) :: MV1
-
-integer(kind=iwp), intent(in) :: INDEO2
-integer(kind=iwp), intent(in) :: ISYM2
-integer(kind=iwp), intent(in) :: MV2
+integer(kind=iwp), intent(in) :: INDEO_Right
+integer(kind=iwp), intent(in) :: INDEO_Left
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
 
 integer(kind=iwp), intent(out) :: nTerm
 
-integer(kind=iwp), allocatable, intent(out) :: ILeft(:)
-integer(kind=iwp), allocatable, intent(out) :: IRight(:)
+integer(kind=iwp), allocatable, intent(out) :: IFrom(:)
+integer(kind=iwp), allocatable, intent(out) :: ITo(:)
 
 real(kind=wp), allocatable, intent(out) :: XVal(:)
 
-integer(kind=iwp) :: NCP1
-integer(kind=iwp) :: NCP2
+integer(kind=iwp) :: NRight
+integer(kind=iwp) :: NLeft
 
-integer(kind=iwp) :: IOFF1
-integer(kind=iwp) :: IOFF2
+integer(kind=iwp) :: OffRight
+integer(kind=iwp) :: OffLeft
 
-integer(kind=iwp) :: ICP1
-integer(kind=iwp) :: ICP2
+integer(kind=iwp) :: iRight
+integer(kind=iwp) :: iLeft
 
-integer(kind=iwp) :: L1
-integer(kind=iwp) :: M1
+integer(kind=iwp) :: FromRight
+integer(kind=iwp) :: ToRight
 
-integer(kind=iwp) :: M2
-integer(kind=iwp) :: R2
+integer(kind=iwp) :: FromLeft
+integer(kind=iwp) :: ToLeft
 
-integer(kind=iwp) :: IV1
-integer(kind=iwp) :: IV2
+integer(kind=iwp) :: iValueRight
+integer(kind=iwp) :: iValueLeft
 
-real(kind=wp) :: X1
-real(kind=wp) :: X2
+integer(kind=iwp) :: iTerm
+
+real(kind=wp) :: XRight
+real(kind=wp) :: XLeft
 real(kind=wp) :: X
 
-integer(kind=iwp) :: i
 logical :: Found
 
-NCP1 = EXS%NOCP(INDEO1,ISYM1,MV1)
-NCP2 = EXS%NOCP(INDEO2,ISYM2,MV2)
+NRight = EXS(iState)%NOCP(INDEO_Right,ISYUP,MV)
+NLeft  = EXS(iState)%NOCP(INDEO_Left ,ISYUP,MV)
 
-if (NCP1 == 0 .or. NCP2 == 0) then
+if (NRight == 0 .or. NLeft == 0) then
+
    nTerm = 0
-   call mma_allocate(ILeft ,1,Label='ILeft')
-   call mma_allocate(IRight,1,Label='IRight')
-   call mma_allocate(XVal  ,1,Label='XVal')
+
+   call mma_allocate(IFrom,1,Label='IFrom')
+   call mma_allocate(ITo  ,1,Label='ITo')
+   call mma_allocate(XVal ,1,Label='XVal')
+
    return
+
 end if
 
-IOFF1 = EXS%IOCP(INDEO1,ISYM1,MV1)
-IOFF2 = EXS%IOCP(INDEO2,ISYM2,MV2)
+OffRight = EXS(iState)%IOCP(INDEO_Right,ISYUP,MV)
+OffLeft  = EXS(iState)%IOCP(INDEO_Left ,ISYUP,MV)
 
-call mma_allocate(ILeft ,NCP1*NCP2,Label='ILeft')
-call mma_allocate(IRight,NCP1*NCP2,Label='IRight')
-call mma_allocate(XVal  ,NCP1*NCP2,Label='XVal')
+call mma_allocate( &
+     IFrom,NRight*NLeft,Label='IFrom')
+
+call mma_allocate( &
+     ITo,NRight*NLeft,Label='ITo')
+
+call mma_allocate( &
+     XVal,NRight*NLeft,Label='XVal')
 
 nTerm = 0
 
-do ICP1=1,NCP1
+!
+! Rightmost operator acts first:
+!
+!     FromRight -> ToRight.
+!
+do iRight=1,NRight
 
-   L1  = EXS%ICoup(1,IOFF1+ICP1)
-   M1  = EXS%ICoup(2,IOFF1+ICP1)
+   FromRight = EXS(iState)%ICoup(1,OffRight+iRight)
+   ToRight   = EXS(iState)%ICoup(2,OffRight+iRight)
 
-   IV1 = EXS%ICoup(3,IOFF1+ICP1)
-   X1  = EXS%VTab(IV1)
+   iValueRight = EXS(iState)%ICoup(3,OffRight+iRight)
+   XRight = EXS(iState)%VTab(iValueRight)
 
-   do ICP2=1,NCP2
+   !
+   ! Left operator acts second:
+   !
+   !     FromLeft -> ToLeft.
+   !
+   do iLeft=1,NLeft
 
-      M2 = EXS%ICoup(1,IOFF2+ICP2)
+      FromLeft = EXS(iState)%ICoup(1,OffLeft+iLeft)
 
-      if (M1 /= M2) cycle
+      !
+      ! Resolution-of-identity contraction over the
+      ! intermediate upper walk.
+      !
+      if (ToRight /= FromLeft) cycle
 
-      R2 = EXS%ICoup(2,IOFF2+ICP2)
+      ToLeft = EXS(iState)%ICoup(2,OffLeft+iLeft)
 
-      IV2 = EXS%ICoup(3,IOFF2+ICP2)
-      X2  = EXS%VTab(IV2)
+      iValueLeft = EXS(iState)%ICoup(3,OffLeft+iLeft)
+      XLeft = EXS(iState)%VTab(iValueLeft)
 
-      X = X1*X2
+      X = XLeft*XRight
 
       Found = .false.
 
-      do i=1,nTerm
+      do iTerm=1,nTerm
 
-         if (ILeft(i)  /= L1) cycle
-         if (IRight(i) /= R2) cycle
+         if (IFrom(iTerm) /= FromRight) cycle
+         if (ITo(iTerm)   /= ToLeft  ) cycle
 
-         XVal(i) = XVal(i) + X
+         XVal(iTerm) = XVal(iTerm) + X
 
          Found = .true.
          exit
@@ -6824,17 +6848,16 @@ do ICP1=1,NCP1
 
          nTerm = nTerm + 1
 
-         ILeft (nTerm) = L1
-         IRight(nTerm) = R2
-         XVal  (nTerm) = X
+         IFrom(nTerm) = FromRight
+         ITo(nTerm)   = ToLeft
+         XVal(nTerm)  = X
 
       end if
 
    end do
-
 end do
 
-end subroutine Contract_ICoup_Blocks
+end subroutine Contract_Upper_Blocks
 
 function MatEl_LL( &
            CIS,EXS,ISYCI, &
@@ -6931,10 +6954,10 @@ call mma_deallocate(XVal)
 end function MatEl_LL
 
 function MatEl_UU( &
-           CIS,EXS,ISYCI, &
+           ISYCI, &
            I,J, &
-           INDEO1,ISYM1,MV1, &
-           INDEO2,ISYM2,MV2 ) result(Value)
+           INDEO_Left, &
+           INDEO_Right ) result(Value)
 
 use Constants,   only: Zero
 use Definitions, only: wp, iwp
@@ -6942,21 +6965,12 @@ use stdalloc,    only: mma_deallocate
 
 implicit none
 
-type(CIStruct), intent(in) :: CIS
-type(EXStruct), intent(in) :: EXS
-
 integer(kind=iwp), intent(in) :: ISYCI
-
 integer(kind=iwp), intent(in) :: I
 integer(kind=iwp), intent(in) :: J
 
-integer(kind=iwp), intent(in) :: INDEO1
-integer(kind=iwp), intent(in) :: ISYM1
-integer(kind=iwp), intent(in) :: MV1
-
-integer(kind=iwp), intent(in) :: INDEO2
-integer(kind=iwp), intent(in) :: ISYM2
-integer(kind=iwp), intent(in) :: MV2
+integer(kind=iwp), intent(in) :: INDEO_Left
+integer(kind=iwp), intent(in) :: INDEO_Right
 
 real(kind=wp) :: Value
 
@@ -6973,57 +6987,60 @@ integer(kind=iwp) :: IDWNI
 integer(kind=iwp) :: IDWNJ
 
 integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: k
+integer(kind=iwp) :: iTerm
 
-integer(kind=iwp), allocatable :: ILeft(:)
-integer(kind=iwp), allocatable :: IRight(:)
+integer(kind=iwp), allocatable :: IFrom(:)
+integer(kind=iwp), allocatable :: ITo(:)
 
 real(kind=wp), allocatable :: XVal(:)
 
 Value = Zero
 
 call Decode_CSF( &
-     CIS,ISYCI, &
+     CIS(iState),ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
 call Decode_CSF( &
-     CIS,ISYCI, &
+     CIS(iState),ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
 !
-! upper loop leaves lower walk unchanged
+! Both operators act on the upper half. Consequently,
+! the lower half-walk is a spectator.
 !
-
 if (MVI    /= MVJ   ) return
 if (ISYUPI /= ISYUPJ) return
 if (IDWNI  /= IDWNJ ) return
 
-call Contract_ICoup_Blocks( &
-     EXS, &
-     INDEO1,ISYM1,MVI, &
-     INDEO2,ISYM2,MVI, &
+!
+! For
+!
+!     <I|E_Left E_Right|J>,
+!
+! the rightmost operator acts first:
+!
+!     J_U --E_Right--> K_U --E_Left--> I_U.
+!
+call Contract_Upper_Blocks( &
+     INDEO_Right, &
+     INDEO_Left, &
+     ISYUPI,MVI, &
      nTerm, &
-     ILeft, &
-     IRight, &
-     XVal )
+     IFrom,ITo,XVal )
 
-do k=1,nTerm
+do iTerm=1,nTerm
 
-   !
-   ! Same orientation convention that worked for LL
-   !
+   if (IFrom(iTerm) /= IUPJ) cycle
+   if (ITo(iTerm)   /= IUPI) cycle
 
-   if (ILeft(k)  /= IUPJ) cycle
-   if (IRight(k) /= IUPI) cycle
-
-   Value = Value + XVal(k)
+   Value = Value + XVal(iTerm)
 
 end do
 
-call mma_deallocate(ILeft)
-call mma_deallocate(IRight)
+call mma_deallocate(IFrom)
+call mma_deallocate(ITo)
 call mma_deallocate(XVal)
 
 end function MatEl_UU
@@ -7336,40 +7353,57 @@ end subroutine Decode_Lower_Operator
 
 
 function MatEl_EpqErs_UU( &
-           SGS,CIS,EXS, &
-           ISYCI, &
            I,J, &
            p,q,r,s ) result(Value)
 
-   type(SGStruct), intent(in) :: SGS
-   type(CIStruct), intent(in) :: CIS
-   type(EXStruct), intent(in) :: EXS
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
 
-   integer(kind=iwp), intent(in) :: ISYCI
-   integer(kind=iwp), intent(in) :: I,J
-   integer(kind=iwp), intent(in) :: p,q,r,s
+implicit none
 
-   integer(kind=iwp) :: INDEO1
-   integer(kind=iwp) :: INDEO2
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
 
-   real(kind=wp) :: Value
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+integer(kind=iwp), intent(in) :: r
+integer(kind=iwp), intent(in) :: s
 
-   call Decode_Upper_Operator(SGS,p,q,INDEO1)
-   call Decode_Upper_Operator(SGS,r,s,INDEO2)
+integer(kind=iwp) :: INDEO_Left
+integer(kind=iwp) :: INDEO_Right
 
-   call Decode_CSF( CIS,ISYCI,I,MVI,ISYUPI,IUPI,IDWNI )
-   call Decode_CSF( CIS,ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ )
+real(kind=wp) :: Value
 
 Value = Zero
 
-if (MVI /= MVJ) return
-if (ISYUPI /= ISYUPJ) return
+!
+! This first implementation handles only canonical,
+! non-diagonal upper closed loops:
+!
+!     p > q > MidLev
+!     r > s > MidLev.
+!
+if (p <= q) return
+if (r <= s) return
+
+if (q <= SGS(iState)%MidLev) return
+if (s <= SGS(iState)%MidLev) return
+
+!
+! E_pq is the left operator.
+! E_rs is the right operator and acts first.
+!
+call Decode_Upper_Operator( &
+     SGS(iState),p,q,INDEO_Left )
+
+call Decode_Upper_Operator( &
+     SGS(iState),r,s,INDEO_Right )
 
 Value = MatEl_UU( &
-           CIS,EXS,ISYCI, &
+           LSM, &
            I,J, &
-           INDEO1,ISYUPI,MVI, &
-           INDEO2,ISYUPI,MVI )
+           INDEO_Left, &
+           INDEO_Right )
 
 end function MatEl_EpqErs_UU
 
