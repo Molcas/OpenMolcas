@@ -6570,6 +6570,9 @@ integer(kind=iwp) :: nDiscrepancies
 !     C = closed, off-diagonal operator
 !     D = diagonal operator
 !
+! The first character refers to the lower operator E_pq.
+! The second character refers to the upper operator E_rs.
+!
 integer(kind=iwp) :: nPairCC
 integer(kind=iwp) :: nPairDC
 integer(kind=iwp) :: nPairCD
@@ -6583,8 +6586,18 @@ integer(kind=iwp) :: nErrDD
 !
 ! Orientation counts for closed x closed.
 !
-!     C = canonical orientation, p > q
-!     R = reverse orientation,   p < q
+!     C = canonical orientation
+!     R = reverse orientation
+!
+! For the lower operator:
+!
+!     C: p > q
+!     R: p < q
+!
+! For the upper operator:
+!
+!     C: r > s
+!     R: r < s
 !
 integer(kind=iwp) :: nPairCanCan
 integer(kind=iwp) :: nPairRevCan
@@ -6597,7 +6610,7 @@ integer(kind=iwp) :: nErrCanRev
 integer(kind=iwp) :: nErrRevRev
 
 real(kind=wp) :: XRef
-real(kind=wp) :: XLL
+real(kind=wp) :: XLU
 real(kind=wp) :: Difference
 
 real(kind=wp), parameter :: Threshold = 1.0e-12_wp
@@ -6639,7 +6652,8 @@ nErrRevRev = 0
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' GENERAL LL OPERATOR TEST'
+write(u6,*) ' GENERAL LU OPERATOR TEST'
+write(u6,*) ' E_pq(LOWER) E_rs(UPPER)'
 write(u6,*) ' INCLUDING DIAGONAL OPERATORS'
 write(u6,*) '========================================='
 write(u6,'(A,I0)') 'Number of graph levels: ', &
@@ -6651,19 +6665,23 @@ write(u6,'(A,I0)') 'Number of CSFs:         ', &
 write(u6,*)
 
 !
-! Enumerate every ordered lower-half operator
+! Enumerate every ordered LU operator product
 !
-!     E_pq E_rs,
+!     E_pq(lower) E_rs(upper),
 !
 ! where
 !
-!     1 <= p,q,r,s <= MidLev.
+!     1 <= p,q <= MidLev
 !
-! This includes:
+! and
 !
-!     p > q   canonical closed loop
-!     p < q   reverse closed loop
-!     p = q   diagonal operator
+!     MidLev < r,s <= nLev.
+!
+! For each half, this includes:
+!
+!     first index > second index: canonical closed loop
+!     first index < second index: reverse closed loop
+!     first index = second index: diagonal operator
 !
 do p=1,SGS(iState)%MidLev
    do q=1,SGS(iState)%MidLev
@@ -6672,21 +6690,25 @@ do p=1,SGS(iState)%MidLev
       FirstCanonical = p > q
 
       !
-      ! An off-diagonal operator must preserve the spatial
-      ! symmetry of the tested CI space. A diagonal operator
-      ! is automatically totally symmetric.
+      ! The lower operator must individually preserve spatial
+      ! symmetry in the present test. A diagonal operator is
+      ! automatically totally symmetric.
       !
       if (.not. FirstDiagonal) then
          if (SGS(iState)%ISM(p) /= &
              SGS(iState)%ISM(q)) cycle
       end if
 
-      do r=1,SGS(iState)%MidLev
-         do s=1,SGS(iState)%MidLev
+      do r=SGS(iState)%MidLev+1,SGS(iState)%nLev
+         do s=SGS(iState)%MidLev+1,SGS(iState)%nLev
 
             SecondDiagonal  = r == s
             SecondCanonical = r > s
 
+            !
+            ! The upper operator must individually preserve
+            ! spatial symmetry in the present test.
+            !
             if (.not. SecondDiagonal) then
                if (SGS(iState)%ISM(r) /= &
                    SGS(iState)%ISM(s)) cycle
@@ -6705,7 +6727,9 @@ do p=1,SGS(iState)%MidLev
 
                !
                ! Classify orientations in the closed x closed
-               ! branch.
+               ! branch. The first character refers to the
+               ! lower operator and the second to the upper
+               ! operator.
                !
                if (FirstCanonical .and. &
                    SecondCanonical) then
@@ -6765,14 +6789,15 @@ do p=1,SGS(iState)%MidLev
                              p,q, &
                              r,s )
 
-                  XLL = MatEl_EpqErs_LL( &
+                  XLU = MatEl_EpqErs_LU( &
+                            LSM, &
                             I,J, &
                             p,q, &
                             r,s )
 
                   nMatrixElements = nMatrixElements + 1
 
-                  Difference = XRef-XLL
+                  Difference = XRef-XLU
 
                   if (abs(Difference) <= Threshold) cycle
 
@@ -6801,7 +6826,7 @@ do p=1,SGS(iState)%MidLev
                      case default
 
                         write(u6,'(A,A)') &
-                           'Illegal LL orientation case: ', &
+                           'Illegal LU orientation case: ', &
                            OrientationCase
                         call Abend()
 
@@ -6822,7 +6847,7 @@ do p=1,SGS(iState)%MidLev
                   case default
 
                      write(u6,'(A,A)') &
-                        'Illegal LL diagonal case: ', &
+                        'Illegal LU diagonal case: ', &
                         DiagonalCase
                      call Abend()
 
@@ -6831,22 +6856,22 @@ do p=1,SGS(iState)%MidLev
                   !
                   ! Columns:
                   !
-                  !   LL
+                  !   LU
                   !   diagonal-status class
                   !   orientation class
                   !   p q r s
                   !   I J
-                  !   XRef XLL Difference
+                  !   XRef XLU Difference
                   !
                   write(u6, &
                      '(A,1X,A,1X,A,1X,4I4,1X,2I7,' // &
                      '3(1X,ES22.14))') &
-                     'LL', &
+                     'LU', &
                      DiagonalCase, &
                      OrientationCase, &
                      p,q,r,s, &
                      I,J, &
-                     XRef,XLL,Difference
+                     XRef,XLU,Difference
 
                end do
             end do
@@ -6859,17 +6884,17 @@ end do
 
 write(u6,*)
 write(u6,*) '========================================='
-write(u6,*) ' GENERAL LL TEST SUMMARY'
+write(u6,*) ' GENERAL LU TEST SUMMARY'
 write(u6,*) '========================================='
 
 write(u6,'(A,I0)') &
-     'LL operator pairs:       ',nOperatorPairs
+     'LU operator pairs:       ',nOperatorPairs
 
 write(u6,'(A,I0)') &
-     'LL matrix elements:      ',nMatrixElements
+     'LU matrix elements:      ',nMatrixElements
 
 write(u6,'(A,I0)') &
-     'LL discrepancies:        ',nDiscrepancies
+     'LU discrepancies:        ',nDiscrepancies
 
 write(u6,*)
 
@@ -6911,6 +6936,171 @@ write(u6,*)
 
 contains
 
+function MatEl_Upper_Half( &
+           ISYUP,MV, &
+           IUPI,IUPJ, &
+           p,q ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: IUPI
+integer(kind=iwp), intent(in) :: IUPJ
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+integer(kind=iwp) :: IFrom
+integer(kind=iwp) :: ITo
+integer(kind=iwp) :: iValue
+
+logical :: Reverse
+
+Value = Zero
+
+if (p <= SGS(iState)%MidLev) return
+if (q <= SGS(iState)%MidLev) return
+if (p >  SGS(iState)%nLev) return
+if (q >  SGS(iState)%nLev) return
+
+!
+! Diagonal upper-half operator.
+!
+if (p == q) then
+   if (IUPI /= IUPJ) return
+   Value = Upper_Diagonal_Value( &
+              ISYUP,MV,IUPI,p )
+   return
+end if
+
+Reverse = p < q
+
+call Decode_Upper_Operator( &
+     SGS(iState),p,q,INDEO )
+
+NCP = EXS(iState)%NOCP(INDEO,ISYUP,MV)
+if (NCP == 0) return
+
+IOFF = EXS(iState)%IOCP(INDEO,ISYUP,MV)
+
+do ICP=1,NCP
+   if (.not. Reverse) then
+      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
+   else
+      IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
+   end if
+
+   if (IFrom /= IUPJ) cycle
+   if (ITo   /= IUPI) cycle
+
+   iValue = EXS(iState)%ICoup(3,IOFF+ICP)
+   Value = Value + EXS(iState)%VTab(iValue)
+end do
+
+end function MatEl_Upper_Half
+
+
+function MatEl_Lower_Half( &
+           ISYCI,ISYUP,MV, &
+           IDWNI,IDWNJ, &
+           p,q ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: IDWNI
+integer(kind=iwp), intent(in) :: IDWNJ
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: ISYDWN
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+integer(kind=iwp) :: IFrom
+integer(kind=iwp) :: ITo
+integer(kind=iwp) :: iValue
+
+logical :: Reverse
+
+Value = Zero
+
+!
+! Determine the symmetry carried by the lower partial walk.
+!
+ISYDWN = MUL(ISYCI,ISYUP)
+
+if (p < 1) return
+if (q < 1) return
+if (p > SGS(iState)%MidLev) return
+if (q > SGS(iState)%MidLev) return
+
+!
+! Diagonal lower-half operator.
+!
+if (p == q) then
+   if (IDWNI /= IDWNJ) return
+
+   !
+   ! This helper accepts ISYUP and computes the corresponding
+   ! lower-walk symmetry internally.
+   !
+   Value = Lower_Diagonal_Value( &
+              ISYUP,MV,IDWNI,p )
+
+   return
+end if
+
+Reverse = p < q
+
+call Decode_Lower_Operator( &
+     SGS(iState),p,q,INDEO )
+
+!
+! Off-diagonal lower coupling paths are indexed by the
+! symmetry carried by the lower partial walk.
+!
+NCP = EXS(iState)%NOCP(INDEO,ISYDWN,MV)
+if (NCP == 0) return
+
+IOFF = EXS(iState)%IOCP(INDEO,ISYDWN,MV)
+
+do ICP=1,NCP
+
+   if (.not. Reverse) then
+      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
+   else
+      IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
+   end if
+
+   if (IFrom /= IDWNJ) cycle
+   if (ITo   /= IDWNI) cycle
+
+   iValue = EXS(iState)%ICoup(3,IOFF+ICP)
+   Value = Value + EXS(iState)%VTab(iValue)
+
+end do
+
+end function MatEl_Lower_Half
 
 function Lower_Diagonal_Value( &
            ISYUP,MV,IDWN,p ) result(Value)
@@ -8630,6 +8820,7 @@ Value = MatEl_LL( &
            INDEO_Right,Reverse_Right )
 
 end function MatEl_EpqErs_LL
+
 subroutine Print_Epq_Matrix(iState,LSM,p,q)
 
 use Constants, only: Zero
@@ -8819,124 +9010,76 @@ end do
 
 end function MatEl_Upper_Closed
 
-
 function MatEl_EpqErs_LU( &
-           SGS,CIS,EXS, &
            ISYCI, &
            I,J, &
            p,q,r,s ) result(Value)
 
-   use Constants,   only: Zero
-   use Definitions, only: wp, iwp
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+implicit none
 
-   implicit none
+integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+integer(kind=iwp), intent(in) :: p,q,r,s
 
-   type(SGStruct), intent(in) :: SGS
-   type(CIStruct), intent(in) :: CIS
-   type(EXStruct), intent(in) :: EXS
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
 
-   integer(kind=iwp), intent(in) :: ISYCI
-   integer(kind=iwp), intent(in) :: I
-   integer(kind=iwp), intent(in) :: J
-   integer(kind=iwp), intent(in) :: p
-   integer(kind=iwp), intent(in) :: q
-   integer(kind=iwp), intent(in) :: r
-   integer(kind=iwp), intent(in) :: s
+real(kind=wp) :: XL
+real(kind=wp) :: XU
+real(kind=wp) :: Value
 
-   integer(kind=iwp) :: INDEOL
-   integer(kind=iwp) :: INDEOU
+Value = Zero
 
-   integer(kind=iwp) :: MVI
-   integer(kind=iwp) :: MVJ
-   integer(kind=iwp) :: ISYUPI
-   integer(kind=iwp) :: ISYUPJ
-   integer(kind=iwp) :: IUPI
-   integer(kind=iwp) :: IUPJ
-   integer(kind=iwp) :: IDWNI
-   integer(kind=iwp) :: IDWNJ
+!
+! Left operator is lower, right operator is upper.
+!
+if (p < 1 .or. q < 1) return
+if (p > SGS(iState)%MidLev) return
+if (q > SGS(iState)%MidLev) return
 
-   integer(kind=iwp) :: K
+if (r <= SGS(iState)%MidLev) return
+if (s <= SGS(iState)%MidLev) return
+if (r >  SGS(iState)%nLev) return
+if (s >  SGS(iState)%nLev) return
 
-   real(kind=wp) :: XL
-   real(kind=wp) :: XU
-   real(kind=wp) :: Value
+call Decode_CSF( &
+     CIS(iState),ISYCI,I, &
+     MVI,ISYUPI,IUPI,IDWNI )
 
-   Value = Zero
+call Decode_CSF( &
+     CIS(iState),ISYCI,J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
 
-   !
-   ! Decode the lower- and upper-half operators.
-   !
-   call Decode_Lower_Operator(SGS,p,q,INDEOL)
-   call Decode_Upper_Operator(SGS,r,s,INDEOU)
+!
+! The current LU implementation tests operators that individually
+! preserve spatial symmetry. Bra and ket must consequently belong
+! to the same split-graph block.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
 
-   !
-   ! Decode
-   !
-   !     I = (IUPI,IDWNI)
-   !     J = (IUPJ,IDWNJ)
-   !
-   call Decode_CSF( &
-        CIS,ISYCI,I, &
-        MVI,ISYUPI,IUPI,IDWNI )
+XL = MatEl_Lower_Half( &
+        ISYCI,ISYUPI,MVI, &
+        IDWNI,IDWNJ, &
+        p,q )
 
-   call Decode_CSF( &
-        CIS,ISYCI,J, &
-        MVJ,ISYUPJ,IUPJ,IDWNJ )
+if (abs(XL) <= 1.0e-15_wp) return
 
-   !
-   ! The upper and lower half-walks must belong to the same
-   ! split-graph block in order to form the hybrid CSF
-   !
-   !     K = (I_U,J_L).
-   !
-   if (MVI /= MVJ) return
-   if (ISYUPI /= ISYUPJ) return
+XU = MatEl_Upper_Half( &
+        ISYUPI,MVI, &
+        IUPI,IUPJ, &
+        r,s )
 
-   !
-   ! Resolution of the identity:
-   !
-   ! <I_U,I_L| E_pq E_rs |J_U,J_L>
-   !
-   !   = <I_U,I_L| E_pq |I_U,J_L>
-   !     <I_U,J_L| E_rs |J_U,J_L>.
-   !
-   ! Construct
-   !
-   !     K = (I_U,J_L)
-   !       = (IUPI,IDWNJ).
-   !
-   call Encode_CSF( &
-        CIS,ISYCI, &
-        MVI,ISYUPI,IUPI,IDWNJ, &
-        K )
-
-   !
-   ! Lower-half factor:
-   !
-   !     XL = <I|E_pq|K>.
-   !
-   ! I and K have the same upper half-walk.
-   !
-   XL = MatEl_Lower_Closed( &
-           CIS,EXS,ISYCI, &
-           I,K, &
-           INDEOL,ISYUPI,MVI )
-
-   if (abs(XL) <= 1.0e-15_wp) return
-
-   !
-   ! Upper-half factor:
-   !
-   !     XU = <K|E_rs|J>.
-   !
-   ! K and J have the same lower half-walk.
-   !
-   XU = MatEl_Upper_Closed( &
-           CIS,EXS,ISYCI, &
-           K,J, &
-           INDEOU,ISYUPI,MVI )
-
-   Value = XL*XU
+Value = XL*XU
 
 end function MatEl_EpqErs_LU
 
