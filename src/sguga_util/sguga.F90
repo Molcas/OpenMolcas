@@ -7064,7 +7064,7 @@ end if
 ISYDWN = MUL(ISYCI,ISYUP)
 
 Reverse = p < q
-call Decode_Lower_Operator(SGS(iState),p,q,INDEO )
+call Decode_Lower_Operator( SGS(iState),p,q,INDEO )
 
 !
 ! Off-diagonal lower coupling paths are indexed by the
@@ -7077,12 +7077,13 @@ IOFF = EXS(iState)%IOCP(INDEO,ISYDWN,MV)
 
 do ICP=1,NCP
 
-   if (.not. Reverse) then
-      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
-   else
+
+   if (Reverse) then
       IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
       ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
+   else
+      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
    end if
 
    if (IFrom /= IDWNJ) cycle
