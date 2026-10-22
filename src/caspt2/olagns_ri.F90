@@ -107,7 +107,7 @@ integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
 real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ3 = sqrt(Three), SQ05 = sqrt(Half), SQ32 = sqrt(OneHalf)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: i, lg_V, lg_V1, myRank, ndim2, NPROCS
-integer(kind=iwp), allocatable :: map2(:)
+integer(kind=iwp), allocatable :: map2(:), NVRank(:,:)
 #endif
 
 nSh(1:nSym,Inactive) = NISH(1:nSym)
@@ -151,6 +151,20 @@ do JSYM=1,NSYM
   call mma_allocate(KET,NCHOBUF,Label='KETBUF')
   call mma_allocate(BRAD,NCHOBUF,Label='BRAD')
   call mma_allocate(KETD,NCHOBUF,Label='KETD')
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) then
+    myRank = GA_NodeID()
+    NPROCS = GA_nNodes()
+    ! NVRank(r,g): number of the Cholesky vectors of rank r-1 in the batch group g
+    call mma_allocate(NVRank,NPROCS,NBGRP,Label='NVRank')
+    NVRank(:,:) = 0
+    do IBGRP=1,NBGRP
+      NVRank(myRank+1,IBGRP) = sum(NVLOC_CHOBATCH(BGRP(1,IBGRP):BGRP(2,IBGRP)))
+    end do
+    call GAIGOP(NVRank,NPROCS*NBGRP,'+')
+    call mma_allocate(MAP2,NPROCS,Label='MAP2')
+  end if
+# endif
 
   ! Loop over groups of batches of Cholesky vectors
 
@@ -169,19 +183,11 @@ do JSYM=1,NSYM
 
 #   ifdef _MOLCAS_MPP_
     if (Is_Real_Par()) then
-      myRank = GA_NodeID()
-      NPROCS = GA_nNodes()
-
-      call mma_allocate(MAP2,NPROCS,Label='MAP2')
-      MAP2(:) = 0
-      MAP2(myRank+1) = NV
-      call GAIGOP(MAP2,NPROCS,'+')
-      ndim2 = sum(map2)
-
-      do i=nprocs,2,-1
-        map2(i) = sum(map2(1:i-1))+1
+      ndim2 = sum(NVRank(:,IBGRP))
+      MAP2(1) = 1
+      do i=2,NPROCS
+        MAP2(i) = MAP2(i-1)+NVRank(i-1,IBGRP)
       end do
-      map2(1) = 1
     end if
 #   endif
     !                                                                  *
@@ -354,14 +360,17 @@ do JSYM=1,NSYM
   call mma_deallocate(KETD)
   call mma_deallocate(PIQK)
   call mma_deallocate(BGRP)
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) then
+    call mma_deallocate(MAP2)
+    call mma_deallocate(NVRank)
+  end if
+# endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   ! End of loop over JSYM
 end do
-#ifdef _MOLCAS_MPP_
-if (Is_Real_Par()) call mma_deallocate(map2)
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -2069,7 +2078,7 @@ subroutine Cnst_A_PT2(block1,block2)
   integer(kind=iwp), intent(in) :: block1, block2
   integer(kind=iwp) :: ndim1
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: IHIV1, ILOV1, iRank, JHIV1, JLOV1, MV1
+  integer(kind=iwp) :: ICOL, IHIV1, ILOV1, iRank, IROW, JHIV1, JLOV1, MV1
   logical(kind=iwp) :: bstat
 # endif
 
@@ -2105,11 +2114,13 @@ subroutine Cnst_A_PT2(block1,block2)
     !! ket is ndim1*NVJ dimension
     call Get_Cholesky_Vectors(block1,block2,JSYM,KET,size(KET),nKet,JBSTA,JBEND)
 
+    ! A_PT2 numbers the vectors by rank and then by batch group within the rank
+    ICOL = sum(NVRank(1:myRank,:))+sum(NVRank(myRank+1,1:JBGRP-1))+1
     do iRank=0,NPROCS-1
       call GA_DISTRIBUTION(LG_V1,iRank,ILOV1,IHIV1,JLOV1,JHIV1)
       call GA_GET(LG_V1,ILOV1,IHIV1,JLOV1,JHIV1,BRA,NDIM1)
-      call DGEMM_('T','N',JHIV1-JLOV1+1,NVJ,ndim1,One,BRA,ndim1,KET,ndim1,One,A_PT2(IOFFCV+JLOV1-1,JOFFCV+MAP2(myRank+1)-1), &
-                  MaxVec_PT2)
+      IROW = sum(NVRank(1:iRank,:))+sum(NVRank(iRank+1,1:IBGRP-1))+1
+      call DGEMM_('T','N',JHIV1-JLOV1+1,NVJ,ndim1,One,BRA,ndim1,KET,ndim1,One,A_PT2(IROW,ICOL),MaxVec_PT2)
     end do
     bStat = GA_DESTROY(LG_V1)
     unused_var(bStat)
