@@ -31,6 +31,7 @@ use mspdft_util, only: replace_diag
 use mspdft, only: heff, mspdft_init, mspdft_finalize
 use wadr, only: FockOcc
 use general_data, only: nelec3, nhole1, ntot1, ntot2
+use libxc_parameters, only: FuncExtParams
 use rasscf_global, only: ExFac, IPR, lRoots, lSquare, NACPR2, nFint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -213,6 +214,9 @@ end if
 
 ! Release  some memory allocations
 call mma_deallocate(FockOcc)
+! External functional parameters (EXPM) are allocated while reading the input, and are
+! needed by both the MC-PDFT and the L-PDFT paths
+if (allocated(FuncExtParams)) call mma_deallocate(FuncExtParams)
 call mma_deallocate(e_mcscf)
 if (allocated(e_states)) call mma_deallocate(e_states)
 
