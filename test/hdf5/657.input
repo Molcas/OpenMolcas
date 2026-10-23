@@ -1,0 +1,885 @@
+*-------------------------------------------------------------------------------
+* System: cyclobutadiene C4H4 (as in test/standard/082.input)
+* Basis: STO-3G (as in test/standard/082.input)
+* Features tested: frequency HDF5 file, Hessian updated by the optimizer, without
+*                  symmetry, without rotational symmetry number or intensities
+* Responsible person: Luca De Vico
+*-------------------------------------------------------------------------------
+* This test verifies properties of the frequency HDF5 file itself -- which
+* root attributes and datasets are present or absent, their shapes and string
+* lengths, their descriptions, and their agreement with the freq.molden and the
+* other HDF5 files written by the same run -- which the ordinary checkfile
+* mechanism cannot observe, since Add_Info only ever sees the in-memory value
+* at the call site and never the written file. Numerical values remain the
+* responsibility of the checkfile below.
+*
+* A transition-state optimization starts from an analytic Hessian and ends with
+* a frequency analysis of the Hessian that the optimizer has updated. The file
+* then records an approximate Hessian, no thermochemistry was done so there is
+* no rotational symmetry number, and no intensities were computed. The energy is
+* that of the last geometry of the optimization.
+*-------------------------------------------------------------------------------
+
+* Test HDF5 support
+> RM -FORCE TEST_HDF5
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+> IF ( -FILE TEST_HDF5 )
+>   EXIT 36
+> ENDIF
+
+* Test h5py support (the structure check below needs it)
+> RM -FORCE TEST_H5PY
+> SHELL python3 -c "import h5py" || touch TEST_H5PY
+> IF ( -FILE TEST_H5PY )
+>   EXIT 36
+> ENDIF
+
+>FILE check_freq_h5.py
+#
+# Structure and consistency check for the frequency HDF5 file.
+#
+# Asserts what Add_Info cannot see: which attributes and datasets are present
+# or absent, their shapes, dtypes and string lengths, the DESCRIPTION text of
+# every dataset, the agreement of the file with the freq.molden written by the
+# same run, and its agreement with the other HDF5 files of the run. Numerical
+# values remain the responsibility of the checkfile.
+#
+# Usage: python3 check_freq_h5.py key=value ...
+#   source=ANALYTIC|NUMERICAL|UPDATED   expected HESSIAN_SOURCE
+#   module=MCLR|SLAPAF                  expected MOLCAS_MODULE
+#   sym=0|1                             a run with symmetry (NSYM > 1)
+#   sigma=none|any|<integer>            ROT_SYMMETRY_NUMBER absent, present, or equal to a value
+#   intens=0|1                          IR_INTENSITIES present
+#   ref=rasscf|slapaf0|slapaf-1         where ENERGY is compared (rasscf.h5, ENERGIES[0], ENERGIES[-1])
+#   dir=<path>                          optional, the directory holding the files (default: the current one)
+#
+# Exits 0 on success, 1 on any failure. A nonzero exit trips MOLCAS_TRAP and is
+# reported by the verify script as a test failure.
+#
+import glob
+import os
+import sys
+
+import h5py
+import numpy as np
+
+failures = []
+
+
+def fail(tag, msg):
+    failures.append('%s: %s' % (tag, msg))
+
+
+def finish():
+    if failures:
+        sys.stderr.write('\nfrequency HDF5 check FAILED\n')
+        for item in failures:
+            sys.stderr.write('  %s\n' % item)
+        sys.exit(1)
+
+
+def fatal(tag, msg):
+    fail(tag, msg)
+    finish()
+
+
+def text(value):
+    if isinstance(value, (bytes, np.bytes_)):
+        value = value.decode('ascii')
+    return str(value)
+
+
+def scalar(value):
+    arr = np.atleast_1d(np.asarray(value))
+    if arr.size != 1:
+        raise ValueError('expected a scalar, got size %d' % arr.size)
+    return arr[0]
+
+
+def one(pattern):
+    found = sorted(glob.glob(pattern))
+    if len(found) != 1:
+        fatal('A1', 'expected exactly one file matching %s, found %s' % (pattern, found))
+    return found[0]
+
+
+args = dict(a.split('=', 1) for a in sys.argv[1:])
+want_source = args['source']
+want_module = args['module']
+want_sym = args['sym'] == '1'
+want_sigma = args['sigma']
+want_intens = args['intens'] == '1'
+want_ref = args['ref']
+if 'dir' in args:
+    os.chdir(args['dir'])
+
+# --- A1: the file is where the other outputs of the run are, under the project name
+path = one('*.freq.h5')
+molden = one('*.freq.molden')
+if glob.glob('FREQH5*'):
+    fail('A1', 'a file named after the logical name was created: %s' % glob.glob('FREQH5*'))
+
+with h5py.File(path, 'r') as f:
+
+    # --- A2: root attributes
+    for name in ('MOLCAS_MODULE', 'MOLCAS_VERSION', 'NSYM', 'NATOMS_UNIQUE', 'NFREQ', 'HESSIAN_SOURCE'):
+        if name not in f.attrs:
+            fatal('A2', 'root attribute %s is missing' % name)
+    nsym = int(scalar(f.attrs['NSYM']))
+    nu = int(scalar(f.attrs['NATOMS_UNIQUE']))
+    nf = int(scalar(f.attrs['NFREQ']))
+    if text(scalar(f.attrs['MOLCAS_MODULE'])) != want_module:
+        fail('A2', 'MOLCAS_MODULE is %s, expected %s' % (text(scalar(f.attrs['MOLCAS_MODULE'])), want_module))
+    if not text(scalar(f.attrs['MOLCAS_VERSION'])).strip():
+        fail('A2', 'MOLCAS_VERSION is empty')
+    if text(scalar(f.attrs['HESSIAN_SOURCE'])) != want_source:
+        fail('A2', 'HESSIAN_SOURCE is %s, expected %s' % (text(scalar(f.attrs['HESSIAN_SOURCE'])), want_source))
+    if (nsym > 1) != want_sym:
+        fail('A2', 'NSYM = %d, but the run is expected %s symmetry' % (nsym, 'with' if want_sym else 'without'))
+    sym = nsym > 1
+    if nu < 1 or nf < 1:
+        fatal('A2', 'NATOMS_UNIQUE = %d, NFREQ = %d' % (nu, nf))
+    for name in ('SPINMULT', 'RELAX_METHOD'):
+        if name not in f.attrs:
+            fail('A2', 'root attribute %s is missing' % name)
+    if 'SPINMULT' in f.attrs and int(scalar(f.attrs['SPINMULT'])) < 1:
+        fail('A2', 'SPINMULT = %s' % f.attrs['SPINMULT'])
+    if 'RELAX_METHOD' in f.attrs and not text(scalar(f.attrs['RELAX_METHOD'])).strip():
+        fail('A2', 'RELAX_METHOD is blank')
+
+    # --- A3: exactly the expected attributes and datasets
+    attrs = {'MOLCAS_MODULE', 'MOLCAS_VERSION', 'NSYM', 'NATOMS_UNIQUE', 'NFREQ', 'HESSIAN_SOURCE', 'SPINMULT',
+             'RELAX_METHOD'}
+    dsets = {'CENTER_LABELS', 'CENTER_ATNUMS', 'CENTER_COORDINATES', 'CENTER_MASSES', 'CENTER_BASIS_LABELS',
+             'CENTER_BASIS_INPUT_LABELS', 'FREQUENCIES', 'NORMAL_MODES', 'REDUCED_MASSES', 'ENERGY'}
+    if sym:
+        attrs.add('NATOMS_ALL')
+        dsets |= {'DESYM_CENTER_LABELS', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_COORDINATES'}
+    if want_sigma != 'none':
+        attrs.add('ROT_SYMMETRY_NUMBER')
+    if want_intens:
+        dsets.add('IR_INTENSITIES')
+    if set(f.attrs.keys()) != attrs:
+        fail('A3', 'root attributes: missing %s, unexpected %s' % (sorted(attrs - set(f.attrs.keys())),
+                                                                    sorted(set(f.attrs.keys()) - attrs)))
+    if set(f.keys()) != dsets:
+        fail('A3', 'datasets: missing %s, unexpected %s' % (sorted(dsets - set(f.keys())),
+                                                             sorted(set(f.keys()) - dsets)))
+    if set(f.keys()) != dsets or set(f.attrs.keys()) != attrs:
+        finish()
+
+    # --- A4: shapes, dtypes and string lengths
+    na = int(scalar(f.attrs['NATOMS_ALL'])) if sym else nu
+    if sym and na < nu:
+        fail('A4', 'NATOMS_ALL = %d < NATOMS_UNIQUE = %d' % (na, nu))
+    shapes = {'CENTER_LABELS': (nu,), 'CENTER_ATNUMS': (nu,), 'CENTER_COORDINATES': (nu, 3), 'CENTER_MASSES': (nu,),
+              'CENTER_BASIS_LABELS': (nu,), 'CENTER_BASIS_INPUT_LABELS': (nu,), 'FREQUENCIES': (nf,),
+              'NORMAL_MODES': (nf, na, 3), 'REDUCED_MASSES': (nf,), 'ENERGY': ()}
+    if sym:
+        shapes.update({'DESYM_CENTER_LABELS': (na,), 'DESYM_CENTER_ATNUMS': (na,), 'DESYM_CENTER_COORDINATES': (na, 3)})
+    if want_intens:
+        shapes['IR_INTENSITIES'] = (nf,)
+    for name, shape in shapes.items():
+        if f[name].shape != shape:
+            fail('A4', '%s has shape %s, expected %s' % (name, f[name].shape, shape))
+    strlen = {'CENTER_LABELS': 6, 'CENTER_BASIS_LABELS': 80, 'CENTER_BASIS_INPUT_LABELS': 80}
+    if sym:
+        strlen['DESYM_CENTER_LABELS'] = 10
+    for name, n in strlen.items():
+        if f[name].dtype.kind != 'S' or f[name].dtype.itemsize != n:
+            fail('A4', '%s has dtype %s, expected a string of %d characters' % (name, f[name].dtype, n))
+    for name in shapes:
+        if name not in strlen and f[name].dtype.kind not in 'fi':
+            fail('A4', '%s has dtype %s' % (name, f[name].dtype))
+    if failures:
+        finish()
+
+    # --- A5: every dataset carries a DESCRIPTION
+    for name in dsets:
+        desc = f[name].attrs.get('DESCRIPTION')
+        if desc is None or not text(scalar(desc)).strip():
+            fail('A5', '%s has no DESCRIPTION' % name)
+
+    # --- A6: the centres
+    labels = [text(x).strip() for x in f['CENTER_LABELS'][...]]
+    atnum = f['CENTER_ATNUMS'][...]
+    coord = f['CENTER_COORDINATES'][...]
+    mass = f['CENTER_MASSES'][...]
+    if len(set(labels)) != nu or '' in labels:
+        fail('A6', 'unique centre labels are not distinct and non-blank: %s' % labels)
+    if np.any(atnum < 0):
+        fail('A6', 'negative atomic number in CENTER_ATNUMS')
+    for i in range(nu):
+        if atnum[i] > 0 and not mass[i] > 0.0:
+            fail('A6', 'centre %s has atomic number %d and mass %s' % (labels[i], atnum[i], mass[i]))
+        if atnum[i] == 0 and mass[i] != 0.0:
+            fail('A6', 'dummy centre %s has mass %s' % (labels[i], mass[i]))
+    for name in ('CENTER_BASIS_LABELS', 'CENTER_BASIS_INPUT_LABELS'):
+        for i, raw in enumerate(f[name][...]):
+            lab = text(raw).rstrip(' .')
+            if atnum[i] > 0 and not lab:
+                fail('A6', '%s of centre %s is blank' % (name, labels[i]))
+    if not np.all(np.isfinite(coord)):
+        fail('A6', 'non-finite CENTER_COORDINATES')
+
+    # --- A7: the all-atom data follow the unique atoms, each followed by its images
+    if sym:
+        dlabels = [text(x) for x in f['DESYM_CENTER_LABELS'][...]]
+        datnum = f['DESYM_CENTER_ATNUMS'][...]
+        dcoord = f['DESYM_CENTER_COORDINATES'][...]
+        last = -1
+        for i, lab in enumerate(dlabels):
+            base, _, op = lab.partition(':')
+            base = base.strip()
+            if base not in labels:
+                fail('A7', 'desymmetrized label %r has no unique centre' % lab)
+                continue
+            u = labels.index(base)
+            if u < last or u > last + 1:
+                fail('A7', 'desymmetrized label %r is out of order (unique centre %d after %d)' % (lab, u, last))
+            if u != last and op.strip() != 'E':
+                fail('A7', 'first image of %s is %r, expected the identity E' % (base, lab))
+            if u != last and not np.allclose(dcoord[i], coord[u], atol=1.0e-9):
+                fail('A7', 'identity image of %s differs from CENTER_COORDINATES' % base)
+            if datnum[i] != atnum[u]:
+                fail('A7', 'atomic number of %r is %d, that of %s is %d' % (lab, datnum[i], base, atnum[u]))
+            last = u
+        if last != nu - 1:
+            fail('A7', 'desymmetrized labels stop at unique centre %d of %d' % (last + 1, nu))
+        allcoord = dcoord
+    else:
+        allcoord = coord
+
+    # --- A8: agreement with freq.molden written by the same run
+    sec = None
+    M = {}
+    for line in open(molden):
+        s = line.strip()
+        if s.startswith('['):
+            sec = s
+            M[sec] = []
+        elif sec is not None and s:
+            M[sec].append(s)
+    for key in ('[FREQ]', '[INT]', '[NATOM]', '[FR-COORD]', '[FR-NORM-COORD]', '[RMASS]'):
+        if key not in M:
+            fatal('A8', 'freq.molden has no %s section' % key)
+    freq = f['FREQUENCIES'][...]
+    if not np.allclose(freq, [float(x) for x in M['[FREQ]']], rtol=1.0e-9, atol=1.0e-9):
+        fail('A8', 'FREQUENCIES differ from [FREQ]')
+    if not np.allclose(f['REDUCED_MASSES'][...], [float(x) for x in M['[RMASS]']], rtol=1.0e-9, atol=1.0e-9):
+        fail('A8', 'REDUCED_MASSES differ from [RMASS]')
+    if int(M['[NATOM]'][0]) != na:
+        fail('A8', '[NATOM] = %s, the file has %d atoms' % (M['[NATOM]'][0], na))
+    mc = np.array([[float(x) for x in s.split()[1:4]] for s in M['[FR-COORD]']])
+    if mc.shape != allcoord.shape or not np.allclose(allcoord, mc, rtol=0.0, atol=1.0e-7):
+        fail('A8', 'the all-atom coordinates differ from [FR-COORD]')
+    modes = [[float(x) for x in s.split()] for s in M['[FR-NORM-COORD]'] if not s.startswith('vibration')]
+    modes = np.array(modes).reshape(-1, na, 3) if len(modes) == nf * na else None
+    if modes is None:
+        fail('A8', '[FR-NORM-COORD] does not hold %d modes of %d atoms' % (nf, na))
+    elif not np.allclose(f['NORMAL_MODES'][...], modes, rtol=1.0e-9, atol=1.0e-9):
+        fail('A8', 'NORMAL_MODES differ from [FR-NORM-COORD]')
+    if want_intens:
+        if not np.allclose(f['IR_INTENSITIES'][...], [float(x) for x in M['[INT]']], rtol=1.0e-9, atol=1.0e-9):
+            fail('A8', 'IR_INTENSITIES differ from [INT]')
+        if np.any(f['IR_INTENSITIES'][...] < 0.0):
+            fail('A8', 'negative IR_INTENSITIES')
+
+    # --- A9: ROT_SYMMETRY_NUMBER
+    if want_sigma not in ('none', 'any'):
+        if int(scalar(f.attrs['ROT_SYMMETRY_NUMBER'])) != int(want_sigma):
+            fail('A9', 'ROT_SYMMETRY_NUMBER = %s, the input gave %s' % (f.attrs['ROT_SYMMETRY_NUMBER'], want_sigma))
+    elif want_sigma == 'any' and int(scalar(f.attrs['ROT_SYMMETRY_NUMBER'])) < 1:
+        fail('A9', 'ROT_SYMMETRY_NUMBER = %s' % f.attrs['ROT_SYMMETRY_NUMBER'])
+
+    # --- A10: ENERGY and the centre data against the other HDF5 files of the run
+    energy = float(f['ENERGY'][()])
+    if not (np.isfinite(energy) and energy < 0.0):
+        fail('A10', 'ENERGY = %s' % energy)
+    if want_ref == 'rasscf':
+        with h5py.File(one('*.rasscf.h5'), 'r') as r:
+            roots = r['ROOT_ENERGIES'][...]
+            if roots.size != 1 or abs(energy - roots[0]) > 1.0e-8:
+                fail('A10', 'ENERGY = %.10f, rasscf.h5 ROOT_ENERGIES = %s' % (energy, roots))
+            if int(scalar(f.attrs['SPINMULT'])) != int(scalar(r.attrs['SPINMULT'])):
+                fail('A10', 'SPINMULT differs from rasscf.h5')
+            pairs = [('CENTER_LABELS', 'CENTER_LABELS'), ('CENTER_ATNUMS', 'CENTER_ATNUMS'),
+                     ('CENTER_COORDINATES', 'CENTER_COORDINATES')]
+            if sym:
+                pairs += [(n, n) for n in ('DESYM_CENTER_LABELS', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_COORDINATES')]
+            for name, other in pairs:
+                a = f[name][...]
+                b = r[other][...]
+                same = np.array_equal(a, b) if a.dtype.kind in 'Si' else np.allclose(a, b, rtol=0.0, atol=1.0e-9)
+                if not same:
+                    fail('A10', '%s differs from rasscf.h5' % name)
+    else:
+        with h5py.File(one('*.slapaf.h5'), 'r') as s:
+            idx = 0 if want_ref == 'slapaf0' else -1
+            if abs(energy - s['ENERGIES'][idx]) > 1.0e-9:
+                fail('A10', 'ENERGY = %.10f, slapaf.h5 ENERGIES[%d] = %.10f' % (energy, idx, s['ENERGIES'][idx]))
+            if not np.allclose(mass, s['CENTER_MASSES'][...], rtol=0.0, atol=1.0e-9):
+                fail('A10', 'CENTER_MASSES differ from slapaf.h5')
+            if [text(x).strip() for x in s['CENTER_LABELS'][...]] != labels:
+                fail('A10', 'CENTER_LABELS differ from slapaf.h5')
+            if not np.allclose(coord, s['COORDINATES'][idx], rtol=0.0, atol=1.0e-6):
+                fail('A10', 'CENTER_COORDINATES differ from slapaf.h5 COORDINATES[%d]' % idx)
+
+finish()
+sys.stdout.write('frequency HDF5 check passed: HESSIAN_SOURCE=%s NSYM=%d NATOMS_UNIQUE=%d NFREQ=%d\n'
+                 % (want_source, nsym, nu, nf))
+sys.exit(0)
+>EOF
+
+>>> EXPORT MOLCAS_REDUCE_PRT = NO
+
+>>> FILE saddle.xyz
+   8
+
+ C     -0.77     -0.77      0.00
+ C      0.77     -0.77      0.00
+ C     -0.77      0.77      0.00
+ C      0.77      0.77      0.00
+ H     -1.49     -1.49      0.00
+ H      1.49     -1.49      0.00
+ H     -1.49      1.49      0.00
+ H      1.49      1.49      0.00
+>>> EOF
+>>> COPY saddle.xyz .
+
+>>> COPY start_orbitals.RasOrb .
+
+&GATEWAY
+  Coord = saddle.xyz
+  Basis = STO-3G
+  Group = NoSymm
+  NoCD
+
+>>> DoWhile
+  &SEWARD
+  &RASSCF
+    FileOrb  = start_orbitals.RasOrb
+    Inactive = 12
+    Ras2     = 4
+    NActEl   = 4 0 0
+
+  >>> If ( ITER = 3 )
+    &MCKINLEY
+  >>> EndIf
+
+  &SLAPAF
+    TS
+>>> EndDo
+
+> SHELL python3 check_freq_h5.py source=UPDATED module=SLAPAF sym=0 sigma=none intens=0 ref=slapaf-1
+
+>>> FILE start_orbitals.RasOrb
+#INPORB 1.1
+#INFO
+* RASSCF average (pseudo-natural) orbitals
+       0       1       0
+      24
+      24
+*BC:HOST serrano PID 27361 DATE Thu Nov 28 13:44:32 2013
+#EXTRAS
+* ACTIVE TWO-EL ENERGY
+0.189454483782E+01
+#ORB
+* ORBITAL    1    1
+-.496144578877E+00-.172377914004E-010.146738892718E-02-.319759036248E-02
+0.000000000000E+00-.496137460268E+00-.172375440737E-01-.146743480703E-02
+-.319761141735E-020.000000000000E+000.496137460052E+000.172375440698E-01
+-.146743480615E-02-.319761141811E-020.000000000000E+000.496144578588E+00
+0.172377913929E-010.146738892686E-02-.319759036293E-020.000000000000E+00
+0.312284874187E-020.312280393526E-02-.312280393395E-02-.312284873999E-02
+* ORBITAL    1    2
+-.496137458802E+00-.172375976904E-01-.319766370112E-020.146748475800E-02
+0.000000000000E+000.496144577349E+000.172378450138E-01-.319764264695E-02
+-.146743887920E-020.000000000000E+00-.496144577258E+00-.172378450087E-01
+-.319764264632E-02-.146743887996E-020.000000000000E+000.496137458659E+00
+0.172375976841E-01-.319766370061E-020.146748475864E-020.000000000000E+00
+0.312282547076E-02-.312287027654E-020.312287027587E-02-.312282546978E-02
+* ORBITAL    1    3
+-.496597435745E+00-.112882095903E-010.119481757778E-020.119485443813E-02
+0.000000000000E+00-.496597433606E+00-.112882094862E-01-.119481759000E-02
+0.119485445051E-020.000000000000E+00-.496597433832E+00-.112882094941E-01
+0.119481759083E-02-.119485444888E-020.000000000000E+00-.496597436023E+00
+-.112882095998E-01-.119481757844E-02-.119485443662E-020.000000000000E+00
+0.316808465553E-020.316808464119E-020.316808464263E-020.316808465729E-02
+* ORBITAL    1    4
+-.495773347735E+00-.239948591759E-01-.280157569241E-02-.280150856988E-02
+0.000000000000E+000.495773349941E+000.239948592265E-01-.280157568707E-02
+0.280150856481E-020.000000000000E+000.495773350022E+000.239948592294E-01
+0.280157568791E-02-.280150856425E-020.000000000000E+00-.495773347890E+00
+-.239948591813E-010.280157569304E-020.280150856966E-020.000000000000E+00
+0.332056339262E-02-.332056340675E-02-.332056340731E-020.332056339368E-02
+* ORBITAL    1    5
+0.124890134609E+00-.309149778340E+00-.800106753646E-01-.800101173737E-01
+0.000000000000E+000.124890134609E+00-.309149778340E+000.800106753647E-01
+-.800101173737E-010.000000000000E+000.124890134609E+00-.309149778340E+00
+-.800106753648E-010.800101173737E-010.000000000000E+000.124890134609E+00
+-.309149778340E+000.800106753647E-010.800101173737E-010.000000000000E+00
+-.538401803595E-01-.538401803595E-01-.538401803596E-01-.538401803596E-01
+* ORBITAL    1    6
+0.114226935299E+00-.347024312594E+00-.677449361174E-010.119637971342E+00
+0.000000000000E+000.114226934750E+00-.347024310928E+000.677449366916E-01
+0.119637971667E+000.000000000000E+00-.114226934750E+000.347024310928E+00
+0.677449366916E-010.119637971667E+000.000000000000E+00-.114226935299E+00
+0.347024312594E+00-.677449361173E-010.119637971342E+000.000000000000E+00
+-.150083908382E+00-.150083907662E+000.150083907662E+000.150083908382E+00
+* ORBITAL    1    7
+-.114227231057E+000.347026269073E+00-.119637625158E+000.677437993920E-01
+0.000000000000E+000.114227231606E+00-.347026270739E+00-.119637624833E+00
+-.677437988177E-010.000000000000E+00-.114227231606E+000.347026270739E+00
+-.119637624833E+00-.677437988178E-010.000000000000E+000.114227231057E+00
+-.347026269073E+00-.119637625158E+000.677437993920E-010.000000000000E+00
+0.150084153172E+00-.150084153892E+000.150084153892E+00-.150084153172E+00
+* ORBITAL    1    8
+0.831374928197E-01-.259506466853E+000.134021562738E+000.134023678978E+00
+0.000000000000E+00-.831374928197E-010.259506466853E+000.134021562737E+00
+-.134023678977E+000.000000000000E+00-.831374928197E-010.259506466853E+00
+-.134021562737E+000.134023678978E+000.000000000000E+000.831374928197E-01
+-.259506466853E+00-.134021562738E+00-.134023678978E+000.000000000000E+00
+-.258423417510E+000.258423417509E+000.258423417509E+00-.258423417510E+00
+* ORBITAL    1    9
+0.224513362403E-01-.923594299899E-010.199965731358E+000.199973006446E+00
+0.000000000000E+000.224513362405E-01-.923594299906E-01-.199965731358E+00
+0.199973006446E+000.000000000000E+000.224513362405E-01-.923594299907E-01
+0.199965731359E+00-.199973006446E+000.000000000000E+000.224513362402E-01
+-.923594299899E-01-.199965731358E+00-.199973006446E+000.000000000000E+00
+-.233891538998E+00-.233891538999E+00-.233891538999E+00-.233891538998E+00
+* ORBITAL    1   10
+-.715028835910E-060.333061400458E-05-.292601872883E+000.292594026606E+00
+0.000000000000E+00-.715028848353E-060.333061409601E-050.292601872883E+00
+0.292594026606E+000.000000000000E+00-.715028826728E-060.333061403199E-05
+-.292601872883E+00-.292594026606E+000.000000000000E+00-.715028835533E-06
+0.333061405530E-050.292601872883E+00-.292594026606E+000.000000000000E+00
+0.223713594946E-050.223713598744E-050.223713599778E-050.223713600664E-05
+* ORBITAL    1   11
+-.310786509959E-010.125992328948E+000.489013692662E-010.363767451956E+00
+0.000000000000E+000.310786508650E-01-.125992328417E+000.489013677343E-01
+-.363767451750E+000.000000000000E+00-.310786508650E-010.125992328417E+00
+0.489013677343E-01-.363767451750E+000.000000000000E+000.310786509959E-01
+-.125992328948E+000.489013692661E-010.363767451956E+000.000000000000E+00
+-.245352727177E+000.245352726144E+00-.245352726144E+000.245352727177E+00
+* ORBITAL    1   12
+0.310789689203E-01-.125993943403E+00-.363768426635E+00-.489045974393E-01
+0.000000000000E+000.310789690512E-01-.125993943933E+000.363768426841E+00
+-.489045989711E-010.000000000000E+00-.310789690512E-010.125993943933E+00
+0.363768426841E+00-.489045989712E-010.000000000000E+00-.310789689203E-01
+0.125993943402E+00-.363768426635E+00-.489045974395E-010.000000000000E+00
+0.245352750373E+000.245352751406E+00-.245352751406E+00-.245352750373E+00
+* ORBITAL    1   13
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+-.415930960369E+000.000000000000E+000.000000000000E+000.000000000000E+00
+0.000000000000E+00-.415930960369E+000.000000000000E+000.000000000000E+00
+0.000000000000E+000.000000000000E+00-.415930960369E+000.000000000000E+00
+0.000000000000E+000.000000000000E+000.000000000000E+00-.415930960369E+00
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+* ORBITAL    1   14
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+-.515188996614E+000.000000000000E+000.000000000000E+000.000000000000E+00
+0.000000000000E+00-.515188996614E+000.000000000000E+000.000000000000E+00
+0.000000000000E+000.000000000000E+000.515188996614E+000.000000000000E+00
+0.000000000000E+000.000000000000E+000.000000000000E+000.515188996614E+00
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+* ORBITAL    1   15
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+0.515189347808E+000.000000000000E+000.000000000000E+000.000000000000E+00
+0.000000000000E+00-.515189347808E+000.000000000000E+000.000000000000E+00
+0.000000000000E+000.000000000000E+000.515189347808E+000.000000000000E+00
+0.000000000000E+000.000000000000E+000.000000000000E+00-.515189347808E+00
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+* ORBITAL    1   16
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+-.610349274270E+000.000000000000E+000.000000000000E+000.000000000000E+00
+0.000000000000E+000.610349274270E+000.000000000000E+000.000000000000E+00
+0.000000000000E+000.000000000000E+000.610349274270E+000.000000000000E+00
+0.000000000000E+000.000000000000E+000.000000000000E+00-.610349274270E+00
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+* ORBITAL    1   17
+-.660353093380E-010.446382297145E+00-.285484972350E+00-.285492353060E+00
+0.000000000000E+00-.660353093380E-010.446382297144E+000.285484972349E+00
+-.285492353060E+000.000000000000E+00-.660353093381E-010.446382297145E+00
+-.285484972350E+000.285492353059E+000.000000000000E+00-.660353093385E-01
+0.446382297148E+000.285484972350E+000.285492353059E+000.000000000000E+00
+-.635261860440E+00-.635261860439E+00-.635261860440E+00-.635261860441E+00
+* ORBITAL    1   18
+-.139335910876E+000.837704023550E+00-.447015810206E-01-.446503712304E-01
+0.000000000000E+000.139335910877E+00-.837704023556E+00-.447015810235E-01
+0.446503712274E-010.000000000000E+000.139335910876E+00-.837704023552E+00
+0.447015810199E-01-.446503712318E-010.000000000000E+00-.139335910877E+00
+0.837704023557E+000.447015810219E-010.446503712279E-010.000000000000E+00
+-.553358529737E+000.553358529740E+000.553358529739E+00-.553358529740E+00
+* ORBITAL    1   19
+-.110809250051E+000.675772674042E+00-.303349125392E+000.423750182749E+00
+0.000000000000E+00-.110809250076E+000.675772674197E+000.303349125290E+00
+0.423750182676E+000.000000000000E+000.110809250077E+00-.675772674203E+00
+0.303349125289E+000.423750182676E+000.000000000000E+000.110809250050E+00
+-.675772674034E+00-.303349125391E+000.423750182750E+000.000000000000E+00
+-.297480814130E+00-.297480814197E+000.297480814200E+000.297480814124E+00
+* ORBITAL    1   20
+-.110808864874E+000.675772840293E+000.423774957846E+00-.303340055126E+00
+0.000000000000E+000.110808864848E+00-.675772840130E+000.423774957920E+00
+0.303340055227E+000.000000000000E+00-.110808864847E+000.675772840128E+00
+0.423774957919E+000.303340055227E+000.000000000000E+000.110808864874E+00
+-.675772840290E+000.423774957847E+00-.303340055125E+000.000000000000E+00
+-.297466590709E+000.297466590636E+00-.297466590635E+000.297466590706E+00
+* ORBITAL    1   21
+0.772328549744E-05-.492072596829E-04-.543121980942E+000.543117960324E+00
+0.000000000000E+00-.772328545221E-050.492072596835E-04-.543121980942E+00
+-.543117960324E+000.000000000000E+00-.772328558293E-050.492072597665E-04
+0.543121980943E+000.543117960324E+000.000000000000E+000.772328553657E-05
+-.492072598240E-040.543121980943E+00-.543117960324E+000.000000000000E+00
+0.300366150453E-04-.300366150471E-04-.300366148057E-040.300366149302E-04
+* ORBITAL    1   22
+-.103635594201E-010.886233091162E-01-.586404955756E+00-.299117532108E+00
+0.000000000000E+000.103635593939E-01-.886233088921E-01-.586404954999E+00
+0.299117530624E+000.000000000000E+00-.103635593939E-010.886233088919E-01
+-.586404954999E+000.299117530624E+000.000000000000E+000.103635594201E-01
+-.886233091160E-01-.586404955756E+00-.299117532108E+000.000000000000E+00
+-.554679685640E+000.554679684237E+00-.554679684236E+000.554679685640E+00
+* ORBITAL    1   23
+0.103597864635E-01-.885993478839E-010.299100762452E+000.586425788111E+00
+0.000000000000E+000.103597864897E-01-.885993481081E-01-.299100763935E+00
+0.586425788868E+000.000000000000E+00-.103597864897E-010.885993481081E-01
+-.299100763935E+000.586425788868E+000.000000000000E+00-.103597864635E-01
+0.885993478839E-010.299100762452E+000.586425788111E+000.000000000000E+00
+0.554671764217E+000.554671765621E+00-.554671765621E+00-.554671764217E+00
+* ORBITAL    1   24
+-.781757585073E-010.586922098570E+000.615121925599E+000.615132807068E+00
+0.000000000000E+000.781757585072E-01-.586922098570E+000.615121925599E+00
+-.615132807068E+000.000000000000E+000.781757585072E-01-.586922098570E+00
+-.615121925599E+000.615132807069E+000.000000000000E+00-.781757585073E-01
+0.586922098570E+00-.615121925599E+00-.615132807069E+000.000000000000E+00
+0.342827969847E+00-.342827969847E+00-.342827969847E+000.342827969847E+00
+#OCC
+* OCCUPATION NUMBERS
+0.200000000000E+010.200000000000E+010.200000000000E+010.200000000000E+01
+0.200000000000E+010.200000000000E+010.200000000000E+010.200000000000E+01
+0.200000000000E+010.200000000000E+010.200000000000E+010.200000000000E+01
+0.187310065506E+010.100001088674E+010.999989113255E+000.126899344938E+00
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+#ONE
+* ONE ELECTRON ENERGIES
+-.110082024037E+02-.110082023919E+02-.110081321471E+02-.110080952997E+02
+-.108638136481E+01-.804339309635E+00-.804336363056E+00-.648471004075E+00
+-.640339488081E+00-.469909503411E+00-.444776353479E+00-.444773071381E+00
+0.000000000000E+000.000000000000E+000.000000000000E+000.000000000000E+00
+0.632320488590E+000.639713677306E+000.646662647671E+000.646675102934E+00
+0.772853680502E+000.820023126635E+000.820031149529E+000.123643915106E+01
+#INDEX
+* 1234567890
+0 iiiiiiiiii
+1 ii2222ssss
+2 ssss
+>>> EOF
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 26.10-2-ge1030b532
+* Darwin host82-83.smin.unisi.it 24.6.0 Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:21 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_X86_64 x86_64
+* Thu Oct 22 09:56:18 2026
+*
+#>>   1
+#> POTNUC="95.092607301337"/12
+#>>   2
+#> POTNUC="95.092607301337"/6
+#> SEWARD_MLTPL1X="-1.455089116949"/5
+#> SEWARD_KINETIC="15.891121812396"/5
+#> SEWARD_ATTRACT="-40.365534167778"/5
+#>>   3
+#> RASSCF_ITER="7"/8
+#> E_RASSCF="-151.802042083847"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000000000000"/5
+#> MLTPL__1[1]="-0.000000000000"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.915104189416"/5
+#> MLTPL__2[1]="0.000000000002"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.915104185286"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.830208374702"/5
+#>>   4
+#> GRAD[0]="-0.119685931272"/6
+#> GRAD[1]="-0.119685931125"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="0.119685931272"/6
+#> GRAD[4]="-0.119685931125"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="-0.119685931272"/6
+#> GRAD[7]="0.119685931125"/6
+#> GRAD[8]="0.0"/6
+#> GRAD[9]="0.119685931272"/6
+#> GRAD[10]="0.119685931125"/6
+#> GRAD[11]="0.0"/6
+#> GRAD[12]="0.048828412355"/6
+#> GRAD[13]="0.048828412616"/6
+#> GRAD[14]="0.0"/6
+#> GRAD[15]="-0.048828412355"/6
+#> GRAD[16]="0.048828412616"/6
+#> GRAD[17]="0.0"/6
+#> GRAD[18]="0.048828412355"/6
+#> GRAD[19]="-0.048828412616"/6
+#> GRAD[20]="0.0"/6
+#> GRAD[21]="-0.048828412355"/6
+#> GRAD[22]="-0.048828412616"/6
+#> GRAD[23]="0.0"/6
+#>>   5
+#>>   6
+#>>   8
+#> POTNUC="97.434103820076"/6
+#> SEWARD_MLTPL1X="-1.396521684134"/5
+#> SEWARD_KINETIC="15.891121812396"/5
+#> SEWARD_ATTRACT="-40.580240541793"/5
+#>>   9
+#> RASSCF_ITER="6"/8
+#> E_RASSCF="-151.839481549836"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000000000000"/5
+#> MLTPL__1[1]="-0.000000000000"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.886294468392"/5
+#> MLTPL__2[1]="0.000000000001"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.886294474062"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.772588942453"/5
+#>>  10
+#> GRAD[0]="-0.032074271508"/6
+#> GRAD[1]="-0.032074271217"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="0.032074271508"/6
+#> GRAD[4]="-0.032074271217"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="-0.032074271508"/6
+#> GRAD[7]="0.032074271217"/6
+#> GRAD[8]="0.0"/6
+#> GRAD[9]="0.032074271508"/6
+#> GRAD[10]="0.032074271217"/6
+#> GRAD[11]="0.0"/6
+#> GRAD[12]="0.008434027344"/6
+#> GRAD[13]="0.008434027247"/6
+#> GRAD[14]="0.0"/6
+#> GRAD[15]="-0.008434027344"/6
+#> GRAD[16]="0.008434027247"/6
+#> GRAD[17]="0.0"/6
+#> GRAD[18]="0.008434027344"/6
+#> GRAD[19]="-0.008434027247"/6
+#> GRAD[20]="0.0"/6
+#> GRAD[21]="-0.008434027344"/6
+#> GRAD[22]="-0.008434027247"/6
+#> GRAD[23]="0.0"/6
+#>>  11
+#>>  12
+#>>  14
+#> POTNUC="98.979400372000"/6
+#> SEWARD_MLTPL1X="-1.367021471327"/5
+#> SEWARD_KINETIC="15.891121812396"/5
+#> SEWARD_ATTRACT="-40.707139990866"/5
+#>>  15
+#> RASSCF_ITER="6"/8
+#> E_RASSCF="-151.842189338921"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000000000000"/5
+#> MLTPL__1[1]="-0.000000000000"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.847267199243"/5
+#> MLTPL__2[1]="-0.000000000000"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.847267195299"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.694534394542"/5
+#>>  16
+#> HSTAT[0]="-0.513246095658"/5
+#> HSTAT[1]="-0.161090275173"/5
+#> HSTAT[2]="-0.009715322581"/5
+#> HSTAT[3]="-0.009715321700"/5
+#> HSTAT[4]="0.0"/5
+#> HSTAT[5]="-0.000000000000"/5
+#> HSTAT[6]="0.0"/5
+#> HSTAT[7]="0.003568291106"/5
+#> HSTAT[8]="0.014901659153"/5
+#> HSTAT[9]="0.014949539567"/5
+#> HSTAT[10]="0.014949539578"/5
+#> HSTAT[11]="0.019077673925"/5
+#> HSTAT[12]="0.025371145689"/5
+#> HSTAT[13]="0.029739704375"/5
+#> HSTAT[14]="0.029739705361"/5
+#> HSTAT[15]="0.031367516879"/5
+#> HSTAT[16]="0.054174861289"/5
+#> HSTAT[17]="0.054174861411"/5
+#> HSTAT[18]="0.114062807014"/5
+#> HSTAT[19]="0.374271073320"/5
+#> HSTAT[20]="0.376583814005"/5
+#> HSTAT[21]="0.376583814094"/5
+#> HSTAT[22]="0.380224934473"/5
+#> HSTAT[23]="0.455864094792"/5
+#> HARM_FREQ[0]="-1213.487731744483"/1
+#> HARM_FREQ[1]="-91.677845096630"/1
+#> HARM_FREQ[2]="-91.677842726367"/1
+#> HARM_FREQ[3]="-91.556218817199"/1
+#> HARM_FREQ[4]="0.0"/1
+#> HARM_FREQ[5]="0.0"/1
+#> HARM_FREQ[6]="0.0"/1
+#> HARM_FREQ[7]="439.853858175277"/1
+#> HARM_FREQ[8]="443.071568515876"/1
+#> HARM_FREQ[9]="443.071570264598"/1
+#> HARM_FREQ[10]="516.191283993252"/1
+#> HARM_FREQ[11]="597.352832772027"/1
+#> HARM_FREQ[12]="1074.741026844208"/1
+#> HARM_FREQ[13]="1074.741027232560"/1
+#> HARM_FREQ[14]="1094.163791276221"/1
+#> HARM_FREQ[15]="1214.206993378975"/1
+#> HARM_FREQ[16]="1379.384484279799"/1
+#> HARM_FREQ[17]="1453.164882132894"/1
+#> HARM_FREQ[18]="1577.522589642605"/1
+#> HARM_FREQ[19]="1577.522589841245"/1
+#> HARM_FREQ[20]="3757.951516311231"/1
+#> HARM_FREQ[21]="3773.755896453627"/1
+#> HARM_FREQ[22]="3773.755896498653"/1
+#> HARM_FREQ[23]="3807.363948920371"/1
+#> IR_INTENSITIES[0]="0.0"/1
+#> IR_INTENSITIES[1]="0.0"/1
+#> IR_INTENSITIES[2]="0.0"/1
+#> IR_INTENSITIES[3]="0.0"/1
+#> IR_INTENSITIES[4]="0.0"/1
+#> IR_INTENSITIES[5]="0.0"/1
+#> IR_INTENSITIES[6]="0.0"/1
+#> IR_INTENSITIES[7]="0.0"/1
+#> IR_INTENSITIES[8]="0.0"/1
+#> IR_INTENSITIES[9]="0.0"/1
+#> IR_INTENSITIES[10]="25.782725666054"/1
+#> IR_INTENSITIES[11]="0.0"/1
+#> IR_INTENSITIES[12]="0.0"/1
+#> IR_INTENSITIES[13]="0.0"/1
+#> IR_INTENSITIES[14]="0.0"/1
+#> IR_INTENSITIES[15]="0.0"/1
+#> IR_INTENSITIES[16]="0.0"/1
+#> IR_INTENSITIES[17]="0.0"/1
+#> IR_INTENSITIES[18]="0.0"/1
+#> IR_INTENSITIES[19]="0.0"/1
+#> IR_INTENSITIES[20]="0.0"/1
+#> IR_INTENSITIES[21]="5.266840095736"/1
+#> IR_INTENSITIES[22]="5.266840044550"/1
+#> IR_INTENSITIES[23]="0.0"/1
+#> POLARIZABILITIES[0]="-20.874432850492"/2
+#> POLARIZABILITIES[1]="-0.000000000000"/2
+#> POLARIZABILITIES[2]="-20.874432826270"/2
+#> POLARIZABILITIES[3]="0.0"/2
+#> POLARIZABILITIES[4]="0.0"/2
+#> POLARIZABILITIES[5]="-5.100710472029"/2
+#>>  17
+#>>  18
+#> GRAD[0]="0.004372105456"/6
+#> GRAD[1]="0.004372105800"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="-0.004372105456"/6
+#> GRAD[4]="0.004372105800"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="0.004372105457"/6
+#> GRAD[7]="-0.004372105800"/6
+#> GRAD[8]="0.0"/6
+#> GRAD[9]="-0.004372105456"/6
+#> GRAD[10]="-0.004372105800"/6
+#> GRAD[11]="0.0"/6
+#> GRAD[12]="0.001301228955"/6
+#> GRAD[13]="0.001301228968"/6
+#> GRAD[14]="0.0"/6
+#> GRAD[15]="-0.001301228955"/6
+#> GRAD[16]="0.001301228968"/6
+#> GRAD[17]="0.0"/6
+#> GRAD[18]="0.001301228955"/6
+#> GRAD[19]="-0.001301228968"/6
+#> GRAD[20]="0.0"/6
+#> GRAD[21]="-0.001301228955"/6
+#> GRAD[22]="-0.001301228968"/6
+#> GRAD[23]="0.0"/6
+#>>  19
+#>>  20
+#>>  22
+#> POTNUC="98.627293307372"/6
+#> SEWARD_MLTPL1X="-1.372404514805"/5
+#> SEWARD_KINETIC="15.891121812396"/5
+#> SEWARD_ATTRACT="-40.680934472264"/5
+#>>  23
+#> RASSCF_ITER="5"/8
+#> E_RASSCF="-151.842327267765"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000000000000"/5
+#> MLTPL__1[1]="-0.000000000000"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.860101684539"/5
+#> MLTPL__2[1]="-0.000000000001"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.860101684261"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.720203368799"/5
+#>>  24
+#> GRAD[0]="0.000073304196"/6
+#> GRAD[1]="0.000073304218"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="-0.000073304196"/6
+#> GRAD[4]="0.000073304218"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="0.000073304196"/6
+#> GRAD[7]="-0.000073304218"/6
+#> GRAD[8]="0.0"/6
+#> GRAD[9]="-0.000073304196"/6
+#> GRAD[10]="-0.000073304218"/6
+#> GRAD[11]="0.0"/6
+#> GRAD[12]="0.000007428074"/6
+#> GRAD[13]="0.000007428076"/6
+#> GRAD[14]="0.0"/6
+#> GRAD[15]="-0.000007428074"/6
+#> GRAD[16]="0.000007428076"/6
+#> GRAD[17]="0.0"/6
+#> GRAD[18]="0.000007428074"/6
+#> GRAD[19]="-0.000007428076"/6
+#> GRAD[20]="0.0"/6
+#> GRAD[21]="-0.000007428074"/6
+#> GRAD[22]="-0.000007428076"/6
+#> GRAD[23]="0.0"/6
+#>>  25
+#> GEO_ITER="4"/8
+#> APPROX._FREQ.[0]="-1213.485813923963"/1
+#> APPROX._FREQ.[1]="414.672811046294"/1
+#> APPROX._FREQ.[2]="440.161775477627"/1
+#> APPROX._FREQ.[3]="487.437177876687"/1
+#> APPROX._FREQ.[4]="516.332840640764"/1
+#> APPROX._FREQ.[5]="597.465357952841"/1
+#> APPROX._FREQ.[6]="1074.791467266230"/1
+#> APPROX._FREQ.[7]="1074.791467660902"/1
+#> APPROX._FREQ.[8]="1094.218207190101"/1
+#> APPROX._FREQ.[9]="1214.265339334994"/1
+#> APPROX._FREQ.[10]="1377.617606724666"/1
+#> APPROX._FREQ.[11]="1443.462593888698"/1
+#> APPROX._FREQ.[12]="1577.573556405894"/1
+#> APPROX._FREQ.[13]="1577.573556611261"/1
+#> APPROX._FREQ.[14]="3757.952907197064"/1
+#> APPROX._FREQ.[15]="3773.756752369740"/1
+#> APPROX._FREQ.[16]="3773.756752415072"/1
+#> APPROX._FREQ.[17]="3807.429987455925"/1
+#> POTNUC="98.622536411593"/6
+#> SEWARD_MLTPL1X="-1.372481821452"/5
+#> SEWARD_KINETIC="15.891121812396"/5
+#> SEWARD_ATTRACT="-40.680570964077"/5
+#> RASSCF_ITER="4"/8
+#> E_RASSCF="-151.842327293393"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000000000000"/5
+#> MLTPL__1[1]="-0.000000000000"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.860261051582"/5
+#> MLTPL__2[1]="-0.000000000001"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.860261051562"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.720522103144"/5
+#>>  26
+#>>  27
+>>EOF

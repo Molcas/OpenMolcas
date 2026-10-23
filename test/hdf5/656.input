@@ -1,0 +1,693 @@
+*-------------------------------------------------------------------------------
+* System: water H2O (as in test/additional/389.input)
+* Basis: 6-31G** (as in test/additional/389.input)
+* Features tested: frequency HDF5 file, numerical Hessian, without symmetry, with
+*                  an explicit rotational symmetry number
+* Responsible person: Luca De Vico
+*-------------------------------------------------------------------------------
+* This test verifies properties of the frequency HDF5 file itself -- which
+* root attributes and datasets are present or absent, their shapes and string
+* lengths, their descriptions, and their agreement with the freq.molden and the
+* other HDF5 files written by the same run -- which the ordinary checkfile
+* mechanism cannot observe, since Add_Info only ever sees the in-memory value
+* at the call site and never the written file. Numerical values remain the
+* responsibility of the checkfile below.
+*
+* The Hessian is numerical, there is no symmetry, and the infrared intensities
+* are computed from the dipole moments of the displaced geometries.
+* Thermochemistry is requested with the rotational symmetry number of water,
+* 2, and the check asserts that the file records the number given in the input.
+*-------------------------------------------------------------------------------
+
+* Test HDF5 support
+> RM -FORCE TEST_HDF5
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+> IF ( -FILE TEST_HDF5 )
+>   EXIT 36
+> ENDIF
+
+* Test h5py support (the structure check below needs it)
+> RM -FORCE TEST_H5PY
+> SHELL python3 -c "import h5py" || touch TEST_H5PY
+> IF ( -FILE TEST_H5PY )
+>   EXIT 36
+> ENDIF
+
+>FILE check_freq_h5.py
+#
+# Structure and consistency check for the frequency HDF5 file.
+#
+# Asserts what Add_Info cannot see: which attributes and datasets are present
+# or absent, their shapes, dtypes and string lengths, the DESCRIPTION text of
+# every dataset, the agreement of the file with the freq.molden written by the
+# same run, and its agreement with the other HDF5 files of the run. Numerical
+# values remain the responsibility of the checkfile.
+#
+# Usage: python3 check_freq_h5.py key=value ...
+#   source=ANALYTIC|NUMERICAL|UPDATED   expected HESSIAN_SOURCE
+#   module=MCLR|SLAPAF                  expected MOLCAS_MODULE
+#   sym=0|1                             a run with symmetry (NSYM > 1)
+#   sigma=none|any|<integer>            ROT_SYMMETRY_NUMBER absent, present, or equal to a value
+#   intens=0|1                          IR_INTENSITIES present
+#   ref=rasscf|slapaf0|slapaf-1         where ENERGY is compared (rasscf.h5, ENERGIES[0], ENERGIES[-1])
+#   dir=<path>                          optional, the directory holding the files (default: the current one)
+#
+# Exits 0 on success, 1 on any failure. A nonzero exit trips MOLCAS_TRAP and is
+# reported by the verify script as a test failure.
+#
+import glob
+import os
+import sys
+
+import h5py
+import numpy as np
+
+failures = []
+
+
+def fail(tag, msg):
+    failures.append('%s: %s' % (tag, msg))
+
+
+def finish():
+    if failures:
+        sys.stderr.write('\nfrequency HDF5 check FAILED\n')
+        for item in failures:
+            sys.stderr.write('  %s\n' % item)
+        sys.exit(1)
+
+
+def fatal(tag, msg):
+    fail(tag, msg)
+    finish()
+
+
+def text(value):
+    if isinstance(value, (bytes, np.bytes_)):
+        value = value.decode('ascii')
+    return str(value)
+
+
+def scalar(value):
+    arr = np.atleast_1d(np.asarray(value))
+    if arr.size != 1:
+        raise ValueError('expected a scalar, got size %d' % arr.size)
+    return arr[0]
+
+
+def one(pattern):
+    found = sorted(glob.glob(pattern))
+    if len(found) != 1:
+        fatal('A1', 'expected exactly one file matching %s, found %s' % (pattern, found))
+    return found[0]
+
+
+args = dict(a.split('=', 1) for a in sys.argv[1:])
+want_source = args['source']
+want_module = args['module']
+want_sym = args['sym'] == '1'
+want_sigma = args['sigma']
+want_intens = args['intens'] == '1'
+want_ref = args['ref']
+if 'dir' in args:
+    os.chdir(args['dir'])
+
+# --- A1: the file is where the other outputs of the run are, under the project name
+path = one('*.freq.h5')
+molden = one('*.freq.molden')
+if glob.glob('FREQH5*'):
+    fail('A1', 'a file named after the logical name was created: %s' % glob.glob('FREQH5*'))
+
+with h5py.File(path, 'r') as f:
+
+    # --- A2: root attributes
+    for name in ('MOLCAS_MODULE', 'MOLCAS_VERSION', 'NSYM', 'NATOMS_UNIQUE', 'NFREQ', 'HESSIAN_SOURCE'):
+        if name not in f.attrs:
+            fatal('A2', 'root attribute %s is missing' % name)
+    nsym = int(scalar(f.attrs['NSYM']))
+    nu = int(scalar(f.attrs['NATOMS_UNIQUE']))
+    nf = int(scalar(f.attrs['NFREQ']))
+    if text(scalar(f.attrs['MOLCAS_MODULE'])) != want_module:
+        fail('A2', 'MOLCAS_MODULE is %s, expected %s' % (text(scalar(f.attrs['MOLCAS_MODULE'])), want_module))
+    if not text(scalar(f.attrs['MOLCAS_VERSION'])).strip():
+        fail('A2', 'MOLCAS_VERSION is empty')
+    if text(scalar(f.attrs['HESSIAN_SOURCE'])) != want_source:
+        fail('A2', 'HESSIAN_SOURCE is %s, expected %s' % (text(scalar(f.attrs['HESSIAN_SOURCE'])), want_source))
+    if (nsym > 1) != want_sym:
+        fail('A2', 'NSYM = %d, but the run is expected %s symmetry' % (nsym, 'with' if want_sym else 'without'))
+    sym = nsym > 1
+    if nu < 1 or nf < 1:
+        fatal('A2', 'NATOMS_UNIQUE = %d, NFREQ = %d' % (nu, nf))
+    for name in ('SPINMULT', 'RELAX_METHOD'):
+        if name not in f.attrs:
+            fail('A2', 'root attribute %s is missing' % name)
+    if 'SPINMULT' in f.attrs and int(scalar(f.attrs['SPINMULT'])) < 1:
+        fail('A2', 'SPINMULT = %s' % f.attrs['SPINMULT'])
+    if 'RELAX_METHOD' in f.attrs and not text(scalar(f.attrs['RELAX_METHOD'])).strip():
+        fail('A2', 'RELAX_METHOD is blank')
+
+    # --- A3: exactly the expected attributes and datasets
+    attrs = {'MOLCAS_MODULE', 'MOLCAS_VERSION', 'NSYM', 'NATOMS_UNIQUE', 'NFREQ', 'HESSIAN_SOURCE', 'SPINMULT',
+             'RELAX_METHOD'}
+    dsets = {'CENTER_LABELS', 'CENTER_ATNUMS', 'CENTER_COORDINATES', 'CENTER_MASSES', 'CENTER_BASIS_LABELS',
+             'CENTER_BASIS_INPUT_LABELS', 'FREQUENCIES', 'NORMAL_MODES', 'REDUCED_MASSES', 'ENERGY'}
+    if sym:
+        attrs.add('NATOMS_ALL')
+        dsets |= {'DESYM_CENTER_LABELS', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_COORDINATES'}
+    if want_sigma != 'none':
+        attrs.add('ROT_SYMMETRY_NUMBER')
+    if want_intens:
+        dsets.add('IR_INTENSITIES')
+    if set(f.attrs.keys()) != attrs:
+        fail('A3', 'root attributes: missing %s, unexpected %s' % (sorted(attrs - set(f.attrs.keys())),
+                                                                    sorted(set(f.attrs.keys()) - attrs)))
+    if set(f.keys()) != dsets:
+        fail('A3', 'datasets: missing %s, unexpected %s' % (sorted(dsets - set(f.keys())),
+                                                             sorted(set(f.keys()) - dsets)))
+    if set(f.keys()) != dsets or set(f.attrs.keys()) != attrs:
+        finish()
+
+    # --- A4: shapes, dtypes and string lengths
+    na = int(scalar(f.attrs['NATOMS_ALL'])) if sym else nu
+    if sym and na < nu:
+        fail('A4', 'NATOMS_ALL = %d < NATOMS_UNIQUE = %d' % (na, nu))
+    shapes = {'CENTER_LABELS': (nu,), 'CENTER_ATNUMS': (nu,), 'CENTER_COORDINATES': (nu, 3), 'CENTER_MASSES': (nu,),
+              'CENTER_BASIS_LABELS': (nu,), 'CENTER_BASIS_INPUT_LABELS': (nu,), 'FREQUENCIES': (nf,),
+              'NORMAL_MODES': (nf, na, 3), 'REDUCED_MASSES': (nf,), 'ENERGY': ()}
+    if sym:
+        shapes.update({'DESYM_CENTER_LABELS': (na,), 'DESYM_CENTER_ATNUMS': (na,), 'DESYM_CENTER_COORDINATES': (na, 3)})
+    if want_intens:
+        shapes['IR_INTENSITIES'] = (nf,)
+    for name, shape in shapes.items():
+        if f[name].shape != shape:
+            fail('A4', '%s has shape %s, expected %s' % (name, f[name].shape, shape))
+    strlen = {'CENTER_LABELS': 6, 'CENTER_BASIS_LABELS': 80, 'CENTER_BASIS_INPUT_LABELS': 80}
+    if sym:
+        strlen['DESYM_CENTER_LABELS'] = 10
+    for name, n in strlen.items():
+        if f[name].dtype.kind != 'S' or f[name].dtype.itemsize != n:
+            fail('A4', '%s has dtype %s, expected a string of %d characters' % (name, f[name].dtype, n))
+    for name in shapes:
+        if name not in strlen and f[name].dtype.kind not in 'fi':
+            fail('A4', '%s has dtype %s' % (name, f[name].dtype))
+    if failures:
+        finish()
+
+    # --- A5: every dataset carries a DESCRIPTION
+    for name in dsets:
+        desc = f[name].attrs.get('DESCRIPTION')
+        if desc is None or not text(scalar(desc)).strip():
+            fail('A5', '%s has no DESCRIPTION' % name)
+
+    # --- A6: the centres
+    labels = [text(x).strip() for x in f['CENTER_LABELS'][...]]
+    atnum = f['CENTER_ATNUMS'][...]
+    coord = f['CENTER_COORDINATES'][...]
+    mass = f['CENTER_MASSES'][...]
+    if len(set(labels)) != nu or '' in labels:
+        fail('A6', 'unique centre labels are not distinct and non-blank: %s' % labels)
+    if np.any(atnum < 0):
+        fail('A6', 'negative atomic number in CENTER_ATNUMS')
+    for i in range(nu):
+        if atnum[i] > 0 and not mass[i] > 0.0:
+            fail('A6', 'centre %s has atomic number %d and mass %s' % (labels[i], atnum[i], mass[i]))
+        if atnum[i] == 0 and mass[i] != 0.0:
+            fail('A6', 'dummy centre %s has mass %s' % (labels[i], mass[i]))
+    for name in ('CENTER_BASIS_LABELS', 'CENTER_BASIS_INPUT_LABELS'):
+        for i, raw in enumerate(f[name][...]):
+            lab = text(raw).rstrip(' .')
+            if atnum[i] > 0 and not lab:
+                fail('A6', '%s of centre %s is blank' % (name, labels[i]))
+    if not np.all(np.isfinite(coord)):
+        fail('A6', 'non-finite CENTER_COORDINATES')
+
+    # --- A7: the all-atom data follow the unique atoms, each followed by its images
+    if sym:
+        dlabels = [text(x) for x in f['DESYM_CENTER_LABELS'][...]]
+        datnum = f['DESYM_CENTER_ATNUMS'][...]
+        dcoord = f['DESYM_CENTER_COORDINATES'][...]
+        last = -1
+        for i, lab in enumerate(dlabels):
+            base, _, op = lab.partition(':')
+            base = base.strip()
+            if base not in labels:
+                fail('A7', 'desymmetrized label %r has no unique centre' % lab)
+                continue
+            u = labels.index(base)
+            if u < last or u > last + 1:
+                fail('A7', 'desymmetrized label %r is out of order (unique centre %d after %d)' % (lab, u, last))
+            if u != last and op.strip() != 'E':
+                fail('A7', 'first image of %s is %r, expected the identity E' % (base, lab))
+            if u != last and not np.allclose(dcoord[i], coord[u], atol=1.0e-9):
+                fail('A7', 'identity image of %s differs from CENTER_COORDINATES' % base)
+            if datnum[i] != atnum[u]:
+                fail('A7', 'atomic number of %r is %d, that of %s is %d' % (lab, datnum[i], base, atnum[u]))
+            last = u
+        if last != nu - 1:
+            fail('A7', 'desymmetrized labels stop at unique centre %d of %d' % (last + 1, nu))
+        allcoord = dcoord
+    else:
+        allcoord = coord
+
+    # --- A8: agreement with freq.molden written by the same run
+    sec = None
+    M = {}
+    for line in open(molden):
+        s = line.strip()
+        if s.startswith('['):
+            sec = s
+            M[sec] = []
+        elif sec is not None and s:
+            M[sec].append(s)
+    for key in ('[FREQ]', '[INT]', '[NATOM]', '[FR-COORD]', '[FR-NORM-COORD]', '[RMASS]'):
+        if key not in M:
+            fatal('A8', 'freq.molden has no %s section' % key)
+    freq = f['FREQUENCIES'][...]
+    if not np.allclose(freq, [float(x) for x in M['[FREQ]']], rtol=1.0e-9, atol=1.0e-9):
+        fail('A8', 'FREQUENCIES differ from [FREQ]')
+    if not np.allclose(f['REDUCED_MASSES'][...], [float(x) for x in M['[RMASS]']], rtol=1.0e-9, atol=1.0e-9):
+        fail('A8', 'REDUCED_MASSES differ from [RMASS]')
+    if int(M['[NATOM]'][0]) != na:
+        fail('A8', '[NATOM] = %s, the file has %d atoms' % (M['[NATOM]'][0], na))
+    mc = np.array([[float(x) for x in s.split()[1:4]] for s in M['[FR-COORD]']])
+    if mc.shape != allcoord.shape or not np.allclose(allcoord, mc, rtol=0.0, atol=1.0e-7):
+        fail('A8', 'the all-atom coordinates differ from [FR-COORD]')
+    modes = [[float(x) for x in s.split()] for s in M['[FR-NORM-COORD]'] if not s.startswith('vibration')]
+    modes = np.array(modes).reshape(-1, na, 3) if len(modes) == nf * na else None
+    if modes is None:
+        fail('A8', '[FR-NORM-COORD] does not hold %d modes of %d atoms' % (nf, na))
+    elif not np.allclose(f['NORMAL_MODES'][...], modes, rtol=1.0e-9, atol=1.0e-9):
+        fail('A8', 'NORMAL_MODES differ from [FR-NORM-COORD]')
+    if want_intens:
+        if not np.allclose(f['IR_INTENSITIES'][...], [float(x) for x in M['[INT]']], rtol=1.0e-9, atol=1.0e-9):
+            fail('A8', 'IR_INTENSITIES differ from [INT]')
+        if np.any(f['IR_INTENSITIES'][...] < 0.0):
+            fail('A8', 'negative IR_INTENSITIES')
+
+    # --- A9: ROT_SYMMETRY_NUMBER
+    if want_sigma not in ('none', 'any'):
+        if int(scalar(f.attrs['ROT_SYMMETRY_NUMBER'])) != int(want_sigma):
+            fail('A9', 'ROT_SYMMETRY_NUMBER = %s, the input gave %s' % (f.attrs['ROT_SYMMETRY_NUMBER'], want_sigma))
+    elif want_sigma == 'any' and int(scalar(f.attrs['ROT_SYMMETRY_NUMBER'])) < 1:
+        fail('A9', 'ROT_SYMMETRY_NUMBER = %s' % f.attrs['ROT_SYMMETRY_NUMBER'])
+
+    # --- A10: ENERGY and the centre data against the other HDF5 files of the run
+    energy = float(f['ENERGY'][()])
+    if not (np.isfinite(energy) and energy < 0.0):
+        fail('A10', 'ENERGY = %s' % energy)
+    if want_ref == 'rasscf':
+        with h5py.File(one('*.rasscf.h5'), 'r') as r:
+            roots = r['ROOT_ENERGIES'][...]
+            if roots.size != 1 or abs(energy - roots[0]) > 1.0e-8:
+                fail('A10', 'ENERGY = %.10f, rasscf.h5 ROOT_ENERGIES = %s' % (energy, roots))
+            if int(scalar(f.attrs['SPINMULT'])) != int(scalar(r.attrs['SPINMULT'])):
+                fail('A10', 'SPINMULT differs from rasscf.h5')
+            pairs = [('CENTER_LABELS', 'CENTER_LABELS'), ('CENTER_ATNUMS', 'CENTER_ATNUMS'),
+                     ('CENTER_COORDINATES', 'CENTER_COORDINATES')]
+            if sym:
+                pairs += [(n, n) for n in ('DESYM_CENTER_LABELS', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_COORDINATES')]
+            for name, other in pairs:
+                a = f[name][...]
+                b = r[other][...]
+                same = np.array_equal(a, b) if a.dtype.kind in 'Si' else np.allclose(a, b, rtol=0.0, atol=1.0e-9)
+                if not same:
+                    fail('A10', '%s differs from rasscf.h5' % name)
+    else:
+        with h5py.File(one('*.slapaf.h5'), 'r') as s:
+            idx = 0 if want_ref == 'slapaf0' else -1
+            if abs(energy - s['ENERGIES'][idx]) > 1.0e-9:
+                fail('A10', 'ENERGY = %.10f, slapaf.h5 ENERGIES[%d] = %.10f' % (energy, idx, s['ENERGIES'][idx]))
+            if not np.allclose(mass, s['CENTER_MASSES'][...], rtol=0.0, atol=1.0e-9):
+                fail('A10', 'CENTER_MASSES differ from slapaf.h5')
+            if [text(x).strip() for x in s['CENTER_LABELS'][...]] != labels:
+                fail('A10', 'CENTER_LABELS differ from slapaf.h5')
+            if not np.allclose(coord, s['COORDINATES'][idx], rtol=0.0, atol=1.0e-6):
+                fail('A10', 'CENTER_COORDINATES differ from slapaf.h5 COORDINATES[%d]' % idx)
+
+finish()
+sys.stdout.write('frequency HDF5 check passed: HESSIAN_SOURCE=%s NSYM=%d NATOMS_UNIQUE=%d NFREQ=%d\n'
+                 % (want_source, nsym, nu, nf))
+sys.exit(0)
+>EOF
+
+>>> EXPORT MOLCAS_REDUCE_PRT = NO
+
+* The rotational symmetry number of water (C2v)
+> EXPORT ROTSYM=2
+
+&GATEWAY
+  Coord = 3
+    Angstrom
+    H     0.75672568     0.58958168     0.00000000
+    H    -0.75672568     0.58958168     0.00000000
+    O     0.00000000    -0.00349881     0.00000000
+  Basis = 6-31G**
+  Group = NoSymm
+NoCD
+
+>>> DoWhile
+
+&SEWARD
+
+&SCF
+
+&MBPT2
+
+&SLAPAF
+  Numerical frequencies
+  THERmochemistry
+  $ROTSYM
+  1.0
+  298.15
+  End of PT
+
+>>> EndDo
+
+> SHELL python3 check_freq_h5.py source=NUMERICAL module=SLAPAF sym=0 sigma=$ROTSYM intens=1 ref=slapaf0
+
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 26.10-2-ge1030b532
+* Darwin host82-83.smin.unisi.it 24.6.0 Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:21 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_X86_64 x86_64
+* Thu Oct 22 09:55:03 2026
+*
+#>>   1
+#> POTNUC="9.156005801909"/12
+#>>   2
+#> POTNUC="9.156005801909"/6
+#> SEWARD_MLTPL1X="1.430004287641"/5
+#> SEWARD_KINETIC="1.395678380620"/5
+#> SEWARD_ATTRACT="-6.395424316275"/5
+#>>   3
+#> SCF_ITER="9"/8
+#> E_SCF="-76.022839224080"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.865432423436"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.705771831024"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.031646364146"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.674125466878"/5
+#>>   4
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.830820482669"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.668268583405"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.032005781960"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.636262801445"/5
+#> E_MP2="-76.219785770563"/8
+#> HF_REF_WEIGHT="0.951771077144"/8
+#>>   5
+#> GRAD[0]="0.000003476268"/6
+#> GRAD[1]="0.000004538626"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="-0.000003476268"/6
+#> GRAD[4]="0.000004538626"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="0.0"/6
+#> GRAD[7]="-0.000009077251"/6
+#> GRAD[8]="0.0"/6
+#>>   6
+#>>   7
+#>>   9
+#> POTNUC="9.156137565995"/6
+#> SEWARD_MLTPL1X="1.423387043111"/5
+#> SEWARD_KINETIC="1.395678380620"/5
+#> SEWARD_ATTRACT="-6.412192142504"/5
+#>>  10
+#> SCF_ITER="6"/8
+#> E_SCF="-76.022810992732"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="-0.003348620520"/5
+#> MLTPL__1[1]="0.865425061077"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.705818740918"/5
+#> MLTPL__2[1]="-0.009427853585"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.031682810553"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.674135930365"/5
+#>>  11
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="-0.003019040620"/5
+#> MLTPL__1[1]="0.830816035591"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.668314824950"/5
+#> MLTPL__2[1]="-0.009196521040"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.032040647470"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.636274177480"/5
+#> E_MP2="-76.219757050746"/8
+#> HF_REF_WEIGHT="0.951770877154"/8
+#>>  12
+#> GRAD[0]="-0.003230520814"/6
+#> GRAD[1]="-0.002539819098"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="-0.003165250745"/6
+#> GRAD[4]="0.002473238262"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="0.006395771559"/6
+#> GRAD[7]="0.000066580836"/6
+#> GRAD[8]="0.0"/6
+#>>  13
+#>>  14
+#>>  16
+#> POTNUC="9.156137565995"/6
+#> SEWARD_MLTPL1X="1.436632121823"/5
+#> SEWARD_KINETIC="1.395678380620"/5
+#> SEWARD_ATTRACT="-6.378770642740"/5
+#>>  17
+#> SCF_ITER="7"/8
+#> E_SCF="-76.022810992736"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.003348020931"/5
+#> MLTPL__1[1]="0.865425818861"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.705819468645"/5
+#> MLTPL__2[1]="0.009427745649"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.031682794073"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.674136674572"/5
+#>>  18
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.003018449715"/5
+#> MLTPL__1[1]="0.830816914639"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.668315754894"/5
+#> MLTPL__2[1]="0.009196445582"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.032040622370"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.636275132524"/5
+#> E_MP2="-76.219757023431"/8
+#> HF_REF_WEIGHT="0.951770894203"/8
+#>>  19
+#> GRAD[0]="0.003164918201"/6
+#> GRAD[1]="0.002473014199"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="0.003230767561"/6
+#> GRAD[4]="-0.002539937931"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="-0.006395685762"/6
+#> GRAD[7]="0.000066923731"/6
+#> GRAD[8]="0.0"/6
+#>>  20
+#>>  21
+#>>  23
+#> POTNUC="9.126264080353"/6
+#> SEWARD_MLTPL1X="1.431882047913"/5
+#> SEWARD_KINETIC="1.395678380620"/5
+#> SEWARD_ATTRACT="-6.380684451491"/5
+#>>  24
+#> SCF_ITER="7"/8
+#> E_SCF="-76.022559241274"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000005547356"/5
+#> MLTPL__1[1]="0.868422279057"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.699451948432"/5
+#> MLTPL__2[1]="-0.000009248366"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.019443713799"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.680008234634"/5
+#>>  25
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000005280631"/5
+#> MLTPL__1[1]="0.833171855915"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.661872338217"/5
+#> MLTPL__2[1]="-0.000009120558"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.020187682991"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.641684655226"/5
+#> E_MP2="-76.219765401175"/8
+#> HF_REF_WEIGHT="0.951590986632"/8
+#>>  26
+#> GRAD[0]="0.002312328630"/6
+#> GRAD[1]="0.002143916232"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="-0.002312290796"/6
+#> GRAD[4]="0.002144011506"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="-0.000000037834"/6
+#> GRAD[7]="-0.004287927738"/6
+#> GRAD[8]="0.0"/6
+#>>  27
+#>>  28
+#>>  30
+#> POTNUC="9.185951834461"/6
+#> SEWARD_MLTPL1X="1.428109599992"/5
+#> SEWARD_KINETIC="1.395678380620"/5
+#> SEWARD_ATTRACT="-6.410258707547"/5
+#>>  31
+#> SCF_ITER="7"/8
+#> E_SCF="-76.023077385499"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000005111978"/5
+#> MLTPL__1[1]="0.862427150701"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.711930617394"/5
+#> MLTPL__2[1]="-0.000010406712"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.043709433484"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.668221183910"/5
+#>>  32
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000004910562"/5
+#> MLTPL__1[1]="0.828446028523"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.674510115507"/5
+#> MLTPL__2[1]="-0.000010184814"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.043697092958"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.630813022549"/5
+#> E_MP2="-76.219765276860"/8
+#> HF_REF_WEIGHT="0.951949902530"/8
+#>>  33
+#> GRAD[0]="-0.002375610780"/6
+#> GRAD[1]="-0.002169643612"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="0.002375585045"/6
+#> GRAD[4]="-0.002169671777"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="0.000000025735"/6
+#> GRAD[7]="0.004339315389"/6
+#> GRAD[8]="0.0"/6
+#>>  34
+#>>  35
+#>>  37
+#> POTNUC="9.136531742082"/6
+#> SEWARD_MLTPL1X="1.437675956764"/5
+#> SEWARD_KINETIC="1.395678380620"/5
+#> SEWARD_ATTRACT="-6.384972511125"/5
+#>>  38
+#> SCF_ITER="7"/8
+#> E_SCF="-76.022721731181"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000005114062"/5
+#> MLTPL__1[1]="0.862764763209"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.732961675622"/5
+#> MLTPL__2[1]="-0.000010577436"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.051498192056"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.681463483566"/5
+#>>  39
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000004909225"/5
+#> MLTPL__1[1]="0.828207788561"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.694267307877"/5
+#> MLTPL__2[1]="-0.000010344842"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.050952866024"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.643314441853"/5
+#> E_MP2="-76.219770104919"/8
+#> HF_REF_WEIGHT="0.951690994858"/8
+#>>  40
+#> GRAD[0]="0.002383356878"/6
+#> GRAD[1]="0.000674536765"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="-0.002383348881"/6
+#> GRAD[4]="0.000674565020"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="-0.000000007997"/6
+#> GRAD[7]="-0.001349101785"/6
+#> GRAD[8]="0.0"/6
+#>>  41
+#>>  42
+#>>  44
+#> POTNUC="9.175572403225"/6
+#> SEWARD_MLTPL1X="1.422337394936"/5
+#> SEWARD_KINETIC="1.395678380620"/5
+#> SEWARD_ATTRACT="-6.405929055601"/5
+#>>  45
+#> SCF_ITER="7"/8
+#> E_SCF="-76.022924829479"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000005145522"/5
+#> MLTPL__1[1]="0.868072085131"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.678720217138"/5
+#> MLTPL__2[1]="-0.000010021177"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.011896336569"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.666823880569"/5
+#>>  46
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.000004940036"/5
+#> MLTPL__1[1]="0.833405681438"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="1.642389315345"/5
+#> MLTPL__2[1]="-0.000009813252"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.013149400275"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-1.629239915071"/5
+#> E_MP2="-76.219770021876"/8
+#> HF_REF_WEIGHT="0.951850860960"/8
+#>>  47
+#> GRAD[0]="-0.002404162043"/6
+#> GRAD[1]="-0.000696278840"/6
+#> GRAD[2]="0.0"/6
+#> GRAD[3]="0.002404153789"/6
+#> GRAD[4]="-0.000696307342"/6
+#> GRAD[5]="0.0"/6
+#> GRAD[6]="0.000000008255"/6
+#> GRAD[7]="0.001392586182"/6
+#> GRAD[8]="0.0"/6
+#>>  48
+#> NUMERICAL_HESSIAN[0]="0.574607068760"/2
+#> NUMERICAL_HESSIAN[1]="0.000009200646"/2
+#> NUMERICAL_HESSIAN[2]="0.000007765169"/2
+#> NUMERICAL_HESSIAN[3]="0.000009200646"/2
+#> NUMERICAL_HESSIAN[4]="0.408523256254"/2
+#> NUMERICAL_HESSIAN[5]="0.191998033416"/2
+#> NUMERICAL_HESSIAN[6]="0.000007765169"/2
+#> NUMERICAL_HESSIAN[7]="0.191998033416"/2
+#> NUMERICAL_HESSIAN[8]="0.313931869723"/2
+#> NUMERICAL_IR_INTENSITIES[0]="77.699548983676"/2
+#> NUMERICAL_IR_INTENSITIES[1]="4.242215941265"/2
+#> NUMERICAL_IR_INTENSITIES[2]="33.784166274671"/2
+#> GEO_ITER="7"/8
+#>>  49
+>>EOF

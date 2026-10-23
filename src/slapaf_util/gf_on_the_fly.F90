@@ -12,7 +12,7 @@
 subroutine GF_on_the_Fly(iDo_dDipM)
 
 use Symmetry_Info, only: nIrrep
-use Slapaf_Info, only: Coor, nDimBC, mTROld
+use Slapaf_Info, only: Coor, Energy, iState, iter, nDimBC, mTROld
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -116,6 +116,9 @@ mSym = 1
 mDisp(:) = 0
 mDisp(1) = nInter
 call Freq_Molden(EVal,nModes,EVec,lModes,mSym,IRInt,mDisp,RedMas)
+! The Hessian is the optimizer's updated one (Get_H in GF), at the current iteration, and no thermochemistry is done here.
+! Intensities are computed (GF_Print) when iDo_dDipM /= 0, as in the log.
+call Freq_HDF5(EVal,nModes,EVec,lModes,mSym,IRInt,mDisp,RedMas,'UPDATED',Energy(iter),iState(2) <= 0,0,iDo_dDipM /= 0)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
