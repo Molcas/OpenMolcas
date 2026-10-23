@@ -4293,8 +4293,9 @@ else
         jOff=iOff
         if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
            NTMP = NUPSG*NDWNC
-           EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-           call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP1+1),swap=Swap)
+           call Build_Crossing_Temporary( &
+                  NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff), &
+                  NCP1,EXS%ICOUP(1,LICP1+1),Swap)
         end if
 
         ! Update the pointer in SGTMP to the next slot.
@@ -4316,14 +4317,17 @@ else
         if (.not. EXS%Reuse_SGTMP) then
            jOff = 1
            NTMP = NUPSG*NDWNC
-           EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-           call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP1+1),swap=Swap)
+           call Build_Crossing_Temporary( &
+                  NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff), &
+                  NCP1,EXS%ICOUP(1,LICP1+1),Swap)
         end if
 
         ! CASE IS: LOWER HALF, EXCITE:
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP2 = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),Swap)
-        call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP2+1),swap=Swap)
+        call Contract_Crossing_Temporary( &
+               CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG, &
+               SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP2+1),Swap)
 
       end do
     end do
@@ -4435,6 +4439,29 @@ contains
      ICOUP(:,j+1) = temp
   end do
 end subroutine sort_icoup_block
+
+! Reusable construction stage for a crossing excitation operator.
+subroutine Build_Crossing_Temporary( &
+              NDWN,NUPC,CI,NUPSG,TMP,NCP,ICOUP,Swap)
+  integer(kind=iwp), intent(in) :: NDWN,NUPC,NUPSG,NCP
+  integer(kind=iwp), intent(in) :: ICOUP(3,NCP)
+  real(kind=wp), intent(in) :: CI(NUPC,NDWN)
+  real(kind=wp), intent(out) :: TMP(NUPSG,NDWN)
+  logical(kind=iwp), intent(in) :: Swap
+  TMP=Zero
+  call Apply_row(One,NDWN,NUPC,CI,NUPSG,TMP,NCP,ICOUP,swap=Swap)
+end subroutine Build_Crossing_Temporary
+
+! Reusable contraction stage for a crossing excitation operator.
+subroutine Contract_Crossing_Temporary( &
+              Scale,NUP,NDWNC,TMP,NDWNSG,SIGMA,NCP,ICOUP,Swap)
+  integer(kind=iwp), intent(in) :: NUP,NDWNC,NDWNSG,NCP
+  integer(kind=iwp), intent(in) :: ICOUP(3,NCP)
+  real(kind=wp), intent(in) :: Scale,TMP(NUP,NDWNC)
+  real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
+  logical(kind=iwp), intent(in) :: Swap
+  call Apply_col(Scale,NUP,NDWNC,TMP,NDWNSG,SIGMA,NCP,ICOUP,swap=Swap)
+end subroutine Contract_Crossing_Temporary
 
 subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
@@ -9074,10 +9101,9 @@ if (p==q) then
    ! Temporary validated isolation of diagonal-upper x open.
    !
    ! The off-diagonal UO contraction below is fully table driven and
-   ! independently verified.  The diagonal case is retained through the
-   ! exact two-step reference until the crossing-operator Apply_row /
-   ! Apply_col kernel has been factored out of SG_Epq_Psi and can be
-   ! reused without duplicating its temporary-tensor indexing.
+   ! independently verified.  Keep the diagonal case on the exact
+   ! two-step reference until the reusable crossing kernel is connected
+   ! to the two-operator implementation and verified independently.
    !
    Value=MatEl_Ref(I,J,p,q,r,s)
    return
