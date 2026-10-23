@@ -123,9 +123,9 @@ do iSym=1,nSym
 
         rNorm = Zero
         do jX=0,nX-1
-          Fact = sqrt(real(nDeg(jX+1),kind=wp))
+          Fact = sqrt(real(nDeg(i1+jX),kind=wp))
           NMod(ipNx+jX) = NMod(ipNx+jX)/Fact
-          rNorm = rNorm+real(nDeg(jX+1),kind=wp)*NMod(ipNx+jX)**2
+          rNorm = rNorm+real(nDeg(i1+jX),kind=wp)*NMod(ipNx+jX)**2
         end do
         NMod(ipNx:ipNx+nX-1) = NMod(ipNx:ipNx+nX-1)/sqrt(rNorm)
 
