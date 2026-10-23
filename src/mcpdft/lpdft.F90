@@ -564,26 +564,26 @@ module lpdft
 
     implicit none
 #include "warnings.h"
-    integer(kind=iwp) :: iPair, iRoot, jRoot, nPairs, nSpinTdm2
-    real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:), tdm2Spin(:,:)
+    integer(kind=iwp) :: iRoot
 #ifdef _HDF5_
     character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
     character(len=1024) :: fileName
-    integer(kind=iwp) :: lFileName, mh5id
+    integer(kind=iwp) :: iPair, jRoot, lFileName, mh5id, nPairs, nSpinTdm2
     integer(kind=iwp), allocatable :: rootPairs(:,:)
+    real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:), tdm2Spin(:,:)
 #endif
 
     do iRoot=1,lRoots
       heff(iRoot,iRoot) = heff(iRoot,iRoot)+hconst
     end do
 
-    nPairs = (lRoots*(lRoots+1))/2
-    nSpinTdm2 = (nac*nac*(nac*nac+1))/2
-
 #ifndef _HDF5_
     call WarningMessage(2,'LPDFT MS-PDFT requested, but HDF5 support is disabled.')
     call Quit_OnUserError()
 #else
+    nPairs = (lRoots*(lRoots+1))/2
+    nSpinTdm2 = (nac*nac*(nac*nac+1))/2
+
     call PrgmTranslate(LPDFTDM,fileName,lFileName)
 
     if (.not. mh5_is_hdf5(LPDFTDM)) then
@@ -688,6 +688,7 @@ module lpdft
 
   end subroutine hybridize_lpdft_ham
 
+#ifdef _HDF5_
   subroutine print_lpdft_initial_info(fileName,nPairs)
 
     use mcpdft_output, only: iprglb
@@ -847,6 +848,7 @@ module lpdft
     end do
 
   end subroutine default_root_pairs
+#endif
 
   subroutine set_iadr15()
     ! Set the iAdr15 variable in rasscf.fh so I don't have to do any
