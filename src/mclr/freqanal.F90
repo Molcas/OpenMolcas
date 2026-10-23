@@ -85,7 +85,7 @@ do iSym=1,nSym
     if (converged(isym)) then
       call mma_allocate(EVal2,2*nX,Label='EVal2')
       call mma_allocate(Tmp3,nX**2,Label='Tmp3')
-      call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),Tmp3,EVec2,EVal2,RedMas,iNeg)
+      call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),Tmp3,EVec2,EVal2,RedMas(i1),iNeg)
       EVec(:) = EVec2(1,:)
       EVal(i1:i1+nX-1) = EVal2(1:nX)
       call mma_deallocate(EVal2)
@@ -134,7 +134,7 @@ do iSym=1,nSym
       end do
       nModes = nModes+nX
       EVec(1:nX**2) = NMod(jpNx:jpNx+nX**2-1)
-      call GF_Print(EVal(i1),EVec,elout(kk),ll,nX,nX,iCtl,Intens(i1),RedMas,Lu_10,i1-1)
+      call GF_Print(EVal(i1),EVec,elout(kk),ll,nX,nX,iCtl,Intens(i1),RedMas(i1),Lu_10,i1-1)
     else
       write(u6,*)
       write(u6,*) '     NOT CONVERGED'
