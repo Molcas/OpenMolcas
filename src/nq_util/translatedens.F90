@@ -14,8 +14,6 @@
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 18, 2021, created this file.               *
-! Bhavnesh Jangid, on Aug. 2nd, 2026,                            *
-!            Added the boundary conditions for the on-top ratio. *
 ! ****************************************************************
 subroutine TranslateDens(Pi,dRho_dr,dPi,Weights,l_tanhr,mGrid,nPi,ndRho_dr,nEGrad,DoGrad)
 
