@@ -109,6 +109,22 @@ call mh5_init_attr(dsetid,'DESCRIPTION','Atomic numbers of the unique centers, s
 call mh5_put_dset(dsetid,AtNum)
 call mh5_close_dset(dsetid)
 
+! LDV: the effective nuclear charge differs from the atomic number for a ghost atom of a real element (0), and for a center with
+! an effective core potential; it is the only way to tell such a ghost atom from the file.
+call Qpg_dArray('Effective nuclear Charge',Found,nTmp)
+if (Found) then
+  call mma_allocate(Charge,nUnique_Atoms,label='Charge')
+  call Get_dArray('Effective nuclear Charge',Charge,nUnique_Atoms)
+  dsetid = mh5_create_dset_real(fileid,'CENTER_CHARGES',1,[nUnique_Atoms])
+  call mh5_init_attr(dsetid,'DESCRIPTION','Effective nuclear charges of the unique centers, stored as array of size '// &
+                     '[NATOMS_UNIQUE]; it is 0 for a ghost atom of a real element, which keeps its atomic number in '// &
+                     'CENTER_ATNUMS, and it is the charge seen by the electrons, less than the atomic number, for a center '// &
+                     'with an effective core potential')
+  call mh5_put_dset(dsetid,Charge)
+  call mh5_close_dset(dsetid)
+  call mma_deallocate(Charge)
+end if
+
 call mma_allocate(Coord,3,nUnique_Atoms,label='Coord')
 call Get_dArray('Unique Coordinates',Coord,3*nUnique_Atoms)
 dsetid = mh5_create_dset_real(fileid,'CENTER_COORDINATES',2,[3,nUnique_Atoms])
@@ -259,14 +275,21 @@ dsetid = mh5_create_dset_real(fileid,'NORMAL_MODES',3,[3,nAll_Atoms,nFreq])
 call mh5_init_attr(dsetid,'DESCRIPTION','Normal modes as written to freq.molden, array of size [NFREQ,NATOMS,3], stored '// &
                    'with mode index varying slowest, then atom index, where NATOMS is NATOMS_ALL when NSYM is larger '// &
                    'than 1 and NATOMS_UNIQUE otherwise, and the atoms are in the order of DESYM_CENTER_COORDINATES, or '// &
-                   'of CENTER_COORDINATES without symmetry')
+                   'of CENTER_COORDINATES without symmetry; the normalization depends on the path: for an analytic Hessian '// &
+                   'each mode has the sum over all atoms of |v|^2 equal to 1, and for a numerical Hessian or the '// &
+                   "optimizer's updated Hessian with the default coordinates of the optimizer it has the sum over all atoms "// &
+                   'of m|v|^2 equal to 1 with m the mass in u, while other coordinate options can give another '// &
+                   'normalization, so a tool that depends on a convention should normalize the modes itself')
 call mh5_put_dset(dsetid,NMode)
 call mh5_close_dset(dsetid)
 call mma_deallocate(NMode)
 
 dsetid = mh5_create_dset_real(fileid,'REDUCED_MASSES',1,[nFreq])
 call mh5_init_attr(dsetid,'DESCRIPTION','Reduced masses of the normal modes in u, vector of size [NFREQ] in the order of '// &
-                   'FREQUENCIES')
+                   'FREQUENCIES; each is the sum over all atoms of m|v|^2 divided by the sum over all atoms of |v|^2, where '// &
+                   'v is the displacement of the atom in the mode as stored in NORMAL_MODES and m the mass of the atom in u '// &
+                   '(the mass in CENTER_MASSES converted from electron masses), so that it does not depend on how the '// &
+                   'mode is normalized')
 call mh5_put_dset(dsetid,RedMas)
 call mh5_close_dset(dsetid)
 
