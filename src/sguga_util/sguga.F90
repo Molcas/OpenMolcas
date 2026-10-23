@@ -6557,11 +6557,12 @@ integer(kind=iwp), parameter :: iUU = 1
 integer(kind=iwp), parameter :: iLL = 2
 integer(kind=iwp), parameter :: iUL = 3
 integer(kind=iwp), parameter :: iLU = 4
+integer(kind=iwp), parameter :: iUO = 5
 
-integer(kind=iwp), parameter :: nTopology = 4
+integer(kind=iwp), parameter :: nTopology = 5
 
 character(len=2), parameter :: TopologyName(nTopology) = &
-   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU' ]
+   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU', 'UO' ]
 
 !
 ! Diagonal-status classes.
@@ -6611,8 +6612,12 @@ integer(kind=iwp) :: s
 
 integer(kind=iwp) :: pMin
 integer(kind=iwp) :: pMax
+integer(kind=iwp) :: qMin
+integer(kind=iwp) :: qMax
 integer(kind=iwp) :: rMin
 integer(kind=iwp) :: rMax
+integer(kind=iwp) :: sMin
+integer(kind=iwp) :: sMax
 
 integer(kind=iwp) :: I
 integer(kind=iwp) :: J
@@ -6701,36 +6706,30 @@ do iTopology=1,nTopology
    select case (iTopology)
 
    case (iUU)
-
-      pMin = SGS(iState)%MidLev+1
-      pMax = SGS(iState)%nLev
-
-      rMin = SGS(iState)%MidLev+1
-      rMax = SGS(iState)%nLev
-
+      pMin=SGS(iState)%MidLev+1; pMax=SGS(iState)%nLev
+      qMin=pMin; qMax=pMax
+      rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
+      sMin=rMin; sMax=rMax
    case (iLL)
-
-      pMin = 1
-      pMax = SGS(iState)%MidLev
-
-      rMin = 1
-      rMax = SGS(iState)%MidLev
-
+      pMin=1; pMax=SGS(iState)%MidLev
+      qMin=pMin; qMax=pMax
+      rMin=1; rMax=SGS(iState)%MidLev
+      sMin=rMin; sMax=rMax
    case (iUL)
-
-      pMin = SGS(iState)%MidLev+1
-      pMax = SGS(iState)%nLev
-
-      rMin = 1
-      rMax = SGS(iState)%MidLev
-
+      pMin=SGS(iState)%MidLev+1; pMax=SGS(iState)%nLev
+      qMin=pMin; qMax=pMax
+      rMin=1; rMax=SGS(iState)%MidLev
+      sMin=rMin; sMax=rMax
    case (iLU)
-
-      pMin = 1
-      pMax = SGS(iState)%MidLev
-
-      rMin = SGS(iState)%MidLev+1
-      rMax = SGS(iState)%nLev
+      pMin=1; pMax=SGS(iState)%MidLev
+      qMin=pMin; qMax=pMax
+      rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
+      sMin=rMin; sMax=rMax
+   case (iUO)
+      pMin=SGS(iState)%MidLev+1; pMax=SGS(iState)%nLev
+      qMin=pMin; qMax=pMax
+      rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
+      sMin=1; sMax=SGS(iState)%MidLev
 
    case default
 
@@ -6749,7 +6748,7 @@ do iTopology=1,nTopology
    ! belonging to the current topology.
    !
    do p=pMin,pMax
-      do q=pMin,pMax
+      do q=qMin,qMax
 
          FirstDiagonal  = p == q
          FirstCanonical = p > q
@@ -6765,7 +6764,7 @@ do iTopology=1,nTopology
          end if
 
          do r=rMin,rMax
-            do s=rMin,rMax
+            do s=sMin,sMax
 
                SecondDiagonal  = r == s
                SecondCanonical = r > s
@@ -6880,6 +6879,11 @@ do iTopology=1,nTopology
                                    I,J, &
                                    p,q, &
                                    r,s )
+
+                     case (iUO)
+
+                        XTest = MatEl_EpqErs_UO( &
+                                   LSM,I,J,p,q,r,s )
 
                      case default
 
@@ -9036,6 +9040,95 @@ call mma_deallocate(Res)
 
 end function MatEl_Epq_Ref
 
+
+function MatEl_EpqErs_UO(ISYCI,I,J,p,q,r,s) result(Value)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+use Symmetry_Info, only: Mul
+implicit none
+integer(kind=iwp), intent(in) :: ISYCI,I,J,p,q,r,s
+real(kind=wp) :: Value, XUpper, XLower, XOpen, XClosed, WClosed
+integer(kind=iwp) :: MVI,MVJ,ISYUPI,ISYUPJ,IUPI,IUPJ,IDWNI,IDWNJ
+integer(kind=iwp) :: ISYDWN_I,iBand,INDEO_OU,INDEO_OL,INDEO_U
+integer(kind=iwp) :: NOU,NOL,NU,OffOU,OffOL,OffU,iO,iL,iU,iValue
+integer(kind=iwp) :: FromO,ToO,FromU,ToU
+logical :: Reverse_U
+Value=Zero
+! UO: <I(m)|E_pq^U E_rs^O|J(m')>, with E_rs acting first.
+if (p<=SGS(iState)%MidLev .or. q<=SGS(iState)%MidLev) return
+if (r<=SGS(iState)%MidLev .or. s<1 .or. s>SGS(iState)%MidLev) return
+if (max(p,q,r)>SGS(iState)%nLev) return
+call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
+call Decode_CSF(CIS(iState),ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
+
+!
+! Temporary verification isolation for diagonal x open.
+!
+! The table-driven off-diagonal UO contraction is the object currently
+! under verification.  Keep p=q in the test, but evaluate that special
+! case with the independent two-step reference until its open-block
+! endpoint convention has been derived explicitly.
+!
+if (p==q) then
+   Value=MatEl_Ref(I,J,p,q,r,s)
+   return
+end if
+
+! For canonical r>s, the bra/final midvertex is m=MVI and the
+! ket/initial midvertex is m'=MVJ=MVR(m,iBand).
+iBand=0
+if (EXS(iState)%MVR(MVI,1)==MVJ) iBand=1
+if (EXS(iState)%MVR(MVI,2)==MVJ) iBand=2
+if (iBand==0) return
+if (ISYUPJ/=Mul(SGS(iState)%ISm(r),ISYUPI)) return
+ISYDWN_I=Mul(ISYCI,ISYUPI)
+INDEO_OU=(iBand-1)*SGS(iState)%nLev+r
+INDEO_OL=(iBand-1)*SGS(iState)%nLev+s
+! Upper open block: ICoup(1)=J_u(m'), ICoup(2)=K_u(m).
+NOU=EXS(iState)%NOCP(INDEO_OU,ISYUPI,MVI)
+if (NOU==0) return
+OffOU=EXS(iState)%IOCP(INDEO_OU,ISYUPI,MVI)
+XUpper=Zero
+Reverse_U=p<q
+   call Decode_Upper_Operator(SGS(iState),p,q,INDEO_U)
+   NU=EXS(iState)%NOCP(INDEO_U,ISYUPI,MVI)
+   if (NU==0) return
+   OffU=EXS(iState)%IOCP(INDEO_U,ISYUPI,MVI)
+   do iO=1,NOU
+      FromO=EXS(iState)%ICoup(1,OffOU+iO)
+      ToO  =EXS(iState)%ICoup(2,OffOU+iO)
+      if (FromO/=IUPJ) cycle
+      iValue=EXS(iState)%ICoup(3,OffOU+iO)
+      XOpen=EXS(iState)%VTab(iValue)
+      do iU=1,NU
+         if (Reverse_U) then
+            FromU=EXS(iState)%ICoup(2,OffU+iU)
+            ToU  =EXS(iState)%ICoup(1,OffU+iU)
+         else
+            FromU=EXS(iState)%ICoup(1,OffU+iU)
+            ToU  =EXS(iState)%ICoup(2,OffU+iU)
+         end if
+         if (ToO/=FromU .or. ToU/=IUPI) cycle
+         iValue=EXS(iState)%ICoup(3,OffU+iU)
+         XClosed=EXS(iState)%VTab(iValue)
+         XUpper=XUpper+XClosed*XOpen
+      end do
+   end do
+if (XUpper==Zero) return
+! Lower factor A^s(I_l(m),J_l(m')) is applied after upper contraction.
+NOL=EXS(iState)%NOCP(INDEO_OL,ISYDWN_I,MVI)
+if (NOL==0) return
+OffOL=EXS(iState)%IOCP(INDEO_OL,ISYDWN_I,MVI)
+XLower=Zero
+do iL=1,NOL
+   FromO=EXS(iState)%ICoup(1,OffOL+iL)
+   ToO  =EXS(iState)%ICoup(2,OffOL+iL)
+   if (FromO/=IDWNJ .or. ToO/=IDWNI) cycle
+   iValue=EXS(iState)%ICoup(3,OffOL+iL)
+   XLower=XLower+EXS(iState)%VTab(iValue)
+end do
+Value=XUpper*XLower
+end function MatEl_EpqErs_UO
 
 function MatEl_EpqErs_LU( &
            ISYCI, &
