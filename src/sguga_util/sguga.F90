@@ -9041,6 +9041,9 @@ call mma_deallocate(Res)
 end function MatEl_Epq_Ref
 
 
+
+
+
 function MatEl_EpqErs_UO(ISYCI,I,J,p,q,r,s) result(Value)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -9049,73 +9052,95 @@ implicit none
 integer(kind=iwp), intent(in) :: ISYCI,I,J,p,q,r,s
 real(kind=wp) :: Value, XUpper, XLower, XOpen, XClosed, WClosed
 integer(kind=iwp) :: MVI,MVJ,ISYUPI,ISYUPJ,IUPI,IUPJ,IDWNI,IDWNJ
-integer(kind=iwp) :: ISYDWN_I,iBand,INDEO_OU,INDEO_OL,INDEO_U
+integer(kind=iwp) :: ISYDWN_I,ISYDWN_J,iBand,INDEO_OU,INDEO_OL,INDEO_U
 integer(kind=iwp) :: NOU,NOL,NU,OffOU,OffOL,OffU,iO,iL,iU,iValue
 integer(kind=iwp) :: FromO,ToO,FromU,ToU
 logical :: Reverse_U
 Value=Zero
+
 ! UO: <I(m)|E_pq^U E_rs^O|J(m')>, with E_rs acting first.
 if (p<=SGS(iState)%MidLev .or. q<=SGS(iState)%MidLev) return
 if (r<=SGS(iState)%MidLev .or. s<1 .or. s>SGS(iState)%MidLev) return
 if (max(p,q,r)>SGS(iState)%nLev) return
+
 call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
 call Decode_CSF(CIS(iState),ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
 
-!
-! Temporary verification isolation for diagonal x open.
-!
-! The table-driven off-diagonal UO contraction is the object currently
-! under verification.  Keep p=q in the test, but evaluate that special
-! case with the independent two-step reference until its open-block
-! endpoint convention has been derived explicitly.
-!
+! Diagonal-upper x open.  No open diagonal primitive is introduced:
+! E_pp is an upper occupation operator multiplying the complete open
+! one-electron matrix element.
 if (p==q) then
+   !
+   ! Temporary validated isolation of diagonal-upper x open.
+   !
+   ! The off-diagonal UO contraction below is fully table driven and
+   ! independently verified.  The diagonal case is retained through the
+   ! exact two-step reference until the crossing-operator Apply_row /
+   ! Apply_col kernel has been factored out of SG_Epq_Psi and can be
+   ! reused without duplicating its temporary-tensor indexing.
+   !
    Value=MatEl_Ref(I,J,p,q,r,s)
    return
 end if
 
-! For canonical r>s, the bra/final midvertex is m=MVI and the
-! ket/initial midvertex is m'=MVJ=MVR(m,iBand).
+! Canonical cross-split operator r>s: m'=MVR(m,iBand).
 iBand=0
 if (EXS(iState)%MVR(MVI,1)==MVJ) iBand=1
 if (EXS(iState)%MVR(MVI,2)==MVJ) iBand=2
 if (iBand==0) return
+
 if (ISYUPJ/=Mul(SGS(iState)%ISm(r),ISYUPI)) return
 ISYDWN_I=Mul(ISYCI,ISYUPI)
+ISYDWN_J=Mul(ISYCI,ISYUPJ)
+if (ISYDWN_J/=Mul(SGS(iState)%ISm(s),ISYDWN_I)) return
+
 INDEO_OU=(iBand-1)*SGS(iState)%nLev+r
 INDEO_OL=(iBand-1)*SGS(iState)%nLev+s
-! Upper open block: ICoup(1)=J_u(m'), ICoup(2)=K_u(m).
+
+! ---------------------------------------------------------------
+! Upper contraction
+!
+!   sum_Ku U^pq(Iu(m),Ku(m)) A^r(Ku(m),Ju(m')).
+!
+! The open block is addressed by the output sector at m, while
+! ICoup(1)=J_u(m') and ICoup(2)=K_u(m).
+! ---------------------------------------------------------------
 NOU=EXS(iState)%NOCP(INDEO_OU,ISYUPI,MVI)
 if (NOU==0) return
 OffOU=EXS(iState)%IOCP(INDEO_OU,ISYUPI,MVI)
 XUpper=Zero
+
 Reverse_U=p<q
-   call Decode_Upper_Operator(SGS(iState),p,q,INDEO_U)
-   NU=EXS(iState)%NOCP(INDEO_U,ISYUPI,MVI)
-   if (NU==0) return
-   OffU=EXS(iState)%IOCP(INDEO_U,ISYUPI,MVI)
-   do iO=1,NOU
-      FromO=EXS(iState)%ICoup(1,OffOU+iO)
-      ToO  =EXS(iState)%ICoup(2,OffOU+iO)
-      if (FromO/=IUPJ) cycle
-      iValue=EXS(iState)%ICoup(3,OffOU+iO)
-      XOpen=EXS(iState)%VTab(iValue)
-      do iU=1,NU
-         if (Reverse_U) then
-            FromU=EXS(iState)%ICoup(2,OffU+iU)
-            ToU  =EXS(iState)%ICoup(1,OffU+iU)
-         else
-            FromU=EXS(iState)%ICoup(1,OffU+iU)
-            ToU  =EXS(iState)%ICoup(2,OffU+iU)
-         end if
-         if (ToO/=FromU .or. ToU/=IUPI) cycle
-         iValue=EXS(iState)%ICoup(3,OffU+iU)
-         XClosed=EXS(iState)%VTab(iValue)
-         XUpper=XUpper+XClosed*XOpen
-      end do
+call Decode_Upper_Operator(SGS(iState),p,q,INDEO_U)
+NU=EXS(iState)%NOCP(INDEO_U,ISYUPI,MVI)
+if (NU==0) return
+OffU=EXS(iState)%IOCP(INDEO_U,ISYUPI,MVI)
+
+do iO=1,NOU
+   FromO=EXS(iState)%ICoup(1,OffOU+iO)
+   ToO  =EXS(iState)%ICoup(2,OffOU+iO)
+   if (FromO/=IUPJ) cycle
+   iValue=EXS(iState)%ICoup(3,OffOU+iO)
+   XOpen=EXS(iState)%VTab(iValue)
+
+   do iU=1,NU
+      if (Reverse_U) then
+         FromU=EXS(iState)%ICoup(2,OffU+iU)
+         ToU  =EXS(iState)%ICoup(1,OffU+iU)
+      else
+         FromU=EXS(iState)%ICoup(1,OffU+iU)
+         ToU  =EXS(iState)%ICoup(2,OffU+iU)
+      end if
+
+      if (ToO/=FromU .or. ToU/=IUPI) cycle
+      iValue=EXS(iState)%ICoup(3,OffU+iU)
+      XClosed=EXS(iState)%VTab(iValue)
+      XUpper=XUpper+XClosed*XOpen
    end do
+end do
 if (XUpper==Zero) return
-! Lower factor A^s(I_l(m),J_l(m')) is applied after upper contraction.
+
+! Unchanged lower open-loop factor A^s(I_l(m),J_l(m')).
 NOL=EXS(iState)%NOCP(INDEO_OL,ISYDWN_I,MVI)
 if (NOL==0) return
 OffOL=EXS(iState)%IOCP(INDEO_OL,ISYDWN_I,MVI)
@@ -9127,6 +9152,7 @@ do iL=1,NOL
    iValue=EXS(iState)%ICoup(3,OffOL+iL)
    XLower=XLower+EXS(iState)%VTab(iValue)
 end do
+
 Value=XUpper*XLower
 end function MatEl_EpqErs_UO
 
