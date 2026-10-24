@@ -1087,6 +1087,7 @@ subroutine SC_NEVPT2_res(VECROT)
   end do
 
   !! derivative of the non-Jth states
+  call SC_NEVPT2_NINDEP(1)
   do iStLag=1,nState
     scal = VECROT(iStLag)
     if (iStLag == jStLag) cycle
@@ -1094,6 +1095,7 @@ subroutine SC_NEVPT2_res(VECROT)
     ! The transpose is needed as well for SC-NEVPT2
     call MS_Res(IVECW,IVECC,iStLag,jStLag,Half*scal,'T')
   end do
+  call SC_NEVPT2_NINDEP(2)
 
 end subroutine SC_NEVPT2_res
 

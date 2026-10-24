@@ -34,7 +34,7 @@ use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF
                          NBAS, NBAST, NBSQT, NCONF, NFRO, NFROT, NISH, NISUP, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, &
                          ORBIN, ZETA
 use BDerNEV, only: BDerNEV_initial, BDerNEV_final1, BDerNEV_final2
-use SC_NEVPT2, only: SC_NEVPT2_amplitude, SC_prop
+use SC_NEVPT2, only: SC_NEVPT2_amplitude, SC_NEVPT2_NINDEP, SC_prop
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 use caspt2_global, only: nCLag
@@ -386,7 +386,9 @@ if (do_grad) then
           if (abs(Scal) <= 1.0e-12_wp) cycle
           if (SC_prop) then
             ! IVECC is not the amplitude for SC-NEVPT2, so the RHS (IVECW) is used
+            call SC_NEVPT2_NINDEP(1)
             call MS_Res(IVECW,IVECC2,jStLag,iStLag,Scal,'N')
+            call SC_NEVPT2_NINDEP(2)
           else
             call MS_Res(IVECC,IVECC2,jStLag,iStLag,Scal,'N')
           end if
