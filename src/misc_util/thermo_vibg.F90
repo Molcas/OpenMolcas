@@ -85,14 +85,14 @@ if (T > Zero) then
     q_rot = sqrt(q_rot)
     q_rot = q_rot/nsRot
   end if
-end if
-! Entropy
-if (nTR == 5) then
-  dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+One)
-else if (nTR == 3) then
-  dS_rot = Zero
-else
-  dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+OneHalf)
+  ! Entropy
+  if (nTR == 5) then
+    dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+One)
+  else if (nTR == 3) then
+    dS_rot = Zero
+  else
+    dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+OneHalf)
+  end if
 end if
 ! Thermal
 if (nTR == 5) then
