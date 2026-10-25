@@ -48,7 +48,7 @@ q_e = iMult
 ! Canonical Partition Function
 CQ_e = q_e
 ! Entropy
-dS_e = R_gas_kcal*log(CQ_e)
+dS_e = 1.0e3_wp*R_gas_kcal*log(CQ_e)
 ! Thermal
 dU_e = Zero
 
@@ -149,7 +149,7 @@ write(u6,'(A)') ' *****************************************************'
 write(u6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' kelvin, Pressure =',P,' atm'
 write(u6,'(A)') ' -----------------------------------------------------'
 write(u6,'(A)') ' Molecular Partition Function and Molar Entropy:'
-write(u6,'(A)') '                        q/V (M**-3)    S(kcal/mol*K)'
+write(u6,'(A)') '                        q/V (M**-3)     S(cal/mol*K)'
 write(u6,'(A,ES17.6,F13.3)') ' Electronic       ',q_e,dS_e
 write(u6,'(A,ES17.6,F13.3)') ' Translational    ',q_tr,dS_tr
 write(u6,'(A,ES17.6,F13.3)') ' Rotational       ',q_rot,dS_rot
