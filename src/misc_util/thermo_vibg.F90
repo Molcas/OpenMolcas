@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Thermo_VibG(nFreq,Freq,T,P,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy)
+subroutine Thermo_VibG(nFreq,Freq,T,P,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy,S_Tot,G_Sum)
 
 use Constants, only: Zero, One, Two, Half, OneHalf, Pi, auTokcalmol, auTokJ, atmToPa, cal_to_J, hPlanck, kBoltzmann, Rgas, rNAVO
 use Definitions, only: wp, iwp, u6
@@ -17,6 +17,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nFreq, nTR, nsRot, iMult
 real(kind=wp), intent(in) :: Freq(nFreq), T, P, TotalM, TRotA, TRotB, TRotC, Energy
+real(kind=wp), intent(out) :: S_Tot, G_Sum ! Total entropy (cal/(mol*K)); energy plus thermal Gibbs free energy (au)
 integer(kind=iwp) :: i
 real(kind=wp) :: beta, Const, CQ_e, dFact, dG_TOT, dH_TOT, dMT, dS_e, dS_rot, dS_TOT, dS_tr, dS_vib, dS_vib_Tot, dU_e, dU_rot, &
                  dU_TOT, dU_tr, dU_vib, dU_vib_Tot, dVM, eta, q_e, q_rot, q_TOT, q_tr, q_vib, q_vib_Tot, ZPVE
@@ -141,6 +142,8 @@ dS_TOT = dS_e+dS_tr+dS_rot+dS_vib_Tot
 dU_TOT = dU_e+dU_tr+dU_rot+dU_vib_Tot
 dH_TOT = dU_TOT+R_gas_kcal*T
 dG_TOT = dH_TOT-dS_TOT*T*1.0e-3_wp
+S_Tot = dS_TOT
+G_Sum = Energy+dG_TOT/auTokcalmol
 
 ! Print Results
 
@@ -171,7 +174,7 @@ write(u6,*)
 write(u6,'(A)') ' Sum of energy and thermal contributions'
 write(u6,'(A,17X,F15.6,A)') ' INTERNAL ENERGY  ',Energy+dU_TOT/auTokcalmol,' au.'
 write(u6,'(A,17X,F15.6,A)') ' ENTHALPY         ',Energy+dH_TOT/auTokcalmol,' au.'
-write(u6,'(A,17X,F15.6,A)') ' GIBBS FREE ENERGY',Energy+dG_TOT/auTokcalmol,' au.'
+write(u6,'(A,17X,F15.6,A)') ' GIBBS FREE ENERGY',G_Sum,' au.'
 write(u6,'(A)') ' -----------------------------------------------------'
 
 return

@@ -22,7 +22,7 @@ integer(kind=iwp), intent(inout) :: nUserPT
 integer(kind=iwp), intent(in) :: nsRot, iMult, in_nFreq
 logical(kind=iwp), intent(in) :: lSlapaf
 integer(kind=iwp) :: i, nFreq, nTR, nTr2
-real(kind=wp) :: dFreqI, ZPVE
+real(kind=wp) :: dFreqI, G_Sum(64), S_Tot(64), ZPVE
 real(kind=wp), allocatable :: Freq(:), VibT(:)
 real(kind=wp), parameter :: rk = kBoltzmann*1.0e-3_wp/auTokJ ! Boltzmann constant in a.u./ K
 
@@ -89,8 +89,12 @@ write(u6,'(A,F9.3,A,F9.6,A)') ' ZPVE             ',ZPVE*auTokcalmol,' kcal/mol  
 write(u6,'(A,13X,F15.6,A)') ' ZPVE corrected energy',ZPVE+Energy,' au.'
 
 do i=1,nUserPT
-  call Thermo_VibG(nFreq,Freq,UserT(i),UserP,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy)
+  call Thermo_VibG(nFreq,Freq,UserT(i),UserP,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy,S_Tot(i),G_Sum(i))
 end do
+! Total entropy (cal/(mol*K)) and electronic energy plus thermal Gibbs free energy (au),
+! one value per temperature, in the order printed
+call Add_Info('ENTROPY_TOTAL',S_Tot,nUserPT,2)
+call Add_Info('GIBBS_TOTAL',G_Sum,nUserPT,5)
 call mma_deallocate(Freq)
 call mma_deallocate(VibT)
 
