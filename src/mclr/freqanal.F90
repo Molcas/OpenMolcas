@@ -190,7 +190,8 @@ if ((nUserPT == 0) .and. (nsRot == 0)) then
   UserT(1:nUserPT) = DefTemp(1:nUserPT)
   !call ThermoData(EVal,nEig)
 end if
-call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nEig,.false.)
+call Get_dScalar('Last energy',Energy)
+call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nEig,.false.,Energy)
 
 ! Write stuff on Molden input file
 

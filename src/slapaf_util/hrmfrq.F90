@@ -76,7 +76,8 @@ call GF_Print(EVal,EVec,Temp,iEl,nDoF,nInter,iCtl,IRInt,RedMas,Lu_10,iOff)
 close(Lu_10)
 call mma_deallocate(Temp)
 
-if (lTherm) call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nInter,lTherm)
+! Energy(1) is the energy at the geometry of the Hessian; 'Last energy' still holds a displaced one.
+if (lTherm) call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nInter,lTherm,Energy(1))
 !                                                                      *
 !***********************************************************************
 !                                                                      *

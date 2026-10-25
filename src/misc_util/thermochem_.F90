@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,EVal,in_nFreq,lSlapaf)
+subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,EVal,in_nFreq,lSlapaf,Energy)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTocm, auTokcalmol, auTokJ, kBoltzmann
@@ -17,12 +17,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(inout) :: UserT(64), UserP, TRotA, TRotB, TRotC
-real(kind=wp), intent(in) :: TotalM, EVal(*)
+real(kind=wp), intent(in) :: TotalM, EVal(*), Energy
 integer(kind=iwp), intent(inout) :: nUserPT
 integer(kind=iwp), intent(in) :: nsRot, iMult, in_nFreq
 logical(kind=iwp), intent(in) :: lSlapaf
 integer(kind=iwp) :: i, nFreq, nTR, nTr2
-real(kind=wp) :: dFreqI, Energy, ZPVE
+real(kind=wp) :: dFreqI, ZPVE
 real(kind=wp), allocatable :: Freq(:), VibT(:)
 real(kind=wp), parameter :: rk = kBoltzmann*1.0e-3_wp/auTokJ ! Boltzmann constant in a.u./ K
 
@@ -34,7 +34,6 @@ if (nUserPT == 0) then
   UserP = One
   UserT(1) = 298.15_wp
 end if
-call Get_dScalar('Last energy',Energy)
 
 ! Is the system linear?
 
