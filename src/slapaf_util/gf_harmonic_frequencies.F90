@@ -11,8 +11,9 @@
 
 subroutine GF_Harmonic_Frequencies(G,GInv,Tmp1,Tmp2,EVec,EVal,RedM,iNeg,nX,nDoF)
 
+use Slapaf_Info, only: Degen, dMass, Smmtrc
 use Index_Functions, only: nTri_Elem
-use Constants, only: Zero, One, autocm
+use Constants, only: Zero, One, autocm, uToau
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,8 +22,8 @@ real(kind=wp), intent(in) :: G(nX**2), GInv(nX**2)
 real(kind=wp), intent(out) :: Tmp1(nDoF,nDoF), EVec(nDoF,nDoF), EVal(nDoF), RedM(nDoF)
 real(kind=wp), intent(inout) :: Tmp2(nX**2)
 integer(kind=iwp), intent(out) :: iNeg
-integer(kind=iwp) :: iHarm, iiT, iX, jHarm, jj, jX
-real(kind=wp) :: r2, rlow, temp, Test_i, Test_j, tmp
+integer(kind=iwp) :: i, iHarm, iiT, iX, jHarm, jj, jX
+real(kind=wp) :: r2, rlow, temp, Test_i, Test_j, tmp, rmDen, rmNum
 real(kind=wp), external :: DDot_
 
 !                                                                      *
@@ -90,7 +91,24 @@ do iHarm=1,nDoF
   Tmp1(:,1) = EVec(:,iHarm)
   call DGEMM_('N','N',nDoF,1,nDoF,One,GInv,nDoF,Tmp1,nDoF,Zero,Tmp2,nDoF)
   r2 = DDot_(nDoF,Tmp1,1,Tmp2,1)
-  RedM(iHarm) = r2
+
+  ! The reduced mass is the mass-weighted average of the squared displacement over all atoms. The coordinates here are the
+  ! symmetry-unique ones, each standing for Degen images, so both sums carry Degen. This does not depend on how the vector is
+  ! scaled, nor on the metric used for it, which differ with the coordinate options (see Mk_G).
+  rmNum = Zero
+  rmDen = Zero
+  jX = 0
+  do i=1,size(Smmtrc,2)
+    do iX=1,3
+      if (Smmtrc(iX,i)) then
+        jX = jX+1
+        rmNum = rmNum+Degen(iX,i)*dMass(i)*Tmp1(jX,1)**2
+        rmDen = rmDen+Degen(iX,i)*Tmp1(jX,1)**2
+      end if
+    end do
+  end do
+  RedM(iHarm) = rmNum/(rmDen*uToau)
+
   EVec(:,iHarm) = EVec(:,iHarm)/sqrt(r2)
 end do
 #ifdef _DEBUGPRINT_

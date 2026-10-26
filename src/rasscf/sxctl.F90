@@ -538,7 +538,6 @@ Subroutine SXCTL_Iterate()
     CASDFT_En = Zero
     if ((KSDFT /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_En)
     CASDFT_En = ECAS+CASDFT_En
-
     call QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),NSXS,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
 
   end if

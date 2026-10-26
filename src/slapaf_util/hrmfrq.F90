@@ -11,7 +11,7 @@
 
 subroutine HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,IRInt)
 
-use Slapaf_Info, only: lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
+use Slapaf_Info, only: Energy, iState, lDoubleIso, lTherm, nsRot, nUserPT, UserP, UserT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -21,7 +21,8 @@ integer(kind=iwp), intent(out) :: iNeg
 real(kind=wp), intent(inout) :: dDipM(3,nInter+mTR)
 real(kind=wp), intent(in) :: DipM(3)
 real(kind=wp), intent(out) :: IRInt(nInter+mTR)
-integer(kind=iwp) :: iCtl, iEl, iOff, iSym, lModes, Lu_10, mDisp(8), nDoF, nIrrep, nModes, nSym, nX
+integer(kind=iwp) :: iColumbus, iCtl, iEl, iOff, iSym, lModes, Lu_10, mDisp(8), nDip, nDoF, nIrrep, nModes, nRoots, nSym, nX
+logical(kind=iwp) :: Found, Have_Dip
 real(kind=wp), allocatable :: EVal(:), EVec(:), RedMas(:), Temp(:)
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -102,6 +103,28 @@ mDisp(:) = 0
 mDisp(1) = nInter
 call Print_Mode_Components(EVec,EVal,nModes,lModes,mDisp)
 call Freq_Molden(EVal,nModes,EVec,lModes,nSym,IRInt,mDisp,RedMas)
+! The dipole derivatives are formed from the dipole moments stored at each iteration (nmhess), and init2 stores zeros when the
+! electronic structure module left no dipole moment on the RunFile, or in Columbus mode. The intensities count as computed only
+! when init2 found a dipole: the same records, tested the same way (the modules that produce them are the same at every
+! iteration, so the RunFile holds here what it held when init2 read it).
+call Get_iScalar('Columbus',iColumbus)
+Have_Dip = .false.
+if (iColumbus /= 1) then
+  nRoots = 1
+  call Qpg_iScalar('Number of roots',Found)
+  if (Found) call Get_iScalar('Number of roots',nRoots)
+  if (nRoots /= 1) then
+    call Qpg_dArray('Last Dipole Moments',Found,nDip)
+    Have_Dip = Found .and. (nDip == 3*nRoots)
+  else
+    call Qpg_dArray('Dipole moment',Found,nDip)
+    Have_Dip = Found .and. (nDip == 3)
+  end if
+end if
+! Energy(1) is the energy at the geometry of the Hessian, the displaced ones follow. Thermo_Driver has run, and has modified
+! nsRot, only if lTherm and there is no symmetry.
+call Freq_HDF5(EVal,nModes,EVec,lModes,nSym,IRInt,mDisp,RedMas,'NUMERICAL',Energy(1),iState(2) <= 0, &
+               merge(nsRot,0,lTherm .and. (nIrrep == 1)),Have_Dip)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

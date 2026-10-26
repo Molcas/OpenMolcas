@@ -29,6 +29,7 @@
 #include "orbitals.inc"
  (file)  LUHLF         "$WorkDir/"purge.tmp00                   rw*p
 #include "moldenfiles.inc"
+#include "freqfiles.inc"
 #include "espffiles.inc"
 #include "rysfiles.inc"
  (file)  ROT_HAM  "$WorkDir/"H0_Rotate.txt                      ro
