@@ -858,7 +858,7 @@ subroutine print_EPR_summary()
     if (Atens_Req(iAtom)) then
       iACalc = iACalc+1
       conv = con_to_MHz*GNuc(iAtom)
-      pr_vals(iACalc,:,:) = conv*pr_vals(iACalc,:,:)
+      pr_vals(iACalc,:,:) = abs(conv)*pr_vals(iACalc,:,:)
       call assign_hfc_prvl_signs()
     end if
   end do
@@ -1177,7 +1177,7 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
   !     step 2. Compare with the relative tolerance [5% of the maximum absolute value]
 
   real(kind=wp), intent(in) :: a
-  real(kind=wp), intent(out) :: b, c
+  real(kind=wp), intent(inout) :: b, c
   logical(kind=iwp), intent(out) :: is_determined, ill_defined
   integer(kind=iwp) :: nzeros
   real(kind=wp) :: abs_a, abs_b, abs_c, max_left_absval, abs_tol
@@ -1206,7 +1206,7 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
     ! c = 0 --> check if a - b = 0
     if ((abs_c < zero_tol) .and. (abs(abs_a-abs_b) < zero_tol)) then
       is_determined = .true.
-      if (a > Zero) b = -abs_b
+      b = -sign(abs_b,a)
     end if
 
     ! a = 0 --> check if b = c
@@ -1219,7 +1219,7 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
     ! b = 0 --> check if a = c
     if ((abs_b < zero_tol) .and. (abs(abs_a-abs_c) < zero_tol)) then
       is_determined = .true.
-      if (a < Zero) c = -abs_c
+      c = sign(abs_c,a)
     end if
 
   else
@@ -1229,17 +1229,15 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
       !------------------------
       ! a, b should have the SAME sign --> 2 cases: [+] + [+] = [+]
       !                                          or [-] + [-] = [-]
-      if (abs_a+abs_b-abs_c < abs_tol) then
+      if (abs(abs_a+abs_b-abs_c) < abs_tol) then
         is_determined = .true.
         ! a = [+] --> b = [+]  , c = [+]
         ! a = [-] --> b = [-]  , c = [-]
-        if (a < Zero) then
-          b = -abs_b
-          c = -abs_c
-        end if
+        b = sign(abs_b,a)
+        c = sign(abs_c,a)
       end if
 
-    else if (abs_c < max_left_absval) then
+    else ! (abs_c <= max_left_absval)
       ! CASE 2: abs_c decreases
       !------------------------
       ! a, b should have the DIFFERENT signs --> 2 cases: [+] + [-]
@@ -1250,14 +1248,9 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
 
         ! b needs to have the OPPOSITE sign of a. Sign of c depends on a & b
         ! a = [+] --> b = [-]  , c = [+] if |a| > |b| and vice versa
-        ! a < [-] --> b = [+]  , c = [-] if |a| > |b| and vice versa
-
-        if (a > Zero) then
-          b = -abs_b
-          if (abs_a < abs_b) c = -abs_c
-        else if (a < Zero) then
-          if (abs_a > abs_b) c = -abs_c
-        end if
+        ! a = [-] --> b = [+]  , c = [-] if |a| > |b| and vice versa
+        b = -sign(abs_b,a)
+        c = sign(abs_c,a+b)
       end if
     end if
   end if
