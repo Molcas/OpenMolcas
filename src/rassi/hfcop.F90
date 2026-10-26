@@ -41,7 +41,7 @@ private
 ! NSS, ESO
 
 ! EPR Calc. :: A tensor, principal and isotropic values
-! Atens_fac, prin_vals, signs_resolved
+! Atens_fac, prin_vals, prin_axes, signs_resolved, prin_lab
 
 ! PNMR Calc :: Shielding tensor, Chemical Shift
 ! Temp_in_K, pBoltz, Z_HFC_int_oper, Curie_ChemShift, LinRes_ChemShift, LR_tens, C_tens, Z_HFC_over_dE, dE_inv, degen_group,
@@ -69,7 +69,7 @@ integer(kind=iwp), allocatable :: AngMom_idx(:), degen_end_idx(:), degen_group(:
                                   MAPMS(:), MAPSP(:), MAPST(:), PSO_idx(:,:)
 real(kind=wp), allocatable :: C_shifts(:,:,:), C_tens(:,:,:), CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:), dE_inv(:,:), ESO(:), &
                               h_hfc_rms(:,:), h_rms_nuc(:,:), LR_shifts(:,:,:), LR_tens(:,:,:), pBoltz(:,:), pr_vals(:,:,:), &
-                              Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:)
+                              prin_axes(:,:,:), Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:)
 complex(kind=wp), allocatable :: h_FC(:,:,:), h_FCSD(:,:,:), h_PSO(:,:,:), h_SD(:,:,:), h_TOT(:,:,:), h_Zeeman(:,:,:), USO(:,:)
 logical(kind=iwp), allocatable :: signs_resolved(:)
 character(len=LenIn), allocatable :: LAtomLbl(:)
@@ -82,6 +82,7 @@ real(kind=wp), parameter :: alpha2 = One/(c_in_au*c_in_au), au2J = auTokJ*1.0e3_
                             TwoThird = Two/Three
 character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC','SD','FCSD','PSO','TOTAL']
 character, parameter :: xyz(3) = ['x','y','z']
+character(len=*), parameter :: prin_lab(3) = ['a_1','a_2','a_3']
 
 public :: Hyperfine_Oper
 
@@ -153,6 +154,8 @@ subroutine setup_hfc_calc(JBNUM,USOR,USOI)
     call mma_allocate(pr_vals,NATens_Calc,5,3,Label='prin_vals')
     call mma_allocate(signs_resolved,NATens_Calc,Label='signs_resolved')
     signs_resolved(:) = .false.
+    call mma_allocate(prin_axes,NATens_Calc,3,3,Label='prin_axes')
+    prin_axes(:,:,:) = Zero
   end if
 
   ! GET: AtomLbl
@@ -874,12 +877,14 @@ subroutine print_EPR_summary()
       write(u6,'(3X,A10,A6,A19,F12.8)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)),'Nuclear g-factor = ',GNuc(iAtom)
       if (.not. HypoIso(iAtom)) write(u6,'(19X,A19,2X,F3.1)') 'Nuclear Spin     = ',NucSpin(iAtom)
       write(u6,*)
-      write(u6,'(3X,A4,2X,A7,A5,5X,A7,A5,3(2X,A7,A5))') 'Comp',' TOTAL ',unt,'    FC ',unt,'    SD ',unt,'  FCSD ',unt,'   PSO ',unt
-      write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12))') repeat('-',4),(repeat('-',12),iContr=1,5)
+      write(u6,'(3X,A4,2X,A7,A5,5X,A7,A5,3(2X,A7,A5),4X,A24)') 'Comp',' TOTAL ',unt,'    FC ',unt,'    SD ',unt,'  FCSD ',unt, &
+                                                               '   PSO ',unt,'Principal axis (x, y, z)'
+      write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12),4X,A24)') repeat('-',4),(repeat('-',12),iContr=1,5),repeat('-',24)
 
       do iAxis=1,3
-        write(u6,'(3X,A2,A1,A1,2x,F12.2,5x,F12.2,3(2x,F12.2))') 'a_',xyz(iAxis),xyz(iAxis),pr_vals(iACalc,5,iAxis), &
-                                                                (pr_vals(iACalc,iContr,iAxis),iContr=1,4)
+        write(u6,'(3X,A3,1x,2x,F12.2,5x,F12.2,3(2x,F12.2),4X,A1,3(F7.3,1X),A1)') prin_lab(iAxis),pr_vals(iACalc,5,iAxis), &
+                                                                               (pr_vals(iACalc,iContr,iAxis),iContr=1,4), &
+                                                                               '(',prin_axes(iACalc,1:3,iAxis),')'
       end do
 
       !--> Print isotropic values
@@ -906,9 +911,11 @@ subroutine print_EPR_summary()
   write(u6,*) '   ------------'
   write(u6,*) '     ( Note )'
   write(u6,*) '   ------------'
-  write(u6,'(A93)') '       1. All isotropic hyperfine coupling constants (HFCCs) are reported as absolute values.'
-  write(u6,'(A88)') '       2. If a different isotope is required, you can convert the reported values to MHz'
-  write(u6,'(A65)') '          without restarting by using the provided formula below:'
+  write(u6,'(7X,A)') '1. All isotropic hyperfine coupling constants (HFCCs) are reported as absolute values.'
+  write(u6,'(7X,A)') '2. If a different isotope is required, you can convert the reported values to MHz'
+  write(u6,'(7X,A)') '   without restarting by using the provided formula below:'
+  write(u6,'(7X,A)') '3. Principal values a_1, a_2, a_3 are printed in ascending order of |a_i(TOTAL)|. '
+  write(u6,'(7X,A)') '   Each contribution is given along the same principal axis of the TOTAL tensor.'
   write(u6,*)
 
   write(string_val,'(F12.4)')-gElectron*beta_e*beta_n*1.0e9_wp
@@ -1257,18 +1264,27 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
 
 end subroutine assign_abc_signs
 
-subroutine transf_prin_axes(A,X,a_sm)
+subroutine transf_prin_axes(A,X,a_prin,a_lab)
+  ! PURPOSE: Transform each contribution to the principal frame of the TOTAL tensor.
+  !   A_pf   = X^T A X            : A-tensor in the principal frame (diagonal if axes are shared with TOTAL)
+  !   a_prin = sqrt(diag(A_pf))   : principal values along the principal axes of TOTAL
+  !   a_lab  = X sqrt(D) X^T      : a-matrix back in the lab frame (printing only), D = diag(A_pf)
+  ! X must be orthogonal (columns = principal axes).
 
   real(kind=wp), intent(in) :: A(3,3,5), X(3,3)
-  real(kind=wp), intent(out) :: a_sm(3,3,5)
-  integer(kind=iwp) :: iContr
-  real(kind=wp) :: tmpmat(3,3), tmpmat2(3,3)
+  real(kind=wp), intent(out) :: a_prin(3,5), a_lab(3,3,5)
+  integer(kind=iwp) :: iAxis, iContr
+  real(kind=wp) :: A_pf(3,3), fnorm_diag, fnorm_off_diag, sqrtD(3,3), tmpmat(3,3)
   real(kind=wp), parameter :: zero_tol = 1.0e-8_wp
+  real(kind=wp), external :: dnrm2_
+
+  ! VARIABLE DESCRIPTION:
+  !   fnorm_diag:       Frobenius norm of diag(A_pf)
+  !   fnorm_off_diag:   Frobenius norm of off-diag(A_pf)
 
   do iContr=1,5
-    tmpmat(:,:) = Zero
     call dgemm_('n','n',3,3,3,One,A(:,:,iContr),3,X,3,Zero,tmpmat,3)
-    call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
+    call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,A_pf,3)
 
     ! TRUNCATION:After diagonalization, numbers near zero will fluctate a lot due to numerical noise.
     !            For example, -1.0E-50 or +1.0E-50 are equipvalent to 0.0
@@ -1277,20 +1293,35 @@ subroutine transf_prin_axes(A,X,a_sm)
 
     ! Typical g-factors are lower than 6.0, while conv_to_MHz (print_EPR_summary) is around 100.0 (95.5)
     ! if a value is below 1.0e-8_wp, A(MHz) is around 6.0*100.0*10^-8 = 0.000006 MHz
-    where (abs(a_sm(:,:,iContr)) < zero_tol) a_sm(:,:,iContr) = Zero
+    where (abs(A_pf(:,:)) < zero_tol) A_pf = Zero
 
-    if (min(a_sm(1,1,iContr),a_sm(2,2,iContr),a_sm(3,3,iContr)) < Zero) then
-      call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
+    ! A = a a^T is positive semi-definite, so diag(X^T A X) >= 0 up to numerical noise
+    if (any([A_pf(1,1),A_pf(2,2),A_pf(3,3)] < Zero)) then
+      call WarningMessage(2,trim(contrib_lab(iContr))//': negative diagonal of A in principal frame. Cannot take square root.')
       call AbEnd()
     end if
 
-    tmpmat2(:,:) = Zero
-    tmpmat2(1,1) = sqrt(a_sm(1,1,iContr))
-    tmpmat2(2,2) = sqrt(a_sm(2,2,iContr))
-    tmpmat2(3,3) = sqrt(a_sm(3,3,iContr))
-    call dgemm_('n','n',3,3,3,One,tmpmat2,3,X,3,Zero,tmpmat,3)
-    call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
+    ! CHECK DIAG/OFF-DIAG NORMS OF A-tensor in the principal frame of TOTAL
+    ! For TOTAL this is diagonal by construction. For a contribution, a large off-diagonal part means that
+    ! it does not share principal axes with TOTAL, and its principal values are only projections.
+    fnorm_diag = sqrt(A_pf(1,1)**2+A_pf(2,2)**2+A_pf(3,3)**2)
+    tmpmat(:,:) = A_pf(:,:)
+    tmpmat(1,1) = Zero
+    tmpmat(2,2) = Zero
+    tmpmat(3,3) = Zero
+    fnorm_off_diag = dnrm2_(9,tmpmat,1)
+    if (fnorm_diag > Zero) then
+      if (fnorm_off_diag/fnorm_diag > 0.05_wp) &
+        call WarningMessage(1,trim(contrib_lab(iContr))//': principal axes differ from TOTAL (off/diag norm > 5%)')
+    end if
 
+    sqrtD(:,:) = Zero
+    do iAxis=1,3
+      a_prin(iAxis,iContr) = sqrt(A_pf(iAxis,iAxis))
+      sqrtD(iAxis,iAxis) = a_prin(iAxis,iContr)
+    end do
+    call dgemm_('n','t',3,3,3,One,sqrtD,3,X,3,Zero,tmpmat,3)
+    call dgemm_('n','n',3,3,3,One,X,3,tmpmat,3,Zero,a_lab(:,:,iContr),3)
   end do
 
 end subroutine transf_prin_axes
@@ -1299,33 +1330,44 @@ subroutine calc_prin_val(iAtom,A_tens)
 
   integer(kind=iwp), intent(in) :: iAtom
   real(kind=wp), intent(in) :: A_tens(3,3,5)
-  real(kind=wp) :: a_small(3,3,5)
   integer(kind=iwp) :: iAxis, IERR, iContr
-  real(kind=wp) :: EVI(3), EVR(3), fnorm_diag, fnorm_off_diag, prvl, tmpmat(3,3), X(3,3)
+  real(kind=wp) :: a_lab(3,3,5), a_prin(3,5), EVal(3), prvl, WRK(64), X(3,3)
   real(kind=wp), parameter :: to_au = -gElectron*beta_e*beta_n
-  real(kind=wp), external :: dnrm2_
 
   ! VARIABLE DESCRIPTION:
-  !   fnorm_diag:       Frobenius norm of diag(sm_a)
-  !   fnorm_off_diag:   Frobenius norm of off-diag(sm_a)
+  !   X:                principal axes (columns) of the TOTAL A-tensor
+  !   a_prin:           principal values of each contribution along the principal axes of TOTAL
+  !   a_lab:            a-matrix of each contribution in the lab frame
   ! iContr              : Contribution: FC = 1
   !                                     SD = 2
   !                                   FCSD = 3
   !                                    PSO = 4
   !                                  Total = 5
-  tmpmat(:,:) = A_tens(:,:,5)
-  X(:,:) = Zero
-  EVR(:) = Zero
-  EVI(:) = Zero
-  call XEIGEN(1,3,3,tmpmat,EVR,EVI,X,IERR)
 
-  call transf_prin_axes(A_tens,X,a_small)
+  ! A_tens is already symmetric, this step makes sure before passing to dsyev_
+  X(:,:) = Half*(A_tens(:,:,5)+transpose(A_tens(:,:,5)))
+  EVal(:) = Zero
+  IERR = 0
+  ! 3x3 matrix: lwork = 64 is well above the optimal size
+  call dsyev_('V','U',3,X,3,EVal,WRK,size(WRK),IERR)
+  if (IERR /= 0) then
+    call WarningMessage(2,'DSYEV failed for the HFC A-tensor.')
+    call AbEnd()
+  end if
 
-  write(u6,'(4X,A14)') 'PRINCIPAL AXES'
-  write(u6,'(4X,A38)') repeat('-',38)
-  write(u6,'(12x,3(A1,12x))') xyz(1:3)
+  ! Drop components that would print as -0.000
+  prin_axes(iACalc,:,:) = merge(Zero,X,abs(X) < 5.0e-4_wp)
+
+  call transf_prin_axes(A_tens,X,a_prin,a_lab)
+  do iContr=1,5
+    pr_vals(iACalc,iContr,:) = a_prin(:,iContr)
+  end do
+
+  write(u6,'(4X,A)') 'PRINCIPAL AXES'
+  write(u6,'(4X,A14)') repeat('-',14)
+  write(u6,'(6X,3(5X,A3,5X))') prin_lab(1:3)
   do iAxis=1,3
-    write(u6,'(4X,3(ES12.3,1X))') X(iAxis,1:3)
+    write(u6,'(4X,A1,1X,3(ES12.3,1X))') xyz(iAxis),X(iAxis,1:3)
   end do
   write(u6,*)
 
@@ -1338,35 +1380,18 @@ subroutine calc_prin_val(iAtom,A_tens)
     write(u6,'(14X,A17,32X,A8)') 'A-tensor (A=aa^T)','a-matrix'
     write(u6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
     do iAxis=1,3
-      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iAxis,1:3,iContr),a_small(iAxis,1:3,iContr)
-    end do
-
-    ! CHECK DIAG/OFF-DIAG NORMS OF a-matrix
-    ! After transformation, the a-matrix should be diagonal. If not, it indicates numerical instability.
-    tmpmat(:,:) = a_small(:,:,iContr)
-    ! Calculate diagonal elements norm
-    fnorm_diag = sqrt(tmpmat(1,1)**2+tmpmat(2,2)**2+tmpmat(3,3)**2)
-    ! Calculate off-diagonal elements norm
-    tmpmat(1,1) = Zero
-    tmpmat(2,2) = Zero
-    tmpmat(3,3) = Zero
-    fnorm_off_diag = dnrm2_(9,tmpmat,1)
-
-    if (fnorm_off_diag/fnorm_diag > 0.05_wp) call WarningMessage(1,'Relative Frobenius diag/off-diag norm > 5%')
-
-    do iAxis=1,3
-      pr_vals(iACalc,iContr,iAxis) = a_small(iAxis,iAxis,iContr)
+      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iAxis,1:3,iContr),a_lab(iAxis,1:3,iContr)
     end do
 
     ! Print absolute principal values without signs
     write(u6,*)
     write(u6,'(24X,A25,A7)') 'ABS. PRINCIPAL VALUES :: ',contrib_lab(iContr)
     write(u6,'(12X,A52)') repeat('-',52)
-    write(u6,'(24X,A4,12X,A4,11X,A5)') 'a_ii','(au)','(MHz)'
+    write(u6,'(24X,A4,12X,A4,11X,A5)') 'raw','(au)','(MHz)'
     write(u6,'(12X,A52)') repeat('-',52)
     do iAxis=1,3
       prvl = pr_vals(iACalc,iContr,iAxis)
-      write(u6,'(12X,A1,A1,5X,E13.6,3x,E13.6,3x,E13.6)') xyz(iAxis),xyz(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
+      write(u6,'(12X,A3,4X,E13.6,3x,E13.6,3x,E13.6)') prin_lab(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
     end do
     write(u6,*)
     write(u6,*)
@@ -1707,6 +1732,7 @@ subroutine cleanup_hfcop()
     call mma_deallocate(Atens_Req)
     call mma_deallocate(pr_vals)
     call mma_deallocate(signs_resolved)
+    call mma_deallocate(prin_axes)
   end if
 
 end subroutine cleanup_hfcop
