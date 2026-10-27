@@ -153,7 +153,6 @@ TimeTrans = TimeTrans+time2(2)-time2(1)
 ! only after 500 lines of nothing above...
 call mma_allocate(e_states,lroots,label='e_states')
 call compute_mcpdft_energy(CMO,e_mcscf,e_states)
-call mma_deallocate(CMO)
 
 call Timing(dum1,dum2,time1(1),dum3)
 
@@ -185,7 +184,7 @@ if ((nhole1 > 0) .or. (nelec3 > 0)) Method(7:8) = '-R'
 call Put_cArray('Relax Method',Method,8)
 
 if (mcpdft_options%transport) then
-  call molel_write()
+  call molel_write(cmo)
 end if
 
 !***********************************************************************
@@ -208,6 +207,7 @@ end if
 call mma_deallocate(FockOcc)
 call mma_deallocate(e_mcscf)
 call mma_deallocate(e_states)
+call mma_deallocate(CMO)
 
 call StatusLine('MCPDFT:','Finished.')
 if (IPRLEV >= 2) write(u6,*)

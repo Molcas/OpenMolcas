@@ -351,6 +351,8 @@ The :kword:`FUNC` is the only required keyword.
               Toggles on the creation of an effective one-electron Hamiltonian for
               use in NEGF-MCPDFT electron transport calculations.  If the keyword is
               given, a MolEl.dat file will be produced.
+              This keyword will activate the GRAD keyword in order to generate potentials
+              and intermediates needed for the Hamiltonian construction.
               </HELP>
               </KEYWORD>
 
