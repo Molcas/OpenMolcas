@@ -12,6 +12,7 @@
 !               2026, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 #define _SANITY_CHECK_
 module SGUGA
 
@@ -127,7 +128,7 @@ end type CIStruct
 ! IOCP(:,:,:): offset of each NOCP block in ICoup
 ! ICoup(:,:): Compressed coupling tuples: left half-walk label, righ half-walk label. value-pool index
 ! MVL(:,:) : Left partner midvertex for delta(b)=-1/+1
-! MVL(:,:) : Right partner midvertex for delta(b)=-1/+1
+! MVR(:,:) : Right partner midvertex for delta(b)=-1/+1
 ! USGN(:,:): map from upper reverese-direct-arc-weight sums to upper walk numbers
 ! LSGN(:,:): map from lower direct-arc-weight sums to lower walk numbers
 ! VTAB(:): pool of distinct numerical coupling values.
@@ -828,6 +829,7 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
                                              xnLev, xNSM(MxLev)
 
   type(TRStruct) :: TRS
+  integer(kind=iwp) :: ISYCI
 
   call SG_Init_Light(iState,nSym,nActEl,iSpin,        &
                       nRas,nRasEl,nRsPrt,             &
@@ -4748,6 +4750,10 @@ SubRoutine SG_Apply_Ak_Psi(iState,LSM,T,k,Scale,CI,Sigma)
   Real(kind=wp), Parameter :: Thr = 1.0e-14_wp
 
   Real(kind=wp), Allocatable :: Tmp(:)
+  Logical(kind=iwp) :: Save_Reuse
+
+  Save_reuse=EXS(istate)%ReUse_SGTMP
+  EXS(istate)%ReUse_SGTMP=.False.
 
   nLev = size(T,1)
 
@@ -4784,6 +4790,7 @@ SubRoutine SG_Apply_Ak_Psi(iState,LSM,T,k,Scale,CI,Sigma)
 
   Call mma_deallocate(Tmp)
 
+  EXS(istate)%ReUse_SGTMP=Save_reuse
 End SubRoutine SG_Apply_Ak_Psi
 
 subroutine SG_Sum_Hpq_Epq_Psi(iState,LSM,Hpq,nLev,CI,Sigma)
@@ -5162,6 +5169,10 @@ Subroutine SG_Multiply_By_Nk(iState,LSM,k,tkk,CI)
   Real(kind=wp) :: b,c
 
   Real(kind=wp), Allocatable :: N1(:),N2(:)
+  Logical(kind=iwp) :: ReUse_Save
+
+  ReUse_Save=EXS(istate)%ReUse_SGTMP
+  EXS(istate)%ReUse_SGTMP=.False.
 
   Call mma_allocate(N1,size(CI),Label='N1')
   Call mma_allocate(N2,size(CI),Label='N2')
@@ -5181,6 +5192,8 @@ Subroutine SG_Multiply_By_Nk(iState,LSM,k,tkk,CI)
 
   Call mma_deallocate(N1)
   Call mma_deallocate(N2)
+
+  EXS(istate)%ReUse_SGTMP=ReUse_Save
 
 End Subroutine SG_Multiply_By_Nk
 
@@ -6694,6 +6707,15 @@ logical :: SecondDiagonal
 logical :: FirstCanonical
 logical :: SecondCanonical
 
+#ifdef _DEBUGPRINT_
+Integer(kind=iwp) :: iSYCI
+
+Do ISYCI=1, SGS(istate)%nSym
+  Write (u6,*) 'ISYCI=',ISYCI
+  Call Print_CSF_Walks(SGS(iState),CIS(iState),ISYCI)
+End Do
+#endif
+
 nCSF = CIS(iState)%NCSF(LSM)
 
 nOperatorPairs  = 0
@@ -6869,6 +6891,7 @@ do iTopology=1,nTopology
                   do J=1,nCSF
 
                      XRef = MatEl_Ref( &
+                                LSM, &
                                 I,J, &
                                 p,q, &
                                 r,s )
@@ -7837,24 +7860,44 @@ end do
 end function MatEl_Upper_One
 
 
-function MatEl_Ref(I,J,p,q,r,s) result(Value)
+function MatEl_Ref(ISYCI,I,J,p,q,r,s) result(Value)
 
-   integer(kind=iwp), intent(in) :: I,J
+   integer(kind=iwp), intent(in) :: ISYCI,I,J
    integer(kind=iwp), intent(in) :: p,q,r,s
 
    real(kind=wp) :: Value
 
-   integer(kind=iwp) :: nCSF
+   integer(kind=iwp) :: nCSFI,nCSFK
+#ifdef _DEBUGPRINT_
+   integer(kind=iwp) :: K
+#endif
+   integer(kind=iwp) :: ISYK
+   integer(kind=iwp) :: MVK,ISYUPK,IUPK,IDWNK
 
    real(kind=wp), allocatable :: Ket(:)
    real(kind=wp), allocatable :: Tmp(:)
    real(kind=wp), allocatable :: Res(:)
+   logical(kind=iwp) :: Reuse_Save
 
-   nCSF = CIS(iState)%NCSF(LSM)
+   Reuse_Save=EXS(iState)%ReUse_SGTMP
+   EXS(iState)%ReUse_SGTMP=.False.
+   !----------------------------------------------------------
+   ! Symmetry after application of E_rs.
+   !
+   ! |K> = E_rs |J>
+   !
+   ! Gamma(K)=Gamma(r)Gamma(s)Gamma(J)
+   !----------------------------------------------------------
 
-   call mma_allocate(Ket,nCSF,Label='Ket')
-   call mma_allocate(Tmp,nCSF,Label='Tmp')
-   call mma_allocate(Res,nCSF,Label='Res')
+   ISYK = Mul(SGS(iState)%ISm(r), &
+              Mul(SGS(iState)%ISm(s),ISYCI))
+
+   nCSFI = CIS(iState)%NCSF(ISYCI)
+   nCSFK = CIS(iState)%NCSF(ISYK)
+
+   call mma_allocate(Ket,nCSFI,Label='Ket')
+   call mma_allocate(Tmp,nCSFK,Label='Tmp')
+   call mma_allocate(Res,nCSFI,Label='Res')
 
    Ket(:) = Zero
    Ket(J) = One
@@ -7864,15 +7907,36 @@ function MatEl_Ref(I,J,p,q,r,s) result(Value)
    call SG_Epq_Psi( SGS(iState), &
                     CIS(iState), &
                     EXS(iState), &
-                    r,s,One,LSM, &
+                    r,s,One,ISYCI, &
                     Ket,Tmp )
+
+#ifdef _DEBUGPRINT_
+   write(6,*)
+   write(6,*) 'INTERMEDIATE STATES AFTER E_rs'
+   write(6,*) 'I,J,p,q,r,s=',I,J,p,q,r,s
+   write(6,*) 'ISYK=',ISYK
+
+   do K=1,nCSFK
+
+      if (abs(Tmp(K)) > 1.0d-12) then
+
+         call Decode_CSF( CIS(iState),ISYK,K, &
+                          MVK,ISYUPK,IUPK,IDWNK )
+
+         write(6,'(I6,F16.8,4I6)') &
+              K,Tmp(K),MVK,ISYUPK,IUPK,IDWNK
+
+      end if
+
+   end do
+#endif
 
    Res(:) = Zero
 
    call SG_Epq_Psi( SGS(iState), &
                     CIS(iState), &
                     EXS(iState), &
-                    p,q,One,LSM, &
+                    p,q,One,ISYK, &
                     Tmp,Res )
 
    Value = Res(I)
@@ -7880,6 +7944,8 @@ function MatEl_Ref(I,J,p,q,r,s) result(Value)
    call mma_deallocate(Ket)
    call mma_deallocate(Tmp)
    call mma_deallocate(Res)
+
+   EXS(iState)%ReUse_SGTMP=Reuse_Save
 
 end function MatEl_Ref
 
@@ -8182,6 +8248,7 @@ call mma_deallocate(ITo)
 call mma_deallocate(XVal)
 
 end function MatEl_LL
+
 function MatEl_UU( &
            ISYCI, &
            I,J, &
@@ -8277,6 +8344,7 @@ call mma_deallocate(ITo)
 call mma_deallocate(XVal)
 
 end function MatEl_UU
+
 subroutine Print_CSF_Decoding(CIS,ISYCI)
 
 use Definitions, only: iwp,u6
@@ -8405,7 +8473,7 @@ integer(kind=iwp) :: ICDWN
 
 integer(kind=iwp) :: LEV
 integer(kind=iwp) :: NNN
-integer(kind=iwp) :: IC1
+integer(kind=iwp) :: IC1, I
 
 integer(kind=iwp) :: ICS(SGS%nLev)
 
@@ -8418,6 +8486,7 @@ write(u6,*) ' CSF WALKS'
 write(u6,*) '========================================='
 write(u6,*)
 
+I=0
 do MV=1,CIS%nMidV
 
    do ISYUP=1,SGS%nSym
@@ -8484,14 +8553,15 @@ do MV=1,CIS%nMidV
                ICUP = IC1
 
             end do
+            I = I + 1
 
             LINE=' '
 
-            write(LINE(1:20),'(A,I3,A,I3,A,I3,A,I3,A)') &
-              '(',MV,':',ISYUP,':',IUP,'/',IDWN,')'
+            write(LINE(1:25),'(A,I3,A,I3,A,I3,A,I3,A,I3,A)') &
+              'I=',I,'(',MV,':',ISYUP,':',IUP,'/',IDWN,')'
 
             do LEV=1,SGS%nLev
-               LINE(25+LEV:25+LEV)=CODE(ICS(LEV))
+               LINE(30+LEV:30+LEV)=CODE(ICS(LEV))
             end do
 
             write(u6,'(A)') trim(LINE)
@@ -9042,6 +9112,10 @@ integer(kind=iwp) :: nCSF
 
 real(kind=wp), allocatable :: Ket(:)
 real(kind=wp), allocatable :: Res(:)
+logical(kind=iwp) :: Reuse_Save
+
+Reuse_Save=EXS(iState)%ReUse_SGTmp
+EXS(iState)%ReUse_SGTmp=.False.
 
 nCSF = CIS(iState)%NCSF(LSM)
 
@@ -9065,60 +9139,165 @@ Value = Res(I)
 call mma_deallocate(Ket)
 call mma_deallocate(Res)
 
+EXS(iState)%ReUse_SGTmp=Reuse_Save
+
 end function MatEl_Epq_Ref
 
 
-
-
-
 function MatEl_EpqErs_UO(ISYCI,I,J,p,q,r,s) result(Value)
+
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 use Symmetry_Info, only: Mul
+
 implicit none
+
 integer(kind=iwp), intent(in) :: ISYCI,I,J,p,q,r,s
-real(kind=wp) :: Value, XUpper, XLower, XOpen, XClosed, WClosed
-integer(kind=iwp) :: MVI,MVJ,ISYUPI,ISYUPJ,IUPI,IUPJ,IDWNI,IDWNJ
-integer(kind=iwp) :: ISYDWN_I,ISYDWN_J,iBand,INDEO_OU,INDEO_OL,INDEO_U
-integer(kind=iwp) :: NOU,NOL,NU,OffOU,OffOL,OffU,iO,iL,iU,iValue
+
+real(kind=wp) :: Value
+real(kind=wp) :: XUpper,XLower,XOpen,XClosed
+
+integer(kind=iwp) :: MVI,MVJ
+integer(kind=iwp) :: ISYUPI,ISYUPJ
+integer(kind=iwp) :: IUPI,IUPJ
+integer(kind=iwp) :: IDWNI,IDWNJ
+integer(kind=iwp) :: ISYDWN_I,ISYDWN_J
+integer(kind=iwp) :: iBand
+integer(kind=iwp) :: INDEO_OU,INDEO_OL,INDEO_U
+integer(kind=iwp) :: NOU,NOL,NU
+integer(kind=iwp) :: OffOU,OffOL,OffU
+integer(kind=iwp) :: iO,iL,iU,iValue
 integer(kind=iwp) :: FromO,ToO,FromU,ToU
+
 logical :: Reverse_U
+
 Value=Zero
 
-! UO: <I(m)|E_pq^U E_rs^O|J(m')>, with E_rs acting first.
-if (p<=SGS(iState)%MidLev .or. q<=SGS(iState)%MidLev) return
-if (r<=SGS(iState)%MidLev .or. s<1 .or. s>SGS(iState)%MidLev) return
+! UO:
+!
+!   <I(m)|E_pq^U E_rs^O|J(m')>
+!
+! with E_rs acting first and
+!
+!   p,q,r > MidLev
+!   s     <= MidLev.
+!
+! The canonical open operator has r>s. Its factorization is
+!
+!   A_s(Il(m),Jl(m'))
+!     sum_Ku U_pq(Iu(m),Ku(m)) A_r(Ku(m),Ju(m')).
+!
+! For the canonical crossing operator, SG_Epq_Psi has
+!
+!   Swap = (s > r) = .false.
+!
+! Therefore:
+!
+!   MVJ = MVL(MVI,iBand),
+!
+! and both canonical open-loop blocks are retrieved from the
+! input/ket-side sector, i.e. the J side.
+
+if (p<=SGS(iState)%MidLev .or. &
+    q<=SGS(iState)%MidLev) return
+
+if (r<=SGS(iState)%MidLev .or. &
+    s<1 .or. s>SGS(iState)%MidLev) return
+
 if (max(p,q,r)>SGS(iState)%nLev) return
 
-call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
-call Decode_CSF(CIS(iState),ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
+! This routine implements the canonical crossing operator r>s.
 
-! Diagonal-upper x open.  No open diagonal primitive is introduced:
-! E_pp is an upper occupation operator multiplying the complete open
-! one-electron matrix element.
+if (r<=s) return
+
+call Decode_CSF( &
+       CIS(iState),ISYCI,I, &
+       MVI,ISYUPI,IUPI,IDWNI)
+
+call Decode_CSF( &
+       CIS(iState),ISYCI,J, &
+       MVJ,ISYUPJ,IUPJ,IDWNJ)
+
+! Diagonal-upper x open.
+!
+! Keep this case on the exact two-step reference until the
+! diagonal UO contraction has been implemented and validated
+! independently.
+
 if (p==q) then
-   !
-   ! Temporary validated isolation of diagonal-upper x open.
-   !
-   ! The off-diagonal UO contraction below is fully table driven and
-   ! independently verified.  Keep the diagonal case on the exact
-   ! two-step reference until the reusable crossing kernel is connected
-   ! to the two-operator implementation and verified independently.
-   !
-   Value=MatEl_Ref(I,J,p,q,r,s)
+   Value=MatEl_Ref(ISYCI,I,J,p,q,r,s)
    return
 end if
 
-! Canonical cross-split operator r>s: m'=MVR(m,iBand).
+! Identify the delta(b) band for the canonical crossing operator.
+!
+! In SG_Epq_Psi:
+!
+!   Swap = .false.
+!   MVX  = MVL(MVSGM,MV)
+!
+! Consequently, with I as the output CSF and J as the input CSF,
+!
+!   MVJ = MVL(MVI,iBand).
+
+
 iBand=0
-if (EXS(iState)%MVR(MVI,1)==MVJ) iBand=1
-if (EXS(iState)%MVR(MVI,2)==MVJ) iBand=2
+
+if (EXS(iState)%MVR(MVI,1)==MVJ) then
+   iBand=1
+!  write(6,*) 'FOUND: MVJ=MVR(MVI,1)'
+end if
+
+if (EXS(iState)%MVR(MVI,2)==MVJ) then
+   iBand=2
+!  write(6,*) 'FOUND: MVJ=MVR(MVI,2)'
+end if
+
+!if (EXS(iState)%MVL(MVI,1)==MVJ) then
+!   write(6,*) 'ALT: MVJ=MVL(MVI,1)'
+!end if
+
+!if (EXS(iState)%MVL(MVI,2)==MVJ) then
+!   write(6,*) 'ALT: MVJ=MVL(MVI,2)'
+!end if
+
+!if (EXS(iState)%MVR(MVJ,1)==MVI) then
+!   write(6,*) 'ALT: MVI=MVR(MVJ,1)'
+!end if
+
+!if (EXS(iState)%MVR(MVJ,2)==MVI) then
+!   write(6,*) 'ALT: MVI=MVR(MVJ,2)'
+!end if
+
+!if (EXS(iState)%MVL(MVJ,1)==MVI) then
+!   write(6,*) 'ALT: MVI=MVL(MVJ,1)'
+!end if
+
+!if (EXS(iState)%MVL(MVJ,2)==MVI) then
+!   write(6,*) 'ALT: MVI=MVL(MVJ,2)'
+!end if
+
+!write(6,*) 'iBand = ',iBand
+
+iBand=0
+
+if (EXS(iState)%MVR(MVJ,1)==MVI) iBand=1
+if (EXS(iState)%MVR(MVJ,2)==MVI) iBand=2
+
 if (iBand==0) return
 
-if (ISYUPJ/=Mul(SGS(iState)%ISm(r),ISYUPI)) return
+! Symmetry relations for the two canonical open-loop factors.
+
+if (ISYUPJ /= &
+    Mul(SGS(iState)%ISm(r),ISYUPI)) return
+
 ISYDWN_I=Mul(ISYCI,ISYUPI)
 ISYDWN_J=Mul(ISYCI,ISYUPJ)
-if (ISYDWN_J/=Mul(SGS(iState)%ISm(s),ISYDWN_I)) return
+
+if (ISYDWN_J /= &
+    Mul(SGS(iState)%ISm(s),ISYDWN_I)) return
+
+! Use the same delta(b) band for both halves of the open loop.
 
 INDEO_OU=(iBand-1)*SGS(iState)%nLev+r
 INDEO_OL=(iBand-1)*SGS(iState)%nLev+s
@@ -9126,30 +9305,57 @@ INDEO_OL=(iBand-1)*SGS(iState)%nLev+s
 ! ---------------------------------------------------------------
 ! Upper contraction
 !
-!   sum_Ku U^pq(Iu(m),Ku(m)) A^r(Ku(m),Ju(m')).
+!   XUpper =
 !
-! The open block is addressed by the output sector at m, while
-! ICoup(1)=J_u(m') and ICoup(2)=K_u(m).
+!     sum_Ku U_pq(Iu(m),Ku(m))
+!            A_r(Ku(m),Ju(m')).
+!
+! For the canonical open operator, the A_r block is retrieved
+! from the input/ket-side sector:
+!
+!   (ISYUPJ,MVJ).
+!
+! The canonical open coupling is stored as
+!
+!   ICoup(1) = Ju(m')
+!   ICoup(2) = Ku(m).
 ! ---------------------------------------------------------------
-NOU=EXS(iState)%NOCP(INDEO_OU,ISYUPI,MVI)
+
+NOU=EXS(iState)%NOCP(INDEO_OU,ISYUPJ,MVJ)
 if (NOU==0) return
-OffOU=EXS(iState)%IOCP(INDEO_OU,ISYUPI,MVI)
+
+OffOU=EXS(iState)%IOCP(INDEO_OU,ISYUPJ,MVJ)
+
 XUpper=Zero
 
+! Retrieve the upper closed-loop operator E_pq.
+
 Reverse_U=p<q
-call Decode_Upper_Operator(SGS(iState),p,q,INDEO_U)
+
+call Decode_Upper_Operator( &
+       SGS(iState),p,q,INDEO_U)
+
 NU=EXS(iState)%NOCP(INDEO_U,ISYUPI,MVI)
 if (NU==0) return
+
 OffU=EXS(iState)%IOCP(INDEO_U,ISYUPI,MVI)
 
 do iO=1,NOU
+
    FromO=EXS(iState)%ICoup(1,OffOU+iO)
    ToO  =EXS(iState)%ICoup(2,OffOU+iO)
+
+   ! Select A_r(Ku,Ju) with the required external input walk Ju.
+
    if (FromO/=IUPJ) cycle
+
    iValue=EXS(iState)%ICoup(3,OffOU+iO)
    XOpen=EXS(iState)%VTab(iValue)
 
    do iU=1,NU
+
+      ! Decode the orientation of U_pq(Iu,Ku).
+
       if (Reverse_U) then
          FromU=EXS(iState)%ICoup(2,OffU+iU)
          ToU  =EXS(iState)%ICoup(1,OffU+iU)
@@ -9158,28 +9364,63 @@ do iO=1,NOU
          ToU  =EXS(iState)%ICoup(2,OffU+iU)
       end if
 
-      if (ToO/=FromU .or. ToU/=IUPI) cycle
-      iValue=EXS(iState)%ICoup(3,OffU+iU)
-      XClosed=EXS(iState)%VTab(iValue)
-      XUpper=XUpper+XClosed*XOpen
-   end do
+      ! Contract the common intermediate upper walk Ku:
+      !
+      !   ToO   = Ku
+      !   FromU = Ku
+      !   ToU   = Iu.
+
+   if (ToO/=FromU .or. ToU/=IUPI) cycle
+
+   iValue=EXS(iState)%ICoup(3,OffU+iU)
+   XClosed=EXS(iState)%VTab(iValue)
+
+   XUpper=XUpper+XClosed*XOpen
+
 end do
+
+end do
+
 if (XUpper==Zero) return
 
-! Unchanged lower open-loop factor A^s(I_l(m),J_l(m')).
-NOL=EXS(iState)%NOCP(INDEO_OL,ISYDWN_I,MVI)
+! ---------------------------------------------------------------
+! Lower canonical open-loop factor
+!
+!   XLower = A_s(Il(m),Jl(m')).
+!
+! As in SG_Epq_Psi for Swap=.false., retrieve this block from
+! the input/ket-side sector:
+!
+!   (ISYDWN_J,MVJ).
+!
+! The coupling is stored as
+!
+!   ICoup(1) = Jl(m')
+!   ICoup(2) = Il(m).
+! ---------------------------------------------------------------
+
+NOL=EXS(iState)%NOCP(INDEO_OL,ISYDWN_J,MVJ)
 if (NOL==0) return
-OffOL=EXS(iState)%IOCP(INDEO_OL,ISYDWN_I,MVI)
+
+OffOL=EXS(iState)%IOCP(INDEO_OL,ISYDWN_J,MVJ)
+
 XLower=Zero
+
 do iL=1,NOL
+
    FromO=EXS(iState)%ICoup(1,OffOL+iL)
    ToO  =EXS(iState)%ICoup(2,OffOL+iL)
+
    if (FromO/=IDWNJ .or. ToO/=IDWNI) cycle
+
    iValue=EXS(iState)%ICoup(3,OffOL+iL)
+
    XLower=XLower+EXS(iState)%VTab(iValue)
+
 end do
 
 Value=XUpper*XLower
+
 end function MatEl_EpqErs_UO
 
 function MatEl_EpqErs_LU( &
