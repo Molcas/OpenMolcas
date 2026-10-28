@@ -46,7 +46,7 @@ linearizes the MC-PDFT energy around the state-averaged reference density and on
 The resulting effective one- and two-electron operators are contracted with
 the reduced density and transition density matrices of the reference states
 to form an effective Hamiltonian. Diagonalizing this Hamiltonian yields the
-L-PDFT energies and states. For a single reference root and
+L-PDFT energies and states. For a single root and
 :math:`\lambda=0`, L-PDFT reduces to MC-PDFT.
 
 The molecular orbitals and one- and two-body density matrices are read from the
