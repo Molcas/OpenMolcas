@@ -1187,7 +1187,7 @@ Keywords
   noncanonical active-orbital basis to the pseudocanonical basis used by
   CASPT2. Use this together with :kword:`CHNOcanonical` in the preceding
   :program:`RASSCF` input. The transformed tensors are written to separate
-  files with a ``.tran`` suffix; the original CheMPS2 RDM files are retained.
+  files with a :file:`.tran` suffix; the original CheMPS2 RDM files are retained.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="CHTRANSFORM" APPEAR="Transform noncanonical CheMPS2 RDMs" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: CHTRansform <basic>
@@ -1209,7 +1209,6 @@ Keywords
               Reconstruct the CheMPS2 F.4-RDM contribution from lower-order RDMs.
               </HELP>
               </KEYWORD>
-
 
 :kword:`CUMUlant`
   Activate DMRG-cu(4)-CASPT2 calculation with |molcas|--Block interface.

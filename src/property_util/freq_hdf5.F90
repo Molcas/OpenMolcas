@@ -37,16 +37,16 @@ real(kind=wp), intent(in) :: Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedM
 character(len=*), intent(in) :: Path
 logical(kind=iwp), intent(in) :: Do_Energy, Do_Intens
 #ifdef _HDF5_
-integer(kind=iwp) :: dsetid, fileid, iAll, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iSpin, iStab(0:7), iUnique, lcDmp, MaxDCR, &
+integer(kind=iwp) :: dsetid, fileid, i_All, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iSpin, iStab(0:7), iUnique, lcDmp, MaxDCR, &
                      nAll_Atoms, nCnttp, nCoSet, nGen, nStab, nTmp, nUnique_Atoms
 logical(kind=iwp) :: Found, Have_AtoB, Have_cDmp, Have_Iso
+character(len=8) :: Method
 integer(kind=iwp), allocatable :: AtNum(:), AtNum_All(:), AtoB(:)
 real(kind=wp), allocatable :: Charge(:), Coord(:,:), Coord_All(:,:), Mass(:), NMode(:,:,:)
-character(len=8) :: Method
-character(len=LenIn), allocatable :: Label(:)
 character(len=LenIn+4), allocatable :: Label_All(:)
-character(len=80), allocatable :: Bsl(:), Bsl_Old(:)
+character(len=LenIn), allocatable :: Label(:)
 character(len=2*80), allocatable :: cDmp(:)
+character(len=80), allocatable :: Bsl(:), Bsl_Old(:)
 integer(kind=iwp), external :: iChxyz
 
 call Symmetry_Info_Get()
@@ -184,7 +184,7 @@ if (Have_AtoB .and. Have_cDmp) then
   call mma_deallocate(Bsl)
   call mma_deallocate(Bsl_Old)
 end if
-!                                                                   *
+!                                                                      *
 !***********************************************************************
 !                                                                      *
 ! All centers, only with symmetry, in the order of the coordinates and normal modes of Freq_Molden: each unique center is
@@ -201,16 +201,16 @@ if (nIrrep > 1) then
 
   call mma_allocate(Label_All,nAll_Atoms,label='Label_All')
   call mma_allocate(AtNum_All,nAll_Atoms,label='AtNum_All')
-  iAll = 0
+  i_All = 0
   MaxDCR = 0
   do iUnique=1,nUnique_Atoms
     iChAtom = iChxyz(Coord(:,iUnique),iGen,nGen)
     call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
     nCoSet = nIrrep/nStab
     do iCo=0,nCoSet-1
-      iAll = iAll+1
-      Label_All(iAll) = Label(iUnique)//':'//ChOper(iCoSet(iCo,0))
-      AtNum_All(iAll) = AtNum(iUnique)
+      i_All = i_All+1
+      Label_All(i_All) = Label(iUnique)//':'//ChOper(iCoSet(iCo,0))
+      AtNum_All(i_All) = AtNum(iUnique)
     end do
   end do
 

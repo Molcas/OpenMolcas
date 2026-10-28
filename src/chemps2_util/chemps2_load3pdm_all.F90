@@ -16,19 +16,19 @@
 
 subroutine chemps2_load3pdm_all(NAC,storage,chemroot,TRANS)
 
-use mh5, only: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
+use mh5, only: mh5_close_file, mh5_close_group, mh5_fetch_dset, mh5_open_file_r, mh5_open_group
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NAC, chemroot
 real(kind=wp), intent(out) :: storage(NAC**6)
 logical(kind=iwp), intent(in) :: TRANS
-character(len=64) :: file_3rdm
-character(len=10) :: rootindex
 integer(kind=iwp) :: file_h5, group_h5
 logical(kind=iwp) :: rdm_found
+character(len=64) :: file_3rdm
+character(len=10) :: rootindex
 
-write(rootindex,'(i2)') chemroot-1
+write(rootindex,'(i10)') chemroot-1
 file_3rdm = 'molcas_3rdm.h5.r'//trim(adjustl(rootindex))
 if (TRANS) file_3rdm = trim(file_3rdm)//'.tran'
 

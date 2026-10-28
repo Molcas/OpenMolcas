@@ -56,8 +56,8 @@ use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, C
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
 #ifdef _ENABLE_CHEMPS2_DMRG_
-use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, &
-                         Davidson_Tol, Do3RDM, Max_Canonical, Max_Sweep, MxDMRG
+use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, &
+                         Do3RDM, Max_Canonical, Max_Sweep, MxDMRG
 #endif
 #ifdef _DMRG_
 use qcmaquis_interface_cfg, only: dmrg_input, qcmaquis_param

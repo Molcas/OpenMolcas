@@ -63,7 +63,7 @@ call Close_LuSpool(LuSpool)
 ! Initialize scratch files.
 call OPNFLS_CASPT2()
 ! Initialize the reference wavefunction file and read basic info
-call refwfn_init(Input%FILE)
+call refwfn_init(Input%Filename)
 call refwfn_info()
 ! the input processing needs some data from the reference wavefunction
 ! to be set, hence this phase occurs after reading that data.

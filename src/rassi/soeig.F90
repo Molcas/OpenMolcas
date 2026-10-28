@@ -182,7 +182,7 @@ if (NSOTHR_PRT > 0) then
     write(u6,'(1x,A,F10.3,A)') '(In cm-1. Print threshold: ',SOTHR_PRT,' cm-1)'
     write(u6,'(1X,A)') repeat('-',70)
     write(u6,*)
-    write(u6,'(A)') '  I1  S1  MS1    I2  S2  MS2    Real part    Imag part      Absolute'
+    write(u6,'(A)') '    I1   S1  MS1   I2   S2  MS2     Real part     Imag part      Absolute'
     do ISS=1,NSS
       ISTATE = MAPST(ISS)
       MPLET1 = MAPSP(ISS)

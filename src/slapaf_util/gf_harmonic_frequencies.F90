@@ -23,7 +23,7 @@ real(kind=wp), intent(out) :: Tmp1(nDoF,nDoF), EVec(nDoF,nDoF), EVal(nDoF), RedM
 real(kind=wp), intent(inout) :: Tmp2(nX**2)
 integer(kind=iwp), intent(out) :: iNeg
 integer(kind=iwp) :: i, iHarm, iiT, iX, jHarm, jj, jX
-real(kind=wp) :: r2, rlow, temp, Test_i, Test_j, tmp, rmDen, rmNum
+real(kind=wp) :: r2, rlow, rmDen, rmNum, temp, Test_i, Test_j, tmp
 real(kind=wp), external :: DDot_
 
 !                                                                      *

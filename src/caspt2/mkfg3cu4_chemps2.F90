@@ -18,12 +18,11 @@
 subroutine mkfg3cu4_chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,TRANS,chemroot)
 
 use caspt2_module, only: EPSA
-use Constants, only: Half, Zero
-use Definitions, only: wp, iwp, byte
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, byte
 
 implicit none
-real(kind=wp) :: EASUM_CHEMPS2
 logical(kind=iwp), intent(in) :: mkF, TRANS
 integer(kind=iwp), intent(in) :: NLEV, nG3, chemroot
 real(kind=wp), intent(in) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
@@ -31,6 +30,7 @@ real(kind=wp), intent(inout) :: F2(NLEV,NLEV,NLEV,NLEV), F3(nG3)
 real(kind=wp), intent(out) :: G3(nG3)
 integer(kind=byte), intent(in) :: idxG3(6,nG3)
 integer(kind=iwp) :: iG3, iw, jt, ju, jv, jx, jy, jz
+real(kind=wp) :: EASUM_CHEMPS2
 real(kind=wp), allocatable :: G3T(:)
 real(kind=wp), external :: CU4F3H
 
@@ -42,9 +42,8 @@ call chemps2_load3pdm_all(NLEV,G3T,chemroot,TRANS)
 
 EASUM_CHEMPS2 = Zero
 do iw=1,NLEV
-   EASUM_CHEMPS2 = EASUM_CHEMPS2+EPSA(iw)*G1(iw,iw)
+  EASUM_CHEMPS2 = EASUM_CHEMPS2+EPSA(iw)*G1(iw,iw)
 end do
-
 
 if (mkF) then
   do iG3=1,nG3
@@ -57,13 +56,9 @@ if (mkF) then
 
     F3(iG3) = F3(iG3)+EASUM_CHEMPS2*G3(iG3)
     do iw=1,NLEV
-      F3(iG3) = F3(iG3) &
-        -Half*G1(jt,iw)*g3val(iw,ju,jv,jx,jy,jz)*EPSA(iw) &
-        -Half*G1(iw,ju)*g3val(jt,iw,jv,jx,jy,jz)*EPSA(iw) &
-        -Half*G1(jv,iw)*g3val(iw,jx,jt,ju,jy,jz)*EPSA(iw) &
-        -Half*G1(iw,jx)*g3val(jv,iw,jt,ju,jy,jz)*EPSA(iw) &
-        -Half*G1(jy,iw)*g3val(iw,jz,jt,ju,jv,jx)*EPSA(iw) &
-        -Half*G1(iw,jz)*g3val(jy,iw,jt,ju,jv,jx)*EPSA(iw)
+      F3(iG3) = F3(iG3)-Half*EPSA(iw)*(G1(jt,iw)*g3val(iw,ju,jv,jx,jy,jz)+G1(iw,ju)*g3val(jt,iw,jv,jx,jy,jz)+ &
+                                       G1(jv,iw)*g3val(iw,jx,jt,ju,jy,jz)+G1(iw,jx)*g3val(jv,iw,jt,ju,jy,jz)+ &
+                                       G1(jy,iw)*g3val(iw,jz,jt,ju,jv,jx)+G1(iw,jz)*g3val(jy,iw,jt,ju,jv,jx))
     end do
 
     F3(iG3) = F3(iG3)+CU4F3H(NLEV,EPSA,EASUM_CHEMPS2,G1,G2,F1,F2,jt,ju,jv,jx,jy,jz)
@@ -74,13 +69,15 @@ call mma_deallocate(G3T)
 
 contains
 
-function g3val(p1,q1,p2,q2,p3,q3) result(value)
-  integer(kind=iwp), intent(in) :: p1, q1, p2, q2, p3, q3
+function g3val(p1,q1,p2,q2,p3,q3)
+
+  real(kind=wp) :: g3val
+  integer(kind=iwp), intent(in) :: p1, p2, p3, q1, q2, q3
   integer(kind=iwp) :: idx
-  real(kind=wp) :: value
 
   idx = (p1-1)+NLEV*((p2-1)+NLEV*((p3-1)+NLEV*((q1-1)+NLEV*((q2-1)+NLEV*(q3-1)))))
-  value = G3T(1+idx)
+  g3val = G3T(1+idx)
+
 end function g3val
 
 end subroutine mkfg3cu4_chemps2
