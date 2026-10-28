@@ -15,15 +15,16 @@ subroutine molel_write(CMO)
 
 use onedat, only: snoori
 use rasscf_global, only: lRoots
-use general_data, only: nactel, nfro, nish, nbas, ntot, ntot1, ntot2, nsym
+use general_data, only: nactel, nfro, nish, nbas, ntot, ntot1, ntot2, nsym, &
+nash
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u0
+use Definitions, only: wp, iwp
 use Constants, only: One, Zero
 
 implicit none
 #include "warnings.h"
 integer(kind=iwp) :: comp, opt, rc, sylbl, counter, i, ibas, tot_el
-integer(kind=iwp) :: isym, j, nactorb, nAOs, offset, molet_lu
+integer(kind=iwp) :: isym, j, nActOrb, nAOs, offset, molet_lu
 integer(kind=iwp), external :: isFreeUnit
 character(len=8) :: label
 character(len=80) :: FMT1
@@ -46,8 +47,10 @@ call mma_allocate(OvMat,ntot**2,label='OvMat')
 call rdone(rc,opt,label,comp,int1e_ovlp,sylbl)
 call molcas_open(molet_lu,'MolEl.dat')
 nAOs = 0
+nActOrb = 0
 do isym=1,nsym
   nAOs = nAOs + nBas(iSym)
+  nActOrb = nActOrb + nAsh(isym)
 end do
 
 Tot_El = 2*sum(nfro+nish)+nactel
