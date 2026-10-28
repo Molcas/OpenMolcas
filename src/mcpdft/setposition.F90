@@ -21,7 +21,7 @@ subroutine setposition(lunit, keyin, line, iRC)
   integer, intent(out) :: iRC
 
 #include "warnings.h"
-  integer :: iPrLev, key_len
+  integer :: iPrLev, key_len, ios
   character*16 :: command, key
 
   intrinsic :: len, min
@@ -37,18 +37,18 @@ subroutine setposition(lunit, keyin, line, iRC)
 
   key(1:key_len) = keyin(1:key_len)
   call upcase(key)
-10 continue
-  read(lunit,'(A)',END=9910,ERR=9910) line
-  command(1:key_len)=line(1:key_len)
-  call upcase(command)
-  if(command /= key) goto 10
-  return
+  do
+    read(lunit,'(A)',iostat=ios) line
+    if (ios /= 0) exit
+    command(1:key_len) = line(1:key_len)
+    call upcase(command)
+    if (command == key) return
+  end do
 
-9910 continue
-  if(iPrLev >= terse) then
+  if (iPrLev >= terse) then
     write(lf,*) 'SETPOSITION: Attempt to find an input line beginning'
     write(lf,*) 'with the keyword ''',KeyIn,''' failed.'
   end if
-  iRC=_RC_INPUT_ERROR_
+  iRC = _RC_INPUT_ERROR_
   return
 end subroutine setposition
