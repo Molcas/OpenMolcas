@@ -9198,11 +9198,9 @@ Value=Zero
 ! and both canonical open-loop blocks are retrieved from the
 ! input/ket-side sector, i.e. the J side.
 
-if (p<=SGS(iState)%MidLev .or. &
-    q<=SGS(iState)%MidLev) return
+if (p<=SGS(iState)%MidLev .or. q<=SGS(iState)%MidLev) return
 
-if (r<=SGS(iState)%MidLev .or. &
-    s<1 .or. s>SGS(iState)%MidLev) return
+if (r<=SGS(iState)%MidLev .or. s<1 .or. s>SGS(iState)%MidLev) return
 
 if (max(p,q,r)>SGS(iState)%nLev) return
 
@@ -9210,13 +9208,8 @@ if (max(p,q,r)>SGS(iState)%nLev) return
 
 if (r<=s) return
 
-call Decode_CSF( &
-       CIS(iState),ISYCI,I, &
-       MVI,ISYUPI,IUPI,IDWNI)
-
-call Decode_CSF( &
-       CIS(iState),ISYCI,J, &
-       MVJ,ISYUPJ,IUPJ,IDWNJ)
+call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
+call Decode_CSF(CIS(iState),ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
 
 ! Diagonal-upper x open.
 !
@@ -9239,45 +9232,6 @@ end if
 ! Consequently, with I as the output CSF and J as the input CSF,
 !
 !   MVJ = MVL(MVI,iBand).
-
-
-iBand=0
-
-if (EXS(iState)%MVR(MVI,1)==MVJ) then
-   iBand=1
-!  write(6,*) 'FOUND: MVJ=MVR(MVI,1)'
-end if
-
-if (EXS(iState)%MVR(MVI,2)==MVJ) then
-   iBand=2
-!  write(6,*) 'FOUND: MVJ=MVR(MVI,2)'
-end if
-
-!if (EXS(iState)%MVL(MVI,1)==MVJ) then
-!   write(6,*) 'ALT: MVJ=MVL(MVI,1)'
-!end if
-
-!if (EXS(iState)%MVL(MVI,2)==MVJ) then
-!   write(6,*) 'ALT: MVJ=MVL(MVI,2)'
-!end if
-
-!if (EXS(iState)%MVR(MVJ,1)==MVI) then
-!   write(6,*) 'ALT: MVI=MVR(MVJ,1)'
-!end if
-
-!if (EXS(iState)%MVR(MVJ,2)==MVI) then
-!   write(6,*) 'ALT: MVI=MVR(MVJ,2)'
-!end if
-
-!if (EXS(iState)%MVL(MVJ,1)==MVI) then
-!   write(6,*) 'ALT: MVI=MVL(MVJ,1)'
-!end if
-
-!if (EXS(iState)%MVL(MVJ,2)==MVI) then
-!   write(6,*) 'ALT: MVI=MVL(MVJ,2)'
-!end if
-
-!write(6,*) 'iBand = ',iBand
 
 iBand=0
 
