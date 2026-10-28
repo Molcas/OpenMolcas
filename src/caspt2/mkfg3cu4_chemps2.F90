@@ -31,13 +31,13 @@ real(kind=wp), intent(out) :: G3(nG3)
 integer(kind=byte), intent(in) :: idxG3(6,nG3)
 integer(kind=iwp) :: iG3, iw, jt, ju, jv, jx, jy, jz
 real(kind=wp) :: EASUM_CHEMPS2
-real(kind=wp), allocatable :: G3T(:)
+real(kind=wp), allocatable :: G3T(:,:,:,:,:,:)
 real(kind=wp), external :: CU4F3H
 
 ! The compact 3-RDM is used directly by CASPT2, while the full 3-RDM is
 ! needed for the G3-dependent terms of the cumulant reconstruction.
 call chemps2_load3pdm(NLEV,idxG3,nG3,G3,.true.,EPSA,F2,chemroot,TRANS)
-call mma_allocate(G3T,NLEV**6,Label='G3T_CheMPS2')
+call mma_allocate(G3T,NLEV,NLEV,NLEV,NLEV,NLEV,NLEV,Label='G3T_CheMPS2')
 call chemps2_load3pdm_all(NLEV,G3T,chemroot,TRANS)
 
 EASUM_CHEMPS2 = Zero
@@ -56,9 +56,9 @@ if (mkF) then
 
     F3(iG3) = F3(iG3)+EASUM_CHEMPS2*G3(iG3)
     do iw=1,NLEV
-      F3(iG3) = F3(iG3)-Half*EPSA(iw)*(G1(jt,iw)*g3val(iw,ju,jv,jx,jy,jz)+G1(iw,ju)*g3val(jt,iw,jv,jx,jy,jz)+ &
-                                       G1(jv,iw)*g3val(iw,jx,jt,ju,jy,jz)+G1(iw,jx)*g3val(jv,iw,jt,ju,jy,jz)+ &
-                                       G1(jy,iw)*g3val(iw,jz,jt,ju,jv,jx)+G1(iw,jz)*g3val(jy,iw,jt,ju,jv,jx))
+      F3(iG3) = F3(iG3)-Half*EPSA(iw)*(G1(jt,iw)*G3T(iw,jv,jy,ju,jx,jz)+G1(iw,ju)*G3T(jt,jv,jy,iw,jx,jz)+ &
+                                       G1(jv,iw)*G3T(iw,jt,jy,jx,ju,jz)+G1(iw,jx)*G3T(jv,jt,jy,iw,ju,jz)+ &
+                                       G1(jy,iw)*G3T(iw,jt,jv,jz,ju,jx)+G1(iw,jz)*G3T(jy,jt,jv,iw,ju,jx))
     end do
 
     F3(iG3) = F3(iG3)+CU4F3H(NLEV,EPSA,EASUM_CHEMPS2,G1,G2,F1,F2,jt,ju,jv,jx,jy,jz)
@@ -66,19 +66,6 @@ if (mkF) then
 end if
 
 call mma_deallocate(G3T)
-
-contains
-
-function g3val(p1,q1,p2,q2,p3,q3)
-
-  real(kind=wp) :: g3val
-  integer(kind=iwp), intent(in) :: p1, p2, p3, q1, q2, q3
-  integer(kind=iwp) :: idx
-
-  idx = (p1-1)+NLEV*((p2-1)+NLEV*((p3-1)+NLEV*((q1-1)+NLEV*((q2-1)+NLEV*(q3-1)))))
-  g3val = G3T(1+idx)
-
-end function g3val
 
 end subroutine mkfg3cu4_chemps2
 
