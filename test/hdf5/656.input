@@ -153,7 +153,8 @@ with h5py.File(path, 'r') as f:
     attrs = {'MOLCAS_MODULE', 'MOLCAS_VERSION', 'NSYM', 'NATOMS_UNIQUE', 'NFREQ', 'HESSIAN_SOURCE', 'SPINMULT',
              'RELAX_METHOD'}
     dsets = {'CENTER_LABELS', 'CENTER_ATNUMS', 'CENTER_COORDINATES', 'CENTER_MASSES', 'CENTER_BASIS_LABELS',
-             'CENTER_BASIS_INPUT_LABELS', 'FREQUENCIES', 'NORMAL_MODES', 'REDUCED_MASSES', 'ENERGY'}
+             'CENTER_BASIS_INPUT_LABELS', 'FREQUENCIES', 'NORMAL_MODES', 'REDUCED_MASSES', 'ENERGY',
+             'CENTER_CHARGES'}
     if sym:
         attrs.add('NATOMS_ALL')
         dsets |= {'DESYM_CENTER_LABELS', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_COORDINATES'}
@@ -175,8 +176,8 @@ with h5py.File(path, 'r') as f:
     if sym and na < nu:
         fail('A4', 'NATOMS_ALL = %d < NATOMS_UNIQUE = %d' % (na, nu))
     shapes = {'CENTER_LABELS': (nu,), 'CENTER_ATNUMS': (nu,), 'CENTER_COORDINATES': (nu, 3), 'CENTER_MASSES': (nu,),
-              'CENTER_BASIS_LABELS': (nu,), 'CENTER_BASIS_INPUT_LABELS': (nu,), 'FREQUENCIES': (nf,),
-              'NORMAL_MODES': (nf, na, 3), 'REDUCED_MASSES': (nf,), 'ENERGY': ()}
+              'CENTER_CHARGES': (nu,), 'CENTER_BASIS_LABELS': (nu,), 'CENTER_BASIS_INPUT_LABELS': (nu,),
+              'FREQUENCIES': (nf,), 'NORMAL_MODES': (nf, na, 3), 'REDUCED_MASSES': (nf,), 'ENERGY': ()}
     if sym:
         shapes.update({'DESYM_CENTER_LABELS': (na,), 'DESYM_CENTER_ATNUMS': (na,), 'DESYM_CENTER_COORDINATES': (na, 3)})
     if want_intens:
@@ -223,6 +224,14 @@ with h5py.File(path, 'r') as f:
                 fail('A6', '%s of centre %s is blank' % (name, labels[i]))
     if not np.all(np.isfinite(coord)):
         fail('A6', 'non-finite CENTER_COORDINATES')
+    charge = f['CENTER_CHARGES'][...]
+    if not np.all(np.isfinite(charge)) or np.any(charge < 0.0) or np.any(charge > atnum):
+        fail('A6', 'CENTER_CHARGES %s are not between 0 and CENTER_ATNUMS %s' % (charge, atnum))
+    if glob.glob('*.scf.h5'):
+        with h5py.File(one('*.scf.h5'), 'r') as s:
+            if s['CENTER_CHARGES'].shape != charge.shape or not np.allclose(charge, s['CENTER_CHARGES'][...],
+                                                                            rtol=0.0, atol=1.0e-12):
+                fail('A6', 'CENTER_CHARGES differ from scf.h5')
 
     # --- A7: the all-atom data follow the unique atoms, each followed by its images
     if sym:
@@ -327,6 +336,36 @@ with h5py.File(path, 'r') as f:
             if not np.allclose(coord, s['COORDINATES'][idx], rtol=0.0, atol=1.0e-6):
                 fail('A10', 'CENTER_COORDINATES differ from slapaf.h5 COORDINATES[%d]' % idx)
 
+    # --- A11: REDUCED_MASSES, and on the analytic path the norm and the mass-orthogonality of NORMAL_MODES
+    # The reduced mass of a mode is sum(m |v|^2) / sum(|v|^2) over all atoms, m in u (CENTER_MASSES is in electron
+    # masses), on every path. Only the analytic path normalizes the modes to sum(|v|^2) = 1; the others normalize
+    # in a way that depends on the coordinates option, so only the ratio above is asserted for them.
+    owner = [text(x).partition(':')[0].strip() for x in f['DESYM_CENTER_LABELS'][...]] if sym else labels
+    if len(owner) != na or any(x not in labels for x in owner):
+        fail('A11', 'the atoms of NORMAL_MODES cannot be assigned to unique centres: %s' % owner)
+    else:
+        m_all = np.array([mass[labels.index(x)] for x in owner]) / 1822.888486
+        vec = f['NORMAL_MODES'][...]
+        norm2 = np.sum(vec ** 2, axis=(1, 2))
+        mnorm2 = np.sum(m_all[None, :, None] * vec ** 2, axis=(1, 2))
+        if not (np.all(np.isfinite(norm2)) and np.all(norm2 > 0.0)):
+            fail('A11', 'NORMAL_MODES has a mode of zero or non-finite norm')
+        else:
+            redmass = f['REDUCED_MASSES'][...]
+            if not np.allclose(redmass, mnorm2 / norm2, rtol=1.0e-7, atol=1.0e-9):
+                fail('A11', 'REDUCED_MASSES differ from sum(m|v|^2)/sum(|v|^2); largest difference %.3e'
+                     % np.max(np.abs(redmass - mnorm2 / norm2)))
+            if want_source == 'ANALYTIC':
+                if not np.allclose(norm2, 1.0, rtol=0.0, atol=1.0e-8):
+                    fail('A11', 'analytic NORMAL_MODES are not of unit norm; sum(|v|^2) runs from %.6f to %.6f'
+                         % (norm2.min(), norm2.max()))
+                wvec = (np.sqrt(m_all)[None, :, None] * vec).reshape(nf, -1)
+                gram = wvec @ wvec.T
+                off = np.max(np.abs(gram - np.diag(np.diag(gram))))
+                if off > 1.0e-6 * np.max(np.diag(gram)):
+                    fail('A11', 'analytic NORMAL_MODES are not mass-orthogonal; largest off-diagonal %.3e against '
+                         'largest diagonal %.3e' % (off, np.max(np.diag(gram))))
+
 finish()
 sys.stdout.write('frequency HDF5 check passed: HESSIAN_SOURCE=%s NSYM=%d NATOMS_UNIQUE=%d NFREQ=%d\n'
                  % (want_source, nsym, nu, nf))
@@ -370,9 +409,9 @@ NoCD
 
 >>FILE checkfile
 * This file is autogenerated:
-* Molcas version 26.10-2-ge1030b532
-* Darwin host82-83.smin.unisi.it 24.6.0 Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:21 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_X86_64 x86_64
-* Thu Oct 22 09:55:03 2026
+* Molcas version 26.10-15-gf6fa8fa1c
+* Darwin Luca-De-Vicos-MacBook-Pro-2.local 24.6.0 Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:21 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_X86_64 x86_64
+* Sun Oct 25 11:55:44 2026
 *
 #>>   1
 #> POTNUC="9.156005801909"/12
@@ -680,14 +719,16 @@ NoCD
 #> NUMERICAL_HESSIAN[1]="0.000009200646"/2
 #> NUMERICAL_HESSIAN[2]="0.000007765169"/2
 #> NUMERICAL_HESSIAN[3]="0.000009200646"/2
-#> NUMERICAL_HESSIAN[4]="0.408523256254"/2
+#> NUMERICAL_HESSIAN[4]="0.408523256253"/2
 #> NUMERICAL_HESSIAN[5]="0.191998033416"/2
 #> NUMERICAL_HESSIAN[6]="0.000007765169"/2
 #> NUMERICAL_HESSIAN[7]="0.191998033416"/2
 #> NUMERICAL_HESSIAN[8]="0.313931869723"/2
-#> NUMERICAL_IR_INTENSITIES[0]="77.699548983676"/2
-#> NUMERICAL_IR_INTENSITIES[1]="4.242215941265"/2
-#> NUMERICAL_IR_INTENSITIES[2]="33.784166274671"/2
+#> ENTROPY_TOTAL="45.091271585533"/2
+#> GIBBS_TOTAL="-76.215551444302"/5
+#> NUMERICAL_IR_INTENSITIES[0]="77.699548984256"/2
+#> NUMERICAL_IR_INTENSITIES[1]="4.242215941103"/2
+#> NUMERICAL_IR_INTENSITIES[2]="33.784166275013"/2
 #> GEO_ITER="7"/8
 #>>  49
 >>EOF
