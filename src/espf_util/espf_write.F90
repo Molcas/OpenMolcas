@@ -31,12 +31,11 @@ iPL = iPL_espf()
 
 ! Save data in the ESPF.DATA file
 
-IPotFl = 12
-IPotFl = IsFreeUnit(IPotFl)
+IPotFl = IsFreeUnit(12)
 call Molcas_Open(IPotFl,'ESPF.DATA')
 write(IPotFl,'(A10,I10)') 'MLTORD    ',MltOrd/4
 write(IPotFl,'(A10,I10)') 'IRMAX     ',iRMax
-write(IPotFl,'(A10,F12.9)') 'DELTAR    ',DeltaR
+write(IPotFl,'(A10,ES27.20)') 'DELTAR    ',DeltaR
 write(IPotFl,'(A10,I10)') 'GRIDTYPE  ',iGrdTyp
 write(IPotFl,'(A10,I10)') 'GRID      ',nGrdPt
 if (DoTinker) write(IPotFl,'(A10)') 'TINKER    '
