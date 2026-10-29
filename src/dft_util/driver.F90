@@ -13,8 +13,8 @@
 
 subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
 
-use libxc_parameters, only: Coeffs, func_id, Get_External_Params, initiate_libxc_functionals, lExtParams, libxc_functionals, &
-                            nFuncs, nFuncs_max, remove_libxc_functionals, Set_External_Params
+use libxc_parameters, only: Coeffs, Free_External_Params, func_id, Get_External_Params, initiate_libxc_functionals, lExtParams, &
+                            libxc_functionals, nFuncs, nFuncs_max, remove_libxc_functionals, Set_External_Params
 use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_kind, &
                         xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, xc_f03_functional_get_number, XC_UNPOLARIZED
 use Functionals, only: Get_Funcs
@@ -36,7 +36,7 @@ logical(kind=iwp), intent(inout) :: Do_MO, Do_TwoEl
 real(kind=wp), intent(in) :: D_DS(nh1,nD)
 character(len=4), intent(in) :: DFTFOCK
 integer(kind=iwp) :: i, j
-logical(kind=iwp) :: IsFT, LDTF, NDSD
+logical(kind=iwp) :: IsFT, LDTF, LoadedExt, NDSD
 character(len=80) :: FLabel
 type(xc_f03_func_t) :: func_
 type(xc_f03_func_info_t) :: info_
@@ -213,7 +213,8 @@ nFuncs = j
 if (associated(Sub,libxc_functionals)) call Initiate_libxc_functionals(nD)
 
 ! External parameters of translated functionals (MC-PDFT) are stored on the RunFile by the MCPDFT module
-if (l_casdft .and. (.not. lExtParams)) call Get_External_Params()
+LoadedExt = l_casdft .and. (.not. lExtParams)
+if (LoadedExt) call Get_External_Params()
 if (lExtParams) call Set_External_Params()
 
 call DrvNQ(Sub,F_DFT,nD,Func,D_DS,nh1,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK,IsFT)
@@ -221,6 +222,9 @@ call DrvNQ(Sub,F_DFT,nD,Func,D_DS,nh1,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFO
 if (associated(Sub,libxc_functionals)) call Remove_libxc_functionals()
 
 if (associated(External_Sub)) call DrvNQ(External_Sub,F_DFT,nD,Func,D_DS,nh1,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK,IsFT)
+
+! Parameters loaded here (not by MCPDFT itself) are released again
+if (LoadedExt) call Free_External_Params()
 
 Only_exc = .false.
 LDTF = .false.

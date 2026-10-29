@@ -32,8 +32,9 @@ type(xc_f03_func_t) :: xc_func(nFuncs_Max)      ! xc functional
 type(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
 real(kind=wp), allocatable :: FuncExtParams(:,:)
 
-public :: Clear_External_Params, Coeffs, func_id, FuncExtParams, Get_External_Params, Initiate_Libxc_Functionals, lExtParams, &
-          libxc_functionals, nFuncs, nFuncs_max, Put_External_Params, Remove_Libxc_Functionals, Set_External_Params
+public :: Clear_External_Params, Coeffs, Free_External_Params, func_id, FuncExtParams, Get_External_Params, &
+          Initiate_Libxc_Functionals, lExtParams, libxc_functionals, nFuncs, nFuncs_max, Put_External_Params, &
+          Remove_Libxc_Functionals, Set_External_Params
 
 !                                                                      *
 !***********************************************************************
@@ -211,6 +212,17 @@ subroutine Get_External_Params()
   call mma_deallocate(Flat)
 
 end subroutine Get_External_Params
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+subroutine Free_External_Params()
+
+  use stdalloc, only: mma_deallocate
+
+  if (allocated(FuncExtParams)) call mma_deallocate(FuncExtParams)
+  lExtParams = .false.
+
+end subroutine Free_External_Params
 !                                                                      *
 !***********************************************************************
 !                                                                      *
