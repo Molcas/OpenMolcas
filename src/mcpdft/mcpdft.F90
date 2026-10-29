@@ -216,7 +216,7 @@ end if
 call mma_deallocate(FockOcc)
 ! External functional parameters (EXPM) are allocated while reading the input, and are
 ! needed by both the MC-PDFT and the L-PDFT paths
-if (allocated(FuncExtParams)) call mma_deallocate(FuncExtParams)
+call mma_deallocate(FuncExtParams,safe='*')
 call mma_deallocate(e_mcscf)
 if (allocated(e_states)) call mma_deallocate(e_states)
 
