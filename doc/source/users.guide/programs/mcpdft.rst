@@ -220,8 +220,10 @@ The :kword:`FUNC` is the only required keyword.
   Analytical gradients are not implemented for L-PDFT, and the combination of
   :kword:`GRAD` and :kword:`LPDF` results in an input error.
   Analytical gradients are available for translated type-1 meta-GGA on-top
-  functionals (e.g. ``T:M06L``). They are not yet implemented for hybrid
-  meta-GGAs (a meta-GGA combined with :kword:`LAMBda`), which result in an input error.
+  functionals (e.g. ``T:M06L``), also in their hybrid form (:kword:`LAMBda`), with
+  and without Cholesky decomposition. The hybrid gradient is the weighted sum
+  :math:`\lambda g^{\mathrm{CAS}} + (1-\lambda) g^{\mathrm{PDFT}}`, so
+  :math:`\lambda = 0` reproduces MC-PDFT and :math:`\lambda = 1` reproduces the CASSCF gradient.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>

@@ -232,19 +232,6 @@ subroutine verify_input()
     end if
   end if
 
-  ! Fully translated meta-GGAs are already rejected when the on-top functional is built.
-  if (mcpdft_options%grad) then
-    if ((Get_Func_Type(get_base(mcpdft_options%otfnal%otxc)) == meta_GGA_Type1) .and. mcpdft_options%otfnal%is_hybrid()) then
-      call WarningMessage(2,'Hybrid meta-GGA MC-PDFT gradients not implemented')
-      write(u6,*) ' ************* ERROR **************'
-      write(u6,*) ' MC-PDFT gradients are not         '
-      write(u6,*) ' implemented for hybrid meta-GGAs  '
-      write(u6,*) ' (LAMBDA keyword with a meta-GGA)  '
-      write(u6,*) ' **********************************'
-      call Quit_OnUserError()
-    end if
-  end if
-
   if (mcpdft_options%nac) then
     if (.not. mcpdft_options%mspdft) then
       call WarningMessage(2,'NACs implemented only for MS-PDFT')
