@@ -219,6 +219,9 @@ The :kword:`FUNC` is the only required keyword.
   This keyword can be used with state-specific and state-averaged CASSCF reference wavefunctions and with the CMS-PDFT method.
   Analytical gradients are not implemented for L-PDFT, and the combination of
   :kword:`GRAD` and :kword:`LPDF` results in an input error.
+  Analytical gradients are available for translated type-1 meta-GGA on-top
+  functionals (e.g. ``T:M06L``). They are not yet implemented for hybrid
+  meta-GGAs (a meta-GGA combined with :kword:`LAMBda`), which result in an input error.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>
