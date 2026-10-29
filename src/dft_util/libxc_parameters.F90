@@ -32,8 +32,8 @@ type(xc_f03_func_t) :: xc_func(nFuncs_Max)      ! xc functional
 type(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
 real(kind=wp), allocatable :: FuncExtParams(:,:)
 
-public :: Coeffs, func_id, FuncExtParams, Initiate_Libxc_Functionals, lExtParams, libxc_functionals, nFuncs, nFuncs_max, &
-          Remove_Libxc_Functionals, Set_External_Params
+public :: Clear_External_Params, Coeffs, func_id, FuncExtParams, Get_External_Params, Initiate_Libxc_Functionals, lExtParams, &
+          libxc_functionals, nFuncs, nFuncs_max, Put_External_Params, Remove_Libxc_Functionals, Set_External_Params
 
 !                                                                      *
 !***********************************************************************
@@ -151,6 +151,66 @@ subroutine Set_External_Params()
   end if
 
 end subroutine Set_External_Params
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! The external parameters are read in the MCPDFT module. To make them available to the
+! modules that run afterwards (e.g. the grid contribution to the gradient in ALASKA),
+! they are kept on the RunFile as [number of functions, parameters per function, values].
+subroutine Put_External_Params()
+
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp) :: nF, nP
+  real(kind=wp), allocatable :: Flat(:)
+
+  if (.not. allocated(FuncExtParams)) return
+  nP = size(FuncExtParams,1)
+  nF = size(FuncExtParams,2)
+  call mma_allocate(Flat,2+nP*nF,Label='ExtFuncParams')
+  Flat(1) = real(nF,kind=wp)
+  Flat(2) = real(nP,kind=wp)
+  Flat(3:) = reshape(FuncExtParams,[nP*nF])
+  call Put_dArray('ExtFuncParams',Flat,size(Flat))
+  call mma_deallocate(Flat)
+
+end subroutine Put_External_Params
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Flag on the RunFile that no external parameters are in use (avoids picking up stale ones)
+subroutine Clear_External_Params()
+
+  call Put_dArray('ExtFuncParams',[Zero,Zero],2)
+
+end subroutine Clear_External_Params
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+subroutine Get_External_Params()
+
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp) :: nF, nP, nFlat
+  logical(kind=iwp) :: Found
+  real(kind=wp), allocatable :: Flat(:)
+
+  if (lExtParams) return
+  call Qpg_dArray('ExtFuncParams',Found,nFlat)
+  if ((.not. Found) .or. (nFlat < 2)) return
+  call mma_allocate(Flat,nFlat,Label='ExtFuncParams')
+  call Get_dArray('ExtFuncParams',Flat,nFlat)
+  nF = nint(Flat(1))
+  nP = nint(Flat(2))
+  if ((nF > 0) .and. (nP > 0) .and. (nFlat == 2+nP*nF)) then
+    if (allocated(FuncExtParams)) call mma_deallocate(FuncExtParams)
+    call mma_allocate(FuncExtParams,nP,nF,Label='FuncExtParams')
+    FuncExtParams(:,:) = reshape(Flat(3:),[nP,nF])
+    lExtParams = .true.
+  end if
+  call mma_deallocate(Flat)
+
+end subroutine Get_External_Params
 !                                                                      *
 !***********************************************************************
 !                                                                      *

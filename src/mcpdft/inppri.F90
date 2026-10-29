@@ -15,6 +15,7 @@
 subroutine InpPri_m()
 
 use Functionals, only: Print_Info
+use libxc_parameters, only: Clear_External_Params
 use KSDFT_Info, only: CoefR, CoefX
 use PrintLevel, only: SILENT, TERSE, USUAL, VERBOSE
 use mcpdft_output, only: iPrLoc
@@ -37,7 +38,11 @@ IPRLEV = IPRLOC(1)
 call Put_dScalar('DFT exch coeff',CoefX)
 call Put_dScalar('DFT corr coeff',CoefR)
 
-if (mcpdft_options%extparam) call CheckFuncParam(mcpdft_options%extparamfile)
+if (mcpdft_options%extparam) then
+  call CheckFuncParam(mcpdft_options%extparamfile)
+else
+  call Clear_External_Params()
+end if
 
 if (IPRLEV == SILENT) return
 
