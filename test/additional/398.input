@@ -23,6 +23,11 @@ O1        0.000000000      0.000000000      1.700000000   angstrom
 end of basis
 End of input
 
+> COPY ORB.1.orb .
+> COPY ORB.2.orb .
+> COPY ORB.3.orb .
+> COPY ORB.4.orb .
+
 &RASSCF &END
 Spin
  2
