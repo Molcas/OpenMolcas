@@ -46,7 +46,7 @@ linearizes the MC-PDFT energy around the state-averaged reference density and on
 The resulting effective one- and two-electron operators are contracted with
 the reduced density and transition density matrices of the reference states
 to form an effective Hamiltonian. Diagonalizing this Hamiltonian yields the
-L-PDFT energies and states. For a single reference root and
+L-PDFT energies and states. For a single root and
 :math:`\lambda=0`, L-PDFT reduces to MC-PDFT.
 
 The molecular orbitals and one- and two-body density matrices are read from the
@@ -500,37 +500,42 @@ To run the same calculation with the tPBE0 hybrid, add
 ``LAMB=0.25`` to the :program:`MCPDFT` input. The functional remains
 ``FUNC=T:PBE``.
 
-The following complete input performs a hybrid SO-L-PDFT calculation for the
-three doublet states of the boron atom. The :kword:`LPDF` keyword in
-:program:`RASSCF` generates the transition density matrices. In
-:program:`MCPDFT`, :kword:`WJOB` writes the hybrid L-PDFT energies and rotated
-CI vectors to :file:`JOBIPH`. The copy to :file:`JOB001` must occur after the
-:program:`MCPDFT` calculation. Finally, :kword:`EJOB` tells :program:`RASSI` to
-use the stored L-PDFT energies while :kword:`SPINorbit` computes the
-spin--orbit coupling matrix elements using the stored L-PDFT states. ::
+The following complete input demonstrates a hybrid SO-L-PDFT calculation for
+the :math:`[\mathrm{CeCl_6}]^{3-}` complex. The :kword:`LPDF` keyword in
+:program:`RASSCF` generates the transition density matrices for the
+state-averaged CAS(1,7) reference wave function of the seven Ce :math:`4f`
+doublet states. In :program:`MCPDFT`, :kword:`WJOB` writes the hybrid L-PDFT
+energies and rotated CI vectors to :file:`JOBIPH`. The copy to :file:`JOB001`
+must occur after the :program:`MCPDFT` calculation. Finally, :kword:`EJOB`
+tells :program:`RASSI` to use the stored L-PDFT energies as the diagonal of the
+spin-free Hamiltonian, while :kword:`SPINorbit` computes the spin--orbit
+coupling matrix elements using the stored L-PDFT states. ::
 
    &GATEWAY
    Coord
-   1
+   7
    Angstrom
-   B 0.0 0.0 0.0
-   Basis=ANO-RCC-VDZP
+   Ce  0.000  0.000  0.000
+   Cl  2.750  0.000  0.000
+   Cl -2.750  0.000  0.000
+   Cl  0.000  2.750  0.000
+   Cl  0.000 -2.750  0.000
+   Cl  0.000  0.000  2.750
+   Cl  0.000  0.000 -2.750
+   Basis=ANO-RCC-VTZP
    Group=NoSym
    RX2C
    AMFI
+   RICD
 
    &SEWARD
 
    &RASSCF
-   Charge=0
+   Charge=-3
    Spin=2
-   THRS=1.0e-10 1.0e-06 1.0e-06
-   Nactel
-   3 0 0
-   Ras2
-   4
-   CIRoot
-   3 3 1
+   Nactel=1 0 0
+   Ras2=7
+   CIRoot=7 7 1
    LPDF
 
    &MCPDFT
@@ -543,11 +548,15 @@ spin--orbit coupling matrix elements using the stored L-PDFT states. ::
    >>COPY $Project.JobIph JOB001
 
    &RASSI
-   NrOfJobIphs=1 3
-   1 2 3
+   NrOfJobIphs=1 7
+   1 2 3 4 5 6 7
    SPINorbit
    EJOB
 
+In the ligand field the :math:`^2F` term splits into three spin-free levels
+(degeneracies 1, 3 and 3), and spin--orbit coupling further splits and mixes
+them into the :math:`^2F_{5/2}` and :math:`^2F_{7/2}` manifolds, giving 14
+spin--orbit states.
 
 The following example shows a part of the input to run CMS-PDFT geometry optimization. The additional keywords are :kword:`RLXR` and :kword:`GRAD` in :program:`MCPDFT`. The additional modules include :program:`MCLR`, :program:`ALASKA` and :program:`SLAPAF`. ::
 
