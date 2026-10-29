@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Thermo_VibG(nFreq,Freq,T,P,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy)
+subroutine Thermo_VibG(nFreq,Freq,T,P,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy,S_Tot,G_Sum)
 
 use Constants, only: Zero, One, Two, Half, OneHalf, Pi, auTokcalmol, auTokJ, atmToPa, cal_to_J, hPlanck, kBoltzmann, Rgas, rNAVO
 use Definitions, only: wp, iwp, u6
@@ -17,6 +17,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nFreq, nTR, nsRot, iMult
 real(kind=wp), intent(in) :: Freq(nFreq), T, P, TotalM, TRotA, TRotB, TRotC, Energy
+real(kind=wp), intent(out) :: S_Tot, G_Sum ! Total entropy (cal/(mol*K)); energy plus thermal Gibbs free energy (au)
 integer(kind=iwp) :: i
 real(kind=wp) :: beta, Const, CQ_e, dFact, dG_TOT, dH_TOT, dMT, dS_e, dS_rot, dS_TOT, dS_tr, dS_vib, dS_vib_Tot, dU_e, dU_rot, &
                  dU_TOT, dU_tr, dU_vib, dU_vib_Tot, dVM, eta, q_e, q_rot, q_TOT, q_tr, q_vib, q_vib_Tot, ZPVE
@@ -48,7 +49,7 @@ q_e = iMult
 ! Canonical Partition Function
 CQ_e = q_e
 ! Entropy
-dS_e = R_gas_kcal*log(CQ_e)
+dS_e = 1.0e3_wp*R_gas_kcal*log(CQ_e)
 ! Thermal
 dU_e = Zero
 
@@ -85,14 +86,14 @@ if (T > Zero) then
     q_rot = sqrt(q_rot)
     q_rot = q_rot/nsRot
   end if
-end if
-! Entropy
-if (nTR == 5) then
-  dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+One)
-else if (nTR == 3) then
-  dS_rot = Zero
-else
-  dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+OneHalf)
+  ! Entropy
+  if (nTR == 5) then
+    dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+One)
+  else if (nTR == 3) then
+    dS_rot = Zero
+  else
+    dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+OneHalf)
+  end if
 end if
 ! Thermal
 if (nTR == 5) then
@@ -141,6 +142,8 @@ dS_TOT = dS_e+dS_tr+dS_rot+dS_vib_Tot
 dU_TOT = dU_e+dU_tr+dU_rot+dU_vib_Tot
 dH_TOT = dU_TOT+R_gas_kcal*T
 dG_TOT = dH_TOT-dS_TOT*T*1.0e-3_wp
+S_Tot = dS_TOT
+G_Sum = Energy+dG_TOT/auTokcalmol
 
 ! Print Results
 
@@ -149,7 +152,7 @@ write(u6,'(A)') ' *****************************************************'
 write(u6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' kelvin, Pressure =',P,' atm'
 write(u6,'(A)') ' -----------------------------------------------------'
 write(u6,'(A)') ' Molecular Partition Function and Molar Entropy:'
-write(u6,'(A)') '                        q/V (M**-3)    S(kcal/mol*K)'
+write(u6,'(A)') '                        q/V (M**-3)     S(cal/mol*K)'
 write(u6,'(A,ES17.6,F13.3)') ' Electronic       ',q_e,dS_e
 write(u6,'(A,ES17.6,F13.3)') ' Translational    ',q_tr,dS_tr
 write(u6,'(A,ES17.6,F13.3)') ' Rotational       ',q_rot,dS_rot
@@ -171,7 +174,7 @@ write(u6,*)
 write(u6,'(A)') ' Sum of energy and thermal contributions'
 write(u6,'(A,17X,F15.6,A)') ' INTERNAL ENERGY  ',Energy+dU_TOT/auTokcalmol,' au.'
 write(u6,'(A,17X,F15.6,A)') ' ENTHALPY         ',Energy+dH_TOT/auTokcalmol,' au.'
-write(u6,'(A,17X,F15.6,A)') ' GIBBS FREE ENERGY',Energy+dG_TOT/auTokcalmol,' au.'
+write(u6,'(A,17X,F15.6,A)') ' GIBBS FREE ENERGY',G_Sum,' au.'
 write(u6,'(A)') ' -----------------------------------------------------'
 
 return

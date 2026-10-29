@@ -426,7 +426,7 @@ The analysis is performed at different temperatures, for instance: ::
   Temperature =   273.00 kelvin, Pressure =   1.00 atm
   -----------------------------------------------------
   Molecular Partition Function and Molar Entropy:
-                        q/V (M**-3)    S(kcal/mol*K)
+                        q/V (M**-3)     S(cal/mol*K)
   Electronic            0.100000D+01        0.000
   Translational         0.143889D+29       38.044
   Rotational            0.441593D+05       24.235

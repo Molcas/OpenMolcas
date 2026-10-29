@@ -14,6 +14,7 @@
 #include "espffiles.inc"
 #include "slapaffiles.inc"
 #include "moldenfiles.inc"
+#include "freqfiles.inc"
  (file)  STRUCTURE     "$WorkDir/$Project$SubProject."structure  rwst
  (file)  UNSYM         "$WorkDir/$Project."UnSym                 rw
  (file)  RUNREAC       "$WorkDir/$Project."Reac.RunFile          rw

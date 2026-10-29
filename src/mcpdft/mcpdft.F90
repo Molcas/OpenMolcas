@@ -26,6 +26,7 @@ use write_pdft_job, only: writejob
 use PrintLevel, only: DEBUG, INSANE, TERSE
 use mcpdft_output, only: iPrLoc
 use mcpdft_input, only: mcpdft_options, parse_input
+use lpdft, only: lpdft_kernel
 use mspdft_util, only: replace_diag
 use mspdft, only: heff, mspdft_init, mspdft_finalize
 use wadr, only: FockOcc
@@ -105,16 +106,20 @@ call ReadVc_m(CMO)
 ! Really just determine size of 2-e integrals
 call ALLOC()
 
+! - Read in the CASSCF Energy from JOBIPH file.
+call mma_allocate(e_mcscf,lroots,Label='e_mcscf')
+e_mcscf(:) = Zero
+call ref_energy(e_mcscf,lroots)
+
+if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) then
+  call lpdft_kernel(CMO,e_mcscf)
+end if
+
 call Timing(dum1,dum2,time1(1),dum3)
 TimeInput = time1(1)
 
 ! This needs to be put somehwere else...
 call mma_allocate(FockOcc,nTot1,Label='FockOcc')
-
-! - Read in the CASSCF Energy from JOBIPH file.
-call mma_allocate(e_mcscf,lroots,Label='e_mcscf')
-e_mcscf(:) = Zero
-call ref_energy(e_mcscf,lroots)
 
 ! Transform two-electron integrals and compute at the same time
 ! the Fock matrices FI and FA
@@ -149,10 +154,12 @@ end if
 call Timing(dum1,dum2,time2(2),dum3)
 TimeTrans = TimeTrans+time2(2)-time2(1)
 
-! This is where MC-PDFT actually computes the PDFT energy for each state
-! only after 500 lines of nothing above...
-call mma_allocate(e_states,lroots,label='e_states')
-call compute_mcpdft_energy(CMO,e_mcscf,e_states)
+if (.not. mcpdft_options%lpdft) then
+  ! This is where MC-PDFT actually computes the PDFT energy for each state
+  ! only after 500 lines of nothing above...
+  call mma_allocate(e_states,lroots,label='e_states')
+  call compute_mcpdft_energy(CMO,e_mcscf,e_states)
+end if
 
 call Timing(dum1,dum2,time1(1),dum3)
 
@@ -161,8 +168,12 @@ call Timing(dum1,dum2,time1(1),dum3)
 if (mcpdft_options%wjob .and. (.not. mcpdft_options%mspdft)) call writejob(e_states,lroots)
 
 if (mcpdft_options%mspdft) then
-  Method = 'MSPDFT'
-  call replace_diag(heff,e_states,lroots)
+  if (mcpdft_options%lpdft) then
+    Method = 'LPDFT'
+  else
+    Method = 'MSPDFT'
+    call replace_diag(heff,e_states,lroots)
+  end if
   call mspdft_finalize(lroots)
 else
   Method = 'MCPDFT'
@@ -206,8 +217,8 @@ end if
 ! Release  some memory allocations
 call mma_deallocate(FockOcc)
 call mma_deallocate(e_mcscf)
-call mma_deallocate(e_states)
 call mma_deallocate(CMO)
+if (allocated(e_states)) call mma_deallocate(e_states)
 
 call StatusLine('MCPDFT:','Finished.')
 if (IPRLEV >= 2) write(u6,*)
