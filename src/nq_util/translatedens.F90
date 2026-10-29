@@ -290,14 +290,17 @@ if (DoGrad) then
   ! tau_a/b = (1 +/- zeta) tau/2, with zeta = zeta(R) and R = 4 Pi/rho**2, so
   ! d tau_a/b = (1 +/- zeta)/2 d tau +/- 1/2 tau d zeta
   ! dZeta already contains the contribution of dPi, through dRatio.
+  ! Mk_Rho stores the Cartesian derivatives of tau multiplied by four (they are paired with
+  ! a factor Quart*vTau in DFT_Grad), whereas TauAB follows the libxc definition. The
+  ! d(zeta) term is therefore scaled by four as well.
   if (lmGGA1) then
     call mma_allocate(GradTauAB,mGrid,nEGrad,label='GradTauAB')
     GradTauAB(:,:) = dRho_dr(9,:,:)+dRho_dr(10,:,:)
     do iEGrad=1,nEGrad
       do iGrid=1,mGrid
         if (Pass1(iGrid)) then
-          dRho_dr(9,iGrid,iEGrad) = OnePZ(iGrid)*GradTauAB(iGrid,iEGrad)+Half*dZeta(iGrid,iEGrad)*TauAB(iGrid)
-          dRho_dr(10,iGrid,iEGrad) = OneMZ(iGrid)*GradTauAB(iGrid,iEGrad)-Half*dZeta(iGrid,iEGrad)*TauAB(iGrid)
+          dRho_dr(9,iGrid,iEGrad) = OnePZ(iGrid)*GradTauAB(iGrid,iEGrad)+Two*dZeta(iGrid,iEGrad)*TauAB(iGrid)
+          dRho_dr(10,iGrid,iEGrad) = OneMZ(iGrid)*GradTauAB(iGrid,iEGrad)-Two*dZeta(iGrid,iEGrad)*TauAB(iGrid)
         end if
       end do
     end do
