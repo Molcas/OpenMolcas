@@ -24,7 +24,7 @@ use Constants, only: One, Zero
 implicit none
 #include "warnings.h"
 integer(kind=iwp) :: comp, opt, rc, sylbl, counter, i, ibas, tot_el
-integer(kind=iwp) :: isym, j, nActOrb, nAOs, offset, molet_lu
+integer(kind=iwp) :: isym, j, nActOrb, offset, molet_lu
 integer(kind=iwp), external :: isFreeUnit
 character(len=8) :: label
 character(len=80) :: FMT1
@@ -40,16 +40,14 @@ comp = 1
 sylbl = 1
 label = 'Mltpl  0'
 
-molet_lu = IsFreeUnit(40)
 
 call mma_allocate(int1e_ovlp,ntot1+4,label='int1e_ovlp')
 call mma_allocate(OvMat,ntot**2,label='OvMat')
 call rdone(rc,opt,label,comp,int1e_ovlp,sylbl)
-call molcas_open(molet_lu,'MolEl.dat')
-nAOs = 0
+molet_lu = IsFreeUnit(40)
+call molcas_open(molet_lu,'MOLEL')
 nActOrb = 0
 do isym=1,nsym
-  nAOs = nAOs + nBas(iSym)
   nActOrb = nActOrb + nAsh(isym)
 end do
 
@@ -58,7 +56,7 @@ Tot_El = 2*sum(nfro+nish)+nactel
 
 FMT1 = "(I4,1X,I4,1X,I4,1X,I4,1X,I4)"
 write(molet_lu,*) 'Number of states,orbitals,electrons,ActOrb,ActEl'
-write(molet_lu,FMT1) lroots,nAOs,Tot_El,nActOrb,nActEl
+write(molet_lu,FMT1) lroots,nTot,Tot_El,nActOrb,nActEl
 write(molet_lu,*) 'Overlap Matrix (AO)'
 
 FMT1 = "(I4,1X,I4,1X,F20.14)"
