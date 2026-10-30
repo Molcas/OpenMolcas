@@ -154,6 +154,20 @@ def test_kindfn(line, filename):
   l = line.decode('ascii', 'ignore').strip('\n')
   return (kindfn1.search(l) or kindfn2.search(l) or kindfn3.search(l))
 
+# GOTO statement
+goto = re.compile(r'\s*([^! ].*)?\bgo\s*to\s+\d', re.IGNORECASE)
+def test_goto(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  return goto.match(line.decode('ascii', 'ignore').strip('\n'))
+
+# ERR/END arguments
+errend = re.compile(r',\s*(err|end)\s*=.*\)', re.IGNORECASE)
+def test_errend(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  return errend.search(line.decode('ascii', 'ignore').strip('\n'))
+
 #====================================================
 
 #====================================================
@@ -179,6 +193,8 @@ tests.append({'func': test_forallfn, 'print': '[{0}] "FORALL" statement in {1}, 
 tests.append({'func': test_debug_flag, 'print': '[{0}] "_DEBUG_ compile flag in {1}, line {2} (use _DEBUGPRINT_ or _ADDITIONAL_RUNTIME_CHECK_)', 'error': True})
 tests.append({'func': test_characternfn, 'print': '[{0}] "CHARACTER(n)" declaration in {1}, line {2} (use CHARACTER(LEN=n))', 'error': True})
 tests.append({'func': test_kindfn, 'print': '[{0}] Wrong "KIND" value in {1}, line {2} (switched IWP/WP or integer constant as real)', 'error': True})
+tests.append({'func': test_goto, 'print': '[{0}] "GOTO" statement in {1}, line {2} (use flow control)', 'error': True})
+tests.append({'func': test_errend, 'print': '[{0}] "ERR/END" arguments in {1}, line {2} (use flow control)', 'error': True})
 
 def run_tests(line, fname, ln):
   j = 0

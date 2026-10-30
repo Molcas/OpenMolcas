@@ -206,7 +206,6 @@ end if
 ! Now read projection basis set
 ! Loop over each shell type (s,p,d,etc....)
 ! The ECP is assumed to contain s,p,d and f functions,
-! Read(Line,*,Err=993) nProj
 Line = Get_Ln(lUnit)
 call Get_I1(1,nProj)
 
@@ -216,7 +215,6 @@ do iAng=0,nProj
   n_Elec = 2*(2*iAng+1)
   iShll = iShll+1
   if (iShll > size(Shells)) call Extend_Shells()
-  !read(Line,*,Err=993) nPrim, nCntrc
   Line = Get_Ln(lUnit)
   call Get_I1(1,nPrim)
   call Get_i1(2,nCntrc)
