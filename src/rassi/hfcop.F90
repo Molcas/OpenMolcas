@@ -446,23 +446,19 @@ end subroutine calc_h_SD
 subroutine proc_nuc_spin(iAtom,icase)
 
   integer(kind=iwp), intent(in) :: iAtom, icase
+  character(len=*), parameter :: src(5) = [character(len=26) :: 'ISOT [GATEWAY]','NMASs [RASSI]','NSPIn [RASSI]', &
+                                           'GNUC [RASSI]','AUTO-NONZERO-GFAC [RASSI]']
 
-  write(u6,'(7X,A18,A6)') 'Process for atom: ',LAtomLbl(iAtom)
+  ! The resulting A, I and g-factor are printed by print_isotope_info
+  write(u6,'(7X,A)') trim(LAtomLbl(iAtom))//' isotope from: '//trim(src(icase))
   select case (icase)
-    case (1)
-      write(u6,'(11X,A38)') 'USE: Isotopic mass [SEWARD or GATEWAY]'
-      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
-    case (2)
-      write(u6,'(11X,A31,I0)') 'USE: NMASs [RASSI input]   A = ',NucMass(iAtom)
+    case (1,2)
       call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     case (3)
-      write(u6,'(11X,A31,F3.1)') 'USE: NSPIn [RASSI input]   I = ',NucSpin(iAtom)
       call GNUC_by_nucspin(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     case (4)
-      write(u6,'(11X,A37,F12.8)') 'USE: GNUC [RASSI input]   g-factor = ',GNuc(iAtom)
       call NUCSPIN_by_gnuc(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     case (5)
-      write(u6,'(11X,A37)') 'USE: Most abundance non-zero g-factor'
       call get_first_nonzero_GNUC(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
   end select
 
@@ -884,9 +880,9 @@ subroutine print_EPR_summary()
       write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12),4X,A24)') repeat('-',4),(repeat('-',12),iContr=1,5),repeat('-',24)
 
       do iAxis=1,3
-        write(u6,'(3X,A3,1x,2x,F12.2,5x,F12.2,3(2x,F12.2),4X,A1,3(F7.3,1X),A1)') prin_lab(iAxis),pr_vals(iACalc,5,iAxis), &
+        write(u6,'(3X,A3,1x,2x,F12.2,5x,F12.2,3(2x,F12.2),4X,3(F7.3,1X))') prin_lab(iAxis),pr_vals(iACalc,5,iAxis), &
                                                                                (pr_vals(iACalc,iContr,iAxis),iContr=1,4), &
-                                                                               '(',prin_axes(iACalc,1:3,iAxis),')'
+                                                                               prin_axes(iACalc,1:3,iAxis)
       end do
 
       !--> Print isotropic values
@@ -1279,7 +1275,7 @@ subroutine calc_prin_val(iAtom,A_tens)
   !                                    PSO = 4
   !                                  Total = 5
 
-  ! A_tens is already symmetric, this step makes sure before passing to dsyev_
+  ! A_tens is already symmetric, this step removes numerical noises before passing to dsyev_
   X(:,:) = Half*(A_tens(:,:,5)+transpose(A_tens(:,:,5)))
   EVal(:) = Zero
   IERR = 0
