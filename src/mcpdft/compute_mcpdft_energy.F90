@@ -19,7 +19,6 @@ subroutine compute_mcpdft_energy(cmo,e_mcscf,e_states)
 use mcpdft_input, only: mcpdft_options
 use KSDFT_Info, only: do_pdftpot
 use mspdftgrad, only: D1aoMS, D1SaoMS, DIDA, P2MOT
-use libxc_parameters, only: FuncExtParams
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2, PotNuc
 use rasscf_files, only: jobiph, jobold
 use general_data, only: ispin, nash, nbas, nish, norb, nsym, ntot1, ntot2
@@ -229,9 +228,5 @@ call mma_deallocate(hcore)
 call mma_deallocate(coul)
 call mma_deallocate(P2D)
 call mma_deallocate(dm1_core)
-
-! This deallocation SHOULD NOT BE HERE
-! but it has to do with how the FuncExtParams is loaded...
-if (allocated(FuncExtParams)) call mma_deallocate(FuncExtParams)
 
 end subroutine compute_mcpdft_energy

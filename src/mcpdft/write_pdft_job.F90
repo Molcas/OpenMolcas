@@ -74,14 +74,18 @@ subroutine save_energies(e_states)
   real(kind=wp), intent(_IN_) :: e_states(:)
   integer(kind=iwp) :: adr19(15), disk
 # ifdef _HDF5_
+  character(len=8) :: module_label
   integer(kind=iwp) :: module_name, refwfn_id, wfn_energy
 # endif
 
 # ifdef _HDF5_
   if (mcpdft_options%is_hdf5_wfn) then
+    module_label = 'MCPDFT'
+    if (mcpdft_options%mspdft) module_label = 'MSPDFT'
+    if (mcpdft_options%lpdft) module_label = 'LPDFT'
     refwfn_id = mh5_open_file_rw(mcpdft_options%wfn_file)
     module_name = mh5_open_attr(refwfn_id,'MOLCAS_MODULE')
-    call mh5_put_attr(module_name,'MCPDFT')
+    call mh5_put_attr(module_name,trim(module_label))
     wfn_energy = mh5_open_dset(refwfn_id,'ROOT_ENERGIES')
     call mh5_put_dset(wfn_energy,e_states)
     call mh5_close_file(refwfn_id)

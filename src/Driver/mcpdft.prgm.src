@@ -20,6 +20,7 @@
 #include "rasscffiles.inc"
 #include "orbitals.inc"
 #include "wfnfiles.inc"
+ (file)  LPDFTDM  "$WorkDir/$Project."tdm_4_lpdft.h5  ro
  (file)  NQGRID   "$WorkDir/$Project."NqGrid    rw
 #include "moldenfiles.inc"
  (file)  GV.off   "$WorkDir/$Project$SubProject."GV.off    rw

@@ -22,6 +22,7 @@ private
 type :: McpdftInputOptions_t
   logical(kind=iwp) :: wjob = .false.
   logical(kind=iwp) :: mspdft = .false.
+  logical(kind=iwp) :: lpdft = .false.
   logical(kind=iwp) :: grad = .false.
   logical(kind=iwp) :: meci = .false.
   logical(kind=iwp) :: nac = .false.
@@ -112,6 +113,9 @@ subroutine parse_input()
       case ('MSPD')
         mcpdft_options%mspdft = .true.
 
+      case ('LPDF')
+        mcpdft_options%lpdft = .true.
+
       case ('WJOB')
         mcpdft_options%wjob = .true.
 
@@ -170,13 +174,31 @@ subroutine verify_input()
 
   logical(kind=iwp) :: file_exists
 
-  if (mcpdft_options%mspdft) then
+  if (mcpdft_options%mspdft .and. (.not. mcpdft_options%lpdft)) then
     call f_inquire('ROT_HAM',file_exists)
     if (.not. file_exists) then
       call WarningMessage(2,'No H0_Rotate.txt found')
       write(u6,*) ' ************* ERROR **************'
       write(u6,*) ' MSPDFT specified but rotated      '
       write(u6,*) ' Hamiltonian file not found!       '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+  end if
+
+  if (mcpdft_options%lpdft .and. (.not. mcpdft_options%mspdft)) then
+    call WarningMessage(2,'LPDF keyword requires MSPDFT.')
+    write(u6,*) ' ************* ERROR **************'
+    write(u6,*) ' LPDF requires the MSPD keyword    '
+    write(u6,*) ' **********************************'
+    call Quit_OnUserError()
+  end if
+
+  if (mcpdft_options%lpdft) then
+    if (mcpdft_options%grad) then
+      call WarningMessage(2,'L-PDFT gradients are not implemented')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' L-PDFT analytical nuclear gradients are not implemented'
       write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if
