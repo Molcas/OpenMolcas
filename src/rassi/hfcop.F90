@@ -84,6 +84,8 @@ character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC','SD','
 character, parameter :: xyz(3) = ['x','y','z']
 character(len=*), parameter :: prin_lab(3) = ['a_1','a_2','a_3']
 
+real(kind=wp), parameter :: Apf_zero_tol = 1.0e-8_wp, a_res = sqrt(Apf_zero_tol), rel_tol = 0.05_wp
+
 public :: Hyperfine_Oper
 
 contains
@@ -857,9 +859,9 @@ subroutine print_EPR_summary()
   do iAtom=1,nAtoms
     if (Atens_Req(iAtom)) then
       iACalc = iACalc+1
+      call assign_hfc_prvl_signs(pr_vals(iACalc,:,:),signs_resolved(iACalc))
       conv = con_to_MHz*GNuc(iAtom)
       pr_vals(iACalc,:,:) = abs(conv)*pr_vals(iACalc,:,:)
-      call assign_hfc_prvl_signs()
     end if
   end do
 
@@ -1127,133 +1129,74 @@ subroutine calc_A_tens(A_tens,h_HFC)
 
 end subroutine calc_A_tens
 
-subroutine assign_hfc_prvl_signs()
+subroutine assign_hfc_prvl_signs(prvl,resolved)
+  ! PURPOSE: Assign relative signs to the principal values of one nucleus.
+  !   prvl(iContr,iAxis): |a| of FC, SD, FCSD, PSO, TOTAL (raw units) along the principal axes of TOTAL
+  !   FC is taken as positive on every axis (the real sign requires spin density at nucleus).
+  !   Along each axis, two relations fix the remaining signs:
+  !     STEP 1:  FC   + SD  = FCSD
+  !     STEP 2:  FCSD + PSO = TOTAL
+  !   If the signs cannot be resolved, prvl is returned unsigned.
 
-  integer(kind=iwp) :: iAx
-  logical(kind=iwp) :: is_determined(3), ill_defined(2)
+  real(kind=wp), intent(inout) :: prvl(5,3)
+  logical(kind=iwp), intent(out) :: resolved
+  integer(kind=iwp) :: iA, iAx, iStep
+  real(kind=wp) :: eps
+  logical(kind=iwp) :: ill(3), ok(3)
 
   ! VARIABLE DESCRIPTION
-  !  is_determined: same axis, different contributions --> ROWs in summary table
-  !                 For example: a_FC(xx) +- a_SD(xx) +- a_PSO(xx)
-  !  ill_defined  : same contribution, different axes  --> COLs in summary table
-  !                 only happens when FC is zeros or both FC and SD are zeros
-  !                 a_SD(xx) +- a_SD(yy) +- a_SD(zz)
-  ! sign_resolved = .true. when signs are resolved among both different contributions and different axes.
+  !  eps: values below eps are insignificant (rel_tol of the largest principal value, at least the resolution a_res)
+  !  ok : the magnitudes one of the two relations a +/- b = c satisfies
+  !  ill: the sign of b cannot be decided, even a +/- b = c satisfies
 
-  !----------------------------------------------
-  ! STEP 1: determine FC  +/- SD  =  +/- FCSD
-  is_determined(:) = .false.
-  ill_defined(:) = .false.
-  do iAx=1,3
-    call assign_abc_signs(pr_vals(iACalc,1,iAx),pr_vals(iACalc,2,iAx),pr_vals(iACalc,3,iAx),is_determined(iAx),ill_defined(1))
+  prvl(:,:) = abs(prvl)
+  eps = max(a_res,rel_tol*maxval(prvl))
+  resolved = .true.
+  do iStep=1,2
+    ! STEP 1: (a,b,c) = (FC,SD,FCSD); STEP 2: (a,b,c) = (FCSD,PSO,TOTAL)
+    iA = 2*iStep-1
+    do iAx=1,3
+      call assign_abc_signs(prvl(iA,iAx),prvl(iA+1,iAx),prvl(iA+2,iAx),eps,ok(iAx),ill(iAx))
+    end do
+    ! An undecided sign only matters if c is significant along more than one axis
+    resolved = resolved .and. all(ok) .and. ((.not. any(ill)) .or. (count(prvl(iA+2,:) > eps) < 2))
   end do
 
-  if (all(is_determined)) then
-    !----------------------------------------------
-    ! STEP 2: determine FCSD  +/- PSO  =  +/- TOTAL
-    is_determined(:) = .false.
-    do iAx=1,3
-      call assign_abc_signs(pr_vals(iACalc,3,iAx),pr_vals(iACalc,4,iAx),pr_vals(iACalc,5,iAx),is_determined(iAx),ill_defined(2))
-    end do
-
-    signs_resolved(iACalc) = (.not. any(ill_defined)) .and. all(is_determined)
-  end if
-
-  if (.not. signs_resolved(iACalc)) pr_vals(iACalc,:,:) = abs(pr_vals(iACalc,:,:))
+  if (.not. resolved) prvl(:,:) = abs(prvl)
+  ! Avoid printing -0.00 (non-zero values are never below a_res)
+  where (abs(prvl) < a_res) prvl = Zero
 
 end subroutine assign_hfc_prvl_signs
 
-subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
-  ! PURPOSE: Determine signs of this equation:
-  !           a  +/- |b| = +/- |c|
-  ! where sign(a) is fixed (always positive or negative). OUTPUT: sign(b), sign(c)
-  ! There are two cases:
-  !           CASE I: There is zero in a, b, or c
-  !           CASE II: all is non-zero
-  !                  1. a, b have the same sign --> abs(c) increases
-  !                  2. a, b have different signs --> abs(c) decreases
-  ! Cases II.1 and II.2 follows two steps:
-  !     step 1. Compare  MAX(|a|,|b|) and |c|
-  !     step 2. Compare with the relative tolerance [5% of the maximum absolute value]
+subroutine assign_abc_signs(a,b,c,eps,ok,ill)
+  ! PURPOSE: Determine the signs of b and c in  a + b = c,  where sign(a) is known.
+  !   The two candidates are  |c| = |a|+|b|    (b has the same sign as a)
+  !                      or   |c| = ||a|-|b||  (b has the opposite sign)
 
-  real(kind=wp), intent(in) :: a
+  real(kind=wp), intent(in) :: a, eps
   real(kind=wp), intent(inout) :: b, c
-  logical(kind=iwp), intent(out) :: is_determined, ill_defined
-  integer(kind=iwp) :: nzeros
-  real(kind=wp) :: abs_a, abs_b, abs_c, max_left_absval, abs_tol
-  real(kind=wp), parameter :: rel_tol = 0.05_wp, zero_tol = 1.0e-8_wp
+  logical(kind=iwp), intent(out) :: ok, ill
+  real(kind=wp) :: abs_a, abs_b, abs_c, err_opp, err_same
 
   abs_a = abs(a)
   abs_b = abs(b)
   abs_c = abs(c)
-  max_left_absval = max(abs_a,abs_b)
-  ! Relative tolerance for determining signs is 5%
-  ! Absolute tolerance is 5% of the largest absolute value among a, b, c
-  abs_tol = rel_tol*max(abs_a,abs_b,abs_c)
-  is_determined = .false.
-  ill_defined = .false.
+  err_same = abs(abs_a+abs_b-abs_c)
+  err_opp = abs(abs(abs_a-abs_b)-abs_c)
 
-  nzeros = count([abs_a,abs_b,abs_c] < zero_tol)
-
-  ! CASE I: Handle cases where at least one magnitude is effectively zero.
-  if (nzeros == 3) then
-    is_determined = .true.
-  else if (nzeros == 2) then
-    ! If two values are zero and the third is non-zero, this would be impossible
-    ! is_determined = .false. already, do nothing here
-  else if (nzeros == 1) then
-
-    ! c = 0 --> check if a - b = 0
-    if ((abs_c < zero_tol) .and. (abs(abs_a-abs_b) < zero_tol)) then
-      is_determined = .true.
-      b = -sign(abs_b,a)
-    end if
-
-    ! a = 0 --> check if b = c
-    ! This case is vague. b could be positive or negative.
-    if ((abs_a < zero_tol) .and. (abs(abs_b-abs_c) < zero_tol)) then
-      is_determined = .true.
-      ill_defined = .true.
-    end if
-
-    ! b = 0 --> check if a = c
-    if ((abs_b < zero_tol) .and. (abs(abs_a-abs_c) < zero_tol)) then
-      is_determined = .true.
-      c = sign(abs_c,a)
-    end if
-
+  ok = min(err_same,err_opp) <= rel_tol*max(abs_a,abs_b,abs_c)+eps
+  if (err_same <= err_opp) then
+    b = sign(abs_b,a)
   else
-    ! CASE II: All three values are nonzero
-    if (abs_c > max_left_absval) then
-      ! CASE 1: abs_c increases
-      !------------------------
-      ! a, b should have the SAME sign --> 2 cases: [+] + [+] = [+]
-      !                                          or [-] + [-] = [-]
-      if (abs(abs_a+abs_b-abs_c) < abs_tol) then
-        is_determined = .true.
-        ! a = [+] --> b = [+]  , c = [+]
-        ! a = [-] --> b = [-]  , c = [-]
-        b = sign(abs_b,a)
-        c = sign(abs_c,a)
-      end if
-
-    else ! (abs_c <= max_left_absval)
-      ! CASE 2: abs_c decreases
-      !------------------------
-      ! a, b should have the DIFFERENT signs --> 2 cases: [+] + [-]
-      !                                                or [-] + [+]
-
-      if (abs(abs(abs_a-abs_b)-abs_c) < abs_tol) then
-        is_determined = .true.
-
-        ! b needs to have the OPPOSITE sign of a. Sign of c depends on a & b
-        ! a = [+] --> b = [-]  , c = [+] if |a| > |b| and vice versa
-        ! a = [-] --> b = [+]  , c = [-] if |a| > |b| and vice versa
-        b = -sign(abs_b,a)
-        c = sign(abs_c,a+b)
-      end if
-    end if
+    b = -sign(abs_b,a)
   end if
+  c = sign(abs_c,a+b)
+  ! Ill when 3 conditions are all true:
+  !            abs(err_same-err_opp) <= a_res: both choices works |c| = |a|+|b| or |c| = ||a|-|b||
+  !            abs_a < abs_b : a is negligible (ussually happen when FC is too small)
+  !            abs_b > eps : b is large, we could not ignore
+  !  --> there are two choices, b is large --> uncertainty
+  ill = (abs(err_same-err_opp) <= a_res) .and. (abs_a < abs_b) .and. (abs_b > eps)
 
 end subroutine assign_abc_signs
 
@@ -1268,7 +1211,6 @@ subroutine transf_prin_axes(A,X,a_prin,a_lab)
   real(kind=wp), intent(out) :: a_prin(3,5), a_lab(3,3,5)
   integer(kind=iwp) :: iAxis, iContr
   real(kind=wp) :: A_pf(3,3), fnorm_diag, fnorm_off_diag, sqrtD(3,3), tmpmat(3,3)
-  real(kind=wp), parameter :: zero_tol = 1.0e-8_wp
   real(kind=wp), external :: dnrm2_
 
   ! VARIABLE DESCRIPTION:
@@ -1286,7 +1228,7 @@ subroutine transf_prin_axes(A,X,a_prin,a_lab)
 
     ! Typical g-factors are lower than 6.0, while conv_to_MHz (print_EPR_summary) is around 100.0 (95.5)
     ! if a value is below 1.0e-8_wp, A(MHz) is around 6.0*100.0*10^-8 = 0.000006 MHz
-    where (abs(A_pf(:,:)) < zero_tol) A_pf = Zero
+    where (abs(A_pf(:,:)) < Apf_zero_tol) A_pf = Zero
 
     ! A = a a^T is positive semi-definite, so diag(X^T A X) >= 0 up to numerical noise
     if (any([A_pf(1,1),A_pf(2,2),A_pf(3,3)] < Zero)) then
