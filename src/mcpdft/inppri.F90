@@ -124,7 +124,9 @@ if (iPrLev >= TERSE) then
   else
     write(u6,Fmt2//'A,T50,A)') 'Cholesky decomposition','Off'
   end if
-  if (mcpdft_options%mspdft) then
+  if (mcpdft_options%lpdft) then
+    write(u6,Fmt2//'A,T50,A)') 'Type of calculation','L-PDFT'
+  else if (mcpdft_options%mspdft) then
     write(u6,Fmt2//'A,T50,A)') 'Type of calculation','MS-PDFT'
   else
     write(u6,Fmt2//'A,T50,A)') 'Type of calculation','MC-PDFT'
