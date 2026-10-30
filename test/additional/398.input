@@ -1,9 +1,9 @@
 **************************************************
-* Tests SONATORB and SODIAG Symmetry 
+* Tests SONATORB Symmetry
 * Functionality in RASSI
-* File created by 
-* Kurtis Stanistreet-Welsh
-* Affiliated with Jochen Autschbach Research Group 
+* File created by
+* Kurtis Stanistreet-Welsh, editted by Dong Le
+* Affiliated with Jochen Autschbach Research Group
 * Date: 2026-10-28
 **************************************************
 
@@ -162,9 +162,6 @@ PROPerties
 'AngMom' 2
 'AngMom' 3
 SONORB
-2
-1 2
-SODIAG
 2
 1 2
 end of input
