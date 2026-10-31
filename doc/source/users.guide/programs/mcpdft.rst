@@ -32,7 +32,8 @@ electron density, and on-top pair-density;
 (ii) a post-SCF calculation of the remaining energy using an on-top
 pair-density functional. In the current implementation, the on-top pair-density
 functionals are translated (t) or fully translated (ft) :cite:`Carlson2015`
-LSDA-type or GA-type exchange correlation functionals.
+LSDA-type or GA-type exchange correlation functionals, or translated
+meta-GA-type functionals :cite:`Hennefarth2025`.
 For example: tLSDA, tPBE, tBLYP, trevPBE and tOPBE for translated functionals,
 and ftLSDA, ftPBE, ftBLYP, ftrevPBE and ftOPBE for fully-translated
 functionals. Hybrid functionals (see keyword :kword:`LAMBda`) and functionals
@@ -131,7 +132,7 @@ The :kword:`FUNC` is the only required keyword.
   functional by prefixing ``T:`` or ``FT:`` to the standard DFT functionals.
   For type-1 meta-GGAs that depend on the kinetic-energy density but not the
   density Laplacian, one may specify a translated on-top functional with the
-  prefix ``T:``, but one cannot use ``FT:``. Hybrid functional names (e.g. PBE0 or
+  prefix ``T:`` :cite:`Hennefarth2025`, but one cannot use ``FT:``. Hybrid functional names (e.g. PBE0 or
   B3LYP) should not be used after ``FUNC=T:`` or ``FUNC=FT:`` in this module.
   See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT
   and hybrid L-PDFT calculations. L-PDFT currently supports pure and hybrid
