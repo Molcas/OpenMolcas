@@ -19,8 +19,7 @@ use input_ras, only: Key
 use Definitions, only: u6
 #ifdef _HDF5_
 use Index_Functions, only: nTri_Elem
-use lucia_data, only: DStmp, Dtmp, Ptmp
-use Lucia_Interface, only: Lucia_Util
+use ci_interfaces, only: Mk_T1DM, Mk_T2DM
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
 use general_data, only: NCONF, STSYM
 use rasscf_files, only: JOBIPH
@@ -33,7 +32,7 @@ use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_d
 implicit none
 #ifdef _HDF5_
 integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs, nSpinTdm2
-real(kind=wp), allocatable :: SpinTdm2(:), Tmp(:), VecL(:), VecR(:)
+real(kind=wp), allocatable :: Dtmp(:), DStmp(:), Ptmp(:), SpinTdm2(:), Tmp(:), VecL(:), VecR(:), Tdm1(:)
 character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
 character(len=1024) :: fileName
 integer(kind=iwp) :: fileId, lFileName, oneTdmId, twoTdmId, twoTdmSpinId, rootPairsId
@@ -62,6 +61,7 @@ write(u6,'(6X,A)') 'Computing and storing active 1-TDM and 2-TDM matrices in '//
 call mma_allocate(Tmp,NConf,Label='Tmp')
 call mma_allocate(VecL,NConf,Label='VecL')
 call mma_allocate(VecR,NConf,Label='VecR')
+call mma_allocate(Tdm1,NAC*NAC,Label='Tdm1')
 call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
 call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
 call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
@@ -84,11 +84,11 @@ do jRoot=1,lRoots
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
     call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecR)
-    SpinTdm2(:) = 0.0_wp
-    call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:),TwoBodyTDM=.true.,Raw2TDM=SpinTdm2(:))
+    call Mk_T1DM(VecR,VecL,nConf,Tdm1,NAC*NAC)
+    call Mk_T2DM(VecR,VecL,nConf,SpinTdm2)
     call scale_spin_tdm2_for_hamiltonian(SpinTdm2,nac)
 
-    call mh5_put_dset(oneTdmId,Dtmp(1:NAC*NAC),[NAC,NAC,1],[0,0,iPair])
+    call mh5_put_dset(oneTdmId,Tdm1(1:NAC*NAC),[NAC,NAC,1],[0,0,iPair])
     Ptmp(:) = 0.0_wp
     call mh5_put_dset(twoTdmId,Ptmp(1:NACPR2),[NACPR2,1],[0,iPair])
     call mh5_put_dset(twoTdmSpinId,SpinTdm2(1:nSpinTdm2),[nSpinTdm2,1],[0,iPair])
@@ -126,6 +126,7 @@ write(u6,'(6X,A,I6,A)') 'Stored transition density matrices in HDF5 for ',iPair,
 call mma_deallocate(Tmp)
 call mma_deallocate(VecL)
 call mma_deallocate(VecR)
+call mma_deallocate(Tdm1)
 call mma_deallocate(Dtmp)
 call mma_deallocate(DStmp)
 call mma_deallocate(Ptmp)
