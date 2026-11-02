@@ -175,7 +175,6 @@ subroutine GNUC_by_nucspin(AtNumb,MassNumb,GNuc,NucSpin,Stability)
   end do
 
   if (not_found_gnuc) call warning_not_found(1)
-  call isot_info(AtNumb,GNuc,NucSpin)
 
 end subroutine GNUC_by_nucspin
 
@@ -212,7 +211,6 @@ subroutine NUCSPIN_by_gnuc(AtNumb,MassNumb,GNuc,NucSpin,Stability)
   end do
 
   if (not_found_spin) call warning_not_found(0)
-  call isot_info(AtNumb,GNuc,NucSpin)
 
 end subroutine NUCSPIN_by_gnuc
 
@@ -251,7 +249,6 @@ subroutine GNUC_NUCSPIN_by_nucmass(AtNumb,MassNumb,GNuc,NucSpin,Stability)
 
   if (not_found_spin) call warning_not_found(0)
   if (not_found_gnuc) call warning_not_found(1)
-  call isot_info(AtNumb,GNuc,NucSpin,MassNumb)
 
 end subroutine GNUC_NUCSPIN_by_nucmass
 
@@ -292,26 +289,8 @@ subroutine get_first_nonzero_GNUC(AtNumb,MassNumb,GNuc,NucSpin,Stability)
 
   if (not_found_spin) call warning_not_found(0)
   if (not_found_gnuc) call warning_not_found(1)
-  call isot_info(AtNumb,GNuc,NucSpin)
 
 end subroutine get_first_nonzero_GNUC
-
-subroutine isot_info(AtNumb,GNuc,NucSpin,MassNumb)
-
-  integer(kind=iwp), intent(in) :: AtNumb
-  real(kind=wp), intent(in) :: GNuc, NucSpin
-  integer(kind=iwp), intent(in), optional :: MassNumb
-
-  write(u6,'(11X,A18)') repeat('_',18)
-  write(u6,'(11X,A18,I0)') 'INFO          Z = ',AtNumb
-  if (present(MassNumb)) then
-    write(u6,'(11X,A18,I0)') '              A = ',MassNumb
-  end if
-  write(u6,'(11X,A18,F12.8)') '       g-factor = ',GNuc
-  write(u6,'(11X,A18,F5.2)') '        NucSpin = ',NucSpin
-  write(u6,*) ''
-
-end subroutine isot_info
 
 subroutine warning_not_found(option)
 

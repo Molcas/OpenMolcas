@@ -41,7 +41,7 @@ private
 ! NSS, ESO
 
 ! EPR Calc. :: A tensor, principal and isotropic values
-! Atens_fac, prin_vals, signs_resolved
+! Atens_fac, prin_vals, prin_axes, signs_resolved, prin_lab
 
 ! PNMR Calc :: Shielding tensor, Chemical Shift
 ! Temp_in_K, pBoltz, Z_HFC_int_oper, Curie_ChemShift, LinRes_ChemShift, LR_tens, C_tens, Z_HFC_over_dE, dE_inv, degen_group,
@@ -69,7 +69,7 @@ integer(kind=iwp), allocatable :: AngMom_idx(:), degen_end_idx(:), degen_group(:
                                   MAPMS(:), MAPSP(:), MAPST(:), PSO_idx(:,:)
 real(kind=wp), allocatable :: C_shifts(:,:,:), C_tens(:,:,:), CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:), dE_inv(:,:), ESO(:), &
                               h_hfc_rms(:,:), h_rms_nuc(:,:), LR_shifts(:,:,:), LR_tens(:,:,:), pBoltz(:,:), pr_vals(:,:,:), &
-                              Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:)
+                              prin_axes(:,:,:), Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:)
 complex(kind=wp), allocatable :: h_FC(:,:,:), h_FCSD(:,:,:), h_PSO(:,:,:), h_SD(:,:,:), h_TOT(:,:,:), h_Zeeman(:,:,:), USO(:,:)
 logical(kind=iwp), allocatable :: signs_resolved(:)
 character(len=LenIn), allocatable :: LAtomLbl(:)
@@ -82,6 +82,9 @@ real(kind=wp), parameter :: alpha2 = One/(c_in_au*c_in_au), au2J = auTokJ*1.0e3_
                             TwoThird = Two/Three
 character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC','SD','FCSD','PSO','TOTAL']
 character, parameter :: xyz(3) = ['x','y','z']
+character(len=*), parameter :: prin_lab(3) = ['a_1','a_2','a_3']
+
+real(kind=wp), parameter :: Apf_zero_tol = 1.0e-8_wp, a_res = sqrt(Apf_zero_tol), rel_tol = 0.05_wp
 
 public :: Hyperfine_Oper
 
@@ -153,6 +156,8 @@ subroutine setup_hfc_calc(JBNUM,USOR,USOI)
     call mma_allocate(pr_vals,NATens_Calc,5,3,Label='prin_vals')
     call mma_allocate(signs_resolved,NATens_Calc,Label='signs_resolved')
     signs_resolved(:) = .false.
+    call mma_allocate(prin_axes,NATens_Calc,3,3,Label='prin_axes')
+    prin_axes(:,:,:) = Zero
   end if
 
   ! GET: AtomLbl
@@ -441,23 +446,19 @@ end subroutine calc_h_SD
 subroutine proc_nuc_spin(iAtom,icase)
 
   integer(kind=iwp), intent(in) :: iAtom, icase
+  character(len=*), parameter :: src(5) = [character(len=26) :: 'ISOT [GATEWAY]','NMASs [RASSI]','NSPIn [RASSI]', &
+                                           'GNUC [RASSI]','AUTO-NONZERO-GFAC [RASSI]']
 
-  write(u6,'(7X,A18,A6)') 'Process for atom: ',LAtomLbl(iAtom)
+  ! The resulting A, I and g-factor are printed by print_isotope_info
+  write(u6,'(7X,A)') trim(LAtomLbl(iAtom))//' isotope from: '//trim(src(icase))
   select case (icase)
-    case (1)
-      write(u6,'(11X,A38)') 'USE: Isotopic mass [SEWARD or GATEWAY]'
-      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
-    case (2)
-      write(u6,'(11X,A31,I0)') 'USE: NMASs [RASSI input]   A = ',NucMass(iAtom)
+    case (1,2)
       call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     case (3)
-      write(u6,'(11X,A31,F3.1)') 'USE: NSPIn [RASSI input]   I = ',NucSpin(iAtom)
       call GNUC_by_nucspin(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     case (4)
-      write(u6,'(11X,A37,F12.8)') 'USE: GNUC [RASSI input]   g-factor = ',GNuc(iAtom)
       call NUCSPIN_by_gnuc(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     case (5)
-      write(u6,'(11X,A37)') 'USE: Most abundance non-zero g-factor'
       call get_first_nonzero_GNUC(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
   end select
 
@@ -854,9 +855,9 @@ subroutine print_EPR_summary()
   do iAtom=1,nAtoms
     if (Atens_Req(iAtom)) then
       iACalc = iACalc+1
+      call assign_hfc_prvl_signs(pr_vals(iACalc,:,:),signs_resolved(iACalc))
       conv = con_to_MHz*GNuc(iAtom)
-      pr_vals(iACalc,:,:) = conv*pr_vals(iACalc,:,:)
-      call assign_hfc_prvl_signs()
+      pr_vals(iACalc,:,:) = abs(conv)*pr_vals(iACalc,:,:)
     end if
   end do
 
@@ -874,12 +875,14 @@ subroutine print_EPR_summary()
       write(u6,'(3X,A10,A6,A19,F12.8)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)),'Nuclear g-factor = ',GNuc(iAtom)
       if (.not. HypoIso(iAtom)) write(u6,'(19X,A19,2X,F3.1)') 'Nuclear Spin     = ',NucSpin(iAtom)
       write(u6,*)
-      write(u6,'(3X,A4,2X,A7,A5,5X,A7,A5,3(2X,A7,A5))') 'Comp',' TOTAL ',unt,'    FC ',unt,'    SD ',unt,'  FCSD ',unt,'   PSO ',unt
-      write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12))') repeat('-',4),(repeat('-',12),iContr=1,5)
+      write(u6,'(3X,A4,2X,A7,A5,5X,A7,A5,3(2X,A7,A5),4X,A24)') 'Comp',' TOTAL ',unt,'    FC ',unt,'    SD ',unt,'  FCSD ',unt, &
+                                                               '   PSO ',unt,'Principal axis (x, y, z)'
+      write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12),4X,A24)') repeat('-',4),(repeat('-',12),iContr=1,5),repeat('-',24)
 
       do iAxis=1,3
-        write(u6,'(3X,A2,A1,A1,2x,F12.2,5x,F12.2,3(2x,F12.2))') 'a_',xyz(iAxis),xyz(iAxis),pr_vals(iACalc,5,iAxis), &
-                                                                (pr_vals(iACalc,iContr,iAxis),iContr=1,4)
+        write(u6,'(3X,A3,1x,2x,F12.2,5x,F12.2,3(2x,F12.2),4X,3(F7.3,1X))') prin_lab(iAxis),pr_vals(iACalc,5,iAxis), &
+                                                                               (pr_vals(iACalc,iContr,iAxis),iContr=1,4), &
+                                                                               prin_axes(iACalc,1:3,iAxis)
       end do
 
       !--> Print isotropic values
@@ -906,9 +909,11 @@ subroutine print_EPR_summary()
   write(u6,*) '   ------------'
   write(u6,*) '     ( Note )'
   write(u6,*) '   ------------'
-  write(u6,'(A93)') '       1. All isotropic hyperfine coupling constants (HFCCs) are reported as absolute values.'
-  write(u6,'(A88)') '       2. If a different isotope is required, you can convert the reported values to MHz'
-  write(u6,'(A65)') '          without restarting by using the provided formula below:'
+  write(u6,'(7X,A)') '1. All isotropic hyperfine coupling constants (HFCCs) are reported as absolute values.'
+  write(u6,'(7X,A)') '2. If a different isotope is required, you can convert the reported values to MHz'
+  write(u6,'(7X,A)') '   without restarting by using the provided formula below:'
+  write(u6,'(7X,A)') '3. Principal values a_1, a_2, a_3 are printed in ascending order of |a_i(TOTAL)|. '
+  write(u6,'(7X,A)') '   Each contribution is given along the same principal axis of the TOTAL tensor.'
   write(u6,*)
 
   write(string_val,'(F12.4)')-gElectron*beta_e*beta_n*1.0e9_wp
@@ -1120,155 +1125,97 @@ subroutine calc_A_tens(A_tens,h_HFC)
 
 end subroutine calc_A_tens
 
-subroutine assign_hfc_prvl_signs()
+subroutine assign_hfc_prvl_signs(prvl,resolved)
+  ! PURPOSE: Assign relative signs to the principal values of one nucleus.
+  !   prvl(iContr,iAxis): |a| of FC, SD, FCSD, PSO, TOTAL (raw units) along the principal axes of TOTAL
+  !   FC is taken as positive on every axis (the real sign requires spin density at nucleus).
+  !   Along each axis, two relations fix the remaining signs:
+  !     STEP 1:  FC   + SD  = FCSD
+  !     STEP 2:  FCSD + PSO = TOTAL
+  !   If the signs cannot be resolved, prvl is returned unsigned.
 
-  integer(kind=iwp) :: iAx
-  logical(kind=iwp) :: is_determined(3), ill_defined(2)
+  real(kind=wp), intent(inout) :: prvl(5,3)
+  logical(kind=iwp), intent(out) :: resolved
+  integer(kind=iwp) :: iA, iAx, iStep
+  real(kind=wp) :: eps
+  logical(kind=iwp) :: ill(3), ok(3)
 
   ! VARIABLE DESCRIPTION
-  !  is_determined: same axis, different contributions --> ROWs in summary table
-  !                 For example: a_FC(xx) +- a_SD(xx) +- a_PSO(xx)
-  !  ill_defined  : same contribution, different axes  --> COLs in summary table
-  !                 only happens when FC is zeros or both FC and SD are zeros
-  !                 a_SD(xx) +- a_SD(yy) +- a_SD(zz)
-  ! sign_resolved = .true. when signs are resolved among both different contributions and different axes.
+  !  eps: values below eps are insignificant (rel_tol of the largest principal value, at least the resolution a_res)
+  !  ok : the magnitudes one of the two relations a +/- b = c satisfies
+  !  ill: the sign of b cannot be decided, even a +/- b = c satisfies
 
-  !----------------------------------------------
-  ! STEP 1: determine FC  +/- SD  =  +/- FCSD
-  is_determined(:) = .false.
-  ill_defined(:) = .false.
-  do iAx=1,3
-    call assign_abc_signs(pr_vals(iACalc,1,iAx),pr_vals(iACalc,2,iAx),pr_vals(iACalc,3,iAx),is_determined(iAx),ill_defined(1))
+  prvl(:,:) = abs(prvl)
+  eps = max(a_res,rel_tol*maxval(prvl))
+  resolved = .true.
+  do iStep=1,2
+    ! STEP 1: (a,b,c) = (FC,SD,FCSD); STEP 2: (a,b,c) = (FCSD,PSO,TOTAL)
+    iA = 2*iStep-1
+    do iAx=1,3
+      call assign_abc_signs(prvl(iA,iAx),prvl(iA+1,iAx),prvl(iA+2,iAx),eps,ok(iAx),ill(iAx))
+    end do
+    ! An undecided sign only matters if c is significant along more than one axis
+    resolved = resolved .and. all(ok) .and. ((.not. any(ill)) .or. (count(prvl(iA+2,:) > eps) < 2))
   end do
 
-  if (all(is_determined)) then
-    !----------------------------------------------
-    ! STEP 2: determine FCSD  +/- PSO  =  +/- TOTAL
-    is_determined(:) = .false.
-    do iAx=1,3
-      call assign_abc_signs(pr_vals(iACalc,3,iAx),pr_vals(iACalc,4,iAx),pr_vals(iACalc,5,iAx),is_determined(iAx),ill_defined(2))
-    end do
-
-    signs_resolved(iACalc) = (.not. any(ill_defined)) .and. all(is_determined)
-  end if
-
-  if (.not. signs_resolved(iACalc)) pr_vals(iACalc,:,:) = abs(pr_vals(iACalc,:,:))
+  if (.not. resolved) prvl(:,:) = abs(prvl)
+  ! Avoid printing -0.00 (non-zero values are never below a_res)
+  where (abs(prvl) < a_res) prvl = Zero
 
 end subroutine assign_hfc_prvl_signs
 
-subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
-  ! PURPOSE: Determine signs of this equation:
-  !           a  +/- |b| = +/- |c|
-  ! where sign(a) is fixed (always positive or negative). OUTPUT: sign(b), sign(c)
-  ! There are two cases:
-  !           CASE I: There is zero in a, b, or c
-  !           CASE II: all is non-zero
-  !                  1. a, b have the same sign --> abs(c) increases
-  !                  2. a, b have different signs --> abs(c) decreases
-  ! Cases II.1 and II.2 follows two steps:
-  !     step 1. Compare  MAX(|a|,|b|) and |c|
-  !     step 2. Compare with the relative tolerance [5% of the maximum absolute value]
+subroutine assign_abc_signs(a,b,c,eps,ok,ill)
+  ! PURPOSE: Determine the signs of b and c in  a + b = c,  where sign(a) is known.
+  !   The two candidates are  |c| = |a|+|b|    (b has the same sign as a)
+  !                      or   |c| = ||a|-|b||  (b has the opposite sign)
 
-  real(kind=wp), intent(in) :: a
-  real(kind=wp), intent(out) :: b, c
-  logical(kind=iwp), intent(out) :: is_determined, ill_defined
-  integer(kind=iwp) :: nzeros
-  real(kind=wp) :: abs_a, abs_b, abs_c, max_left_absval, abs_tol
-  real(kind=wp), parameter :: rel_tol = 0.05_wp, zero_tol = 1.0e-8_wp
+  real(kind=wp), intent(in) :: a, eps
+  real(kind=wp), intent(inout) :: b, c
+  logical(kind=iwp), intent(out) :: ok, ill
+  real(kind=wp) :: abs_a, abs_b, abs_c, err_opp, err_same
 
   abs_a = abs(a)
   abs_b = abs(b)
   abs_c = abs(c)
-  max_left_absval = max(abs_a,abs_b)
-  ! Relative tolerance for determining signs is 5%
-  ! Absolute tolerance is 5% of the largest absolute value among a, b, c
-  abs_tol = rel_tol*max(abs_a,abs_b,abs_c)
-  is_determined = .false.
-  ill_defined = .false.
+  err_same = abs(abs_a+abs_b-abs_c)
+  err_opp = abs(abs(abs_a-abs_b)-abs_c)
 
-  nzeros = count([abs_a,abs_b,abs_c] < zero_tol)
-
-  ! CASE I: Handle cases where at least one magnitude is effectively zero.
-  if (nzeros == 3) then
-    is_determined = .true.
-  else if (nzeros == 2) then
-    ! If two values are zero and the third is non-zero, this would be impossible
-    ! is_determined = .false. already, do nothing here
-  else if (nzeros == 1) then
-
-    ! c = 0 --> check if a - b = 0
-    if ((abs_c < zero_tol) .and. (abs(abs_a-abs_b) < zero_tol)) then
-      is_determined = .true.
-      if (a > Zero) b = -abs_b
-    end if
-
-    ! a = 0 --> check if b = c
-    ! This case is vague. b could be positive or negative.
-    if ((abs_a < zero_tol) .and. (abs(abs_b-abs_c) < zero_tol)) then
-      is_determined = .true.
-      ill_defined = .true.
-    end if
-
-    ! b = 0 --> check if a = c
-    if ((abs_b < zero_tol) .and. (abs(abs_a-abs_c) < zero_tol)) then
-      is_determined = .true.
-      if (a < Zero) c = -abs_c
-    end if
-
+  ok = min(err_same,err_opp) <= rel_tol*max(abs_a,abs_b,abs_c)+eps
+  if (err_same <= err_opp) then
+    b = sign(abs_b,a)
   else
-    ! CASE II: All three values are nonzero
-    if (abs_c > max_left_absval) then
-      ! CASE 1: abs_c increases
-      !------------------------
-      ! a, b should have the SAME sign --> 2 cases: [+] + [+] = [+]
-      !                                          or [-] + [-] = [-]
-      if (abs_a+abs_b-abs_c < abs_tol) then
-        is_determined = .true.
-        ! a = [+] --> b = [+]  , c = [+]
-        ! a = [-] --> b = [-]  , c = [-]
-        if (a < Zero) then
-          b = -abs_b
-          c = -abs_c
-        end if
-      end if
-
-    else if (abs_c < max_left_absval) then
-      ! CASE 2: abs_c decreases
-      !------------------------
-      ! a, b should have the DIFFERENT signs --> 2 cases: [+] + [-]
-      !                                                or [-] + [+]
-
-      if (abs(abs(abs_a-abs_b)-abs_c) < abs_tol) then
-        is_determined = .true.
-
-        ! b needs to have the OPPOSITE sign of a. Sign of c depends on a & b
-        ! a = [+] --> b = [-]  , c = [+] if |a| > |b| and vice versa
-        ! a < [-] --> b = [+]  , c = [-] if |a| > |b| and vice versa
-
-        if (a > Zero) then
-          b = -abs_b
-          if (abs_a < abs_b) c = -abs_c
-        else if (a < Zero) then
-          if (abs_a > abs_b) c = -abs_c
-        end if
-      end if
-    end if
+    b = -sign(abs_b,a)
   end if
+  c = sign(abs_c,a+b)
+  ! Ill when 3 conditions are all true:
+  !            abs(err_same-err_opp) <= a_res: both choices works |c| = |a|+|b| or |c| = ||a|-|b||
+  !            abs_a < abs_b : a is negligible (ussually happen when FC is too small)
+  !            abs_b > eps : b is large, we could not ignore
+  !  --> there are two choices, b is large --> uncertainty
+  ill = (abs(err_same-err_opp) <= a_res) .and. (abs_a < abs_b) .and. (abs_b > eps)
 
 end subroutine assign_abc_signs
 
-subroutine transf_prin_axes(A,X,a_sm)
+subroutine transf_prin_axes(A,X,a_prin,a_lab)
+  ! PURPOSE: Transform each contribution to the principal frame of the TOTAL tensor.
+  !   A_pf   = X^T A X            : A-tensor in the principal frame (diagonal if axes are shared with TOTAL)
+  !   a_prin = sqrt(diag(A_pf))   : principal values along the principal axes of TOTAL
+  !   a_lab  = X sqrt(D) X^T      : a-matrix back in the lab frame (printing only), D = diag(A_pf)
+  ! X must be orthogonal (columns = principal axes).
 
   real(kind=wp), intent(in) :: A(3,3,5), X(3,3)
-  real(kind=wp), intent(out) :: a_sm(3,3,5)
-  integer(kind=iwp) :: iContr
-  real(kind=wp) :: tmpmat(3,3), tmpmat2(3,3)
-  real(kind=wp), parameter :: zero_tol = 1.0e-8_wp
+  real(kind=wp), intent(out) :: a_prin(3,5), a_lab(3,3,5)
+  integer(kind=iwp) :: iAxis, iContr
+  real(kind=wp) :: A_pf(3,3), fnorm_diag, fnorm_off_diag, sqrtD(3,3), tmpmat(3,3)
+  real(kind=wp), external :: dnrm2_
+
+  ! VARIABLE DESCRIPTION:
+  !   fnorm_diag:       Frobenius norm of diag(A_pf)
+  !   fnorm_off_diag:   Frobenius norm of off-diag(A_pf)
 
   do iContr=1,5
-    tmpmat(:,:) = Zero
     call dgemm_('n','n',3,3,3,One,A(:,:,iContr),3,X,3,Zero,tmpmat,3)
-    call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
+    call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,A_pf,3)
 
     ! TRUNCATION:After diagonalization, numbers near zero will fluctate a lot due to numerical noise.
     !            For example, -1.0E-50 or +1.0E-50 are equipvalent to 0.0
@@ -1277,20 +1224,35 @@ subroutine transf_prin_axes(A,X,a_sm)
 
     ! Typical g-factors are lower than 6.0, while conv_to_MHz (print_EPR_summary) is around 100.0 (95.5)
     ! if a value is below 1.0e-8_wp, A(MHz) is around 6.0*100.0*10^-8 = 0.000006 MHz
-    where (abs(a_sm(:,:,iContr)) < zero_tol) a_sm(:,:,iContr) = Zero
+    where (abs(A_pf(:,:)) < Apf_zero_tol) A_pf = Zero
 
-    if (min(a_sm(1,1,iContr),a_sm(2,2,iContr),a_sm(3,3,iContr)) < Zero) then
-      call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
+    ! A = a a^T is positive semi-definite, so diag(X^T A X) >= 0 up to numerical noise
+    if (any([A_pf(1,1),A_pf(2,2),A_pf(3,3)] < Zero)) then
+      call WarningMessage(2,trim(contrib_lab(iContr))//': negative diagonal of A in principal frame. Cannot take square root.')
       call AbEnd()
     end if
 
-    tmpmat2(:,:) = Zero
-    tmpmat2(1,1) = sqrt(a_sm(1,1,iContr))
-    tmpmat2(2,2) = sqrt(a_sm(2,2,iContr))
-    tmpmat2(3,3) = sqrt(a_sm(3,3,iContr))
-    call dgemm_('n','n',3,3,3,One,tmpmat2,3,X,3,Zero,tmpmat,3)
-    call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
+    ! CHECK DIAG/OFF-DIAG NORMS OF A-tensor in the principal frame of TOTAL
+    ! For TOTAL this is diagonal by construction. For a contribution, a large off-diagonal part means that
+    ! it does not share principal axes with TOTAL, and its principal values are only projections.
+    fnorm_diag = sqrt(A_pf(1,1)**2+A_pf(2,2)**2+A_pf(3,3)**2)
+    tmpmat(:,:) = A_pf(:,:)
+    tmpmat(1,1) = Zero
+    tmpmat(2,2) = Zero
+    tmpmat(3,3) = Zero
+    fnorm_off_diag = dnrm2_(9,tmpmat,1)
+    if (fnorm_diag > Zero) then
+      if (fnorm_off_diag/fnorm_diag > 0.05_wp) &
+        call WarningMessage(1,trim(contrib_lab(iContr))//': principal axes differ from TOTAL (off/diag norm > 5%)')
+    end if
 
+    sqrtD(:,:) = Zero
+    do iAxis=1,3
+      a_prin(iAxis,iContr) = sqrt(A_pf(iAxis,iAxis))
+      sqrtD(iAxis,iAxis) = a_prin(iAxis,iContr)
+    end do
+    call dgemm_('n','t',3,3,3,One,sqrtD,3,X,3,Zero,tmpmat,3)
+    call dgemm_('n','n',3,3,3,One,X,3,tmpmat,3,Zero,a_lab(:,:,iContr),3)
   end do
 
 end subroutine transf_prin_axes
@@ -1299,33 +1261,44 @@ subroutine calc_prin_val(iAtom,A_tens)
 
   integer(kind=iwp), intent(in) :: iAtom
   real(kind=wp), intent(in) :: A_tens(3,3,5)
-  real(kind=wp) :: a_small(3,3,5)
   integer(kind=iwp) :: iAxis, IERR, iContr
-  real(kind=wp) :: EVI(3), EVR(3), fnorm_diag, fnorm_off_diag, prvl, tmpmat(3,3), X(3,3)
+  real(kind=wp) :: a_lab(3,3,5), a_prin(3,5), EVal(3), prvl, WRK(64), X(3,3)
   real(kind=wp), parameter :: to_au = -gElectron*beta_e*beta_n
-  real(kind=wp), external :: dnrm2_
 
   ! VARIABLE DESCRIPTION:
-  !   fnorm_diag:       Frobenius norm of diag(sm_a)
-  !   fnorm_off_diag:   Frobenius norm of off-diag(sm_a)
+  !   X:                principal axes (columns) of the TOTAL A-tensor
+  !   a_prin:           principal values of each contribution along the principal axes of TOTAL
+  !   a_lab:            a-matrix of each contribution in the lab frame
   ! iContr              : Contribution: FC = 1
   !                                     SD = 2
   !                                   FCSD = 3
   !                                    PSO = 4
   !                                  Total = 5
-  tmpmat(:,:) = A_tens(:,:,5)
-  X(:,:) = Zero
-  EVR(:) = Zero
-  EVI(:) = Zero
-  call XEIGEN(1,3,3,tmpmat,EVR,EVI,X,IERR)
 
-  call transf_prin_axes(A_tens,X,a_small)
+  ! A_tens is already symmetric, this step removes numerical noises before passing to dsyev_
+  X(:,:) = Half*(A_tens(:,:,5)+transpose(A_tens(:,:,5)))
+  EVal(:) = Zero
+  IERR = 0
+  ! 3x3 matrix: lwork = 64 is well above the optimal size
+  call dsyev_('V','U',3,X,3,EVal,WRK,size(WRK),IERR)
+  if (IERR /= 0) then
+    call WarningMessage(2,'DSYEV failed for the HFC A-tensor.')
+    call AbEnd()
+  end if
 
-  write(u6,'(4X,A14)') 'PRINCIPAL AXES'
-  write(u6,'(4X,A38)') repeat('-',38)
-  write(u6,'(12x,3(A1,12x))') xyz(1:3)
+  ! Drop components that would print as -0.000
+  prin_axes(iACalc,:,:) = merge(Zero,X,abs(X) < 5.0e-4_wp)
+
+  call transf_prin_axes(A_tens,X,a_prin,a_lab)
+  do iContr=1,5
+    pr_vals(iACalc,iContr,:) = a_prin(:,iContr)
+  end do
+
+  write(u6,'(4X,A)') 'PRINCIPAL AXES'
+  write(u6,'(4X,A14)') repeat('-',14)
+  write(u6,'(6X,3(5X,A3,5X))') prin_lab(1:3)
   do iAxis=1,3
-    write(u6,'(4X,3(ES12.3,1X))') X(iAxis,1:3)
+    write(u6,'(4X,A1,1X,3(ES12.3,1X))') xyz(iAxis),X(iAxis,1:3)
   end do
   write(u6,*)
 
@@ -1338,35 +1311,18 @@ subroutine calc_prin_val(iAtom,A_tens)
     write(u6,'(14X,A17,32X,A8)') 'A-tensor (A=aa^T)','a-matrix'
     write(u6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
     do iAxis=1,3
-      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iAxis,1:3,iContr),a_small(iAxis,1:3,iContr)
-    end do
-
-    ! CHECK DIAG/OFF-DIAG NORMS OF a-matrix
-    ! After transformation, the a-matrix should be diagonal. If not, it indicates numerical instability.
-    tmpmat(:,:) = a_small(:,:,iContr)
-    ! Calculate diagonal elements norm
-    fnorm_diag = sqrt(tmpmat(1,1)**2+tmpmat(2,2)**2+tmpmat(3,3)**2)
-    ! Calculate off-diagonal elements norm
-    tmpmat(1,1) = Zero
-    tmpmat(2,2) = Zero
-    tmpmat(3,3) = Zero
-    fnorm_off_diag = dnrm2_(9,tmpmat,1)
-
-    if (fnorm_off_diag/fnorm_diag > 0.05_wp) call WarningMessage(1,'Relative Frobenius diag/off-diag norm > 5%')
-
-    do iAxis=1,3
-      pr_vals(iACalc,iContr,iAxis) = a_small(iAxis,iAxis,iContr)
+      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iAxis,1:3,iContr),a_lab(iAxis,1:3,iContr)
     end do
 
     ! Print absolute principal values without signs
     write(u6,*)
     write(u6,'(24X,A25,A7)') 'ABS. PRINCIPAL VALUES :: ',contrib_lab(iContr)
     write(u6,'(12X,A52)') repeat('-',52)
-    write(u6,'(24X,A4,12X,A4,11X,A5)') 'a_ii','(au)','(MHz)'
+    write(u6,'(24X,A4,12X,A4,11X,A5)') 'raw','(au)','(MHz)'
     write(u6,'(12X,A52)') repeat('-',52)
     do iAxis=1,3
       prvl = pr_vals(iACalc,iContr,iAxis)
-      write(u6,'(12X,A1,A1,5X,E13.6,3x,E13.6,3x,E13.6)') xyz(iAxis),xyz(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
+      write(u6,'(12X,A3,4X,E13.6,3x,E13.6,3x,E13.6)') prin_lab(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
     end do
     write(u6,*)
     write(u6,*)
@@ -1707,6 +1663,7 @@ subroutine cleanup_hfcop()
     call mma_deallocate(Atens_Req)
     call mma_deallocate(pr_vals)
     call mma_deallocate(signs_resolved)
+    call mma_deallocate(prin_axes)
   end if
 
 end subroutine cleanup_hfcop
