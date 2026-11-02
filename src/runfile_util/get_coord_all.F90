@@ -32,7 +32,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms_All
 real(kind=wp), intent(out) :: Coord_All(3,nAtoms_All)
 integer(kind=iwp) :: nAtoms, nAtoms_Allx
-real(kind=wp), dimension(:,:), allocatable :: CU
+real(kind=wp), allocatable :: CU(:,:)
 
 call Get_nAtoms_All(nAtoms_Allx)
 if (nAtoms_All /= nAtoms_Allx) then

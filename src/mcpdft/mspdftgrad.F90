@@ -61,7 +61,7 @@ subroutine mspdftgrad_free()
   call mma_deallocate(D1aoMS)
   call mma_deallocate(DIDA)
 
-  if (allocated(D1SaoMS)) call mma_deallocate(D1SaoMS)
+  call mma_deallocate(D1SaoMS,safe='*')
 
 end subroutine mspdftgrad_free
 

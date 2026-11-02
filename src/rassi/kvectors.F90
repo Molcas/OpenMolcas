@@ -18,7 +18,7 @@ private
 
 integer(kind=iwp) :: nk_Vector
 real(kind=wp) :: e_Vector(3)
-real(kind=wp), dimension(:,:), allocatable :: k_Vector
+real(kind=wp), allocatable :: k_Vector(:,:)
 
 public :: e_Vector, k_Vector, nk_Vector
 

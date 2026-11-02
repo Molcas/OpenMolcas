@@ -74,17 +74,13 @@ complex(kind=wp), allocatable :: h_FC(:,:,:), h_FCSD(:,:,:), h_PSO(:,:,:), h_SD(
 logical(kind=iwp), allocatable :: signs_resolved(:)
 character(len=LenIn), allocatable :: LAtomLbl(:)
 character, allocatable :: LStability(:)
-
-! Conversion factors
-real(kind=wp), parameter :: alpha2 = One/(c_in_au*c_in_au), au2J = auTokJ*1.0e3_wp, beta_e = One/(Two*c_in_au), &
-                            beta_n = beta_e/proton_mass_in_au, con_to_MHz = -gElectron*beta_e*beta_n*auToHz*1.0e-6_wp, &
-                            FourThird = Four/Three, kBoltzman_in_cm = kBoltzmann*auTocm/au2J, to_ppm = 1.0e6_wp*auTocm*alpha2, &
+real(kind=wp), parameter :: alpha2 = One/(c_in_au*c_in_au), Apf_zero_tol = 1.0e-8_wp, a_res = sqrt(Apf_zero_tol), &
+                            au2J = auTokJ*1.0e3_wp, beta_e = One/(Two*c_in_au), beta_n = beta_e/proton_mass_in_au, &
+                            con_to_MHz = -gElectron*beta_e*beta_n*auToHz*1.0e-6_wp, FourThird = Four/Three, &
+                            kBoltzman_in_cm = kBoltzmann*auTocm/au2J, rel_tol = 0.05_wp, to_ppm = 1.0e6_wp*auTocm*alpha2, &
                             TwoThird = Two/Three
-character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC','SD','FCSD','PSO','TOTAL']
-character, parameter :: xyz(3) = ['x','y','z']
-character(len=*), parameter :: prin_lab(3) = ['a_1','a_2','a_3']
-
-real(kind=wp), parameter :: Apf_zero_tol = 1.0e-8_wp, a_res = sqrt(Apf_zero_tol), rel_tol = 0.05_wp
+character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC','SD','FCSD','PSO','TOTAL'], &
+                               prin_lab(3) = ['a_1','a_2','a_3'], xyz(3) = ['x','y','z']
 
 public :: Hyperfine_Oper
 
@@ -447,7 +443,7 @@ subroutine proc_nuc_spin(iAtom,icase)
 
   integer(kind=iwp), intent(in) :: iAtom, icase
   character(len=*), parameter :: src(5) = [character(len=26) :: 'ISOT [GATEWAY]','NMASs [RASSI]','NSPIn [RASSI]', &
-                                           'GNUC [RASSI]','AUTO-NONZERO-GFAC [RASSI]']
+                                                                'GNUC [RASSI]','AUTO-NONZERO-GFAC [RASSI]']
 
   ! The resulting A, I and g-factor are printed by print_isotope_info
   write(u6,'(7X,A)') trim(LAtomLbl(iAtom))//' isotope from: '//trim(src(icase))
@@ -881,8 +877,7 @@ subroutine print_EPR_summary()
 
       do iAxis=1,3
         write(u6,'(3X,A3,1x,2x,F12.2,5x,F12.2,3(2x,F12.2),4X,3(F7.3,1X))') prin_lab(iAxis),pr_vals(iACalc,5,iAxis), &
-                                                                               (pr_vals(iACalc,iContr,iAxis),iContr=1,4), &
-                                                                               prin_axes(iACalc,1:3,iAxis)
+                                                                           pr_vals(iACalc,1:4,iAxis),prin_axes(iACalc,1:3,iAxis)
       end do
 
       !--> Print isotropic values
@@ -1038,8 +1033,8 @@ subroutine get_degen_states(opt)
   end do
 
   ! get_degen_states() can be called multiple times, after shifting energy by NCOU or COUPLedstates.
-  if (allocated(degen_start_idx)) call mma_deallocate(degen_start_idx)
-  if (allocated(degen_end_idx)) call mma_deallocate(degen_end_idx)
+  call mma_deallocate(degen_start_idx,safe='*')
+  call mma_deallocate(degen_end_idx,safe='*')
 
   call mma_allocate(degen_start_idx,n_uniq_ener,Label='beg_idx')
   call mma_allocate(degen_end_idx,n_uniq_ener,Label='end_idx')
@@ -1261,7 +1256,7 @@ subroutine calc_prin_val(iAtom,A_tens)
 
   integer(kind=iwp), intent(in) :: iAtom
   real(kind=wp), intent(in) :: A_tens(3,3,5)
-  integer(kind=iwp) :: iAxis, IERR, iContr
+  integer(kind=iwp) :: iAxis, iContr, IERR
   real(kind=wp) :: a_lab(3,3,5), a_prin(3,5), EVal(3), prvl, WRK(64), X(3,3)
   real(kind=wp), parameter :: to_au = -gElectron*beta_e*beta_n
 
@@ -1269,11 +1264,11 @@ subroutine calc_prin_val(iAtom,A_tens)
   !   X:                principal axes (columns) of the TOTAL A-tensor
   !   a_prin:           principal values of each contribution along the principal axes of TOTAL
   !   a_lab:            a-matrix of each contribution in the lab frame
-  ! iContr              : Contribution: FC = 1
-  !                                     SD = 2
-  !                                   FCSD = 3
-  !                                    PSO = 4
-  !                                  Total = 5
+  ! iContr:             Contribution: FC = 1
+  !                                   SD = 2
+  !                                 FCSD = 3
+  !                                  PSO = 4
+  !                                Total = 5
 
   ! A_tens is already symmetric, this step removes numerical noises before passing to dsyev_
   X(:,:) = Half*(A_tens(:,:,5)+transpose(A_tens(:,:,5)))

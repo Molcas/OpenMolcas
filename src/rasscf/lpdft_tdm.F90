@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2026, Bhavnesh Jangid (University of Chicago)          *
+! Copyright (C) 2026, Bhavnesh Jangid                                  *
 !***********************************************************************
 
 subroutine LPDFT_TDM()
@@ -27,8 +27,8 @@ subroutine LPDFT_TDM()
 !> symmetric L-PDFT 1e and 2e Hamiltonians; the antisymmetric parts are neither computed nor needed.
 
 use input_ras, only: Key
-use Definitions, only: u6
 #ifdef _HDF5_
+use Index_Functions, only: nTri_Elem
 use ci_interfaces, only: Mk_pdms
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
 use general_data, only: iDoGAS, NCONF, NELEC3, NHOLE1, STSYM
@@ -36,18 +36,17 @@ use rasscf_files, only: JOBIPH
 use sguga, only: CIS, SG_ReOrd
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
-use Definitions, only: wp, iwp
 use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_dset_real, mh5_create_file, mh5_put_dset
+use Definitions, only: wp, iwp, u6
 #endif
 
 implicit none
 #ifdef _HDF5_
-integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs
-real(kind=wp), allocatable :: Dtmp(:), DStmp(:), Dstate(:,:), Ptmp(:), Pstate(:,:), Tmp(:), VecL(:), VecR(:), VecSum(:), Tdm1(:)
-character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
+integer(kind=iwp) :: dDisk, fileId, iDisk, iPair, jRoot, kDisk, kRoot, lFileName, nPairs, oneTdmId, rootPairsId, twoTdmId
 character(len=1024) :: fileName
-integer(kind=iwp) :: fileId, lFileName, oneTdmId, twoTdmId, rootPairsId
 integer(kind=iwp), allocatable :: rootPairs(:,:)
+real(kind=wp), allocatable :: Dstate(:,:), DStmp(:), Dtmp(:), Pstate(:,:), Ptmp(:), Tdm1(:), Tmp(:), VecL(:), VecR(:), VecSum(:)
+character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
 #endif
 
 ! Just the sanity check:
@@ -64,7 +63,7 @@ if (iDoGAS .or. (NHOLE1 /= 0) .or. (NELEC3 /= 0)) then
   call Quit_OnUserError()
 end if
 
-nPairs = (lRoots*(lRoots+1))/2
+nPairs = nTri_Elem(lRoots)
 
 call PrgmTranslate(LPDFTDM,fileName,lFileName)
 

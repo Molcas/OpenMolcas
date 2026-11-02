@@ -145,7 +145,7 @@ else if (ISCF == 0) then
 # endif
 end if
 
-if (allocated(CI)) call mma_deallocate(CI)
+call mma_deallocate(CI,safe='*')
 
 if (NLEV > 0) then
   call PT2_PUT(NG1,' GAMMA1',G1)

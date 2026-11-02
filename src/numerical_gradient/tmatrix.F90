@@ -27,7 +27,7 @@ integer(kind=iwp), intent(in) :: mInt
 real(kind=wp), intent(inout) :: TMx(mInt,mInt)
 integer(kind=iwp) :: Lambda1, Lambda2
 logical(kind=iwp) :: Invert
-real(kind=wp), allocatable, dimension(:,:) :: C1, C2, CT
+real(kind=wp), allocatable :: C1(:,:), C2(:,:), CT(:,:)
 
 ! Get the global constraint vectors
 
