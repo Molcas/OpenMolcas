@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nFreq,lSlapaf)
+subroutine Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nFreq,lSlapaf,Energy)
 
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(inout) :: UserT(64), UserP
-real(kind=wp), intent(in) :: Eval(*)
+real(kind=wp), intent(in) :: Eval(*), Energy ! Energy: electronic energy at the reference geometry
 integer(kind=iwp), intent(inout) :: nUserPT, nsRot
 integer(kind=iwp), intent(in) :: nFreq
 logical(kind=iwp), intent(in) :: lSlapaf ! If .true. then Thermo_Driver called by SLAPAF
@@ -64,7 +64,7 @@ if (lTest) then
   call XFlush(u6)
 end if
 
-call ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,EVal,nFreq,lSlapaf)
+call ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,EVal,nFreq,lSlapaf,Energy)
 call CollapseOutput(0,'Thermochemistry')
 
 return

@@ -930,6 +930,12 @@ Output files
   This ASCII file is generated for MC-PDFT calculations.
   It contains spin densities, total density and on-top pair density values on grid (coordinates in a.u.).
 
+:file:`$Project.tdm_4_lpdft.h5` (optional)
+  This HDF5 file is generated when :kword:`LPDF` is specified. It contains the
+  active-space one- and two-particle reduced density matrices and transition
+  density matrices. A subsequent L-PDFT calculation
+  in :program:`MCPDFT` reads this file. HDF5 support is required.
+
 .. _UG\:sec\:rasscf_inp:
 
 Input
@@ -1876,6 +1882,27 @@ A list of these keywords is given below:
               <HELP>
               This keyword is used to disable orbital optimization, that is,
               the CI roots are computed only for a given set of input orbitals.
+              </HELP>
+              </KEYWORD>
+
+:kword:`LPDF`
+  This keyword prepares the current set of CI roots for a subsequent L-PDFT
+  calculation. :program:`RASSCF` computes the active-space one- and
+  two-particle reduced density matrices for the individual roots and the
+  corresponding transition density matrices for all root pairs. The selected
+  roots are those defined by :kword:`CIROot`.
+
+  The matrices and the root-pair map are written to
+  :file:`$Project.tdm_4_lpdft.h5`; consequently, HDF5 support is required. The
+  following :program:`MCPDFT` input must contain both :kword:`MSPDft` and its
+  own :kword:`LPDF` keyword. The file is specific to the RASSCF reference and
+  should not be reused with a different set of orbitals or CI roots.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="LPDF" APPEAR="L-PDFT transition densities" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: LPDF <advanced>
+              <HELP>
+              Compute and store the active-space transition density matrices
+              needed by a subsequent L-PDFT calculation. Requires HDF5 support.
               </HELP>
               </KEYWORD>
 
