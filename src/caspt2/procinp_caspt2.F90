@@ -549,6 +549,10 @@ if (HZERO == 'DYALL') then
     call warningMessage(2,'Both NOPC and NOSC are specified? Cannot do the job...')
     call quit_onUserError()
   end if
+  if ((.not. Do_SC) .and. SC_prop) then
+    call warningMessage(2,'SC-NEVPT2 properties cannot be computed without SC-NEVPT2 energy. Remove the NOSC keyword.')
+    call quit_onUserError()
+  end if
   if (ipea_shift /= Zero) then
     ipea_shift = Zero
     if (IPRGLB >= TERSE) call warningMessage(1,'IPEA shift is automatically turned off for NEVPT2')
@@ -772,10 +776,6 @@ end if
 if (do_grad .and. (HZERO == 'DYALL')) then
   if ((.not. Do_FIC) .and. (.not. SC_prop)) then
     call warningMessage(2,'PC-NEVPT2 properties cannot be computed without PC-NEVPT2 energy. Remove the NOPC keyword.')
-    call quit_onUserError()
-  end if
-  if ((.not. Do_SC) .and. SC_prop) then
-    call warningMessage(2,'SC-NEVPT2 properties cannot be computed without SC-NEVPT2 energy. Remove the NOSC keyword.')
     call quit_onUserError()
   end if
 end if
