@@ -31,7 +31,7 @@ use general_data, only: iDoGAS, nRsPrt
 
 Private
 
-Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close
+Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, Mk_T2DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close
 
 contains
 
@@ -228,6 +228,36 @@ End If
 #endif
 
 End Subroutine Mk_T1DM
+
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
+
+Subroutine Mk_T2DM(Bra_Vec, Ket_Vec, nVec, T2DM_Raw)
+! Raw spin-summed active two-body transition density matrix between two CI vectors,
+! triangular storage over the NAC**2 index pairs. The one-body part is obtained with Mk_T1DM.
+! Currently only available with LUCIA.
+use Lucia_Data, only: DTmp, DSTmp
+implicit none
+integer(kind=iwp), intent(in) :: nVec
+real(kind=wp), intent(_IN_):: Bra_Vec(nVec), Ket_Vec(nVec)
+real(kind=wp), intent(out):: T2DM_Raw(:)
+
+If (DoFaro) Then
+   Write (u6,*) 'Mk_T2DM: the two-body transition density is not available with the FAROALD backend.'
+   Call Abend()
+End If
+
+! Lucia_Util always fills the 1-body scratch arrays (DTmp, DSTmp) too; they are discarded here.
+Call mma_allocate(DTMP,NAC**2,Label='DTMP')
+Call mma_allocate(DSTMP,NAC**2,Label='DSTMP')
+
+T2DM_Raw(:) = Zero
+call Lucia_Util('Densi',CI_Vector=Ket_Vec(:),RVec=Bra_Vec(:),TwoBodyTDM=.true.,Raw2TDM=T2DM_Raw(:))
+
+Call mma_deallocate(DTMP)
+Call mma_deallocate(DSTMP)
+
+End Subroutine Mk_T2DM
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
