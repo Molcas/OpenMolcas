@@ -697,7 +697,7 @@ do
 
     case ('COUP')
       if (NCOUP == 0) then
-        write(u6,*) 'Keyword NCOUP must be preceded by keyword COUP'
+        write(u6,*) 'Keyword COUP requires keyword NCOUP before it'
         call Quit_OnUserError()
       end if
       call mma_allocate(LCSTATES,NCOUP,Label='LCSTATES')
@@ -737,7 +737,7 @@ do
 
     case ('GNUC')
       if (NATens_Calc == 0) then
-        write(u6,*) 'Keyword HFCAt must be preceded by keyword GNUC'
+        write(u6,*) 'Keyword GNUC requires keyword HFCAt before it'
         call Quit_OnUserError()
       end if
       GNuc_set = .true.
@@ -758,7 +758,7 @@ do
 
     case ('NMAS')
       if (NATens_Calc == 0) then
-        write(u6,*) 'Keyword HFCAt must be preceded by keyword NMASs'
+        write(u6,*) 'Keyword NMASs requires keyword HFCAt before it'
         call Quit_OnUserError()
       end if
       NMass_set = .true.
@@ -777,7 +777,7 @@ do
 
     case ('NSPI')
       if (NATens_Calc == 0) then
-        write(u6,*) 'Keyword HFCAt must be preceded by keyword NSPIn'
+        write(u6,*) 'Keyword NSPIn requires keyword HFCAt before it'
         call Quit_OnUserError()
       end if
       NSpin_set = .true.
