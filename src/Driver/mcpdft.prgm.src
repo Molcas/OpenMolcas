@@ -10,6 +10,7 @@
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/mcpdft.exe             executable
  (file)  MCPDFINP "$WorkDir/$Project."Mcpdft.Input     rwi
+ (file)  MOLEL "$WorkDir/$Project."MolEl.dat       rwm
 #include "aoints.inc"
 #include "choints.inc"
  (file)  MPPROP   "$WorkDir/$Project."MpProp      rw

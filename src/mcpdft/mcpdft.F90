@@ -161,7 +161,6 @@ if (.not. mcpdft_options%lpdft) then
   call mma_allocate(e_states,lroots,label='e_states')
   call compute_mcpdft_energy(CMO,e_mcscf,e_states)
 end if
-call mma_deallocate(CMO)
 
 call Timing(dum1,dum2,time1(1),dum3)
 
@@ -196,6 +195,10 @@ end if
 if ((nhole1 > 0) .or. (nelec3 > 0)) Method(7:8) = '-R'
 call Put_cArray('Relax Method',Method,8)
 
+if (mcpdft_options%transport) then
+  call molel_write(cmo)
+end if
+
 !***********************************************************************
 !*****************         Closing up MC-PDFT        *******************
 !***********************************************************************
@@ -218,6 +221,7 @@ call mma_deallocate(FockOcc)
 ! needed by both the MC-PDFT and the L-PDFT paths
 call mma_deallocate(FuncExtParams,safe='*')
 call mma_deallocate(e_mcscf)
+call mma_deallocate(CMO)
 if (allocated(e_states)) call mma_deallocate(e_states)
 
 call StatusLine('MCPDFT:','Finished.')

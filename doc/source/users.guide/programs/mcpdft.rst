@@ -422,6 +422,22 @@ The :kword:`FUNC` is the only required keyword.
               </HELP>
               </KEYWORD>
 
+
+:kword:`TRANsport`
+  Generate an effective one-electron Hamiltonian for use in NEGF-MCPDFT calculations.
+  If the keyword is given, OpenMolcas will generate a MolEl.dat file.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="TRANSPORT" APPEAR="Transport" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: TRANsport <basic>
+              <HELP>
+              Toggles on the creation of an effective one-electron Hamiltonian for
+              use in NEGF-MCPDFT electron transport calculations.  If the keyword is
+              given, a MolEl.dat file will be produced.
+              This keyword will activate the GRAD keyword in order to generate potentials
+              and intermediates needed for the Hamiltonian construction.
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 
