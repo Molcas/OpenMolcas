@@ -30,7 +30,7 @@ use Definitions, only: u6
 #ifdef _HDF5_
 use ci_interfaces, only: Mk_pdms, Mk_T1DM
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
-use general_data, only: NCONF, STSYM
+use general_data, only: iDoGAS, NCONF, NELEC3, NHOLE1, STSYM
 use rasscf_files, only: JOBIPH
 use sguga, only: CIS, SG_ReOrd
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -56,6 +56,12 @@ if (.not. Key('LPDF')) return
 call WarningMessage(1,'LPDF requested, but HDF5 support is disabled; transition densities will not be stored.')
 return
 #else
+
+! Only CAS-type active spaces are supported (no GAS/RAS1/RAS3).
+if (iDoGAS .or. (NHOLE1 /= 0) .or. (NELEC3 /= 0)) then
+  call WarningMessage(2,'LPDF is only available for CASSCF-type active spaces, not for GAS or RAS wave functions.')
+  call Quit_OnUserError()
+end if
 
 nPairs = (lRoots*(lRoots+1))/2
 
