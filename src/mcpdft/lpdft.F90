@@ -551,8 +551,8 @@ module lpdft
   !> H_LPDFT = hconst + h1e + h2e
   !> @details
   !> For diagonal elements (iRoot == jRoot), we are using the 1e and 2e RDM.
-  !> For off-diagonal elements (iRoot /= jRoot), we are using the 1e and 2e
-  !> transition density matrices.
+  !> For off-diagonal elements (iRoot /= jRoot), we are using the 1e transition
+  !> density matrix and the symmetric 2e transition density (same packing as the 2-RDM).
   !> @param[out] heff: L-PDFT Hamiltonian in the active space in MO basis.
   !***********************************************************************
   subroutine construct_lpdft_ham()
@@ -568,9 +568,9 @@ module lpdft
 #ifdef _HDF5_
     character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
     character(len=1024) :: fileName
-    integer(kind=iwp) :: iPair, jRoot, lFileName, mh5id, nPairs, nSpinTdm2
+    integer(kind=iwp) :: iPair, jRoot, lFileName, mh5id, nPairs
     integer(kind=iwp), allocatable :: rootPairs(:,:)
-    real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:), tdm2Spin(:,:)
+    real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:)
 #endif
 
     do iRoot=1,lRoots
@@ -582,7 +582,6 @@ module lpdft
     call Quit_OnUserError()
 #else
     nPairs = (lRoots*(lRoots+1))/2
-    nSpinTdm2 = (nac*nac*(nac*nac+1))/2
 
     call PrgmTranslate(LPDFTDM,fileName,lFileName)
 
@@ -600,24 +599,15 @@ module lpdft
       call WarningMessage(2,'LPDFT transition density HDF5 file does not contain ACTIVE_2TDM.')
       call Quit_OnUserError()
     end if
-    if ((lRoots > 1) .and. (.not. mh5_exists_dset(mh5id,'ACTIVE_2TDM_SPINSUM'))) then
-      call WarningMessage(2,'LPDFT transition density HDF5 file does not contain ACTIVE_2TDM_SPINSUM.')
-      call Quit_OnUserError()
-    end if
 
     call mma_allocate(tdm1,nac,nac,nPairs,Label='LPDFT_TDM1')
     call mma_allocate(tdm2,nacpr2,nPairs,Label='LPDFT_TDM2')
-    if (lRoots > 1) call mma_allocate(tdm2Spin,nSpinTdm2,nPairs,Label='LPDFT_TDM2_SPINSUM')
     call mma_allocate(rootPairs,2,nPairs,Label='LPDFT_ROOT_PAIRS')
 
     tdm1(:,:,:) = Zero
     tdm2(:,:) = Zero
     call mh5_fetch_dset(mh5id,'ACTIVE_1TDM',tdm1)
     call mh5_fetch_dset(mh5id,'ACTIVE_2TDM',tdm2)
-    if (lRoots > 1) then
-      tdm2Spin(:,:) = Zero
-      call mh5_fetch_dset(mh5id,'ACTIVE_2TDM_SPINSUM',tdm2Spin)
-    end if
 
     if (mh5_exists_dset(mh5id,'ROOT_PAIRS')) then
       call mh5_fetch_dset(mh5id,'ROOT_PAIRS',rootPairs)
@@ -634,18 +624,14 @@ module lpdft
         call WarningMessage(2,'LPDF transition density HDF5 file contains an invalid ROOT_PAIRS entry.')
         call Quit_OnUserError()
       end if
-      if (iRoot == jRoot) then
-        heff(iRoot,jRoot) = heff(iRoot,jRoot)+contract_lpdft_rdms(tdm1(:,:,iPair),tdm2(:,iPair))
-      else
-        heff(iRoot,jRoot) = heff(iRoot,jRoot)+contract_lpdft_tdms(tdm1(:,:,iPair),tdm2Spin(:,iPair))
-      end if
+      ! Diagonal and off-diagonal elements both contract the packed 2-PDM (P) with the PUVX potential.
+      heff(iRoot,jRoot) = heff(iRoot,jRoot)+contract_lpdft_rdms(tdm1(:,:,iPair),tdm2(:,iPair))
       if (iRoot /= jRoot) heff(jRoot,iRoot) = heff(iRoot,jRoot)
     end do
 
     call print_lpdft_initial_info(fileName,nPairs)
 
     call mma_deallocate(rootPairs)
-    if (lRoots > 1) call mma_deallocate(tdm2Spin)
     call mma_deallocate(tdm2)
     call mma_deallocate(tdm1)
 #endif
@@ -741,95 +727,6 @@ module lpdft
     ediagval = ediagval+lpdft_comp*contract_puvx_2rdm(veff2,rdm2)
 
   end function contract_lpdft_rdms
-
-  function contract_spin_sum_2tdm(h2,tdm2) result(energy)
-
-    implicit none
-    ! The spin-summed 2-TDM uses ordered-pair packing and is not symmetry blocked;
-    ! h2 is in canonical pair-pair packing, with symmetry-forbidden entries zero.
-    real(kind=wp), intent(in) :: h2(nacpr2), tdm2(:)
-    real(kind=wp) :: energy
-    integer(kind=iwp) :: h2Index, iAct, ij, ijPair, ijkl, jAct, kAct, kl, klPair, lAct
-
-    energy = Zero
-    do jAct=1,nac
-      do iAct=1,nac
-        ij = iAct+nac*(jAct-1)
-        ijPair = orbital_pair_index(iAct,jAct)
-        do lAct=1,nac
-          do kAct=1,nac
-            kl = kAct+nac*(lAct-1)
-            if (kl > ij) cycle
-            klPair = orbital_pair_index(kAct,lAct)
-            ijkl = pair_pair_index(ij,kl)
-            h2Index = pair_pair_index(ijPair,klPair)
-            energy = energy+h2(h2Index)*tdm2(ijkl)
-          end do
-        end do
-      end do
-    end do
-  end function contract_spin_sum_2tdm
-
-  function orbital_pair_index(iAct,jAct) result(idx)
-    implicit none
-    integer(kind=iwp), intent(in) :: iAct, jAct
-    integer(kind=iwp) :: idx
-
-    if (iAct >= jAct) then
-      idx = (iAct*(iAct-1))/2+jAct
-    else
-      idx = (jAct*(jAct-1))/2+iAct
-    end if
-  end function orbital_pair_index
-
-  function pair_pair_index(ijPair,klPair) result(idx)
-    implicit none
-    integer(kind=iwp), intent(in) :: ijPair, klPair
-    integer(kind=iwp) :: idx
-
-    if (ijPair >= klPair) then
-      idx = (ijPair*(ijPair-1))/2+klPair
-    else
-      idx = (klPair*(klPair-1))/2+ijPair
-    end if
-  end function pair_pair_index
-
-  !***********************************************************************
-  !> contract_lpdft_tdms
-  !> @brief Contract the 1e and 2e L-PDFT Hamilton
-  !> with the transition density matrices to get the off-diagonal elements
-  !> of the effective Hamiltonian.
-  !> Note, the 2e TDM is spin-summed, and the diagonal elements are scaled by 1/2.
-  !> @details
-  !> @param[in] tdm1: 1e transition density matrix in the active space in MO basis.
-  !> @param[in] tdm2: 2e transition density matrix in the active space in MO basis.
-  !> @return eoffdiagval: The off-diagonal element of the effective Hamiltonian.
-  !***********************************************************************
-  function contract_lpdft_tdms(tdm1,tdm2) result(eoffdiagval)
-
-    implicit none
-    real(kind=wp), intent(in) :: tdm1(nac,nac), tdm2(:)
-    real(kind=wp) :: eoffdiagval, value_1e, value_2e
-    integer(kind=iwp) :: iAct, iPacked, jAct
-
-    eoffdiagval = Zero
-    value_1e = Zero
-    iPacked = 0
-    do iAct=1,nac
-      do jAct=1,iAct
-        iPacked = iPacked+1
-        if (iAct == jAct) then
-          value_1e = value_1e+h1e_lpdft_act(iPacked)*tdm1(iAct,jAct)
-        else
-          value_1e = value_1e+h1e_lpdft_act(iPacked)*(tdm1(iAct,jAct)+tdm1(jAct,iAct))
-        end if
-      end do
-    end do
-
-    value_2e = contract_spin_sum_2tdm(h2e_lpdft_act,tdm2)
-    eoffdiagval = value_1e+value_2e
-
-  end function contract_lpdft_tdms
 
   subroutine default_root_pairs(rootPairs,nPairs)
 
