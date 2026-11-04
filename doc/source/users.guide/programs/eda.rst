@@ -11,15 +11,17 @@
 .. xmldoc:: <MODULE NAME="EDA" APPEAR="EDA">
             %%Description:
             <HELP>
-            Closed-shell combined molecular orbital energy decomposition
+            Closed-shell canonical molecular orbital energy decomposition
             analysis (CMOEDA).
             </HELP>
 
 Description
 -----------
 
-The :program:`EDA` module performs the closed-shell combined molecular
-orbital energy decomposition analysis (CMOEDA).
+The :program:`EDA` module performs the closed-shell canonical molecular
+orbital energy decomposition analysis (CMOEDA), following the
+energy-decomposition scheme of Su and Li [J. Chem. Phys. 131, 014102
+(2009), DOI: 10.1063/1.3159673].
 
 The current implementation supports closed-shell fragments and the
 reference methods AUTO, RHF, and MBPT2.
@@ -39,11 +41,10 @@ Keywords
 NFRAG
 .....
 
-.. xmldoc:: <KEYWORD MODULE="EDA" NAME="NFRAG" APPEAR="Number of fragments" KIND="INT" LEVEL="BASIC" MIN_VALUE="1" MAX_VALUE="10">
+.. xmldoc:: <KEYWORD MODULE="EDA" NAME="NFRAG" APPEAR="Number of fragments" KIND="INT" LEVEL="BASIC" MIN_VALUE="1">
             %%Keyword: NFRAG <basic>
             <HELP>
             Number of molecular fragments participating in the decomposition.
-            The current implementation supports at most ten fragments.
             </HELP>
             </KEYWORD>
 
