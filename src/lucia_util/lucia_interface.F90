@@ -36,7 +36,7 @@ contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX,TwoBodyTDM,Raw2TDM)
+subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX,TwoBodyTDM)
 
   use lucia_data, only: IREFSM, MXNTTS
 
@@ -48,7 +48,6 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
   real(kind=wp), intent(_IN_), optional :: CI_Vector(:)
   real(kind=wp), intent(out), optional :: SIGMA_Vector(:)
   logical(kind=iwp), intent(in), optional :: TwoBodyTDM
-  real(kind=wp), intent(inout), optional :: Raw2TDM(:)
 
   character(len=72) :: Module_
   integer(kind=iwp), allocatable :: lVec(:)
@@ -93,11 +92,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
 
     if (present(RVEC)) then
       if (present(TwoBodyTDM)) then
-        if (present(Raw2TDM)) then
-          call Densi_Master(CI_VECTOR,RVEC=RVEC(:),TwoBodyTDM=TwoBodyTDM,Raw2TDM=Raw2TDM(:))
-        else
-          call Densi_Master(CI_VECTOR,RVEC=RVEC(:),TwoBodyTDM=TwoBodyTDM)
-        end if
+        call Densi_Master(CI_VECTOR,RVEC=RVEC(:),TwoBodyTDM=TwoBodyTDM)
       else
         call Densi_Master(CI_VECTOR,RVEC=RVEC(:))
       end if
@@ -131,7 +126,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
 
 end subroutine Lucia_Util
 
-subroutine densi_master(CIVec,RVec,TwoBodyTDM,Raw2TDM)
+subroutine densi_master(CIVec,RVec,TwoBodyTDM)
   ! Controls the calculation of the densities, when Lucia is called
   ! from Molcas Rasscf.
 
@@ -142,7 +137,6 @@ subroutine densi_master(CIVec,RVec,TwoBodyTDM,Raw2TDM)
   implicit none
   real(kind=wp), intent(in) :: CIVec(:)
   real(kind=wp), intent(in), optional :: RVec(:)
-  real(kind=wp), intent(inout), optional :: Raw2TDM(:)
   logical(kind=iwp), intent(in), optional :: TwoBodyTDM
   integer(kind=iwp) :: LBLK, LBLOCK, NCSF, NSD
   real(kind=wp) :: dummy(1), EXPS2
@@ -227,12 +221,7 @@ subroutine densi_master(CIVec,RVec,TwoBodyTDM,Raw2TDM)
   DUMMY = Zero
   if (tdm) then
     if (do_two_body_tdm) then
-      if (present(Raw2TDM)) then
-        IPACK = .false.
-        call densi2(2,Dtmp,Raw2TDM,dummy,dummy,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
-      else
-        call densi2(2,Dtmp,dummy,Ptmp,PAtmp,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
-      end if
+      call densi2(2,Dtmp,dummy,Ptmp,PAtmp,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
     else
       call densi2(1,Dtmp,dummy,dummy,dummy,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
     end if
