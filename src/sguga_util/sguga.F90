@@ -9845,11 +9845,8 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
                  EXS%IOCP(INDEO,ISYDC,MVI),Swap)
     Upper_Factor = 1.0_wp
     do k=1,NCP
-      if (Swap) then
-        src=EXS%ICOUP(2,LICP+k); dst=EXS%ICOUP(1,LICP+k)
-      else
-        src=EXS%ICOUP(1,LICP+k); dst=EXS%ICOUP(2,LICP+k)
-      end if
+      src=MERGE(EXS%ICOUP(2,LICP+k),EXS%ICOUP(1,LICP+k),Swap)
+      dst=MERGE(EXS%ICOUP(1,LICP+k),EXS%ICOUP(2,LICP+k),Swap)
       if (src == JDN .and. dst == IDN) then
         Lower_Factor = EXS%VTab(EXS%ICOUP(3,LICP+k))
         EIJ = Lower_Factor * Upper_Factor
