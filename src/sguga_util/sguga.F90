@@ -9909,7 +9909,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     JP=merge(IQ,IP,Swap)
     JQ=merge(IP,IQ,Swap)
 
-    ! Find if the midvertex MVI connects with MVJ for delta b = -/+ b
+    ! Find if the midvertex MVI connects with MVJ for delta b = -1 or +1
     iBand=0
     do MV=1,2
       ! Find the Midvertex to the left of MVI
@@ -9924,19 +9924,19 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
       iBand=MV
     end do
 
-    If (iband==0) Return
+    If (iBand==0) Return
     MV=iBand
 
+    !Gamma(Ju) = Gamma(p) x Gamma(Iu)
     ISYUC=merge(Mul(ISYQ,ISYUI),Mul(ISYP,ISYUI),Swap)
-    ISYDC=merge(Mul(ISYP,ISYDI),Mul(ISYQ,ISYDI),Swap)
-
     if (ISYUC /= ISYUJ) Return
+
 
     INDEO_P=(MV-1)*SGS%nLev+JP
     NCP1= merge(EXS%NOCP(INDEO_P,ISYUI,MVI), &
-                EXS%NOCP(INDEO_P,ISYUC,MVJ),Swap)
+                EXS%NOCP(INDEO_P,ISYUJ,MVJ),Swap)
     LICP1=merge(EXS%IOCP(INDEO_P,ISYUI,MVI), &
-                EXS%IOCP(INDEO_P,ISYUC,MVJ),Swap)
+                EXS%IOCP(INDEO_P,ISYUJ,MVJ),Swap)
     Upper_Factor=Zero
     do a=1,NCP1
       src =MERGE(EXS%ICOUP(2,LICP1+a),EXS%ICOUP(1,LICP1+a),Swap)
@@ -9949,20 +9949,22 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
 
     If (Upper_Factor==Zero) Return
 
+    !Gamma(Jl) = Gamma(q) x Gamma(Il)
+    ISYDC=merge(Mul(ISYP,ISYDI),Mul(ISYQ,ISYDI),Swap)
+    if (iSYDC /= ISYDJ) Return
+
     INDEO_Q=(MV-1)*SGS%nLev+JQ
     NCP2= merge(EXS%NOCP(INDEO_Q,ISYDI,MVI), &
-                EXS%NOCP(INDEO_Q,ISYDC,MVJ),Swap)
+                EXS%NOCP(INDEO_Q,ISYDJ,MVJ),Swap)
     LICP2=merge(EXS%IOCP(INDEO_Q,ISYDI,MVI), &
-                EXS%IOCP(INDEO_Q,ISYDC,MVJ),Swap)
+                EXS%IOCP(INDEO_Q,ISYDJ,MVJ),Swap)
     Lower_Factor=Zero
     do b=1,NCP2
       icol=MERGE(EXS%ICOUP(2,LICP2+b),EXS%ICOUP(1,LICP2+b),Swap)
       if (icol /= JDN ) cycle
       dst =MERGE(EXS%ICOUP(1,LICP2+b),EXS%ICOUP(2,LICP2+b),Swap)
       if (dst /= IDN) cycle
-
       Lower_Factor=EXS%VTab(EXS%ICOUP(3,LICP2+b))
-
       exit
     end do
 
