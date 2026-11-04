@@ -25,6 +25,7 @@ set (sources
      mcpdft_init.F90
      mcpdft_input.F90
      mcpdft_output.F90
+     molel_write.F90
      mo2ao_1e.F90
      mspdft.F90
      mspdftgrad.F90

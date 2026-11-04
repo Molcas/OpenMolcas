@@ -28,6 +28,7 @@ type :: McpdftInputOptions_t
   logical(kind=iwp) :: nac = .false.
   logical(kind=iwp) :: is_hdf5_wfn = .false.
   logical(kind=iwp) :: extparam = .false.
+  logical(kind=iwp) :: transport = .false.
   character(len=256) :: wfn_file = ''
   character(len=256) :: extparamfile = ''
   integer(kind=iwp) :: rlxroot = 0
@@ -122,6 +123,10 @@ subroutine parse_input()
       case ('GRAD')
         mcpdft_options%grad = .true.
 
+      case ('TRAN')
+        mcpdft_options%transport = .true.
+        mcpdft_options%grad = .true.
+
       case ('NAC ')
         mcpdft_options%nac = .true.
         if (.not. next_non_comment(lu_input,buffer)) call EOFError(buffer)
@@ -199,14 +204,6 @@ subroutine verify_input()
       call WarningMessage(2,'L-PDFT gradients are not implemented')
       write(u6,*) ' ************* ERROR **************'
       write(u6,*) ' L-PDFT analytical nuclear gradients are not implemented'
-      write(u6,*) ' **********************************'
-      call Quit_OnUserError()
-    end if
-    if (Get_Func_Type(get_base(mcpdft_options%otfnal%otxc)) == meta_GGA_Type1) then
-      call WarningMessage(2,'L-PDFT with meta-GGA functionals is not implemented')
-      write(u6,*) ' ************* ERROR **************'
-      write(u6,*) ' L-PDFT is not implemented with    '
-      write(u6,*) ' meta-GGA functionals              '
       write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if
