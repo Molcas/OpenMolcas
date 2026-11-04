@@ -14,6 +14,16 @@
 subroutine LPDFT_TDM()
 !> Compute active-space transition 1-density matrices and symmetrized transition 2-PDMs for LPDFT
 !> and store them in ${Project}.tdm_4_lpdft.h5.
+!>
+!> Cost note:
+!> The 2-PDM is obtained only through Mk_pdms (so all CI backends are supported), by polarization:
+!> P[L+R] = P[L] + P[R] + (P_LR + P_RL). For nR = lRoots this needs
+!>   - nR  Mk_pdms calls, one per root, stored in Pstate,
+!>   - nR*(nR-1)/2  Mk_pdms calls, one per root pair, on the unnormalized sum vector,
+!> i.e. nR*(nR+1)/2 CI two-body density evaluations in total, plus one Mk_T1DM call per root pair.
+!> The extra memory is NACPR2*nR for Pstate and one CI vector (VecSum).
+!> Only the symmetrized part (P_LR + P_RL)/2 is kept, which is all that contracts with the
+!> symmetric L-PDFT 2e Hamiltonian; the antisymmetric part is neither computed nor needed.
 
 use input_ras, only: Key
 use Definitions, only: u6
