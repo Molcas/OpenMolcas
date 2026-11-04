@@ -235,6 +235,9 @@ The :kword:`FUNC` is the only required keyword.
   L-PDFT effective Hamiltonian. It must be used together with
   :kword:`MSPDft` in both single-root and multi-root calculations.
 
+  L-PDFT is only available for CASSCF-type reference wave functions (CASSCF
+  or CASCI), not for RASSCF or GASSCF references.
+
   L-PDFT does not require :file:`H0_Rotate.txt` or an XMS/CMS rotation. Instead,
   the effective Hamiltonian is constructed directly in the basis of the
   reference RASSCF states. The roots, orbitals, and CI vectors must correspond
