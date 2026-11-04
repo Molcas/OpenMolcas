@@ -9738,7 +9738,7 @@ end function MatEl_EpqErs_UL
 !! I and J are 1-based CSF indices within their respective symmetry sectors.
 !! CPQ is not included: the returned value is the bare <I|E_pq|J>.
 
-function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYCI,I_CSF,J_CSF,Verbose) result(EIJ)
+function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
   use Symmetry_Info, only: Mul
   use Constants,     only: Zero
   use Definitions,   only: wp, iwp
@@ -9746,32 +9746,37 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYCI,I_CSF,J_CSF,Verbose) result(EIJ)
   type(SGStruct), intent(in) :: SGS
   type(CIStruct), intent(in) :: CIS
   type(EXStruct), intent(in) :: EXS
-  integer(kind=iwp), intent(in) :: IP, IQ, ISYCI, I_CSF, J_CSF
+  integer(kind=iwp), intent(in) :: IP, IQ, ISYJ, I_CSF, J_CSF
   logical(kind=iwp) :: Verbose
   real(kind=wp) :: EIJ
 
-  integer(kind=iwp) :: ISYP, ISYQ, ISYPQ, ISYSGM
+  integer(kind=iwp) :: ISYP, ISYQ, ISYPQ, ISYI
   integer(kind=iwp) :: MVI, MVJ, ISYUI, ISYUJ
   integer(kind=iwp) :: IUP, IDN, JUP, JDN
-  logical(kind=iwp) :: Swap, Test1, Test2
+  logical(kind=iwp) :: Swap, Lower, Upper
   integer(kind=iwp) :: INDEO, NCP, LICP, k
+  integer(kind=iwp) :: INDEO_P, INDEO_Q
   integer(kind=iwp) :: src, dst, irow, icol
-  integer(kind=iwp) :: MV, MVX, NCP1, NCP2, LICP1, LICP2
-  integer(kind=iwp) :: ISYDSG, ISYUC, ISYDC, JP, JQ, a, b, c
+  integer(kind=iwp) :: MV, MVX, NCP1, NCP2, LICP1, LICP2, iBand
+  integer(kind=iwp) :: ISYDI, ISYUC, ISYDC, JP, JQ, a, b, c, ISYDJ
   integer(kind=iwp) :: IOUW, IOLW, IPSHFT, IPPOW, IC, ICS
   real(kind=wp) :: Factor
   real(kind=wp) :: Upper_Factor, Lower_Factor, Contribution
 
   EIJ = Zero
-  ISYP = SGS%ISm(IP)
-  ISYQ = SGS%ISm(IQ)
-  ISYPQ = Mul(ISYP,ISYQ)
-  ISYSGM = Mul(ISYPQ,ISYCI)
+  ISYP = SGS%ISm(IP)      ! Gamma(p)
+  ISYQ = SGS%ISm(IQ)      ! Gamma(q)
+  ISYPQ = Mul(ISYP,ISYQ)  ! Gamma(pq)
+  ISYI = Mul(ISYPQ,ISYJ)  ! Gamma(I)=Gamma(pq) x Gamma(J)
 
-  if (I_CSF < 1 .or. I_CSF > CIS%NCSF(ISYSGM)) return
-  if (J_CSF < 1 .or. J_CSF > CIS%NCSF(ISYCI)) return
-  call Decode_CSF(CIS,ISYSGM,I_CSF,MVI,ISYUI,IUP,IDN)
-  call Decode_CSF(CIS,ISYCI, J_CSF,MVJ,ISYUJ,JUP,JDN)
+  if (I_CSF < 1 .or. I_CSF > CIS%NCSF(ISYI)) return
+  if (J_CSF < 1 .or. J_CSF > CIS%NCSF(ISYJ)) return
+
+  call Decode_CSF(CIS,ISYI,I_CSF,MVI,ISYUI,IUP,IDN)
+  call Decode_CSF(CIS,ISYJ,J_CSF,MVJ,ISYUJ,JUP,JDN)
+  ISYDI = Mul(ISYI,ISYUI)   ! Gamma(Il) = Gamma(I) x Gamma(Iu)
+  ISYDJ = Mul(ISYJ,ISYUJ)   ! Gamma(Il) = Gamma(I) x Gamma(Iu)
+
   If (Verbose) Then
      Write (u6,*)
      Write (u6,*) 'Testing: I,p,q,J=',i_CSF,ip,iq,j_CSF
@@ -9783,15 +9788,16 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYCI,I_CSF,J_CSF,Verbose) result(EIJ)
   if (IP == IQ) then
     If (Verbose) Write (u6,*) 'Diagonal case'
     ! E_pp is diagonal in this representation.
-    if (ISYSGM /= ISYCI .or. I_CSF /= J_CSF) return
+
+    if (ISYI /= ISYJ .or. I_CSF /= J_CSF) return
+
     if (IP > SGS%MidLev) then
       IOUW = CIS%IOW(1,ISYUI,MVI)
       IPSHFT = 2*(IP-1-SGS%MidLev)
       IC = CIS%ICase(1+IOUW-CIS%nIpWlk+IPSHFT/(2*nPack) &
                      +IUP*CIS%nIpWlk)
     else
-      ISYDSG = Mul(ISYUI,ISYSGM)
-      IOLW = CIS%IOW(2,ISYDSG,MVI)
+      IOLW = CIS%IOW(2,ISYDI,MVI)
       IPSHFT = 2*(IP-1)
       IC = CIS%ICase(1+IOLW-CIS%nIpWlk+IPSHFT/(2*nPack) &
                      +IDN*CIS%nIpWlk)
@@ -9820,20 +9826,22 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYCI,I_CSF,J_CSF,Verbose) result(EIJ)
 
   Swap = IQ > IP
   If (Verbose) Write (u6,*) 'SWAP=',SWAP
-  Test1 = merge(IQ <= SGS%MidLev,IP <= SGS%MidLev,Swap)
-  Test2 = merge(SGS%MidLev < IP,SGS%MidLev < IQ,Swap)
+  Lower = merge(IQ <= SGS%MidLev,IP <= SGS%MidLev,Swap)
+  Upper = merge(SGS%MidLev < IP,SGS%MidLev < IQ,Swap)
 
-  if (Test1) then
+  if (Lower) then
     If (Verbose) Write (u6,*) 'Non-diagonal lower closed-loop case'
     ! Both orbital levels are in the lower half.  The upper walk is unchanged.
     if (MVI /= MVJ .or. ISYUI /= ISYUJ .or. IUP /= JUP) return
     INDEO = merge(2*SGS%nLev+(IQ*(IQ-1))/2+IP, &
                   2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
-    ISYDSG = Mul(ISYUI,ISYSGM)
-    ISYDC  = Mul(ISYPQ,ISYDSG)
-    NCP = merge(EXS%NOCP(INDEO,ISYDSG,MVI), &
+
+    ! Gamma(pq) x Gamma(Il)
+    ISYDC  = Mul(ISYPQ,ISYDI)
+
+    NCP = merge(EXS%NOCP(INDEO,ISYDI,MVI), &
                 EXS%NOCP(INDEO,ISYDC,MVI),Swap)
-    LICP = merge(EXS%IOCP(INDEO,ISYDSG,MVI), &
+    LICP = merge(EXS%IOCP(INDEO,ISYDI,MVI), &
                  EXS%IOCP(INDEO,ISYDC,MVI),Swap)
     Upper_Factor = 1.0_wp
     do k=1,NCP
@@ -9859,7 +9867,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYCI,I_CSF,J_CSF,Verbose) result(EIJ)
       end if
     end do
 
-  else if (Test2) then
+  else if (Upper) then
     If (Verbose) Write (u6,*) 'Non-diagonal upper closed-loop case'
     ! Both orbital levels are in the upper half.  The lower walk is unchanged.
     if (MVI /= MVJ .or. IDN /= JDN) return
@@ -9897,74 +9905,90 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYCI,I_CSF,J_CSF,Verbose) result(EIJ)
     If (Verbose) Write (u6,*) 'Non-diagonal open-loop case'
     ! The excitation crosses MIDLEV.  Contract the two coupling tables
     ! directly, retaining only paths from J to I.
+
+    ! Evaluate <I(IUP,IDN,MVI)|Epq|J(JUP,JDN,MVJ)> =
+    !          A_p(IUP,MVI,JUP,MVJ) x A_q(IDN,MVI,JDN,MVJ)
+
     JP=merge(IQ,IP,Swap)
     JQ=merge(IP,IQ,Swap)
+
+    ! Find if the midvertex MVI connects with MVJ for delta b = -/+ b
+    iBand=0
     do MV=1,2
+      ! Find the Midvertex to the left of MVI
       MVX=merge(EXS%MVR(MVI,MV),EXS%MVL(MVI,MV),Swap)
       If (Verbose) Then
          Write (u6,*) 'MVX=',MVX
          Write (u6,*) 'MVX/=MVJ',MVX /= MVJ
          Write (u6,*) 'Skip= ',MVX == 0 .or. MVX /= MVJ
       End If
+      ! branch out if there are no such vertex or if the index don't match
       if (MVX == 0 .or. MVX /= MVJ) cycle
-      ISYDSG=Mul(ISYUI,ISYSGM)
-      ISYUC=merge(Mul(ISYQ,ISYUI),Mul(ISYP,ISYUI),Swap)
-      ISYDC=merge(Mul(ISYP,ISYDSG),Mul(ISYQ,ISYDSG),Swap)
-      if (ISYUC /= ISYUJ) cycle
+      iBand=MV
+    end do
 
-      INDEO=(MV-1)*SGS%nLev+JP
-      NCP1=merge(EXS%NOCP(INDEO,ISYUI,MVI), &
-                 EXS%NOCP(INDEO,ISYUC,MVJ),Swap)
-      LICP1=merge(EXS%IOCP(INDEO,ISYUI,MVI), &
-                  EXS%IOCP(INDEO,ISYUC,MVJ),Swap)
+    If (iband==0) Return
+    MV=iBand
 
-      INDEO=(MV-1)*SGS%nLev+JQ
-      NCP2=merge(EXS%NOCP(INDEO,ISYDSG,MVI), &
-                 EXS%NOCP(INDEO,ISYDC,MVJ),Swap)
-      LICP2=merge(EXS%IOCP(INDEO,ISYDSG,MVI), &
-                  EXS%IOCP(INDEO,ISYDC,MVJ),Swap)
-      Upper_Factor=Zero
-      do a=1,NCP1
-        src =MERGE(EXS%ICOUP(2,LICP1+a),EXS%ICOUP(1,LICP1+a),Swap)
-        if (src /= JUP) cycle
-        irow=MERGE(EXS%ICOUP(1,LICP1+a),EXS%ICOUP(2,LICP1+a),Swap)
-        if (irow/= IUP) Cycle
-        Upper_Factor=EXS%VTab(EXS%ICOUP(3,LICP1+a))
-        exit
-      end do
+    ISYUC=merge(Mul(ISYQ,ISYUI),Mul(ISYP,ISYUI),Swap)
+    ISYDC=merge(Mul(ISYP,ISYDI),Mul(ISYQ,ISYDI),Swap)
 
-      If (Upper_Factor==Zero) exit
+    if (ISYUC /= ISYUJ) Return
 
-      do b=1,NCP2
-        icol=MERGE(EXS%ICOUP(2,LICP2+b),EXS%ICOUP(1,LICP2+b),Swap)
-        if (icol /= JDN ) cycle
-        dst =MERGE(EXS%ICOUP(1,LICP2+b),EXS%ICOUP(2,LICP2+b),Swap)
-        if (dst /= IDN) cycle
+    INDEO_P=(MV-1)*SGS%nLev+JP
+    NCP1= merge(EXS%NOCP(INDEO_P,ISYUI,MVI), &
+                EXS%NOCP(INDEO_P,ISYUC,MVJ),Swap)
+    LICP1=merge(EXS%IOCP(INDEO_P,ISYUI,MVI), &
+                EXS%IOCP(INDEO_P,ISYUC,MVJ),Swap)
+    Upper_Factor=Zero
+    do a=1,NCP1
+      src =MERGE(EXS%ICOUP(2,LICP1+a),EXS%ICOUP(1,LICP1+a),Swap)
+      if (src /= JUP) cycle
+      irow=MERGE(EXS%ICOUP(1,LICP1+a),EXS%ICOUP(2,LICP1+a),Swap)
+      if (irow/= IUP) Cycle
+      Upper_Factor=EXS%VTab(EXS%ICOUP(3,LICP1+a))
+      exit
+    end do
 
-        Lower_Factor=EXS%VTab(EXS%ICOUP(3,LICP2+b))
-        EIJ= Upper_Factor*Lower_Factor
+    If (Upper_Factor==Zero) Return
 
-        If (Verbose) Then
-           Contribution=Upper_Factor*Lower_Factor
-           write(u6,'(/,A)') 'MatEl_Epq: OPEN LOOP (p/=q)'
-           write(u6,'(A)') '  case              = crossing excitation'
-           write(u6,'(A,6I8)') '  I,J,p,q,a,b       =', &
-                                I_CSF,J_CSF,IP,IQ,a,b
-           Write(u6,'(A,L1)') 'Swap=',Swap
-           write(u6,'(A,2I8)') '  MVI, MVX          =',MVI,MVX
-           write(u6,'(A,2I8)') '  upper src,irow    =',src,irow
-           write(u6,'(A,2I8)') '  lower icol,ds     =',icol,dst
-           write(u6,'(A,I8)') '  crossing branch   =',MV
-           write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
-           write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
-           write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
-        EndIf
+    INDEO_Q=(MV-1)*SGS%nLev+JQ
+    NCP2= merge(EXS%NOCP(INDEO_Q,ISYDI,MVI), &
+                EXS%NOCP(INDEO_Q,ISYDC,MVJ),Swap)
+    LICP2=merge(EXS%IOCP(INDEO_Q,ISYDI,MVI), &
+                EXS%IOCP(INDEO_Q,ISYDC,MVJ),Swap)
+    Lower_Factor=Zero
+    do b=1,NCP2
+      icol=MERGE(EXS%ICOUP(2,LICP2+b),EXS%ICOUP(1,LICP2+b),Swap)
+      if (icol /= JDN ) cycle
+      dst =MERGE(EXS%ICOUP(1,LICP2+b),EXS%ICOUP(2,LICP2+b),Swap)
+      if (dst /= IDN) cycle
 
-        exit
-      end do
+      Lower_Factor=EXS%VTab(EXS%ICOUP(3,LICP2+b))
 
       exit
     end do
+
+    If (Lower_Factor==Zero) Return
+
+    EIJ= Upper_Factor*Lower_Factor
+
+    If (Verbose) Then
+       Contribution=Upper_Factor*Lower_Factor
+       write(u6,'(/,A)') 'MatEl_Epq: OPEN LOOP (p/=q)'
+       write(u6,'(A)') '  case              = crossing excitation'
+       write(u6,'(A,6I8)') '  I,J,p,q,a,b       =', &
+                            I_CSF,J_CSF,IP,IQ,a,b
+       Write(u6,'(A,L1)') 'Swap=',Swap
+       write(u6,'(A,2I8)') '  MVI, MVX          =',MVI,MVX
+       write(u6,'(A,2I8)') '  upper src,irow    =',src,irow
+       write(u6,'(A,2I8)') '  lower icol,ds     =',icol,dst
+       write(u6,'(A,I8)') '  crossing branch   =',MV
+       write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
+       write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
+       write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
+    EndIf
+
   end if
 
 
