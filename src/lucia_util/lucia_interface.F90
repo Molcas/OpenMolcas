@@ -36,7 +36,7 @@ contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX,TwoBodyTDM)
+subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
   use lucia_data, only: IREFSM, MXNTTS
 
@@ -47,7 +47,6 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
   real(kind=wp), intent(in), optional :: Array(:), RVEC(:), TU(:), TUVX(:)
   real(kind=wp), intent(_IN_), optional :: CI_Vector(:)
   real(kind=wp), intent(out), optional :: SIGMA_Vector(:)
-  logical(kind=iwp), intent(in), optional :: TwoBodyTDM
 
   character(len=72) :: Module_
   integer(kind=iwp), allocatable :: lVec(:)
@@ -91,11 +90,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
   else if (Module_(1:5) == 'DENSI') then
 
     if (present(RVEC)) then
-      if (present(TwoBodyTDM)) then
-        call Densi_Master(CI_VECTOR,RVEC=RVEC(:),TwoBodyTDM=TwoBodyTDM)
-      else
-        call Densi_Master(CI_VECTOR,RVEC=RVEC(:))
-      end if
+      call Densi_Master(CI_VECTOR,RVEC=RVEC(:))
     else
       call Densi_Master(CI_VECTOR)
     end if
@@ -126,7 +121,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
 
 end subroutine Lucia_Util
 
-subroutine densi_master(CIVec,RVec,TwoBodyTDM)
+subroutine densi_master(CIVec,RVec)
   ! Controls the calculation of the densities, when Lucia is called
   ! from Molcas Rasscf.
 
@@ -137,10 +132,9 @@ subroutine densi_master(CIVec,RVec,TwoBodyTDM)
   implicit none
   real(kind=wp), intent(in) :: CIVec(:)
   real(kind=wp), intent(in), optional :: RVec(:)
-  logical(kind=iwp), intent(in), optional :: TwoBodyTDM
   integer(kind=iwp) :: LBLK, LBLOCK, NCSF, NSD
   real(kind=wp) :: dummy(1), EXPS2
-  logical(kind=iwp) :: iPack, tdm, do_two_body_tdm
+  logical(kind=iwp) :: iPack, tdm
   integer(kind=iwp), allocatable :: lVec(:)
   real(kind=wp), allocatable :: SCR2(:), SCR4(:), VEC1(:), VEC2(:)
   real(kind=wp), allocatable, target :: SCR1(:), SCR3(:)
@@ -150,8 +144,6 @@ subroutine densi_master(CIVec,RVec,TwoBodyTDM)
   ! if rvec is associated, it should be a pointer to a second CI vector
   ! and a one-particle transition density matrix will be computed
   tdm = present(rVec)
-  do_two_body_tdm = .false.
-  if (present(TwoBodyTDM)) do_two_body_tdm = TwoBodyTDM
 
   NSD = NSD_PER_SYM(IREFSM)
   NCSF = NCSF_PER_SYM(IREFSM)
@@ -220,11 +212,7 @@ subroutine densi_master(CIVec,RVec,TwoBodyTDM)
   IPACK = .true.
   DUMMY = Zero
   if (tdm) then
-    if (do_two_body_tdm) then
-      call densi2(2,Dtmp,dummy,Ptmp,PAtmp,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
-    else
-      call densi2(1,Dtmp,dummy,dummy,dummy,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
-    end if
+    call densi2(1,Dtmp,dummy,dummy,dummy,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
   else
     call densi2(2,rho1,dummy,Ptmp,PAtmp,vec1,vec2,lusc1,luhc,exps2,1,srho1,IPACK)
   end if
