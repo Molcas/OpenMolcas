@@ -50,6 +50,16 @@ to form an effective Hamiltonian. Diagonalizing this Hamiltonian yields the
 L-PDFT energies and states. For a single root and
 :math:`\lambda=0`, L-PDFT reduces to MC-PDFT.
 
+MC-PDFT and L-PDFT can be combined with a reaction-field solvation model, such
+as PCM, defined with :kword:`RF-Input` in :program:`GATEWAY`. The reference
+wave function must then be optimized in the reaction field by the preceding
+:program:`RASSCF` calculation. MC-PDFT adds the solvation energy of the
+reaction-field root to the energy of every state (keyword :kword:`RFPErt`).
+L-PDFT includes the reaction field in its effective Hamiltonian and, unless
+:kword:`RFPErt` is given, reevaluates it self-consistently from the L-PDFT
+states; non-equilibrium solvation is requested with :kword:`NONEq`, and the
+state that polarizes the reaction field with :kword:`RFROot`.
+
 The molecular orbitals and one- and two-body density matrices are read from the
 :file:`JOBIPH` (or :file:`JOBOLD`) file generated during a :program:`RASSCF`
 run. In the DMRG-SCF case, the one- and two-body density matrices are read from
@@ -454,18 +464,110 @@ The :kword:`FUNC` is the only required keyword.
               </KEYWORD>
 
 :kword:`RFPErt`
-  This keyword makes the program add reaction field effects to the energy
-  calculation. This is done by adding the reaction field effects to the
-  one-electron Hamiltonian as a constant perturbation, i.e. the reaction field
-  effect is not treated self consistently. The perturbation is extracted from
-  :file:`RUNOLD`, if that file is not present it defaults to :file:`RUNFILE`.
+  Use the reaction field of a previous calculation as a fixed perturbation.
+  The reaction field is read from :file:`RUNOLD` if that file exists, otherwise
+  from :file:`RUNFILE`, and it is not reevaluated.
+
+  * For MC-PDFT, the interaction energy of the reaction field with the density
+    of the reaction-field root (keyword :kword:`RFROot` in :program:`RASSCF`)
+    and the reaction-field self energy are added to the energy of every state.
+    MC-PDFT needs this keyword to include solvation: without it, a reaction
+    field defined in :program:`GATEWAY` is ignored and a warning is printed.
+  * For L-PDFT, the reaction field is added to the one-electron part of the
+    L-PDFT effective Hamiltonian, and the solvation energy of the
+    reaction-field root is added to every state. Without :kword:`RFPErt`,
+    L-PDFT reevaluates the reaction field self-consistently instead (see
+    :kword:`RFROot` and :kword:`NONEq`).
+
+  With a hybrid functional (:kword:`LAMBda`), the reaction field is included
+  once, at full weight, so the reference wave function must have been
+  optimized in the same reaction field.
+  Analytical gradients (:kword:`GRAD`) and MS-PDFT methods other than L-PDFT
+  are not available with a reaction field.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="RFPERT" APPEAR="Reaction field perturbation" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: RFPert  <advanced>
               <HELP>
-              Add reaction field from environment as static perturbation
-              to the one-electron Hamiltonian.
-              The perturbation is extracted from RUNOLD if it exists, otherwise from RUNFILE.
+              Use the reaction field of a previous calculation as a fixed perturbation.
+              It is read from RUNOLD if it exists, otherwise from RUNFILE, and it is not reevaluated.
+              Required for MC-PDFT with a reaction field. For L-PDFT, the default
+              without RFPERT is a self-consistent reaction field.
+              </HELP>
+              </KEYWORD>
+
+:kword:`RFROot`
+  Selects the L-PDFT state whose density polarizes the reaction field in a
+  self-consistent L-PDFT calculation (L-PDFT with a reaction field defined in
+  :program:`GATEWAY` and without :kword:`RFPErt`). The L-PDFT states are
+  numbered in order of increasing energy. If the keyword is not given, the
+  reaction-field root of the preceding :program:`RASSCF` calculation is used and
+  a warning is printed. Only a single root is supported, i.e. a state-averaged
+  reaction field is not available.
+
+  In each iteration, the L-PDFT effective Hamiltonian with the current reaction
+  field is diagonalized, and the reaction field is recomputed from the density
+  of the :kword:`RFROot` state. The iterations stop when the state-averaged
+  L-PDFT free energy changes by less than :math:`10^{-8}\,E_h`. As for
+  :kword:`RFPErt`, the solvation energy of the :kword:`RFROot` state is added to
+  every state. After the calculation, the reaction field of the reference
+  calculation is restored on :file:`RUNFILE`, so that subsequent programs (for
+  example :program:`CASPT2` with :kword:`RFPErt`) are not affected by the L-PDFT
+  run.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="RFROOT" APPEAR="Reaction field root" KIND="INT" MIN_VALUE="1" LEVEL="ADVANCED" REQUIRE="LPDF">
+              %%Keyword: RFRoot <advanced>
+              <HELP>
+              L-PDFT state (in order of increasing energy) whose density polarizes
+              the self-consistent reaction field. Default: the reaction-field root
+              of the preceding RASSCF calculation. Not compatible with RFPERT.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NONEq`
+  Requests non-equilibrium solvation in a self-consistent L-PDFT calculation.
+  Only the fast (electronic) component of the reaction field is updated from the
+  density of the :kword:`RFROot` state; the slow component is kept fixed at that
+  of a previous equilibrium L-PDFT calculation on the same :file:`RUNFILE`. If
+  no such calculation was run, the program stops. L-PDFT stores its slow
+  component separately from that of :program:`RASSCF`, so a non-equilibrium
+  :program:`RASSCF` calculation is not affected by an L-PDFT calculation in
+  between. :kword:`NONEq` requires :kword:`LPDF` and cannot be combined with
+  :kword:`RFPErt`, and it should match the :kword:`NONEquilibrium` keyword of the
+  preceding :program:`RASSCF` calculation.
+
+  A vertical excitation in solution is computed with an equilibrium calculation
+  for the ground state followed by a non-equilibrium calculation for the excited
+  state: ::
+
+    &RASSCF
+      ...
+      CIRoot = 2 2 1
+      RFRoot = 1
+      LPDF
+    &MCPDFT
+      FUNC = T:PBE
+      MSPD
+      LPDF
+      RFROot = 1
+    &RASSCF
+      ...
+      CIRoot = 2 2 1
+      RFRoot = 2
+      NONEquilibrium
+      LPDF
+    &MCPDFT
+      FUNC = T:PBE
+      MSPD
+      LPDF
+      NONEq
+      RFROot = 2
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="NONEQ" APPEAR="Non-equilibrium solvation" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="LPDF">
+              %%Keyword: NONEq <advanced>
+              <HELP>
+              Non-equilibrium solvation for a self-consistent L-PDFT reaction field:
+              only the fast component is updated; the slow component is taken from a
+              previous equilibrium L-PDFT calculation. Not compatible with RFPERT.
               </HELP>
               </KEYWORD>
 

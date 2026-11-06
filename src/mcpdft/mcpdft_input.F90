@@ -30,6 +30,10 @@ type :: McpdftInputOptions_t
   logical(kind=iwp) :: extparam = .false.
   logical(kind=iwp) :: transport = .false.
   logical(kind=iwp) :: rfpert = .false.
+  logical(kind=iwp) :: noneq = .false.
+  logical(kind=iwp) :: rf_on = .false.
+  logical(kind=iwp) :: rf_scf = .false.
+  integer(kind=iwp) :: rfroot = 0
   character(len=256) :: wfn_file = ''
   character(len=256) :: extparamfile = ''
   integer(kind=iwp) :: rlxroot = 0
@@ -130,6 +134,14 @@ subroutine parse_input()
 
       case ('RFPE')
         mcpdft_options%rfpert = .true.
+
+      case ('NONE')
+        mcpdft_options%noneq = .true.
+
+      case ('RFRO')
+        if (.not. next_non_comment(lu_input,buffer)) call EOFError(buffer)
+        read(buffer,*,iostat=ierror) mcpdft_options%rfroot
+        if (ierror /= 0) call IOError(buffer)
 
       case ('NAC ')
         mcpdft_options%nac = .true.
@@ -250,11 +262,57 @@ subroutine verify_input()
   end if
 
   if (mcpdft_options%rfpert) then
-    if (mcpdft_options%mspdft) then
+    if (mcpdft_options%mspdft .and. (.not. mcpdft_options%lpdft)) then
       call WarningMessage(2,'MS-PDFT with a reaction field not supported')
       write(u6,*) ' ************* ERROR **************'
-      write(u6,*) ' MS-PDFT is not implemented        '
-      write(u6,*) ' with a reaction field             '
+      write(u6,*) ' MS-PDFT except L-PDFT is not      '
+      write(u6,*) ' implemented with a reaction field '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+  end if
+
+  if (mcpdft_options%noneq) then
+    if (.not. (mcpdft_options%mspdft .and. mcpdft_options%lpdft)) then
+      call WarningMessage(2,'NONEQ is only available for L-PDFT')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' NONEQ requires the MSPD and LPDF  '
+      write(u6,*) ' keywords                          '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+    if (mcpdft_options%rfpert) then
+      call WarningMessage(2,'NONEQ cannot be combined with RFPERT')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' With RFPERT the reaction field is '
+      write(u6,*) ' fixed. NONEQ has no meaning here  '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+  end if
+
+  if (mcpdft_options%rfroot /= 0) then
+    if (mcpdft_options%rfroot < 0) then
+      call WarningMessage(2,'Invalid RFROOT specified')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' RFROOT must be a positive state   '
+      write(u6,*) ' number                            '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+    if (.not. (mcpdft_options%mspdft .and. mcpdft_options%lpdft)) then
+      call WarningMessage(2,'RFROOT is only available for L-PDFT')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' RFROOT requires the MSPD and LPDF '
+      write(u6,*) ' keywords                          '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+    if (mcpdft_options%rfpert) then
+      call WarningMessage(2,'RFROOT cannot be combined with RFPERT')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' With RFPERT the reaction field is '
+      write(u6,*) ' fixed. RFROOT has no meaning here '
       write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if
