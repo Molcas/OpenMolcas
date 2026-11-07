@@ -12,31 +12,41 @@
 !***********************************************************************
 
 subroutine LPDFT_TDM()
-!> Compute active-space transition 1- and 2-density matrices for LPDFT
+!> Compute symmetrized active-space transition 1-density matrices and 2-PDMs for LPDFT
 !> and store them in ${Project}.tdm_4_lpdft.h5.
+!>
+!> Cost note:
+!> The 2-PDM is obtained only through Mk_pdms (so all CI backends are supported), by polarization:
+!> P[L+R] = P[L] + P[R] + (P_LR + P_RL). For nR = lRoots this needs
+!>   - nR  Mk_pdms calls, one per root, stored in Pstate,
+!>   - nR*(nR-1)/2  Mk_pdms calls, one per root pair, on the unnormalized sum vector,
+!> i.e. nR*(nR+1)/2 CI density evaluations in total. The same calls give the 1-RDM D, so the
+!> 1-body transition density is obtained in the same way, with no separate transition-density call.
+!> The extra memory is (NACPR2+NAC**2)*nR for Pstate and Dstate, and one CI vector (VecSum).
+!> Only the symmetrized parts (X_LR + X_RL)/2 are kept, which is all that contracts with the
+!> symmetric L-PDFT 1e and 2e Hamiltonians; the antisymmetric parts are neither computed nor needed.
 
 use input_ras, only: Key
 use Definitions, only: u6
 #ifdef _HDF5_
-use Index_Functions, only: nTri_Elem
-use lucia_data, only: DStmp, Dtmp, Ptmp
-use Lucia_Interface, only: Lucia_Util
+use ci_interfaces, only: Mk_pdms
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
-use general_data, only: NCONF, STSYM
+use general_data, only: iDoGAS, NCONF, NELEC3, NHOLE1, STSYM
 use rasscf_files, only: JOBIPH
 use sguga, only: CIS, SG_ReOrd
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half
 use Definitions, only: wp, iwp
 use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_dset_real, mh5_create_file, mh5_put_dset
 #endif
 
 implicit none
 #ifdef _HDF5_
-integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs, nSpinTdm2
-real(kind=wp), allocatable :: SpinTdm2(:), Tmp(:), VecL(:), VecR(:)
+integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs
+real(kind=wp), allocatable :: Dtmp(:), DStmp(:), Dstate(:,:), Ptmp(:), Pstate(:,:), Tmp(:), VecL(:), VecR(:), VecSum(:), Tdm1(:)
 character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
 character(len=1024) :: fileName
-integer(kind=iwp) :: fileId, lFileName, oneTdmId, twoTdmId, twoTdmSpinId, rootPairsId
+integer(kind=iwp) :: fileId, lFileName, oneTdmId, twoTdmId, rootPairsId
 integer(kind=iwp), allocatable :: rootPairs(:,:)
 #endif
 
@@ -48,8 +58,13 @@ call WarningMessage(1,'LPDF requested, but HDF5 support is disabled; transition 
 return
 #else
 
+! Only CAS-type active spaces are supported (no GAS/RAS1/RAS3).
+if (iDoGAS .or. (NHOLE1 /= 0) .or. (NELEC3 /= 0)) then
+  call WarningMessage(2,'LPDF is only available for CASSCF-type active spaces, not for GAS or RAS wave functions.')
+  call Quit_OnUserError()
+end if
+
 nPairs = (lRoots*(lRoots+1))/2
-nSpinTdm2 = nTri_Elem(NAC*NAC)
 
 call PrgmTranslate(LPDFTDM,fileName,lFileName)
 
@@ -57,21 +72,23 @@ write(u6,*)
 write(u6,'(6X,A)') '-----------------------------------------'
 write(u6,'(6X,A)') '     Multi-State PDFT Intermediate       '
 write(u6,'(6X,A)') '-----------------------------------------'
-write(u6,'(6X,A)') 'Computing and storing active 1-TDM and 2-TDM matrices in '//fileName(:lFileName)
+write(u6,'(6X,A)') 'Computing and storing active 1-TDM and 2-PDM matrices in '//fileName(:lFileName)
 
 call mma_allocate(Tmp,NConf,Label='Tmp')
 call mma_allocate(VecL,NConf,Label='VecL')
 call mma_allocate(VecR,NConf,Label='VecR')
+call mma_allocate(VecSum,NConf,Label='VecSum')
+call mma_allocate(Tdm1,NAC*NAC,Label='Tdm1')
 call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
 call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
 call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
-call mma_allocate(SpinTdm2,nSpinTdm2,Label='SpinTdm2')
+call mma_allocate(Pstate,NACPR2,lRoots,Label='Pstate')
+call mma_allocate(Dstate,NAC*NAC,lRoots,Label='Dstate')
 call mma_allocate(rootPairs,2,nPairs,Label='rootPairs')
 
 fileId = mh5_create_file(LPDFTDM)
 oneTdmId = mh5_create_dset_real(fileId,'ACTIVE_1TDM',3,[NAC,NAC,nPairs])
 twoTdmId = mh5_create_dset_real(fileId,'ACTIVE_2TDM',2,[NACPR2,nPairs])
-twoTdmSpinId = mh5_create_dset_real(fileId,'ACTIVE_2TDM_SPINSUM',2,[nSpinTdm2,nPairs])
 rootPairsId = mh5_create_dset_int(fileId,'ROOT_PAIRS',2,[2,nPairs])
 
 iPair = 0
@@ -80,18 +97,25 @@ dDisk = IADR15(3)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
   call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecL)
+  ! 1-RDM and 2-PDM of the root, needed for the polarization identity below.
+  VecSum(:) = VecL(:)
+  call Mk_pdms(VecSum,nConf,D=Dstate(:,jRoot),P=Pstate(:,jRoot),nD=NAC*NAC,nP=NACPR2)
   kDisk = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
     call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecR)
-    SpinTdm2(:) = 0.0_wp
-    call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:),TwoBodyTDM=.true.,Raw2TDM=SpinTdm2(:))
-    call scale_spin_tdm2_for_hamiltonian(SpinTdm2,nac)
+    ! Symmetrized transition 1-RDM and 2-PDM from polarization of the (bilinear) densities:
+    ! X[L+R] = X[L] + X[R] + (X_LR + X_RL), so (X_LR + X_RL)/2 = (X[L+R] - X[L] - X[R])/2.
+    ! These are the only parts of the 1-TDM and 2-TDM that contract with the (symmetric) L-PDFT
+    ! 1e and 2e Hamiltonians. The one-body density comes packed (triangular) from the same call.
+    VecSum(:) = VecL(:)+VecR(:)
+    call Mk_pdms(VecSum,nConf,D=Dtmp,P=Ptmp,nD=NAC*NAC,nP=NACPR2)
+    Dtmp(1:NACPAR) = Half*(Dtmp(1:NACPAR)-Dstate(1:NACPAR,jRoot)-Dstate(1:NACPAR,kRoot))
+    Ptmp(:) = Half*(Ptmp(:)-Pstate(:,jRoot)-Pstate(:,kRoot))
+    call Square(Dtmp,Tdm1,1,NAC,NAC)
 
-    call mh5_put_dset(oneTdmId,Dtmp(1:NAC*NAC),[NAC,NAC,1],[0,0,iPair])
-    Ptmp(:) = 0.0_wp
+    call mh5_put_dset(oneTdmId,Tdm1(1:NAC*NAC),[NAC,NAC,1],[0,0,iPair])
     call mh5_put_dset(twoTdmId,Ptmp(1:NACPR2),[NACPR2,1],[0,iPair])
-    call mh5_put_dset(twoTdmSpinId,SpinTdm2(1:nSpinTdm2),[nSpinTdm2,1],[0,iPair])
 
     iPair = iPair+1
     rootPairs(1,iPair) = jRoot
@@ -106,8 +130,6 @@ do jRoot=1,lRoots
   call Square(Dtmp,DStmp,1,NAC,NAC)
   call mh5_put_dset(oneTdmId,DStmp(1:NAC*NAC),[NAC,NAC,1],[0,0,iPair])
   call mh5_put_dset(twoTdmId,Ptmp(1:NACPR2),[NACPR2,1],[0,iPair])
-  SpinTdm2(:) = 0.0_wp
-  call mh5_put_dset(twoTdmSpinId,SpinTdm2(1:nSpinTdm2),[nSpinTdm2,1],[0,iPair])
 
   iPair = iPair+1
   rootPairs(1,iPair) = jRoot
@@ -117,7 +139,6 @@ end do
 call mh5_put_dset(rootPairsId,rootPairs)
 call mh5_close_dset(oneTdmId)
 call mh5_close_dset(twoTdmId)
-call mh5_close_dset(twoTdmSpinId)
 call mh5_close_dset(rootPairsId)
 call mh5_close_file(fileId)
 
@@ -126,26 +147,15 @@ write(u6,'(6X,A,I6,A)') 'Stored transition density matrices in HDF5 for ',iPair,
 call mma_deallocate(Tmp)
 call mma_deallocate(VecL)
 call mma_deallocate(VecR)
+call mma_deallocate(VecSum)
+call mma_deallocate(Tdm1)
 call mma_deallocate(Dtmp)
 call mma_deallocate(DStmp)
 call mma_deallocate(Ptmp)
-call mma_deallocate(SpinTdm2)
+call mma_deallocate(Pstate)
+call mma_deallocate(Dstate)
 call mma_deallocate(rootPairs)
 
-contains
-
-  subroutine scale_spin_tdm2_for_hamiltonian(tdm2,nAct)
-    real(kind=wp), intent(inout) :: tdm2(:)
-    integer(kind=iwp), intent(in) :: nAct
-    integer(kind=iwp) :: ij, ijij, nPairs
-
-    nPairs = nAct*nAct
-    ijij = 0
-    do ij=1,nPairs
-      ijij = ijij+ij
-      tdm2(ijij) = 0.5_wp*tdm2(ijij)
-    end do
-  end subroutine scale_spin_tdm2_for_hamiltonian
 #endif
 
 end subroutine LPDFT_TDM

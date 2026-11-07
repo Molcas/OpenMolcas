@@ -96,3 +96,5 @@ interested in, and maybe look at properties, etc. There may be
 experimental spectra to compare with.
 
 And please have a look at :numref:`TUT:sec:hints`.
+
+There exist a number of automated active space selection methods in the literature that use a variety of strategies to automate the active space selection process. One such method is available in `$MOLCAS/Tools/DM-AS-Chooser`.

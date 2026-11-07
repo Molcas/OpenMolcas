@@ -28,6 +28,7 @@ type :: McpdftInputOptions_t
   logical(kind=iwp) :: nac = .false.
   logical(kind=iwp) :: is_hdf5_wfn = .false.
   logical(kind=iwp) :: extparam = .false.
+  logical(kind=iwp) :: transport = .false.
   character(len=256) :: wfn_file = ''
   character(len=256) :: extparamfile = ''
   integer(kind=iwp) :: rlxroot = 0
@@ -120,6 +121,10 @@ subroutine parse_input()
         mcpdft_options%wjob = .true.
 
       case ('GRAD')
+        mcpdft_options%grad = .true.
+
+      case ('TRAN')
+        mcpdft_options%transport = .true.
         mcpdft_options%grad = .true.
 
       case ('NAC ')

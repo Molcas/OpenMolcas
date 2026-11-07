@@ -932,8 +932,8 @@ Output files
 
 :file:`$Project.tdm_4_lpdft.h5` (optional)
   This HDF5 file is generated when :kword:`LPDF` is specified. It contains the
-  active-space one- and two-particle reduced density matrices and transition
-  density matrices. A subsequent L-PDFT calculation
+  active-space one- and two-particle reduced density matrices and the
+  symmetrized transition density matrices. A subsequent L-PDFT calculation
   in :program:`MCPDFT` reads this file. HDF5 support is required.
 
 .. _UG\:sec\:rasscf_inp:
@@ -1889,8 +1889,12 @@ A list of these keywords is given below:
   This keyword prepares the current set of CI roots for a subsequent L-PDFT
   calculation. :program:`RASSCF` computes the active-space one- and
   two-particle reduced density matrices for the individual roots and the
-  corresponding transition density matrices for all root pairs. The selected
-  roots are those defined by :kword:`CIROot`.
+  corresponding symmetrized transition density matrices for all root pairs,
+  which are the parts needed to build the L-PDFT effective Hamiltonian. The
+  selected roots are those defined by :kword:`CIROot`.
+
+  This keyword is only available for CASSCF-type active spaces; GASSCF and
+  RASSCF (:kword:`RAS1`/:kword:`RAS3`) wave functions result in an input error.
 
   The matrices and the root-pair map are written to
   :file:`$Project.tdm_4_lpdft.h5`; consequently, HDF5 support is required. The
