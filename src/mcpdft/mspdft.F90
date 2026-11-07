@@ -113,8 +113,6 @@ subroutine mspdft_finalize(nroots)
   use write_pdft_job, only: writejob
   use PrintLevel, only: TERSE, USUAL
   use mspdftgrad, only: mspdftgrad_free
-  use general_data, only: ntot1
-  use Constants, only: Zero, Two
 
   integer(kind=iwp), intent(in) :: nroots
   integer(kind=iwp) :: info, dim_scratch, iprlev, iroot
