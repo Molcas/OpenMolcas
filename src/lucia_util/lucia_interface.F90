@@ -51,7 +51,6 @@ subroutine Lucia_Util(ModLab,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX, &
   real(kind=wp), intent(inout), optional :: Raw2TDM(:)
 
   character(len=72) :: Module_
-  integer(kind=iwp), allocatable :: lVec(:)
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: COUNTER = 0
 
