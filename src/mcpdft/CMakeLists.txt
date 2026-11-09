@@ -11,7 +11,9 @@
 
 set (sources
      main.F90
+     add_pdft_quadrature_info.F90
      ao2mo_1e.F90
+     ao2moact_1e.F90
      clsfls_mcpdft.F90
      compute_mcpdft_energy.F90
      energy_mcwfn.F90
@@ -19,12 +21,14 @@ set (sources
      get_charge.F90
      get_coulomb.F90
      get_hcore.F90
+     get_veff_poten.F90
      inppri.F90
      lpdft.F90
      mcpdft.F90
      mcpdft_init.F90
      mcpdft_input.F90
      mcpdft_output.F90
+     molel_write.F90
      mo2ao_1e.F90
      mspdft.F90
      mspdftgrad.F90
@@ -33,7 +37,9 @@ set (sources
      ontop_functional.F90
      opnfls_mcpdft.F90
      p2_contraction.F90
+     print_lpdft_finalize.F90
      print_mcpdft_2.F90
+     print_pdft_quadrature_info.F90
      proc_inpx.F90
      readvc.F90
      ref_energy.F90

@@ -44,7 +44,7 @@ integer(kind=iwp) :: iPrLev, iRC, state
 logical(kind=iwp) :: dscf
 real(kind=wp) :: dum1, dum2, dum3, time1(2), time2(2)
 character(len=8) :: Method
-real(kind=wp), allocatable :: cmo(:), D1A(:), D1I(:), e_mcscf(:), e_states(:), FA(:), FI(:), PUVX(:), tuvx(:)
+real(kind=wp), allocatable :: CMO(:), D1A(:), D1I(:), e_mcscf(:), e_states(:), FA(:), FI(:), PUVX(:), tuvx(:)
 
 call StatusLine('MCPDFT:',' Just started.')
 IRETURN = _RC_ALL_IS_WELL_
@@ -112,9 +112,7 @@ call mma_allocate(e_mcscf,lroots,Label='e_mcscf')
 e_mcscf(:) = Zero
 call ref_energy(e_mcscf,lroots)
 
-if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) then
-  call lpdft_kernel(CMO,e_mcscf)
-end if
+if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) call lpdft_kernel(CMO,e_mcscf)
 
 call Timing(dum1,dum2,time1(1),dum3)
 TimeInput = time1(1)
@@ -161,7 +159,6 @@ if (.not. mcpdft_options%lpdft) then
   call mma_allocate(e_states,lroots,label='e_states')
   call compute_mcpdft_energy(CMO,e_mcscf,e_states)
 end if
-call mma_deallocate(CMO)
 
 call Timing(dum1,dum2,time1(1),dum3)
 
@@ -196,6 +193,8 @@ end if
 if ((nhole1 > 0) .or. (nelec3 > 0)) Method(7:8) = '-R'
 call Put_cArray('Relax Method',Method,8)
 
+if (mcpdft_options%transport) call molel_write(CMO)
+
 !***********************************************************************
 !*****************         Closing up MC-PDFT        *******************
 !***********************************************************************
@@ -218,7 +217,8 @@ call mma_deallocate(FockOcc)
 ! needed by both the MC-PDFT and the L-PDFT paths
 call mma_deallocate(FuncExtParams,safe='*')
 call mma_deallocate(e_mcscf)
-if (allocated(e_states)) call mma_deallocate(e_states)
+call mma_deallocate(CMO)
+call mma_deallocate(e_states,safe='*')
 
 call StatusLine('MCPDFT:','Finished.')
 if (IPRLEV >= 2) write(u6,*)

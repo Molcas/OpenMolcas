@@ -57,9 +57,6 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 !                                                                  *
 !*******************************************************************
 
-#ifdef _ENABLE_CHEMPS2_DMRG_
-use rasscf_global, only: ChemPS2_Can
-#endif
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
@@ -67,6 +64,9 @@ use wadr, only: NLX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
                          l_casdft, NAC, nDimSX, nFint, nQune, NROOT, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
+#ifdef _ENABLE_CHEMPS2_DMRG_
+use rasscf_global, only: ChemPS2_Can
+#endif
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH, LUINTM, LUQUNE

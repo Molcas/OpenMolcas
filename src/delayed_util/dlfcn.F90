@@ -32,23 +32,23 @@ public :: DL_info, DLAddr, DLClose, DLError, DLOpen, DLSym, RTLD_GLOBAL, RTLD_LA
 
 interface ! All we need is interfaces for the prototypes in <dlfcn.h>
 
-  function DLOpen(file,mode) result(handle) bind(C,name="dlopen")
+  function DLOpen(filename,mode) result(handle) bind(C,name="dlopen")
     ! void *dlopen(const char *file, int mode);
 
     import :: c_char, c_int, c_ptr
-    character(kind=c_char), dimension(*), intent(in) :: file
+    character(kind=c_char), intent(in) :: filename(*)
     ! C strings should be declared as character arrays
     integer(c_int), value :: mode
     type(c_ptr) :: handle
 
   end function DLOpen
 
-  function DLSym(handle,name) result(funptr) bind(C,name="dlsym")
+  function DLSym(handle,funcname) result(funptr) bind(C,name="dlsym")
     ! void *dlsym(void *handle, const char *name);
 
     import :: c_char, c_funptr, c_ptr
     type(c_ptr), value :: handle
-    character(kind=c_char), dimension(*), intent(in) :: name
+    character(kind=c_char), intent(in) :: funcname(*)
     type(c_funptr) :: funptr ! A function pointer
 
   end function DLSym

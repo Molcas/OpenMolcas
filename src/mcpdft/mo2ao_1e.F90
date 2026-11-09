@@ -35,27 +35,24 @@ implicit none
 real(kind=wp), intent(in) :: d_mo(ntot1)
 real(kind=wp), intent(out) :: d_act(nacpar)
 integer(kind=iwp), intent(in) :: nsym, norb(nsym), nash(nsym), nish(nsym)
-integer(kind=iwp) :: iact, iactoff, imo, imoff, iash, iorb, isym, jact, jmo
+integer(kind=iwp) :: iact, iactoff, iash, imo, imoff, iorb, isym, jact, jmo
 
 d_act(:) = Zero
 iActOff = 1
-iMOff = 1
+iMOff = 0
 do iSym=1,nSym
   iOrb = nOrb(iSym)
   iAsh = nAsh(iSym)
-  if ((iOrb == 0) .or. (iAsh == 0)) then
-    iMOff = iMOff+nTri_Elem(iOrb)
-    cycle
-  end if
-
-  do iAct=1,iAsh
-    iMO = nIsh(iSym)+iAct
-    do jAct=1,iAct
-      jMO = nIsh(iSym)+jAct
-      d_act(iActOff) = d_mo(iMOff+iTri(iMO,jMO)-1)
-      iActOff = iActOff+1
+  if ((iOrb /= 0) .and. (iAsh /= 0)) then
+    do iAct=1,iAsh
+      iMO = nIsh(iSym)+iAct
+      do jAct=1,iAct
+        jMO = nIsh(iSym)+jAct
+        d_act(iActOff) = d_mo(iMOff+iTri(iMO,jMO))
+        iActOff = iActOff+1
+      end do
     end do
-  end do
+  end if
   iMOff = iMOff+nTri_Elem(iOrb)
 end do
 

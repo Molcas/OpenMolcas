@@ -32,7 +32,8 @@ electron density, and on-top pair-density;
 (ii) a post-SCF calculation of the remaining energy using an on-top
 pair-density functional. In the current implementation, the on-top pair-density
 functionals are translated (t) or fully translated (ft) :cite:`Carlson2015`
-LSDA-type or GA-type exchange correlation functionals.
+LSDA-type or GA-type exchange correlation functionals, or translated
+meta-GA-type functionals :cite:`Hennefarth2025`.
 For example: tLSDA, tPBE, tBLYP, trevPBE and tOPBE for translated functionals,
 and ftLSDA, ftPBE, ftBLYP, ftrevPBE and ftOPBE for fully-translated
 functionals. Hybrid functionals (see keyword :kword:`LAMBda`) and functionals
@@ -129,13 +130,14 @@ The :kword:`FUNC` is the only required keyword.
   The functional choice follows. For LSDA and GGA exchange-correlation
   functionals, one may specify a translated or fully translated on-top
   functional by prefixing ``T:`` or ``FT:`` to the standard DFT functionals.
-  For meta-GGAs, one may specify a translated on-top functional by the prefix
-  ``T:``, but one cannot use ``FT:`` Hybrid functional names (e.g. PBE0 or
+  For type-1 meta-GGAs that depend on the kinetic-energy density but not the
+  density Laplacian, one may specify a translated on-top functional with the
+  prefix ``T:`` :cite:`Hennefarth2025`, but one cannot use ``FT:``. Hybrid functional names (e.g. PBE0 or
   B3LYP) should not be used after ``FUNC=T:`` or ``FUNC=FT:`` in this module.
   See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT
   and hybrid L-PDFT calculations. L-PDFT currently supports pure and hybrid
-  variants of translated and fully translated LSDA and GGA functionals;
-  meta-GGA functionals are not implemented for L-PDFT. Also note that the
+  variants of translated and fully translated LSDA and GGA functionals and
+  translated type-1 meta-GGA functionals. Also note that the
   format of a number :math:`N` followed by
   :math:`N` lines, each of them containing a weight factor and a Libxc
   functional name, is not supported in this module. Examples of this keyword
@@ -164,7 +166,6 @@ The :kword:`FUNC` is the only required keyword.
               T: or FT: to the standard DFT functionals (see keyword KSDFT of SCF program)
               </HELP>
               </KEYWORD>
-
 
 :kword:`EXPM`
   The :kword:`EXPM` keyword allows one to use on-top functionals with parameters that are defined by users. 
@@ -233,13 +234,18 @@ The :kword:`FUNC` is the only required keyword.
   L-PDFT effective Hamiltonian. It must be used together with
   :kword:`MSPDft` in both single-root and multi-root calculations.
 
+  L-PDFT is only available for CASSCF-type reference wave functions (CASSCF
+  or CASCI), not for RASSCF or GASSCF references.
+
   L-PDFT does not require :file:`H0_Rotate.txt` or an XMS/CMS rotation. Instead,
   the effective Hamiltonian is constructed directly in the basis of the
   reference RASSCF states. The roots, orbitals, and CI vectors must correspond
   to those used to generate :file:`$Project.tdm_4_lpdft.h5`.
 
   Pure and hybrid L-PDFT calculations with translated and fully translated
-  LSDA and GGA functionals are supported. Meta-GGA functionals and analytical
+  LSDA and GGA functionals and translated type-1 meta-GGA functionals are
+  supported. Fully translated meta-GGAs and meta-GGAs that require the density
+  Laplacian are not supported. Analytical
   gradients are not implemented for L-PDFT. Hybrid L-PDFT is requested with
   :kword:`LAMBda`; hybrid functional names such as ``T:PBE0`` must not be
   supplied directly.
@@ -300,7 +306,6 @@ The :kword:`FUNC` is the only required keyword.
   :kword:`EJOB` selects the stored L-PDFT energies for the diagonal of the
   spin-free Hamiltonian. A complete input example is given below.
 
-
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="WJOB" APPEAR="Write into JOBIPH" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: WJOB <basic>
               <HELP>
@@ -323,14 +328,14 @@ The :kword:`FUNC` is the only required keyword.
 
   .. math::
 
-     \mathbf{H}^{\mathrm{hyb-L-PDFT}} =
-     (1-\lambda)\mathbf{H}^{\mathrm{L-PDFT}} +
-     \lambda\mathbf{H}^{\mathrm{MCSCF}}.
+     \mat{H}^{\text{hyb-L-PDFT}} =
+     (1-\lambda)\mat{H}^{\text{L-PDFT}} +
+     \lambda\mat{H}^{\text{MCSCF}}.
 
   The reference states diagonalize the MCSCF Hamiltonian, so its contribution
   is diagonal in the reference-state basis. For a single root, the hybrid
   L-PDFT energy is therefore
-  :math:`(1-\lambda)E_{\mathrm{MC-PDFT}}+\lambda E_{\mathrm{MCSCF}}`.
+  :math:`(1-\lambda)E_{\text{MC-PDFT}}+\lambda E_{\text{MCSCF}}`.
 
   Example of running tPBE0::
 
@@ -418,6 +423,22 @@ The :kword:`FUNC` is the only required keyword.
               </HELP>
               </KEYWORD>
 
+
+:kword:`TRANsport`
+  Generate an effective one-electron Hamiltonian for use in NEGF-MCPDFT calculations.
+  If the keyword is given, OpenMolcas will generate a :file:`MolEl.dat` file.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="TRANSPORT" APPEAR="Transport" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: TRANsport <basic>
+              <HELP>
+              Toggles on the creation of an effective one-electron Hamiltonian for
+              use in NEGF-MCPDFT electron transport calculations. If the keyword is
+              given, a MolEl.dat file will be produced.
+              This keyword will activate the GRAD keyword in order to generate potentials
+              and intermediates needed for the Hamiltonian construction.
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 
@@ -498,7 +519,7 @@ To run the same calculation with the tPBE0 hybrid, add
 ``FUNC=T:PBE``.
 
 The following complete input demonstrates a hybrid SO-L-PDFT calculation for
-the :math:`[\mathrm{CeCl_6}]^{3-}` complex. The :kword:`LPDF` keyword in
+the :math:`\ce{[CeCl6]^{3-}}` complex. The :kword:`LPDF` keyword in
 :program:`RASSCF` generates the transition density matrices for the
 state-averaged CAS(1,7) reference wave function of the seven Ce :math:`4f`
 doublet states. In :program:`MCPDFT`, :kword:`WJOB` writes the hybrid L-PDFT
