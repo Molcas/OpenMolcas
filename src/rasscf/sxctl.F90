@@ -57,6 +57,9 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 !                                                                  *
 !*******************************************************************
 
+#ifdef _ENABLE_CHEMPS2_DMRG_
+use rasscf_global, only: ChemPS2_Can
+#endif
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
@@ -68,9 +71,6 @@ use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH, LUINTM, LUQUNE
 use general_data, only: NACTEL, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, NTOT1, NTOT2
-#ifdef _ENABLE_CHEMPS2_DMRG_
-use rasscf_global, only: ChemPS2_Can
-#endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use raswfn, only: wfn_mocoef, wfn_occnum
@@ -91,8 +91,8 @@ character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
 integer(kind=iwp), save :: nCall
 #ifdef _ENABLE_CHEMPS2_DMRG_
-character(len=3) :: ChemLabel
 integer(kind=iwp) :: ChemCh(8), iAct, iActOffset, iFockIndex, jAct, LuChemFck, nActTotal
+character(len=3) :: ChemLabel
 integer(kind=iwp), allocatable :: ChemOrbSym(:)
 #endif
 real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:),  P2Raw(:), &
@@ -290,10 +290,9 @@ if ((IFINAL == 1) .and. (.not. ChemPS2_Can)) then
     iOrb = nOrb(iSym)
     do iAct=1,nAsh(iSym)
       do jAct=1,iAct
-        iFockIndex = (iOff-1)+(nIsh(iSym)+iAct)*(nIsh(iSym)+iAct+1)/2-(iAct-jAct)
+        iFockIndex = (iOff-1)+nTri_Elem(nIsh(iSym)+iAct)-(iAct-jAct)
         write(LuChemFck,'(1X,ES23.16E2,I4,I4)') FA(iFockIndex),iAct+iActOffset,jAct+iActOffset
-        if (iAct /= jAct) &
-          write(LuChemFck,'(1X,ES23.16E2,I4,I4)') FA(iFockIndex),jAct+iActOffset,iAct+iActOffset
+        if (iAct /= jAct) write(LuChemFck,'(1X,ES23.16E2,I4,I4)') FA(iFockIndex),jAct+iActOffset,iAct+iActOffset
       end do
     end do
     iOff = iOff+nTri_Elem(iOrb)
