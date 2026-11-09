@@ -12,7 +12,7 @@
 !               2026, Roland Lindh                                     *
 !***********************************************************************
 
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #define _SANITY_CHECK_
 module SGUGA
 
@@ -829,7 +829,6 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
                                              xnLev, xNSM(MxLev)
 
   type(TRStruct) :: TRS
-  integer(kind=iwp) :: ISYCI
 
   call SG_Init_Light(iState,nSym,nActEl,iSpin,        &
                       nRas,nRasEl,nRsPrt,             &
@@ -4856,6 +4855,7 @@ SubRoutine SG_Apply_Ak_Psi(iState,LSM,T,k,Scale,CI,Sigma)
   EXS(istate)%ReUse_SGTMP=Save_reuse
 End SubRoutine SG_Apply_Ak_Psi
 
+#ifdef _NOT_USED_
 subroutine SG_Sum_Hpq_Epq_Psi(iState,LSM,Hpq,nLev,CI,Sigma)
 
   use Constants, only: Zero, One
@@ -4905,6 +4905,7 @@ subroutine SG_Sum_Hpq_Epq_Psi(iState,LSM,Hpq,nLev,CI,Sigma)
   call mma_deallocate(Tmp)
 
 end subroutine SG_Sum_Hpq_Epq_Psi
+#endif
 
 subroutine SG_EpqEqp_Diag(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,DIAG)
 
@@ -5218,6 +5219,7 @@ end subroutine apply_colY
 
 end subroutine SG_EpqEqp_Diag
 
+#ifdef _NOT_USED_
 Subroutine SG_Multiply_By_Nk(iState,LSM,k,tkk,CI)
 
   use Constants, only: Zero, One, Half, Three, Four
@@ -5259,6 +5261,7 @@ Subroutine SG_Multiply_By_Nk(iState,LSM,k,tkk,CI)
   EXS(istate)%ReUse_SGTMP=ReUse_Save
 
 End Subroutine SG_Multiply_By_Nk
+#endif
 
 SubRoutine SG_TRACI(iState,LSM,T,nT,CI,nCSF)
 
@@ -5281,7 +5284,7 @@ SubRoutine SG_TRACI(iState,LSM,T,nT,CI,nCSF)
 
   Real(kind=wp) :: tkk, X
 
-  real(kind=wp), allocatable :: Tmp(:), Tmp2(:)
+  real(kind=wp), allocatable :: Tmp(:)
   Real(kind=wp), Allocatable :: T2(:,:)
 
 
@@ -5352,6 +5355,7 @@ SubRoutine SG_TRACI(iState,LSM,T,nT,CI,nCSF)
 
 End SubRoutine SG_TRACI
 
+#ifdef _NOT_USED_
 subroutine build_trow_operator(T,k,tkk,H1)
 
   use constants, only: Zero
@@ -5375,6 +5379,7 @@ subroutine build_trow_operator(T,k,tkk,H1)
   end do
 
 end subroutine build_trow_operator
+#endif
 
 ! This is temporarily for the MCLR code
 subroutine SG_ReOrd_orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
@@ -5797,6 +5802,7 @@ end do
 
 end function SG_PHASE
 
+#ifdef _NOT_USED_
 subroutine Encode_CSF( &
            CIS,ISYCI, &
            MV,ISYUP,IUP,IDWN, &
@@ -5823,6 +5829,7 @@ IOFF = CIS%IOCSF(ISYUP,MV,ISYCI)
 iCSF = IOFF + IUP + (IDWN-1)*NUP
 
 end subroutine Encode_CSF
+#endif
 
 subroutine Decode_CSF( &
            CIS,ISYCI, &
@@ -6771,9 +6778,9 @@ logical :: SecondCanonical
 
 integer(kind=iwp) :: nTest, nFail
 real(kind=wp)     :: MaxDiff
+Integer(kind=iwp) :: iSYCI
 
 #ifdef _DEBUGPRINT_
-Integer(kind=iwp) :: iSYCI
 
 Do ISYCI=1, SGS(istate)%nSym
   Write (u6,*) 'ISYCI=',ISYCI
@@ -8437,6 +8444,7 @@ call mma_deallocate(XVal)
 
 end function MatEl_UU
 
+#ifdef _NOT_USED_
 subroutine Print_CSF_Decoding(CIS,ISYCI)
 
 use Definitions, only: iwp,u6
@@ -8531,6 +8539,7 @@ end do
 write(u6,*)
 
 end subroutine Print_CI_Blocks
+#endif
 
 subroutine Print_CSF_Walks(SGS,CIS,ISYCI)
 
@@ -8669,6 +8678,7 @@ write(u6,*)
 
 end subroutine Print_CSF_Walks
 
+#ifdef _NOT_USED_
 subroutine Print_Block_CSF_Map(CIS,ISYCI,MV,ISYUP)
 
 use Definitions, only: iwp,u6
@@ -8714,6 +8724,7 @@ do IDWN=1,NDWN
 end do
 
 end subroutine Print_Block_CSF_Map
+#endif
 
 subroutine Decode_Upper_Operator(SGS,p,q,INDEO)
 
@@ -9145,6 +9156,7 @@ Value = MatEl_LL( &
 
 end function MatEl_EpqErs_LL
 
+#ifdef _NOT_USED_
 subroutine Print_Epq_Matrix(iState,LSM,p,q)
 
 use Constants, only: Zero
@@ -9186,36 +9198,43 @@ end do
 write(u6,*)
 
 end subroutine Print_Epq_Matrix
+#endif
 
-function MatEl_Epq_Ref(iState,LSM,I,J,p,q) result(Value)
+function MatEl_Epq_Ref(iState,ISYI,I,J,p,q) result(Value)
 
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: iwp, wp
 use stdalloc, only: mma_allocate, mma_deallocate
 
 integer(kind=iwp), intent(in) :: iState
-integer(kind=iwp), intent(in) :: LSM
+integer(kind=iwp), intent(in) :: ISYI
 integer(kind=iwp), intent(in) :: I,J
 integer(kind=iwp), intent(in) :: p,q
 
 real(kind=wp) :: Value
 
-integer(kind=iwp) :: nCSF
+integer(kind=iwp) :: iSYJ, nCSFI, nCSFJ
 
 real(kind=wp), allocatable :: Ket(:)
 real(kind=wp), allocatable :: Res(:)
 logical(kind=iwp) :: Reuse_Save
 
+Value = Zero
+
 Reuse_Save=EXS(iState)%ReUse_SGTmp
 EXS(iState)%ReUse_SGTmp=.False.
 
-nCSF = CIS(iState)%NCSF(LSM)
+ISYJ  = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%iSM(q)),ISYI)
 
-call mma_allocate(Ket,nCSF,Label='Ket')
-call mma_allocate(Res,nCSF,Label='Res')
+nCSFI = CIS(iState)%NCSF(iSYI)
+nCSFJ = CIS(iState)%NCSF(iSYJ)
+
+call mma_allocate(Ket,nCSFI,Label='Ket')
+call mma_allocate(Res,nCSFJ,Label='Res')
 
 Ket(:)=Zero
-Ket(J)=One
+Ket(J)=One    ! C_J=1.00
 
 Res(:)=Zero
 
@@ -9223,7 +9242,7 @@ call SG_Epq_Psi( &
      SGS(iState), &
      CIS(iState), &
      EXS(iState), &
-     p,q,One,LSM, &
+     p,q,One,ISYI, &
      Ket,Res )
 
 Value = Res(I)
@@ -9727,7 +9746,7 @@ end function MatEl_EpqErs_UL
 !> Direct matrix element of a spin-free excitation operator between two CSFs.
 !!
 !! Computes EIJ = < I | E(IP,IQ) | J >, where I belongs to symmetry
-!! Mul(ISm(IP),ISm(IQ),ISYCI) and J belongs to ISYCI.
+!! Mul(ISm(IP),ISm(IQ),ISYCJ) and J belongs to ISYCJ.
 !!
 !! This is intentionally a reference implementation:
 !!   * no SGTMP cache or saved state;
@@ -9758,16 +9777,23 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
   integer(kind=iwp) :: INDEO_P, INDEO_Q
   integer(kind=iwp) :: src, dst, irow, icol
   integer(kind=iwp) :: MV, MVX, NCP1, NCP2, LICP1, LICP2, iBand
-  integer(kind=iwp) :: ISYDI, ISYUC, ISYDC, JP, JQ, a, b, c, ISYDJ
+  integer(kind=iwp) :: ISYDI, ISYUC, ISYDC, JP, JQ, a, b, ISYDJ
   integer(kind=iwp) :: IOUW, IOLW, IPSHFT, IPPOW, IC, ICS
-  real(kind=wp) :: Factor
   real(kind=wp) :: Upper_Factor, Lower_Factor, Contribution
 
-  EIJ = Zero
+  EIJ  = Zero
   ISYP = SGS%ISm(IP)      ! Gamma(p)
   ISYQ = SGS%ISm(IQ)      ! Gamma(q)
-  ISYPQ = Mul(ISYP,ISYQ)  ! Gamma(pq)
+  ISYPQ= Mul(ISYP,ISYQ)  ! Gamma(pq)
   ISYI = Mul(ISYPQ,ISYJ)  ! Gamma(I)=Gamma(pq) x Gamma(J)
+  If (Verbose) Then
+     Write (u6,*)
+     Write (u6,*) 'MatEl_epq'
+     Write (u6,*) 'Testing: I,p,q,J=',i_CSF,ip,iq,j_CSF
+     Write (u6,*) '        ISYI, ISYJ  =', ISYI, ISYJ
+     Write (u6,*) '        I_CSF,j_CSF=', I_CSF,j_CSF
+     Write (u6,*) '        nCSFi,nCSFj=',CIS%NCSF(ISYI),CIS%NCSF(ISYJ)
+  End If
 
   if (I_CSF < 1 .or. I_CSF > CIS%NCSF(ISYI)) return
   if (J_CSF < 1 .or. J_CSF > CIS%NCSF(ISYJ)) return
@@ -9775,14 +9801,14 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
   call Decode_CSF(CIS,ISYI,I_CSF,MVI,ISYUI,IUP,IDN)
   call Decode_CSF(CIS,ISYJ,J_CSF,MVJ,ISYUJ,JUP,JDN)
   ISYDI = Mul(ISYI,ISYUI)   ! Gamma(Il) = Gamma(I) x Gamma(Iu)
-  ISYDJ = Mul(ISYJ,ISYUJ)   ! Gamma(Il) = Gamma(I) x Gamma(Iu)
+  ISYDJ = Mul(ISYJ,ISYUJ)   ! Gamma(Jl) = Gamma(J) x Gamma(Ju)
 
   If (Verbose) Then
-     Write (u6,*)
-     Write (u6,*) 'Testing: I,p,q,J=',i_CSF,ip,iq,j_CSF
-     Write (u6,*) '        MVI, MVJ=', MVI, MVJ
-     Write (u6,*) '        IUP, JUP=', IUP, JUP
-     Write (u6,*) '        IDN, JDN=', IDN, JDN
+     Write (u6,*) '        ISYP, ISYQ  =', ISYP, ISYQ
+     Write (u6,*) '        MVI, MVJ  =', MVI, MVJ
+     Write (u6,*) '        IUP, JUP  =', IUP, JUP
+     Write (u6,*) '        IDN, JDN  =', IDN, JDN
+     Write (u6,*) '        ISYI, ISYJ=', ISYI, ISYJ
   End If
 
   if (IP == IQ) then
@@ -9931,13 +9957,16 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     ISYUC=merge(Mul(ISYQ,ISYUI),Mul(ISYP,ISYUI),Swap)
     if (ISYUC /= ISYUJ) Return
 
-
+    ! Process A^p(Iu(MVI),Ju(MVJ))
+    ! Accessed as (INDEO_P,ISYUJ,MVJ)
     INDEO_P=(MV-1)*SGS%nLev+JP
     NCP1= merge(EXS%NOCP(INDEO_P,ISYUI,MVI), &
                 EXS%NOCP(INDEO_P,ISYUJ,MVJ),Swap)
     LICP1=merge(EXS%IOCP(INDEO_P,ISYUI,MVI), &
                 EXS%IOCP(INDEO_P,ISYUJ,MVJ),Swap)
     Upper_Factor=Zero
+    ! Loop through the open-loops until you find the one corresponds to
+    ! src==JUP, irow==IUP
     do a=1,NCP1
       src =MERGE(EXS%ICOUP(2,LICP1+a),EXS%ICOUP(1,LICP1+a),Swap)
       if (src /= JUP) cycle
@@ -9953,12 +9982,16 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     ISYDC=merge(Mul(ISYP,ISYDI),Mul(ISYQ,ISYDI),Swap)
     if (iSYDC /= ISYDJ) Return
 
+    ! Process A^q(Il(MVI),Jl(MVJ))
+    ! Accessed as (INDEO_Q,ISYDJ,MVJ)
     INDEO_Q=(MV-1)*SGS%nLev+JQ
     NCP2= merge(EXS%NOCP(INDEO_Q,ISYDI,MVI), &
                 EXS%NOCP(INDEO_Q,ISYDJ,MVJ),Swap)
     LICP2=merge(EXS%IOCP(INDEO_Q,ISYDI,MVI), &
                 EXS%IOCP(INDEO_Q,ISYDJ,MVJ),Swap)
     Lower_Factor=Zero
+    ! Loop through the open-loops until you find the one corresponds to
+    ! icol==JDN, Dst==IDN
     do b=1,NCP2
       icol=MERGE(EXS%ICOUP(2,LICP2+b),EXS%ICOUP(1,LICP2+b),Swap)
       if (icol /= JDN ) cycle
@@ -10010,10 +10043,10 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   real(kind=wp),     intent(out) :: MaxDiff
 
   integer(kind=iwp) :: I, J, p, q
-  integer(kind=iwp) :: ISYI, nCSFI
+  integer(kind=iwp) :: nCSFI, nCSFJ, ISYCJ
   integer(kind=iwp) :: iMax, jMax, pMax, qMax
   real(kind=wp) :: Value, Value_Ref, Diff, Scale
-  logical(kind=iwp) :: Reuse_Save
+  logical(kind=iwp) :: Reuse_Save, Verbose
 
   nTest   = 0_iwp
   nFail   = 0_iwp
@@ -10022,6 +10055,8 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   jMax    = 0_iwp
   pMax    = 0_iwp
   qMax    = 0_iwp
+  Verbose = .False.
+! Verbose = .True.
 
   nCSFI = CIS(iState)%NCSF(ISYCI)
 
@@ -10029,23 +10064,29 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   Write (u6,*) '   MatEl_Epq Verification   '
   Write (u6,*) '============================'
   Write (u6,*) 'iState,iSYCI: ',iState,ISYCI
+  Write (u6,*) 'SGS(iState)%iSM(:): ',SGS(iState)%iSM(:)
 
-  ! Keep both implementations on the same no-reuse path.
+  ! Disable reuse of SGTMP
   Reuse_Save = EXS(iState)%ReUse_SGTMP
   EXS(iState)%ReUse_SGTMP = .False.
 
   do q = 1, SGS(iState)%nLev
     do p = 1, SGS(iState)%nLev
 
-      do J = 1, nCSFI
+      ISYCJ=Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)),ISYCI)
+      nCSFJ = CIS(iState)%NCSF(ISYCJ)
+
+      do J = 1, nCSFJ
         do I = 1, nCSFI
+
+          ! evaluate <I| Epq |J>
 
           Value = MatEl_Epq(SGS(iState), &
                             CIS(iState), &
                             EXS(iState), &
-                            p,q,ISYCI,I,J,.False.)
+                            p,q,ISYCJ,I,J,Verbose)
 
-          Value_Ref = MatEl_Epq_Ref(istate,ISYCI,I,J,p,q)
+          Value_Ref = MatEl_Epq_Ref(istate,ISYCJ,I,J,p,q)
 
           nTest = nTest + 1_iwp
           Diff  = abs(Value-Value_Ref)
@@ -10061,9 +10102,9 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
 
           if (Diff > Tol*Scale) then
             nFail = nFail + 1_iwp
-            write(u6,'(A,5I7,3ES24.14)') &
-              'MATEL_EPQ mismatch: ISY,I,J,p,q,values,diff =', &
-              ISYCI,I,J,p,q,Value,Value_Ref,Diff
+            write(u6,'(A,6I7,2ES24.14)') &
+              'MATEL_EPQ mismatch: ISYCI,I,ISYJ,J,p,q,value,Value_Ref =', &
+              ISYCI,I,ISYCJ,J,p,q,Value,Value_Ref
           end if
 
         end do
