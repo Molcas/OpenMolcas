@@ -6857,11 +6857,11 @@ do iTopology=1,nTopology
    case (iUO)
       pMin=SGS(iState)%MidLev+1; pMax=SGS(iState)%nLev
       qMin=pMin; qMax=pMax
-      rMin=1; rMax=SGS(iState)%nLev
-      sMin=1; sMax=SGS(iState)%nLev
+!     rMin=1; rMax=SGS(iState)%nLev
+!     sMin=1; sMax=SGS(iState)%nLev
 !     Restrict to only canonical case r > s
-!     rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
-!     sMin=1; sMax=SGS(iState)%MidLev
+      rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
+      sMin=1; sMax=SGS(iState)%MidLev
 
    case default
 
@@ -9254,7 +9254,17 @@ EXS(iState)%ReUse_SGTmp=Reuse_Save
 
 end function MatEl_Epq_Ref
 
-function MatEl_EpqErs_UO(ISYCI,I,J,p,q,r_in,s_in) result(Value)
+!
+! Compute <I|EpqErs|J> as Sum_K <I|Epq|K><K|Ers|J>
+!
+! Where <I|Epq|K> is an upper closed loop: Upq(Iu,Ku) x Delta(Il,Kl)
+! and   <K|Ers|J> is an open loop: A_r(Ku,Ju) x A_s(Kl,Jl)
+!
+! Which reduce to
+!
+!  A_s(Il,Jl) x Sum_Ku Upq(Iu,Ku) A_r(Ku,Ju)
+!
+function MatEl_EpqErs_UO(ISYCJ,I,J,p,q,r_in,s_in) result(Value)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -9262,227 +9272,132 @@ use Symmetry_Info, only: Mul
 
 implicit none
 
-integer(kind=iwp), intent(in) :: ISYCI,I,J,p,q,r_in,s_in
+integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r_in,s_in
 
 real(kind=wp) :: Value
 real(kind=wp) :: XUpper,XLower,XOpen,XClosed
 
 integer(kind=iwp) :: r,s
 integer(kind=iwp) :: MVI,MVJ,MVK,MVX,MV
-integer(kind=iwp) :: ISYUPI,ISYUPJ,ISYUPK
-integer(kind=iwp) :: IUPI,IUPJ
-integer(kind=iwp) :: IDWNI,IDWNJ
-integer(kind=iwp) :: ISYDWN_I,ISYDWN_J
+integer(kind=iwp) :: ISYUI,ISYUJ,ISYUK
+integer(kind=iwp) :: IUI,IUJ
+integer(kind=iwp) :: IDI,IDJ
+integer(kind=iwp) :: ISYDI,ISYDJ,ISYDK
 integer(kind=iwp) :: iBand, nMatch
-integer(kind=iwp) :: INDEO_OU,INDEO_OL,INDEO_U
+integer(kind=iwp) :: INDEO_R,INDEO_S,INDEO_PQ
 integer(kind=iwp) :: NOU,NOL,NU
 integer(kind=iwp) :: OffOU,OffOL,OffU
 integer(kind=iwp) :: iO,iL,iU,iValue
 integer(kind=iwp) :: FromO,ToO,FromU,ToU
+integer(kind=iwp) :: ISYCI, ISYCK, ISYP, ISYQ, ISYPQ, ISYR, ISYS, ISYRS, ISYPQRS
 
 logical(kind=iwp) :: Reverse_U
 logical(kind=iwp) :: Swap_rs
 
 Value=Zero
 
-! Normalize open operator orientation.
-!
-! r : orbital in upper graph
-! s : orbital in lower graph
-!
-! The original operator order is retained in Swap_rs.
-
 Swap_rs = s_in > r_in
 r = merge(s_in,r_in,Swap_rs)
 s = merge(r_in,s_in,Swap_rs)
 
-! Check that pqrs is total symmetric
-!
-if ( Mul(SGS(iState)%ISm(p), &
-     Mul(SGS(iState)%ISm(q), &
-     Mul(SGS(iState)%ISm(r), &
-         SGS(iState)%ISm(s)))) /= 1 ) return
-!
-!   <I(m)|E_pq^U E_rs^O|J(m')>
-!
-! with E_rs acting first and
-!
-!   p,q,r > MidLev
-!   s     <= MidLev.
-!
-! For the canonical crossing operator, SG_Epq_Psi has
-!
-!   Swap = (s > r) = .false.
-!
-! The canonical open operator has r>s. Its factorization is
-!
-!   A_s(Il(m),Jl(m'))
-!     sum_Ku U_pq(Iu(m),Ku(m)) A_r(Ku(m),Ju(m')).
-!
-! The non-canonical open operator has r<s. Its factorization is
-!
-!   A_r(Jl(m'),Il(m))
-!     sum_Ku U_pq(Iu(m),Ku(m)) A_s(Ju(m'),Ku(m)).
-!
-! Note that after the swap of r and s in the non-canonical case
-! this equation reads as
-!
-!   A_s(Jl(m'),Il(m))
-!     sum_Ku U_pq(Iu(m),Ku(m)) A_r(Ju(m'),Ku(m)).
-!
+ISYP =SGS(iState)%ISm(p)
+ISYQ =SGS(iState)%ISm(q)
+ISYPQ=Mul(ISYP,ISYQ)
+ISYR =SGS(iState)%ISm(r)
+ISYS =SGS(iState)%ISm(s)
+ISYRS=Mul(ISYR,ISYS)
+ISYPQRS=Mul(ISYPQ,ISYRS)
+ISYCI = Mul(ISYPQRS,ISYCJ)
+ISYCK = Mul(ISYCI,ISYPQ)
+
+if (I < 1 .or. I > CIS(iState)%NCSF(ISYCI)) return
+if (J < 1 .or. J > CIS(iState)%NCSF(ISYCJ)) return
 
 if (p<=SGS(iState)%MidLev .or. q<=SGS(iState)%MidLev) return
 if (r<=SGS(iState)%MidLev .or. s<1 .or. s>SGS(iState)%MidLev) return
 if (max(p,q,r)>SGS(iState)%nLev) return
 
-call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUPI,IUPI,IDWNI)
-call Decode_CSF(CIS(iState),ISYCI,J,MVJ,ISYUPJ,IUPJ,IDWNJ)
-iSYUPK=Mul(SGS(iState)%ISm(r),ISYUPJ)
-MVK=MVI
-Write(u6,*) 'I,MVI,ISYUPI,IUPI,IDWNI=',I,MVI,ISYUPI,IUPI,IDWNI
-Write(u6,*) 'J,MVJ,ISYUPJ,IUPJ,IDWNJ=',J,MVJ,ISYUPJ,IUPJ,IDWNJ
-Write(u6,*) 'MVK,ISYUPK=',MVK,ISYUPK
-
-! Diagonal-upper x open.
-!
-! Keep this case on the exact two-step reference until the
-! diagonal UO contraction has been implemented and validated
-! independently.
+call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_CSF(CIS(iState),ISYCI,J,MVJ,ISYUJ,IUJ,IDJ)
+ISYDI=Mul(ISYCI,ISYUI)
+ISYDJ=Mul(ISYCJ,ISYUJ)
+ISYDK=ISYDI   ! since Il==Kl
 
 if (p==q) then
-   Value=MatEl_EpqErs_Ref(ISYCI,I,J,p,q,r_in,s_in)
+   Value=MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)
    return
 end if
 
-! Identify the delta(b) band for the canonical crossing operator.
-!
-! In SG_Epq_Psi:
-!
-!   Swap = .false.
-!   MVX  = MVL(MVSGM,MV)
-!
-! Consequently, with I as the output CSF and J as the input CSF,
-!   MVJ = MVL(MVI,iBand).
-!
-! The open operator connects the input midvertex m' to the
-! output midvertex m:
-!
-!    MVI = MVR(MVJ,iBand)
-!
-! Determine the open branch connecting m'=MVJ and m=MVI.
+! For the open-loop, A_r(Ku(m),Ju(m')) and m=MVK find the connecting m'=MVJ
+! Since we have delta(Il,Kl) from the closed loop this implies that MVK=MVI.
 
-Do MV = 1,2
-   MVX=MERGE(EXS(istate)%MVR(MVK,MV),EXS(istate)%MVL(MVK,MV),Swap_rs)
-   Write (u6,*) 'MVX=',MVK
-   Write (u6,*) 'MVX/=MVJ:',MVX /= MVJ
-   If (MVX == 0 .or. MVX /= MVJ) cycle
-End Do
+MVK=MVI
 iBand=0
-nMatch = 0
-!
-! In the canonical case:
-! A^r(Ku(m),Ju(m')) accessed INDEO_OU,Gamma(Ju),m'; m'>m
-!
-! Note, the open-loop factors are constructed for the cases m'>m only.
-! Hence iBand is independent of the relative order of m and m'.
-!
-! At this point we don't know the relative order of MVI and MVJ.
-! That is, the test below will, for each of the delta b values,
-! test what that the midvertex with the lowest value to the right
-! is connected to the midvertex with the highest value.
-if (EXS(iState)%MVR(MIN(MVI,MVJ),1) == MAX(MVI,MVJ)) then
-   iBand = 1
-   nMatch = nMatch + 1
-endif
-if (EXS(iState)%MVR(MIN(MVI,MVJ),2) == MAX(MVI,MVJ)) then
-   iBand = 2
-   nMatch = nMatch + 1
-endif
+do MV = 1, 2
+   MVX=MERGE(EXS(istate)%MVR(MVK,MV),EXS(istate)%MVL(MVK,MV),Swap_rs)
+   If (MVX == 0 .or. MVX /= MVJ) cycle
+   iBand = MV
+end do
 
-if (iBand==0) return
+If (iBand==0) Return
+MV=iBand
 
-if (nMatch/=1) Then
-   Write (u6,*) 'nMatch/=1'
-   Call Abend()
-endif
+INDEO_R=(MV-1)*SGS(iState)%nLev+r  ! Open-Loop Upper
 
-! Use the same delta(b) band for both halves of the open loop.
-
-Write (u6,*) 'r,s,iBand=',r,s,iBand
-INDEO_OU=(iBand-1)*SGS(iState)%nLev+r  ! Open-Loop Upper
-INDEO_OL=(iBand-1)*SGS(iState)%nLev+s  ! Open-Loop Lower
-Write (u6,*) 'INDEO_OU,INDEO_OL=',INDEO_OU,INDEO_OL
+INDEO_S=(MV-1)*SGS(iState)%nLev+s  ! Open-Loop Lower
+Write (u6,*) 'INDEO_R,INDEO_S=',INDEO_R,INDEO_S
 
 ! Symmetry relations for the two canonical open-loop factors.
 
-if (ISYUPJ /= &
-    Mul(SGS(iState)%ISm(r),ISYUPI)) return
+if (ISYUJ /= Mul(SGS(iState)%ISm(r),ISYUI)) return
 
-ISYDWN_I=Mul(ISYCI,ISYUPI)
-ISYDWN_J=Mul(ISYCI,ISYUPJ)
+ISYDI=Mul(ISYCI,ISYUI)
+ISYDJ=Mul(ISYCJ,ISYUJ)
 
-if (ISYDWN_J /= &
-    Mul(SGS(iState)%ISm(s),ISYDWN_I)) return
+if (ISYDJ /= Mul(SGS(iState)%ISm(s),ISYDI)) return
 
 ! ---------------------------------------------------------------
 ! Upper contraction
 !
-!   XUpper =
+!   XUpper(Iu(m),Ju(m') =
 !
-!     sum_Ku U_pq(Iu(m),Ku(m))
-!            A_r(Ku(m),Ju(m')).
-!
-! For the canonical open operator, the A_r block is retrieved
-! from the input/ket-side sector:
-!
-!  Offset (INDEO_OU,ISYUPJ,MVJ).
-!
-! The canonical open coupling is stored as
-!
-!   ICoup(1) = Ju(m')
-!   ICoup(2) = Ku(m).
+!     sum_Ku U_pq(Iu(m),Ku(m)) x A_r(Ku(m),Ju(m'))
 ! ---------------------------------------------------------------
 
-if (Swap_rs) then
-   ! Non-canonical case : A_r(Ju(m'),Ku(m))
-   NOU   = EXS(iState)%NOCP(INDEO_OU,ISYUPK,MVK)
-   if (NOU==0) return
-   OffOU = EXS(iState)%IOCP(INDEO_OU,ISYUPK,MVK)
-else
-   ! Canonical case : A_r(Ku(m),Ju(m'))
-   NOU   = EXS(iState)%NOCP(INDEO_OU,ISYUPJ,MVJ)
-   if (NOU==0) return
-   OffOU = EXS(iState)%IOCP(INDEO_OU,ISYUPJ,MVJ)
-endif
+! Process: A_r(Ku(m),Ju(m'))
+NOU   = MERGE(EXS(iState)%NOCP(INDEO_R,ISYUK,MVK), &
+              EXS(iState)%NOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
+OffOU = MERGE(EXS(iState)%IOCP(INDEO_R,ISYUK,MVK), &
+              EXS(iState)%IOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
 Write (u6,*) 'NOU=',NOU
+if (NOU==0) return
 
-! Retrieve the upper closed-loop operator E_pq.
+! Retrieve the upper closed-loop operator E_pq: Upq(Iu,Ku)
 Reverse_U=p<q
 
-call Decode_Upper_Operator(SGS(iState),p,q,INDEO_U)
+call Decode_Upper_Operator(SGS(iState),p,q,INDEO_PQ)
 
-NU=EXS(iState)%NOCP(INDEO_U,ISYUPI,MVI)
+NU  =EXS(iState)%NOCP(INDEO_PQ,ISYUI,MVI)
+OffU=EXS(iState)%IOCP(INDEO_PQ,ISYUI,MVI)
 if (NU==0) return
-OffU=EXS(iState)%IOCP(INDEO_U,ISYUPI,MVI)
 Write (u6,*) 'NU=',NU
 
 !Loop over  A_r(Ku(m),Ju(m')).
+
 XUpper=Zero
 do iO=1,NOU
 
-   ! For this open loop get, regardless if the loop on canonical or non-canonical
    ! FromO= Ju
    ! ToO  = Ku
    FromO = merge(EXS(iState)%ICoup(2,OffOU+iO), &
                  EXS(iState)%ICoup(1,OffOU+iO), &
                  Swap_rs)
+   if (FromO/=IUJ) cycle
    ToO   = merge(EXS(iState)%ICoup(1,OffOU+iO), &
                  EXS(iState)%ICoup(2,OffOU+iO), &
                  Swap_rs)
    Write(u6,*) 'FromO, ToO=',FromO, ToO
-   ! Select A_r that has a matching Ju value (IUPJ)
-
-   if (FromO/=IUPJ) cycle
+   ! Select A_r that has a matching Ju value (IUJ)
 
    ! Pick up the segment value A_r
    iValue=EXS(iState)%ICoup(3,OffOU+iO)
@@ -9494,19 +9409,14 @@ do iO=1,NOU
       ! Decode the orientation of U_pq(Iu,Ku).
       ! FromU=Iu
       ! ToU  =Ku
-
-      if (Reverse_U) then
-         FromU=EXS(iState)%ICoup(2,OffU+iU)
-         ToU  =EXS(iState)%ICoup(1,OffU+iU)
-      else
-         FromU=EXS(iState)%ICoup(1,OffU+iU)
-         ToU  =EXS(iState)%ICoup(2,OffU+iU)
-      end if
-
+      FromU=MERGE(EXS(iState)%ICoup(2,OffU+iU), &
+                  EXS(iState)%ICoup(1,OffU+iU), Reverse_U)
+      ToU  =MERGE(EXS(iState)%ICoup(1,OffU+iU), &
+                  EXS(iState)%ICoup(2,OffU+iU), Reverse_U)
       ! Skip if ToU not match Iu value (IUPI)
       ! Skip if FromU not match Ku value (ToO)
 
-      if (ToO/=FromU .or. ToU/=IUPI) cycle
+      if (ToO/=FromU .or. ToU/=IUI) cycle
 
       ! Pick up the segment value U_pq
       iValue=EXS(iState)%ICoup(3,OffU+iU)
@@ -9525,28 +9435,13 @@ if (XUpper==Zero) return
 !
 !   XLower = A_s(Il(m),Jl(m')).
 !
-! As in SG_Epq_Psi for Swap=.false., retrieve this block from
-! the input/ket-side sector:
-!
-!   (ISYDWN_J,MVJ).
-!
-! The coupling is stored as
-!
-!   ICoup(1) = Jl(m')
-!   ICoup(2) = Il(m).
 ! ---------------------------------------------------------------
 
-if (Swap_rs) then
- ! A_s(Jl(m'),Il(m)).
-  NOL   = EXS(iState)%NOCP(INDEO_OL,ISYDWN_I,MVI)
-  if (NOL==0) return
-  OffOL = EXS(iState)%IOCP(INDEO_OL,ISYDWN_I,MVI)
-else
- ! A_s(Il(m),Jl(m')).
- NOL   = EXS(iState)%NOCP(INDEO_OL,ISYDWN_J,MVJ)
- if (NOL==0) return
- OffOL = EXS(iState)%IOCP(INDEO_OL,ISYDWN_J,MVJ)
-endif
+NOL  = MERGE(EXS(iState)%NOCP(INDEO_S,ISYDI,MVI), &
+             EXS(iState)%NOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
+OffOL= MERGE(EXS(iState)%IOCP(INDEO_S,ISYDI,MVI), &
+             EXS(iState)%IOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
+If (NOL==0) return
 Write (u6,*) 'NOL=',NOL
 
 ! loop over all A_s
@@ -9558,14 +9453,12 @@ do iL=1,NOL
    FromO = merge(EXS(iState)%ICoup(2,OffOL+iL), &
                  EXS(iState)%ICoup(1,OffOL+iL), &
                  Swap_rs)
+   if (FromO/=IDJ) cycle
 
    ToO   = merge(EXS(iState)%ICoup(1,OffOL+iL), &
                  EXS(iState)%ICoup(2,OffOL+iL), &
                  Swap_rs)
-
-   ! FromO should match Il?
-   ! ToO should match  JI?
-   if (FromO/=IDWNJ .or. ToO/=IDWNI) cycle
+   if (ToO/=IDI) cycle
 
    iValue=EXS(iState)%ICoup(3,OffOL+iL)
    XLower=XLower+EXS(iState)%VTab(iValue)
