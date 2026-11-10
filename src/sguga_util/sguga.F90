@@ -6857,11 +6857,11 @@ do iTopology=1,nTopology
    case (iUO)
       pMin=SGS(iState)%MidLev+1; pMax=SGS(iState)%nLev
       qMin=pMin; qMax=pMax
-!     rMin=1; rMax=SGS(iState)%nLev
-!     sMin=1; sMax=SGS(iState)%nLev
+      rMin=1; rMax=SGS(iState)%nLev
+      sMin=1; sMax=SGS(iState)%nLev
 !     Restrict to only canonical case r > s
-      rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
-      sMin=1; sMax=SGS(iState)%MidLev
+!     rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
+!     sMin=1; sMax=SGS(iState)%MidLev
 
    case default
 
@@ -7022,17 +7022,25 @@ do iTopology=1,nTopology
 
                      case (iUO)
 
-                        If (I==2 .and. J==1 .and. &
+                        If (I==2 .and. J==10 .and. &
                             p==3 .and. q==4 .and. r==1 .and. s==3) Then
+                           Write (u6,*) 'Test <I|Epq|K>'
+                           Do K = 1, nCSF
+                              If (K/=3) Cycle
+                              XTest = MatEl_Epq(SGS(istate),CIS(istate),EXS(istate), &
+                                                p,q,LSM,I,K,.True.)
+                              Write (u6,*) 'I,p,q,K,<I|Epq|K>=',I,p,q,K,XTest
+                           End Do
                            Write (u6,*) 'Test <K|Ers|J>'
                            Do K = 1, nCSF
+                              If (K/=3) Cycle
                               XTest = MatEl_Epq(SGS(istate),CIS(istate),EXS(istate), &
                                                 r,s,LSM,K,J,.True.)
+                              Write (u6,*) 'K,r,s,J,<K|Ers|J>=',K,r,s,J,XTest
                            End Do
                         End If
 
-                        XTest = MatEl_EpqErs_UO( &
-                                   LSM,I,J,p,q,r,s )
+                        XTest = MatEl_EpqErs_UO( LSM,I,J,p,q,r,s )
 
                      case default
 
@@ -9267,7 +9275,7 @@ end function MatEl_Epq_Ref
 function MatEl_EpqErs_UO(ISYCJ,I,J,p,q,r_in,s_in) result(Value)
 
 use Constants, only: Zero
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 use Symmetry_Info, only: Mul
 
 implicit none
@@ -9292,8 +9300,9 @@ integer(kind=iwp) :: FromO,ToO,FromU,ToU
 integer(kind=iwp) :: ISYCI, ISYCK, ISYP, ISYQ, ISYPQ, ISYR, ISYS, ISYRS, ISYPQRS
 
 logical(kind=iwp) :: Reverse_U
-logical(kind=iwp) :: Swap_rs
+logical(kind=iwp) :: Swap_rs, Verbose
 
+Verbose=.True.
 Value=Zero
 
 Swap_rs = s_in > r_in
@@ -9318,10 +9327,20 @@ if (r<=SGS(iState)%MidLev .or. s<1 .or. s>SGS(iState)%MidLev) return
 if (max(p,q,r)>SGS(iState)%nLev) return
 
 call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
-call Decode_CSF(CIS(iState),ISYCI,J,MVJ,ISYUJ,IUJ,IDJ)
+call Decode_CSF(CIS(iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+ISYUK=Mul(ISYPQ,ISYUI)
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
 ISYDK=ISYDI   ! since Il==Kl
+
+If (Verbose) Then
+   Write (u6,*) '        ISYP, ISYQ  =', ISYP, ISYQ
+   Write (u6,*) '        MVI, MVJ  =', MVI, MVJ
+   Write (u6,*) '        IUP, JUP  =', IUI, IUJ
+   Write (u6,*) '        IDN, JDN  =', IDI, IDJ
+   Write (u6,*) '        ISYCI, ISYCJ=', ISYCI, ISYCJ
+End If
+
 
 if (p==q) then
    Value=MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)
@@ -9681,7 +9700,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
   ISYI = Mul(ISYPQ,ISYJ)  ! Gamma(I)=Gamma(pq) x Gamma(J)
   If (Verbose) Then
      Write (u6,*)
-     Write (u6,*) 'MatEl_epq'
+     Write (u6,*) 'Enter: MatEl_epq'
      Write (u6,*) 'Testing: I,p,q,J=',i_CSF,ip,iq,j_CSF
      Write (u6,*) '        ISYI, ISYJ  =', ISYI, ISYJ
      Write (u6,*) '        I_CSF,j_CSF=', I_CSF,j_CSF
@@ -9739,6 +9758,8 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
     write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
     write(u6,'(A,ES24.14)') '  contribution      =',EIJ
+    Write (u6,*) 'Exit: MatEl_epq'
+    Write (u6,*)
     End If
     return
   end if
@@ -9754,14 +9775,17 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     if (MVI /= MVJ .or. ISYUI /= ISYUJ .or. IUP /= JUP) return
     INDEO = merge(2*SGS%nLev+(IQ*(IQ-1))/2+IP, &
                   2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
+    If (Verbose) Write (u6,*) ' INDEO_PQ =',INDEO
 
     ! Gamma(pq) x Gamma(Il)
     ISYDC  = Mul(ISYPQ,ISYDI)
+    If (ISYDC /= ISYDJ) Call Abend()
 
     NCP = merge(EXS%NOCP(INDEO,ISYDI,MVI), &
-                EXS%NOCP(INDEO,ISYDC,MVI),Swap)
+                EXS%NOCP(INDEO,ISYDJ,MVI),Swap)
     LICP = merge(EXS%IOCP(INDEO,ISYDI,MVI), &
-                 EXS%IOCP(INDEO,ISYDC,MVI),Swap)
+                 EXS%IOCP(INDEO,ISYDJ,MVI),Swap)
+    If (Verbose) Write (u6,*) ' NCP, LICP=',NCP,LICP
     Upper_Factor = 1.0_wp
     do k=1,NCP
       src=MERGE(EXS%ICOUP(2,LICP+k),EXS%ICOUP(1,LICP+k),Swap)
@@ -9770,7 +9794,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
         Lower_Factor = EXS%VTab(EXS%ICOUP(3,LICP+k))
         EIJ = Lower_Factor * Upper_Factor
         If (Verbose) Then
-        write(u6,'(/,A)') 'MatEl_Epq: OPEN LOOP (p/=q)'
+        write(u6,'(/,A)') 'MatEl_Epq: CLOSED LOOP (p/=q)'
         write(u6,'(A)') '  case              = lower-half excitation'
         write(u6,'(A,5I8)') '  I,J,p,q,k         =', &
                             I_CSF,J_CSF,IP,IQ,k
@@ -9779,6 +9803,8 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
         write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
         write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
         write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
+        Write (u6,*) 'Exit: MatEl_epq'
+        Write (u6,*)
         End If
       end if
     end do
@@ -9789,10 +9815,12 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     if (MVI /= MVJ .or. IDN /= JDN) return
     INDEO = merge(2*SGS%nLev+(IQ*(IQ-1))/2+IP, &
                   2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
+    If (Verbose) Write (u6,*) ' INDEO_PQ =',INDEO
     NCP = merge(EXS%NOCP(INDEO,ISYUI,MVI), &
-                EXS%NOCP(INDEO,ISYUJ,MVJ),Swap)
+                EXS%NOCP(INDEO,ISYUJ,MVI),Swap)
     LICP = merge(EXS%IOCP(INDEO,ISYUI,MVI), &
-                 EXS%IOCP(INDEO,ISYUJ,MVJ),Swap)
+                 EXS%IOCP(INDEO,ISYUJ,MVI),Swap)
+    If (Verbose) Write (u6,*) ' NCP, LICP=',NCP,LICP
     Lower_Factor = 1.0_wp
     do k=1,NCP
       if (Swap) then
@@ -9804,7 +9832,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
         Upper_Factor = EXS%VTab(EXS%ICOUP(3,LICP+k))
         EIJ =  Lower_Factor*Upper_Factor
         If (Verbose) Then
-        write(u6,'(/,A)') 'MatEl_Epq: OPEN LOOP (p/=q)'
+        write(u6,'(/,A)') 'MatEl_Epq: CLOSED LOOP (p/=q)'
         write(u6,'(A)') '  case              = upper-half excitation'
         write(u6,'(A,5I8)') '  I,J,p,q,k         =', &
                             I_CSF,J_CSF,IP,IQ,k
@@ -9813,6 +9841,8 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
         write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
         write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
         write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
+        Write (u6,*) 'Exit: MatEl_epq'
+        Write (u6,*)
         End If
       end if
     end do
@@ -9845,6 +9875,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
 
     If (iBand==0) Return
     MV=iBand
+    If (Verbose) Write (u6,*) 'MV=',MV
 
     !Gamma(Ju) = Gamma(p) x Gamma(Iu)
     ISYUC=merge(Mul(ISYQ,ISYUI),Mul(ISYP,ISYUI),Swap)
@@ -9853,6 +9884,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     ! Process A^p(Iu(MVI),Ju(MVJ))
     ! Accessed as (INDEO_P,ISYUJ,MVJ)
     INDEO_P=(MV-1)*SGS%nLev+JP
+    If (Verbose) Write (u6,*) 'INDEO_P=',INDEO_P
     NCP1= merge(EXS%NOCP(INDEO_P,ISYUI,MVI), &
                 EXS%NOCP(INDEO_P,ISYUJ,MVJ),Swap)
     LICP1=merge(EXS%IOCP(INDEO_P,ISYUI,MVI), &
@@ -9878,6 +9910,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     ! Process A^q(Il(MVI),Jl(MVJ))
     ! Accessed as (INDEO_Q,ISYDJ,MVJ)
     INDEO_Q=(MV-1)*SGS%nLev+JQ
+    If (Verbose) Write (u6,*) 'INDEO_Q=',INDEO_Q
     NCP2= merge(EXS%NOCP(INDEO_Q,ISYDI,MVI), &
                 EXS%NOCP(INDEO_Q,ISYDJ,MVJ),Swap)
     LICP2=merge(EXS%IOCP(INDEO_Q,ISYDI,MVI), &
@@ -9907,11 +9940,13 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
        Write(u6,'(A,L1)') 'Swap=',Swap
        write(u6,'(A,2I8)') '  MVI, MVX          =',MVI,MVX
        write(u6,'(A,2I8)') '  upper src,irow    =',src,irow
-       write(u6,'(A,2I8)') '  lower icol,ds     =',icol,dst
+       write(u6,'(A,2I8)') '  lower icol,dst    =',icol,dst
        write(u6,'(A,I8)') '  crossing branch   =',MV
        write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
        write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
        write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
+       Write (u6,*) 'Exit: MatEl_epq'
+       Write (u6,*)
     EndIf
 
   end if
