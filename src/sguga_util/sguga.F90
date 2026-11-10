@@ -9343,7 +9343,16 @@ End If
 
 
 if (p==q) then
-   Value=MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)
+   ! <I|EppErs|J> = Sum_K <I|Epp|K><K|Ers|J>
+   !
+   ! Epp|K> = np|K> gives
+   !
+   ! <I|EppErs> = <I|Epp|I> <I|Ers|J>
+   Value=MatEl_Epq(ISYCI,I,I,p,p) * MatEl_Epq(ISYCJ,I,J,r_in,s_in)
+   If ( Value /= MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)) Then
+      Write (u6,*) '<I|EppErs|J> discrepancy.'
+      Call Abend()
+   End If
    return
 end if
 
