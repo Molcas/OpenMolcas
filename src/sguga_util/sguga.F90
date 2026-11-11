@@ -6649,13 +6649,17 @@ enddo
 
 end subroutine STEPVEC
 
-subroutine SG_Test_EpqErs_Ref(iState,LSM)
+subroutine SG_Test_EpqErs_Ref(iState,LSM,Epq_Only)
 
 use Constants,   only: Zero, One
 use Definitions, only: wp, iwp, u6
 use stdalloc,    only: mma_allocate, mma_deallocate
 
 implicit none
+
+! If Epq_Only is present and true, only <I|Epq|J> is verified and the
+! <I|EpqErs|J> tests are skipped.
+logical(kind=iwp), intent(in), optional :: Epq_Only
 
 integer(kind=iwp), intent(in) :: iState
 integer(kind=iwp), intent(in) :: LSM
@@ -6792,9 +6796,12 @@ End Do
 
 Do ISYCI=1, SGS(istate)%nSym
    call Check_MatEl_Epq(iState,ISYCI,1.0e-12_wp,nTest,nFail,MaxDiff)
+   if (nFail /= 0) call Abend()
 End Do
 
-if (nFail /= 0) call Abend()
+if (present(Epq_Only)) then
+   if (Epq_Only) return
+end if
 
 nCSF = CIS(iState)%NCSF(LSM)
 
