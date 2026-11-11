@@ -41,6 +41,7 @@ Two kinds:
   ./pymolcas verify .sguga                                 # both
   ```
   The inputs set `>export MOLCAS_SGUGA_VERIFY=...`, which makes RASSCF call `SG_Test_EpqErs_Ref` and abort on any mismatch against the reference codes: `YES` checks `<I|Epq|J>` and `<I|EpqErs|J>`, `EPQ` only `<I|Epq|J>` (used where `MatEl_EpqErs` is not yet debugged for symmetry, e.g. the H8 cube tests `sguga:010,109-115`). Without the variable, ordinary RASSCF runs skip the checks. The checks scale steeply with the number of CSFs (a few hundred CSFs already take minutes), so keep new tests small or put them in `sguga_heavy`.
+  `test/sguga_diag/` (no `.sguga` file) holds diagnostic tests that are **expected to fail** until a known bug is fixed (e.g. `sguga_diag:101`, the H4 tetrahedron in D2, `<I|Epq|J>` mismatch for upper levels in different irreps). Their checkfiles were generated with `MOLCAS_SGUGA_VERIFY=NO` (the energies do not depend on the checks) and the `>export` line then switched back; once one passes, move it to `test/sguga`. Note that the RASSCF sigma vector comes from Lucia/Faroald, not from SGUGA, so correct energies do not validate `SG_Epq_Psi`; the SGUGA sigma is only compared against Lucia when compiled with `_SGUGA_VERIFY_` (`ci_interfaces.F90`).
 - **Unit tests** (FRUIT-based, `unit_tests/`): built with the project, run via `ctest` in the build directory (`ctest -R <name>` for one).
 
 ## Style checks
