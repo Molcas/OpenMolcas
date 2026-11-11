@@ -1,13 +1,13 @@
 *-------------------------------------------------------------------------------
 * Molecule: H8 cube, edge 1 Angstrom
 * Basis: ANO-RCC-MB
-* Symmetry: Ci (Group = XYZ)
+* Symmetry: D2h (Group = XY XZ XYZ)
 * Features tested: SGUGA verification (MOLCAS_SGUGA_VERIFY=EPQ), full CI
-*                  CAS(8,8), septet and nonet
+*                  CAS(8,8), nonet
 * Responsible person: Roland Lindh
 * Comments: Only <I|Epq|J> is verified for now (EPQ); switch to YES once
 *           MatEl_EpqErs is debugged for symmetry. Being a full CI, the
-*           energies must agree with the other H8 cube tests (019-026).
+*           energies must agree with the other H8 cube tests (010, 109-115).
 *-------------------------------------------------------------------------------
 >export MOLCAS_SGUGA_VERIFY=EPQ
 
@@ -26,29 +26,16 @@ H   0.5   0.5   0.5
 Basis
  ANO-RCC-MB
 Group
- XYZ
+ XY XZ XYZ
 RICD
 
  &SEWARD
 
  &RASSCF
 Inactive
- 0 0
+ 0 0 0 0 0 0 0 0
 Ras2
- 4 4
-nActEl
- 8 0 0
-Spin
- 7
-Symmetry
- 1
-CIOnly
-
- &RASSCF
-Inactive
- 0 0
-Ras2
- 4 4
+ 1 1 1 1 1 1 1 1
 nActEl
  8 0 0
 Spin
@@ -69,22 +56,10 @@ CIOnly
 #> SEWARD_KINETIC="282.921675000000"/5
 #> SEWARD_ATTRACT="-24.931417187679"/5
 #> POTNUC="12.062426474655"/12
-#> SEWARD_MLTPL1X="-0.944863062954"/5
-#> SEWARD_KINETIC="0.617168276286"/5
-#> SEWARD_ATTRACT="-5.069436637194"/5
+#> SEWARD_MLTPL1X="-0.218314753610"/5
+#> SEWARD_KINETIC="1.074804304983"/5
+#> SEWARD_ATTRACT="-16.285243679400"/5
 #>>   3
-#> E_RASSCF="-2.471317964943"/4
-#> MLTPL__0="0.0"/2
-#> MLTPL__1[0]="0.0"/2
-#> MLTPL__1[1]="0.0"/2
-#> MLTPL__1[2]="0.0"/2
-#> MLTPL__2[0]="-0.019601544992"/2
-#> MLTPL__2[1]="1.180249505147"/2
-#> MLTPL__2[2]="-0.396770078419"/2
-#> MLTPL__2[3]="-0.485092702247"/2
-#> MLTPL__2[4]="0.519706971220"/2
-#> MLTPL__2[5]="0.504694247238"/2
-#>>   4
 #> E_RASSCF="-1.696115069840"/4
 #> MLTPL__0="0.0"/2
 #> MLTPL__1[0]="0.0"/2

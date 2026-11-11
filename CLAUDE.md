@@ -34,13 +34,13 @@ Two kinds:
   ./pymolcas verify --generate <test>   # regenerate checkfile (only when a change in results is intended)
   ```
   New test files must carry a checkfile whose `* Molcas version <commit>` is already in the branch history (enforced by `sbin/check_tests` in the pre-commit hook): commit the code first, rebuild, then `--generate`. A test without a checkfile stops at the first module unless run with `--pass`.
-- **SGUGA verification**: `test/sguga/` (light, seconds; run after any change in `src/sguga_util/`) and `test/sguga_heavy/` (minutes). Both carry a `.sguga` dot file and no default-group dot files, so they never run by default:
+- **SGUGA verification**: `test/sguga/` (light, seconds; run after any change in `src/sguga_util/`; tests 0xx are without symmetry, 1xx with symmetry) and `test/sguga_heavy/` (minutes). Both carry a `.sguga` dot file and no default-group dot files, so they never run by default:
   ```
   ./pymolcas verify sguga
   MOLCAS_TIMELIM=3600 ./pymolcas verify -j 2 sguga_heavy   # verify kills tests after 600 s by default
   ./pymolcas verify .sguga                                 # both
   ```
-  The inputs set `>export MOLCAS_SGUGA_VERIFY=...`, which makes RASSCF call `SG_Test_EpqErs_Ref` and abort on any mismatch against the reference codes: `YES` checks `<I|Epq|J>` and `<I|EpqErs|J>`, `EPQ` only `<I|Epq|J>` (used where `MatEl_EpqErs` is not yet debugged for symmetry, e.g. the H8 cube tests `sguga:019-026`). Without the variable, ordinary RASSCF runs skip the checks. The checks scale steeply with the number of CSFs (a few hundred CSFs already take minutes), so keep new tests small or put them in `sguga_heavy`.
+  The inputs set `>export MOLCAS_SGUGA_VERIFY=...`, which makes RASSCF call `SG_Test_EpqErs_Ref` and abort on any mismatch against the reference codes: `YES` checks `<I|Epq|J>` and `<I|EpqErs|J>`, `EPQ` only `<I|Epq|J>` (used where `MatEl_EpqErs` is not yet debugged for symmetry, e.g. the H8 cube tests `sguga:010,109-115`). Without the variable, ordinary RASSCF runs skip the checks. The checks scale steeply with the number of CSFs (a few hundred CSFs already take minutes), so keep new tests small or put them in `sguga_heavy`.
 - **Unit tests** (FRUIT-based, `unit_tests/`): built with the project, run via `ctest` in the build directory (`ctest -R <name>` for one).
 
 ## Style checks

@@ -1,39 +1,35 @@
 *-------------------------------------------------------------------------------
-* Molecule: H2O
-* Basis: ANO-L-MB
+* Molecule: H2
+* Basis: DZ
 * Symmetry: C1
-* Features tested: SGUGA verification (MOLCAS_SGUGA_VERIFY), CAS(8,6) singlet, no symmetry
+* Features tested: SGUGA verification (MOLCAS_SGUGA_VERIFY), CAS(2,2), few CSFs
 * Responsible person: Roland Lindh
 * Comments: Runs SG_Test_EpqErs_Ref, which aborts on any mismatch of the
 *           SGUGA <I|Epq|J> and <I|EpqErs|J> against the reference codes.
 *-------------------------------------------------------------------------------
 >export MOLCAS_SGUGA_VERIFY=YES
 
- &SEWARD
-Basis set
-H.ANO-L-MB
-H1             -0.83485   0.00000  -0.54410 angstrom
-H2              0.83485   0.00000  -0.54410 angstrom
-End of basis
-Basis set
-O.ANO-L-MB
-O               0.00000   0.00000   0.14286 angstrom
-End of basis
+ &GATEWAY
+coord
+2
+angstrom
+H  0.350000000  0.000000000  0.000000000
+H -0.350000000  0.000000000  0.000000000
+basis
+h.DZ....
+group
+nosym
 NoCD
+
+ &SEWARD
 
  &SCF
 
  &RASSCF
 nActEl
- 8 0 0
-Inactive
- 1
+ 2 0 0
 Ras2
- 6
-Spin
- 1
-Symmetry
- 1
+ 2
 FileOrb
  $Project.ScfOrb
 >>FILE checkfile
@@ -43,34 +39,36 @@ FileOrb
 * Wed Nov 11 13:36:58 2026
 *
 #>>   1
-#> POTNUC="8.148242124741"/12
-#> SEWARD_MLTPL1X="-1.577637856214"/5
-#> SEWARD_KINETIC="0.611297418796"/5
-#> SEWARD_ATTRACT="-5.178701351723"/5
+#> POTNUC="0.755967443634"/12
 #>>   2
-#> SCF_ITER="8"/8
-#> E_SCF="-75.948307286551"/8
-#> MLTPL__0="0.0"/5
-#> MLTPL__1[0]="0.0"/5
-#> MLTPL__1[1]="0.0"/5
-#> MLTPL__1[2]="-0.846750027843"/5
-#> MLTPL__2[0]="1.374780101642"/5
-#> MLTPL__2[1]="0.0"/5
-#> MLTPL__2[2]="0.0"/5
-#> MLTPL__2[3]="-1.551956489073"/5
-#> MLTPL__2[4]="0.0"/5
-#> MLTPL__2[5]="0.177176387430"/5
+#> POTNUC="0.755967443634"/12
+#> SEWARD_MLTPL1X="0.661404144068"/5
+#> SEWARD_KINETIC="0.969225931578"/5
+#> SEWARD_ATTRACT="-2.094002292639"/5
 #>>   3
-#> RASSCF_ITER="4"/8
-#> E_RASSCF="-76.007886908115"/8
+#> SCF_ITER="5"/8
+#> E_SCF="-1.122765460009"/8
 #> MLTPL__0="0.0"/5
 #> MLTPL__1[0]="0.0"/5
 #> MLTPL__1[1]="0.0"/5
-#> MLTPL__1[2]="-0.776710327845"/5
-#> MLTPL__2[0]="1.269080176158"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.291793705631"/5
 #> MLTPL__2[1]="0.0"/5
 #> MLTPL__2[2]="0.0"/5
-#> MLTPL__2[3]="-1.443885313487"/5
+#> MLTPL__2[3]="-0.145896852816"/5
 #> MLTPL__2[4]="0.0"/5
-#> MLTPL__2[5]="0.174805137329"/5
+#> MLTPL__2[5]="-0.145896852816"/5
+#>>   4
+#> RASSCF_ITER="8"/8
+#> E_RASSCF="-1.141134852262"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="0.0"/5
+#> MLTPL__2[0]="0.272253079097"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.136126539549"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-0.136126539549"/5
 >>EOF

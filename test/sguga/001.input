@@ -1,8 +1,8 @@
 *-------------------------------------------------------------------------------
 * Molecule: H2O
 * Basis: ANO-L-MB
-* Symmetry: C2v
-* Features tested: SGUGA verification (MOLCAS_SGUGA_VERIFY), CAS(8,6) singlet
+* Symmetry: C1
+* Features tested: SGUGA verification (MOLCAS_SGUGA_VERIFY), CAS(8,6) singlet, no symmetry
 * Responsible person: Roland Lindh
 * Comments: Runs SG_Test_EpqErs_Ref, which aborts on any mismatch of the
 *           SGUGA <I|Epq|J> and <I|EpqErs|J> against the reference codes.
@@ -10,11 +10,10 @@
 >export MOLCAS_SGUGA_VERIFY=YES
 
  &SEWARD
-Symmetry
-x y
 Basis set
 H.ANO-L-MB
 H1             -0.83485   0.00000  -0.54410 angstrom
+H2              0.83485   0.00000  -0.54410 angstrom
 End of basis
 Basis set
 O.ANO-L-MB
@@ -28,9 +27,9 @@ NoCD
 nActEl
  8 0 0
 Inactive
- 1 0 0 0
+ 1
 Ras2
- 3 2 1 0
+ 6
 Spin
  1
 Symmetry
@@ -46,8 +45,8 @@ FileOrb
 #>>   1
 #> POTNUC="8.148242124741"/12
 #> SEWARD_MLTPL1X="-1.577637856214"/5
-#> SEWARD_KINETIC="0.620879516923"/5
-#> SEWARD_ATTRACT="-6.711326764316"/5
+#> SEWARD_KINETIC="0.611297418796"/5
+#> SEWARD_ATTRACT="-5.178701351723"/5
 #>>   2
 #> SCF_ITER="8"/8
 #> E_SCF="-75.948307286551"/8
@@ -55,7 +54,7 @@ FileOrb
 #> MLTPL__1[0]="0.0"/5
 #> MLTPL__1[1]="0.0"/5
 #> MLTPL__1[2]="-0.846750027843"/5
-#> MLTPL__2[0]="1.374780101643"/5
+#> MLTPL__2[0]="1.374780101642"/5
 #> MLTPL__2[1]="0.0"/5
 #> MLTPL__2[2]="0.0"/5
 #> MLTPL__2[3]="-1.551956489073"/5
