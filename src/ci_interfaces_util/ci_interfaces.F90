@@ -695,6 +695,7 @@ use spinfo, only: ncsasm, ndtasm
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
+character(len=8) :: Env
 
 ! Construct the determinant tables
 ! Initialize LUCIA and determinant control
@@ -713,7 +714,12 @@ If (Do_SGUGA) Then
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
 #endif
    call SG_Setup_RASSCF()
-   call SG_Test_EpqErs_Ref(iState,STSym)
+   ! Exhaustive verification of the SGUGA coupling-coefficient codes,
+   ! only on request (used by the test/sguga group).
+   Env=' '
+   call get_environment_variable('MOLCAS_SGUGA_VERIFY',Env)
+   call UpCase(Env)
+   If (Env == 'YES') call SG_Test_EpqErs_Ref(iState,STSym)
 End If
 
 ! faroald initializations

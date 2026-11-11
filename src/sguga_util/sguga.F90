@@ -7212,6 +7212,11 @@ write(u6,*) ' END OF TWO-OPERATOR TEST'
 write(u6,*) '========================================='
 write(u6,*)
 
+if (sum(nDiscrepancies) /= 0) then
+   write(u6,'(A,I0)') 'SG_Test_EpqErs_Ref: total discrepancies = ',sum(nDiscrepancies)
+   call Abend()
+end if
+
 contains
 
 function MatEl_Upper_Half( &
@@ -9283,7 +9288,7 @@ implicit none
 integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r_in,s_in
 
 real(kind=wp) :: Value
-real(kind=wp) :: XUpper,XLower,XOpen,XClosed
+real(kind=wp) :: XUpper,XLower,XOpen,XClosed,XRef
 
 integer(kind=iwp) :: r,s
 integer(kind=iwp) :: MVI,MVJ,MVK,MVX,MV
@@ -9348,11 +9353,15 @@ if (p==q) then
    ! Epp|K> = np|K> gives
    !
    ! <I|EppErs> = <I|Epp|I> <I|Ers|J>
-   Value=MatEl_Epq(ISYCI,I,I,p,p) * MatEl_Epq(ISYCJ,I,J,r_in,s_in)
-   If ( Value /= MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)) Then
-      Write (u6,*) '<I|EppErs|J> discrepancy.'
-      Call Abend()
-   End If
+   Value=MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),p,p,ISYCI,I,I,.False.)* &
+         MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),r_in,s_in,ISYCJ,I,J,.False.)
+#  ifdef _SANITY_CHECK_
+   XRef=MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)
+   if (abs(Value-XRef) > 1.0e-12_wp) then
+      write(u6,*) '<I|EppErs|J> discrepancy:',I,J,p,r_in,s_in,Value,XRef
+      call Abend()
+   end if
+#  endif
    return
 end if
 
