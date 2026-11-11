@@ -33,6 +33,8 @@ Two kinds:
   ./pymolcas verify --failed            # rerun last failures
   ./pymolcas verify --generate <test>   # regenerate checkfile (only when a change in results is intended)
   ```
+  New test files must carry a checkfile whose `* Molcas version <commit>` is already in the branch history (enforced by `sbin/check_tests` in the pre-commit hook): commit the code first, rebuild, then `--generate`. A test without a checkfile stops at the first module unless run with `--pass`.
+- **SGUGA verification** (`test/sguga/`, no dot files, so it never runs by default): `./pymolcas verify sguga`. These inputs set `>export MOLCAS_SGUGA_VERIFY=YES`, which makes RASSCF call `SG_Test_EpqErs_Ref` (exhaustive `<I|Epq|J>` and `<I|EpqErs|J>` checks against reference codes, aborting on any mismatch). Without that variable, ordinary RASSCF runs skip the check. Run this group after any change in `src/sguga_util/`.
 - **Unit tests** (FRUIT-based, `unit_tests/`): built with the project, run via `ctest` in the build directory (`ctest -R <name>` for one).
 
 ## Style checks
