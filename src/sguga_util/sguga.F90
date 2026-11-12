@@ -9837,7 +9837,9 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
   else if (Upper) then
     If (Verbose) Write (u6,*) 'Non-diagonal upper closed-loop case'
     ! Both orbital levels are in the upper half.  The lower walk is unchanged.
-    if (MVI /= MVJ .or. IDN /= JDN) return
+    ! Walk indices are local to their symmetry block, so the symmetry of the
+    ! lower walk must be compared as well as its index.
+    if (MVI /= MVJ .or. ISYDI /= ISYDJ .or. IDN /= JDN) return
     INDEO = merge(2*SGS%nLev+(IQ*(IQ-1))/2+IP, &
                   2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
     If (Verbose) Write (u6,*) ' INDEO_PQ =',INDEO
