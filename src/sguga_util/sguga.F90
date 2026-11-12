@@ -6783,6 +6783,18 @@ logical :: SecondCanonical
 integer(kind=iwp) :: nTest, nFail
 real(kind=wp)     :: MaxDiff
 Integer(kind=iwp) :: iSYCI
+!
+! Quick zero test: orbital occupations of the CSFs of symmetry LSM,
+! Occ(t,I) = occupation of level t in CSF I, and the number of matrix
+! elements per topology that were screened as exactly zero.
+!
+integer(kind=iwp), allocatable :: Occ(:,:)
+integer(kind=iwp) :: nScreened(nTopology)
+integer(kind=iwp) :: iLev
+logical :: Screened
+#ifdef _CHECK_QUICK_ZERO_
+real(kind=wp) :: XChk
+#endif
 
 #ifdef _DEBUGPRINT_
 
@@ -6804,6 +6816,20 @@ if (present(Epq_Only)) then
 end if
 
 nCSF = CIS(iState)%NCSF(LSM)
+
+!
+! Orbital occupations of all CSFs of symmetry LSM, for the quick zero test.
+! E_tt is diagonal in the CSF basis with eigenvalue n_t, and MatEl_Epq has
+! been verified above, so use it rather than unpacking the step vectors here.
+!
+call mma_allocate(Occ,SGS(iState)%nLev,nCSF,Label='Occ')
+do I=1,nCSF
+   do iLev=1,SGS(iState)%nLev
+      Occ(iLev,I) = nint(MatEl_Epq(SGS(iState),CIS(iState),EXS(iState), &
+                                   iLev,iLev,LSM,I,I,.False.))
+   end do
+end do
+nScreened = 0
 
 nOperatorPairs  = 0
 nMatrixElements = 0
@@ -6993,11 +7019,31 @@ do iTopology=1,nTopology
                do I=1,nCSF
                   do J=1,nCSF
 
-                     XRef = MatEl_EpqErs_Ref( &
-                                LSM, &
-                                I,J, &
-                                p,q, &
-                                r,s )
+                     ! Skip the expensive reference when the occupations
+                     ! already show that <I|EpqErs|J> is zero. The fast
+                     ! routine is still called and must then return 0.
+                     Screened = Quick_Zero(I,J,p,q,r,s)
+                     if (Screened) then
+                        XRef = Zero
+                        nScreened(iTopology) = nScreened(iTopology)+1
+#ifdef _CHECK_QUICK_ZERO_
+                        ! Verify the quick zero test itself (as expensive as
+                        ! no screening at all; define it only to test it).
+                        XChk = MatEl_EpqErs_Ref(LSM,I,J,p,q,r,s)
+                        if (abs(XChk) > Threshold) then
+                           write(u6,'(A,6I6,ES22.14)') &
+                              'Quick_Zero failed: I,J,p,q,r,s,Ref = ', &
+                              I,J,p,q,r,s,XChk
+                           call Abend()
+                        end if
+#endif
+                     else
+                        XRef = MatEl_EpqErs_Ref( &
+                                   LSM, &
+                                   I,J, &
+                                   p,q, &
+                                   r,s )
+                     end if
 
                      select case (iTopology)
 
@@ -7069,7 +7115,14 @@ do iTopology=1,nTopology
 
                      Difference = XRef-XTest
 
-                     if (abs(Difference) <= Threshold) cycle
+                     ! A screened element is exactly zero, so the fast
+                     ! routine must return exactly zero, not just a small
+                     ! number.
+                     if (Screened) then
+                        if (XTest == Zero) cycle
+                     else
+                        if (abs(Difference) <= Threshold) cycle
+                     end if
 
                      nDiscrepancies(iTopology) = &
                         nDiscrepancies(iTopology)+1
@@ -7162,6 +7215,10 @@ do iTopology=1,nTopology
       nMatrixElements(iTopology)
 
    write(u6,'(A,I0)') &
+      'Screened as zero:       ', &
+      nScreened(iTopology)
+
+   write(u6,'(A,I0)') &
       'Discrepancies:          ', &
       nDiscrepancies(iTopology)
 
@@ -7225,12 +7282,58 @@ write(u6,*) ' END OF TWO-OPERATOR TEST'
 write(u6,*) '========================================='
 write(u6,*)
 
+call mma_deallocate(Occ)
+
 if (sum(nDiscrepancies) /= 0) then
    write(u6,'(A,I0)') 'SG_Test_EpqErs_Ref: total discrepancies = ',sum(nDiscrepancies)
    call Abend()
 end if
 
 contains
+
+!
+! Quick zero test for <I|E_pq E_rs|J>, from the orbital occupations Occ of
+! the host. Returns .true. only if the matrix element is exactly zero:
+!
+!   1. |K> = E_rs|J> must exist: n_J(s) >= 1 and n_J(r) <= 1 for r /= s,
+!      n_J(r) >= 1 for r == s (E_rr|J> = n_r|J>). Likewise E_pq|K> needs
+!      n_K(p) >= 1 for p == q (for p /= q this follows from point 2).
+!   2. n_I(t) = n_J(t) + d(t,p) - d(t,q) + d(t,r) - d(t,s) for every level t.
+!
+! A .false. result does not mean the element is nonzero (spin coupling can
+! still make it vanish). Spatial symmetry is implied by point 2.
+!
+function Quick_Zero(I,J,p,q,r,s) result(IsZero)
+
+integer(kind=iwp), intent(in) :: I, J, p, q, r, s
+logical :: IsZero
+integer(kind=iwp) :: t, nK, nI
+
+IsZero = .true.
+
+! Intermediate state K = E_rs|J>.
+if (r == s) then
+   if (Occ(r,J) == 0) return
+else
+   if (Occ(s,J) == 0) return
+   if (Occ(r,J) == 2) return
+end if
+
+! Occupations of I must equal those of E_pq E_rs |J>.
+do t=1,SGS(iState)%nLev
+   nK = Occ(t,J)
+   if (t == r) nK = nK+1
+   if (t == s) nK = nK-1
+   if (p == q .and. t == p .and. nK == 0) return
+   nI = nK
+   if (t == p) nI = nI+1
+   if (t == q) nI = nI-1
+   if (nI /= Occ(t,I)) return
+end do
+
+IsZero = .false.
+
+end function Quick_Zero
 
 function MatEl_Upper_Half( &
            ISYUP,MV, &
@@ -10008,6 +10111,15 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   integer(kind=iwp) :: iMax, jMax, pMax, qMax
   real(kind=wp) :: Value, Value_Ref, Diff, Scale
   logical(kind=iwp) :: Reuse_Save, Verbose
+  !
+  ! Quick zero test: orbital occupations of the CSFs of every symmetry,
+  ! OccAll(t,iOff(ISY)+I) = occupation of level t in CSF I of symmetry ISY.
+  ! They are taken from the reference (E_tt is diagonal with eigenvalue
+  ! n_t), not from MatEl_Epq, since MatEl_Epq is what is being tested.
+  !
+  integer(kind=iwp), allocatable :: OccAll(:,:)
+  integer(kind=iwp) :: iOff(8), ISY, iLev, nScreen
+  logical(kind=iwp) :: Screened
 
   nTest   = 0_iwp
   nFail   = 0_iwp
@@ -10031,6 +10143,22 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   Reuse_Save = EXS(iState)%ReUse_SGTMP
   EXS(iState)%ReUse_SGTMP = .False.
 
+  iOff(:) = 0
+  do ISY = 2, SGS(iState)%nSym
+    iOff(ISY) = iOff(ISY-1)+CIS(iState)%NCSF(ISY-1)
+  end do
+  call mma_allocate(OccAll,SGS(iState)%nLev, &
+                    iOff(SGS(iState)%nSym)+CIS(iState)%NCSF(SGS(iState)%nSym), &
+                    Label='OccAll')
+  do ISY = 1, SGS(iState)%nSym
+    do I = 1, CIS(iState)%NCSF(ISY)
+      do iLev = 1, SGS(iState)%nLev
+        OccAll(iLev,iOff(ISY)+I) = nint(MatEl_Epq_Ref(istate,ISY,I,I,iLev,iLev))
+      end do
+    end do
+  end do
+  nScreen = 0_iwp
+
   do q = 1, SGS(iState)%nLev
     do p = 1, SGS(iState)%nLev
 
@@ -10047,7 +10175,22 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
                             EXS(iState), &
                             p,q,ISYCJ,I,J,Verbose)
 
-          Value_Ref = MatEl_Epq_Ref(istate,ISYCJ,I,J,p,q)
+          ! Skip the reference when <I|Epq|J> is zero by the occupations;
+          ! MatEl_Epq must then return exactly zero.
+          Screened = Epq_Is_Zero(OccAll(:,iOff(ISYCI)+I),OccAll(:,iOff(ISYCJ)+J),I,J,p,q)
+          if (Screened) then
+            Value_Ref = Zero
+            nScreen = nScreen + 1_iwp
+#ifdef _CHECK_QUICK_ZERO_
+            if (abs(MatEl_Epq_Ref(istate,ISYCJ,I,J,p,q)) > Tol) then
+              write(u6,'(A,6I7)') 'Epq_Is_Zero failed: ISYCI,I,ISYJ,J,p,q =', &
+                                  ISYCI,I,ISYCJ,J,p,q
+              call Abend()
+            end if
+#endif
+          else
+            Value_Ref = MatEl_Epq_Ref(istate,ISYCJ,I,J,p,q)
+          end if
 
           nTest = nTest + 1_iwp
           Diff  = abs(Value-Value_Ref)
@@ -10061,7 +10204,7 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
             qMax = q
           end if
 
-          if (Diff > Tol*Scale) then
+          if ((Screened .and. Value /= Zero) .or. Diff > Tol*Scale) then
             nFail = nFail + 1_iwp
             write(u6,'(A,6I7,2ES24.14)') &
               'MATEL_EPQ mismatch: ISYCI,I,ISYJ,J,p,q,value,Value_Ref =', &
@@ -10074,8 +10217,10 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   end do
 
   EXS(iState)%ReUse_SGTMP = Reuse_Save
+  call mma_deallocate(OccAll)
 
   write(u6,'(/,A,I0)') 'MatEl_Epq tests       : ',nTest
+  write(u6,'(A,I0)')   'Screened as zero      : ',nScreen
   write(u6,'(A,I0)')   'MatEl_Epq failures    : ',nFail
   write(u6,'(A,ES12.4)') 'Relative tolerance    : ',Tol
   if (nFail > 0) then
@@ -10092,6 +10237,33 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   Write (u6,*) '============================'
 
 end subroutine Check_MatEl_Epq
+
+  !
+  ! Quick zero test for <I|E_pq|J> from the occupations OccI, OccJ of I, J.
+  ! Returns .true. only if the matrix element is exactly zero:
+  !   p == q: E_pp is diagonal in the CSF basis, so zero unless I == J
+  !           (the symmetries of I and J are then equal);
+  !   p /= q: zero unless n_J(q) >= 1, n_J(p) <= 1 and
+  !           n_I(t) = n_J(t) + d(t,p) - d(t,q) for every level t.
+  !
+  function Epq_Is_Zero(OccI,OccJ,I,J,p,q) result(IsZero)
+    integer(kind=iwp), intent(in) :: OccI(:), OccJ(:), I, J, p, q
+    logical(kind=iwp) :: IsZero
+    integer(kind=iwp) :: t, nI
+    IsZero = .true.
+    if (p == q) then
+      IsZero = I /= J
+      return
+    end if
+    if (OccJ(q) == 0 .or. OccJ(p) == 2) return
+    do t = 1, size(OccJ)
+      nI = OccJ(t)
+      if (t == p) nI = nI+1
+      if (t == q) nI = nI-1
+      if (nI /= OccI(t)) return
+    end do
+    IsZero = .false.
+  end function Epq_Is_Zero
 
 end subroutine SG_Test_EpqErs_Ref
 
