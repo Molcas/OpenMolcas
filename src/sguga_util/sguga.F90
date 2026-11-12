@@ -4202,7 +4202,7 @@ integer(kind=iwp), intent(in) :: IP, IQ, ISYCI
 real(kind=wp), intent(in) :: CPQ, CI(*)
 real(kind=wp), intent(_OUT_) :: SGM(*)
 integer(kind=iwp) :: I, IC, ICS, INDEO, IOC, IOLW, IOUW, IPPOW, IPSHFT, ISGSTA, ISTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
-                     ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
+                     ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MVSGM, NCP, NDWNC, NDWNSG, NS1, NUPC, &
                      NUPSG, NCP1, NCP2, MV, MVX, nCSFs, LICP1, LICP2, JQ, JP
 real(kind=wp) :: X
 
@@ -4356,7 +4356,6 @@ else
         ! Put it at the offset jOff
         jOff=iOff
         if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
-           NTMP = NUPSG*NDWNC
            call Build_Crossing_Temporary( &
                   NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff), &
                   NCP1,EXS%ICOUP(1,LICP1+1),Swap)
@@ -4380,7 +4379,6 @@ else
         ! In case of no reuse compute the sigma vector here.
         if (.not. EXS%Reuse_SGTMP) then
            jOff = 1
-           NTMP = NUPSG*NDWNC
            call Build_Crossing_Temporary( &
                   NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff), &
                   NCP1,EXS%ICOUP(1,LICP1+1),Swap)
@@ -6810,7 +6808,6 @@ logical :: SeedFromEnv, SeedReported
 integer(kind=iwp) :: nPairsIJ, nDrawMax, iDraw, nTakeZ, nTakeNZ
 integer(kind=iwp) :: nSampledOps(nTopology)
 logical :: Sampled
-integer(kind=iwp) :: iLev
 logical :: Screened
 #ifdef _CHECK_QUICK_ZERO_
 real(kind=wp) :: XChk
@@ -8149,9 +8146,9 @@ function MatEl_EpqErs_Ref(ISYCI,I,J,p,q,r,s) result(Value)
    integer(kind=iwp) :: nCSFI,nCSFK
 #ifdef _DEBUGPRINT_
    integer(kind=iwp) :: K
+   integer(kind=iwp) :: MVK,ISYUPK,IUPK,IDWNK
 #endif
    integer(kind=iwp) :: ISYK
-   integer(kind=iwp) :: MVK,ISYUPK,IUPK,IDWNK
 
    real(kind=wp), allocatable :: Ket(:)
    real(kind=wp), allocatable :: Tmp(:)
@@ -9462,14 +9459,14 @@ integer(kind=iwp) :: MVI,MVJ,MVK,MVX,MV
 integer(kind=iwp) :: ISYUI,ISYUJ,ISYUK
 integer(kind=iwp) :: IUI,IUJ
 integer(kind=iwp) :: IDI,IDJ
-integer(kind=iwp) :: ISYDI,ISYDJ,ISYDK
-integer(kind=iwp) :: iBand, nMatch
+integer(kind=iwp) :: ISYDI,ISYDJ
+integer(kind=iwp) :: iBand
 integer(kind=iwp) :: INDEO_R,INDEO_S,INDEO_PQ
 integer(kind=iwp) :: NOU,NOL,NU
 integer(kind=iwp) :: OffOU,OffOL,OffU
 integer(kind=iwp) :: iO,iL,iU,iValue
 integer(kind=iwp) :: FromO,ToO,FromU,ToU
-integer(kind=iwp) :: ISYCI, ISYCK, ISYP, ISYQ, ISYPQ, ISYR, ISYS, ISYRS, ISYPQRS
+integer(kind=iwp) :: ISYCI, ISYP, ISYQ, ISYPQ, ISYR, ISYS, ISYRS, ISYPQRS
 
 logical(kind=iwp) :: Reverse_U
 logical(kind=iwp) :: Swap_rs, Verbose
@@ -9489,7 +9486,6 @@ ISYS =SGS(iState)%ISm(s)
 ISYRS=Mul(ISYR,ISYS)
 ISYPQRS=Mul(ISYPQ,ISYRS)
 ISYCI = Mul(ISYPQRS,ISYCJ)
-ISYCK = Mul(ISYCI,ISYPQ)
 
 if (I < 1 .or. I > CIS(iState)%NCSF(ISYCI)) return
 if (J < 1 .or. J > CIS(iState)%NCSF(ISYCJ)) return
@@ -9503,7 +9499,6 @@ call Decode_CSF(CIS(iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
 ISYUK=Mul(ISYPQ,ISYUI)
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
-ISYDK=ISYDI   ! since Il==Kl
 
 If (Verbose) Then
    Write (u6,*) '        ISYP, ISYQ  =', ISYP, ISYQ
@@ -9876,7 +9871,7 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
   integer(kind=iwp) :: MV, MVX, NCP1, NCP2, LICP1, LICP2, iBand
   integer(kind=iwp) :: ISYDI, ISYUC, ISYDC, JP, JQ, a, b, ISYDJ
   integer(kind=iwp) :: IOUW, IOLW, IPSHFT, IPPOW, IC, ICS
-  real(kind=wp) :: Upper_Factor, Lower_Factor, Contribution
+  real(kind=wp) :: Upper_Factor, Lower_Factor
 
   EIJ  = Zero
   ISYP = SGS%ISm(IP)      ! Gamma(p)
@@ -10119,7 +10114,6 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     EIJ= Upper_Factor*Lower_Factor
 
     If (Verbose) Then
-       Contribution=Upper_Factor*Lower_Factor
        write(u6,'(/,A)') 'MatEl_Epq: OPEN LOOP (p/=q)'
        write(u6,'(A)') '  case              = crossing excitation'
        write(u6,'(A,6I8)') '  I,J,p,q,a,b       =', &
@@ -10170,7 +10164,10 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   ! reference diagonal costs nLev*nCSF**2 and dominated large cases.)
   !
   integer(kind=iwp), allocatable :: OccAll(:,:)
-  integer(kind=iwp) :: iOff(8), ISY, iLev, nScreen
+  integer(kind=iwp) :: iOff(8), ISY, nScreen
+#ifdef _CHECK_QUICK_ZERO_
+  integer(kind=iwp) :: iLev
+#endif
   logical(kind=iwp) :: Screened
   ! Sampling of (I,J) as in the two-operator test (parameters of the host).
   integer(kind=iwp) :: nPairsIJ, nDrawMax, iDraw, nTakeZ, nTakeNZ, nSampledPQ

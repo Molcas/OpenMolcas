@@ -156,7 +156,7 @@ call mma_deallocate(BM)
 Contains
 
 Subroutine SXCTL_Prelude()
-integer(kind=iwp) iSym, i, iOrb, iOff
+integer(kind=iwp) iSym, iOrb, iOff
 !***********************************************************************
 ! load back two-electron integrals (pu|vx)
 !***********************************************************************
