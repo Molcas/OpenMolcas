@@ -6654,6 +6654,7 @@ subroutine SG_Test_EpqErs_Ref(iState,LSM,Epq_Only)
 use Constants,   only: Zero, One
 use Definitions, only: wp, iwp, u6
 use stdalloc,    only: mma_allocate, mma_deallocate
+use, intrinsic :: iso_fortran_env, only: int64
 
 implicit none
 
@@ -6790,6 +6791,25 @@ Integer(kind=iwp) :: iSYCI
 !
 integer(kind=iwp), allocatable :: Occ(:,:)
 integer(kind=iwp) :: nScreened(nTopology)
+!
+! Sampling of the (I,J) pairs. For a given operator (pair), all pairs are
+! tested if there are at most MaxPairs of them. Otherwise random pairs are
+! drawn (at most MaxDraw, and at most twice the number of pairs) and
+! accepted until QuotaNZ pairs that pass the
+! quick zero test (compared with the reference) and QuotaZ pairs that are
+! zero by occupation (fast routine must return exactly zero) are taken.
+! The seed is taken from the clock, so each run tests a different subset,
+! unless MOLCAS_RANDOM_SEED is set. The seed is printed before the first
+! sampled pair, so a failed run can be repeated with
+! >export MOLCAS_RANDOM_SEED=<seed>.
+!
+integer(kind=iwp), parameter :: MaxPairs = 40000, QuotaNZ = 10000, &
+                                QuotaZ = 10000, MaxDraw = 2000000
+integer(kind=int64) :: iRandState, iRandSeed
+logical :: SeedFromEnv, SeedReported
+integer(kind=iwp) :: nPairsIJ, nDrawMax, iDraw, nTakeZ, nTakeNZ
+integer(kind=iwp) :: nSampledOps(nTopology)
+logical :: Sampled
 integer(kind=iwp) :: iLev
 logical :: Screened
 #ifdef _CHECK_QUICK_ZERO_
@@ -6806,6 +6826,7 @@ End Do
 
 ! Verify that MatEl_Epq is correct
 
+call Init_Rand_Seed()
 Do ISYCI=1, SGS(istate)%nSym
    call Check_MatEl_Epq(iState,ISYCI,1.0e-12_wp,nTest,nFail,MaxDiff)
    if (nFail /= 0) call Abend()
@@ -6818,18 +6839,15 @@ end if
 nCSF = CIS(iState)%NCSF(LSM)
 
 !
-! Orbital occupations of all CSFs of symmetry LSM, for the quick zero test.
-! E_tt is diagonal in the CSF basis with eigenvalue n_t, and MatEl_Epq has
-! been verified above, so use it rather than unpacking the step vectors here.
+! Orbital occupations of all CSFs of symmetry LSM, for the quick zero test,
+! unpacked from the step vectors (O(nCSF*nLev)).
 !
 call mma_allocate(Occ,SGS(iState)%nLev,nCSF,Label='Occ')
 do I=1,nCSF
-   do iLev=1,SGS(iState)%nLev
-      Occ(iLev,I) = nint(MatEl_Epq(SGS(iState),CIS(iState),EXS(iState), &
-                                   iLev,iLev,LSM,I,I,.False.))
-   end do
+   call CSF_Occupation(LSM,I,Occ(:,I))
 end do
 nScreened = 0
+nSampledOps = 0
 
 nOperatorPairs  = 0
 nMatrixElements = 0
@@ -7014,15 +7032,40 @@ do iTopology=1,nTopology
                   iTopology,iDiagonalCase )+1
 
                !
-               ! Compare the complete CSF matrices.
+               ! Compare the CSF matrices: all (I,J) pairs, or a random
+               ! sample of them if there are more than MaxPairs.
                !
-               do I=1,nCSF
-                  do J=1,nCSF
+               nPairsIJ = nCSF*nCSF
+               Sampled  = nPairsIJ > MaxPairs
+               ! Cap the draws relative to the block size, so that sampling a block
+               ! just above MaxPairs never costs more than two full loops.
+               nDrawMax = merge(min(MaxDraw,2*nPairsIJ),nPairsIJ,Sampled)
+               nTakeZ   = 0
+               nTakeNZ  = 0
+               if (Sampled) nSampledOps(iTopology) = nSampledOps(iTopology)+1
+               do iDraw=1,nDrawMax
+                     if (Sampled) then
+                        if (nTakeZ >= QuotaZ .and. nTakeNZ >= QuotaNZ) exit
+                        I = Rand_Index(nCSF)
+                        J = Rand_Index(nCSF)
+                     else
+                        I = (iDraw-1)/nCSF+1
+                        J = mod(iDraw-1,nCSF)+1
+                     end if
 
                      ! Skip the expensive reference when the occupations
                      ! already show that <I|EpqErs|J> is zero. The fast
                      ! routine is still called and must then return 0.
                      Screened = Quick_Zero(I,J,p,q,r,s)
+                     if (Sampled) then
+                        if (Screened) then
+                           if (nTakeZ >= QuotaZ) cycle
+                           nTakeZ = nTakeZ+1
+                        else
+                           if (nTakeNZ >= QuotaNZ) cycle
+                           nTakeNZ = nTakeNZ+1
+                        end if
+                     end if
                      if (Screened) then
                         XRef = Zero
                         nScreened(iTopology) = nScreened(iTopology)+1
@@ -7178,7 +7221,6 @@ do iTopology=1,nTopology
 
                      end if
 
-                  end do
                end do
 
             end do
@@ -7217,6 +7259,10 @@ do iTopology=1,nTopology
    write(u6,'(A,I0)') &
       'Screened as zero:       ', &
       nScreened(iTopology)
+
+   write(u6,'(A,I0)') &
+      'Operator pairs sampled: ', &
+      nSampledOps(iTopology)
 
    write(u6,'(A,I0)') &
       'Discrepancies:          ', &
@@ -7277,6 +7323,11 @@ do iTopology=1,nTopology
 end do
 
 write(u6,*)
+if (SeedReported) then
+   write(u6,'(A,I0,A)') 'Random sampling used, seed = ',iRandSeed, &
+                        '  (reproduce with >export MOLCAS_RANDOM_SEED=<seed>)'
+   write(u6,*)
+end if
 write(u6,*) '========================================='
 write(u6,*) ' END OF TWO-OPERATOR TEST'
 write(u6,*) '========================================='
@@ -10114,12 +10165,16 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   !
   ! Quick zero test: orbital occupations of the CSFs of every symmetry,
   ! OccAll(t,iOff(ISY)+I) = occupation of level t in CSF I of symmetry ISY.
-  ! They are taken from the reference (E_tt is diagonal with eigenvalue
-  ! n_t), not from MatEl_Epq, since MatEl_Epq is what is being tested.
+  ! They are unpacked from the step vectors by CSF_Occupation, not taken
+  ! from MatEl_Epq, which is what is being tested. (Taking them from the
+  ! reference diagonal costs nLev*nCSF**2 and dominated large cases.)
   !
   integer(kind=iwp), allocatable :: OccAll(:,:)
   integer(kind=iwp) :: iOff(8), ISY, iLev, nScreen
   logical(kind=iwp) :: Screened
+  ! Sampling of (I,J) as in the two-operator test (parameters of the host).
+  integer(kind=iwp) :: nPairsIJ, nDrawMax, iDraw, nTakeZ, nTakeNZ, nSampledPQ
+  logical(kind=iwp) :: Sampled
 
   nTest   = 0_iwp
   nFail   = 0_iwp
@@ -10152,12 +10207,20 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
                     Label='OccAll')
   do ISY = 1, SGS(iState)%nSym
     do I = 1, CIS(iState)%NCSF(ISY)
+      call CSF_Occupation(ISY,I,OccAll(:,iOff(ISY)+I))
+#ifdef _CHECK_QUICK_ZERO_
+      ! Cross-check the unpacked occupations against the reference diagonal.
       do iLev = 1, SGS(iState)%nLev
-        OccAll(iLev,iOff(ISY)+I) = nint(MatEl_Epq_Ref(istate,ISY,I,I,iLev,iLev))
+        if (OccAll(iLev,iOff(ISY)+I) /= nint(MatEl_Epq_Ref(istate,ISY,I,I,iLev,iLev))) then
+          write(u6,'(A,3I7)') 'CSF_Occupation failed: ISY,I,level =',ISY,I,iLev
+          call Abend()
+        end if
       end do
+#endif
     end do
   end do
   nScreen = 0_iwp
+  nSampledPQ = 0_iwp
 
   do q = 1, SGS(iState)%nLev
     do p = 1, SGS(iState)%nLev
@@ -10165,8 +10228,38 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
       ISYCJ=Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)),ISYCI)
       nCSFJ = CIS(iState)%NCSF(ISYCJ)
 
-      do J = 1, nCSFJ
-        do I = 1, nCSFI
+      ! All (I,J) pairs, or a random sample of them if there are more than
+      ! MaxPairs.
+      nPairsIJ = nCSFI*nCSFJ
+      Sampled  = nPairsIJ > MaxPairs
+      ! Cap the draws relative to the block size, so that sampling a block
+      ! just above MaxPairs never costs more than two full loops.
+      nDrawMax = merge(min(MaxDraw,2*nPairsIJ),nPairsIJ,Sampled)
+      nTakeZ   = 0
+      nTakeNZ  = 0
+      if (Sampled) nSampledPQ = nSampledPQ + 1_iwp
+      do iDraw = 1, nDrawMax
+          if (Sampled) then
+            if (nTakeZ >= QuotaZ .and. nTakeNZ >= QuotaNZ) exit
+            I = Rand_Index(nCSFI)
+            J = Rand_Index(nCSFJ)
+          else
+            J = (iDraw-1)/nCSFI+1
+            I = mod(iDraw-1,nCSFI)+1
+          end if
+
+          ! Skip the reference when <I|Epq|J> is zero by the occupations;
+          ! MatEl_Epq must then return exactly zero.
+          Screened = Epq_Is_Zero(OccAll(:,iOff(ISYCI)+I),OccAll(:,iOff(ISYCJ)+J),I,J,p,q)
+          if (Sampled) then
+            if (Screened) then
+              if (nTakeZ >= QuotaZ) cycle
+              nTakeZ = nTakeZ+1
+            else
+              if (nTakeNZ >= QuotaNZ) cycle
+              nTakeNZ = nTakeNZ+1
+            end if
+          end if
 
           ! evaluate <I| Epq |J>
 
@@ -10175,9 +10268,6 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
                             EXS(iState), &
                             p,q,ISYCJ,I,J,Verbose)
 
-          ! Skip the reference when <I|Epq|J> is zero by the occupations;
-          ! MatEl_Epq must then return exactly zero.
-          Screened = Epq_Is_Zero(OccAll(:,iOff(ISYCI)+I),OccAll(:,iOff(ISYCJ)+J),I,J,p,q)
           if (Screened) then
             Value_Ref = Zero
             nScreen = nScreen + 1_iwp
@@ -10211,7 +10301,6 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
               ISYCI,I,ISYCJ,J,p,q,Value,Value_Ref
           end if
 
-        end do
       end do
     end do
   end do
@@ -10221,6 +10310,7 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
 
   write(u6,'(/,A,I0)') 'MatEl_Epq tests       : ',nTest
   write(u6,'(A,I0)')   'Screened as zero      : ',nScreen
+  write(u6,'(A,I0)')   'Sampled (p,q) blocks  : ',nSampledPQ
   write(u6,'(A,I0)')   'MatEl_Epq failures    : ',nFail
   write(u6,'(A,ES12.4)') 'Relative tolerance    : ',Tol
   if (nFail > 0) then
@@ -10237,6 +10327,77 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   Write (u6,*) '============================'
 
 end subroutine Check_MatEl_Epq
+
+!
+! Random index in 1..n from a Park-Miller generator (x <- 48271 x mod
+! (2**31-1)) with the state iRandState of the host. Self-contained, so the
+! sequence does not depend on other users of a random number generator.
+!
+function Rand_Index(n) result(iRand)
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp) :: iRand
+  if (.not. SeedReported) then
+    if (SeedFromEnv) then
+      write(u6,'(/,A,I0,A)') 'SG_Test_EpqErs_Ref: random sampling of (I,J) pairs, seed = ', &
+                             iRandSeed,' (from MOLCAS_RANDOM_SEED)'
+    else
+      write(u6,'(/,A,I0,A)') 'SG_Test_EpqErs_Ref: random sampling of (I,J) pairs, seed = ', &
+                             iRandSeed,' (from the clock)'
+    end if
+    write(u6,'(A,I0,/)')   'To reproduce this run: >export MOLCAS_RANDOM_SEED=',iRandSeed
+    SeedReported = .true.
+  end if
+  iRandState = mod(48271_int64*iRandState,2147483647_int64)
+  iRand = 1+int(mod(iRandState,int(n,kind=int64)),kind=iwp)
+end function Rand_Index
+
+!
+! Orbital occupations of CSF I of symmetry ISY, unpacked from its step
+! vector: the upper and lower walks are stored in CIS%ICase, 2 bits per
+! level (step d = 0,1,2,3 gives occupation 0,1,1,2), nPack levels per
+! integer. Same layout as read in the diagonal case of MatEl_Epq.
+!
+subroutine CSF_Occupation(ISY,I,OccVec)
+  integer(kind=iwp), intent(in)  :: ISY, I
+  integer(kind=iwp), intent(out) :: OccVec(:)
+  integer(kind=iwp) :: MV, ISYU, ISYD, IUP, IDN, iLev, IOW0, IPSHFT, IC, ICS
+  call Decode_CSF(CIS(iState),ISY,I,MV,ISYU,IUP,IDN)
+  ISYD = Mul(ISY,ISYU)
+  do iLev = 1, SGS(iState)%nLev
+    if (iLev > SGS(iState)%MidLev) then
+      IOW0   = CIS(iState)%IOW(1,ISYU,MV)
+      IPSHFT = 2*(iLev-1-SGS(iState)%MidLev)
+      IC     = CIS(iState)%ICase(1+IOW0-CIS(iState)%nIpWlk+IPSHFT/(2*nPack)+IUP*CIS(iState)%nIpWlk)
+    else
+      IOW0   = CIS(iState)%IOW(2,ISYD,MV)
+      IPSHFT = 2*(iLev-1)
+      IC     = CIS(iState)%ICase(1+IOW0-CIS(iState)%nIpWlk+IPSHFT/(2*nPack)+IDN*CIS(iState)%nIpWlk)
+    end if
+    IPSHFT = mod(IPSHFT,2*nPack)
+    ICS = mod(IC/2**IPSHFT,4)
+    OccVec(iLev) = (1+ICS)/2
+  end do
+end subroutine CSF_Occupation
+
+!
+! Seed of the generator: MOLCAS_RANDOM_SEED if set, otherwise the clock.
+! (getSeed is not used, since inside verify it gives a deterministic seed.)
+!
+subroutine Init_Rand_Seed()
+  character(len=72) :: Line
+  integer(kind=int64) :: iCount
+  call get_environment_variable('MOLCAS_RANDOM_SEED',Line)
+  SeedFromEnv = Line /= ' '
+  if (SeedFromEnv) then
+    read(Line,*) iRandSeed
+  else
+    call system_clock(iCount)
+    iRandSeed = 1_int64+mod(abs(iCount),2147483646_int64)
+  end if
+  ! The Park-Miller state must lie in 1..2**31-2.
+  iRandState = 1_int64+mod(abs(iRandSeed),2147483646_int64)
+  SeedReported = .false.
+end subroutine Init_Rand_Seed
 
   !
   ! Quick zero test for <I|E_pq|J> from the occupations OccI, OccJ of I, J.
