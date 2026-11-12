@@ -9473,7 +9473,7 @@ integer(kind=iwp) :: ISYCI, ISYP, ISYQ, ISYPQ, ISYR, ISYS, ISYRS, ISYPQRS
 logical(kind=iwp) :: Reverse_U
 logical(kind=iwp) :: Swap_rs, Verbose
 
-Verbose=.True.
+Verbose=.False.
 Value=Zero
 
 Swap_rs = s_in > r_in
@@ -9546,7 +9546,7 @@ MV=iBand
 INDEO_R=(MV-1)*SGS(iState)%nLev+r  ! Open-Loop Upper
 
 INDEO_S=(MV-1)*SGS(iState)%nLev+s  ! Open-Loop Lower
-Write (u6,*) 'INDEO_R,INDEO_S=',INDEO_R,INDEO_S
+If (Verbose) Write (u6,*) 'INDEO_R,INDEO_S=',INDEO_R,INDEO_S
 
 ! Symmetry relations for the two canonical open-loop factors.
 
@@ -9570,7 +9570,7 @@ NOU   = MERGE(EXS(iState)%NOCP(INDEO_R,ISYUK,MVK), &
               EXS(iState)%NOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
 OffOU = MERGE(EXS(iState)%IOCP(INDEO_R,ISYUK,MVK), &
               EXS(iState)%IOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
-Write (u6,*) 'NOU=',NOU
+If (Verbose) Write (u6,*) 'NOU=',NOU
 if (NOU==0) return
 
 ! Retrieve the upper closed-loop operator E_pq: Upq(Iu,Ku)
@@ -9581,7 +9581,7 @@ call Decode_Upper_Operator(SGS(iState),p,q,INDEO_PQ)
 NU  =EXS(iState)%NOCP(INDEO_PQ,ISYUI,MVI)
 OffU=EXS(iState)%IOCP(INDEO_PQ,ISYUI,MVI)
 if (NU==0) return
-Write (u6,*) 'NU=',NU
+If (Verbose) Write (u6,*) 'NU=',NU
 
 !Loop over  A_r(Ku(m),Ju(m')).
 
@@ -9597,7 +9597,7 @@ do iO=1,NOU
    ToO   = merge(EXS(iState)%ICoup(1,OffOU+iO), &
                  EXS(iState)%ICoup(2,OffOU+iO), &
                  Swap_rs)
-   Write(u6,*) 'FromO, ToO=',FromO, ToO
+   If (Verbose) Write(u6,*) 'FromO, ToO=',FromO, ToO
    ! Select A_r that has a matching Ju value (IUJ)
 
    ! Pick up the segment value A_r
@@ -9628,7 +9628,7 @@ do iO=1,NOU
    end do
 
 end do
-Write (u6,*) 'XUpper=',XUpper
+If (Verbose) Write (u6,*) 'XUpper=',XUpper
 if (XUpper==Zero) return
 
 ! ---------------------------------------------------------------
@@ -9643,7 +9643,7 @@ NOL  = MERGE(EXS(iState)%NOCP(INDEO_S,ISYDI,MVI), &
 OffOL= MERGE(EXS(iState)%IOCP(INDEO_S,ISYDI,MVI), &
              EXS(iState)%IOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
 If (NOL==0) return
-Write (u6,*) 'NOL=',NOL
+If (Verbose) Write (u6,*) 'NOL=',NOL
 
 ! loop over all A_s
 XLower=Zero
@@ -9665,10 +9665,10 @@ do iL=1,NOL
    XLower=XLower+EXS(iState)%VTab(iValue)
 
 end do
-Write (u6,*) 'XLower=',XLower
+If (Verbose) Write (u6,*) 'XLower=',XLower
 
 Value=XUpper*XLower
-Write (u6,*) 'Value=',Value
+If (Verbose) Write (u6,*) 'Value=',Value
 
 end function MatEl_EpqErs_UO
 
