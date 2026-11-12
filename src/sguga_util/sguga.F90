@@ -8718,6 +8718,7 @@ write(u6,*)
 end subroutine Print_CI_Blocks
 #endif
 
+#ifdef _DEBUGPRINT_
 subroutine Print_CSF_Walks(SGS,CIS,ISYCI)
 
 use Symmetry_Info, only: Mul
@@ -8854,6 +8855,7 @@ end do
 write(u6,*)
 
 end subroutine Print_CSF_Walks
+#endif
 
 #ifdef _NOT_USED_
 subroutine Print_Block_CSF_Map(CIS,ISYCI,MV,ISYUP)
