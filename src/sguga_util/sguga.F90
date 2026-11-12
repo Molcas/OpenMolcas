@@ -6818,8 +6818,13 @@ nErrOrientation  = 0
 write(u6,*)
 write(u6,*) '========================================='
 write(u6,*) ' GENERAL TWO-OPERATOR TEST'
-write(u6,*) ' UU, LL, UL, AND LU'
+! List the topologies from TopologyName, so the header stays in step with
+! the topologies actually tested.
+write(u6,'(2X,*(A,:,", "))') (TopologyName(iTopology),iTopology=1,nTopology)
 write(u6,*) ' INCLUDING DIAGONAL OPERATORS'
+! E_pq and E_rs are each restricted to Gamma(p)=Gamma(q), Gamma(r)=Gamma(s)
+! (see the loops below), so symmetry-changing operators are not covered.
+write(u6,*) ' TOTALLY SYMMETRIC OPERATORS ONLY'
 write(u6,*) '========================================='
 write(u6,'(A,I0)') 'Number of graph levels: ', &
                     SGS(iState)%nLev
@@ -6830,12 +6835,13 @@ write(u6,'(A,I0)') 'Number of CSFs:         ', &
 write(u6,*)
 
 !
-! Test all four operator-product topologies:
+! Test all five operator-product topologies:
 !
 !     UU: E_pq(upper) E_rs(upper)
 !     LL: E_pq(lower) E_rs(lower)
 !     UL: E_pq(upper) E_rs(lower)
 !     LU: E_pq(lower) E_rs(upper)
+!     UO: E_pq(upper) E_rs(open, i.e. crossing the midlevel)
 !
 do iTopology=1,nTopology
 
