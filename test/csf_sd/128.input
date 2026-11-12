@@ -2,18 +2,18 @@
 * Molecule: H4 tetrahedron, edge sqrt(2) Angstrom
 * Basis: ANO-RCC-MB
 * Symmetry: D2 (Group = XY XZ), one orbital per irrep
-* Features tested: CSF/SD verification (MOLCAS_CI_VERIFY=EPQ), full CI:
+* Features tested: CSF/SD verification (MOLCAS_CI_VERIFY), full CI:
 *                  CAS(4,4) singlet, triplet, quintet; CAS(3,4) and CAS(5,4)
 *                  doublet and quartet
 * Responsible person: Roland Lindh
-* Comments: DIAGNOSTIC TEST, EXPECTED TO FAIL until the <I|Epq|J> mismatch
-*           for upper levels in different irreps is fixed: MatEl_Epq gives
-*           sqrt(2) for p,q = 3,4 where MatEl_Epq_Ref gives 0. The checkfile
-*           was generated with the verification switched off; the energies
-*           equal those of the H4 tetrahedron tests csf_sd:012,118-120. Once
-*           it passes, move it to test/csf_sd.
+* Comments: Orientation with the C2 axes along x, y and z (1+1+1+1 orbitals).
+*           State symmetries are those of the lowest state of each spin,
+*           so all energies must agree with the other H4 tetrahedron tests
+*           (012, 118-120, 128). RASSCF runs SG_Test_EpqErs_Ref, which aborts
+*           on any mismatch against the reference codes. Before the fix of
+*           the upper closed-loop case in MatEl_Epq this was a diagnostic test.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=EPQ
+>export MOLCAS_CI_VERIFY=YES
 * Degenerate states: their multipole moments are an arbitrary mix of the
 * degenerate roots, so they are not checked.
 >export MOLCAS_NOCHECK=MLTPL

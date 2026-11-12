@@ -9,7 +9,7 @@
 * Comments: Orientation with the C2 axes along x, y and z.
 *           State symmetries are those of the lowest state of each spin,
 *           so all energies must agree with the other H4 tetrahedron tests
-*           (012, 118-120). RASSCF runs SG_Test_EpqErs_Ref, which aborts on
+*           (012, 118-120, 128). RASSCF runs SG_Test_EpqErs_Ref, which aborts on
 *           any mismatch against the reference codes.
 *-------------------------------------------------------------------------------
 >export MOLCAS_CI_VERIFY=YES
