@@ -715,11 +715,11 @@ If (Do_SGUGA) Then
 #endif
    call SG_Setup_RASSCF()
    ! Exhaustive verification of the SGUGA coupling-coefficient codes,
-   ! only on request (used by the test/sguga group):
-   !   MOLCAS_SGUGA_VERIFY=YES  <I|Epq|J> and <I|EpqErs|J>
-   !   MOLCAS_SGUGA_VERIFY=EPQ  <I|Epq|J> only
+   ! only on request (used by the test/csf_sd groups):
+   !   MOLCAS_CI_VERIFY=YES  <I|Epq|J> and <I|EpqErs|J>
+   !   MOLCAS_CI_VERIFY=EPQ  <I|Epq|J> only
    Env=' '
-   call get_environment_variable('MOLCAS_SGUGA_VERIFY',Env)
+   call get_environment_variable('MOLCAS_CI_VERIFY',Env)
    call UpCase(Env)
    select case (Env)
      case ('YES')

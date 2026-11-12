@@ -34,14 +34,14 @@ Two kinds:
   ./pymolcas verify --generate <test>   # regenerate checkfile (only when a change in results is intended)
   ```
   New test files must carry a checkfile whose `* Molcas version <commit>` is already in the branch history (enforced by `sbin/check_tests` in the pre-commit hook): commit the code first, rebuild, then `--generate`. A test without a checkfile stops at the first module unless run with `--pass`.
-- **SGUGA verification**: `test/sguga/` (light, seconds; run after any change in `src/sguga_util/`; tests 0xx are without symmetry, 1xx with symmetry) and `test/sguga_heavy/` (minutes). Both carry a `.sguga` dot file and no default-group dot files, so they never run by default:
+- **CSF/SD verification** (CSF/SD implementation, tested through the `ci_interfaces` routines): `test/csf_sd/` (light, seconds; run after any change in `src/sguga_util/`; tests 0xx are without symmetry, 1xx with symmetry) and `test/csf_sd_heavy/` (minutes). Both carry a `.csf_sd` dot file and no default-group dot files, so they never run by default:
   ```
-  ./pymolcas verify sguga
-  MOLCAS_TIMELIM=3600 ./pymolcas verify -j 2 sguga_heavy   # verify kills tests after 600 s by default
-  ./pymolcas verify .sguga                                 # both
+  ./pymolcas verify csf_sd
+  MOLCAS_TIMELIM=3600 ./pymolcas verify -j 2 csf_sd_heavy  # verify kills tests after 600 s by default
+  ./pymolcas verify .csf_sd                                # both
   ```
-  The inputs set `>export MOLCAS_SGUGA_VERIFY=...`, which makes RASSCF call `SG_Test_EpqErs_Ref` and abort on any mismatch against the reference codes: `YES` checks `<I|Epq|J>` and `<I|EpqErs|J>`, `EPQ` only `<I|Epq|J>` (used where `MatEl_EpqErs` is not yet debugged for symmetry, e.g. the H8 cube tests `sguga:010,109-115`). Without the variable, ordinary RASSCF runs skip the checks. The checks scale steeply with the number of CSFs (a few hundred CSFs already take minutes), so keep new tests small or put them in `sguga_heavy`.
-  `test/sguga_diag/` (no `.sguga` file) holds diagnostic tests that are **expected to fail** until a known bug is fixed (e.g. `sguga_diag:101`, the H4 tetrahedron in D2, `<I|Epq|J>` mismatch for upper levels in different irreps). Their checkfiles were generated with `MOLCAS_SGUGA_VERIFY=NO` (the energies do not depend on the checks) and the `>export` line then switched back; once one passes, move it to `test/sguga`. Note that the RASSCF sigma vector comes from Lucia/Faroald, not from SGUGA, so correct energies do not validate `SG_Epq_Psi`; the SGUGA sigma is only compared against Lucia when compiled with `_SGUGA_VERIFY_` (`ci_interfaces.F90`).
+  The inputs set `>export MOLCAS_CI_VERIFY=...`, which makes RASSCF call `SG_Test_EpqErs_Ref` and abort on any mismatch against the reference codes: `YES` checks `<I|Epq|J>` and `<I|EpqErs|J>`, `EPQ` only `<I|Epq|J>` (used where `MatEl_EpqErs` is not yet debugged for symmetry, e.g. the H8 cube tests `csf_sd:010,109-115`). Without the variable, ordinary RASSCF runs skip the checks. The checks scale steeply with the number of CSFs (a few hundred CSFs already take minutes), so keep new tests small or put them in `csf_sd_heavy`.
+  `test/csf_sd_diag/` (no `.csf_sd` file) holds diagnostic tests that are **expected to fail** until a known bug is fixed (e.g. `csf_sd_diag:101`, the H4 tetrahedron in D2, `<I|Epq|J>` mismatch for upper levels in different irreps). Their checkfiles were generated with `MOLCAS_CI_VERIFY=NO` (the energies do not depend on the checks) and the `>export` line then switched back; once one passes, move it to `test/csf_sd`. Note that the RASSCF sigma vector comes from Lucia/Faroald, not from SGUGA, so correct energies do not validate `SG_Epq_Psi`; the SGUGA sigma is only compared against Lucia when compiled with `_SGUGA_VERIFY_` (`ci_interfaces.F90`).
 - **Unit tests** (FRUIT-based, `unit_tests/`): built with the project, run via `ctest` in the build directory (`ctest -R <name>` for one).
 
 ## Style checks
