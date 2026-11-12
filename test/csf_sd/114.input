@@ -2,16 +2,16 @@
 * Molecule: H8 cube, edge 1 Angstrom
 * Basis: ANO-RCC-MB
 * Symmetry: D2 (Group = XY XZ)
-* Features tested: CSF/SD verification (MOLCAS_CI_VERIFY=EPQ), full CI
+* Features tested: CSF/SD verification (MOLCAS_CI_VERIFY), full CI
 *                  CAS(8,8), quintet, septet and nonet
 * Responsible person: Roland Lindh
-* Comments: Only <I|Epq|J> is verified for now (EPQ); switch to YES once
-*           MatEl_EpqErs is debugged for symmetry. Being a full CI, the
+* Comments: Full verification (YES); note that the <I|EpqErs|J> part only
+*           tests totally symmetric operators. Being a full CI, the
 *           energies must agree with the other H8 cube tests (010, 109-115).
 *           Quintet and septet in the irrep of the lowest state of each
 *           spin; the singlet and triplet are in csf_sd_heavy:104-107.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=EPQ
+>export MOLCAS_CI_VERIFY=YES
 * Degenerate states: their multipole moments are an arbitrary mix of the
 * degenerate roots, so they are not checked.
 >export MOLCAS_NOCHECK=MLTPL
