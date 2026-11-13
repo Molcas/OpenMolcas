@@ -5858,19 +5858,19 @@ do MV=1,CIS%nMidV
       IOFF = CIS%IOCSF(ISYUP,MV,ISYCI)
       NCI  = CIS%NOCSF(ISYUP,MV,ISYCI)
 
-      if (NCI == 0) cycle
+      ! CSF iCSF lies in this (MV,ISYUP) block
+      if ((NCI > 0) .and. (iCSF > IOFF) .and. (iCSF <= IOFF+NCI)) then
 
-      if (iCSF <= IOFF) cycle
-      if (iCSF >  IOFF+NCI) cycle
+         ILOC = iCSF-IOFF
 
-      ILOC = iCSF-IOFF
+         NUP = CIS%NOW(1,ISYUP,MV)
 
-      NUP = CIS%NOW(1,ISYUP,MV)
+         IDWN = (ILOC-1)/NUP + 1
+         IUP  = ILOC - (IDWN-1)*NUP
 
-      IDWN = (ILOC-1)/NUP + 1
-      IUP  = ILOC - (IDWN-1)*NUP
+         return
 
-      return
+      end if
 
    end do
 
@@ -7928,13 +7928,14 @@ do iRight=1,NRight
 
       do iTerm=1,nTerm
 
-         if (IFrom(iTerm) /= FromRight) cycle
-         if (ITo(iTerm)   /= ToLeft)    cycle
+         if ((IFrom(iTerm) == FromRight) .and. (ITo(iTerm) == ToLeft)) then
 
-         XVal(iTerm) = XVal(iTerm) + X
+            XVal(iTerm) = XVal(iTerm) + X
 
-         Found = .true.
-         exit
+            Found = .true.
+            exit
+
+         end if
 
       end do
 
@@ -8399,13 +8400,14 @@ do iRight=1,NRight
 
       do iTerm=1,nTerm
 
-         if (IFrom(iTerm) /= FromRight) cycle
-         if (ITo(iTerm)   /= ToLeft)    cycle
+         if ((IFrom(iTerm) == FromRight) .and. (ITo(iTerm) == ToLeft)) then
 
-         XVal(iTerm) = XVal(iTerm) + X
+            XVal(iTerm) = XVal(iTerm) + X
 
-         Found = .true.
-         exit
+            Found = .true.
+            exit
+
+         end if
 
       end do
 
@@ -10078,11 +10080,11 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     ! src==JUP, irow==IUP
     do a=1,NCP1
       src =MERGE(EXS%ICOUP(2,LICP1+a),EXS%ICOUP(1,LICP1+a),Swap)
-      if (src /= JUP) cycle
       irow=MERGE(EXS%ICOUP(1,LICP1+a),EXS%ICOUP(2,LICP1+a),Swap)
-      if (irow/= IUP) Cycle
-      Upper_Factor=EXS%VTab(EXS%ICOUP(3,LICP1+a))
-      exit
+      if ((src == JUP) .and. (irow == IUP)) then
+        Upper_Factor=EXS%VTab(EXS%ICOUP(3,LICP1+a))
+        exit
+      end if
     end do
 
     If (Upper_Factor==Zero) Return
@@ -10104,11 +10106,11 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     ! icol==JDN, Dst==IDN
     do b=1,NCP2
       icol=MERGE(EXS%ICOUP(2,LICP2+b),EXS%ICOUP(1,LICP2+b),Swap)
-      if (icol /= JDN ) cycle
       dst =MERGE(EXS%ICOUP(1,LICP2+b),EXS%ICOUP(2,LICP2+b),Swap)
-      if (dst /= IDN) cycle
-      Lower_Factor=EXS%VTab(EXS%ICOUP(3,LICP2+b))
-      exit
+      if ((icol == JDN) .and. (dst == IDN)) then
+        Lower_Factor=EXS%VTab(EXS%ICOUP(3,LICP2+b))
+        exit
+      end if
     end do
 
     If (Lower_Factor==Zero) Return

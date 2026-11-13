@@ -95,7 +95,11 @@ IAD15 = IADR15(1)
 ! Modify root index in case of MS
 call mma_allocate(JROOT,MXROOT,LABEL='JROOT')
 if (IFMSCOUP) then
-  JROOT(1:NSTATE) = [(ISTATE,ISTATE=1,NSTATE)]
+  ! Explicit loop instead of an implied-DO array constructor, which ifx
+  ! (BIGOT build) rejects here with error #6405 for NSTATE.
+  do ISTATE=1,NSTATE
+    JROOT(ISTATE) = ISTATE
+  end do
   JROOT(NSTATE+1:) = 0
   MROOTS = NSTATE
 else
