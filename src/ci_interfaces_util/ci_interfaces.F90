@@ -31,7 +31,8 @@ use CI_Verify_Options, only: CI_Verify
 
 Private
 
-Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, CI_Timer, CI_Initialize, CI_Close, CI_Verify
+Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
+Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
@@ -906,6 +907,125 @@ endif
 #endif
 
 End subroutine Mk_IHI
+
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
+
+!> Layout of the CSF basis of symmetry IREFSM by configuration:
+!> nCSFCnf(k) is the number of CSFs of the k-th configuration, the
+!> configurations being in the order of the CSF basis (the CSFs of one
+!> configuration are consecutive). Allocated here, to be freed by the caller
+!> with mma_deallocate. (Lucia back end: configuration types from spinfo.)
+subroutine Mk_Cnf_Layout(IREFSM,nCSFCnf)
+use spinfo, only: NCNFTP, NCSFTP, NTYP
+
+integer(kind=iwp), intent(in) :: IREFSM
+integer(kind=iwp), allocatable, intent(out) :: nCSFCnf(:)
+integer(kind=iwp) :: iTyp, iCnf, k
+
+call mma_allocate(nCSFCnf,sum(NCNFTP(1:NTYP,IREFSM)),Label='nCSFCnf')
+k = 0
+do iTyp=1,NTYP
+  do iCnf=1,NCNFTP(iTyp,IREFSM)
+    k = k+1
+    nCSFCnf(k) = NCSFTP(iTyp)
+  end do
+end do
+
+end subroutine Mk_Cnf_Layout
+
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
+
+!> Explicit CI Hamiltonian <I|H|J> over the CSFs of the configurations
+!> IPCNF(1:NPCNF) of symmetry IREFSM (configuration indices as in
+!> Mk_Cnf_Layout), packed as a lower triangle: the CSFs are ordered
+!> configuration by configuration in the order given, the CSFs of each
+!> configuration consecutively. TU and TUVX are the one- and two-electron
+!> integrals in triangular packing (as for Mk_IHI); ECORE is added on the
+!> diagonal. (Lucia back end: CNHCN for each pair of configurations.)
+subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
+use Index_Functions, only: nTri_Elem
+use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS
+use csfbas, only: NAEL, NBEL
+use rasscf_global, only: ExFac
+use spinfo, only: NCSFTP, NDTFTP, NTYP
+
+integer(kind=iwp), intent(in) :: nPHP, NPCNF, IPCNF(NPCNF), IREFSM, nTU, nTUVX
+real(kind=wp), intent(out) :: PHP(nPHP)
+real(kind=wp), intent(in) :: ECORE, TU(nTU), TUVX(nTUVX)
+integer(kind=iwp), intent(inout) :: NTEST
+integer(kind=iwp) :: NEL, MXDT, MXCS, nScr, ICNL, ICNR, ILTYP, IRTYP, NCSFL, NCSFR, IILB, IIRB, IIL, IIR, IIRMAX, NPCSF
+integer(kind=iwp), allocatable :: ICONFL(:), ICONFR(:)
+real(kind=wp), allocatable :: HONE(:,:), CNHCNM(:), Scr(:)
+
+NEL = NAEL+NBEL
+MXDT = maxval(NDTFTP(1:NTYP))
+MXCS = maxval(NCSFTP(1:NTYP))
+
+! Size check: the CSFs of the selected configurations must fit into PHP.
+NPCSF = 0
+do ICNL=1,NPCNF
+  call GetCnf_Type(ICNL,ILTYP)
+  NPCSF = NPCSF+NCSFTP(ILTYP)
+end do
+if (nTri_Elem(NPCSF) > nPHP) then
+  write(u6,*) 'Mk_IHJ: PHP too small for the selected CSFs:',nTri_Elem(NPCSF),nPHP
+  call Abend()
+end if
+
+! One-body matrix in square storage, as CNHCN wants it.
+call mma_allocate(HONE,NAC,NAC,Label='HONE')
+call SQUARE(TU,HONE,NAC,1,NAC)
+
+! Scratch for CNHCN: determinant strings and signs of both configurations,
+! CNFSTR work space, the determinant block, DIHDJ_MOLCAS work space and the
+! half-transformed block.
+nScr = 2*MXDT*(NEL+1)+NEL*(MXDT+1)+MXDT*MXDT+4*NAC+MXDT+MXCS*MXDT+64
+call mma_allocate(Scr,nScr,Label='IHJ_Scr')
+call mma_allocate(CNHCNM,MXCS*MXCS,Label='CNHCNM')
+call mma_allocate(ICONFL,NEL,Label='ICONFL')
+call mma_allocate(ICONFR,NEL,Label='ICONFR')
+
+IILB = 1
+do ICNL=1,NPCNF
+  call GETCNF(ICONFL,ILTYP,IPCNF(ICNL),Conf_Occ(IREFSM)%A,IREFSM,NEL)
+  NCSFL = NCSFTP(ILTYP)
+  IIRB = 1
+  do ICNR=1,ICNL
+    call GETCNF(ICONFR,IRTYP,IPCNF(ICNR),Conf_Occ(IREFSM)%A,IREFSM,NEL)
+    NCSFR = NCSFTP(IRTYP)
+    call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECORE,HONE,DFTP,DTOC,NAC,TUVX,NTEST,ExFac,IREOTS)
+    do IIL=1,NCSFL
+      IIRMAX = merge(IIL,NCSFR,IILB == IIRB)
+      do IIR=1,IIRMAX
+        PHP(nTri_Elem(IILB-1+IIL-1)+IIRB-1+IIR) = CNHCNM((IIR-1)*NCSFL+IIL)
+      end do
+    end do
+    IIRB = IIRB+NCSFR
+  end do
+  IILB = IILB+NCSFL
+end do
+
+call mma_deallocate(ICONFR)
+call mma_deallocate(ICONFL)
+call mma_deallocate(CNHCNM)
+call mma_deallocate(Scr)
+call mma_deallocate(HONE)
+
+contains
+
+  ! Configuration type of the selected configuration iSel.
+  subroutine GetCnf_Type(iSel,iTypOut)
+    integer(kind=iwp), intent(in) :: iSel
+    integer(kind=iwp), intent(out) :: iTypOut
+    integer(kind=iwp), allocatable :: iTmp(:)
+    call mma_allocate(iTmp,NEL,Label='iTmp')
+    call GETCNF(iTmp,iTypOut,IPCNF(iSel),Conf_Occ(IREFSM)%A,IREFSM,NEL)
+    call mma_deallocate(iTmp)
+  end subroutine GetCnf_Type
+
+end subroutine Mk_IHJ
 
 subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
 

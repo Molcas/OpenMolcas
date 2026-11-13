@@ -48,16 +48,13 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use csfbas, only: NAEL, NBEL
 use timers, only: TimeHSel
-use lucia_data, only: DFTP, DTOC, IREOTS
-use rasscf_global, only: ExFac, NAC
+use rasscf_global, only: NAC, NACPR2
 use rasscf_files, only: LUDAVID
 use general_data, only: NCONF, NSEL, STSYM
-use spinfo, only: NCNASM
 use output_ras, only: IPRLOC
 use PrintLevel, only: INSANE
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -67,10 +64,9 @@ implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
 real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: ISEL(*)
-integer(kind=iwp) :: I, II, IPRINT, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
+integer(kind=iwp) :: I, II, IPRINT, IPRLEV, MXXSEL, NHEX
 real(kind=wp) :: dum1, dum2, dum3, ECORE, Time(2)
-integer(kind=iwp), allocatable :: CNF(:)
-real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
+real(kind=wp), allocatable :: EXHAM(:), Scr(:)
 
 call Timing(Time(1),dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
@@ -81,33 +77,22 @@ NHEX = nTri_Elem(NSEL)
 
 ! ALLOCATE LOCAL MEMORY
 
-call mma_allocate(CNF,NCNASM(STSYM),label='IPCNF')
-call mma_allocate(HONE,NAC,NAC,label='HONE')
 call mma_allocate(EXHAM,NHEX,label='EXHAM')
-
-! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
-
-call SQUARE(ONEINT,HONE,NAC,1,NAC)
 
 ! Load the diagonal approximation of the CI Hamiltonian
 
 call Load_H_diag(nConf,DIAG,LuDavid)
 
 ! CONSTRUCT THE EXPLICIT HAMILTONIAN
+! (selection of the subspace and <I|H|J> through the CI interface)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call mma_maxDBLE(MXXWS)
-call mma_allocate(Scr,MXXWS,label='EXHSCR')
-call PHPCSF(EXHAM,ISEL,CNF,MXXSEL,DTOC,DFTP,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX, &
-            IPRINT,ExFac,IREOTS)
+call PHPCSF(EXHAM,ISEL,MXXSEL,STSYM,ECORE,NSEL,DIAG,ONEINT,nTri_Elem(NAC),TUVX,NACPR2,IPRINT)
 if (IPRLEV == INSANE) then
   call Square(EXHAM,EXPLV,1,NSEL,NSEL)
   call RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
 end if
-call mma_deallocate(Scr)
-call mma_deallocate(CNF)
-call mma_deallocate(HONE)
 
 ! DIAGONALIZE THE EXPLICIT HAMILTONIAN.
 
