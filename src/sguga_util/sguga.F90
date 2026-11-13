@@ -6693,11 +6693,12 @@ integer(kind=iwp), parameter :: iUO = 5
 integer(kind=iwp), parameter :: iOU = 6
 integer(kind=iwp), parameter :: iLO = 7
 integer(kind=iwp), parameter :: iOL = 8
+integer(kind=iwp), parameter :: iOO = 9
 
-integer(kind=iwp), parameter :: nTopology = 8
+integer(kind=iwp), parameter :: nTopology = 9
 
 character(len=2), parameter :: TopologyName(nTopology) = &
-   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU', 'UO', 'OU', 'LO', 'OL' ]
+   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU', 'UO', 'OU', 'LO', 'OL', 'OO' ]
 
 !
 ! Diagonal-status classes.
@@ -6898,7 +6899,7 @@ write(u6,'(A,I0)') 'Number of CSFs:         ', &
 write(u6,*)
 
 !
-! Test all eight operator-product topologies:
+! Test all nine operator-product topologies:
 !
 !     UU: E_pq(upper) E_rs(upper)
 !     LL: E_pq(lower) E_rs(lower)
@@ -6908,6 +6909,7 @@ write(u6,*)
 !     OU: E_pq(open) E_rs(upper)
 !     LO: E_pq(lower) E_rs(open)
 !     OL: E_pq(open) E_rs(lower)
+!     OO: E_pq(open) E_rs(open)
 !
 do iTopology=1,nTopology
 
@@ -6964,6 +6966,12 @@ do iTopology=1,nTopology
       qMin=1; qMax=SGS(iState)%nLev
       rMin=1; rMax=SGS(iState)%MidLev
       sMin=1; sMax=SGS(iState)%MidLev
+   case (iOO)
+      ! Both operators open (filtered below).
+      pMin=1; pMax=SGS(iState)%nLev
+      qMin=1; qMax=SGS(iState)%nLev
+      rMin=1; rMax=SGS(iState)%nLev
+      sMin=1; sMax=SGS(iState)%nLev
 !     Restrict to only canonical case r > s
 !     rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
 !     sMin=1; sMax=SGS(iState)%MidLev
@@ -6987,7 +6995,7 @@ do iTopology=1,nTopology
    do p=pMin,pMax
       do q=qMin,qMax
 
-         if ((iTopology==iOU) .or. (iTopology==iOL)) then
+         if ((iTopology==iOU) .or. (iTopology==iOL) .or. (iTopology==iOO)) then
             ! Enforce that the first operator is open
             if (p==q) cycle
             if ((p>SGS(iState)%MidLev) .eqv. &
@@ -7010,7 +7018,7 @@ do iTopology=1,nTopology
          do r=rMin,rMax
             do s=sMin,sMax
 
-               if ((iTopology==iUO) .or. (iTopology==iLO)) then
+               if ((iTopology==iUO) .or. (iTopology==iLO) .or. (iTopology==iOO)) then
                   ! Enforce that the second operator is open
                   if (r==s) cycle
                   if ((r>SGS(iState)%MidLev) .eqv. &
@@ -7212,6 +7220,10 @@ do iTopology=1,nTopology
                      case (iOL)
 
                         XTest = MatEl_EpqErs_OL( LSM,I,J,p,q,r,s )
+
+                     case (iOO)
+
+                        XTest = MatEl_EpqErs_OO( LSM,I,J,p,q,r,s )
 
                      case default
 
@@ -10013,6 +10025,147 @@ ISYCI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)), &
 Value = MatEl_EpqErs_LO(ISYCI,J,I,s,r,q,p)
 
 end function MatEl_EpqErs_OL
+
+!
+! Compute <I|EpqErs|J> with both E_pq and E_rs open (crossing the midlevel)
+! as Sum_K <I|Epq|K><K|Ers|J>, where each open loop factorises into an
+! upper and a lower coupling coefficient:
+!
+!   <I|Epq|K> = A(Iu,Ku) x A(Il,Kl),   <K|Ers|J> = A(Ku,Ju) x A(Kl,Jl)
+!
+! so that the sum over K separates for each intermediate midvertex m_K:
+!
+!   Sum_mK [ Sum_Ku A(Iu,Ku) A(Ku,Ju) ] x [ Sum_Kl A(Il,Kl) A(Kl,Jl) ]
+!
+! m_K runs over the (at most two) midvertices reached from m_I by the band
+! of E_pq, from which m_J is reached by the band of E_rs. Both operators may
+! have either orientation (upper index first or second); the coupling
+! tables are accessed as in the open-loop case of MatEl_Epq. The
+! symmetries of the bra, the ket and K are kept separate, so this also holds
+! for symmetry-changing operators. ISYCJ is the symmetry of the ket J.
+!
+function MatEl_EpqErs_OO(ISYCJ,I,J,p,q,r,s) result(Value)
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+use Symmetry_Info, only: Mul
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r,s
+
+real(kind=wp) :: Value
+real(kind=wp) :: XU, XL, X2
+
+integer(kind=iwp) :: MidLev, nLev
+integer(kind=iwp) :: ISYCI
+integer(kind=iwp) :: MVI,MVJ,MVK,MV1,MV2
+integer(kind=iwp) :: ISYUI,ISYUJ,ISYUK,ISYDI,ISYDJ,ISYDK
+integer(kind=iwp) :: IUI,IUJ,IDI,IDJ
+integer(kind=iwp) :: U1,L1,U2,L2
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: N1,Off1,N2,Off2
+integer(kind=iwp) :: i1,i2,iK
+logical(kind=iwp) :: Swap1, Swap2
+
+Value=Zero
+MidLev=SGS(iState)%MidLev
+nLev  =SGS(iState)%nLev
+
+! Both operators must be open.
+if (min(p,q,r,s) < 1 .or. max(p,q,r,s) > nLev) return
+if ((p > MidLev) .eqv. (q > MidLev)) return
+if ((r > MidLev) .eqv. (s > MidLev)) return
+
+! Upper (U) and lower (L) index of each operator, and its orientation.
+Swap1 = q > p
+U1 = max(p,q); L1 = min(p,q)
+Swap2 = s > r
+U2 = max(r,s); L2 = min(r,s)
+
+ISYCI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)), &
+            Mul(Mul(SGS(iState)%ISm(r),SGS(iState)%ISm(s)),ISYCJ))
+if (I < 1 .or. I > CIS(iState)%NCSF(ISYCI)) return
+if (J < 1 .or. J > CIS(iState)%NCSF(ISYCJ)) return
+
+call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_CSF(CIS(iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+ISYDI=Mul(ISYCI,ISYUI)
+ISYDJ=Mul(ISYCJ,ISYUJ)
+
+! Symmetries of the halves of K: E_pq takes K to I.
+ISYUK=Mul(SGS(iState)%ISm(U1),ISYUI)
+ISYDK=Mul(SGS(iState)%ISm(L1),ISYDI)
+! and E_rs takes J to K.
+if (ISYUJ /= Mul(SGS(iState)%ISm(U2),ISYUK)) return
+if (ISYDJ /= Mul(SGS(iState)%ISm(L2),ISYDK)) return
+
+do MV1 = 1, 2
+   ! Intermediate midvertex m_K reached from m_I by E_pq.
+   MVK = merge(EXS(iState)%MVR(MVI,MV1),EXS(iState)%MVL(MVI,MV1),Swap1)
+   if (MVK == 0) cycle
+   ! Band of E_rs from m_K that reaches m_J.
+   MV2 = 0
+   do iK = 1, 2
+      if (merge(EXS(iState)%MVR(MVK,iK),EXS(iState)%MVL(MVK,iK),Swap2) == MVJ) MV2 = iK
+   end do
+   if (MV2 == 0) cycle
+
+   ! ------------------------------------------------------------
+   ! Upper half: XU = Sum_Ku A_pq(Iu,Ku) A_rs(Ku,Ju)
+   ! ------------------------------------------------------------
+   INDEO = (MV2-1)*nLev+U2
+   N2   = merge(EXS(iState)%NOCP(INDEO,ISYUK,MVK),EXS(iState)%NOCP(INDEO,ISYUJ,MVJ),Swap2)
+   Off2 = merge(EXS(iState)%IOCP(INDEO,ISYUK,MVK),EXS(iState)%IOCP(INDEO,ISYUJ,MVJ),Swap2)
+   if (N2 == 0) cycle
+   INDEO = (MV1-1)*nLev+U1
+   N1   = merge(EXS(iState)%NOCP(INDEO,ISYUI,MVI),EXS(iState)%NOCP(INDEO,ISYUK,MVK),Swap1)
+   Off1 = merge(EXS(iState)%IOCP(INDEO,ISYUI,MVI),EXS(iState)%IOCP(INDEO,ISYUK,MVK),Swap1)
+   if (N1 == 0) cycle
+   XU = Zero
+   do i2 = 1, N2
+      ! E_rs: ket Ju, bra Ku
+      if (merge(EXS(iState)%ICoup(2,Off2+i2),EXS(iState)%ICoup(1,Off2+i2),Swap2) /= IUJ) cycle
+      iK = merge(EXS(iState)%ICoup(1,Off2+i2),EXS(iState)%ICoup(2,Off2+i2),Swap2)
+      X2 = EXS(iState)%VTab(EXS(iState)%ICoup(3,Off2+i2))
+      do i1 = 1, N1
+         ! E_pq: ket Ku, bra Iu
+         if (merge(EXS(iState)%ICoup(2,Off1+i1),EXS(iState)%ICoup(1,Off1+i1),Swap1) /= iK) cycle
+         if (merge(EXS(iState)%ICoup(1,Off1+i1),EXS(iState)%ICoup(2,Off1+i1),Swap1) /= IUI) cycle
+         XU = XU+EXS(iState)%VTab(EXS(iState)%ICoup(3,Off1+i1))*X2
+      end do
+   end do
+   if (XU == Zero) cycle
+
+   ! ------------------------------------------------------------
+   ! Lower half: XL = Sum_Kl A_pq(Il,Kl) A_rs(Kl,Jl)
+   ! ------------------------------------------------------------
+   INDEO = (MV2-1)*nLev+L2
+   N2   = merge(EXS(iState)%NOCP(INDEO,ISYDK,MVK),EXS(iState)%NOCP(INDEO,ISYDJ,MVJ),Swap2)
+   Off2 = merge(EXS(iState)%IOCP(INDEO,ISYDK,MVK),EXS(iState)%IOCP(INDEO,ISYDJ,MVJ),Swap2)
+   if (N2 == 0) cycle
+   INDEO = (MV1-1)*nLev+L1
+   N1   = merge(EXS(iState)%NOCP(INDEO,ISYDI,MVI),EXS(iState)%NOCP(INDEO,ISYDK,MVK),Swap1)
+   Off1 = merge(EXS(iState)%IOCP(INDEO,ISYDI,MVI),EXS(iState)%IOCP(INDEO,ISYDK,MVK),Swap1)
+   if (N1 == 0) cycle
+   XL = Zero
+   do i2 = 1, N2
+      ! E_rs: ket Jl, bra Kl
+      if (merge(EXS(iState)%ICoup(2,Off2+i2),EXS(iState)%ICoup(1,Off2+i2),Swap2) /= IDJ) cycle
+      iK = merge(EXS(iState)%ICoup(1,Off2+i2),EXS(iState)%ICoup(2,Off2+i2),Swap2)
+      X2 = EXS(iState)%VTab(EXS(iState)%ICoup(3,Off2+i2))
+      do i1 = 1, N1
+         ! E_pq: ket Kl, bra Il
+         if (merge(EXS(iState)%ICoup(2,Off1+i1),EXS(iState)%ICoup(1,Off1+i1),Swap1) /= iK) cycle
+         if (merge(EXS(iState)%ICoup(1,Off1+i1),EXS(iState)%ICoup(2,Off1+i1),Swap1) /= IDI) cycle
+         XL = XL+EXS(iState)%VTab(EXS(iState)%ICoup(3,Off1+i1))*X2
+      end do
+   end do
+
+   Value = Value+XU*XL
+end do
+
+end function MatEl_EpqErs_OO
 
 function MatEl_EpqErs_LU( &
            ISYCI, &
