@@ -31,7 +31,7 @@ use CI_Verify_Options, only: CI_Verify
 
 Private
 
-Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close, CI_Verify
+Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, CI_Timer, CI_Initialize, CI_Close, CI_Verify
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
@@ -743,7 +743,12 @@ end subroutine CI_Close
 ! <Psi|H|Psi> using the routine sg_h_psi.
 !#define _SGUGA_VERIFY_EXTRA_
 
-subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
+!> Diagonal of the CI Hamiltonian in the CSF basis, CSFDIA(I) = <I|H|I>.
+!> Computed by Lucia; with DoFaro also by Faroald (compared, then used),
+!> and optionally by SGUGA (sg_hdiag_ref/sg_hdiag_fast, compiled with
+!> _SGUGA_VERIFY_EXTRA_). The counterpart for an explicit block <I|H|J>
+!> of selected CSFs is to follow as Mk_IHJ.
+subroutine Mk_IHI(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
@@ -900,7 +905,7 @@ endif
 
 #endif
 
-End subroutine Mk_CI_Diag
+End subroutine Mk_IHI
 
 subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
 

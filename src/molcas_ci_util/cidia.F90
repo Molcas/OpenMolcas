@@ -19,7 +19,7 @@ subroutine CIDIA(NCONF,CSFDIA,LUDAVID)
 ! NCONF :  NO. OF CSF
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
-use CI_Interfaces, only: Mk_CI_Diag
+use CI_Interfaces, only: Mk_IHI
 use wadr, only: FMO, TUVX
 use timers, only: TimeHDiag
 use Definitions, only: wp, iwp
@@ -31,7 +31,7 @@ real(kind=wp) :: dum1, dum2, dum3, Time(2)
 
 call Timing(Time(1),dum1,dum2,dum3)
 
-Call Mk_CI_Diag(CSFDIA,nConf,FMO,size(FMO),TUVX,size(TUVX))
+Call Mk_IHI(CSFDIA,nConf,FMO,size(FMO),TUVX,size(TUVX))
 
 ! PRINT CI-DIAGONAL
 
