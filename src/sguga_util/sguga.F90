@@ -6690,11 +6690,12 @@ integer(kind=iwp), parameter :: iLL = 2
 integer(kind=iwp), parameter :: iUL = 3
 integer(kind=iwp), parameter :: iLU = 4
 integer(kind=iwp), parameter :: iUO = 5
+integer(kind=iwp), parameter :: iOU = 6
 
-integer(kind=iwp), parameter :: nTopology = 5
+integer(kind=iwp), parameter :: nTopology = 6
 
 character(len=2), parameter :: TopologyName(nTopology) = &
-   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU', 'UO' ]
+   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU', 'UO', 'OU' ]
 
 !
 ! Diagonal-status classes.
@@ -6895,13 +6896,14 @@ write(u6,'(A,I0)') 'Number of CSFs:         ', &
 write(u6,*)
 
 !
-! Test all five operator-product topologies:
+! Test all six operator-product topologies:
 !
 !     UU: E_pq(upper) E_rs(upper)
 !     LL: E_pq(lower) E_rs(lower)
 !     UL: E_pq(upper) E_rs(lower)
 !     LU: E_pq(lower) E_rs(upper)
 !     UO: E_pq(upper) E_rs(open, i.e. crossing the midlevel)
+!     OU: E_pq(open) E_rs(upper)
 !
 do iTopology=1,nTopology
 
@@ -6940,6 +6942,12 @@ do iTopology=1,nTopology
       qMin=pMin; qMax=pMax
       rMin=1; rMax=SGS(iState)%nLev
       sMin=1; sMax=SGS(iState)%nLev
+   case (iOU)
+      ! First operator open (filtered below), second operator upper.
+      pMin=1; pMax=SGS(iState)%nLev
+      qMin=1; qMax=SGS(iState)%nLev
+      rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
+      sMin=rMin; sMax=rMax
 !     Restrict to only canonical case r > s
 !     rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
 !     sMin=1; sMax=SGS(iState)%MidLev
@@ -6962,6 +6970,13 @@ do iTopology=1,nTopology
    !
    do p=pMin,pMax
       do q=qMin,qMax
+
+         if (iTopology==iOU) then
+            ! Enforce that the first operator is open
+            if (p==q) cycle
+            if ((p>SGS(iState)%MidLev) .eqv. &
+                (q>SGS(iState)%MidLev)) cycle
+         end if
 
          FirstDiagonal  = p == q
          FirstCanonical = p > q
@@ -7169,6 +7184,10 @@ do iTopology=1,nTopology
                         End If
 
                         XTest = MatEl_EpqErs_UO( LSM,I,J,p,q,r,s )
+
+                     case (iOU)
+
+                        XTest = MatEl_EpqErs_OU( LSM,I,J,p,q,r,s )
 
                      case default
 
@@ -9702,6 +9721,35 @@ Value=XUpper*XLower
 If (Verbose) Write (u6,*) 'Value=',Value
 
 end function MatEl_EpqErs_UO
+
+!
+! <I|E_pq E_rs|J> with E_pq open (crossing the midlevel) and E_rs in the
+! upper half.
+!
+! For real CI vectors <I|E_pq E_rs|J> = <J|(E_pq E_rs)^+|I> = <J|E_sr E_qp|I>,
+! and E_sr E_qp is an upper x open product, so this is MatEl_EpqErs_UO with
+! bra and ket exchanged and the indices (p,q,r,s) -> (s,r,q,p). (Unlike the
+! UL/LU case the two operators may share an upper level, so they do not
+! commute in general.)
+!
+! MatEl_EpqErs_UO takes the symmetry of its ket, here I:
+! Gamma(I) = Gamma(p) Gamma(q) Gamma(r) Gamma(s) Gamma(J).
+!
+function MatEl_EpqErs_OU(ISYCJ,I,J,p,q,r,s) result(Value)
+
+use Symmetry_Info, only: Mul
+use Definitions, only: wp, iwp
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r,s
+real(kind=wp) :: Value
+integer(kind=iwp) :: ISYCI
+
+ISYCI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)), &
+            Mul(Mul(SGS(iState)%ISm(r),SGS(iState)%ISm(s)),ISYCJ))
+Value = MatEl_EpqErs_UO(ISYCI,J,I,s,r,q,p)
+
+end function MatEl_EpqErs_OU
 
 function MatEl_EpqErs_LU( &
            ISYCI, &
