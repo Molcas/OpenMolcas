@@ -8753,221 +8753,6 @@ end do
 
 end function MatEl_Lower_One
 
-subroutine Contract_Lower_Blocks( &
-           INDEO_Right,Reverse_Right, &
-           INDEO_Left, Reverse_Left,  &
-           ISYDWN,ISYK,MV, &
-           nTerm, &
-           IFrom,ITo,XVal )
-
-use Definitions, only: iwp, wp
-use stdalloc,    only: mma_allocate
-
-implicit none
-
-!
-! Contract the ordered lower-walk product
-!
-!     E_Left E_Right.
-!
-! The rightmost operator acts first:
-!
-!     IFrom --E_Right--> K --E_Left--> ITo.
-!
-! The coupling tables store the canonical orientation with
-! the larger orbital index first. Reverse_Right and
-! Reverse_Left transpose the corresponding transitions.
-!
-
-integer(kind=iwp), intent(in) :: INDEO_Right
-integer(kind=iwp), intent(in) :: INDEO_Left
-
-logical, intent(in) :: Reverse_Right
-logical, intent(in) :: Reverse_Left
-
-! A coupling block is indexed by the symmetry of its ICoup(1) walk, the
-! source in canonical orientation (the destination if reversed). IFrom and
-! ITo have the symmetry ISYDWN, the intermediate walk K the symmetry ISYK
-! (= ISYDWN for totally symmetric operators).
-integer(kind=iwp), intent(in) :: ISYDWN
-integer(kind=iwp), intent(in) :: ISYK
-integer(kind=iwp), intent(in) :: MV
-
-integer(kind=iwp), intent(out) :: nTerm
-
-integer(kind=iwp), allocatable, intent(out) :: IFrom(:)
-integer(kind=iwp), allocatable, intent(out) :: ITo(:)
-
-real(kind=wp), allocatable, intent(out) :: XVal(:)
-
-integer(kind=iwp) :: NRight
-integer(kind=iwp) :: NLeft
-integer(kind=iwp) :: ISYRight
-integer(kind=iwp) :: ISYLeft
-
-integer(kind=iwp) :: OffRight
-integer(kind=iwp) :: OffLeft
-
-integer(kind=iwp) :: iRight
-integer(kind=iwp) :: iLeft
-integer(kind=iwp) :: iTerm
-
-integer(kind=iwp) :: FromRight
-integer(kind=iwp) :: ToRight
-
-integer(kind=iwp) :: FromLeft
-integer(kind=iwp) :: ToLeft
-
-integer(kind=iwp) :: iValueRight
-integer(kind=iwp) :: iValueLeft
-
-real(kind=wp) :: XRight
-real(kind=wp) :: XLeft
-real(kind=wp) :: X
-
-logical :: Found
-
-ISYRight = merge(ISYK,ISYDWN,Reverse_Right)
-ISYLeft  = merge(ISYDWN,ISYK,Reverse_Left)
-
-NRight = EXS(ME_iState)%NOCP( &
-              INDEO_Right,ISYRight,MV )
-
-NLeft = EXS(ME_iState)%NOCP( &
-             INDEO_Left,ISYLeft,MV )
-
-if (NRight == 0 .or. NLeft == 0) then
-
-   nTerm = 0
-
-   call mma_allocate(IFrom,1,Label='IFrom')
-   call mma_allocate(ITo,  1,Label='ITo')
-   call mma_allocate(XVal, 1,Label='XVal')
-
-   return
-
-end if
-
-OffRight = EXS(ME_iState)%IOCP( &
-               INDEO_Right,ISYRight,MV )
-
-OffLeft = EXS(ME_iState)%IOCP( &
-              INDEO_Left,ISYLeft,MV )
-
-call mma_allocate( &
-     IFrom,NRight*NLeft,Label='IFrom')
-
-call mma_allocate( &
-     ITo,NRight*NLeft,Label='ITo')
-
-call mma_allocate( &
-     XVal,NRight*NLeft,Label='XVal')
-
-nTerm = 0
-
-!
-! The rightmost operator acts first:
-!
-!     FromRight --E_Right--> ToRight.
-!
-do iRight=1,NRight
-
-   if (.not. Reverse_Right) then
-
-      !
-      ! Canonical orientation.
-      !
-      FromRight = EXS(ME_iState)%ICoup(1,OffRight+iRight)
-      ToRight   = EXS(ME_iState)%ICoup(2,OffRight+iRight)
-
-   else
-
-      !
-      ! Reverse orientation:
-      !
-      !     E_rs = E_sr^dagger.
-      !
-      FromRight = EXS(ME_iState)%ICoup(2,OffRight+iRight)
-      ToRight   = EXS(ME_iState)%ICoup(1,OffRight+iRight)
-
-   end if
-
-   iValueRight = EXS(ME_iState)%ICoup(3,OffRight+iRight)
-   XRight = EXS(ME_iState)%VTab(iValueRight)
-
-   !
-   ! The left operator acts second:
-   !
-   !     FromLeft --E_Left--> ToLeft.
-   !
-   do iLeft=1,NLeft
-
-      if (.not. Reverse_Left) then
-
-         !
-         ! Canonical orientation.
-         !
-         FromLeft = EXS(ME_iState)%ICoup(1,OffLeft+iLeft)
-         ToLeft   = EXS(ME_iState)%ICoup(2,OffLeft+iLeft)
-
-      else
-
-         !
-         ! Reverse orientation:
-         !
-         !     E_pq = E_qp^dagger.
-         !
-         FromLeft = EXS(ME_iState)%ICoup(2,OffLeft+iLeft)
-         ToLeft   = EXS(ME_iState)%ICoup(1,OffLeft+iLeft)
-
-      end if
-
-      !
-      ! Resolution-of-identity contraction over the
-      ! intermediate lower walk:
-      !
-      !     ToRight = FromLeft = K_L.
-      !
-      if (ToRight /= FromLeft) cycle
-
-      iValueLeft = EXS(ME_iState)%ICoup(3,OffLeft+iLeft)
-      XLeft = EXS(ME_iState)%VTab(iValueLeft)
-
-      X = XLeft*XRight
-
-      !
-      ! Accumulate contributions with identical initial
-      ! and final lower walks.
-      !
-      Found = .false.
-
-      do iTerm=1,nTerm
-
-         if ((IFrom(iTerm) == FromRight) .and. (ITo(iTerm) == ToLeft)) then
-
-            XVal(iTerm) = XVal(iTerm) + X
-
-            Found = .true.
-            exit
-
-         end if
-
-      end do
-
-      if (.not. Found) then
-
-         nTerm = nTerm + 1
-
-         IFrom(nTerm) = FromRight
-         ITo(nTerm)   = ToLeft
-         XVal(nTerm)  = X
-
-      end if
-
-   end do
-end do
-
-end subroutine Contract_Lower_Blocks
 
 function Upper_Diagonal_Value( &
            ISYUP,MV,IUP,p ) result(Value)
@@ -9241,214 +9026,6 @@ function MatEl_EpqErs_Ref(ISYCI,I,J,p,q,r,s) result(Value)
 
 end function MatEl_EpqErs_Ref
 
-subroutine Contract_Upper_Blocks( &
-           INDEO_Right,Reverse_Right, &
-           INDEO_Left, Reverse_Left,  &
-           ISYUP,ISYK,MV, &
-           nTerm, &
-           IFrom,ITo,XVal )
-
-use Definitions, only: iwp, wp
-use stdalloc,    only: mma_allocate
-
-implicit none
-
-!
-! Contract the ordered upper-walk product
-!
-!     E_Left E_Right.
-!
-! The rightmost operator acts first:
-!
-!     IFrom --E_Right--> K --E_Left--> ITo.
-!
-! The stored coupling blocks use the canonical orientation
-! with the larger orbital index first. Reverse_Right and
-! Reverse_Left transpose the corresponding stored transitions.
-!
-
-integer(kind=iwp), intent(in) :: INDEO_Right
-integer(kind=iwp), intent(in) :: INDEO_Left
-
-logical, intent(in) :: Reverse_Right
-logical, intent(in) :: Reverse_Left
-
-! A coupling block is indexed by the symmetry of its ICoup(1) walk, the
-! source in canonical orientation (the destination if reversed). IFrom and
-! ITo have the symmetry ISYUP, the intermediate walk K the symmetry ISYK
-! (= ISYUP for totally symmetric operators).
-integer(kind=iwp), intent(in) :: ISYUP
-integer(kind=iwp), intent(in) :: ISYK
-integer(kind=iwp), intent(in) :: MV
-
-integer(kind=iwp), intent(out) :: nTerm
-
-integer(kind=iwp), allocatable, intent(out) :: IFrom(:)
-integer(kind=iwp), allocatable, intent(out) :: ITo(:)
-
-real(kind=wp), allocatable, intent(out) :: XVal(:)
-
-integer(kind=iwp) :: NRight
-integer(kind=iwp) :: NLeft
-integer(kind=iwp) :: ISYRight
-integer(kind=iwp) :: ISYLeft
-
-integer(kind=iwp) :: OffRight
-integer(kind=iwp) :: OffLeft
-
-integer(kind=iwp) :: iRight
-integer(kind=iwp) :: iLeft
-integer(kind=iwp) :: iTerm
-
-integer(kind=iwp) :: FromRight
-integer(kind=iwp) :: ToRight
-
-integer(kind=iwp) :: FromLeft
-integer(kind=iwp) :: ToLeft
-
-integer(kind=iwp) :: iValueRight
-integer(kind=iwp) :: iValueLeft
-
-real(kind=wp) :: XRight
-real(kind=wp) :: XLeft
-real(kind=wp) :: X
-
-logical :: Found
-
-ISYRight = merge(ISYK,ISYUP,Reverse_Right)
-ISYLeft  = merge(ISYUP,ISYK,Reverse_Left)
-NRight = EXS(ME_iState)%NOCP(INDEO_Right,ISYRight,MV)
-NLeft  = EXS(ME_iState)%NOCP(INDEO_Left, ISYLeft, MV)
-
-if (NRight == 0 .or. NLeft == 0) then
-
-   nTerm = 0
-
-   call mma_allocate(IFrom,1,Label='IFrom')
-   call mma_allocate(ITo,  1,Label='ITo')
-   call mma_allocate(XVal, 1,Label='XVal')
-
-   return
-
-end if
-
-OffRight = EXS(ME_iState)%IOCP(INDEO_Right,ISYRight,MV)
-OffLeft  = EXS(ME_iState)%IOCP(INDEO_Left, ISYLeft, MV)
-
-call mma_allocate( &
-     IFrom,NRight*NLeft,Label='IFrom')
-
-call mma_allocate( &
-     ITo,NRight*NLeft,Label='ITo')
-
-call mma_allocate( &
-     XVal,NRight*NLeft,Label='XVal')
-
-nTerm = 0
-
-!
-! The rightmost operator acts first:
-!
-!     FromRight --E_Right--> ToRight.
-!
-do iRight=1,NRight
-
-   if (.not. Reverse_Right) then
-
-      !
-      ! Canonical orientation.
-      !
-      FromRight = EXS(ME_iState)%ICoup(1,OffRight+iRight)
-      ToRight   = EXS(ME_iState)%ICoup(2,OffRight+iRight)
-
-   else
-
-      !
-      ! Reverse orientation:
-      !
-      !     E_rs = E_sr^dagger.
-      !
-      FromRight = EXS(ME_iState)%ICoup(2,OffRight+iRight)
-      ToRight   = EXS(ME_iState)%ICoup(1,OffRight+iRight)
-
-   end if
-
-   iValueRight = EXS(ME_iState)%ICoup(3,OffRight+iRight)
-   XRight = EXS(ME_iState)%VTab(iValueRight)
-
-   !
-   ! The left operator acts second:
-   !
-   !     FromLeft --E_Left--> ToLeft.
-   !
-   do iLeft=1,NLeft
-
-      if (.not. Reverse_Left) then
-
-         !
-         ! Canonical orientation.
-         !
-         FromLeft = EXS(ME_iState)%ICoup(1,OffLeft+iLeft)
-         ToLeft   = EXS(ME_iState)%ICoup(2,OffLeft+iLeft)
-
-      else
-
-         !
-         ! Reverse orientation:
-         !
-         !     E_pq = E_qp^dagger.
-         !
-         FromLeft = EXS(ME_iState)%ICoup(2,OffLeft+iLeft)
-         ToLeft   = EXS(ME_iState)%ICoup(1,OffLeft+iLeft)
-
-      end if
-
-      !
-      ! Resolution-of-identity contraction over the
-      ! intermediate upper walk:
-      !
-      !     ToRight = FromLeft = K.
-      !
-      if (ToRight /= FromLeft) cycle
-
-      iValueLeft = EXS(ME_iState)%ICoup(3,OffLeft+iLeft)
-      XLeft = EXS(ME_iState)%VTab(iValueLeft)
-
-      X = XLeft*XRight
-
-      !
-      ! Accumulate all contributions having the same
-      ! initial and final upper walks.
-      !
-      Found = .false.
-
-      do iTerm=1,nTerm
-
-         if ((IFrom(iTerm) == FromRight) .and. (ITo(iTerm) == ToLeft)) then
-
-            XVal(iTerm) = XVal(iTerm) + X
-
-            Found = .true.
-            exit
-
-         end if
-
-      end do
-
-      if (.not. Found) then
-
-         nTerm = nTerm + 1
-
-         IFrom(nTerm) = FromRight
-         ITo(nTerm)   = ToLeft
-         XVal(nTerm)  = X
-
-      end if
-
-   end do
-end do
-
-end subroutine Contract_Upper_Blocks
 
 function MatEl_LL( &
            I,J, &
@@ -9458,7 +9035,6 @@ function MatEl_LL( &
 
 use Constants,   only: Zero
 use Definitions, only: wp, iwp
-use stdalloc,    only: mma_deallocate
 
 implicit none
 
@@ -9489,13 +9065,8 @@ integer(kind=iwp) :: IUPJ
 integer(kind=iwp) :: IDWNI
 integer(kind=iwp) :: IDWNJ
 
-integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: iTerm
 
-integer(kind=iwp), allocatable :: IFrom(:)
-integer(kind=iwp), allocatable :: ITo(:)
 
-real(kind=wp), allocatable :: XVal(:)
 
 Value = Zero
 
@@ -9532,25 +9103,10 @@ if (IUPI   /= IUPJ)   return
 !
 ISYDWN = Mul(ME_LSM,ISYUPI)
 
-call Contract_Lower_Blocks( &
-     INDEO_Right,Reverse_Right, &
-     INDEO_Left, Reverse_Left,  &
-     ISYDWN,Mul(ISYRS,ISYDWN),MVI, &
-     nTerm, &
-     IFrom,ITo,XVal )
-
-do iTerm=1,nTerm
-
-   if (IFrom(iTerm) /= IDWNJ) cycle
-   if (ITo(iTerm)   /= IDWNI) cycle
-
-   Value = Value + XVal(iTerm)
-
-end do
-
-call mma_deallocate(IFrom)
-call mma_deallocate(ITo)
-call mma_deallocate(XVal)
+Value = Walk_Path_Value( &
+           INDEO_Right,Reverse_Right,merge(Mul(ISYRS,ISYDWN),ISYDWN,Reverse_Right), &
+           INDEO_Left, Reverse_Left, merge(ISYDWN,Mul(ISYRS,ISYDWN),Reverse_Left), &
+           MVI,IDWNJ,IDWNI )
 
 end function MatEl_LL
 
@@ -9563,7 +9119,6 @@ function MatEl_UU( &
 
 use Constants,   only: Zero
 use Definitions, only: wp, iwp
-use stdalloc,    only: mma_deallocate
 
 implicit none
 
@@ -9595,13 +9150,8 @@ integer(kind=iwp) :: IUPJ
 integer(kind=iwp) :: IDWNI
 integer(kind=iwp) :: IDWNJ
 
-integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: iTerm
 
-integer(kind=iwp), allocatable :: IFrom(:)
-integer(kind=iwp), allocatable :: ITo(:)
 
-real(kind=wp), allocatable :: XVal(:)
 
 Value = Zero
 
@@ -9632,27 +9182,56 @@ if (IDWNI  /= IDWNJ)  return
 !
 !     J_U --E_Right--> K_U --E_Left--> I_U.
 !
-call Contract_Upper_Blocks( &
-     INDEO_Right,Reverse_Right, &
-     INDEO_Left, Reverse_Left,  &
-     ISYUPI,Mul(ISYRS,ISYUPI),MVI, &
-     nTerm, &
-     IFrom,ITo,XVal )
-
-do iTerm=1,nTerm
-
-   if (IFrom(iTerm) /= IUPJ) cycle
-   if (ITo(iTerm)   /= IUPI) cycle
-
-   Value = Value + XVal(iTerm)
-
-end do
-
-call mma_deallocate(IFrom)
-call mma_deallocate(ITo)
-call mma_deallocate(XVal)
+Value = Walk_Path_Value( &
+           INDEO_Right,Reverse_Right,merge(Mul(ISYRS,ISYUPI),ISYUPI,Reverse_Right), &
+           INDEO_Left, Reverse_Left, merge(ISYUPI,Mul(ISYRS,ISYUPI),Reverse_Left), &
+           MVI,IUPJ,IUPI )
 
 end function MatEl_UU
+
+!
+! Sum over the intermediate walk K of the coupling-coefficient products
+! along J --E_Right--> K --E_Left--> I, for the walks IFromJ and IToI of a
+! half graph (upper or lower) at midvertex MV. The blocks of both operators
+! are given by INDEO, orientation (Reverse: transposed stored transitions)
+! and the symmetry under which the block is stored (that of its ICoup(1)
+! walk). Only the transitions starting at IFromJ are followed, so the cost
+! is that of scanning the two blocks once, not of contracting them.
+!
+function Walk_Path_Value(INDEO_Right,Reverse_Right,ISYRight,INDEO_Left,Reverse_Left,ISYLeft,MV,IFromJ,IToI) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: INDEO_Right, ISYRight, INDEO_Left, ISYLeft, MV, IFromJ, IToI
+logical, intent(in) :: Reverse_Right, Reverse_Left
+real(kind=wp) :: Value
+integer(kind=iwp) :: NRight, NLeft, OffRight, OffLeft, iRight, iLeft, FromRight, ToRight, FromLeft, ToLeft
+real(kind=wp) :: XRight
+
+Value = Zero
+NRight = EXS(ME_iState)%NOCP(INDEO_Right,ISYRight,MV)
+NLeft  = EXS(ME_iState)%NOCP(INDEO_Left, ISYLeft, MV)
+if ((NRight == 0) .or. (NLeft == 0)) return
+OffRight = EXS(ME_iState)%IOCP(INDEO_Right,ISYRight,MV)
+OffLeft  = EXS(ME_iState)%IOCP(INDEO_Left, ISYLeft, MV)
+
+do iRight=1,NRight
+  FromRight = EXS(ME_iState)%ICoup(merge(2,1,Reverse_Right),OffRight+iRight)
+  if (FromRight /= IFromJ) cycle
+  ToRight = EXS(ME_iState)%ICoup(merge(1,2,Reverse_Right),OffRight+iRight)
+  XRight = EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,OffRight+iRight))
+  do iLeft=1,NLeft
+    FromLeft = EXS(ME_iState)%ICoup(merge(2,1,Reverse_Left),OffLeft+iLeft)
+    if (FromLeft /= ToRight) cycle
+    ToLeft = EXS(ME_iState)%ICoup(merge(1,2,Reverse_Left),OffLeft+iLeft)
+    if (ToLeft /= IToI) cycle
+    Value = Value+XRight*EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,OffLeft+iLeft))
+  end do
+end do
+
+end function Walk_Path_Value
 
 subroutine Decode_Upper_Operator(SGS,p,q,INDEO)
 
@@ -10796,15 +10375,20 @@ end function Op_Class
 ! {p,r} = P + X and {q,s} = M + X, X of size 2-|P|:
 !
 !   |P| > 2 : zero
-!   |P| = 2 : the (at most 4) orderings of P and M
-!   |P| = 1 : k_ab <I|E_ab|J>, and X = {x} for every level x
+!   |P| = 2 : the orderings of P and M, at most 2 loop walks (H_Double)
+!   |P| = 1 : a <- b: <I|E_ab|J> times k_ab and the analytic part of the
+!             strings with X = {x} (with [E_ax,E_xb] = E_ab):
+!               x = a, b : E_ab E_xx, E_xx E_ab = n_x(J), n_x(I) E_ab
+!               x other  : (ab|xx) n_x E_ab, and E_ax E_xb + E_xb E_ax =
+!                          E_ab (x empty), -E_ab (x doubly occupied),
+!                          2 E_ax E_xb - E_ab (x open: one loop walk)
 !   |P| = 0 : the diagonal Sum_t k_tt n_t + 1/2 Sum_xy (xx|yy) n_x n_y for
 !             I = J, and the exchange terms E_xy E_yx for x /= y: by loop
 !             walks only for pairs of open shells, otherwise (I = J only)
 !             analytically
 !
 ! with H = Sum_pq k_pq E_pq + 1/2 Sum_pqrs (pq|rs) E_pq E_rs (the form of
-! MatEl_H). The cost per element is O(n) MatEl_EpqErs calls for a single
+! MatEl_H). The cost per element is O(o) MatEl_EpqErs calls for a single
 ! and O(o**2) (o open shells) for equal occupations, instead of O(n**4).
 !
 function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
@@ -10814,7 +10398,8 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
   integer(kind=iwp), intent(in) :: I, J, OccI(:), OccJ(:), nTU, nTUVX
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
   real(kind=wp) :: H
-  integer(kind=iwp) :: nL, t, d, k, nP, nM, x, y
+  integer(kind=iwp) :: nL, t, d, k, nP, nM, x, y, a, b
+  real(kind=wp) :: E1, W, G
   integer(kind=iwp) :: Pl(2), Mi(2)
 
   H = Zero
@@ -10839,13 +10424,22 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
 
   select case (nP)
     case (2)
-      H = H_Ops(I,J,OccI,OccJ,Pl(1),Pl(2),Mi(1),Mi(2),TUVX,nTUVX)
+      H = H_Double(I,J,OccI,OccJ,Pl(1),Pl(2),Mi(1),Mi(2),TUVX,nTUVX)
     case (1)
-      H = H_Int1(Pl(1),Mi(1),TU,nTU,TUVX,nTUVX)* &
-          MatEl_Epq(SGS(ME_iState),CIS(ME_iState),EXS(ME_iState),Pl(1),Mi(1),ME_LSM,I,J,.False.)
+      a = Pl(1)
+      b = Mi(1)
+      E1 = MatEl_Epq(SGS(ME_iState),CIS(ME_iState),EXS(ME_iState),a,b,ME_LSM,I,J,.False.)
+      ! coefficient of <I|E_ab|J>
+      W = H_Int1(a,b,TU,nTU,TUVX,nTUVX)+Half*H_Int2(a,b,a,a,TUVX,nTUVX)*(OccI(a)+OccJ(a))+ &
+          Half*H_Int2(a,b,b,b,TUVX,nTUVX)*(OccI(b)+OccJ(b))
       do x = 1, nL
-        H = H+H_Ops(I,J,OccI,OccJ,Pl(1),x,Mi(1),x,TUVX,nTUVX)
+        if ((x == a) .or. (x == b)) cycle
+        G = H_Int2(a,x,x,b,TUVX,nTUVX)
+        W = W+H_Int2(a,b,x,x,TUVX,nTUVX)*OccJ(x)+merge(Half,-Half,OccJ(x) == 0)*G
+        ! open shell x: the spin coupling needs the loop walk
+        if (OccJ(x) == 1) H = H+G*MatEl_EpqErs(I,J,a,x,x,b,OccI,OccJ)
       end do
+      H = H+W*E1
     case (0)
       if (I == J) then
         do x = 1, nL
@@ -10860,11 +10454,12 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
       ! and S_t = 0 for a closed or empty level, a pair that is not open-open
       ! contributes only to I = J, analytically:
       ! E_xy E_yx + E_yx E_xy = n_x + n_y - n_x n_y.
+      ! For an open-open pair E_yx E_xy = E_xy E_yx - (E_xx - E_yy) has the
+      ! same matrix element (n_x = n_y), so one loop walk suffices.
       do x = 1, nL
         do y = x+1, nL
           if ((OccJ(x) == 1) .and. (OccJ(y) == 1)) then
-            H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(MatEl_EpqErs(I,J,x,y,y,x,OccI,OccJ)+ &
-                                                   MatEl_EpqErs(I,J,y,x,x,y,OccI,OccJ))
+            H = H+H_Int2(x,y,y,x,TUVX,nTUVX)*MatEl_EpqErs(I,J,x,y,y,x,OccI,OccJ)
           else if (I == J) then
             H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(OccJ(x)+OccJ(y)-OccJ(x)*OccJ(y))
           end if
@@ -10874,38 +10469,33 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
 
 end function MatEl_H_Direct
 
-! Sum of 1/2 (pq|rs) <I|E_pq E_rs|J> over the distinct orderings {p,r} of
-! {a1,a2} and {q,s} of {b1,b2} (for MatEl_H_Direct).
-function H_Ops(I,J,OccI,OccJ,a1,a2,b1,b2,TUVX,nTUVX) result(V)
+! Double excitation a1,a2 <- b1,b2 (a1 <= a2, b1 <= b2, no a equal to a b):
+! the sum of 1/2 (pq|rs) <I|E_pq E_rs|J> over the distinct orderings {p,r}
+! of {a1,a2} and {q,s} of {b1,b2}. The two operators of each string have no
+! common index, so they commute ([E_pq,E_rs] = delta_qr E_ps - delta_ps E_rq
+! = 0) and the strings with the order reversed give the same value: at most
+! two loop walks.
+function H_Double(I,J,OccI,OccJ,a1,a2,b1,b2,TUVX,nTUVX) result(V)
 
   use Constants, only: Half
 
   integer(kind=iwp), intent(in) :: I, J, OccI(:), OccJ(:), a1, a2, b1, b2, nTUVX
   real(kind=wp), intent(in) :: TUVX(nTUVX)
   real(kind=wp) :: V
-  integer(kind=iwp) :: Tup(4,4), nTup, iA, iB, iT, p, q, r, s
-  logical(kind=iwp) :: New
 
-  V = Zero
-  nTup = 0
-  do iA = 1, 2
-    p = merge(a1,a2,iA == 1)
-    r = merge(a2,a1,iA == 1)
-    do iB = 1, 2
-      q = merge(b1,b2,iB == 1)
-      s = merge(b2,b1,iB == 1)
-      New = .true.
-      do iT = 1, nTup
-        if (all(Tup(:,iT) == [p,q,r,s])) New = .false.
-      end do
-      if (.not. New) cycle
-      nTup = nTup+1
-      Tup(:,nTup) = [p,q,r,s]
-      V = V+Half*H_Int2(p,q,r,s,TUVX,nTUVX)*MatEl_EpqErs(I,J,p,q,r,s,OccI,OccJ)
-    end do
-  end do
+  if ((a1 == a2) .and. (b1 == b2)) then
+    ! the single string E_ab E_ab
+    V = Half*H_Int2(a1,b1,a1,b1,TUVX,nTUVX)*MatEl_EpqErs(I,J,a1,b1,a1,b1,OccI,OccJ)
+  else if ((a1 == a2) .or. (b1 == b2)) then
+    ! E_a1b1 E_a2b2 and its reverse
+    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*MatEl_EpqErs(I,J,a1,b1,a2,b2,OccI,OccJ)
+  else
+    ! E_a1b1 E_a2b2, E_a1b2 E_a2b1 and their reverses
+    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*MatEl_EpqErs(I,J,a1,b1,a2,b2,OccI,OccJ)+ &
+        H_Int2(a1,b2,a2,b1,TUVX,nTUVX)*MatEl_EpqErs(I,J,a1,b2,a2,b1,OccI,OccJ)
+  end if
 
-end function H_Ops
+end function H_Double
 
 ! (pq|rs) from the triangular packing of TUVX.
 function H_Int2(p,q,r,s,TUVX,nTUVX) result(V)
