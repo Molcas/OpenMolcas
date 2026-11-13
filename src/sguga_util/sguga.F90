@@ -9781,7 +9781,19 @@ function MatEl_EpqErs_UL( &
            I,J, &
            p,q,r,s ) result(Value)
 
-use Constants,   only: Zero
+!
+! <I|E_pq E_rs|J> with E_pq in the upper and E_rs in the lower half.
+!
+! For real CI vectors <I|E_pq E_rs|J> = <J|(E_pq E_rs)^+|I> = <J|E_sr E_qp|I>,
+! and E_sr E_qp is a lower x upper product, so this is MatEl_EpqErs_LU with
+! bra and ket exchanged and the indices (p,q,r,s) -> (s,r,q,p). (Since the
+! two operators share no level they also commute, E_pq E_rs = E_rs E_pq.)
+!
+! ISYCI is the symmetry of both bra and ket, as in MatEl_EpqErs_LU: the
+! present implementation only treats operators that individually preserve
+! spatial symmetry. Once that is generalised, the symmetry passed here must
+! be that of I, the ket of the exchanged matrix element.
+!
 use Definitions, only: wp, iwp
 implicit none
 
@@ -9793,78 +9805,9 @@ integer(kind=iwp), intent(in) :: q
 integer(kind=iwp), intent(in) :: r
 integer(kind=iwp), intent(in) :: s
 
-integer(kind=iwp) :: MVI
-integer(kind=iwp) :: MVJ
-integer(kind=iwp) :: ISYUPI
-integer(kind=iwp) :: ISYUPJ
-integer(kind=iwp) :: IUPI
-integer(kind=iwp) :: IUPJ
-integer(kind=iwp) :: IDWNI
-integer(kind=iwp) :: IDWNJ
-
-real(kind=wp) :: XU
-real(kind=wp) :: XL
 real(kind=wp) :: Value
 
-Value = Zero
-
-!
-! Left operator E_pq acts on the upper half.
-! Right operator E_rs acts on the lower half.
-!
-if (p <= SGS(iState)%MidLev) return
-if (q <= SGS(iState)%MidLev) return
-if (p >  SGS(iState)%nLev)   return
-if (q >  SGS(iState)%nLev)   return
-
-if (r < 1) return
-if (s < 1) return
-if (r > SGS(iState)%MidLev) return
-if (s > SGS(iState)%MidLev) return
-
-call Decode_CSF( &
-     CIS(iState),ISYCI,I, &
-     MVI,ISYUPI,IUPI,IDWNI )
-
-call Decode_CSF( &
-     CIS(iState),ISYCI,J, &
-     MVJ,ISYUPJ,IUPJ,IDWNJ )
-
-!
-! The present implementation requires both individual operators
-! to preserve spatial symmetry. Bra and ket must consequently
-! belong to the same split-graph block.
-!
-if (MVI    /= MVJ)    return
-if (ISYUPI /= ISYUPJ) return
-
-!
-! Upper-half factor:
-!
-!     <I_U|E_pq|J_U>
-!
-XU = MatEl_Upper_Half( &
-        ISYUPI,MVI, &
-        IUPI,IUPJ, &
-        p,q )
-
-if (abs(XU) <= 1.0e-15_wp) return
-
-!
-! Lower-half factor:
-!
-!     <I_L|E_rs|J_L>
-!
-! MatEl_Lower_Half derives the lower-walk symmetry as
-!
-!     ISYDWN = Mul(ISYCI,ISYUPI).
-!
-XL = MatEl_Lower_Half( &
-        ISYCI,ISYUPI,MVI, &
-        IDWNI,IDWNJ, &
-        r,s )
-
-Value = XU*XL
+Value = MatEl_EpqErs_LU(ISYCI,J,I,s,r,q,p)
 
 end function MatEl_EpqErs_UL
 
