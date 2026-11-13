@@ -16,7 +16,7 @@ use sguga, only: SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
-use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
+use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
@@ -924,10 +924,12 @@ end subroutine Mk_Cnf_Layout
 !> Back ends:
 !>  - Lucia: CNHCN for each pair of configurations (determinant block,
 !>    transformed with DTOC).
-!>  - Faroald (DoFaro): columns H e_J of the Faroald sigma vector for each
-!>    selected CSF J (exact, one sigma vector per CSF of the selection).
-!> With MOLCAS_CI_VERIFY=SIGMA, the Faroald block is compared with the
-!> Lucia one, and the block is checked against Mk_H_Psi (once per run).
+!>  - Faroald (DoFaro): for each pair of configurations the determinant
+!>    block (Slater-Condon rules, Faroald_HDet) transformed with the spin
+!>    tables of citrans, C_L^T H C_R.
+!> With MOLCAS_CI_VERIFY=SIGMA, the Faroald block is compared (once per run)
+!> with columns H e_J of the Faroald sigma vector and with the Lucia block,
+!> and the block is checked against Mk_H_Psi.
 subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 use Index_Functions, only: nTri_Elem
 use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, Sigma_on_disk
@@ -940,8 +942,8 @@ real(kind=wp), intent(out) :: PHP(nPHP)
 real(kind=wp), intent(in) :: ECORE, TU(nTU), TUVX(nTUVX)
 integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: NPCSF
-integer(kind=iwp), allocatable :: IPCSF(:)
-real(kind=wp), allocatable :: PHP_Lucia(:)
+integer(kind=iwp), allocatable :: IPCSF(:), nSelCnf(:)
+real(kind=wp), allocatable :: PHP_Ref(:)
 real(kind=wp), parameter :: Thr = 1.0e-10_wp
 
 ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection.
@@ -954,12 +956,15 @@ end if
 
 if (DoFaro) then
   call IHJ_Faroald(PHP)
-  ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the Lucia block.
+  ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the columns of the
+  ! Faroald sigma vector and with the Lucia block.
   if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
-    call mma_allocate(PHP_Lucia,nTri_Elem(NPCSF),Label='PHP_Lucia')
-    call IHJ_Lucia(PHP_Lucia)
-    call Compare_IHJ('Faroald','Lucia',PHP_Lucia)
-    call mma_deallocate(PHP_Lucia)
+    call mma_allocate(PHP_Ref,nTri_Elem(NPCSF),Label='PHP_Ref')
+    call IHJ_Faroald_Col(PHP_Ref)
+    call Compare_IHJ('Faroald','Faroald H e_J',PHP_Ref)
+    call IHJ_Lucia(PHP_Ref)
+    call Compare_IHJ('Faroald','Lucia',PHP_Ref)
+    call mma_deallocate(PHP_Ref)
   end if
 else
   call IHJ_Lucia(PHP)
@@ -973,10 +978,12 @@ if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
 end if
 
 call mma_deallocate(IPCSF)
+call mma_deallocate(nSelCnf)
 
 contains
 
-  ! IPCSF: the CSFs of the selected configurations, in the order of PHP.
+  ! IPCSF: the CSFs of the selected configurations, in the order of PHP;
+  ! nSelCnf: the number of CSFs of each selected configuration.
   subroutine Sel_CSFs()
     integer(kind=iwp) :: iCnf, iOff, kCnf, I, ICSF
     integer(kind=iwp), allocatable :: nCSFCnf(:), iCSF1(:)
@@ -989,8 +996,10 @@ contains
       iOff = iOff+nCSFCnf(iCnf)
     end do
     call mma_allocate(IPCSF,sum(nCSFCnf(IPCNF(1:NPCNF))),Label='IPCSF')
+    call mma_allocate(nSelCnf,NPCNF,Label='nSelCnf')
     ICSF = 0
     do kCnf=1,NPCNF
+      nSelCnf(kCnf) = nCSFCnf(IPCNF(kCnf))
       do I=1,nCSFCnf(IPCNF(kCnf))
         ICSF = ICSF+1
         IPCSF(ICSF) = iCSF1(IPCNF(kCnf))+I-1
@@ -1053,9 +1062,138 @@ contains
 
   end subroutine IHJ_Lucia
 
-  ! Faroald back end: H(I,J) = (H e_J)(I) from the Faroald sigma vector of
-  ! the unit vector e_J, J over the selected CSFs.
+  ! Faroald back end: for each pair of selected configurations L, R the
+  ! determinant block <D_L|H|D_R> (Faroald_HDet) is transformed to the CSFs
+  ! with the spin tables of citrans, C_L^T H C_R. The CSFs of the CI vector
+  ! (Lucia's CSF basis) are mapped to the configuration order of citrans,
+  ! with the phases of SG_ReOrd and citrans_sort, by reordering the index
+  ! vector 1..nConf.
   subroutine IHJ_Faroald(H)
+    real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
+    integer(kind=iwp) :: I, J, K, kCnf, ICNL, ICNR, IILB, IIRB, IIL, IIR, IIRMAX, k1, nc, nd, nDTot, nCTot, nL, nR, &
+                         ndL, ndR
+    integer(kind=iwp), allocatable :: kFaro(:), iDOff(:), iCOff(:), nDCnf(:), DA(:), DB(:), da1(:), db1(:)
+    integer(kind=iwp), allocatable :: iPh(:)
+    real(kind=wp), allocatable :: Idx(:), Map(:), C(:), cf(:,:), HDet(:,:), T(:,:), Blk(:,:)
+
+    call Faroald_Ints(TU,TUVX)
+
+    ! Lucia CSF i <-> citrans CSF kFaro(i), with phase iPh(i), as in
+    ! Faroald_Sigma: Lucia -> SGUGA order (SG_ReOrd) -> configuration order.
+    call mma_allocate(Idx,nConf,Label='Idx')
+    call mma_allocate(Map,nConf,Label='Map')
+    do I=1,nConf
+      Map(I) = real(I,kind=wp)
+    end do
+    call SG_REORD(1,IREFSM,0,nConf,Map,Idx)
+    call CITRANS_SORT('C',Idx,Map)
+    call mma_allocate(kFaro,nConf,Label='kFaro')
+    call mma_allocate(iPh,nConf,Label='iPh')
+    do K=1,nConf
+      I = nint(abs(Map(K)))
+      kFaro(I) = K
+      iPh(I) = nint(sign(One,Map(K)))
+    end do
+    call mma_deallocate(Map)
+    call mma_deallocate(Idx)
+
+    ! Determinants and CSF coefficients of the selected configurations.
+    call mma_allocate(nDCnf,NPCNF,Label='nDCnf')
+    call mma_allocate(iDOff,NPCNF,Label='iDOff')
+    call mma_allocate(iCOff,NPCNF,Label='iCOff')
+    nDTot = 0
+    nCTot = 0
+    IILB = 0
+    do kCnf=1,NPCNF
+      call citrans_conf_dets(kFaro(IPCSF(IILB+1)),k1,nc,nd,da1,db1,cf)
+      if (nc /= nSelCnf(kCnf)) then
+        write(u6,*) 'Mk_IHJ: different number of CSFs in Lucia and citrans:',nSelCnf(kCnf),nc
+        call Abend()
+      end if
+      nDCnf(kCnf) = nd
+      iDOff(kCnf) = nDTot
+      iCOff(kCnf) = nCTot
+      nDTot = nDTot+nd
+      nCTot = nCTot+nd*nc
+      IILB = IILB+nc
+      call mma_deallocate(da1)
+      call mma_deallocate(db1)
+      call mma_deallocate(cf)
+    end do
+    call mma_allocate(DA,nDTot,Label='DA')
+    call mma_allocate(DB,nDTot,Label='DB')
+    call mma_allocate(C,nCTot,Label='C')
+    IILB = 0
+    do kCnf=1,NPCNF
+      call citrans_conf_dets(kFaro(IPCSF(IILB+1)),k1,nc,nd,da1,db1,cf)
+      DA(iDOff(kCnf)+1:iDOff(kCnf)+nd) = da1(:)
+      DB(iDOff(kCnf)+1:iDOff(kCnf)+nd) = db1(:)
+      do I=1,nc
+        J = kFaro(IPCSF(IILB+I))-k1+1
+        if ((J < 1) .or. (J > nc)) then
+          write(u6,*) 'Mk_IHJ: CSF of the selection not in its configuration:',IPCSF(IILB+I)
+          call Abend()
+        end if
+        C(iCOff(kCnf)+(I-1)*nd+1:iCOff(kCnf)+I*nd) = iPh(IPCSF(IILB+I))*cf(:,J)
+      end do
+      IILB = IILB+nc
+      call mma_deallocate(da1)
+      call mma_deallocate(db1)
+      call mma_deallocate(cf)
+    end do
+    call mma_deallocate(iPh)
+    call mma_deallocate(kFaro)
+
+    ! Blocks C_L^T <D_L|H|D_R> C_R.
+    nd = maxval(nDCnf)
+    nc = maxval(nSelCnf)
+    call mma_allocate(HDet,nd,nd,Label='HDet')
+    call mma_allocate(T,nd,nc,Label='T')
+    call mma_allocate(Blk,nc,nc,Label='Blk')
+    IILB = 1
+    do ICNL=1,NPCNF
+      nL = nSelCnf(ICNL)
+      ndL = nDCnf(ICNL)
+      IIRB = 1
+      do ICNR=1,ICNL
+        nR = nSelCnf(ICNR)
+        ndR = nDCnf(ICNR)
+        do J=1,ndR
+          do I=1,ndL
+            HDet(I,J) = Faroald_HDet(DA(iDOff(ICNL)+I),DB(iDOff(ICNL)+I),DA(iDOff(ICNR)+J),DB(iDOff(ICNR)+J))
+          end do
+        end do
+        call DGEMM_('N','N',ndL,nR,ndR,One,HDet,nd,C(iCOff(ICNR)+1:iCOff(ICNR)+ndR*nR),ndR,Zero,T,nd)
+        call DGEMM_('T','N',nL,nR,ndL,One,C(iCOff(ICNL)+1:iCOff(ICNL)+ndL*nL),ndL,T,nd,Zero,Blk,nc)
+        do IIL=1,nL
+          IIRMAX = merge(IIL,nR,IILB == IIRB)
+          do IIR=1,IIRMAX
+            H(nTri_Elem(IILB-1+IIL-1)+IIRB-1+IIR) = Blk(IIL,IIR)
+          end do
+        end do
+        IIRB = IIRB+nR
+      end do
+      IILB = IILB+nL
+    end do
+    do I=1,NPCSF
+      H(nTri_Elem(I)) = H(nTri_Elem(I))+ECORE
+    end do
+
+    call mma_deallocate(Blk)
+    call mma_deallocate(T)
+    call mma_deallocate(HDet)
+    call mma_deallocate(C)
+    call mma_deallocate(DB)
+    call mma_deallocate(DA)
+    call mma_deallocate(iCOff)
+    call mma_deallocate(iDOff)
+    call mma_deallocate(nDCnf)
+
+  end subroutine IHJ_Faroald
+
+  ! Faroald reference (CI development): H(I,J) = (H e_J)(I) from the Faroald
+  ! sigma vector of the unit vector e_J, J over the selected CSFs.
+  subroutine IHJ_Faroald_Col(H)
     real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
     integer(kind=iwp) :: I, J, nTmp
     real(kind=wp), allocatable :: EJ(:), HEJ(:), cTmp(:), sTmp(:)
@@ -1083,7 +1221,7 @@ contains
     call mma_deallocate(sTmp)
     call mma_deallocate(cTmp)
 
-  end subroutine IHJ_Faroald
+  end subroutine IHJ_Faroald_Col
 
   ! Compare PHP (back end Lab) with the reference block HRef (back end LabRef).
   subroutine Compare_IHJ(Lab,LabRef,HRef)
@@ -1164,6 +1302,126 @@ contains
   end subroutine Verify_IHJ
 
 end subroutine Mk_IHJ
+
+!> <aL bL|H|aR bR> between Faroald determinants (alpha and beta strings as
+!> bit strings, orbital t in bit t-1, alpha string before the beta string)
+!> by the Slater-Condon rules, with the integrals htu and gtuvx (chemists'
+!> notation) of Faroald, H = sum_tu h_tu E_tu + 1/2 sum_tuvx g_tuvx
+!> (E_tu E_vx - delta_uv E_tx), as in sigma_update.
+function Faroald_HDet(aL,bL,aR,bR) result(E)
+use Constants, only: Half
+
+real(kind=wp) :: E
+integer(kind=iwp), intent(in) :: aL, bL, aR, bR
+integer(kind=iwp) :: dA, dB, nA, nB, i, j, p, q, r, s, aI
+
+dA = ieor(aL,aR)
+dB = ieor(bL,bR)
+nA = popcnt(dA)/2
+nB = popcnt(dB)/2
+E = Zero
+if (nA+nB > 2) return
+
+if (nA+nB == 0) then
+  do i=1,my_norb
+    if (btest(aL,i-1)) then
+      E = E+htu(i,i)
+      do j=1,my_norb
+        if (btest(aL,j-1)) E = E+Half*(gtuvx(i,i,j,j)-gtuvx(i,j,j,i))
+        if (btest(bL,j-1)) E = E+gtuvx(i,i,j,j)
+      end do
+    end if
+    if (btest(bL,i-1)) then
+      E = E+htu(i,i)
+      do j=1,my_norb
+        if (btest(bL,j-1)) E = E+Half*(gtuvx(i,i,j,j)-gtuvx(i,j,j,i))
+      end do
+    end if
+  end do
+else if (nA == 1 .and. nB == 0) then
+  call Single(aL,aR,bR)
+else if (nA == 0 .and. nB == 1) then
+  call Single(bL,bR,aR)
+else if (nA == 2) then
+  call Double(aL,aR)
+else if (nB == 2) then
+  call Double(bL,bR)
+else
+  ! one alpha (p <- q) and one beta (r <- s) excitation
+  p = Orb(iand(dA,aL),1)
+  q = Orb(iand(dA,aR),1)
+  r = Orb(iand(dB,bL),1)
+  s = Orb(iand(dB,bR),1)
+  E = Par(aR,p,q)*Par(bR,r,s)*gtuvx(p,q,r,s)
+end if
+
+contains
+
+  ! single excitation p <- q in the string xL/xR of one spin, yR the string
+  ! of the other spin
+  subroutine Single(xL,xR,yR)
+    integer(kind=iwp), intent(in) :: xL, xR, yR
+    integer(kind=iwp) :: dX, iC, j
+
+    dX = ieor(xL,xR)
+    p = Orb(iand(dX,xL),1)
+    q = Orb(iand(dX,xR),1)
+    iC = iand(xL,xR)
+    E = htu(p,q)
+    do j=1,my_norb
+      if (btest(iC,j-1)) E = E+gtuvx(p,q,j,j)-gtuvx(p,j,j,q)
+      if (btest(yR,j-1)) E = E+gtuvx(p,q,j,j)
+    end do
+    E = Par(xR,p,q)*E
+
+  end subroutine Single
+
+  ! double excitation p,r <- q,s in the string xL/xR of one spin
+  subroutine Double(xL,xR)
+    integer(kind=iwp), intent(in) :: xL, xR
+    integer(kind=iwp) :: dX
+
+    dX = ieor(xL,xR)
+    p = Orb(iand(dX,xL),1)
+    r = Orb(iand(dX,xL),2)
+    q = Orb(iand(dX,xR),1)
+    s = Orb(iand(dX,xR),2)
+    aI = ibset(ibclr(xR,q-1),p-1)
+    E = Par(xR,p,q)*Par(aI,r,s)*(gtuvx(p,q,r,s)-gtuvx(p,s,r,q))
+
+  end subroutine Double
+
+  ! the n-th orbital (bit) set in x
+  function Orb(x,n) result(k)
+    integer(kind=iwp) :: k
+    integer(kind=iwp), intent(in) :: x, n
+    integer(kind=iwp) :: m
+
+    m = 0
+    do k=1,my_norb
+      if (btest(x,k-1)) then
+        m = m+1
+        if (m == n) return
+      end if
+    end do
+    k = 0
+
+  end function Orb
+
+  ! sign of a+_t a_u acting on the string x: the parity of the number of
+  ! orbitals occupied in x strictly between t and u
+  function Par(x,t,u) result(iSgn)
+    integer(kind=iwp) :: iSgn
+    integer(kind=iwp), intent(in) :: x, t, u
+    integer(kind=iwp) :: lo, hi
+
+    lo = min(t,u)
+    hi = max(t,u)
+    iSgn = 1-2*poppar(ibits(x,lo,hi-lo-1))
+
+  end function Par
+
+end function Faroald_HDet
 
 subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
 

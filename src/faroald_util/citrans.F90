@@ -90,8 +90,8 @@ end type spintable
 
 type(spintable), allocatable :: spintabs(:)
 
-public :: citrans_csf2sd, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, ndo_max, ndo_min, ndoc_group, nsoc_group, &
-          spintable_create, spintabs, spintabs_allocate, spintabs_free
+public :: citrans_conf_dets, citrans_csf2sd, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, ndo_max, ndo_min, ndoc_group, &
+          nsoc_group, spintable_create, spintabs, spintabs_allocate, spintabs_free
 
 ! Private extensions to mma interfaces
 
@@ -377,6 +377,64 @@ subroutine citrans_sd2csf(det,ci)
   call mma_deallocate(stepvector)
 
 end subroutine citrans_sd2csf
+
+subroutine citrans_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
+! Determinant expansion of the configuration holding the CSF kcsf, kcsf
+! being an index of the configuration order (citrans_sort mode 'C'):
+! CSF k1-1+j (j = 1..ncsf) of this configuration is
+! sum_i coef(i,j) |deta(i) detb(i)>, with deta(i)/detb(i) the alpha/beta
+! strings of the determinants (as in citrans_csf2sd, phase included).
+! deta, detb and coef are allocated here, to be freed by the caller.
+
+  use second_quantization, only: lex_init, lex_next
+  use faroald, only: my_nel, my_norb, nela
+
+  integer(kind=iwp), intent(in) :: kcsf
+  integer(kind=iwp), intent(out) :: k1, ncsf, ndet
+  integer(kind=iwp), allocatable, intent(out) :: deta(:), detb(:)
+  real(kind=wp), allocatable, intent(out) :: coef(:,:)
+  integer(kind=iwp) :: ido, iso, isoa, ioff, iconf, idoc, isoc, i, idet, doub, sing, alfa, beta, phase
+
+  ! locate the configuration group and the configuration within it
+  ioff = 0
+  do ido=ndo_min,ndo_max
+    if (kcsf <= ioff+ndoc_group(ido)*nsoc_group(ido)*ncsf_group(ido)) exit
+    ioff = ioff+ndoc_group(ido)*nsoc_group(ido)*ncsf_group(ido)
+  end do
+  if ((kcsf < 1) .or. (ido > ndo_max)) then
+    write(u6,*) 'citrans_conf_dets: CSF index out of range:',kcsf
+    call Abend()
+  end if
+  ncsf = ncsf_group(ido)
+  ndet = ndet_group(ido)
+  iconf = (kcsf-ioff-1)/ncsf+1
+  k1 = ioff+(iconf-1)*ncsf+1
+  idoc = (iconf-1)/nsoc_group(ido)+1
+  isoc = iconf-(idoc-1)*nsoc_group(ido)
+
+  iso = my_nel-2*ido
+  isoa = nela-ido
+  doub = lex_init(ido,my_norb)
+  do i=2,idoc
+    doub = lex_next(doub)
+  end do
+  sing = lex_init(iso,my_norb-ido)
+  do i=2,isoc
+    sing = lex_next(sing)
+  end do
+
+  call mma_allocate(deta,ndet,label='deta')
+  call mma_allocate(detb,ndet,label='detb')
+  call mma_allocate(coef,ndet,ncsf,label='coef')
+  alfa = lex_init(isoa,iso)
+  do idet=1,ndet
+    beta = ibits(not(alfa),0,iso)
+    phase = ds2ab(doub,sing,alfa,beta,deta(idet),detb(idet))
+    coef(idet,:) = phase*spintabs(ido)%coef(idet,:)
+    alfa = lex_next(alfa)
+  end do
+
+end subroutine citrans_conf_dets
 
 subroutine spintabs_allocate()
 
