@@ -29,6 +29,8 @@
 !>   HDIAG  give the CI solver the exact diagonal <I|H|I> from SGUGA instead
 !>          of the configuration average (preconditioner and selection of the
 !>          explicit subspace; an experiment, not included in ALL)
+!>   SGEX   explicit Hamiltonian of the CI start from SGUGA, as with the
+!>          RASSCF keyword SGEX (not included in ALL)
 !>   ALL    YES, SIGMA and FARO
 !>
 !> CI_Verify('ANY') is true if any of YES, EPQ, SIGMA or FARO is requested;
@@ -44,13 +46,13 @@ implicit none
 private
 
 logical(kind=iwp) :: Verify_Parsed = .false., Verify_Yes = .false., Verify_Epq = .false., Verify_Sigma = .false., &
-                     Verify_Faro = .false., Verify_HDiag = .false.
+                     Verify_Faro = .false., Verify_HDiag = .false., Verify_SGEx = .false.
 
 public :: CI_Verify
 
 contains
 
-!> Is the verification option Opt (YES, EPQ, SIGMA, FARO, HDIAG or ANY) active?
+!> Is the verification option Opt (YES, EPQ, SIGMA, FARO, HDIAG, SGEX or ANY) active?
 function CI_Verify(Opt) result(Active)
 
   character(len=*), intent(in) :: Opt
@@ -84,6 +86,8 @@ function CI_Verify(Opt) result(Active)
           Verify_Faro = .true.
         case ('HDIAG')
           Verify_HDiag = .true.
+        case ('SGEX')
+          Verify_SGEx = .true.
         case ('ALL')
           Verify_Yes = .true.
           Verify_Sigma = .true.
@@ -91,7 +95,7 @@ function CI_Verify(Opt) result(Active)
         case ('NO','')
         case default
           write(u6,'(3A)') 'Illegal value in MOLCAS_CI_VERIFY: "',trim(Tok),'"'
-          write(u6,'(A)') 'Valid values (comma-separated): NO, YES, EPQ, SIGMA, FARO, HDIAG, ALL'
+          write(u6,'(A)') 'Valid values (comma-separated): NO, YES, EPQ, SIGMA, FARO, HDIAG, SGEX, ALL'
           call Abend()
       end select
     end do
@@ -109,6 +113,8 @@ function CI_Verify(Opt) result(Active)
       Active = Verify_Faro
     case ('HDIAG')
       Active = Verify_HDiag
+    case ('SGEX')
+      Active = Verify_SGEx
     case ('ANY')
       Active = Verify_Yes .or. Verify_Epq .or. Verify_Sigma .or. Verify_Faro
     case default

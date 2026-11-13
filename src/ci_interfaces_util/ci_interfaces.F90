@@ -17,7 +17,7 @@ use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
 use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_sd2csf, citrans_sort
-use rasscf_global, only: DoFaro
+use rasscf_global, only: DoFaro, DoSGEx
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -39,6 +39,8 @@ Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify
 
 ! Mk_IHJ is verified against Mk_H_Psi only once per run.
 logical(kind=iwp) :: IHJ_Verified = .false.
+! SGEX given but SGUGA not available: warned once.
+logical(kind=iwp) :: SGEx_Warned = .false.
 
 contains
 
@@ -1149,12 +1151,13 @@ end subroutine Mk_Cnf_Layout
 !>  - Faroald (DoFaro): for each pair of configurations the determinant
 !>    block (Slater-Condon rules, Faroald_HDet) transformed with the spin
 !>    tables of citrans, C_L^T H C_R.
-!>  - SGUGA (IHJ_SGUGA): <I|H|J> for each pair of CSFs
-!>    from the occupation difference (SG_MatEl_H); for now a reference only.
-!> With MOLCAS_CI_VERIFY=SIGMA, once per run: the Faroald block is compared
-!> with columns H e_J of the Faroald sigma vector and with the Lucia block,
-!> the block of the back end in use with the SGUGA one (no GAS, one RAS space),
-!> and the block is checked against Mk_H_Psi.
+!>  - SGUGA (RASSCF keyword SGEX; no GAS, single RAS partition): <I|H|J>
+!>    for each pair of CSFs from the occupation difference (SG_MatEl_H),
+!>    pairs of configurations more than a double excitation apart skipped.
+!> With MOLCAS_CI_VERIFY=SIGMA, once per run, the block in use is compared
+!> with the other back ends (the Faroald block also with columns H e_J of
+!> the Faroald sigma vector) and checked against Mk_H_Psi; the CPU time of
+!> each back end is reported.
 subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 use Index_Functions, only: nTri_Elem
 use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, Sigma_on_disk
@@ -1168,8 +1171,11 @@ real(kind=wp), intent(in) :: ECORE, TU(nTU), TUVX(nTUVX)
 integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: NPCSF
 integer(kind=iwp), allocatable :: IPCSF(:), nSelCnf(:)
+real(kind=wp) :: T0, T1, W
 real(kind=wp), allocatable :: PHP_Ref(:)
 real(kind=wp), parameter :: Thr = 1.0e-10_wp
+logical(kind=iwp) :: SG_OK, UseSG, Verify
+character(len=8) :: Lab
 
 ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection.
 call Sel_CSFs()
@@ -1179,34 +1185,46 @@ if (nTri_Elem(NPCSF) > nPHP) then
   call Abend()
 end if
 
-if (DoFaro) then
+! SGUGA is available without GAS and for a single RAS partition (SGS is not
+! set up with GAS, so test iDoGAS first).
+SG_OK = .false.
+if (.not. iDoGAS) SG_OK = SGS(1)%nRsPrt == 1
+if (DoSGEx .and. (.not. SG_OK) .and. (.not. SGEx_Warned)) then
+  write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA needs a single RAS partition; using the CI back end'
+  SGEx_Warned = .true.
+end if
+UseSG = DoSGEx .and. SG_OK
+Verify = CI_Verify('SIGMA') .and. (.not. IHJ_Verified)
+
+call CWTime(T0,W)
+if (UseSG) then
+  Lab = 'SGUGA'
+  call IHJ_SGUGA(PHP)
+else if (DoFaro) then
+  Lab = 'Faroald'
   call IHJ_Faroald(PHP)
-  ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the columns of the
-  ! Faroald sigma vector and with the Lucia block.
-  if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
-    call mma_allocate(PHP_Ref,nTri_Elem(NPCSF),Label='PHP_Ref')
-    call IHJ_Faroald_Col(PHP_Ref)
-    call Compare_IHJ('Faroald','Faroald H e_J',PHP_Ref)
-    call IHJ_Lucia(PHP_Ref)
-    call Compare_IHJ('Faroald','Lucia',PHP_Ref)
-    call mma_deallocate(PHP_Ref)
-  end if
 else
+  Lab = 'Lucia'
   call IHJ_Lucia(PHP)
 end if
+call CWTime(T1,W)
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare the block, once per run,
-! with the SGUGA one (no GAS, single RAS partition) and with exact columns H e_J from
-! Mk_H_Psi.
-if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
-  if ((SGS(1)%nRsPrt == 1) .and. (.not. iDoGAS)) then
-    call mma_allocate(PHP_Ref,nTri_Elem(NPCSF),Label='PHP_Ref')
-    call IHJ_SGUGA(PHP_Ref)
-    call Compare_IHJ(trim(merge('Faroald','Lucia  ',DoFaro)),'SGUGA',PHP_Ref)
-    call mma_deallocate(PHP_Ref)
+! with the other back ends and with exact columns H e_J from Mk_H_Psi.
+if (Verify) then
+  write(u6,'(1X,3A,I0,A,F10.3,A)') 'Mk_IHJ: ',trim(Lab),' block, ',NPCSF,' CSFs, CPU ',T1-T0,' s'
+  call mma_allocate(PHP_Ref,nTri_Elem(NPCSF),Label='PHP_Ref')
+  if (UseSG .or. DoFaro) call Ref_Block('Lucia')
+  if (DoFaro) then
+    if (UseSG) call Ref_Block('Faroald')
+    call Ref_Block('Faroald H e_J')
+  end if
+  if (SG_OK) then
+    if (.not. UseSG) call Ref_Block('SGUGA')
   else
     write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (only without GAS and for a single RAS partition)'
   end if
+  call mma_deallocate(PHP_Ref)
   IHJ_Verified = .true.
   call Verify_IHJ()
 end if
@@ -1215,6 +1233,28 @@ call mma_deallocate(IPCSF)
 call mma_deallocate(nSelCnf)
 
 contains
+
+  ! Reference block of back end LabRef in PHP_Ref, compared with PHP.
+  subroutine Ref_Block(LabRef)
+    character(len=*), intent(in) :: LabRef
+    real(kind=wp) :: T2, T3, W2
+
+    call CWTime(T2,W2)
+    select case (LabRef)
+      case ('Lucia')
+        call IHJ_Lucia(PHP_Ref)
+      case ('Faroald')
+        call IHJ_Faroald(PHP_Ref)
+      case ('Faroald H e_J')
+        call IHJ_Faroald_Col(PHP_Ref)
+      case ('SGUGA')
+        call IHJ_SGUGA(PHP_Ref)
+    end select
+    call CWTime(T3,W2)
+    write(u6,'(1X,3A,F10.3,A)') 'Mk_IHJ: ',LabRef,' block, CPU ',T3-T2,' s'
+    call Compare_IHJ(trim(Lab),LabRef,PHP_Ref)
+
+  end subroutine Ref_Block
 
   ! IPCSF: the CSFs of the selected configurations, in the order of PHP;
   ! nSelCnf: the number of CSFs of each selected configuration.
@@ -1521,14 +1561,16 @@ contains
 
   ! SGUGA back end: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECORE, with
   ! I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
-  ! (mode 0: c_G(I_G) = P_I c(I)), from SG_MatEl_H.
+  ! (mode 0: c_G(I_G) = P_I c(I)), from SG_MatEl_H. The CSFs of a selected
+  ! configuration share their occupations, so pairs of configurations more
+  ! than a double excitation apart (Cnf_Exc) are skipped as a whole.
   subroutine IHJ_SGUGA(H)
     use Molcas, only: MxAct
     use sguga, only: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_NUM
     real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
-    integer(kind=iwp) :: I, J
+    integer(kind=iwp) :: I, J, t, kCnf, ICNL, ICNR, IILB, IIRB, IIL, IIR, IIRMAX, nL, nR
     integer(kind=iwp) :: IWALK(MxAct)
-    integer(kind=iwp), allocatable :: iG(:), iPG(:), OccG(:,:)
+    integer(kind=iwp), allocatable :: iG(:), iPG(:), OccG(:,:), DOcc(:), SOcc(:)
 
     call SG_MatEl_Init(1,IREFSM)
     call mma_allocate(iG,NPCSF,Label='iG')
@@ -1539,12 +1581,49 @@ contains
       iG(J) = SG_NUM(SGS(1),EXS(1),IWALK)
       call SG_CSF_Occ(iG(J),OccG(:,J))
     end do
-    do I=1,NPCSF
-      do J=1,I
-        H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*SG_MatEl_H(iG(I),iG(J),OccG(:,I),OccG(:,J),TU,nTU,TUVX,nTUVX)
+
+    ! doubly and singly occupied orbitals of each selected configuration
+    call mma_allocate(DOcc,NPCNF,Label='DOcc')
+    call mma_allocate(SOcc,NPCNF,Label='SOcc')
+    IILB = 1
+    do kCnf=1,NPCNF
+      DOcc(kCnf) = 0
+      SOcc(kCnf) = 0
+      do t=1,NAC
+        if (OccG(t,IILB) == 2) DOcc(kCnf) = ibset(DOcc(kCnf),t-1)
+        if (OccG(t,IILB) == 1) SOcc(kCnf) = ibset(SOcc(kCnf),t-1)
       end do
+      IILB = IILB+nSelCnf(kCnf)
+    end do
+
+    IILB = 1
+    do ICNL=1,NPCNF
+      nL = nSelCnf(ICNL)
+      IIRB = 1
+      do ICNR=1,ICNL
+        nR = nSelCnf(ICNR)
+        do IIL=1,nL
+          I = IILB-1+IIL
+          IIRMAX = merge(IIL,nR,IILB == IIRB)
+          if (Cnf_Exc(DOcc(ICNL),SOcc(ICNL),DOcc(ICNR),SOcc(ICNR)) > 2) then
+            H(nTri_Elem(I-1)+IIRB:nTri_Elem(I-1)+IIRB-1+IIRMAX) = Zero
+          else
+            do IIR=1,IIRMAX
+              J = IIRB-1+IIR
+              H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*SG_MatEl_H(iG(I),iG(J),OccG(:,I),OccG(:,J),TU,nTU,TUVX,nTUVX)
+            end do
+          end if
+        end do
+        IIRB = IIRB+nR
+      end do
+      IILB = IILB+nL
+    end do
+    do I=1,NPCSF
       H(nTri_Elem(I)) = H(nTri_Elem(I))+ECORE
     end do
+
+    call mma_deallocate(SOcc)
+    call mma_deallocate(DOcc)
     call mma_deallocate(OccG)
     call mma_deallocate(iPG)
     call mma_deallocate(iG)

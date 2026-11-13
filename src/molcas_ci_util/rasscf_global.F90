@@ -35,6 +35,9 @@ real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, C
                  TMIN, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
 logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, Lowdin_On, lSquare, NonEq, RFpert, &
                      Start_Vectors
+! Explicit CI Hamiltonian of the CI start from SGUGA (keyword SGEX)
+logical(kind=iwp) :: DoSGEx = .false.
+public :: DoSGEx
 character(len=LenIn+8) :: BName(mxOrb)
 character(len=256) :: CMSStartMat
 character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)

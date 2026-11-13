@@ -2222,6 +2222,23 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`SGEX`
+  The explicit Hamiltonian of keyword :kword:`SDAV` is computed with the
+  symmetric-group graphical unitary group approach (SGUGA) directly in the
+  CSF basis, instead of by the CI back end (Lucia, or Faroald with
+  :kword:`FAROALD`) through the determinant expansion of each configuration.
+  Only for a single RAS space (CASSCF) without GAS; otherwise the keyword
+  is ignored. Experimental.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGEX" APPEAR="SGUGA explicit Hamiltonian" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: SGEX <advanced>
+              <HELP>
+              Compute the explicit Hamiltonian of the Davidson procedure (SDAV)
+              with SGUGA in the CSF basis instead of with the CI back end.
+              CASSCF without GAS only. Experimental.
+              </HELP>
+              </KEYWORD>
+
 :kword:`NKEE`
   Here follows the maximum dimension of the full Davidson Hamiltonian.
   This Hamiltonian contains the current CI vectors for each state as well

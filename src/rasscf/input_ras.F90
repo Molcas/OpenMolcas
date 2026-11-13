@@ -28,7 +28,7 @@ character(len=4), parameter :: CMD(nKeys) = ['ALTE','ATOM','CHAR','CHOI','CHOL',
                                              'LINE','LOWD','LOWM','LUMO','MAXO','NACT','NEWI','NONE','NOQU','OPTO','ORBA','ORBL', &
                                              'ORBO','ORDE','OUTO','OUTP','PRIN','PROR','PRSP','PRWF','QUNE','RAS1','RAS2','RAS3', &
                                              'GASS','RFPE','CIRF','RFRO','RLXR','RASS','SDAV','SPIN','SUPS','SXDA','SYMM','THRS', &
-                                             'TIGH','TITL','TYPE','VB  ','EXPE','    ','    ','    ','    ','FOSP','MDRL','OFEM', &
+                                             'TIGH','TITL','TYPE','VB  ','EXPE','SGEX','    ','    ','    ','FOSP','MDRL','OFEM', &
                                              'FTHA','DFMD','    ','ALPH','FARO','DMRG','3RDM','NECI','TOTA','TIME','NMCY','CALC', &
                                              'RDMS','REAL','DEFI','DIAG','EMBD','SOCC','RGIN','PRSD','FCID','NOCA','SAVE','EXPA', &
                                              'H5OR','H5CI','HEXS','HEUR','DMPO','NEVP','HFOC','DAVT','CHRE','CHBL','MXSW','NOIS', &
