@@ -276,6 +276,13 @@ Logical(kind=iwp) :: State_is_used(3)=[.False.,.False.,.False.]
 
 Public:: SGS, CIS, EXS, State_is_used
 
+! State and CSF symmetry of the single-CSF matrix elements (MatEl_Epq,
+! MatEl_EpqErs, MatEl_H_Direct and their helpers), set by
+! SG_Test_EpqErs_Ref and by SG_MatEl_Init.
+integer(kind=iwp) :: ME_iState = 1, ME_LSM = 1
+
+public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init
+
 
 contains
 
@@ -6891,6 +6898,9 @@ Do ISYCI=1, SGS(istate)%nSym
 End Do
 #endif
 
+! State and symmetry of the module-level matrix-element routines
+ME_iState = iState
+ME_LSM = LSM
 ! Verify that MatEl_Epq is correct
 
 call Init_Rand_Seed()
@@ -7166,7 +7176,7 @@ do iTopology=1,nTopology
                      ! Skip the expensive reference when the occupations
                      ! already show that <I|EpqErs|J> is zero. The fast
                      ! routine is still called and must then return 0.
-                     Screened = Quick_Zero(I,J,p,q,r,s)
+                     Screened = Quick_Zero(Occ(:,I),Occ(:,J),p,q,r,s)
                      if (Sampled) then
                         if (Screened) then
                            if (nTakeZ >= QuotaZ) cycle
@@ -7480,1289 +7490,19 @@ end if
 
 contains
 
-!
-! Quick zero test for <I|E_pq E_rs|J>, from the orbital occupations Occ of
-! the host. Returns .true. only if the matrix element is exactly zero:
-!
-!   1. |K> = E_rs|J> must exist: n_J(s) >= 1 and n_J(r) <= 1 for r /= s,
-!      n_J(r) >= 1 for r == s (E_rr|J> = n_r|J>). Likewise E_pq|K> needs
-!      n_K(p) >= 1 for p == q (for p /= q this follows from point 2).
-!   2. n_I(t) = n_J(t) + d(t,p) - d(t,q) + d(t,r) - d(t,s) for every level t.
-!
-! A .false. result does not mean the element is nonzero (spin coupling can
-! still make it vanish). Spatial symmetry is implied by point 2.
-!
-function Quick_Zero(I,J,p,q,r,s) result(IsZero)
 
-integer(kind=iwp), intent(in) :: I, J, p, q, r, s
-logical :: IsZero
-integer(kind=iwp) :: t, nK, nI
 
-IsZero = .true.
 
-! Intermediate state K = E_rs|J>.
-if (r == s) then
-   if (Occ(r,J) == 0) return
-else
-   if (Occ(s,J) == 0) return
-   if (Occ(r,J) == 2) return
-end if
 
-! Occupations of I must equal those of E_pq E_rs |J>.
-do t=1,SGS(iState)%nLev
-   nK = Occ(t,J)
-   if (t == r) nK = nK+1
-   if (t == s) nK = nK-1
-   if (p == q .and. t == p .and. nK == 0) return
-   nI = nK
-   if (t == p) nI = nI+1
-   if (t == q) nI = nI-1
-   if (nI /= Occ(t,I)) return
-end do
 
-IsZero = .false.
 
-end function Quick_Zero
 
-function MatEl_Upper_Half( &
-           ISYUP,MV, &
-           IUPI,IUPJ, &
-           p,q ) result(Value)
 
-use Constants,   only: Zero
-use Definitions, only: wp, iwp
-implicit none
 
-integer(kind=iwp), intent(in) :: ISYUP
-integer(kind=iwp), intent(in) :: MV
-integer(kind=iwp), intent(in) :: IUPI
-integer(kind=iwp), intent(in) :: IUPJ
-integer(kind=iwp), intent(in) :: p
-integer(kind=iwp), intent(in) :: q
 
-real(kind=wp) :: Value
 
-integer(kind=iwp) :: INDEO
-integer(kind=iwp) :: NCP
-integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: ICP
-integer(kind=iwp) :: IFrom
-integer(kind=iwp) :: ITo
-integer(kind=iwp) :: iValue
 
-logical :: Reverse
 
-Value = Zero
-
-if (p <= SGS(iState)%MidLev) return
-if (q <= SGS(iState)%MidLev) return
-if (p >  SGS(iState)%nLev) return
-if (q >  SGS(iState)%nLev) return
-
-!
-! Diagonal upper-half operator.
-!
-if (p == q) then
-   if (IUPI /= IUPJ) return
-   Value = Upper_Diagonal_Value( &
-              ISYUP,MV,IUPI,p )
-   return
-end if
-
-Reverse = p < q
-
-call Decode_Upper_Operator( &
-     SGS(iState),p,q,INDEO )
-
-NCP = EXS(iState)%NOCP(INDEO,ISYUP,MV)
-if (NCP == 0) return
-
-IOFF = EXS(iState)%IOCP(INDEO,ISYUP,MV)
-
-do ICP=1,NCP
-   if (.not. Reverse) then
-      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
-   else
-      IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
-   end if
-
-   if (IFrom /= IUPJ) cycle
-   if (ITo   /= IUPI) cycle
-
-   iValue = EXS(iState)%ICoup(3,IOFF+ICP)
-   Value = Value + EXS(iState)%VTab(iValue)
-end do
-
-end function MatEl_Upper_Half
-
-
-function MatEl_Lower_Half( &
-           ISYCI,ISYUP,MV, &
-           IDWNI,IDWNJ, &
-           p,q ) result(Value)
-
-use Constants,   only: Zero
-use Definitions, only: wp, iwp
-implicit none
-
-integer(kind=iwp), intent(in) :: ISYCI
-integer(kind=iwp), intent(in) :: ISYUP
-integer(kind=iwp), intent(in) :: MV
-integer(kind=iwp), intent(in) :: IDWNI
-integer(kind=iwp), intent(in) :: IDWNJ
-integer(kind=iwp), intent(in) :: p
-integer(kind=iwp), intent(in) :: q
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: ISYDWN
-integer(kind=iwp) :: INDEO
-integer(kind=iwp) :: NCP
-integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: ICP
-integer(kind=iwp) :: IFrom
-integer(kind=iwp) :: ITo
-integer(kind=iwp) :: iValue
-
-logical :: Reverse
-
-
-Value = Zero
-
-if (p < 1) return
-if (q < 1) return
-if (p > SGS(iState)%MidLev) return
-if (q > SGS(iState)%MidLev) return
-
-if (p == q) then
-   if (IDWNI /= IDWNJ) return
-
-   Value = Lower_Diagonal_Value( &
-              ISYUP,MV,IDWNI,p )
-
-   return
-end if
-
-!
-! The lower coupling tables are indexed by the symmetry of
-! the lower partial walk.
-!
-ISYDWN = MUL(ISYCI,ISYUP)
-
-Reverse = p < q
-call Decode_Lower_Operator( SGS(iState),p,q,INDEO )
-
-!
-! Off-diagonal lower coupling paths are indexed by the
-! symmetry carried by the lower partial walk.
-!
-NCP = EXS(iState)%NOCP(INDEO,ISYDWN,MV)
-if (NCP == 0) return
-
-IOFF = EXS(iState)%IOCP(INDEO,ISYDWN,MV)
-
-do ICP=1,NCP
-
-
-   if (Reverse) then
-      IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
-   else
-      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
-   end if
-
-   if (IFrom /= IDWNJ) cycle
-   if (ITo   /= IDWNI) cycle
-
-   iValue = EXS(iState)%ICoup(3,IOFF+ICP)
-   Value = Value + EXS(iState)%VTab(iValue)
-
-end do
-
-end function MatEl_Lower_Half
-
-function Lower_Diagonal_Value( &
-           ISYUP,MV,IDWN,p ) result(Value)
-
-use Constants,     only: Zero
-use Definitions,   only: wp, iwp
-use Symmetry_Info, only: Mul
-
-implicit none
-
-integer(kind=iwp), intent(in) :: ISYUP
-integer(kind=iwp), intent(in) :: MV
-integer(kind=iwp), intent(in) :: IDWN
-integer(kind=iwp), intent(in) :: p
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: ISYDOWN
-integer(kind=iwp) :: IOLW
-integer(kind=iwp) :: IPSHFT
-integer(kind=iwp) :: IPPOW
-integer(kind=iwp) :: LLW
-integer(kind=iwp) :: JC
-integer(kind=iwp) :: ICS
-
-Value = Zero
-
-!
-! Evaluate
-!
-!     <I_L|E_pp|I_L>
-!
-! for a lower-half walk.
-!
-if (p < 1) return
-if (p > SGS(iState)%MidLev) return
-
-!
-! The symmetry of the lower walk follows from the upper-walk
-! symmetry and the symmetry of the complete CI state.
-!
-ISYDOWN = Mul(ISYUP,LSM)
-
-!
-! Starting position of the lower walks in this split-graph block.
-!
-IOLW = CIS(iState)%IOW(2,ISYDOWN,MV)
-
-!
-! Each step vector occupies two packed bits.
-!
-IPSHFT = 2*(p-1)
-
-!
-! Locate the packed integer containing the step vector at p.
-!
-LLW = 1 + IOLW - CIS(iState)%nIpWlk + &
-      IPSHFT/(2*nPack)
-
-IPSHFT = mod(IPSHFT,2*nPack)
-IPPOW  = 2**IPSHFT
-
-!
-! Extract the step vector belonging to lower walk IDWN.
-!
-JC = CIS(iState)%ICase( &
-        LLW + IDWN*CIS(iState)%nIpWlk )
-
-ICS = mod(JC/IPPOW,4)
-
-!
-! Diagonal segment values:
-!
-!     step 0 -> 0
-!     step 1 -> 1
-!     step 2 -> 1
-!     step 3 -> 2
-!
-if (ICS /= 0) then
-   Value = real((1+ICS)/2,kind=wp)
-end if
-
-end function Lower_Diagonal_Value
-
-function MatEl_Lower_One( &
-           ISYCI, &
-           I,J, &
-           p,q ) result(Value)
-
-use Constants,   only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-
-integer(kind=iwp), intent(in) :: ISYCI
-integer(kind=iwp), intent(in) :: I
-integer(kind=iwp), intent(in) :: J
-
-integer(kind=iwp), intent(in) :: p
-integer(kind=iwp), intent(in) :: q
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: MVI
-integer(kind=iwp) :: MVJ
-
-integer(kind=iwp) :: ISYUPI
-integer(kind=iwp) :: ISYUPJ
-integer(kind=iwp) :: ISYDWN
-
-integer(kind=iwp) :: IUPI
-integer(kind=iwp) :: IUPJ
-
-integer(kind=iwp) :: IDWNI
-integer(kind=iwp) :: IDWNJ
-
-integer(kind=iwp) :: INDEO
-integer(kind=iwp) :: NCP
-integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: ICP
-
-integer(kind=iwp) :: IFrom
-integer(kind=iwp) :: ITo
-integer(kind=iwp) :: iValue
-
-logical :: Reverse
-
-Value = Zero
-
-!
-! This helper handles one non-diagonal lower operator.
-!
-if (p == q) return
-
-if (p < 1) return
-if (q < 1) return
-
-if (p > SGS(iState)%MidLev) return
-if (q > SGS(iState)%MidLev) return
-
-call Decode_CSF( &
-     CIS(iState),ISYCI, &
-     I, &
-     MVI,ISYUPI,IUPI,IDWNI )
-
-call Decode_CSF( &
-     CIS(iState),ISYCI, &
-     J, &
-     MVJ,ISYUPJ,IUPJ,IDWNJ )
-
-!
-! A lower operator leaves the upper walk unchanged.
-!
-if (MVI    /= MVJ)    return
-if (ISYUPI /= ISYUPJ) return
-if (IUPI   /= IUPJ)   return
-
-!
-! Lower coupling tables are indexed by the symmetry carried
-! by the lower partial walk.
-!
-ISYDWN = Mul(ISYCI,ISYUPI)
-
-Reverse = p < q
-
-call Decode_Lower_Operator( &
-     SGS(iState),p,q,INDEO )
-
-NCP = EXS(iState)%NOCP(INDEO,ISYDWN,MVI)
-if (NCP == 0) return
-
-IOFF = EXS(iState)%IOCP(INDEO,ISYDWN,MVI)
-
-do ICP=1,NCP
-
-   if (Reverse) then
-
-      !
-      ! Reverse orientation:
-      !
-      !     E_pq = E_qp^dagger.
-      !
-      IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
-
-   else
-
-      !
-      ! Canonical orientation.
-      !
-      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
-
-   end if
-
-   if (IFrom /= IDWNJ) cycle
-   if (ITo   /= IDWNI) cycle
-
-   iValue = EXS(iState)%ICoup(3,IOFF+ICP)
-
-   Value = Value + EXS(iState)%VTab(iValue)
-
-end do
-
-end function MatEl_Lower_One
-
-subroutine Contract_Lower_Blocks( &
-           INDEO_Right,Reverse_Right, &
-           INDEO_Left, Reverse_Left,  &
-           ISYDWN,MV, &
-           nTerm, &
-           IFrom,ITo,XVal )
-
-use Definitions, only: iwp, wp
-use stdalloc,    only: mma_allocate
-
-implicit none
-
-!
-! Contract the ordered lower-walk product
-!
-!     E_Left E_Right.
-!
-! The rightmost operator acts first:
-!
-!     IFrom --E_Right--> K --E_Left--> ITo.
-!
-! The coupling tables store the canonical orientation with
-! the larger orbital index first. Reverse_Right and
-! Reverse_Left transpose the corresponding transitions.
-!
-
-integer(kind=iwp), intent(in) :: INDEO_Right
-integer(kind=iwp), intent(in) :: INDEO_Left
-
-logical, intent(in) :: Reverse_Right
-logical, intent(in) :: Reverse_Left
-
-integer(kind=iwp), intent(in) :: ISYDWN
-integer(kind=iwp), intent(in) :: MV
-
-integer(kind=iwp), intent(out) :: nTerm
-
-integer(kind=iwp), allocatable, intent(out) :: IFrom(:)
-integer(kind=iwp), allocatable, intent(out) :: ITo(:)
-
-real(kind=wp), allocatable, intent(out) :: XVal(:)
-
-integer(kind=iwp) :: NRight
-integer(kind=iwp) :: NLeft
-
-integer(kind=iwp) :: OffRight
-integer(kind=iwp) :: OffLeft
-
-integer(kind=iwp) :: iRight
-integer(kind=iwp) :: iLeft
-integer(kind=iwp) :: iTerm
-
-integer(kind=iwp) :: FromRight
-integer(kind=iwp) :: ToRight
-
-integer(kind=iwp) :: FromLeft
-integer(kind=iwp) :: ToLeft
-
-integer(kind=iwp) :: iValueRight
-integer(kind=iwp) :: iValueLeft
-
-real(kind=wp) :: XRight
-real(kind=wp) :: XLeft
-real(kind=wp) :: X
-
-logical :: Found
-
-NRight = EXS(iState)%NOCP( &
-              INDEO_Right,ISYDWN,MV )
-
-NLeft = EXS(iState)%NOCP( &
-             INDEO_Left,ISYDWN,MV )
-
-if (NRight == 0 .or. NLeft == 0) then
-
-   nTerm = 0
-
-   call mma_allocate(IFrom,1,Label='IFrom')
-   call mma_allocate(ITo,  1,Label='ITo')
-   call mma_allocate(XVal, 1,Label='XVal')
-
-   return
-
-end if
-
-OffRight = EXS(iState)%IOCP( &
-               INDEO_Right,ISYDWN,MV )
-
-OffLeft = EXS(iState)%IOCP( &
-              INDEO_Left,ISYDWN,MV )
-
-call mma_allocate( &
-     IFrom,NRight*NLeft,Label='IFrom')
-
-call mma_allocate( &
-     ITo,NRight*NLeft,Label='ITo')
-
-call mma_allocate( &
-     XVal,NRight*NLeft,Label='XVal')
-
-nTerm = 0
-
-!
-! The rightmost operator acts first:
-!
-!     FromRight --E_Right--> ToRight.
-!
-do iRight=1,NRight
-
-   if (.not. Reverse_Right) then
-
-      !
-      ! Canonical orientation.
-      !
-      FromRight = EXS(iState)%ICoup(1,OffRight+iRight)
-      ToRight   = EXS(iState)%ICoup(2,OffRight+iRight)
-
-   else
-
-      !
-      ! Reverse orientation:
-      !
-      !     E_rs = E_sr^dagger.
-      !
-      FromRight = EXS(iState)%ICoup(2,OffRight+iRight)
-      ToRight   = EXS(iState)%ICoup(1,OffRight+iRight)
-
-   end if
-
-   iValueRight = EXS(iState)%ICoup(3,OffRight+iRight)
-   XRight = EXS(iState)%VTab(iValueRight)
-
-   !
-   ! The left operator acts second:
-   !
-   !     FromLeft --E_Left--> ToLeft.
-   !
-   do iLeft=1,NLeft
-
-      if (.not. Reverse_Left) then
-
-         !
-         ! Canonical orientation.
-         !
-         FromLeft = EXS(iState)%ICoup(1,OffLeft+iLeft)
-         ToLeft   = EXS(iState)%ICoup(2,OffLeft+iLeft)
-
-      else
-
-         !
-         ! Reverse orientation:
-         !
-         !     E_pq = E_qp^dagger.
-         !
-         FromLeft = EXS(iState)%ICoup(2,OffLeft+iLeft)
-         ToLeft   = EXS(iState)%ICoup(1,OffLeft+iLeft)
-
-      end if
-
-      !
-      ! Resolution-of-identity contraction over the
-      ! intermediate lower walk:
-      !
-      !     ToRight = FromLeft = K_L.
-      !
-      if (ToRight /= FromLeft) cycle
-
-      iValueLeft = EXS(iState)%ICoup(3,OffLeft+iLeft)
-      XLeft = EXS(iState)%VTab(iValueLeft)
-
-      X = XLeft*XRight
-
-      !
-      ! Accumulate contributions with identical initial
-      ! and final lower walks.
-      !
-      Found = .false.
-
-      do iTerm=1,nTerm
-
-         if ((IFrom(iTerm) == FromRight) .and. (ITo(iTerm) == ToLeft)) then
-
-            XVal(iTerm) = XVal(iTerm) + X
-
-            Found = .true.
-            exit
-
-         end if
-
-      end do
-
-      if (.not. Found) then
-
-         nTerm = nTerm + 1
-
-         IFrom(nTerm) = FromRight
-         ITo(nTerm)   = ToLeft
-         XVal(nTerm)  = X
-
-      end if
-
-   end do
-end do
-
-end subroutine Contract_Lower_Blocks
-function Upper_Diagonal_Value( &
-           ISYUP,MV,IUP,p ) result(Value)
-
-use Constants,   only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-
-integer(kind=iwp), intent(in) :: ISYUP
-integer(kind=iwp), intent(in) :: MV
-integer(kind=iwp), intent(in) :: IUP
-integer(kind=iwp), intent(in) :: p
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: IOUW
-integer(kind=iwp) :: IPSHFT
-integer(kind=iwp) :: IPPOW
-integer(kind=iwp) :: LUW
-integer(kind=iwp) :: IC
-integer(kind=iwp) :: ICS
-
-Value = Zero
-
-!
-! This routine evaluates the upper-walk diagonal matrix element
-!
-!     <I_U|E_pp|I_U>.
-!
-if (p <= SGS(iState)%MidLev) return
-if (p >  SGS(iState)%nLev)   return
-
-!
-! Starting position of the upper walks belonging to this
-! split-graph block.
-!
-IOUW = CIS(iState)%IOW(1,ISYUP,MV)
-
-!
-! Each step vector occupies two packed bits.
-!
-IPSHFT = 2*(p-1-SGS(iState)%MidLev)
-
-!
-! Select the packed integer containing the step vector at level p.
-!
-LUW = 1 + IOUW - CIS(iState)%nIpWlk + &
-      IPSHFT/(2*nPack)
-
-IPSHFT = mod(IPSHFT,2*nPack)
-IPPOW  = 2**IPSHFT
-
-!
-! Extract the step vector of upper walk IUP at level p.
-!
-IC = CIS(iState)%ICase( &
-        LUW + IUP*CIS(iState)%nIpWlk )
-
-ICS = mod(IC/IPPOW,4)
-
-!
-! The diagonal segment values are:
-!
-!     step 0 -> 0
-!     step 1 -> 1
-!     step 2 -> 1
-!     step 3 -> 2
-!
-if (ICS /= 0) then
-   Value = real((1+ICS)/2,kind=wp)
-end if
-
-end function Upper_Diagonal_Value
-
-function MatEl_Upper_One( &
-           ISYCI, &
-           I,J, &
-           p,q ) result(Value)
-
-use Constants,   only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-
-integer(kind=iwp), intent(in) :: ISYCI
-
-integer(kind=iwp), intent(in) :: I
-integer(kind=iwp), intent(in) :: J
-
-integer(kind=iwp), intent(in) :: p
-integer(kind=iwp), intent(in) :: q
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: MVI
-integer(kind=iwp) :: MVJ
-
-integer(kind=iwp) :: ISYUPI
-integer(kind=iwp) :: ISYUPJ
-
-integer(kind=iwp) :: IUPI
-integer(kind=iwp) :: IUPJ
-
-integer(kind=iwp) :: IDWNI
-integer(kind=iwp) :: IDWNJ
-
-integer(kind=iwp) :: INDEO
-integer(kind=iwp) :: NCP
-integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: ICP
-
-integer(kind=iwp) :: IFrom
-integer(kind=iwp) :: ITo
-integer(kind=iwp) :: iValue
-
-logical :: Reverse
-
-Value = Zero
-
-!
-! This helper handles only a non-diagonal upper operator.
-!
-if (p == q) return
-
-if (p <= SGS(iState)%MidLev) return
-if (q <= SGS(iState)%MidLev) return
-
-call Decode_CSF( &
-     CIS(iState),ISYCI, &
-     I, &
-     MVI,ISYUPI,IUPI,IDWNI )
-
-call Decode_CSF( &
-     CIS(iState),ISYCI, &
-     J, &
-     MVJ,ISYUPJ,IUPJ,IDWNJ )
-
-!
-! An upper operator leaves the lower walk unchanged.
-!
-if (MVI    /= MVJ)    return
-if (ISYUPI /= ISYUPJ) return
-if (IDWNI  /= IDWNJ)  return
-
-Reverse = p < q
-
-call Decode_Upper_Operator( &
-     SGS(iState),p,q,INDEO )
-
-NCP = EXS(iState)%NOCP(INDEO,ISYUPI,MVI)
-
-if (NCP == 0) return
-
-IOFF = EXS(iState)%IOCP(INDEO,ISYUPI,MVI)
-
-do ICP=1,NCP
-
-   if (.not. Reverse) then
-
-      IFrom = EXS(iState)%ICoup(1,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(2,IOFF+ICP)
-
-   else
-
-      !
-      ! E_pq = E_qp^dagger.
-      !
-      IFrom = EXS(iState)%ICoup(2,IOFF+ICP)
-      ITo   = EXS(iState)%ICoup(1,IOFF+ICP)
-
-   end if
-
-   if (IFrom /= IUPJ) cycle
-   if (ITo   /= IUPI) cycle
-
-   iValue = EXS(iState)%ICoup(3,IOFF+ICP)
-
-   Value = Value + EXS(iState)%VTab(iValue)
-
-end do
-
-end function MatEl_Upper_One
-
-
-function MatEl_EpqErs_Ref(ISYCI,I,J,p,q,r,s) result(Value)
-
-   integer(kind=iwp), intent(in) :: ISYCI,I,J
-   integer(kind=iwp), intent(in) :: p,q,r,s
-
-   real(kind=wp) :: Value
-
-   integer(kind=iwp) :: nCSFI,nCSFK
-#ifdef _DEBUGPRINT_
-   integer(kind=iwp) :: K
-   integer(kind=iwp) :: MVK,ISYUPK,IUPK,IDWNK
-#endif
-   integer(kind=iwp) :: ISYK
-
-   real(kind=wp), allocatable :: Ket(:)
-   real(kind=wp), allocatable :: Tmp(:)
-   real(kind=wp), allocatable :: Res(:)
-   logical(kind=iwp) :: Reuse_Save
-
-   Reuse_Save=EXS(iState)%ReUse_SGTMP
-   EXS(iState)%ReUse_SGTMP=.False.
-   !----------------------------------------------------------
-   ! Symmetry after application of E_rs.
-   !
-   ! |K> = E_rs |J>
-   !
-   ! Gamma(K)=Gamma(r)Gamma(s)Gamma(J)
-   !----------------------------------------------------------
-
-   ISYK = Mul(SGS(iState)%ISm(r), &
-              Mul(SGS(iState)%ISm(s),ISYCI))
-
-   nCSFI = CIS(iState)%NCSF(ISYCI)
-   nCSFK = CIS(iState)%NCSF(ISYK)
-
-   call mma_allocate(Ket,nCSFI,Label='Ket')
-   call mma_allocate(Tmp,nCSFK,Label='Tmp')
-   call mma_allocate(Res,nCSFI,Label='Res')
-
-   Ket(:) = Zero
-   Ket(J) = One
-
-   Tmp(:) = Zero
-
-   call SG_Epq_Psi( SGS(iState), &
-                    CIS(iState), &
-                    EXS(iState), &
-                    r,s,One,ISYCI, &
-                    Ket,Tmp )
-
-#ifdef _DEBUGPRINT_
-   write(6,*)
-   write(6,*) 'INTERMEDIATE STATES AFTER E_rs'
-   write(6,*) 'I,J,p,q,r,s=',I,J,p,q,r,s
-   write(6,*) 'ISYK=',ISYK
-
-   do K=1,nCSFK
-
-      if (abs(Tmp(K)) > 1.0d-12) then
-
-         call Decode_CSF( CIS(iState),ISYK,K, &
-                          MVK,ISYUPK,IUPK,IDWNK )
-
-         write(6,'(I6,F16.8,4I6)') &
-              K,Tmp(K),MVK,ISYUPK,IUPK,IDWNK
-
-      end if
-
-   end do
-#endif
-
-   Res(:) = Zero
-
-   call SG_Epq_Psi( SGS(iState), &
-                    CIS(iState), &
-                    EXS(iState), &
-                    p,q,One,ISYK, &
-                    Tmp,Res )
-
-   Value = Res(I)
-
-   call mma_deallocate(Ket)
-   call mma_deallocate(Tmp)
-   call mma_deallocate(Res)
-
-   EXS(iState)%ReUse_SGTMP=Reuse_Save
-
-end function MatEl_EpqErs_Ref
-
-subroutine Contract_Upper_Blocks( &
-           INDEO_Right,Reverse_Right, &
-           INDEO_Left, Reverse_Left,  &
-           ISYUP,MV, &
-           nTerm, &
-           IFrom,ITo,XVal )
-
-use Definitions, only: iwp, wp
-use stdalloc,    only: mma_allocate
-
-implicit none
-
-!
-! Contract the ordered upper-walk product
-!
-!     E_Left E_Right.
-!
-! The rightmost operator acts first:
-!
-!     IFrom --E_Right--> K --E_Left--> ITo.
-!
-! The stored coupling blocks use the canonical orientation
-! with the larger orbital index first. Reverse_Right and
-! Reverse_Left transpose the corresponding stored transitions.
-!
-
-integer(kind=iwp), intent(in) :: INDEO_Right
-integer(kind=iwp), intent(in) :: INDEO_Left
-
-logical, intent(in) :: Reverse_Right
-logical, intent(in) :: Reverse_Left
-
-integer(kind=iwp), intent(in) :: ISYUP
-integer(kind=iwp), intent(in) :: MV
-
-integer(kind=iwp), intent(out) :: nTerm
-
-integer(kind=iwp), allocatable, intent(out) :: IFrom(:)
-integer(kind=iwp), allocatable, intent(out) :: ITo(:)
-
-real(kind=wp), allocatable, intent(out) :: XVal(:)
-
-integer(kind=iwp) :: NRight
-integer(kind=iwp) :: NLeft
-
-integer(kind=iwp) :: OffRight
-integer(kind=iwp) :: OffLeft
-
-integer(kind=iwp) :: iRight
-integer(kind=iwp) :: iLeft
-integer(kind=iwp) :: iTerm
-
-integer(kind=iwp) :: FromRight
-integer(kind=iwp) :: ToRight
-
-integer(kind=iwp) :: FromLeft
-integer(kind=iwp) :: ToLeft
-
-integer(kind=iwp) :: iValueRight
-integer(kind=iwp) :: iValueLeft
-
-real(kind=wp) :: XRight
-real(kind=wp) :: XLeft
-real(kind=wp) :: X
-
-logical :: Found
-
-NRight = EXS(iState)%NOCP(INDEO_Right,ISYUP,MV)
-NLeft  = EXS(iState)%NOCP(INDEO_Left, ISYUP,MV)
-
-if (NRight == 0 .or. NLeft == 0) then
-
-   nTerm = 0
-
-   call mma_allocate(IFrom,1,Label='IFrom')
-   call mma_allocate(ITo,  1,Label='ITo')
-   call mma_allocate(XVal, 1,Label='XVal')
-
-   return
-
-end if
-
-OffRight = EXS(iState)%IOCP(INDEO_Right,ISYUP,MV)
-OffLeft  = EXS(iState)%IOCP(INDEO_Left, ISYUP,MV)
-
-call mma_allocate( &
-     IFrom,NRight*NLeft,Label='IFrom')
-
-call mma_allocate( &
-     ITo,NRight*NLeft,Label='ITo')
-
-call mma_allocate( &
-     XVal,NRight*NLeft,Label='XVal')
-
-nTerm = 0
-
-!
-! The rightmost operator acts first:
-!
-!     FromRight --E_Right--> ToRight.
-!
-do iRight=1,NRight
-
-   if (.not. Reverse_Right) then
-
-      !
-      ! Canonical orientation.
-      !
-      FromRight = EXS(iState)%ICoup(1,OffRight+iRight)
-      ToRight   = EXS(iState)%ICoup(2,OffRight+iRight)
-
-   else
-
-      !
-      ! Reverse orientation:
-      !
-      !     E_rs = E_sr^dagger.
-      !
-      FromRight = EXS(iState)%ICoup(2,OffRight+iRight)
-      ToRight   = EXS(iState)%ICoup(1,OffRight+iRight)
-
-   end if
-
-   iValueRight = EXS(iState)%ICoup(3,OffRight+iRight)
-   XRight = EXS(iState)%VTab(iValueRight)
-
-   !
-   ! The left operator acts second:
-   !
-   !     FromLeft --E_Left--> ToLeft.
-   !
-   do iLeft=1,NLeft
-
-      if (.not. Reverse_Left) then
-
-         !
-         ! Canonical orientation.
-         !
-         FromLeft = EXS(iState)%ICoup(1,OffLeft+iLeft)
-         ToLeft   = EXS(iState)%ICoup(2,OffLeft+iLeft)
-
-      else
-
-         !
-         ! Reverse orientation:
-         !
-         !     E_pq = E_qp^dagger.
-         !
-         FromLeft = EXS(iState)%ICoup(2,OffLeft+iLeft)
-         ToLeft   = EXS(iState)%ICoup(1,OffLeft+iLeft)
-
-      end if
-
-      !
-      ! Resolution-of-identity contraction over the
-      ! intermediate upper walk:
-      !
-      !     ToRight = FromLeft = K.
-      !
-      if (ToRight /= FromLeft) cycle
-
-      iValueLeft = EXS(iState)%ICoup(3,OffLeft+iLeft)
-      XLeft = EXS(iState)%VTab(iValueLeft)
-
-      X = XLeft*XRight
-
-      !
-      ! Accumulate all contributions having the same
-      ! initial and final upper walks.
-      !
-      Found = .false.
-
-      do iTerm=1,nTerm
-
-         if ((IFrom(iTerm) == FromRight) .and. (ITo(iTerm) == ToLeft)) then
-
-            XVal(iTerm) = XVal(iTerm) + X
-
-            Found = .true.
-            exit
-
-         end if
-
-      end do
-
-      if (.not. Found) then
-
-         nTerm = nTerm + 1
-
-         IFrom(nTerm) = FromRight
-         ITo(nTerm)   = ToLeft
-         XVal(nTerm)  = X
-
-      end if
-
-   end do
-end do
-
-end subroutine Contract_Upper_Blocks
-
-
-function MatEl_LL( &
-           I,J, &
-           INDEO_Left,Reverse_Left, &
-           INDEO_Right,Reverse_Right ) result(Value)
-
-use Constants,   only: Zero
-use Definitions, only: wp, iwp
-use stdalloc,    only: mma_deallocate
-
-implicit none
-
-integer(kind=iwp), intent(in) :: I
-integer(kind=iwp), intent(in) :: J
-
-integer(kind=iwp), intent(in) :: INDEO_Left
-integer(kind=iwp), intent(in) :: INDEO_Right
-
-logical, intent(in) :: Reverse_Left
-logical, intent(in) :: Reverse_Right
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: MVI
-integer(kind=iwp) :: MVJ
-
-integer(kind=iwp) :: ISYUPI
-integer(kind=iwp) :: ISYUPJ
-integer(kind=iwp) :: ISYDWN
-
-integer(kind=iwp) :: IUPI
-integer(kind=iwp) :: IUPJ
-
-integer(kind=iwp) :: IDWNI
-integer(kind=iwp) :: IDWNJ
-
-integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: iTerm
-
-integer(kind=iwp), allocatable :: IFrom(:)
-integer(kind=iwp), allocatable :: ITo(:)
-
-real(kind=wp), allocatable :: XVal(:)
-
-Value = Zero
-
-call Decode_CSF( &
-     CIS(iState),LSM, &
-     I, &
-     MVI,ISYUPI,IUPI,IDWNI )
-
-call Decode_CSF( &
-     CIS(iState),LSM, &
-     J, &
-     MVJ,ISYUPJ,IUPJ,IDWNJ )
-
-!
-! Both operators act entirely on the lower half.
-! The upper half-walk is a spectator.
-!
-if (MVI    /= MVJ)    return
-if (ISYUPI /= ISYUPJ) return
-if (IUPI   /= IUPJ)   return
-
-!
-! For
-!
-!     <I|E_Left E_Right|J>,
-!
-! the rightmost operator acts first:
-!
-!     J_L --E_Right--> K_L --E_Left--> I_L.
-!
-!
-! Lower coupling blocks are indexed by the symmetry carried
-! by the lower partial walk, not by the upper-walk symmetry.
-!
-ISYDWN = Mul(LSM,ISYUPI)
-
-call Contract_Lower_Blocks( &
-     INDEO_Right,Reverse_Right, &
-     INDEO_Left, Reverse_Left,  &
-     ISYDWN,MVI, &
-     nTerm, &
-     IFrom,ITo,XVal )
-
-do iTerm=1,nTerm
-
-   if (IFrom(iTerm) /= IDWNJ) cycle
-   if (ITo(iTerm)   /= IDWNI) cycle
-
-   Value = Value + XVal(iTerm)
-
-end do
-
-call mma_deallocate(IFrom)
-call mma_deallocate(ITo)
-call mma_deallocate(XVal)
-
-end function MatEl_LL
-
-function MatEl_UU( &
-           ISYCI, &
-           I,J, &
-           INDEO_Left,Reverse_Left, &
-           INDEO_Right,Reverse_Right ) result(Value)
-
-use Constants,   only: Zero
-use Definitions, only: wp, iwp
-use stdalloc,    only: mma_deallocate
-
-implicit none
-
-integer(kind=iwp), intent(in) :: ISYCI
-
-integer(kind=iwp), intent(in) :: I
-integer(kind=iwp), intent(in) :: J
-
-integer(kind=iwp), intent(in) :: INDEO_Left
-integer(kind=iwp), intent(in) :: INDEO_Right
-
-logical, intent(in) :: Reverse_Left
-logical, intent(in) :: Reverse_Right
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: MVI
-integer(kind=iwp) :: MVJ
-
-integer(kind=iwp) :: ISYUPI
-integer(kind=iwp) :: ISYUPJ
-
-integer(kind=iwp) :: IUPI
-integer(kind=iwp) :: IUPJ
-
-integer(kind=iwp) :: IDWNI
-integer(kind=iwp) :: IDWNJ
-
-integer(kind=iwp) :: nTerm
-integer(kind=iwp) :: iTerm
-
-integer(kind=iwp), allocatable :: IFrom(:)
-integer(kind=iwp), allocatable :: ITo(:)
-
-real(kind=wp), allocatable :: XVal(:)
-
-Value = Zero
-
-call Decode_CSF( &
-     CIS(iState),ISYCI, &
-     I, &
-     MVI,ISYUPI,IUPI,IDWNI )
-
-call Decode_CSF( &
-     CIS(iState),ISYCI, &
-     J, &
-     MVJ,ISYUPJ,IUPJ,IDWNJ )
-
-!
-! Both operators act entirely on the upper half.
-! The lower half-walk must therefore be unchanged.
-!
-if (MVI    /= MVJ)    return
-if (ISYUPI /= ISYUPJ) return
-if (IDWNI  /= IDWNJ)  return
-
-!
-! For
-!
-!     <I|E_Left E_Right|J>,
-!
-! the rightmost operator acts first:
-!
-!     J_U --E_Right--> K_U --E_Left--> I_U.
-!
-call Contract_Upper_Blocks( &
-     INDEO_Right,Reverse_Right, &
-     INDEO_Left, Reverse_Left,  &
-     ISYUPI,MVI, &
-     nTerm, &
-     IFrom,ITo,XVal )
-
-do iTerm=1,nTerm
-
-   if (IFrom(iTerm) /= IUPJ) cycle
-   if (ITo(iTerm)   /= IUPI) cycle
-
-   Value = Value + XVal(iTerm)
-
-end do
-
-call mma_deallocate(IFrom)
-call mma_deallocate(ITo)
-call mma_deallocate(XVal)
-
-end function MatEl_UU
 
 #ifdef _NOT_USED_
 subroutine Print_CSF_Decoding(CIS,ISYCI)
@@ -9048,6 +7788,1855 @@ end do
 end subroutine Print_Block_CSF_Map
 #endif
 
+
+
+
+
+
+#ifdef _NOT_USED_
+subroutine Print_Epq_Matrix(iState,LSM,p,q)
+
+use Constants, only: Zero
+use Definitions, only: iwp, wp, u6
+
+integer(kind=iwp), intent(in) :: iState
+integer(kind=iwp), intent(in) :: LSM
+integer(kind=iwp), intent(in) :: p,q
+
+integer(kind=iwp) :: I,J
+integer(kind=iwp) :: nCSF
+
+real(kind=wp) :: X
+
+nCSF = CIS(iState)%NCSF(LSM)
+
+write(u6,*)
+write(u6,*) '========================================='
+write(u6,*) ' EPQ MATRIX'
+write(u6,*) '========================================='
+write(u6,'(A,2I6)') 'p,q=',p,q
+write(u6,*)
+
+write(u6,'(A)') &
+'I        J                 <I|Epq|J>'
+
+do I=1,nCSF
+   do J=1,nCSF
+
+      X = MatEl_Epq_Ref(iState,LSM,I,J,p,q)
+
+      if (abs(X) < 1.0e-12_wp) cycle
+
+      write(u6,'(2I8,F24.15)') I,J,X
+
+   end do
+end do
+
+write(u6,*)
+
+end subroutine Print_Epq_Matrix
+#endif
+
+function MatEl_Epq_Ref(iState,ISYI,I,J,p,q) result(Value)
+
+use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
+use Definitions, only: iwp, wp
+use stdalloc, only: mma_allocate, mma_deallocate
+
+integer(kind=iwp), intent(in) :: iState
+integer(kind=iwp), intent(in) :: ISYI
+integer(kind=iwp), intent(in) :: I,J
+integer(kind=iwp), intent(in) :: p,q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: iSYJ, nCSFI, nCSFJ
+
+real(kind=wp), allocatable :: Ket(:)
+real(kind=wp), allocatable :: Res(:)
+logical(kind=iwp) :: Reuse_Save
+
+Value = Zero
+
+Reuse_Save=EXS(iState)%ReUse_SGTmp
+EXS(iState)%ReUse_SGTmp=.False.
+
+ISYJ  = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%iSM(q)),ISYI)
+
+nCSFI = CIS(iState)%NCSF(iSYI)
+nCSFJ = CIS(iState)%NCSF(iSYJ)
+
+call mma_allocate(Ket,nCSFI,Label='Ket')
+call mma_allocate(Res,nCSFJ,Label='Res')
+
+Ket(:)=Zero
+Ket(J)=One    ! C_J=1.00
+
+Res(:)=Zero
+
+call SG_Epq_Psi( &
+     SGS(iState), &
+     CIS(iState), &
+     EXS(iState), &
+     p,q,One,ISYI, &
+     Ket,Res )
+
+Value = Res(I)
+
+call mma_deallocate(Ket)
+call mma_deallocate(Res)
+
+EXS(iState)%ReUse_SGTmp=Reuse_Save
+
+end function MatEl_Epq_Ref
+
+
+
+
+
+
+
+
+!
+! <I|H|J> for I and J of symmetry LSM, in the form used by sg_h_psi:
+!
+!   H = Sum_{i>=j, G(ij)=1} k_ij Ehat_ij + Sum_{i>=j} Sum_{k>=l, G(kl)=G(ij)} 1/2 (kl|ij) Ehat_kl Ehat_ij
+!
+! with Ehat_ij = E_ij + E_ji (E_ii for i = j), k_ij = h_ij - 1/2 Sum_k (ik|kj),
+! and triangularly packed TU (h) and TUVX ((kl|ij)), as in sg_h_psi.
+!
+function MatEl_H(I,J,TU,nTU,TUVX,nTUVX) result(H)
+
+  use Index_functions, only: iTri
+  use Constants, only: Half
+
+  integer(kind=iwp), intent(in) :: I, J, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp) :: H
+  integer(kind=iwp) :: iO, jO, kO, lO, ij, kl, nL
+  real(kind=wp) :: OneInt, TwoInt, G
+
+  H = Zero
+  nL = SGS(iState)%nLev
+  do iO = 1, nL
+    do jO = 1, iO
+      ij = iTri(iO,jO)
+      if (SGS(iState)%ISm(iO) == SGS(iState)%ISm(jO)) then
+        TwoInt = Zero
+        do kO = 1, nL
+          TwoInt = TwoInt+TUVX(iTri(iTri(iO,kO),iTri(kO,jO)))
+        end do
+        OneInt = TU(ij)-Half*TwoInt
+        H = H+OneInt*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),iO,jO,LSM,I,J,.False.)
+        if (iO /= jO) H = H+OneInt*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),jO,iO,LSM,I,J,.False.)
+      end if
+      do kO = 1, nL
+        do lO = 1, kO
+          kl = iTri(kO,lO)
+          if (Mul(SGS(iState)%ISm(kO),SGS(iState)%ISm(lO)) /= &
+              Mul(SGS(iState)%ISm(iO),SGS(iState)%ISm(jO))) cycle
+          G = Half*TUVX(iTri(kl,ij))
+          if (G == Zero) cycle
+          ! Ehat_kl Ehat_ij
+          H = H+G*MatEl_EpqErs(I,J,kO,lO,iO,jO,Occ(:,I),Occ(:,J))
+          if (iO /= jO) H = H+G*MatEl_EpqErs(I,J,kO,lO,jO,iO,Occ(:,I),Occ(:,J))
+          if (kO /= lO) then
+            H = H+G*MatEl_EpqErs(I,J,lO,kO,iO,jO,Occ(:,I),Occ(:,J))
+            if (iO /= jO) H = H+G*MatEl_EpqErs(I,J,lO,kO,jO,iO,Occ(:,I),Occ(:,J))
+          end if
+        end do
+      end do
+    end do
+  end do
+
+end function MatEl_H
+
+
+
+
+
+!
+! Verify MatEl_H against sg_h_psi: with reproducible pseudo-random integrals
+! (any values with the permutational symmetry of the triangular packing will
+! do), compare <I|H|J> with (H e_J)_I for all I and for all columns J, or a
+! random sample of MaxHCol columns. Aborts on a mismatch.
+!
+subroutine Check_MatEl_H()
+
+  integer(kind=iwp), parameter :: MaxHCol = 20
+  real(kind=wp), parameter :: TolH = 1.0e-10_wp
+  integer(kind=iwp) :: nL, nTU, nTUVX, nC, nCol, iCol, I, J, k, nTestH, nFailH, nFailD
+  integer(kind=int64) :: iInt
+  real(kind=wp), allocatable :: TU(:), TUVX(:), Psi(:), Sgm(:)
+  real(kind=wp) :: X, Dev, MaxDev, MaxDevD, T0, T1, W, TimH, TimD
+  logical(kind=iwp) :: Reuse_Save, AllCols
+
+  interface
+    subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+      import :: SGStruct, CIStruct, EXStruct, iwp, wp
+      type(SGStruct), intent(in) :: SGS
+      type(CIStruct), intent(in) :: CIS
+      type(EXStruct), intent(inout) :: EXS
+      integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+      real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+      real(kind=wp), intent(out) :: Sigma(nCSFs)
+    end subroutine sg_h_psi
+  end interface
+
+  nL = SGS(iState)%nLev
+  nTU = nL*(nL+1)/2
+  nTUVX = nTU*(nTU+1)/2
+  nC = CIS(iState)%NCSF(LSM)
+
+  ! Reproducible integrals in [-0.5,0.5), independent of the sampling seed.
+  call mma_allocate(TU,nTU,Label='TU_H')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX_H')
+  iInt = 271828183_int64
+  do k = 1, nTU
+    iInt = mod(48271_int64*iInt,2147483647_int64)
+    TU(k) = real(iInt,kind=wp)/2147483647.0_wp-0.5_wp
+  end do
+  do k = 1, nTUVX
+    iInt = mod(48271_int64*iInt,2147483647_int64)
+    TUVX(k) = real(iInt,kind=wp)/2147483647.0_wp-0.5_wp
+  end do
+
+  call mma_allocate(Psi,nC,Label='Psi_H')
+  call mma_allocate(Sgm,nC,Label='Sgm_H')
+  Reuse_Save = EXS(iState)%ReUse_SGTMP
+  EXS(iState)%ReUse_SGTMP = .False.
+
+  AllCols = nC <= MaxHCol
+  nCol = merge(nC,MaxHCol,AllCols)
+  nTestH = 0
+  nFailH = 0
+  nFailD = 0
+  MaxDev = Zero
+  MaxDevD = Zero
+  TimH = Zero
+  TimD = Zero
+  do iCol = 1, nCol
+    J = merge(iCol,Rand_Index(nC),AllCols)
+    Psi(:) = Zero
+    Psi(J) = One
+    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
+    do I = 1, nC
+      call CWTime(T0,W)
+      X = MatEl_H(I,J,TU,nTU,TUVX,nTUVX)
+      call CWTime(T1,W)
+      TimH = TimH+T1-T0
+      Dev = abs(X-Sgm(I))
+      MaxDev = max(MaxDev,Dev)
+      nTestH = nTestH+1
+      if (Dev > TolH*max(One,abs(Sgm(I)))) then
+        nFailH = nFailH+1
+        if (nFailH <= 10) write(u6,'(A,2I8,3ES22.13)') 'MatEl_H mismatch: I,J,<I|H|J>,sg_h_psi,diff = ', &
+                                                     I,J,X,Sgm(I),X-Sgm(I)
+      end if
+      call CWTime(T0,W)
+      X = MatEl_H_Direct(I,J,Occ(:,I),Occ(:,J),TU,nTU,TUVX,nTUVX)
+      call CWTime(T1,W)
+      TimD = TimD+T1-T0
+      Dev = abs(X-Sgm(I))
+      MaxDevD = max(MaxDevD,Dev)
+      if (Dev > TolH*max(One,abs(Sgm(I)))) then
+        nFailD = nFailD+1
+        if (nFailD <= 10) write(u6,'(A,2I8,3ES22.13)') 'MatEl_H_Direct mismatch: I,J,<I|H|J>,sg_h_psi,diff = ', &
+                                                     I,J,X,Sgm(I),X-Sgm(I)
+      end if
+    end do
+  end do
+
+  EXS(iState)%ReUse_SGTMP = Reuse_Save
+  call mma_deallocate(Sgm)
+  call mma_deallocate(Psi)
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
+
+  write(u6,*)
+  write(u6,'(A)') ' MatEl_H verification against sg_h_psi (pseudo-random integrals)'
+  write(u6,'(A,I0,A,I0,A)') 'Columns tested         : ',nCol,' of ',nC, merge(' (all)   ',' (random)',AllCols)
+  write(u6,'(A,I0)')   'Matrix elements tested : ',nTestH
+  write(u6,'(A,2I8)')  'Failures (H, Direct)   : ',nFailH,nFailD
+  write(u6,'(A,2ES12.4)') 'Maximum abs. deviation : ',MaxDev,MaxDevD
+  write(u6,'(A,2F12.3)') 'CPU time (H, Direct)   : ',TimH,TimD
+  if ((nFailH /= 0) .or. (nFailD /= 0)) then
+    write(u6,'(A)') 'MatEl_H consistency check FAILED.'
+    call Abend()
+  end if
+  write(u6,'(A)') 'MatEl_H consistency check PASSED.'
+
+end subroutine Check_MatEl_H
+
+
+
+!> Direct matrix element of a spin-free excitation operator between two CSFs.
+!!
+!! Computes EIJ = < I | E(IP,IQ) | J >, where I belongs to symmetry
+!! Mul(ISm(IP),ISm(IQ),ISYCJ) and J belongs to ISYCJ.
+!!
+!! This is intentionally a reference implementation:
+!!   * no SGTMP cache or saved state;
+!!   * no sorting or mutation of ICOUP;
+!!   * no packing, tiling, SIMD, GEMM, or scratch lists;
+!!   * only the coupling entries needed for the requested CSFs are visited.
+!!
+!! I and J are 1-based CSF indices within their respective symmetry sectors.
+!! CPQ is not included: the returned value is the bare <I|E_pq|J>.
+
+
+!> Exhaustively compare MatEl_Epq and MatEl_Epq_Ref for one ket symmetry.
+!!
+!! The routine checks every orbital pair (p,q), every ket CSF J in
+!! symmetry ISYCI, and every bra CSF I in the symmetry generated by E_pq.
+!! It prints each inconsistency and a final summary.
+subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
+  use Symmetry_Info, only: Mul
+  use Constants,     only: Zero
+  use Definitions,   only: wp, iwp
+#include "intent.fh"
+
+  integer(kind=iwp), intent(in)  :: ISYCI, iState
+  real(kind=wp),     intent(in)  :: Tol
+  integer(kind=iwp), intent(out) :: nTest, nFail
+  real(kind=wp),     intent(out) :: MaxDiff
+
+  integer(kind=iwp) :: I, J, p, q
+  integer(kind=iwp) :: nCSFI, nCSFJ, ISYCJ
+  integer(kind=iwp) :: iMax, jMax, pMax, qMax
+  real(kind=wp) :: Value, Value_Ref, Diff, Scale
+  logical(kind=iwp) :: Reuse_Save, Verbose
+  !
+  ! Quick zero test: orbital occupations of the CSFs of every symmetry,
+  ! OccAll(t,iOff(ISY)+I) = occupation of level t in CSF I of symmetry ISY.
+  ! They are unpacked from the step vectors by CSF_Occupation, not taken
+  ! from MatEl_Epq, which is what is being tested. (Taking them from the
+  ! reference diagonal costs nLev*nCSF**2 and dominated large cases.)
+  !
+  integer(kind=iwp), allocatable :: OccAll(:,:)
+  integer(kind=iwp) :: iOff(8), ISY, nScreen
+#ifdef _CHECK_QUICK_ZERO_
+  integer(kind=iwp) :: iLev
+#endif
+  logical(kind=iwp) :: Screened
+  ! Sampling of (I,J) as in the two-operator test (parameters of the host).
+  integer(kind=iwp) :: nPairsIJ, nDrawMax, iDraw, nTakeZ, nTakeNZ, nSampledPQ
+  logical(kind=iwp) :: Sampled
+
+  nTest   = 0_iwp
+  nFail   = 0_iwp
+  MaxDiff = Zero
+  iMax    = 0_iwp
+  jMax    = 0_iwp
+  pMax    = 0_iwp
+  qMax    = 0_iwp
+  Verbose = .False.
+! Verbose = .True.
+
+  nCSFI = CIS(iState)%NCSF(ISYCI)
+
+  Write (u6,*) '============================'
+  Write (u6,*) '   MatEl_Epq Verification   '
+  Write (u6,*) '============================'
+  Write (u6,*) 'iState,iSYCI: ',iState,ISYCI
+  Write (u6,*) 'SGS(iState)%iSM(:): ',SGS(iState)%iSM(:)
+
+  ! Disable reuse of SGTMP
+  Reuse_Save = EXS(iState)%ReUse_SGTMP
+  EXS(iState)%ReUse_SGTMP = .False.
+
+  iOff(:) = 0
+  do ISY = 2, SGS(iState)%nSym
+    iOff(ISY) = iOff(ISY-1)+CIS(iState)%NCSF(ISY-1)
+  end do
+  call mma_allocate(OccAll,SGS(iState)%nLev, &
+                    iOff(SGS(iState)%nSym)+CIS(iState)%NCSF(SGS(iState)%nSym), &
+                    Label='OccAll')
+  do ISY = 1, SGS(iState)%nSym
+    do I = 1, CIS(iState)%NCSF(ISY)
+      call CSF_Occupation(ISY,I,OccAll(:,iOff(ISY)+I))
+#ifdef _CHECK_QUICK_ZERO_
+      ! Cross-check the unpacked occupations against the reference diagonal.
+      do iLev = 1, SGS(iState)%nLev
+        if (OccAll(iLev,iOff(ISY)+I) /= nint(MatEl_Epq_Ref(istate,ISY,I,I,iLev,iLev))) then
+          write(u6,'(A,3I7)') 'CSF_Occupation failed: ISY,I,level =',ISY,I,iLev
+          call Abend()
+        end if
+      end do
+#endif
+    end do
+  end do
+  nScreen = 0_iwp
+  nSampledPQ = 0_iwp
+
+  do q = 1, SGS(iState)%nLev
+    do p = 1, SGS(iState)%nLev
+
+      ISYCJ=Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)),ISYCI)
+      nCSFJ = CIS(iState)%NCSF(ISYCJ)
+
+      ! All (I,J) pairs, or a random sample of them if there are more than
+      ! MaxPairs.
+      nPairsIJ = nCSFI*nCSFJ
+      Sampled  = nPairsIJ > MaxPairs
+      ! Cap the draws relative to the block size, so that sampling a block
+      ! just above MaxPairs never costs more than two full loops.
+      nDrawMax = merge(min(MaxDraw,2*nPairsIJ),nPairsIJ,Sampled)
+      nTakeZ   = 0
+      nTakeNZ  = 0
+      if (Sampled) nSampledPQ = nSampledPQ + 1_iwp
+      do iDraw = 1, nDrawMax
+          if (Sampled) then
+            if (nTakeZ >= QuotaZ .and. nTakeNZ >= QuotaNZ) exit
+            I = Rand_Index(nCSFI)
+            J = Rand_Index(nCSFJ)
+          else
+            J = (iDraw-1)/nCSFI+1
+            I = mod(iDraw-1,nCSFI)+1
+          end if
+
+          ! Skip the reference when <I|Epq|J> is zero by the occupations;
+          ! MatEl_Epq must then return exactly zero.
+          Screened = Epq_Is_Zero(OccAll(:,iOff(ISYCI)+I),OccAll(:,iOff(ISYCJ)+J),I,J,p,q)
+          if (Sampled) then
+            if (Screened) then
+              if (nTakeZ >= QuotaZ) cycle
+              nTakeZ = nTakeZ+1
+            else
+              if (nTakeNZ >= QuotaNZ) cycle
+              nTakeNZ = nTakeNZ+1
+            end if
+          end if
+
+          ! evaluate <I| Epq |J>
+
+          Value = MatEl_Epq(SGS(iState), &
+                            CIS(iState), &
+                            EXS(iState), &
+                            p,q,ISYCJ,I,J,Verbose)
+
+          if (Screened) then
+            Value_Ref = Zero
+            nScreen = nScreen + 1_iwp
+#ifdef _CHECK_QUICK_ZERO_
+            if (abs(MatEl_Epq_Ref(istate,ISYCJ,I,J,p,q)) > Tol) then
+              write(u6,'(A,6I7)') 'Epq_Is_Zero failed: ISYCI,I,ISYJ,J,p,q =', &
+                                  ISYCI,I,ISYCJ,J,p,q
+              call Abend()
+            end if
+#endif
+          else
+            Value_Ref = MatEl_Epq_Ref(istate,ISYCJ,I,J,p,q)
+          end if
+
+          nTest = nTest + 1_iwp
+          Diff  = abs(Value-Value_Ref)
+          Scale = max(1.0_wp,abs(Value),abs(Value_Ref))
+
+          if (Diff > MaxDiff) then
+            MaxDiff = Diff
+            iMax = I
+            jMax = J
+            pMax = p
+            qMax = q
+          end if
+
+          if ((Screened .and. Value /= Zero) .or. Diff > Tol*Scale) then
+            nFail = nFail + 1_iwp
+            write(u6,'(A,6I7,2ES24.14)') &
+              'MATEL_EPQ mismatch: ISYCI,I,ISYJ,J,p,q,value,Value_Ref =', &
+              ISYCI,I,ISYCJ,J,p,q,Value,Value_Ref
+          end if
+
+      end do
+    end do
+  end do
+
+  EXS(iState)%ReUse_SGTMP = Reuse_Save
+  call mma_deallocate(OccAll)
+
+  write(u6,'(/,A,I0)') 'MatEl_Epq tests       : ',nTest
+  write(u6,'(A,I0)')   'Screened as zero      : ',nScreen
+  write(u6,'(A,I0)')   'Sampled (p,q) blocks  : ',nSampledPQ
+  write(u6,'(A,I0)')   'MatEl_Epq failures    : ',nFail
+  write(u6,'(A,ES12.4)') 'Relative tolerance    : ',Tol
+  if (nFail > 0) then
+    write(u6,'(A,ES24.14)') 'Maximum abs. diff.    : ',MaxDiff
+    write(u6,'(A,4I8)') 'At I,J,p,q            : ', &
+                       iMax,jMax,pMax,qMax
+  end if
+
+  if (nFail == 0) then
+    write(u6,'(A)') 'MatEl_Epq consistency check PASSED.'
+  else
+    write(u6,'(A)') 'MatEl_Epq consistency check FAILED.'
+  end if
+  Write (u6,*) '============================'
+
+end subroutine Check_MatEl_Epq
+
+!
+! Random index in 1..n from a Park-Miller generator (x <- 48271 x mod
+! (2**31-1)) with the state iRandState of the host. Self-contained, so the
+! sequence does not depend on other users of a random number generator.
+!
+function Rand_Index(n) result(iRand)
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp) :: iRand
+  if (.not. SeedReported) then
+    if (SeedFromEnv) then
+      write(u6,'(/,A,I0,A)') 'SG_Test_EpqErs_Ref: random sampling of (I,J) pairs, seed = ', &
+                             iRandSeed,' (from MOLCAS_RANDOM_SEED)'
+    else
+      write(u6,'(/,A,I0,A)') 'SG_Test_EpqErs_Ref: random sampling of (I,J) pairs, seed = ', &
+                             iRandSeed,' (from the clock)'
+    end if
+    write(u6,'(A,I0,/)')   'To reproduce this run: >export MOLCAS_RANDOM_SEED=',iRandSeed
+    SeedReported = .true.
+  end if
+  iRandState = mod(48271_int64*iRandState,2147483647_int64)
+  iRand = 1+int(mod(iRandState,int(n,kind=int64)),kind=iwp)
+end function Rand_Index
+
+
+!
+! Seed of the generator: MOLCAS_RANDOM_SEED if set, otherwise the clock.
+! (getSeed is not used, since inside verify it gives a deterministic seed.)
+!
+subroutine Init_Rand_Seed()
+  character(len=72) :: Line
+  integer(kind=int64) :: iCount
+  call get_environment_variable('MOLCAS_RANDOM_SEED',Line)
+  SeedFromEnv = Line /= ' '
+  if (SeedFromEnv) then
+    read(Line,*) iRandSeed
+  else
+    call system_clock(iCount)
+    iRandSeed = 1_int64+mod(abs(iCount),2147483646_int64)
+  end if
+  ! The Park-Miller state must lie in 1..2**31-2.
+  iRandState = 1_int64+mod(abs(iRandSeed),2147483646_int64)
+  SeedReported = .false.
+end subroutine Init_Rand_Seed
+
+  !
+  ! Quick zero test for <I|E_pq|J> from the occupations OccI, OccJ of I, J.
+  ! Returns .true. only if the matrix element is exactly zero:
+  !   p == q: E_pp is diagonal in the CSF basis, so zero unless I == J
+  !           (the symmetries of I and J are then equal);
+  !   p /= q: zero unless n_J(q) >= 1, n_J(p) <= 1 and
+  !           n_I(t) = n_J(t) + d(t,p) - d(t,q) for every level t.
+  !
+  function Epq_Is_Zero(OccI,OccJ,I,J,p,q) result(IsZero)
+    integer(kind=iwp), intent(in) :: OccI(:), OccJ(:), I, J, p, q
+    logical(kind=iwp) :: IsZero
+    integer(kind=iwp) :: t, nI
+    IsZero = .true.
+    if (p == q) then
+      IsZero = I /= J
+      return
+    end if
+    if (OccJ(q) == 0 .or. OccJ(p) == 2) return
+    do t = 1, size(OccJ)
+      nI = OccJ(t)
+      if (t == p) nI = nI+1
+      if (t == q) nI = nI-1
+      if (nI /= OccI(t)) return
+    end do
+    IsZero = .false.
+  end function Epq_Is_Zero
+
+end subroutine SG_Test_EpqErs_Ref
+
+!=======================================================================
+! Matrix elements <I|E_pq|J>, <I|E_pq E_rs|J> and <I|H|J> between single
+! CSFs (module level, used by SG_Test_EpqErs_Ref and by SG_MatEl_H). The
+! state and the CSF symmetry are ME_iState and ME_LSM.
+!=======================================================================
+
+!
+! Quick zero test for <I|E_pq E_rs|J>, from the orbital occupations OccI and
+! OccJ of I and J (level by level). Returns .true. only if the matrix element is exactly zero:
+!
+!   1. |K> = E_rs|J> must exist: n_J(s) >= 1 and n_J(r) <= 1 for r /= s,
+!      n_J(r) >= 1 for r == s (E_rr|J> = n_r|J>). Likewise E_pq|K> needs
+!      n_K(p) >= 1 for p == q (for p /= q this follows from point 2).
+!   2. n_I(t) = n_J(t) + d(t,p) - d(t,q) + d(t,r) - d(t,s) for every level t.
+!
+! A .false. result does not mean the element is nonzero (spin coupling can
+! still make it vanish). Spatial symmetry is implied by point 2.
+!
+function Quick_Zero(OccI,OccJ,p,q,r,s) result(IsZero)
+
+integer(kind=iwp), intent(in) :: OccI(:), OccJ(:), p, q, r, s
+logical :: IsZero
+integer(kind=iwp) :: t, nK, nI
+
+IsZero = .true.
+
+! Intermediate state K = E_rs|J>.
+if (r == s) then
+   if (OccJ(r) == 0) return
+else
+   if (OccJ(s) == 0) return
+   if (OccJ(r) == 2) return
+end if
+
+! Occupations of I must equal those of E_pq E_rs |J>.
+do t=1,SGS(ME_iState)%nLev
+   nK = OccJ(t)
+   if (t == r) nK = nK+1
+   if (t == s) nK = nK-1
+   if (p == q .and. t == p .and. nK == 0) return
+   nI = nK
+   if (t == p) nI = nI+1
+   if (t == q) nI = nI-1
+   if (nI /= OccI(t)) return
+end do
+
+IsZero = .false.
+
+end function Quick_Zero
+
+function MatEl_Upper_Half( &
+           ISYUP,MV, &
+           IUPI,IUPJ, &
+           p,q ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: IUPI
+integer(kind=iwp), intent(in) :: IUPJ
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+integer(kind=iwp) :: IFrom
+integer(kind=iwp) :: ITo
+integer(kind=iwp) :: iValue
+
+logical :: Reverse
+
+Value = Zero
+
+if (p <= SGS(ME_iState)%MidLev) return
+if (q <= SGS(ME_iState)%MidLev) return
+if (p >  SGS(ME_iState)%nLev) return
+if (q >  SGS(ME_iState)%nLev) return
+
+!
+! Diagonal upper-half operator.
+!
+if (p == q) then
+   if (IUPI /= IUPJ) return
+   Value = Upper_Diagonal_Value( &
+              ISYUP,MV,IUPI,p )
+   return
+end if
+
+Reverse = p < q
+
+call Decode_Upper_Operator( &
+     SGS(ME_iState),p,q,INDEO )
+
+NCP = EXS(ME_iState)%NOCP(INDEO,ISYUP,MV)
+if (NCP == 0) return
+
+IOFF = EXS(ME_iState)%IOCP(INDEO,ISYUP,MV)
+
+do ICP=1,NCP
+   if (.not. Reverse) then
+      IFrom = EXS(ME_iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(ME_iState)%ICoup(2,IOFF+ICP)
+   else
+      IFrom = EXS(ME_iState)%ICoup(2,IOFF+ICP)
+      ITo   = EXS(ME_iState)%ICoup(1,IOFF+ICP)
+   end if
+
+   if (IFrom /= IUPJ) cycle
+   if (ITo   /= IUPI) cycle
+
+   iValue = EXS(ME_iState)%ICoup(3,IOFF+ICP)
+   Value = Value + EXS(ME_iState)%VTab(iValue)
+end do
+
+end function MatEl_Upper_Half
+
+function MatEl_Lower_Half( &
+           ISYCI,ISYUP,MV, &
+           IDWNI,IDWNJ, &
+           p,q ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: IDWNI
+integer(kind=iwp), intent(in) :: IDWNJ
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: ISYDWN
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+integer(kind=iwp) :: IFrom
+integer(kind=iwp) :: ITo
+integer(kind=iwp) :: iValue
+
+logical :: Reverse
+
+
+Value = Zero
+
+if (p < 1) return
+if (q < 1) return
+if (p > SGS(ME_iState)%MidLev) return
+if (q > SGS(ME_iState)%MidLev) return
+
+if (p == q) then
+   if (IDWNI /= IDWNJ) return
+
+   Value = Lower_Diagonal_Value( &
+              ISYUP,MV,IDWNI,p )
+
+   return
+end if
+
+!
+! The lower coupling tables are indexed by the symmetry of
+! the lower partial walk.
+!
+ISYDWN = MUL(ISYCI,ISYUP)
+
+Reverse = p < q
+call Decode_Lower_Operator( SGS(ME_iState),p,q,INDEO )
+
+!
+! Off-diagonal lower coupling paths are indexed by the
+! symmetry carried by the lower partial walk.
+!
+NCP = EXS(ME_iState)%NOCP(INDEO,ISYDWN,MV)
+if (NCP == 0) return
+
+IOFF = EXS(ME_iState)%IOCP(INDEO,ISYDWN,MV)
+
+do ICP=1,NCP
+
+
+   if (Reverse) then
+      IFrom = EXS(ME_iState)%ICoup(2,IOFF+ICP)
+      ITo   = EXS(ME_iState)%ICoup(1,IOFF+ICP)
+   else
+      IFrom = EXS(ME_iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(ME_iState)%ICoup(2,IOFF+ICP)
+   end if
+
+   if (IFrom /= IDWNJ) cycle
+   if (ITo   /= IDWNI) cycle
+
+   iValue = EXS(ME_iState)%ICoup(3,IOFF+ICP)
+   Value = Value + EXS(ME_iState)%VTab(iValue)
+
+end do
+
+end function MatEl_Lower_Half
+
+function Lower_Diagonal_Value( &
+           ISYUP,MV,IDWN,p ) result(Value)
+
+use Constants,     only: Zero
+use Definitions,   only: wp, iwp
+use Symmetry_Info, only: Mul
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: IDWN
+integer(kind=iwp), intent(in) :: p
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: ISYDOWN
+integer(kind=iwp) :: IOLW
+integer(kind=iwp) :: IPSHFT
+integer(kind=iwp) :: IPPOW
+integer(kind=iwp) :: LLW
+integer(kind=iwp) :: JC
+integer(kind=iwp) :: ICS
+
+Value = Zero
+
+!
+! Evaluate
+!
+!     <I_L|E_pp|I_L>
+!
+! for a lower-half walk.
+!
+if (p < 1) return
+if (p > SGS(ME_iState)%MidLev) return
+
+!
+! The symmetry of the lower walk follows from the upper-walk
+! symmetry and the symmetry of the complete CI state.
+!
+ISYDOWN = Mul(ISYUP,ME_LSM)
+
+!
+! Starting position of the lower walks in this split-graph block.
+!
+IOLW = CIS(ME_iState)%IOW(2,ISYDOWN,MV)
+
+!
+! Each step vector occupies two packed bits.
+!
+IPSHFT = 2*(p-1)
+
+!
+! Locate the packed integer containing the step vector at p.
+!
+LLW = 1 + IOLW - CIS(ME_iState)%nIpWlk + &
+      IPSHFT/(2*nPack)
+
+IPSHFT = mod(IPSHFT,2*nPack)
+IPPOW  = 2**IPSHFT
+
+!
+! Extract the step vector belonging to lower walk IDWN.
+!
+JC = CIS(ME_iState)%ICase( &
+        LLW + IDWN*CIS(ME_iState)%nIpWlk )
+
+ICS = mod(JC/IPPOW,4)
+
+!
+! Diagonal segment values:
+!
+!     step 0 -> 0
+!     step 1 -> 1
+!     step 2 -> 1
+!     step 3 -> 2
+!
+if (ICS /= 0) then
+   Value = real((1+ICS)/2,kind=wp)
+end if
+
+end function Lower_Diagonal_Value
+
+function MatEl_Lower_One( &
+           ISYCI, &
+           I,J, &
+           p,q ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+integer(kind=iwp) :: ISYDWN
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+
+integer(kind=iwp) :: IFrom
+integer(kind=iwp) :: ITo
+integer(kind=iwp) :: iValue
+
+logical :: Reverse
+
+Value = Zero
+
+!
+! This helper handles one non-diagonal lower operator.
+!
+if (p == q) return
+
+if (p < 1) return
+if (q < 1) return
+
+if (p > SGS(ME_iState)%MidLev) return
+if (q > SGS(ME_iState)%MidLev) return
+
+call Decode_CSF( &
+     CIS(ME_iState),ISYCI, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS(ME_iState),ISYCI, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! A lower operator leaves the upper walk unchanged.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
+if (IUPI   /= IUPJ)   return
+
+!
+! Lower coupling tables are indexed by the symmetry carried
+! by the lower partial walk.
+!
+ISYDWN = Mul(ISYCI,ISYUPI)
+
+Reverse = p < q
+
+call Decode_Lower_Operator( &
+     SGS(ME_iState),p,q,INDEO )
+
+NCP = EXS(ME_iState)%NOCP(INDEO,ISYDWN,MVI)
+if (NCP == 0) return
+
+IOFF = EXS(ME_iState)%IOCP(INDEO,ISYDWN,MVI)
+
+do ICP=1,NCP
+
+   if (Reverse) then
+
+      !
+      ! Reverse orientation:
+      !
+      !     E_pq = E_qp^dagger.
+      !
+      IFrom = EXS(ME_iState)%ICoup(2,IOFF+ICP)
+      ITo   = EXS(ME_iState)%ICoup(1,IOFF+ICP)
+
+   else
+
+      !
+      ! Canonical orientation.
+      !
+      IFrom = EXS(ME_iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(ME_iState)%ICoup(2,IOFF+ICP)
+
+   end if
+
+   if (IFrom /= IDWNJ) cycle
+   if (ITo   /= IDWNI) cycle
+
+   iValue = EXS(ME_iState)%ICoup(3,IOFF+ICP)
+
+   Value = Value + EXS(ME_iState)%VTab(iValue)
+
+end do
+
+end function MatEl_Lower_One
+
+subroutine Contract_Lower_Blocks( &
+           INDEO_Right,Reverse_Right, &
+           INDEO_Left, Reverse_Left,  &
+           ISYDWN,MV, &
+           nTerm, &
+           IFrom,ITo,XVal )
+
+use Definitions, only: iwp, wp
+use stdalloc,    only: mma_allocate
+
+implicit none
+
+!
+! Contract the ordered lower-walk product
+!
+!     E_Left E_Right.
+!
+! The rightmost operator acts first:
+!
+!     IFrom --E_Right--> K --E_Left--> ITo.
+!
+! The coupling tables store the canonical orientation with
+! the larger orbital index first. Reverse_Right and
+! Reverse_Left transpose the corresponding transitions.
+!
+
+integer(kind=iwp), intent(in) :: INDEO_Right
+integer(kind=iwp), intent(in) :: INDEO_Left
+
+logical, intent(in) :: Reverse_Right
+logical, intent(in) :: Reverse_Left
+
+integer(kind=iwp), intent(in) :: ISYDWN
+integer(kind=iwp), intent(in) :: MV
+
+integer(kind=iwp), intent(out) :: nTerm
+
+integer(kind=iwp), allocatable, intent(out) :: IFrom(:)
+integer(kind=iwp), allocatable, intent(out) :: ITo(:)
+
+real(kind=wp), allocatable, intent(out) :: XVal(:)
+
+integer(kind=iwp) :: NRight
+integer(kind=iwp) :: NLeft
+
+integer(kind=iwp) :: OffRight
+integer(kind=iwp) :: OffLeft
+
+integer(kind=iwp) :: iRight
+integer(kind=iwp) :: iLeft
+integer(kind=iwp) :: iTerm
+
+integer(kind=iwp) :: FromRight
+integer(kind=iwp) :: ToRight
+
+integer(kind=iwp) :: FromLeft
+integer(kind=iwp) :: ToLeft
+
+integer(kind=iwp) :: iValueRight
+integer(kind=iwp) :: iValueLeft
+
+real(kind=wp) :: XRight
+real(kind=wp) :: XLeft
+real(kind=wp) :: X
+
+logical :: Found
+
+NRight = EXS(ME_iState)%NOCP( &
+              INDEO_Right,ISYDWN,MV )
+
+NLeft = EXS(ME_iState)%NOCP( &
+             INDEO_Left,ISYDWN,MV )
+
+if (NRight == 0 .or. NLeft == 0) then
+
+   nTerm = 0
+
+   call mma_allocate(IFrom,1,Label='IFrom')
+   call mma_allocate(ITo,  1,Label='ITo')
+   call mma_allocate(XVal, 1,Label='XVal')
+
+   return
+
+end if
+
+OffRight = EXS(ME_iState)%IOCP( &
+               INDEO_Right,ISYDWN,MV )
+
+OffLeft = EXS(ME_iState)%IOCP( &
+              INDEO_Left,ISYDWN,MV )
+
+call mma_allocate( &
+     IFrom,NRight*NLeft,Label='IFrom')
+
+call mma_allocate( &
+     ITo,NRight*NLeft,Label='ITo')
+
+call mma_allocate( &
+     XVal,NRight*NLeft,Label='XVal')
+
+nTerm = 0
+
+!
+! The rightmost operator acts first:
+!
+!     FromRight --E_Right--> ToRight.
+!
+do iRight=1,NRight
+
+   if (.not. Reverse_Right) then
+
+      !
+      ! Canonical orientation.
+      !
+      FromRight = EXS(ME_iState)%ICoup(1,OffRight+iRight)
+      ToRight   = EXS(ME_iState)%ICoup(2,OffRight+iRight)
+
+   else
+
+      !
+      ! Reverse orientation:
+      !
+      !     E_rs = E_sr^dagger.
+      !
+      FromRight = EXS(ME_iState)%ICoup(2,OffRight+iRight)
+      ToRight   = EXS(ME_iState)%ICoup(1,OffRight+iRight)
+
+   end if
+
+   iValueRight = EXS(ME_iState)%ICoup(3,OffRight+iRight)
+   XRight = EXS(ME_iState)%VTab(iValueRight)
+
+   !
+   ! The left operator acts second:
+   !
+   !     FromLeft --E_Left--> ToLeft.
+   !
+   do iLeft=1,NLeft
+
+      if (.not. Reverse_Left) then
+
+         !
+         ! Canonical orientation.
+         !
+         FromLeft = EXS(ME_iState)%ICoup(1,OffLeft+iLeft)
+         ToLeft   = EXS(ME_iState)%ICoup(2,OffLeft+iLeft)
+
+      else
+
+         !
+         ! Reverse orientation:
+         !
+         !     E_pq = E_qp^dagger.
+         !
+         FromLeft = EXS(ME_iState)%ICoup(2,OffLeft+iLeft)
+         ToLeft   = EXS(ME_iState)%ICoup(1,OffLeft+iLeft)
+
+      end if
+
+      !
+      ! Resolution-of-identity contraction over the
+      ! intermediate lower walk:
+      !
+      !     ToRight = FromLeft = K_L.
+      !
+      if (ToRight /= FromLeft) cycle
+
+      iValueLeft = EXS(ME_iState)%ICoup(3,OffLeft+iLeft)
+      XLeft = EXS(ME_iState)%VTab(iValueLeft)
+
+      X = XLeft*XRight
+
+      !
+      ! Accumulate contributions with identical initial
+      ! and final lower walks.
+      !
+      Found = .false.
+
+      do iTerm=1,nTerm
+
+         if ((IFrom(iTerm) == FromRight) .and. (ITo(iTerm) == ToLeft)) then
+
+            XVal(iTerm) = XVal(iTerm) + X
+
+            Found = .true.
+            exit
+
+         end if
+
+      end do
+
+      if (.not. Found) then
+
+         nTerm = nTerm + 1
+
+         IFrom(nTerm) = FromRight
+         ITo(nTerm)   = ToLeft
+         XVal(nTerm)  = X
+
+      end if
+
+   end do
+end do
+
+end subroutine Contract_Lower_Blocks
+
+function Upper_Diagonal_Value( &
+           ISYUP,MV,IUP,p ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+integer(kind=iwp), intent(in) :: IUP
+integer(kind=iwp), intent(in) :: p
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: IOUW
+integer(kind=iwp) :: IPSHFT
+integer(kind=iwp) :: IPPOW
+integer(kind=iwp) :: LUW
+integer(kind=iwp) :: IC
+integer(kind=iwp) :: ICS
+
+Value = Zero
+
+!
+! This routine evaluates the upper-walk diagonal matrix element
+!
+!     <I_U|E_pp|I_U>.
+!
+if (p <= SGS(ME_iState)%MidLev) return
+if (p >  SGS(ME_iState)%nLev)   return
+
+!
+! Starting position of the upper walks belonging to this
+! split-graph block.
+!
+IOUW = CIS(ME_iState)%IOW(1,ISYUP,MV)
+
+!
+! Each step vector occupies two packed bits.
+!
+IPSHFT = 2*(p-1-SGS(ME_iState)%MidLev)
+
+!
+! Select the packed integer containing the step vector at level p.
+!
+LUW = 1 + IOUW - CIS(ME_iState)%nIpWlk + &
+      IPSHFT/(2*nPack)
+
+IPSHFT = mod(IPSHFT,2*nPack)
+IPPOW  = 2**IPSHFT
+
+!
+! Extract the step vector of upper walk IUP at level p.
+!
+IC = CIS(ME_iState)%ICase( &
+        LUW + IUP*CIS(ME_iState)%nIpWlk )
+
+ICS = mod(IC/IPPOW,4)
+
+!
+! The diagonal segment values are:
+!
+!     step 0 -> 0
+!     step 1 -> 1
+!     step 2 -> 1
+!     step 3 -> 2
+!
+if (ICS /= 0) then
+   Value = real((1+ICS)/2,kind=wp)
+end if
+
+end function Upper_Diagonal_Value
+
+function MatEl_Upper_One( &
+           ISYCI, &
+           I,J, &
+           p,q ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCI
+
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+
+integer(kind=iwp), intent(in) :: p
+integer(kind=iwp), intent(in) :: q
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+integer(kind=iwp) :: INDEO
+integer(kind=iwp) :: NCP
+integer(kind=iwp) :: IOFF
+integer(kind=iwp) :: ICP
+
+integer(kind=iwp) :: IFrom
+integer(kind=iwp) :: ITo
+integer(kind=iwp) :: iValue
+
+logical :: Reverse
+
+Value = Zero
+
+!
+! This helper handles only a non-diagonal upper operator.
+!
+if (p == q) return
+
+if (p <= SGS(ME_iState)%MidLev) return
+if (q <= SGS(ME_iState)%MidLev) return
+
+call Decode_CSF( &
+     CIS(ME_iState),ISYCI, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS(ME_iState),ISYCI, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! An upper operator leaves the lower walk unchanged.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
+if (IDWNI  /= IDWNJ)  return
+
+Reverse = p < q
+
+call Decode_Upper_Operator( &
+     SGS(ME_iState),p,q,INDEO )
+
+NCP = EXS(ME_iState)%NOCP(INDEO,ISYUPI,MVI)
+
+if (NCP == 0) return
+
+IOFF = EXS(ME_iState)%IOCP(INDEO,ISYUPI,MVI)
+
+do ICP=1,NCP
+
+   if (.not. Reverse) then
+
+      IFrom = EXS(ME_iState)%ICoup(1,IOFF+ICP)
+      ITo   = EXS(ME_iState)%ICoup(2,IOFF+ICP)
+
+   else
+
+      !
+      ! E_pq = E_qp^dagger.
+      !
+      IFrom = EXS(ME_iState)%ICoup(2,IOFF+ICP)
+      ITo   = EXS(ME_iState)%ICoup(1,IOFF+ICP)
+
+   end if
+
+   if (IFrom /= IUPJ) cycle
+   if (ITo   /= IUPI) cycle
+
+   iValue = EXS(ME_iState)%ICoup(3,IOFF+ICP)
+
+   Value = Value + EXS(ME_iState)%VTab(iValue)
+
+end do
+
+end function MatEl_Upper_One
+
+function MatEl_EpqErs_Ref(ISYCI,I,J,p,q,r,s) result(Value)
+
+   integer(kind=iwp), intent(in) :: ISYCI,I,J
+   integer(kind=iwp), intent(in) :: p,q,r,s
+
+   real(kind=wp) :: Value
+
+   integer(kind=iwp) :: nCSFI,nCSFK
+#ifdef _DEBUGPRINT_
+   integer(kind=iwp) :: K
+   integer(kind=iwp) :: MVK,ISYUPK,IUPK,IDWNK
+#endif
+   integer(kind=iwp) :: ISYK
+
+   real(kind=wp), allocatable :: Ket(:)
+   real(kind=wp), allocatable :: Tmp(:)
+   real(kind=wp), allocatable :: Res(:)
+   logical(kind=iwp) :: Reuse_Save
+
+   Reuse_Save=EXS(ME_iState)%ReUse_SGTMP
+   EXS(ME_iState)%ReUse_SGTMP=.False.
+   !----------------------------------------------------------
+   ! Symmetry after application of E_rs.
+   !
+   ! |K> = E_rs |J>
+   !
+   ! Gamma(K)=Gamma(r)Gamma(s)Gamma(J)
+   !----------------------------------------------------------
+
+   ISYK = Mul(SGS(ME_iState)%ISm(r), &
+              Mul(SGS(ME_iState)%ISm(s),ISYCI))
+
+   nCSFI = CIS(ME_iState)%NCSF(ISYCI)
+   nCSFK = CIS(ME_iState)%NCSF(ISYK)
+
+   call mma_allocate(Ket,nCSFI,Label='Ket')
+   call mma_allocate(Tmp,nCSFK,Label='Tmp')
+   call mma_allocate(Res,nCSFI,Label='Res')
+
+   Ket(:) = Zero
+   Ket(J) = One
+
+   Tmp(:) = Zero
+
+   call SG_Epq_Psi( SGS(ME_iState), &
+                    CIS(ME_iState), &
+                    EXS(ME_iState), &
+                    r,s,One,ISYCI, &
+                    Ket,Tmp )
+
+#ifdef _DEBUGPRINT_
+   write(6,*)
+   write(6,*) 'INTERMEDIATE STATES AFTER E_rs'
+   write(6,*) 'I,J,p,q,r,s=',I,J,p,q,r,s
+   write(6,*) 'ISYK=',ISYK
+
+   do K=1,nCSFK
+
+      if (abs(Tmp(K)) > 1.0d-12) then
+
+         call Decode_CSF( CIS(ME_iState),ISYK,K, &
+                          MVK,ISYUPK,IUPK,IDWNK )
+
+         write(6,'(I6,F16.8,4I6)') &
+              K,Tmp(K),MVK,ISYUPK,IUPK,IDWNK
+
+      end if
+
+   end do
+#endif
+
+   Res(:) = Zero
+
+   call SG_Epq_Psi( SGS(ME_iState), &
+                    CIS(ME_iState), &
+                    EXS(ME_iState), &
+                    p,q,One,ISYK, &
+                    Tmp,Res )
+
+   Value = Res(I)
+
+   call mma_deallocate(Ket)
+   call mma_deallocate(Tmp)
+   call mma_deallocate(Res)
+
+   EXS(ME_iState)%ReUse_SGTMP=Reuse_Save
+
+end function MatEl_EpqErs_Ref
+
+subroutine Contract_Upper_Blocks( &
+           INDEO_Right,Reverse_Right, &
+           INDEO_Left, Reverse_Left,  &
+           ISYUP,MV, &
+           nTerm, &
+           IFrom,ITo,XVal )
+
+use Definitions, only: iwp, wp
+use stdalloc,    only: mma_allocate
+
+implicit none
+
+!
+! Contract the ordered upper-walk product
+!
+!     E_Left E_Right.
+!
+! The rightmost operator acts first:
+!
+!     IFrom --E_Right--> K --E_Left--> ITo.
+!
+! The stored coupling blocks use the canonical orientation
+! with the larger orbital index first. Reverse_Right and
+! Reverse_Left transpose the corresponding stored transitions.
+!
+
+integer(kind=iwp), intent(in) :: INDEO_Right
+integer(kind=iwp), intent(in) :: INDEO_Left
+
+logical, intent(in) :: Reverse_Right
+logical, intent(in) :: Reverse_Left
+
+integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: MV
+
+integer(kind=iwp), intent(out) :: nTerm
+
+integer(kind=iwp), allocatable, intent(out) :: IFrom(:)
+integer(kind=iwp), allocatable, intent(out) :: ITo(:)
+
+real(kind=wp), allocatable, intent(out) :: XVal(:)
+
+integer(kind=iwp) :: NRight
+integer(kind=iwp) :: NLeft
+
+integer(kind=iwp) :: OffRight
+integer(kind=iwp) :: OffLeft
+
+integer(kind=iwp) :: iRight
+integer(kind=iwp) :: iLeft
+integer(kind=iwp) :: iTerm
+
+integer(kind=iwp) :: FromRight
+integer(kind=iwp) :: ToRight
+
+integer(kind=iwp) :: FromLeft
+integer(kind=iwp) :: ToLeft
+
+integer(kind=iwp) :: iValueRight
+integer(kind=iwp) :: iValueLeft
+
+real(kind=wp) :: XRight
+real(kind=wp) :: XLeft
+real(kind=wp) :: X
+
+logical :: Found
+
+NRight = EXS(ME_iState)%NOCP(INDEO_Right,ISYUP,MV)
+NLeft  = EXS(ME_iState)%NOCP(INDEO_Left, ISYUP,MV)
+
+if (NRight == 0 .or. NLeft == 0) then
+
+   nTerm = 0
+
+   call mma_allocate(IFrom,1,Label='IFrom')
+   call mma_allocate(ITo,  1,Label='ITo')
+   call mma_allocate(XVal, 1,Label='XVal')
+
+   return
+
+end if
+
+OffRight = EXS(ME_iState)%IOCP(INDEO_Right,ISYUP,MV)
+OffLeft  = EXS(ME_iState)%IOCP(INDEO_Left, ISYUP,MV)
+
+call mma_allocate( &
+     IFrom,NRight*NLeft,Label='IFrom')
+
+call mma_allocate( &
+     ITo,NRight*NLeft,Label='ITo')
+
+call mma_allocate( &
+     XVal,NRight*NLeft,Label='XVal')
+
+nTerm = 0
+
+!
+! The rightmost operator acts first:
+!
+!     FromRight --E_Right--> ToRight.
+!
+do iRight=1,NRight
+
+   if (.not. Reverse_Right) then
+
+      !
+      ! Canonical orientation.
+      !
+      FromRight = EXS(ME_iState)%ICoup(1,OffRight+iRight)
+      ToRight   = EXS(ME_iState)%ICoup(2,OffRight+iRight)
+
+   else
+
+      !
+      ! Reverse orientation:
+      !
+      !     E_rs = E_sr^dagger.
+      !
+      FromRight = EXS(ME_iState)%ICoup(2,OffRight+iRight)
+      ToRight   = EXS(ME_iState)%ICoup(1,OffRight+iRight)
+
+   end if
+
+   iValueRight = EXS(ME_iState)%ICoup(3,OffRight+iRight)
+   XRight = EXS(ME_iState)%VTab(iValueRight)
+
+   !
+   ! The left operator acts second:
+   !
+   !     FromLeft --E_Left--> ToLeft.
+   !
+   do iLeft=1,NLeft
+
+      if (.not. Reverse_Left) then
+
+         !
+         ! Canonical orientation.
+         !
+         FromLeft = EXS(ME_iState)%ICoup(1,OffLeft+iLeft)
+         ToLeft   = EXS(ME_iState)%ICoup(2,OffLeft+iLeft)
+
+      else
+
+         !
+         ! Reverse orientation:
+         !
+         !     E_pq = E_qp^dagger.
+         !
+         FromLeft = EXS(ME_iState)%ICoup(2,OffLeft+iLeft)
+         ToLeft   = EXS(ME_iState)%ICoup(1,OffLeft+iLeft)
+
+      end if
+
+      !
+      ! Resolution-of-identity contraction over the
+      ! intermediate upper walk:
+      !
+      !     ToRight = FromLeft = K.
+      !
+      if (ToRight /= FromLeft) cycle
+
+      iValueLeft = EXS(ME_iState)%ICoup(3,OffLeft+iLeft)
+      XLeft = EXS(ME_iState)%VTab(iValueLeft)
+
+      X = XLeft*XRight
+
+      !
+      ! Accumulate all contributions having the same
+      ! initial and final upper walks.
+      !
+      Found = .false.
+
+      do iTerm=1,nTerm
+
+         if ((IFrom(iTerm) == FromRight) .and. (ITo(iTerm) == ToLeft)) then
+
+            XVal(iTerm) = XVal(iTerm) + X
+
+            Found = .true.
+            exit
+
+         end if
+
+      end do
+
+      if (.not. Found) then
+
+         nTerm = nTerm + 1
+
+         IFrom(nTerm) = FromRight
+         ITo(nTerm)   = ToLeft
+         XVal(nTerm)  = X
+
+      end if
+
+   end do
+end do
+
+end subroutine Contract_Upper_Blocks
+
+function MatEl_LL( &
+           I,J, &
+           INDEO_Left,Reverse_Left, &
+           INDEO_Right,Reverse_Right ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+use stdalloc,    only: mma_deallocate
+
+implicit none
+
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+
+integer(kind=iwp), intent(in) :: INDEO_Left
+integer(kind=iwp), intent(in) :: INDEO_Right
+
+logical, intent(in) :: Reverse_Left
+logical, intent(in) :: Reverse_Right
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+integer(kind=iwp) :: ISYDWN
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+integer(kind=iwp) :: nTerm
+integer(kind=iwp) :: iTerm
+
+integer(kind=iwp), allocatable :: IFrom(:)
+integer(kind=iwp), allocatable :: ITo(:)
+
+real(kind=wp), allocatable :: XVal(:)
+
+Value = Zero
+
+call Decode_CSF( &
+     CIS(ME_iState),ME_LSM, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS(ME_iState),ME_LSM, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! Both operators act entirely on the lower half.
+! The upper half-walk is a spectator.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
+if (IUPI   /= IUPJ)   return
+
+!
+! For
+!
+!     <I|E_Left E_Right|J>,
+!
+! the rightmost operator acts first:
+!
+!     J_L --E_Right--> K_L --E_Left--> I_L.
+!
+!
+! Lower coupling blocks are indexed by the symmetry carried
+! by the lower partial walk, not by the upper-walk symmetry.
+!
+ISYDWN = Mul(ME_LSM,ISYUPI)
+
+call Contract_Lower_Blocks( &
+     INDEO_Right,Reverse_Right, &
+     INDEO_Left, Reverse_Left,  &
+     ISYDWN,MVI, &
+     nTerm, &
+     IFrom,ITo,XVal )
+
+do iTerm=1,nTerm
+
+   if (IFrom(iTerm) /= IDWNJ) cycle
+   if (ITo(iTerm)   /= IDWNI) cycle
+
+   Value = Value + XVal(iTerm)
+
+end do
+
+call mma_deallocate(IFrom)
+call mma_deallocate(ITo)
+call mma_deallocate(XVal)
+
+end function MatEl_LL
+
+function MatEl_UU( &
+           ISYCI, &
+           I,J, &
+           INDEO_Left,Reverse_Left, &
+           INDEO_Right,Reverse_Right ) result(Value)
+
+use Constants,   only: Zero
+use Definitions, only: wp, iwp
+use stdalloc,    only: mma_deallocate
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCI
+
+integer(kind=iwp), intent(in) :: I
+integer(kind=iwp), intent(in) :: J
+
+integer(kind=iwp), intent(in) :: INDEO_Left
+integer(kind=iwp), intent(in) :: INDEO_Right
+
+logical, intent(in) :: Reverse_Left
+logical, intent(in) :: Reverse_Right
+
+real(kind=wp) :: Value
+
+integer(kind=iwp) :: MVI
+integer(kind=iwp) :: MVJ
+
+integer(kind=iwp) :: ISYUPI
+integer(kind=iwp) :: ISYUPJ
+
+integer(kind=iwp) :: IUPI
+integer(kind=iwp) :: IUPJ
+
+integer(kind=iwp) :: IDWNI
+integer(kind=iwp) :: IDWNJ
+
+integer(kind=iwp) :: nTerm
+integer(kind=iwp) :: iTerm
+
+integer(kind=iwp), allocatable :: IFrom(:)
+integer(kind=iwp), allocatable :: ITo(:)
+
+real(kind=wp), allocatable :: XVal(:)
+
+Value = Zero
+
+call Decode_CSF( &
+     CIS(ME_iState),ISYCI, &
+     I, &
+     MVI,ISYUPI,IUPI,IDWNI )
+
+call Decode_CSF( &
+     CIS(ME_iState),ISYCI, &
+     J, &
+     MVJ,ISYUPJ,IUPJ,IDWNJ )
+
+!
+! Both operators act entirely on the upper half.
+! The lower half-walk must therefore be unchanged.
+!
+if (MVI    /= MVJ)    return
+if (ISYUPI /= ISYUPJ) return
+if (IDWNI  /= IDWNJ)  return
+
+!
+! For
+!
+!     <I|E_Left E_Right|J>,
+!
+! the rightmost operator acts first:
+!
+!     J_U --E_Right--> K_U --E_Left--> I_U.
+!
+call Contract_Upper_Blocks( &
+     INDEO_Right,Reverse_Right, &
+     INDEO_Left, Reverse_Left,  &
+     ISYUPI,MVI, &
+     nTerm, &
+     IFrom,ITo,XVal )
+
+do iTerm=1,nTerm
+
+   if (IFrom(iTerm) /= IUPJ) cycle
+   if (ITo(iTerm)   /= IUPI) cycle
+
+   Value = Value + XVal(iTerm)
+
+end do
+
+call mma_deallocate(IFrom)
+call mma_deallocate(ITo)
+call mma_deallocate(XVal)
+
+end function MatEl_UU
+
 subroutine Decode_Upper_Operator(SGS,p,q,INDEO)
 
 type(SGStruct), intent(in) :: SGS
@@ -9063,7 +9652,6 @@ INDEO = merge( 2*SGS%nLev + (q*(q-1))/2 + p, &
                Swap )
 
 end subroutine Decode_Upper_Operator
-
 
 subroutine Decode_Lower_Operator(SGS,p,q,INDEO)
 
@@ -9143,10 +9731,10 @@ Value = Zero
 !
 ! Both operators must lie completely in the upper graph.
 !
-if (p <= SGS(iState)%MidLev) return
-if (q <= SGS(iState)%MidLev) return
-if (r <= SGS(iState)%MidLev) return
-if (s <= SGS(iState)%MidLev) return
+if (p <= SGS(ME_iState)%MidLev) return
+if (q <= SGS(ME_iState)%MidLev) return
+if (r <= SGS(ME_iState)%MidLev) return
+if (s <= SGS(ME_iState)%MidLev) return
 
 Diagonal_Left  = p == q
 Diagonal_Right = r == s
@@ -9156,12 +9744,12 @@ Diagonal_Right = r == s
 ! required for diagonal weights.
 !
 call Decode_CSF( &
-     CIS(iState),ISYCI, &
+     CIS(ME_iState),ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
 call Decode_CSF( &
-     CIS(iState),ISYCI, &
+     CIS(ME_iState),ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -9271,10 +9859,10 @@ Reverse_Left  = p < q
 Reverse_Right = r < s
 
 call Decode_Upper_Operator( &
-     SGS(iState),p,q,INDEO_Left )
+     SGS(ME_iState),p,q,INDEO_Left )
 
 call Decode_Upper_Operator( &
-     SGS(iState),r,s,INDEO_Right )
+     SGS(ME_iState),r,s,INDEO_Right )
 
 Value = MatEl_UU( &
            ISYCI, &
@@ -9338,11 +9926,11 @@ Value = Zero
 if (p < 1 .or. q < 1) return
 if (r < 1 .or. s < 1) return
 
-if (p > SGS(iState)%MidLev) return
-if (q > SGS(iState)%MidLev) return
+if (p > SGS(ME_iState)%MidLev) return
+if (q > SGS(ME_iState)%MidLev) return
 
-if (r > SGS(iState)%MidLev) return
-if (s > SGS(iState)%MidLev) return
+if (r > SGS(ME_iState)%MidLev) return
+if (s > SGS(ME_iState)%MidLev) return
 
 Diagonal_Left  = p == q
 Diagonal_Right = r == s
@@ -9351,12 +9939,12 @@ Diagonal_Right = r == s
 ! Decode the bra and ket CSFs.
 !
 call Decode_CSF( &
-     CIS(iState),ISYCI, &
+     CIS(ME_iState),ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
 call Decode_CSF( &
-     CIS(iState),ISYCI, &
+     CIS(ME_iState),ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -9466,10 +10054,10 @@ Reverse_Left  = p < q
 Reverse_Right = r < s
 
 call Decode_Lower_Operator( &
-     SGS(iState),p,q,INDEO_Left )
+     SGS(ME_iState),p,q,INDEO_Left )
 
 call Decode_Lower_Operator( &
-     SGS(iState),r,s,INDEO_Right )
+     SGS(ME_iState),r,s,INDEO_Right )
 
 Value = MatEl_LL( &
            I,J, &
@@ -9477,104 +10065,6 @@ Value = MatEl_LL( &
            INDEO_Right,Reverse_Right )
 
 end function MatEl_EpqErs_LL
-
-#ifdef _NOT_USED_
-subroutine Print_Epq_Matrix(iState,LSM,p,q)
-
-use Constants, only: Zero
-use Definitions, only: iwp, wp, u6
-
-integer(kind=iwp), intent(in) :: iState
-integer(kind=iwp), intent(in) :: LSM
-integer(kind=iwp), intent(in) :: p,q
-
-integer(kind=iwp) :: I,J
-integer(kind=iwp) :: nCSF
-
-real(kind=wp) :: X
-
-nCSF = CIS(iState)%NCSF(LSM)
-
-write(u6,*)
-write(u6,*) '========================================='
-write(u6,*) ' EPQ MATRIX'
-write(u6,*) '========================================='
-write(u6,'(A,2I6)') 'p,q=',p,q
-write(u6,*)
-
-write(u6,'(A)') &
-'I        J                 <I|Epq|J>'
-
-do I=1,nCSF
-   do J=1,nCSF
-
-      X = MatEl_Epq_Ref(iState,LSM,I,J,p,q)
-
-      if (abs(X) < 1.0e-12_wp) cycle
-
-      write(u6,'(2I8,F24.15)') I,J,X
-
-   end do
-end do
-
-write(u6,*)
-
-end subroutine Print_Epq_Matrix
-#endif
-
-function MatEl_Epq_Ref(iState,ISYI,I,J,p,q) result(Value)
-
-use Symmetry_Info, only: Mul
-use Constants, only: Zero, One
-use Definitions, only: iwp, wp
-use stdalloc, only: mma_allocate, mma_deallocate
-
-integer(kind=iwp), intent(in) :: iState
-integer(kind=iwp), intent(in) :: ISYI
-integer(kind=iwp), intent(in) :: I,J
-integer(kind=iwp), intent(in) :: p,q
-
-real(kind=wp) :: Value
-
-integer(kind=iwp) :: iSYJ, nCSFI, nCSFJ
-
-real(kind=wp), allocatable :: Ket(:)
-real(kind=wp), allocatable :: Res(:)
-logical(kind=iwp) :: Reuse_Save
-
-Value = Zero
-
-Reuse_Save=EXS(iState)%ReUse_SGTmp
-EXS(iState)%ReUse_SGTmp=.False.
-
-ISYJ  = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%iSM(q)),ISYI)
-
-nCSFI = CIS(iState)%NCSF(iSYI)
-nCSFJ = CIS(iState)%NCSF(iSYJ)
-
-call mma_allocate(Ket,nCSFI,Label='Ket')
-call mma_allocate(Res,nCSFJ,Label='Res')
-
-Ket(:)=Zero
-Ket(J)=One    ! C_J=1.00
-
-Res(:)=Zero
-
-call SG_Epq_Psi( &
-     SGS(iState), &
-     CIS(iState), &
-     EXS(iState), &
-     p,q,One,ISYI, &
-     Ket,Res )
-
-Value = Res(I)
-
-call mma_deallocate(Ket)
-call mma_deallocate(Res)
-
-EXS(iState)%ReUse_SGTmp=Reuse_Save
-
-end function MatEl_Epq_Ref
 
 !
 ! Compute <I|EpqErs|J> as Sum_K <I|Epq|K><K|Ers|J>
@@ -9623,24 +10113,24 @@ Swap_rs = s_in > r_in
 r = merge(s_in,r_in,Swap_rs)
 s = merge(r_in,s_in,Swap_rs)
 
-ISYP =SGS(iState)%ISm(p)
-ISYQ =SGS(iState)%ISm(q)
+ISYP =SGS(ME_iState)%ISm(p)
+ISYQ =SGS(ME_iState)%ISm(q)
 ISYPQ=Mul(ISYP,ISYQ)
-ISYR =SGS(iState)%ISm(r)
-ISYS =SGS(iState)%ISm(s)
+ISYR =SGS(ME_iState)%ISm(r)
+ISYS =SGS(ME_iState)%ISm(s)
 ISYRS=Mul(ISYR,ISYS)
 ISYPQRS=Mul(ISYPQ,ISYRS)
 ISYCI = Mul(ISYPQRS,ISYCJ)
 
-if (I < 1 .or. I > CIS(iState)%NCSF(ISYCI)) return
-if (J < 1 .or. J > CIS(iState)%NCSF(ISYCJ)) return
+if (I < 1 .or. I > CIS(ME_iState)%NCSF(ISYCI)) return
+if (J < 1 .or. J > CIS(ME_iState)%NCSF(ISYCJ)) return
 
-if (p<=SGS(iState)%MidLev .or. q<=SGS(iState)%MidLev) return
-if (r<=SGS(iState)%MidLev .or. s<1 .or. s>SGS(iState)%MidLev) return
-if (max(p,q,r)>SGS(iState)%nLev) return
+if (p<=SGS(ME_iState)%MidLev .or. q<=SGS(ME_iState)%MidLev) return
+if (r<=SGS(ME_iState)%MidLev .or. s<1 .or. s>SGS(ME_iState)%MidLev) return
+if (max(p,q,r)>SGS(ME_iState)%nLev) return
 
-call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
-call Decode_CSF(CIS(iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+call Decode_CSF(CIS(ME_iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_CSF(CIS(ME_iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
 ISYUK=Mul(ISYPQ,ISYUI)
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
@@ -9660,8 +10150,8 @@ if (p==q) then
    ! Epp|K> = np|K> gives
    !
    ! <I|EppErs> = <I|Epp|I> <I|Ers|J>
-   Value=MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),p,p,ISYCI,I,I,.False.)* &
-         MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),r_in,s_in,ISYCJ,I,J,.False.)
+   Value=MatEl_Epq(SGS(ME_iState),CIS(ME_iState),EXS(ME_iState),p,p,ISYCI,I,I,.False.)* &
+         MatEl_Epq(SGS(ME_iState),CIS(ME_iState),EXS(ME_iState),r_in,s_in,ISYCJ,I,J,.False.)
    if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
    XRef=MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)
    if (abs(Value-XRef) > 1.0e-12_wp) then
@@ -9678,7 +10168,7 @@ end if
 MVK=MVI
 iBand=0
 do MV = 1, 2
-   MVX=MERGE(EXS(istate)%MVR(MVK,MV),EXS(istate)%MVL(MVK,MV),Swap_rs)
+   MVX=MERGE(EXS(ME_iState)%MVR(MVK,MV),EXS(ME_iState)%MVL(MVK,MV),Swap_rs)
    If (MVX == 0 .or. MVX /= MVJ) cycle
    iBand = MV
 end do
@@ -9686,19 +10176,19 @@ end do
 If (iBand==0) Return
 MV=iBand
 
-INDEO_R=(MV-1)*SGS(iState)%nLev+r  ! Open-Loop Upper
+INDEO_R=(MV-1)*SGS(ME_iState)%nLev+r  ! Open-Loop Upper
 
-INDEO_S=(MV-1)*SGS(iState)%nLev+s  ! Open-Loop Lower
+INDEO_S=(MV-1)*SGS(ME_iState)%nLev+s  ! Open-Loop Lower
 If (Verbose) Write (u6,*) 'INDEO_R,INDEO_S=',INDEO_R,INDEO_S
 
 ! Symmetry relations for the two canonical open-loop factors.
 
-if (ISYUJ /= Mul(SGS(iState)%ISm(r),ISYUI)) return
+if (ISYUJ /= Mul(SGS(ME_iState)%ISm(r),ISYUI)) return
 
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
 
-if (ISYDJ /= Mul(SGS(iState)%ISm(s),ISYDI)) return
+if (ISYDJ /= Mul(SGS(ME_iState)%ISm(s),ISYDI)) return
 
 ! ---------------------------------------------------------------
 ! Upper contraction
@@ -9709,20 +10199,20 @@ if (ISYDJ /= Mul(SGS(iState)%ISm(s),ISYDI)) return
 ! ---------------------------------------------------------------
 
 ! Process: A_r(Ku(m),Ju(m'))
-NOU   = MERGE(EXS(iState)%NOCP(INDEO_R,ISYUK,MVK), &
-              EXS(iState)%NOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
-OffOU = MERGE(EXS(iState)%IOCP(INDEO_R,ISYUK,MVK), &
-              EXS(iState)%IOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
+NOU   = MERGE(EXS(ME_iState)%NOCP(INDEO_R,ISYUK,MVK), &
+              EXS(ME_iState)%NOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
+OffOU = MERGE(EXS(ME_iState)%IOCP(INDEO_R,ISYUK,MVK), &
+              EXS(ME_iState)%IOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
 If (Verbose) Write (u6,*) 'NOU=',NOU
 if (NOU==0) return
 
 ! Retrieve the upper closed-loop operator E_pq: Upq(Iu,Ku)
 Reverse_U=p<q
 
-call Decode_Upper_Operator(SGS(iState),p,q,INDEO_PQ)
+call Decode_Upper_Operator(SGS(ME_iState),p,q,INDEO_PQ)
 
-NU  =EXS(iState)%NOCP(INDEO_PQ,ISYUI,MVI)
-OffU=EXS(iState)%IOCP(INDEO_PQ,ISYUI,MVI)
+NU  =EXS(ME_iState)%NOCP(INDEO_PQ,ISYUI,MVI)
+OffU=EXS(ME_iState)%IOCP(INDEO_PQ,ISYUI,MVI)
 if (NU==0) return
 If (Verbose) Write (u6,*) 'NU=',NU
 
@@ -9733,19 +10223,19 @@ do iO=1,NOU
 
    ! FromO= Ju
    ! ToO  = Ku
-   FromO = merge(EXS(iState)%ICoup(2,OffOU+iO), &
-                 EXS(iState)%ICoup(1,OffOU+iO), &
+   FromO = merge(EXS(ME_iState)%ICoup(2,OffOU+iO), &
+                 EXS(ME_iState)%ICoup(1,OffOU+iO), &
                  Swap_rs)
    if (FromO/=IUJ) cycle
-   ToO   = merge(EXS(iState)%ICoup(1,OffOU+iO), &
-                 EXS(iState)%ICoup(2,OffOU+iO), &
+   ToO   = merge(EXS(ME_iState)%ICoup(1,OffOU+iO), &
+                 EXS(ME_iState)%ICoup(2,OffOU+iO), &
                  Swap_rs)
    If (Verbose) Write(u6,*) 'FromO, ToO=',FromO, ToO
    ! Select A_r that has a matching Ju value (IUJ)
 
    ! Pick up the segment value A_r
-   iValue=EXS(iState)%ICoup(3,OffOU+iO)
-   XOpen=EXS(iState)%VTab(iValue)
+   iValue=EXS(ME_iState)%ICoup(3,OffOU+iO)
+   XOpen=EXS(ME_iState)%VTab(iValue)
 
    !Lookp over U_pq(Iu(m),Ku(m)).
    do iU=1,NU
@@ -9753,18 +10243,18 @@ do iO=1,NOU
       ! Decode the orientation of U_pq(Iu,Ku).
       ! FromU=Iu
       ! ToU  =Ku
-      FromU=MERGE(EXS(iState)%ICoup(2,OffU+iU), &
-                  EXS(iState)%ICoup(1,OffU+iU), Reverse_U)
-      ToU  =MERGE(EXS(iState)%ICoup(1,OffU+iU), &
-                  EXS(iState)%ICoup(2,OffU+iU), Reverse_U)
+      FromU=MERGE(EXS(ME_iState)%ICoup(2,OffU+iU), &
+                  EXS(ME_iState)%ICoup(1,OffU+iU), Reverse_U)
+      ToU  =MERGE(EXS(ME_iState)%ICoup(1,OffU+iU), &
+                  EXS(ME_iState)%ICoup(2,OffU+iU), Reverse_U)
       ! Skip if ToU not match Iu value (IUPI)
       ! Skip if FromU not match Ku value (ToO)
 
       if (ToO/=FromU .or. ToU/=IUI) cycle
 
       ! Pick up the segment value U_pq
-      iValue=EXS(iState)%ICoup(3,OffU+iU)
-      XClosed=EXS(iState)%VTab(iValue)
+      iValue=EXS(ME_iState)%ICoup(3,OffU+iU)
+      XClosed=EXS(ME_iState)%VTab(iValue)
 
       XUpper=XUpper+XClosed*XOpen
 
@@ -9781,10 +10271,10 @@ if (XUpper==Zero) return
 !
 ! ---------------------------------------------------------------
 
-NOL  = MERGE(EXS(iState)%NOCP(INDEO_S,ISYDI,MVI), &
-             EXS(iState)%NOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
-OffOL= MERGE(EXS(iState)%IOCP(INDEO_S,ISYDI,MVI), &
-             EXS(iState)%IOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
+NOL  = MERGE(EXS(ME_iState)%NOCP(INDEO_S,ISYDI,MVI), &
+             EXS(ME_iState)%NOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
+OffOL= MERGE(EXS(ME_iState)%IOCP(INDEO_S,ISYDI,MVI), &
+             EXS(ME_iState)%IOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
 If (NOL==0) return
 If (Verbose) Write (u6,*) 'NOL=',NOL
 
@@ -9794,18 +10284,18 @@ do iL=1,NOL
 
    ! FromO=Il
    ! ToO  =Jl
-   FromO = merge(EXS(iState)%ICoup(2,OffOL+iL), &
-                 EXS(iState)%ICoup(1,OffOL+iL), &
+   FromO = merge(EXS(ME_iState)%ICoup(2,OffOL+iL), &
+                 EXS(ME_iState)%ICoup(1,OffOL+iL), &
                  Swap_rs)
    if (FromO/=IDJ) cycle
 
-   ToO   = merge(EXS(iState)%ICoup(1,OffOL+iL), &
-                 EXS(iState)%ICoup(2,OffOL+iL), &
+   ToO   = merge(EXS(ME_iState)%ICoup(1,OffOL+iL), &
+                 EXS(ME_iState)%ICoup(2,OffOL+iL), &
                  Swap_rs)
    if (ToO/=IDI) cycle
 
-   iValue=EXS(iState)%ICoup(3,OffOL+iL)
-   XLower=XLower+EXS(iState)%VTab(iValue)
+   iValue=EXS(ME_iState)%ICoup(3,OffOL+iL)
+   XLower=XLower+EXS(ME_iState)%VTab(iValue)
 
 end do
 If (Verbose) Write (u6,*) 'XLower=',XLower
@@ -9838,8 +10328,8 @@ integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r,s
 real(kind=wp) :: Value
 integer(kind=iwp) :: ISYCI
 
-ISYCI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)), &
-            Mul(Mul(SGS(iState)%ISm(r),SGS(iState)%ISm(s)),ISYCJ))
+ISYCI = Mul(Mul(SGS(ME_iState)%ISm(p),SGS(ME_iState)%ISm(q)), &
+            Mul(Mul(SGS(ME_iState)%ISm(r),SGS(ME_iState)%ISm(s)),ISYCJ))
 Value = MatEl_EpqErs_UO(ISYCI,J,I,s,r,q,p)
 
 end function MatEl_EpqErs_OU
@@ -9895,23 +10385,23 @@ Swap_rs = s_in > r_in
 r = merge(s_in,r_in,Swap_rs)
 s = merge(r_in,s_in,Swap_rs)
 
-ISYP =SGS(iState)%ISm(p)
-ISYQ =SGS(iState)%ISm(q)
+ISYP =SGS(ME_iState)%ISm(p)
+ISYQ =SGS(ME_iState)%ISm(q)
 ISYPQ=Mul(ISYP,ISYQ)
-ISYR =SGS(iState)%ISm(r)
-ISYS =SGS(iState)%ISm(s)
+ISYR =SGS(ME_iState)%ISm(r)
+ISYS =SGS(ME_iState)%ISm(s)
 ISYRS=Mul(ISYR,ISYS)
 ISYPQRS=Mul(ISYPQ,ISYRS)
 ISYCI = Mul(ISYPQRS,ISYCJ)
 
-if (I < 1 .or. I > CIS(iState)%NCSF(ISYCI)) return
-if (J < 1 .or. J > CIS(iState)%NCSF(ISYCJ)) return
+if (I < 1 .or. I > CIS(ME_iState)%NCSF(ISYCI)) return
+if (J < 1 .or. J > CIS(ME_iState)%NCSF(ISYCJ)) return
 
-if (p<1 .or. q<1 .or. p>SGS(iState)%MidLev .or. q>SGS(iState)%MidLev) return
-if (r<=SGS(iState)%MidLev .or. r>SGS(iState)%nLev .or. s<1 .or. s>SGS(iState)%MidLev) return
+if (p<1 .or. q<1 .or. p>SGS(ME_iState)%MidLev .or. q>SGS(ME_iState)%MidLev) return
+if (r<=SGS(ME_iState)%MidLev .or. r>SGS(ME_iState)%nLev .or. s<1 .or. s>SGS(ME_iState)%MidLev) return
 
-call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
-call Decode_CSF(CIS(iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+call Decode_CSF(CIS(ME_iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_CSF(CIS(ME_iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
 
@@ -9931,8 +10421,8 @@ End If
 
 if (p==q) then
    ! E_pp is diagonal in the CSF basis: <I|EppErs|J> = <I|Epp|I> <I|Ers|J>
-   Value=MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),p,p,ISYCI,I,I,.False.)* &
-         MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),r_in,s_in,ISYCJ,I,J,.False.)
+   Value=MatEl_Epq(SGS(ME_iState),CIS(ME_iState),EXS(ME_iState),p,p,ISYCI,I,I,.False.)* &
+         MatEl_Epq(SGS(ME_iState),CIS(ME_iState),EXS(ME_iState),r_in,s_in,ISYCJ,I,J,.False.)
    if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
    XRef=MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)
    if (abs(Value-XRef) > 1.0e-12_wp) then
@@ -9946,15 +10436,15 @@ end if
 ! For the open loop A_r(Ku(m),Ju(m')) with m=MVK find the connecting m'=MVJ.
 iBand=0
 do MV = 1, 2
-   MVX=MERGE(EXS(istate)%MVR(MVK,MV),EXS(istate)%MVL(MVK,MV),Swap_rs)
+   MVX=MERGE(EXS(ME_iState)%MVR(MVK,MV),EXS(ME_iState)%MVL(MVK,MV),Swap_rs)
    If (MVX == 0 .or. MVX /= MVJ) cycle
    iBand = MV
 end do
 If (iBand==0) Return
 MV=iBand
 
-INDEO_R=(MV-1)*SGS(iState)%nLev+r  ! Open-Loop Upper
-INDEO_S=(MV-1)*SGS(iState)%nLev+s  ! Open-Loop Lower
+INDEO_R=(MV-1)*SGS(ME_iState)%nLev+r  ! Open-Loop Upper
+INDEO_S=(MV-1)*SGS(ME_iState)%nLev+s  ! Open-Loop Lower
 If (Verbose) Write (u6,*) 'INDEO_R,INDEO_S=',INDEO_R,INDEO_S
 
 ! Symmetry relations for the two open-loop factors.
@@ -9967,26 +10457,26 @@ if (ISYDJ /= Mul(ISYS,ISYDK)) return
 !   XUpper = A_r(Iu(m),Ju(m'))      (Ku = Iu)
 ! ---------------------------------------------------------------
 
-NOU  = MERGE(EXS(iState)%NOCP(INDEO_R,ISYUK,MVK), &
-             EXS(iState)%NOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
-OffOU= MERGE(EXS(iState)%IOCP(INDEO_R,ISYUK,MVK), &
-             EXS(iState)%IOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
+NOU  = MERGE(EXS(ME_iState)%NOCP(INDEO_R,ISYUK,MVK), &
+             EXS(ME_iState)%NOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
+OffOU= MERGE(EXS(ME_iState)%IOCP(INDEO_R,ISYUK,MVK), &
+             EXS(ME_iState)%IOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
 If (Verbose) Write (u6,*) 'NOU=',NOU
 If (NOU==0) return
 
 XUpper=Zero
 do iO=1,NOU
    ! FromO=Ju, ToO=Ku=Iu
-   FromO = merge(EXS(iState)%ICoup(2,OffOU+iO), &
-                 EXS(iState)%ICoup(1,OffOU+iO), &
+   FromO = merge(EXS(ME_iState)%ICoup(2,OffOU+iO), &
+                 EXS(ME_iState)%ICoup(1,OffOU+iO), &
                  Swap_rs)
    if (FromO/=IUJ) cycle
-   ToO   = merge(EXS(iState)%ICoup(1,OffOU+iO), &
-                 EXS(iState)%ICoup(2,OffOU+iO), &
+   ToO   = merge(EXS(ME_iState)%ICoup(1,OffOU+iO), &
+                 EXS(ME_iState)%ICoup(2,OffOU+iO), &
                  Swap_rs)
    if (ToO/=IUI) cycle
-   iValue=EXS(iState)%ICoup(3,OffOU+iO)
-   XUpper=XUpper+EXS(iState)%VTab(iValue)
+   iValue=EXS(ME_iState)%ICoup(3,OffOU+iO)
+   XUpper=XUpper+EXS(ME_iState)%VTab(iValue)
 end do
 If (Verbose) Write (u6,*) 'XUpper=',XUpper
 if (XUpper==Zero) return
@@ -9998,10 +10488,10 @@ if (XUpper==Zero) return
 ! ---------------------------------------------------------------
 
 ! Process: A_s(Kl(m),Jl(m'))
-NOL  = MERGE(EXS(iState)%NOCP(INDEO_S,ISYDK,MVK), &
-             EXS(iState)%NOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
-OffOL= MERGE(EXS(iState)%IOCP(INDEO_S,ISYDK,MVK), &
-             EXS(iState)%IOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
+NOL  = MERGE(EXS(ME_iState)%NOCP(INDEO_S,ISYDK,MVK), &
+             EXS(ME_iState)%NOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
+OffOL= MERGE(EXS(ME_iState)%IOCP(INDEO_S,ISYDK,MVK), &
+             EXS(ME_iState)%IOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
 If (Verbose) Write (u6,*) 'NOL=',NOL
 if (NOL==0) return
 
@@ -10009,11 +10499,11 @@ if (NOL==0) return
 ! table is indexed by the bra (Il) symmetry for p < q and by the ket (Kl)
 ! symmetry otherwise.
 Reverse_L=p<q
-call Decode_Lower_Operator(SGS(iState),p,q,INDEO_PQ)
-NL  =merge(EXS(iState)%NOCP(INDEO_PQ,ISYDI,MVI), &
-           EXS(iState)%NOCP(INDEO_PQ,ISYDK,MVI),Reverse_L)
-OffL=merge(EXS(iState)%IOCP(INDEO_PQ,ISYDI,MVI), &
-           EXS(iState)%IOCP(INDEO_PQ,ISYDK,MVI),Reverse_L)
+call Decode_Lower_Operator(SGS(ME_iState),p,q,INDEO_PQ)
+NL  =merge(EXS(ME_iState)%NOCP(INDEO_PQ,ISYDI,MVI), &
+           EXS(ME_iState)%NOCP(INDEO_PQ,ISYDK,MVI),Reverse_L)
+OffL=merge(EXS(ME_iState)%IOCP(INDEO_PQ,ISYDI,MVI), &
+           EXS(ME_iState)%IOCP(INDEO_PQ,ISYDK,MVI),Reverse_L)
 If (Verbose) Write (u6,*) 'NL=',NL
 if (NL==0) return
 
@@ -10021,28 +10511,28 @@ XLower=Zero
 do iO=1,NOL
 
    ! FromO=Jl, ToO=Kl
-   FromO = merge(EXS(iState)%ICoup(2,OffOL+iO), &
-                 EXS(iState)%ICoup(1,OffOL+iO), &
+   FromO = merge(EXS(ME_iState)%ICoup(2,OffOL+iO), &
+                 EXS(ME_iState)%ICoup(1,OffOL+iO), &
                  Swap_rs)
    if (FromO/=IDJ) cycle
-   ToO   = merge(EXS(iState)%ICoup(1,OffOL+iO), &
-                 EXS(iState)%ICoup(2,OffOL+iO), &
+   ToO   = merge(EXS(ME_iState)%ICoup(1,OffOL+iO), &
+                 EXS(ME_iState)%ICoup(2,OffOL+iO), &
                  Swap_rs)
    If (Verbose) Write(u6,*) 'FromO, ToO=',FromO, ToO
 
-   iValue=EXS(iState)%ICoup(3,OffOL+iO)
-   XOpen=EXS(iState)%VTab(iValue)
+   iValue=EXS(ME_iState)%ICoup(3,OffOL+iO)
+   XOpen=EXS(ME_iState)%VTab(iValue)
 
    do iL=1,NL
       ! FromL=Kl (ket), ToL=Il (bra)
-      FromL=MERGE(EXS(iState)%ICoup(2,OffL+iL), &
-                  EXS(iState)%ICoup(1,OffL+iL), Reverse_L)
-      ToL  =MERGE(EXS(iState)%ICoup(1,OffL+iL), &
-                  EXS(iState)%ICoup(2,OffL+iL), Reverse_L)
+      FromL=MERGE(EXS(ME_iState)%ICoup(2,OffL+iL), &
+                  EXS(ME_iState)%ICoup(1,OffL+iL), Reverse_L)
+      ToL  =MERGE(EXS(ME_iState)%ICoup(1,OffL+iL), &
+                  EXS(ME_iState)%ICoup(2,OffL+iL), Reverse_L)
       if (FromL/=ToO .or. ToL/=IDI) cycle
 
-      iValue=EXS(iState)%ICoup(3,OffL+iL)
-      XClosed=EXS(iState)%VTab(iValue)
+      iValue=EXS(ME_iState)%ICoup(3,OffL+iL)
+      XClosed=EXS(ME_iState)%VTab(iValue)
 
       XLower=XLower+XClosed*XOpen
    end do
@@ -10077,8 +10567,8 @@ integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r,s
 real(kind=wp) :: Value
 integer(kind=iwp) :: ISYCI
 
-ISYCI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)), &
-            Mul(Mul(SGS(iState)%ISm(r),SGS(iState)%ISm(s)),ISYCJ))
+ISYCI = Mul(Mul(SGS(ME_iState)%ISm(p),SGS(ME_iState)%ISm(q)), &
+            Mul(Mul(SGS(ME_iState)%ISm(r),SGS(ME_iState)%ISm(s)),ISYCJ))
 Value = MatEl_EpqErs_LO(ISYCI,J,I,s,r,q,p)
 
 end function MatEl_EpqErs_OL
@@ -10126,8 +10616,8 @@ integer(kind=iwp) :: i1,i2,iK
 logical(kind=iwp) :: Swap1, Swap2
 
 Value=Zero
-MidLev=SGS(iState)%MidLev
-nLev  =SGS(iState)%nLev
+MidLev=SGS(ME_iState)%MidLev
+nLev  =SGS(ME_iState)%nLev
 
 ! Both operators must be open.
 if (min(p,q,r,s) < 1 .or. max(p,q,r,s) > nLev) return
@@ -10140,31 +10630,31 @@ U1 = max(p,q); L1 = min(p,q)
 Swap2 = s > r
 U2 = max(r,s); L2 = min(r,s)
 
-ISYCI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)), &
-            Mul(Mul(SGS(iState)%ISm(r),SGS(iState)%ISm(s)),ISYCJ))
-if (I < 1 .or. I > CIS(iState)%NCSF(ISYCI)) return
-if (J < 1 .or. J > CIS(iState)%NCSF(ISYCJ)) return
+ISYCI = Mul(Mul(SGS(ME_iState)%ISm(p),SGS(ME_iState)%ISm(q)), &
+            Mul(Mul(SGS(ME_iState)%ISm(r),SGS(ME_iState)%ISm(s)),ISYCJ))
+if (I < 1 .or. I > CIS(ME_iState)%NCSF(ISYCI)) return
+if (J < 1 .or. J > CIS(ME_iState)%NCSF(ISYCJ)) return
 
-call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
-call Decode_CSF(CIS(iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+call Decode_CSF(CIS(ME_iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_CSF(CIS(ME_iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
 
 ! Symmetries of the halves of K: E_pq takes K to I.
-ISYUK=Mul(SGS(iState)%ISm(U1),ISYUI)
-ISYDK=Mul(SGS(iState)%ISm(L1),ISYDI)
+ISYUK=Mul(SGS(ME_iState)%ISm(U1),ISYUI)
+ISYDK=Mul(SGS(ME_iState)%ISm(L1),ISYDI)
 ! and E_rs takes J to K.
-if (ISYUJ /= Mul(SGS(iState)%ISm(U2),ISYUK)) return
-if (ISYDJ /= Mul(SGS(iState)%ISm(L2),ISYDK)) return
+if (ISYUJ /= Mul(SGS(ME_iState)%ISm(U2),ISYUK)) return
+if (ISYDJ /= Mul(SGS(ME_iState)%ISm(L2),ISYDK)) return
 
 do MV1 = 1, 2
    ! Intermediate midvertex m_K reached from m_I by E_pq.
-   MVK = merge(EXS(iState)%MVR(MVI,MV1),EXS(iState)%MVL(MVI,MV1),Swap1)
+   MVK = merge(EXS(ME_iState)%MVR(MVI,MV1),EXS(ME_iState)%MVL(MVI,MV1),Swap1)
    if (MVK == 0) cycle
    ! Band of E_rs from m_K that reaches m_J.
    MV2 = 0
    do iK = 1, 2
-      if (merge(EXS(iState)%MVR(MVK,iK),EXS(iState)%MVL(MVK,iK),Swap2) == MVJ) MV2 = iK
+      if (merge(EXS(ME_iState)%MVR(MVK,iK),EXS(ME_iState)%MVL(MVK,iK),Swap2) == MVJ) MV2 = iK
    end do
    if (MV2 == 0) cycle
 
@@ -10172,24 +10662,24 @@ do MV1 = 1, 2
    ! Upper half: XU = Sum_Ku A_pq(Iu,Ku) A_rs(Ku,Ju)
    ! ------------------------------------------------------------
    INDEO = (MV2-1)*nLev+U2
-   N2   = merge(EXS(iState)%NOCP(INDEO,ISYUK,MVK),EXS(iState)%NOCP(INDEO,ISYUJ,MVJ),Swap2)
-   Off2 = merge(EXS(iState)%IOCP(INDEO,ISYUK,MVK),EXS(iState)%IOCP(INDEO,ISYUJ,MVJ),Swap2)
+   N2   = merge(EXS(ME_iState)%NOCP(INDEO,ISYUK,MVK),EXS(ME_iState)%NOCP(INDEO,ISYUJ,MVJ),Swap2)
+   Off2 = merge(EXS(ME_iState)%IOCP(INDEO,ISYUK,MVK),EXS(ME_iState)%IOCP(INDEO,ISYUJ,MVJ),Swap2)
    if (N2 == 0) cycle
    INDEO = (MV1-1)*nLev+U1
-   N1   = merge(EXS(iState)%NOCP(INDEO,ISYUI,MVI),EXS(iState)%NOCP(INDEO,ISYUK,MVK),Swap1)
-   Off1 = merge(EXS(iState)%IOCP(INDEO,ISYUI,MVI),EXS(iState)%IOCP(INDEO,ISYUK,MVK),Swap1)
+   N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYUK,MVK),Swap1)
+   Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYUK,MVK),Swap1)
    if (N1 == 0) cycle
    XU = Zero
    do i2 = 1, N2
       ! E_rs: ket Ju, bra Ku
-      if (merge(EXS(iState)%ICoup(2,Off2+i2),EXS(iState)%ICoup(1,Off2+i2),Swap2) /= IUJ) cycle
-      iK = merge(EXS(iState)%ICoup(1,Off2+i2),EXS(iState)%ICoup(2,Off2+i2),Swap2)
-      X2 = EXS(iState)%VTab(EXS(iState)%ICoup(3,Off2+i2))
+      if (merge(EXS(ME_iState)%ICoup(2,Off2+i2),EXS(ME_iState)%ICoup(1,Off2+i2),Swap2) /= IUJ) cycle
+      iK = merge(EXS(ME_iState)%ICoup(1,Off2+i2),EXS(ME_iState)%ICoup(2,Off2+i2),Swap2)
+      X2 = EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off2+i2))
       do i1 = 1, N1
          ! E_pq: ket Ku, bra Iu
-         if (merge(EXS(iState)%ICoup(2,Off1+i1),EXS(iState)%ICoup(1,Off1+i1),Swap1) /= iK) cycle
-         if (merge(EXS(iState)%ICoup(1,Off1+i1),EXS(iState)%ICoup(2,Off1+i1),Swap1) /= IUI) cycle
-         XU = XU+EXS(iState)%VTab(EXS(iState)%ICoup(3,Off1+i1))*X2
+         if (merge(EXS(ME_iState)%ICoup(2,Off1+i1),EXS(ME_iState)%ICoup(1,Off1+i1),Swap1) /= iK) cycle
+         if (merge(EXS(ME_iState)%ICoup(1,Off1+i1),EXS(ME_iState)%ICoup(2,Off1+i1),Swap1) /= IUI) cycle
+         XU = XU+EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off1+i1))*X2
       end do
    end do
    if (XU == Zero) cycle
@@ -10198,24 +10688,24 @@ do MV1 = 1, 2
    ! Lower half: XL = Sum_Kl A_pq(Il,Kl) A_rs(Kl,Jl)
    ! ------------------------------------------------------------
    INDEO = (MV2-1)*nLev+L2
-   N2   = merge(EXS(iState)%NOCP(INDEO,ISYDK,MVK),EXS(iState)%NOCP(INDEO,ISYDJ,MVJ),Swap2)
-   Off2 = merge(EXS(iState)%IOCP(INDEO,ISYDK,MVK),EXS(iState)%IOCP(INDEO,ISYDJ,MVJ),Swap2)
+   N2   = merge(EXS(ME_iState)%NOCP(INDEO,ISYDK,MVK),EXS(ME_iState)%NOCP(INDEO,ISYDJ,MVJ),Swap2)
+   Off2 = merge(EXS(ME_iState)%IOCP(INDEO,ISYDK,MVK),EXS(ME_iState)%IOCP(INDEO,ISYDJ,MVJ),Swap2)
    if (N2 == 0) cycle
    INDEO = (MV1-1)*nLev+L1
-   N1   = merge(EXS(iState)%NOCP(INDEO,ISYDI,MVI),EXS(iState)%NOCP(INDEO,ISYDK,MVK),Swap1)
-   Off1 = merge(EXS(iState)%IOCP(INDEO,ISYDI,MVI),EXS(iState)%IOCP(INDEO,ISYDK,MVK),Swap1)
+   N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYDK,MVK),Swap1)
+   Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYDK,MVK),Swap1)
    if (N1 == 0) cycle
    XL = Zero
    do i2 = 1, N2
       ! E_rs: ket Jl, bra Kl
-      if (merge(EXS(iState)%ICoup(2,Off2+i2),EXS(iState)%ICoup(1,Off2+i2),Swap2) /= IDJ) cycle
-      iK = merge(EXS(iState)%ICoup(1,Off2+i2),EXS(iState)%ICoup(2,Off2+i2),Swap2)
-      X2 = EXS(iState)%VTab(EXS(iState)%ICoup(3,Off2+i2))
+      if (merge(EXS(ME_iState)%ICoup(2,Off2+i2),EXS(ME_iState)%ICoup(1,Off2+i2),Swap2) /= IDJ) cycle
+      iK = merge(EXS(ME_iState)%ICoup(1,Off2+i2),EXS(ME_iState)%ICoup(2,Off2+i2),Swap2)
+      X2 = EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off2+i2))
       do i1 = 1, N1
          ! E_pq: ket Kl, bra Il
-         if (merge(EXS(iState)%ICoup(2,Off1+i1),EXS(iState)%ICoup(1,Off1+i1),Swap1) /= iK) cycle
-         if (merge(EXS(iState)%ICoup(1,Off1+i1),EXS(iState)%ICoup(2,Off1+i1),Swap1) /= IDI) cycle
-         XL = XL+EXS(iState)%VTab(EXS(iState)%ICoup(3,Off1+i1))*X2
+         if (merge(EXS(ME_iState)%ICoup(2,Off1+i1),EXS(ME_iState)%ICoup(1,Off1+i1),Swap1) /= iK) cycle
+         if (merge(EXS(ME_iState)%ICoup(1,Off1+i1),EXS(ME_iState)%ICoup(2,Off1+i1),Swap1) /= IDI) cycle
+         XL = XL+EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off1+i1))*X2
       end do
    end do
 
@@ -10227,36 +10717,36 @@ end function MatEl_EpqErs_OO
 !
 ! <I|E_pq E_rs|J> for I and J of symmetry LSM, by topology: each operator is
 ! U (both levels upper), L (both lower) or O (open). Screened with the exact
-! quick zero test first.
+! quick zero test first, from the occupations OccI and OccJ of I and J.
 !
-function MatEl_EpqErs(I,J,p,q,r,s) result(X)
+function MatEl_EpqErs(I,J,p,q,r,s,OccI,OccJ) result(X)
 
-  integer(kind=iwp), intent(in) :: I, J, p, q, r, s
+  integer(kind=iwp), intent(in) :: I, J, p, q, r, s, OccI(:), OccJ(:)
   real(kind=wp) :: X
   character(len=2) :: Top
 
   X = Zero
-  if (Quick_Zero(I,J,p,q,r,s)) return
+  if (Quick_Zero(OccI,OccJ,p,q,r,s)) return
   Top = Op_Class(p,q)//Op_Class(r,s)
   select case (Top)
     case ('UU')
-      X = MatEl_EpqErs_UU(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_UU(ME_LSM,I,J,p,q,r,s)
     case ('LL')
-      X = MatEl_EpqErs_LL(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_LL(ME_LSM,I,J,p,q,r,s)
     case ('UL')
-      X = MatEl_EpqErs_UL(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_UL(ME_LSM,I,J,p,q,r,s)
     case ('LU')
-      X = MatEl_EpqErs_LU(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_LU(ME_LSM,I,J,p,q,r,s)
     case ('UO')
-      X = MatEl_EpqErs_UO(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_UO(ME_LSM,I,J,p,q,r,s)
     case ('OU')
-      X = MatEl_EpqErs_OU(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_OU(ME_LSM,I,J,p,q,r,s)
     case ('LO')
-      X = MatEl_EpqErs_LO(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_LO(ME_LSM,I,J,p,q,r,s)
     case ('OL')
-      X = MatEl_EpqErs_OL(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_OL(ME_LSM,I,J,p,q,r,s)
     case ('OO')
-      X = MatEl_EpqErs_OO(LSM,I,J,p,q,r,s)
+      X = MatEl_EpqErs_OO(ME_LSM,I,J,p,q,r,s)
   end select
 
 end function MatEl_EpqErs
@@ -10266,68 +10756,14 @@ end function MatEl_EpqErs
 function Op_Class(p,q) result(C)
   integer(kind=iwp), intent(in) :: p, q
   character(len=1) :: C
-  if ((p > SGS(iState)%MidLev) .and. (q > SGS(iState)%MidLev)) then
+  if ((p > SGS(ME_iState)%MidLev) .and. (q > SGS(ME_iState)%MidLev)) then
     C = 'U'
-  else if ((p <= SGS(iState)%MidLev) .and. (q <= SGS(iState)%MidLev)) then
+  else if ((p <= SGS(ME_iState)%MidLev) .and. (q <= SGS(ME_iState)%MidLev)) then
     C = 'L'
   else
     C = 'O'
   end if
 end function Op_Class
-
-!
-! <I|H|J> for I and J of symmetry LSM, in the form used by sg_h_psi:
-!
-!   H = Sum_{i>=j, G(ij)=1} k_ij Ehat_ij + Sum_{i>=j} Sum_{k>=l, G(kl)=G(ij)} 1/2 (kl|ij) Ehat_kl Ehat_ij
-!
-! with Ehat_ij = E_ij + E_ji (E_ii for i = j), k_ij = h_ij - 1/2 Sum_k (ik|kj),
-! and triangularly packed TU (h) and TUVX ((kl|ij)), as in sg_h_psi.
-!
-function MatEl_H(I,J,TU,nTU,TUVX,nTUVX) result(H)
-
-  use Index_functions, only: iTri
-  use Constants, only: Half
-
-  integer(kind=iwp), intent(in) :: I, J, nTU, nTUVX
-  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
-  real(kind=wp) :: H
-  integer(kind=iwp) :: iO, jO, kO, lO, ij, kl, nL
-  real(kind=wp) :: OneInt, TwoInt, G
-
-  H = Zero
-  nL = SGS(iState)%nLev
-  do iO = 1, nL
-    do jO = 1, iO
-      ij = iTri(iO,jO)
-      if (SGS(iState)%ISm(iO) == SGS(iState)%ISm(jO)) then
-        TwoInt = Zero
-        do kO = 1, nL
-          TwoInt = TwoInt+TUVX(iTri(iTri(iO,kO),iTri(kO,jO)))
-        end do
-        OneInt = TU(ij)-Half*TwoInt
-        H = H+OneInt*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),iO,jO,LSM,I,J,.False.)
-        if (iO /= jO) H = H+OneInt*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),jO,iO,LSM,I,J,.False.)
-      end if
-      do kO = 1, nL
-        do lO = 1, kO
-          kl = iTri(kO,lO)
-          if (Mul(SGS(iState)%ISm(kO),SGS(iState)%ISm(lO)) /= &
-              Mul(SGS(iState)%ISm(iO),SGS(iState)%ISm(jO))) cycle
-          G = Half*TUVX(iTri(kl,ij))
-          if (G == Zero) cycle
-          ! Ehat_kl Ehat_ij
-          H = H+G*MatEl_EpqErs(I,J,kO,lO,iO,jO)
-          if (iO /= jO) H = H+G*MatEl_EpqErs(I,J,kO,lO,jO,iO)
-          if (kO /= lO) then
-            H = H+G*MatEl_EpqErs(I,J,lO,kO,iO,jO)
-            if (iO /= jO) H = H+G*MatEl_EpqErs(I,J,lO,kO,jO,iO)
-          end if
-        end do
-      end do
-    end do
-  end do
-
-end function MatEl_H
 
 !
 ! <I|H|J> as MatEl_H, but only from the operator strings that can connect J
@@ -10347,24 +10783,24 @@ end function MatEl_H
 ! MatEl_H). The cost per element is O(n) MatEl_EpqErs calls for a single
 ! and O(o**2) (o open shells) for equal occupations, instead of O(n**4).
 !
-function MatEl_H_Direct(I,J,TU,nTU,TUVX,nTUVX) result(H)
+function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
 
   use Constants, only: Half
 
-  integer(kind=iwp), intent(in) :: I, J, nTU, nTUVX
+  integer(kind=iwp), intent(in) :: I, J, OccI(:), OccJ(:), nTU, nTUVX
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
   real(kind=wp) :: H
   integer(kind=iwp) :: nL, t, d, k, nP, nM, x, y
   integer(kind=iwp) :: Pl(2), Mi(2)
 
   H = Zero
-  nL = SGS(iState)%nLev
+  nL = SGS(ME_iState)%nLev
 
   ! creations (Pl) and annihilations (Mi) taking J to I
   nP = 0
   nM = 0
   do t = 1, nL
-    d = Occ(t,I)-Occ(t,J)
+    d = OccI(t)-OccJ(t)
     do k = 1, d
       nP = nP+1
       if (nP > 2) return
@@ -10379,19 +10815,20 @@ function MatEl_H_Direct(I,J,TU,nTU,TUVX,nTUVX) result(H)
 
   select case (nP)
     case (2)
-      H = H_Ops(I,J,Pl(1),Pl(2),Mi(1),Mi(2),TUVX,nTUVX)
+      H = H_Ops(I,J,OccI,OccJ,Pl(1),Pl(2),Mi(1),Mi(2),TUVX,nTUVX)
     case (1)
-      H = H_Int1(Pl(1),Mi(1),TU,nTU,TUVX,nTUVX)*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),Pl(1),Mi(1),LSM,I,J,.False.)
+      H = H_Int1(Pl(1),Mi(1),TU,nTU,TUVX,nTUVX)* &
+          MatEl_Epq(SGS(ME_iState),CIS(ME_iState),EXS(ME_iState),Pl(1),Mi(1),ME_LSM,I,J,.False.)
       do x = 1, nL
-        H = H+H_Ops(I,J,Pl(1),x,Mi(1),x,TUVX,nTUVX)
+        H = H+H_Ops(I,J,OccI,OccJ,Pl(1),x,Mi(1),x,TUVX,nTUVX)
       end do
     case (0)
       if (I == J) then
         do x = 1, nL
-          if (Occ(x,J) == 0) cycle
-          H = H+H_Int1(x,x,TU,nTU,TUVX,nTUVX)*Occ(x,J)
+          if (OccJ(x) == 0) cycle
+          H = H+H_Int1(x,x,TU,nTU,TUVX,nTUVX)*OccJ(x)
           do y = 1, nL
-            H = H+Half*H_Int2(x,x,y,y,TUVX,nTUVX)*Occ(x,J)*Occ(y,J)
+            H = H+Half*H_Int2(x,x,y,y,TUVX,nTUVX)*OccJ(x)*OccJ(y)
           end do
         end do
       end if
@@ -10401,10 +10838,11 @@ function MatEl_H_Direct(I,J,TU,nTU,TUVX,nTUVX) result(H)
       ! E_xy E_yx + E_yx E_xy = n_x + n_y - n_x n_y.
       do x = 1, nL
         do y = x+1, nL
-          if ((Occ(x,J) == 1) .and. (Occ(y,J) == 1)) then
-            H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(MatEl_EpqErs(I,J,x,y,y,x)+MatEl_EpqErs(I,J,y,x,x,y))
+          if ((OccJ(x) == 1) .and. (OccJ(y) == 1)) then
+            H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(MatEl_EpqErs(I,J,x,y,y,x,OccI,OccJ)+ &
+                                                   MatEl_EpqErs(I,J,y,x,x,y,OccI,OccJ))
           else if (I == J) then
-            H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(Occ(x,J)+Occ(y,J)-Occ(x,J)*Occ(y,J))
+            H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(OccJ(x)+OccJ(y)-OccJ(x)*OccJ(y))
           end if
         end do
       end do
@@ -10414,11 +10852,11 @@ end function MatEl_H_Direct
 
 ! Sum of 1/2 (pq|rs) <I|E_pq E_rs|J> over the distinct orderings {p,r} of
 ! {a1,a2} and {q,s} of {b1,b2} (for MatEl_H_Direct).
-function H_Ops(I,J,a1,a2,b1,b2,TUVX,nTUVX) result(V)
+function H_Ops(I,J,OccI,OccJ,a1,a2,b1,b2,TUVX,nTUVX) result(V)
 
   use Constants, only: Half
 
-  integer(kind=iwp), intent(in) :: I, J, a1, a2, b1, b2, nTUVX
+  integer(kind=iwp), intent(in) :: I, J, OccI(:), OccJ(:), a1, a2, b1, b2, nTUVX
   real(kind=wp), intent(in) :: TUVX(nTUVX)
   real(kind=wp) :: V
   integer(kind=iwp) :: Tup(4,4), nTup, iA, iB, iT, p, q, r, s
@@ -10439,7 +10877,7 @@ function H_Ops(I,J,a1,a2,b1,b2,TUVX,nTUVX) result(V)
       if (.not. New) cycle
       nTup = nTup+1
       Tup(:,nTup) = [p,q,r,s]
-      V = V+Half*H_Int2(p,q,r,s,TUVX,nTUVX)*MatEl_EpqErs(I,J,p,q,r,s)
+      V = V+Half*H_Int2(p,q,r,s,TUVX,nTUVX)*MatEl_EpqErs(I,J,p,q,r,s,OccI,OccJ)
     end do
   end do
 
@@ -10470,125 +10908,12 @@ function H_Int1(p,q,TU,nTU,TUVX,nTUVX) result(V)
   integer(kind=iwp) :: kO
 
   V = Zero
-  do kO = 1, SGS(iState)%nLev
+  do kO = 1, SGS(ME_iState)%nLev
     V = V+H_Int2(p,kO,kO,q,TUVX,nTUVX)
   end do
   V = TU(iTri(p,q))-Half*V
 
 end function H_Int1
-
-!
-! Verify MatEl_H against sg_h_psi: with reproducible pseudo-random integrals
-! (any values with the permutational symmetry of the triangular packing will
-! do), compare <I|H|J> with (H e_J)_I for all I and for all columns J, or a
-! random sample of MaxHCol columns. Aborts on a mismatch.
-!
-subroutine Check_MatEl_H()
-
-  integer(kind=iwp), parameter :: MaxHCol = 20
-  real(kind=wp), parameter :: TolH = 1.0e-10_wp
-  integer(kind=iwp) :: nL, nTU, nTUVX, nC, nCol, iCol, I, J, k, nTestH, nFailH, nFailD
-  integer(kind=int64) :: iInt
-  real(kind=wp), allocatable :: TU(:), TUVX(:), Psi(:), Sgm(:)
-  real(kind=wp) :: X, Dev, MaxDev, MaxDevD, T0, T1, W, TimH, TimD
-  logical(kind=iwp) :: Reuse_Save, AllCols
-
-  interface
-    subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
-      import :: SGStruct, CIStruct, EXStruct, iwp, wp
-      type(SGStruct), intent(in) :: SGS
-      type(CIStruct), intent(in) :: CIS
-      type(EXStruct), intent(inout) :: EXS
-      integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
-      real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-      real(kind=wp), intent(out) :: Sigma(nCSFs)
-    end subroutine sg_h_psi
-  end interface
-
-  nL = SGS(iState)%nLev
-  nTU = nL*(nL+1)/2
-  nTUVX = nTU*(nTU+1)/2
-  nC = CIS(iState)%NCSF(LSM)
-
-  ! Reproducible integrals in [-0.5,0.5), independent of the sampling seed.
-  call mma_allocate(TU,nTU,Label='TU_H')
-  call mma_allocate(TUVX,nTUVX,Label='TUVX_H')
-  iInt = 271828183_int64
-  do k = 1, nTU
-    iInt = mod(48271_int64*iInt,2147483647_int64)
-    TU(k) = real(iInt,kind=wp)/2147483647.0_wp-0.5_wp
-  end do
-  do k = 1, nTUVX
-    iInt = mod(48271_int64*iInt,2147483647_int64)
-    TUVX(k) = real(iInt,kind=wp)/2147483647.0_wp-0.5_wp
-  end do
-
-  call mma_allocate(Psi,nC,Label='Psi_H')
-  call mma_allocate(Sgm,nC,Label='Sgm_H')
-  Reuse_Save = EXS(iState)%ReUse_SGTMP
-  EXS(iState)%ReUse_SGTMP = .False.
-
-  AllCols = nC <= MaxHCol
-  nCol = merge(nC,MaxHCol,AllCols)
-  nTestH = 0
-  nFailH = 0
-  nFailD = 0
-  MaxDev = Zero
-  MaxDevD = Zero
-  TimH = Zero
-  TimD = Zero
-  do iCol = 1, nCol
-    J = merge(iCol,Rand_Index(nC),AllCols)
-    Psi(:) = Zero
-    Psi(J) = One
-    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
-    do I = 1, nC
-      call CWTime(T0,W)
-      X = MatEl_H(I,J,TU,nTU,TUVX,nTUVX)
-      call CWTime(T1,W)
-      TimH = TimH+T1-T0
-      Dev = abs(X-Sgm(I))
-      MaxDev = max(MaxDev,Dev)
-      nTestH = nTestH+1
-      if (Dev > TolH*max(One,abs(Sgm(I)))) then
-        nFailH = nFailH+1
-        if (nFailH <= 10) write(u6,'(A,2I8,3ES22.13)') 'MatEl_H mismatch: I,J,<I|H|J>,sg_h_psi,diff = ', &
-                                                     I,J,X,Sgm(I),X-Sgm(I)
-      end if
-      call CWTime(T0,W)
-      X = MatEl_H_Direct(I,J,TU,nTU,TUVX,nTUVX)
-      call CWTime(T1,W)
-      TimD = TimD+T1-T0
-      Dev = abs(X-Sgm(I))
-      MaxDevD = max(MaxDevD,Dev)
-      if (Dev > TolH*max(One,abs(Sgm(I)))) then
-        nFailD = nFailD+1
-        if (nFailD <= 10) write(u6,'(A,2I8,3ES22.13)') 'MatEl_H_Direct mismatch: I,J,<I|H|J>,sg_h_psi,diff = ', &
-                                                     I,J,X,Sgm(I),X-Sgm(I)
-      end if
-    end do
-  end do
-
-  EXS(iState)%ReUse_SGTMP = Reuse_Save
-  call mma_deallocate(Sgm)
-  call mma_deallocate(Psi)
-  call mma_deallocate(TUVX)
-  call mma_deallocate(TU)
-
-  write(u6,*)
-  write(u6,'(A)') ' MatEl_H verification against sg_h_psi (pseudo-random integrals)'
-  write(u6,'(A,I0,A,I0,A)') 'Columns tested         : ',nCol,' of ',nC, merge(' (all)   ',' (random)',AllCols)
-  write(u6,'(A,I0)')   'Matrix elements tested : ',nTestH
-  write(u6,'(A,2I8)')  'Failures (H, Direct)   : ',nFailH,nFailD
-  write(u6,'(A,2ES12.4)') 'Maximum abs. deviation : ',MaxDev,MaxDevD
-  write(u6,'(A,2F12.3)') 'CPU time (H, Direct)   : ',TimH,TimD
-  if ((nFailH /= 0) .or. (nFailD /= 0)) then
-    write(u6,'(A)') 'MatEl_H consistency check FAILED.'
-    call Abend()
-  end if
-  write(u6,'(A)') 'MatEl_H consistency check PASSED.'
-
-end subroutine Check_MatEl_H
 
 function MatEl_EpqErs_LU( &
            ISYCI, &
@@ -10623,20 +10948,20 @@ Value = Zero
 ! Left operator is lower, right operator is upper.
 !
 if (p < 1 .or. q < 1) return
-if (p > SGS(iState)%MidLev) return
-if (q > SGS(iState)%MidLev) return
+if (p > SGS(ME_iState)%MidLev) return
+if (q > SGS(ME_iState)%MidLev) return
 
-if (r <= SGS(iState)%MidLev) return
-if (s <= SGS(iState)%MidLev) return
-if (r >  SGS(iState)%nLev) return
-if (s >  SGS(iState)%nLev) return
+if (r <= SGS(ME_iState)%MidLev) return
+if (s <= SGS(ME_iState)%MidLev) return
+if (r >  SGS(ME_iState)%nLev) return
+if (s >  SGS(ME_iState)%nLev) return
 
 call Decode_CSF( &
-     CIS(iState),ISYCI,I, &
+     CIS(ME_iState),ISYCI,I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
 call Decode_CSF( &
-     CIS(iState),ISYCI,J, &
+     CIS(ME_iState),ISYCI,J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
 !
@@ -10697,20 +11022,6 @@ real(kind=wp) :: Value
 Value = MatEl_EpqErs_LU(ISYCI,J,I,s,r,q,p)
 
 end function MatEl_EpqErs_UL
-
-!> Direct matrix element of a spin-free excitation operator between two CSFs.
-!!
-!! Computes EIJ = < I | E(IP,IQ) | J >, where I belongs to symmetry
-!! Mul(ISm(IP),ISm(IQ),ISYCJ) and J belongs to ISYCJ.
-!!
-!! This is intentionally a reference implementation:
-!!   * no SGTMP cache or saved state;
-!!   * no sorting or mutation of ICOUP;
-!!   * no packing, tiling, SIMD, GEMM, or scratch lists;
-!!   * only the coupling entries needed for the requested CSFs are visited.
-!!
-!! I and J are 1-based CSF indices within their respective symmetry sectors.
-!! CPQ is not included: the returned value is the bare <I|E_pq|J>.
 
 function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
   use Symmetry_Info, only: Mul
@@ -10998,219 +11309,6 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
 
 end function MatEl_Epq
 
-!> Exhaustively compare MatEl_Epq and MatEl_Epq_Ref for one ket symmetry.
-!!
-!! The routine checks every orbital pair (p,q), every ket CSF J in
-!! symmetry ISYCI, and every bra CSF I in the symmetry generated by E_pq.
-!! It prints each inconsistency and a final summary.
-subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
-  use Symmetry_Info, only: Mul
-  use Constants,     only: Zero
-  use Definitions,   only: wp, iwp
-#include "intent.fh"
-
-  integer(kind=iwp), intent(in)  :: ISYCI, iState
-  real(kind=wp),     intent(in)  :: Tol
-  integer(kind=iwp), intent(out) :: nTest, nFail
-  real(kind=wp),     intent(out) :: MaxDiff
-
-  integer(kind=iwp) :: I, J, p, q
-  integer(kind=iwp) :: nCSFI, nCSFJ, ISYCJ
-  integer(kind=iwp) :: iMax, jMax, pMax, qMax
-  real(kind=wp) :: Value, Value_Ref, Diff, Scale
-  logical(kind=iwp) :: Reuse_Save, Verbose
-  !
-  ! Quick zero test: orbital occupations of the CSFs of every symmetry,
-  ! OccAll(t,iOff(ISY)+I) = occupation of level t in CSF I of symmetry ISY.
-  ! They are unpacked from the step vectors by CSF_Occupation, not taken
-  ! from MatEl_Epq, which is what is being tested. (Taking them from the
-  ! reference diagonal costs nLev*nCSF**2 and dominated large cases.)
-  !
-  integer(kind=iwp), allocatable :: OccAll(:,:)
-  integer(kind=iwp) :: iOff(8), ISY, nScreen
-#ifdef _CHECK_QUICK_ZERO_
-  integer(kind=iwp) :: iLev
-#endif
-  logical(kind=iwp) :: Screened
-  ! Sampling of (I,J) as in the two-operator test (parameters of the host).
-  integer(kind=iwp) :: nPairsIJ, nDrawMax, iDraw, nTakeZ, nTakeNZ, nSampledPQ
-  logical(kind=iwp) :: Sampled
-
-  nTest   = 0_iwp
-  nFail   = 0_iwp
-  MaxDiff = Zero
-  iMax    = 0_iwp
-  jMax    = 0_iwp
-  pMax    = 0_iwp
-  qMax    = 0_iwp
-  Verbose = .False.
-! Verbose = .True.
-
-  nCSFI = CIS(iState)%NCSF(ISYCI)
-
-  Write (u6,*) '============================'
-  Write (u6,*) '   MatEl_Epq Verification   '
-  Write (u6,*) '============================'
-  Write (u6,*) 'iState,iSYCI: ',iState,ISYCI
-  Write (u6,*) 'SGS(iState)%iSM(:): ',SGS(iState)%iSM(:)
-
-  ! Disable reuse of SGTMP
-  Reuse_Save = EXS(iState)%ReUse_SGTMP
-  EXS(iState)%ReUse_SGTMP = .False.
-
-  iOff(:) = 0
-  do ISY = 2, SGS(iState)%nSym
-    iOff(ISY) = iOff(ISY-1)+CIS(iState)%NCSF(ISY-1)
-  end do
-  call mma_allocate(OccAll,SGS(iState)%nLev, &
-                    iOff(SGS(iState)%nSym)+CIS(iState)%NCSF(SGS(iState)%nSym), &
-                    Label='OccAll')
-  do ISY = 1, SGS(iState)%nSym
-    do I = 1, CIS(iState)%NCSF(ISY)
-      call CSF_Occupation(ISY,I,OccAll(:,iOff(ISY)+I))
-#ifdef _CHECK_QUICK_ZERO_
-      ! Cross-check the unpacked occupations against the reference diagonal.
-      do iLev = 1, SGS(iState)%nLev
-        if (OccAll(iLev,iOff(ISY)+I) /= nint(MatEl_Epq_Ref(istate,ISY,I,I,iLev,iLev))) then
-          write(u6,'(A,3I7)') 'CSF_Occupation failed: ISY,I,level =',ISY,I,iLev
-          call Abend()
-        end if
-      end do
-#endif
-    end do
-  end do
-  nScreen = 0_iwp
-  nSampledPQ = 0_iwp
-
-  do q = 1, SGS(iState)%nLev
-    do p = 1, SGS(iState)%nLev
-
-      ISYCJ=Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)),ISYCI)
-      nCSFJ = CIS(iState)%NCSF(ISYCJ)
-
-      ! All (I,J) pairs, or a random sample of them if there are more than
-      ! MaxPairs.
-      nPairsIJ = nCSFI*nCSFJ
-      Sampled  = nPairsIJ > MaxPairs
-      ! Cap the draws relative to the block size, so that sampling a block
-      ! just above MaxPairs never costs more than two full loops.
-      nDrawMax = merge(min(MaxDraw,2*nPairsIJ),nPairsIJ,Sampled)
-      nTakeZ   = 0
-      nTakeNZ  = 0
-      if (Sampled) nSampledPQ = nSampledPQ + 1_iwp
-      do iDraw = 1, nDrawMax
-          if (Sampled) then
-            if (nTakeZ >= QuotaZ .and. nTakeNZ >= QuotaNZ) exit
-            I = Rand_Index(nCSFI)
-            J = Rand_Index(nCSFJ)
-          else
-            J = (iDraw-1)/nCSFI+1
-            I = mod(iDraw-1,nCSFI)+1
-          end if
-
-          ! Skip the reference when <I|Epq|J> is zero by the occupations;
-          ! MatEl_Epq must then return exactly zero.
-          Screened = Epq_Is_Zero(OccAll(:,iOff(ISYCI)+I),OccAll(:,iOff(ISYCJ)+J),I,J,p,q)
-          if (Sampled) then
-            if (Screened) then
-              if (nTakeZ >= QuotaZ) cycle
-              nTakeZ = nTakeZ+1
-            else
-              if (nTakeNZ >= QuotaNZ) cycle
-              nTakeNZ = nTakeNZ+1
-            end if
-          end if
-
-          ! evaluate <I| Epq |J>
-
-          Value = MatEl_Epq(SGS(iState), &
-                            CIS(iState), &
-                            EXS(iState), &
-                            p,q,ISYCJ,I,J,Verbose)
-
-          if (Screened) then
-            Value_Ref = Zero
-            nScreen = nScreen + 1_iwp
-#ifdef _CHECK_QUICK_ZERO_
-            if (abs(MatEl_Epq_Ref(istate,ISYCJ,I,J,p,q)) > Tol) then
-              write(u6,'(A,6I7)') 'Epq_Is_Zero failed: ISYCI,I,ISYJ,J,p,q =', &
-                                  ISYCI,I,ISYCJ,J,p,q
-              call Abend()
-            end if
-#endif
-          else
-            Value_Ref = MatEl_Epq_Ref(istate,ISYCJ,I,J,p,q)
-          end if
-
-          nTest = nTest + 1_iwp
-          Diff  = abs(Value-Value_Ref)
-          Scale = max(1.0_wp,abs(Value),abs(Value_Ref))
-
-          if (Diff > MaxDiff) then
-            MaxDiff = Diff
-            iMax = I
-            jMax = J
-            pMax = p
-            qMax = q
-          end if
-
-          if ((Screened .and. Value /= Zero) .or. Diff > Tol*Scale) then
-            nFail = nFail + 1_iwp
-            write(u6,'(A,6I7,2ES24.14)') &
-              'MATEL_EPQ mismatch: ISYCI,I,ISYJ,J,p,q,value,Value_Ref =', &
-              ISYCI,I,ISYCJ,J,p,q,Value,Value_Ref
-          end if
-
-      end do
-    end do
-  end do
-
-  EXS(iState)%ReUse_SGTMP = Reuse_Save
-  call mma_deallocate(OccAll)
-
-  write(u6,'(/,A,I0)') 'MatEl_Epq tests       : ',nTest
-  write(u6,'(A,I0)')   'Screened as zero      : ',nScreen
-  write(u6,'(A,I0)')   'Sampled (p,q) blocks  : ',nSampledPQ
-  write(u6,'(A,I0)')   'MatEl_Epq failures    : ',nFail
-  write(u6,'(A,ES12.4)') 'Relative tolerance    : ',Tol
-  if (nFail > 0) then
-    write(u6,'(A,ES24.14)') 'Maximum abs. diff.    : ',MaxDiff
-    write(u6,'(A,4I8)') 'At I,J,p,q            : ', &
-                       iMax,jMax,pMax,qMax
-  end if
-
-  if (nFail == 0) then
-    write(u6,'(A)') 'MatEl_Epq consistency check PASSED.'
-  else
-    write(u6,'(A)') 'MatEl_Epq consistency check FAILED.'
-  end if
-  Write (u6,*) '============================'
-
-end subroutine Check_MatEl_Epq
-
-!
-! Random index in 1..n from a Park-Miller generator (x <- 48271 x mod
-! (2**31-1)) with the state iRandState of the host. Self-contained, so the
-! sequence does not depend on other users of a random number generator.
-!
-function Rand_Index(n) result(iRand)
-  integer(kind=iwp), intent(in) :: n
-  integer(kind=iwp) :: iRand
-  if (.not. SeedReported) then
-    if (SeedFromEnv) then
-      write(u6,'(/,A,I0,A)') 'SG_Test_EpqErs_Ref: random sampling of (I,J) pairs, seed = ', &
-                             iRandSeed,' (from MOLCAS_RANDOM_SEED)'
-    else
-      write(u6,'(/,A,I0,A)') 'SG_Test_EpqErs_Ref: random sampling of (I,J) pairs, seed = ', &
-                             iRandSeed,' (from the clock)'
-    end if
-    write(u6,'(A,I0,/)')   'To reproduce this run: >export MOLCAS_RANDOM_SEED=',iRandSeed
-    SeedReported = .true.
-  end if
-  iRandState = mod(48271_int64*iRandState,2147483647_int64)
-  iRand = 1+int(mod(iRandState,int(n,kind=int64)),kind=iwp)
-end function Rand_Index
-
 !
 ! Orbital occupations of CSF I of symmetry ISY, unpacked from its step
 ! vector: the upper and lower walks are stored in CIS%ICase, 2 bits per
@@ -11221,17 +11319,17 @@ subroutine CSF_Occupation(ISY,I,OccVec)
   integer(kind=iwp), intent(in)  :: ISY, I
   integer(kind=iwp), intent(out) :: OccVec(:)
   integer(kind=iwp) :: MV, ISYU, ISYD, IUP, IDN, iLev, IOW0, IPSHFT, IC, ICS
-  call Decode_CSF(CIS(iState),ISY,I,MV,ISYU,IUP,IDN)
+  call Decode_CSF(CIS(ME_iState),ISY,I,MV,ISYU,IUP,IDN)
   ISYD = Mul(ISY,ISYU)
-  do iLev = 1, SGS(iState)%nLev
-    if (iLev > SGS(iState)%MidLev) then
-      IOW0   = CIS(iState)%IOW(1,ISYU,MV)
-      IPSHFT = 2*(iLev-1-SGS(iState)%MidLev)
-      IC     = CIS(iState)%ICase(1+IOW0-CIS(iState)%nIpWlk+IPSHFT/(2*nPack)+IUP*CIS(iState)%nIpWlk)
+  do iLev = 1, SGS(ME_iState)%nLev
+    if (iLev > SGS(ME_iState)%MidLev) then
+      IOW0   = CIS(ME_iState)%IOW(1,ISYU,MV)
+      IPSHFT = 2*(iLev-1-SGS(ME_iState)%MidLev)
+      IC     = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*nPack)+IUP*CIS(ME_iState)%nIpWlk)
     else
-      IOW0   = CIS(iState)%IOW(2,ISYD,MV)
+      IOW0   = CIS(ME_iState)%IOW(2,ISYD,MV)
       IPSHFT = 2*(iLev-1)
-      IC     = CIS(iState)%ICase(1+IOW0-CIS(iState)%nIpWlk+IPSHFT/(2*nPack)+IDN*CIS(iState)%nIpWlk)
+      IC     = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*nPack)+IDN*CIS(ME_iState)%nIpWlk)
     end if
     IPSHFT = mod(IPSHFT,2*nPack)
     ICS = mod(IC/2**IPSHFT,4)
@@ -11239,53 +11337,37 @@ subroutine CSF_Occupation(ISY,I,OccVec)
   end do
 end subroutine CSF_Occupation
 
-!
-! Seed of the generator: MOLCAS_RANDOM_SEED if set, otherwise the clock.
-! (getSeed is not used, since inside verify it gives a deterministic seed.)
-!
-subroutine Init_Rand_Seed()
-  character(len=72) :: Line
-  integer(kind=int64) :: iCount
-  call get_environment_variable('MOLCAS_RANDOM_SEED',Line)
-  SeedFromEnv = Line /= ' '
-  if (SeedFromEnv) then
-    read(Line,*) iRandSeed
-  else
-    call system_clock(iCount)
-    iRandSeed = 1_int64+mod(abs(iCount),2147483646_int64)
+!> Set up the single-CSF matrix elements for the CSFs of symmetry LSM of
+!> state iState (SG_CSF_Occ, SG_MatEl_H).
+subroutine SG_MatEl_Init(iState,LSM)
+  integer(kind=iwp), intent(in) :: iState, LSM
+  ME_iState = iState
+  ME_LSM = LSM
+  if (.not. allocated(CIS(iState)%ICase)) call MkCOT(SGS(iState),CIS(iState))
+  if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(LSM,SGS(iState),CIS(iState),EXS(iState))
+end subroutine SG_MatEl_Init
+
+!> Orbital occupations (per level) of the GUGA CSF I (after SG_MatEl_Init).
+subroutine SG_CSF_Occ(I,OccVec)
+  integer(kind=iwp), intent(in) :: I
+  integer(kind=iwp), intent(out) :: OccVec(:)
+  call CSF_Occupation(ME_LSM,I,OccVec)
+end subroutine SG_CSF_Occ
+
+!> <I|H|J> between the GUGA CSFs I and J with the occupations OccI and OccJ
+!> (SG_CSF_Occ), H = Sum_pq h_pq E_pq + 1/2 Sum_pqrs (pq|rs) (E_pq E_rs -
+!> delta_qr E_ps) with the triangularly packed TU and TUVX, without core
+!> energy (MatEl_H_Direct, after SG_MatEl_Init). Without symmetry only:
+!> MatEl_EpqErs does not support products of symmetry-changing operators.
+function SG_MatEl_H(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
+  integer(kind=iwp), intent(in) :: I, J, OccI(:), OccJ(:), nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp) :: H
+  if (SGS(ME_iState)%nSym /= 1) then
+    write(u6,*) 'SG_MatEl_H: only without symmetry'
+    call Abend()
   end if
-  ! The Park-Miller state must lie in 1..2**31-2.
-  iRandState = 1_int64+mod(abs(iRandSeed),2147483646_int64)
-  SeedReported = .false.
-end subroutine Init_Rand_Seed
-
-  !
-  ! Quick zero test for <I|E_pq|J> from the occupations OccI, OccJ of I, J.
-  ! Returns .true. only if the matrix element is exactly zero:
-  !   p == q: E_pp is diagonal in the CSF basis, so zero unless I == J
-  !           (the symmetries of I and J are then equal);
-  !   p /= q: zero unless n_J(q) >= 1, n_J(p) <= 1 and
-  !           n_I(t) = n_J(t) + d(t,p) - d(t,q) for every level t.
-  !
-  function Epq_Is_Zero(OccI,OccJ,I,J,p,q) result(IsZero)
-    integer(kind=iwp), intent(in) :: OccI(:), OccJ(:), I, J, p, q
-    logical(kind=iwp) :: IsZero
-    integer(kind=iwp) :: t, nI
-    IsZero = .true.
-    if (p == q) then
-      IsZero = I /= J
-      return
-    end if
-    if (OccJ(q) == 0 .or. OccJ(p) == 2) return
-    do t = 1, size(OccJ)
-      nI = OccJ(t)
-      if (t == p) nI = nI+1
-      if (t == q) nI = nI-1
-      if (nI /= OccI(t)) return
-    end do
-    IsZero = .false.
-  end function Epq_Is_Zero
-
-end subroutine SG_Test_EpqErs_Ref
+  H = MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX)
+end function SG_MatEl_H
 
 end module SGUGA

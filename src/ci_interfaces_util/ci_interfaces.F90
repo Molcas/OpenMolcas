@@ -1108,8 +1108,11 @@ end subroutine Mk_Cnf_Layout
 !>  - Faroald (DoFaro): for each pair of configurations the determinant
 !>    block (Slater-Condon rules, Faroald_HDet) transformed with the spin
 !>    tables of citrans, C_L^T H C_R.
-!> With MOLCAS_CI_VERIFY=SIGMA, the Faroald block is compared (once per run)
+!>  - SGUGA (IHJ_SGUGA, without symmetry): <I|H|J> for each pair of CSFs
+!>    from the occupation difference (SG_MatEl_H); for now a reference only.
+!> With MOLCAS_CI_VERIFY=SIGMA, once per run: the Faroald block is compared
 !> with columns H e_J of the Faroald sigma vector and with the Lucia block,
+!> the block of the back end in use with the SGUGA one (without symmetry),
 !> and the block is checked against Mk_H_Psi.
 subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 use Index_Functions, only: nTri_Elem
@@ -1152,8 +1155,17 @@ else
 end if
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare the block, once per run,
-! with exact columns H e_J from Mk_H_Psi.
+! with the SGUGA one (without symmetry) and with exact columns H e_J from
+! Mk_H_Psi.
 if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
+  if ((SGS(1)%nSym == 1) .and. (SGS(1)%nRsPrt == 1) .and. (.not. iDoGAS)) then
+    call mma_allocate(PHP_Ref,nTri_Elem(NPCSF),Label='PHP_Ref')
+    call IHJ_SGUGA(PHP_Ref)
+    call Compare_IHJ(trim(merge('Faroald','Lucia  ',DoFaro)),'SGUGA',PHP_Ref)
+    call mma_deallocate(PHP_Ref)
+  else
+    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (only without symmetry and GAS, single RAS partition)'
+  end if
   IHJ_Verified = .true.
   call Verify_IHJ()
 end if
@@ -1465,6 +1477,38 @@ contains
     call mma_deallocate(Idx)
 
   end subroutine Map_All
+
+  ! SGUGA back end: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECORE, with
+  ! I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
+  ! (mode 0: c_G(I_G) = P_I c(I)), from SG_MatEl_H. Without symmetry only.
+  subroutine IHJ_SGUGA(H)
+    use Molcas, only: MxAct
+    use sguga, only: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_NUM
+    real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
+    integer(kind=iwp) :: I, J
+    integer(kind=iwp) :: IWALK(MxAct)
+    integer(kind=iwp), allocatable :: iG(:), iPG(:), OccG(:,:)
+
+    call SG_MatEl_Init(1,IREFSM)
+    call mma_allocate(iG,NPCSF,Label='iG')
+    call mma_allocate(iPG,NPCSF,Label='iPG')
+    call mma_allocate(OccG,NAC,NPCSF,Label='OccG')
+    do J=1,NPCSF
+      call SG_Lucia_Walk(1,IREFSM,IPCSF(J),IWALK,iPG(J))
+      iG(J) = SG_NUM(SGS(1),EXS(1),IWALK)
+      call SG_CSF_Occ(iG(J),OccG(:,J))
+    end do
+    do I=1,NPCSF
+      do J=1,I
+        H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*SG_MatEl_H(iG(I),iG(J),OccG(:,I),OccG(:,J),TU,nTU,TUVX,nTUVX)
+      end do
+      H(nTri_Elem(I)) = H(nTri_Elem(I))+ECORE
+    end do
+    call mma_deallocate(OccG)
+    call mma_deallocate(iPG)
+    call mma_deallocate(iG)
+
+  end subroutine IHJ_SGUGA
 
   ! Faroald reference (CI development): H(I,J) = (H e_J)(I) from the Faroald
   ! sigma vector of the unit vector e_J, J over the selected CSFs.
