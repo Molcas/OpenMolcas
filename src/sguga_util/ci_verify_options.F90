@@ -26,10 +26,13 @@
 !>          transformation and density matrices (the SGUGA sigma vector is
 !>          then used in Mk_H_Psi)
 !>   FARO   use Faroald automatically for C1 CASSCF (compared with Lucia)
+!>   HDIAG  give the CI solver the exact diagonal <I|H|I> from SGUGA instead
+!>          of the configuration average (preconditioner and selection of the
+!>          explicit subspace; an experiment, not included in ALL)
 !>   ALL    YES, SIGMA and FARO
 !>
-!> CI_Verify('ANY') is true if any of the above is requested; it switches
-!> on the internal sanity checks of the SGUGA and SD/CSF codes.
+!> CI_Verify('ANY') is true if any of YES, EPQ, SIGMA or FARO is requested;
+!> it switches on the internal sanity checks of the SGUGA and SD/CSF codes.
 !>
 !> This module sits in sguga_util so that the SGUGA code itself can use it;
 !> CI_Interfaces re-exports CI_Verify.
@@ -41,13 +44,13 @@ implicit none
 private
 
 logical(kind=iwp) :: Verify_Parsed = .false., Verify_Yes = .false., Verify_Epq = .false., Verify_Sigma = .false., &
-                     Verify_Faro = .false.
+                     Verify_Faro = .false., Verify_HDiag = .false.
 
 public :: CI_Verify
 
 contains
 
-!> Is the verification option Opt (YES, EPQ, SIGMA, FARO or ANY) active?
+!> Is the verification option Opt (YES, EPQ, SIGMA, FARO, HDIAG or ANY) active?
 function CI_Verify(Opt) result(Active)
 
   character(len=*), intent(in) :: Opt
@@ -79,6 +82,8 @@ function CI_Verify(Opt) result(Active)
           Verify_Sigma = .true.
         case ('FARO')
           Verify_Faro = .true.
+        case ('HDIAG')
+          Verify_HDiag = .true.
         case ('ALL')
           Verify_Yes = .true.
           Verify_Sigma = .true.
@@ -86,7 +91,7 @@ function CI_Verify(Opt) result(Active)
         case ('NO','')
         case default
           write(u6,'(3A)') 'Illegal value in MOLCAS_CI_VERIFY: "',trim(Tok),'"'
-          write(u6,'(A)') 'Valid values (comma-separated): NO, YES, EPQ, SIGMA, FARO, ALL'
+          write(u6,'(A)') 'Valid values (comma-separated): NO, YES, EPQ, SIGMA, FARO, HDIAG, ALL'
           call Abend()
       end select
     end do
@@ -102,6 +107,8 @@ function CI_Verify(Opt) result(Active)
       Active = Verify_Sigma
     case ('FARO')
       Active = Verify_Faro
+    case ('HDIAG')
+      Active = Verify_HDiag
     case ('ANY')
       Active = Verify_Yes .or. Verify_Epq .or. Verify_Sigma .or. Verify_Faro
     case default

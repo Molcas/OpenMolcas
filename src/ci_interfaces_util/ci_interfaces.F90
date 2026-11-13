@@ -832,6 +832,12 @@ call mma_deallocate(DDIA)
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the exact diagonal.
 if (CI_Verify('SIGMA') .and. (.not. iDoGAS) .and. (nRsPrt == 1)) call Verify_IHI()
 
+! CI development (MOLCAS_CI_VERIFY=HDIAG): use the exact diagonal instead.
+if (CI_Verify('HDIAG') .and. (.not. iDoGAS) .and. (nRsPrt == 1)) then
+  call Exact_Diag(CSFDIA)
+  write(u6,'(1X,A)') 'Mk_IHI: exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
+end if
+
 contains
 
   subroutine Verify_IHI()
@@ -842,7 +848,7 @@ contains
                          iRkMax
     integer(kind=iwp), allocatable :: nCSFCnf(:), nOpCnf(:)
     real(kind=wp) :: Dev, MaxDev
-    real(kind=wp), allocatable :: DSG(:), DRef(:), DEx(:), Idx(:), Map(:), KeyL(:), KeyMin(:), KeyMean(:)
+    real(kind=wp), allocatable :: DSG(:), DRef(:), DEx(:), KeyL(:), KeyMin(:), KeyMean(:)
     logical(kind=iwp), allocatable :: SelL(:), SelMin(:), SelMean(:)
     interface
       subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
@@ -884,20 +890,9 @@ contains
       call mma_deallocate(DRef)
     end if
 
-    ! to the Lucia CSF order: a permutation, without the CSF phases
-    ! (SG_ReOrd of the index vector: Idx(ICSF) = +-ISG)
-    call mma_allocate(Map,nConf,Label='Map')
-    call mma_allocate(Idx,nConf,Label='Idx')
+    ! to the Lucia CSF order
     call mma_allocate(DEx,nConf,Label='DEx')
-    do i=1,nConf
-      Map(i) = real(i,kind=wp)
-    end do
-    call SG_ReOrd(iState,STSYM,1,nConf,Map,Idx)
-    do i=1,nConf
-      DEx(i) = DSG(nint(abs(Idx(i))))
-    end do
-    call mma_deallocate(Idx)
-    call mma_deallocate(Map)
+    call Diag_to_Lucia(DSG,DEx)
     call mma_deallocate(DSG)
 
     ! configuration layout (as Mk_Cnf_Layout) with the number of open shells
@@ -1003,6 +998,52 @@ contains
     call mma_deallocate(DEx)
 
   end subroutine Verify_IHI
+
+  ! A diagonal in the SGUGA CSF order to the Lucia order: a permutation,
+  ! without the CSF phases (SG_ReOrd of the index vector: Idx(ICSF) = +-ISG).
+  subroutine Diag_to_Lucia(DSG,DL)
+    real(kind=wp), intent(in) :: DSG(nConf)
+    real(kind=wp), intent(out) :: DL(nConf)
+    integer(kind=iwp) :: j
+    real(kind=wp), allocatable :: Idx(:), Map(:)
+
+    call mma_allocate(Map,nConf,Label='Map')
+    call mma_allocate(Idx,nConf,Label='Idx')
+    do j=1,nConf
+      Map(j) = real(j,kind=wp)
+    end do
+    call SG_ReOrd(1,STSYM,1,nConf,Map,Idx)
+    do j=1,nConf
+      DL(j) = DSG(nint(abs(Idx(j))))
+    end do
+    call mma_deallocate(Idx)
+    call mma_deallocate(Map)
+
+  end subroutine Diag_to_Lucia
+
+  ! Exact diagonal <I|H|I> in the Lucia CSF order (sg_hdiag_fast).
+  subroutine Exact_Diag(DL)
+    use sguga, only: SGStruct, CIStruct, EXStruct
+    real(kind=wp), intent(out) :: DL(nConf)
+    real(kind=wp), allocatable :: DSG(:)
+    interface
+      subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
+        import :: SGStruct, CIStruct, EXStruct, iwp, wp
+        type(SGStruct), intent(in) :: SGS
+        type(CIStruct), intent(in) :: CIS
+        type(EXStruct), intent(inout) :: EXS
+        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
+        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+        real(kind=wp), intent(out) :: Diag(nCSFs)
+      end subroutine sg_hdiag_fast
+    end interface
+
+    call mma_allocate(DSG,nConf,Label='DSG')
+    call sg_hdiag_fast(SGS(1),CIS(1),EXS(1),nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
+    call Diag_to_Lucia(DSG,DL)
+    call mma_deallocate(DSG)
+
+  end subroutine Exact_Diag
 
   ! Position of Key(k) in the order of increasing Key (ties by index).
   function Rank(Key,k) result(iRank)
