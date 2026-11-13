@@ -249,6 +249,7 @@ integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
+public :: SG_Lucia_Walk
 public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, SG_ReOrd_Orig, StepVec, SG_TRACI
 public :: SG_Test_EpqErs_Ref
 public :: SG_Mk_SDREO
@@ -5588,7 +5589,7 @@ do iOpen = MinOpen, MaxOpen, 2
 !  Run over all prototype configurations of the sector
    do IC = 1, nOC
 
-      call GetOccupation_SGUGA(iOpen,SGS(iState)%iSpin,IREFSM,IC,KCNF)
+      call GetOccupation_SGUGA(iState,iOpen,SGS(iState)%iSpin,IREFSM,IC,KCNF)
 
 !     Loop over all orbital combinations for this particular sector.
       do IICSF = 1, SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nCSF
@@ -5633,9 +5634,54 @@ write(u6,*)
 
 #endif
 
-contains
+end subroutine SG_ReOrd
 
-subroutine GetOccupation_SGUGA(iOpen,mult,iSym,iOC,KCNF)
+!> Step vector IWALK of the CSF ICSF of the Lucia (SGA) CSF basis of
+!> symmetry IREFSM and the phase IP relating it to the GUGA CSF, as in
+!> SG_ReOrd: CINEW(SG_NUM(IWALK)) = IP*CIOLD(ICSF) for IMODE = 0.
+!> Only for a single RAS partition (nRsPrt = 1, the case of SG_ReOrd proper).
+subroutine SG_Lucia_Walk(iState,IREFSM,ICSF,IWALK,IP)
+
+use Molcas, only: MxAct
+
+integer(kind=iwp), intent(in) :: iState, IREFSM, ICSF
+integer(kind=iwp), intent(out) :: IWALK(MxAct), IP
+integer(kind=iwp) :: iOpen, ICL, MinOpen, MaxOpen, nOC, nCSF, iOff, IC, IICSF
+integer(kind=iwp) :: KCNF(MxAct)
+
+if (SGS(iState)%nRsPrt /= 1) then
+  write(u6,*) 'SG_Lucia_Walk: only for nRsPrt = 1'
+  call Abend()
+end if
+
+MinOpen = SGS(iState)%iSpin-1
+MaxOpen = min(SGS(iState)%nActEl,2*SGS(iState)%nLev-SGS(iState)%nActEl)
+if (mod(MaxOpen-MinOpen,2) /= 0) MaxOpen = MaxOpen-1
+
+iOff = 0
+do iOpen=MinOpen,MaxOpen,2
+  nOC = SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nOCSym(IREFSM)
+  nCSF = SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nCSF
+  if (ICSF <= iOff+nOC*nCSF) then
+    ICL = (SGS(iState)%nActEl-iOpen)/2
+    IC = (ICSF-iOff-1)/nCSF+1
+    IICSF = ICSF-iOff-(IC-1)*nCSF
+    call GetOccupation_SGUGA(iState,iOpen,SGS(iState)%iSpin,IREFSM,IC,KCNF)
+    call BuildWalk(iState,ICL,iOpen,IICSF,KCNF,IWALK)
+    IP = SG_PHASE(SGS(iState),IWALK)
+    return
+  end if
+  iOff = iOff+nOC*nCSF
+end do
+
+write(u6,*) 'SG_Lucia_Walk: CSF index out of range:',ICSF
+call Abend()
+
+end subroutine SG_Lucia_Walk
+
+subroutine GetOccupation_SGUGA(iState,iOpen,mult,iSym,iOC,KCNF)
+   use Molcas, only: MxAct
+   integer(kind=iwp), intent(in)  :: iState
    integer(kind=iwp), intent(in)  :: iOpen
    integer(kind=iwp), intent(in)  :: mult
    integer(kind=iwp), intent(in)  :: iSym
@@ -5669,6 +5715,7 @@ subroutine GetOccupation_SGUGA(iOpen,mult,iSym,iOC,KCNF)
 end subroutine GetOccupation_SGUGA
 
 subroutine BuildWalk(iState,ICL,IOPEN,IICSF,KCNF,IWALK)
+   use Molcas, only: MxAct
    integer(kind=iwp), intent(in)  :: istate
    integer(kind=iwp), intent(in)  :: ICL
    integer(kind=iwp), intent(in)  :: IOPEN
@@ -5715,6 +5762,7 @@ End subroutine BuildWalk
 subroutine BuildWalk_Lucia(ICL,IOPEN,ICSBAS,KCNF,IWALK)
 
    use Lucia_data, only: CFTP
+   use Molcas, only: MxAct
    integer(kind=iwp), intent(in)  :: ICL
    integer(kind=iwp), intent(in)  :: IOPEN
    integer(kind=iwp), intent(in)  :: ICSBAS
@@ -5735,7 +5783,6 @@ subroutine BuildWalk_Lucia(ICL,IOPEN,ICSBAS,KCNF,IWALK)
 end subroutine BuildWalk_Lucia
 #endif
 
-end subroutine SG_ReOrd
 
 function SG_NUM(SGS,EXS,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE

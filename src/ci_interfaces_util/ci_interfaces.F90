@@ -12,11 +12,11 @@
 !***********************************************************************
 
 module CI_Interfaces
-use sguga, only: SG_Free, SG_ReOrd
+use sguga, only: SG_Free, SG_ReOrd, SG_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
-use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_sd2csf, citrans_sort
+use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
@@ -1013,7 +1013,8 @@ contains
   ! Lucia back end: CNHCN for each pair of selected configurations.
   subroutine IHJ_Lucia(H)
     real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
-    integer(kind=iwp) :: NEL, MXDT, MXCS, nScr, ICNL, ICNR, ILTYP, IRTYP, NCSFL, NCSFR, IILB, IIRB, IIL, IIR, IIRMAX
+    integer(kind=iwp) :: NEL, MXDT, MXCS, nScr, ICNL, ICNR, ILTYP, IRTYP, NCSFL, NCSFR, IILB, IIRB, IIL, IIR, IIRMAX, DL, SL, DR, &
+                         SR
     integer(kind=iwp), allocatable :: ICONFL(:), ICONFR(:)
     real(kind=wp), allocatable :: HONE(:,:), CNHCNM(:), Scr(:)
 
@@ -1038,11 +1039,17 @@ contains
     do ICNL=1,NPCNF
       call GETCNF(ICONFL,ILTYP,IPCNF(ICNL),Conf_Occ(IREFSM)%A,IREFSM,NEL)
       NCSFL = NCSFTP(ILTYP)
+      call Lucia_Occ(ICONFL,ILTYP,DL,SL)
       IIRB = 1
       do ICNR=1,ICNL
         call GETCNF(ICONFR,IRTYP,IPCNF(ICNR),Conf_Occ(IREFSM)%A,IREFSM,NEL)
         NCSFR = NCSFTP(IRTYP)
-        call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECORE,HONE,DFTP,DTOC,NAC,TUVX,NTEST,One,IREOTS)
+        call Lucia_Occ(ICONFR,IRTYP,DR,SR)
+        if (Cnf_Exc(DL,SL,DR,SR) > 2) then
+          CNHCNM(1:NCSFL*NCSFR) = Zero
+        else
+          call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECORE,HONE,DFTP,DTOC,NAC,TUVX,NTEST,One,IREOTS)
+        end if
         do IIL=1,NCSFL
           IIRMAX = merge(IIL,NCSFR,IILB == IIRB)
           do IIR=1,IIRMAX
@@ -1062,55 +1069,68 @@ contains
 
   end subroutine IHJ_Lucia
 
+  ! Doubly (D) and singly (S) occupied orbitals, as bit strings (orbital t in
+  ! bit t-1), of the Lucia configuration ICONF of type ITYP (GETCNF form:
+  ! the closed orbitals first, then the open ones).
+  subroutine Lucia_Occ(ICONF,ITYP,D,S)
+    use spinfo, only: MINOP
+    integer(kind=iwp), intent(in) :: ICONF(*), ITYP
+    integer(kind=iwp), intent(out) :: D, S
+    integer(kind=iwp) :: IOP, ICL, I
+
+    IOP = ITYP-1+MINOP
+    ICL = (NAEL+NBEL-IOP)/2
+    D = 0
+    S = 0
+    do I=1,ICL
+      D = ibset(D,ICONF(I)-1)
+    end do
+    do I=ICL+1,ICL+IOP
+      S = ibset(S,ICONF(I)-1)
+    end do
+
+  end subroutine Lucia_Occ
+
   ! Faroald back end: for each pair of selected configurations L, R the
   ! determinant block <D_L|H|D_R> (Faroald_HDet) is transformed to the CSFs
-  ! with the spin tables of citrans, C_L^T H C_R. The CSFs of the CI vector
-  ! (Lucia's CSF basis) are mapped to the configuration order of citrans,
-  ! with the phases of SG_ReOrd and citrans_sort, by reordering the index
-  ! vector 1..nConf.
+  ! with the spin tables of citrans, C_L^T H C_R; pairs of configurations
+  ! more than a double excitation apart are skipped (Cnf_Exc). The selected
+  ! CSFs of the CI vector (Lucia's CSF basis) are mapped to the
+  ! configuration order of citrans, with the phases of SG_ReOrd and
+  ! citrans_sort, as in Faroald_Sigma (Map_Sel).
   subroutine IHJ_Faroald(H)
     real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
-    integer(kind=iwp) :: I, J, K, kCnf, ICNL, ICNR, IILB, IIRB, IIL, IIR, IIRMAX, k1, nc, nd, nDTot, nCTot, nL, nR, &
-                         ndL, ndR
-    integer(kind=iwp), allocatable :: kFaro(:), iDOff(:), iCOff(:), nDCnf(:), DA(:), DB(:), da1(:), db1(:)
-    integer(kind=iwp), allocatable :: iPh(:)
-    real(kind=wp), allocatable :: Idx(:), Map(:), C(:), cf(:,:), HDet(:,:), T(:,:), Blk(:,:)
+    integer(kind=iwp) :: I, J, kCnf, ICNL, ICNR, IILB, IIRB, IIL, IIR, IIRMAX, k1, nc, nd, nDTot, nCTot, nL, nR, ndL, ndR
+    integer(kind=iwp), allocatable :: kSel(:), iSel(:), iDOff(:), iCOff(:), nDCnf(:), DA(:), DB(:), da1(:), db1(:), &
+                                      DOcc(:), SOcc(:)
+    real(kind=wp), allocatable :: C(:), cf(:,:), HDet(:,:), T(:,:), Blk(:,:)
 
     call Faroald_Ints(TU,TUVX)
 
-    ! Lucia CSF i <-> citrans CSF kFaro(i), with phase iPh(i), as in
-    ! Faroald_Sigma: Lucia -> SGUGA order (SG_ReOrd) -> configuration order.
-    call mma_allocate(Idx,nConf,Label='Idx')
-    call mma_allocate(Map,nConf,Label='Map')
-    do I=1,nConf
-      Map(I) = real(I,kind=wp)
-    end do
-    call SG_REORD(1,IREFSM,0,nConf,Map,Idx)
-    call CITRANS_SORT('C',Idx,Map)
-    call mma_allocate(kFaro,nConf,Label='kFaro')
-    call mma_allocate(iPh,nConf,Label='iPh')
-    do K=1,nConf
-      I = nint(abs(Map(K)))
-      kFaro(I) = K
-      iPh(I) = nint(sign(One,Map(K)))
-    end do
-    call mma_deallocate(Map)
-    call mma_deallocate(Idx)
+    ! selected CSF J <-> citrans CSF kSel(J), with phase iSel(J)
+    call mma_allocate(kSel,NPCSF,Label='kSel')
+    call mma_allocate(iSel,NPCSF,Label='iSel')
+    call Map_Sel(kSel,iSel)
 
     ! Determinants and CSF coefficients of the selected configurations.
     call mma_allocate(nDCnf,NPCNF,Label='nDCnf')
     call mma_allocate(iDOff,NPCNF,Label='iDOff')
     call mma_allocate(iCOff,NPCNF,Label='iCOff')
+    call mma_allocate(DOcc,NPCNF,Label='DOcc')
+    call mma_allocate(SOcc,NPCNF,Label='SOcc')
     nDTot = 0
     nCTot = 0
     IILB = 0
     do kCnf=1,NPCNF
-      call citrans_conf_dets(kFaro(IPCSF(IILB+1)),k1,nc,nd,da1,db1,cf)
+      call citrans_conf_dets(kSel(IILB+1),k1,nc,nd,da1,db1,cf)
       if (nc /= nSelCnf(kCnf)) then
         write(u6,*) 'Mk_IHJ: different number of CSFs in Lucia and citrans:',nSelCnf(kCnf),nc
         call Abend()
       end if
       nDCnf(kCnf) = nd
+      ! doubly and singly occupied orbitals of the configuration
+      DOcc(kCnf) = iand(da1(1),db1(1))
+      SOcc(kCnf) = ieor(da1(1),db1(1))
       iDOff(kCnf) = nDTot
       iCOff(kCnf) = nCTot
       nDTot = nDTot+nd
@@ -1125,24 +1145,24 @@ contains
     call mma_allocate(C,nCTot,Label='C')
     IILB = 0
     do kCnf=1,NPCNF
-      call citrans_conf_dets(kFaro(IPCSF(IILB+1)),k1,nc,nd,da1,db1,cf)
+      call citrans_conf_dets(kSel(IILB+1),k1,nc,nd,da1,db1,cf)
       DA(iDOff(kCnf)+1:iDOff(kCnf)+nd) = da1(:)
       DB(iDOff(kCnf)+1:iDOff(kCnf)+nd) = db1(:)
       do I=1,nc
-        J = kFaro(IPCSF(IILB+I))-k1+1
+        J = kSel(IILB+I)-k1+1
         if ((J < 1) .or. (J > nc)) then
           write(u6,*) 'Mk_IHJ: CSF of the selection not in its configuration:',IPCSF(IILB+I)
           call Abend()
         end if
-        C(iCOff(kCnf)+(I-1)*nd+1:iCOff(kCnf)+I*nd) = iPh(IPCSF(IILB+I))*cf(:,J)
+        C(iCOff(kCnf)+(I-1)*nd+1:iCOff(kCnf)+I*nd) = iSel(IILB+I)*cf(:,J)
       end do
       IILB = IILB+nc
       call mma_deallocate(da1)
       call mma_deallocate(db1)
       call mma_deallocate(cf)
     end do
-    call mma_deallocate(iPh)
-    call mma_deallocate(kFaro)
+    call mma_deallocate(iSel)
+    call mma_deallocate(kSel)
 
     ! Blocks C_L^T <D_L|H|D_R> C_R.
     nd = maxval(nDCnf)
@@ -1158,13 +1178,17 @@ contains
       do ICNR=1,ICNL
         nR = nSelCnf(ICNR)
         ndR = nDCnf(ICNR)
-        do J=1,ndR
-          do I=1,ndL
-            HDet(I,J) = Faroald_HDet(DA(iDOff(ICNL)+I),DB(iDOff(ICNL)+I),DA(iDOff(ICNR)+J),DB(iDOff(ICNR)+J))
+        if (Cnf_Exc(DOcc(ICNL),SOcc(ICNL),DOcc(ICNR),SOcc(ICNR)) > 2) then
+          Blk(1:nL,1:nR) = Zero
+        else
+          do J=1,ndR
+            do I=1,ndL
+              HDet(I,J) = Faroald_HDet(DA(iDOff(ICNL)+I),DB(iDOff(ICNL)+I),DA(iDOff(ICNR)+J),DB(iDOff(ICNR)+J))
+            end do
           end do
-        end do
-        call DGEMM_('N','N',ndL,nR,ndR,One,HDet,nd,C(iCOff(ICNR)+1:iCOff(ICNR)+ndR*nR),ndR,Zero,T,nd)
-        call DGEMM_('T','N',nL,nR,ndL,One,C(iCOff(ICNL)+1:iCOff(ICNL)+ndL*nL),ndL,T,nd,Zero,Blk,nc)
+          call DGEMM_('N','N',ndL,nR,ndR,One,HDet,nd,C(iCOff(ICNR)+1:iCOff(ICNR)+ndR*nR),ndR,Zero,T,nd)
+          call DGEMM_('T','N',nL,nR,ndL,One,C(iCOff(ICNL)+1:iCOff(ICNL)+ndL*nL),ndL,T,nd,Zero,Blk,nc)
+        end if
         do IIL=1,nL
           IIRMAX = merge(IIL,nR,IILB == IIRB)
           do IIR=1,IIRMAX
@@ -1185,11 +1209,81 @@ contains
     call mma_deallocate(C)
     call mma_deallocate(DB)
     call mma_deallocate(DA)
+    call mma_deallocate(SOcc)
+    call mma_deallocate(DOcc)
     call mma_deallocate(iCOff)
     call mma_deallocate(iDOff)
     call mma_deallocate(nDCnf)
 
   end subroutine IHJ_Faroald
+
+  ! Selected CSF J (Lucia CSF IPCSF(J)) <-> citrans CSF kSel(J), with phase
+  ! iSel(J): cinew(kSel(J)) = iSel(J)*ciold(IPCSF(J)) for the reordering
+  ! SG_ReOrd (mode 0) followed by citrans_sort (mode 'C'). For a single RAS
+  ! partition from the step vectors of the selected CSFs alone, otherwise
+  ! by reordering the index vector 1..nConf (Map_All). With
+  ! MOLCAS_CI_VERIFY=SIGMA the two are compared (once per run).
+  subroutine Map_Sel(kSel,iSel)
+    use Molcas, only: MxAct
+    integer(kind=iwp), intent(out) :: kSel(NPCSF), iSel(NPCSF)
+    integer(kind=iwp) :: J, IP, iPh
+    integer(kind=iwp) :: IWALK(MxAct)
+    integer(kind=iwp), allocatable :: kRef(:), iRef(:)
+
+    if (SGS(1)%nRsPrt /= 1) then
+      call Map_All(kSel,iSel)
+      return
+    end if
+    do J=1,NPCSF
+      call SG_Lucia_Walk(1,IREFSM,IPCSF(J),IWALK,IP)
+      call citrans_csf_rank(IWALK(1:NAC),kSel(J),iPh)
+      iSel(J) = IP*iPh
+    end do
+
+    if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
+      call mma_allocate(kRef,NPCSF,Label='kRef')
+      call mma_allocate(iRef,NPCSF,Label='iRef')
+      call Map_All(kRef,iRef)
+      if (any(kSel(:) /= kRef(:)) .or. any(iSel(:) /= iRef(:))) then
+        write(u6,*) 'Mk_IHJ: mapping of the selected CSFs to citrans differs from SG_ReOrd + citrans_sort'
+        call Abend()
+      end if
+      write(u6,'(1X,A,I0,A)') 'Mk_IHJ: mapping of ',NPCSF,' selected CSFs to citrans verified'
+      call mma_deallocate(iRef)
+      call mma_deallocate(kRef)
+    end if
+
+  end subroutine Map_Sel
+
+  ! Map_Sel by reordering the full index vector 1..nConf.
+  subroutine Map_All(kSel,iSel)
+    integer(kind=iwp), intent(out) :: kSel(NPCSF), iSel(NPCSF)
+    integer(kind=iwp) :: I, K
+    integer(kind=iwp), allocatable :: kAll(:), iAll(:)
+    real(kind=wp), allocatable :: Idx(:), Map(:)
+
+    call mma_allocate(Idx,nConf,Label='Idx')
+    call mma_allocate(Map,nConf,Label='Map')
+    do I=1,nConf
+      Map(I) = real(I,kind=wp)
+    end do
+    call SG_REORD(1,IREFSM,0,nConf,Map,Idx)
+    call CITRANS_SORT('C',Idx,Map)
+    call mma_allocate(kAll,nConf,Label='kAll')
+    call mma_allocate(iAll,nConf,Label='iAll')
+    do K=1,nConf
+      I = nint(abs(Map(K)))
+      kAll(I) = K
+      iAll(I) = nint(sign(One,Map(K)))
+    end do
+    kSel(:) = kAll(IPCSF(:))
+    iSel(:) = iAll(IPCSF(:))
+    call mma_deallocate(iAll)
+    call mma_deallocate(kAll)
+    call mma_deallocate(Map)
+    call mma_deallocate(Idx)
+
+  end subroutine Map_All
 
   ! Faroald reference (CI development): H(I,J) = (H e_J)(I) from the Faroald
   ! sigma vector of the unit vector e_J, J over the selected CSFs.
@@ -1302,6 +1396,19 @@ contains
   end subroutine Verify_IHJ
 
 end subroutine Mk_IHJ
+
+!> Excitation level between two configurations given by their doubly (D)
+!> and singly (S) occupied orbitals as bit strings: the number of electrons
+!> to move, Sum_t max(0,n_t(L)-n_t(R)). H couples only configurations with
+!> an excitation level of at most 2.
+function Cnf_Exc(DL,SL,DR,SR) result(nExc)
+integer(kind=iwp) :: nExc
+integer(kind=iwp), intent(in) :: DL, SL, DR, SR
+
+! n_t(L)-n_t(R) = 2 (doubly -> empty), 1 (doubly -> singly, singly -> empty)
+nExc = 2*popcnt(iand(DL,not(ior(DR,SR))))+popcnt(iand(DL,SR))+popcnt(iand(SL,not(ior(DR,SR))))
+
+end function Cnf_Exc
 
 !> <aL bL|H|aR bR> between Faroald determinants (alpha and beta strings as
 !> bit strings, orbital t in bit t-1, alpha string before the beta string)

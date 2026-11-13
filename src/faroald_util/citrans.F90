@@ -90,8 +90,8 @@ end type spintable
 
 type(spintable), allocatable :: spintabs(:)
 
-public :: citrans_conf_dets, citrans_csf2sd, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, ndo_max, ndo_min, ndoc_group, &
-          nsoc_group, spintable_create, spintabs, spintabs_allocate, spintabs_free
+public :: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, ndo_max, &
+          ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs, spintabs_allocate, spintabs_free
 
 ! Private extensions to mma interfaces
 
@@ -110,7 +110,6 @@ subroutine citrans_sort(mode,ciold,cinew)
 ! sort CSFs such that they are grouped by configurations
 ! and fill in the transformation matrices to determinants
 
-  use second_quantization, only: lexrank
   use faroald, only: my_norb
 
   ! 'C' for configuration order, 'O' for original order
@@ -119,11 +118,10 @@ subroutine citrans_sort(mode,ciold,cinew)
   real(kind=wp), intent(out) :: cinew(:)
   ! array with coupling coefficients
   !real(kind=wp), intent(out) :: coef(:)
-  integer(kind=iwp) :: doub, icsf, ido, idown, idwn, ioff_csf, iorb, iphase, iso, iup, mv, ncsf, ndoc, ndown, nsoc, rankdo, &
-                       rankso, sing
+  integer(kind=iwp) :: icsf, ido, idwn, ioff_csf, iphase, iup, mv, ncsf, ndoc, nsoc
   integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
   real(kind=wp) :: wtab(0:maxorb,maxdown)
-  integer(kind=iwp), allocatable :: csf_offset(:), downvector(:), stepvector(:)
+  integer(kind=iwp), allocatable :: csf_offset(:), stepvector(:)
   integer(kind=iwp), parameter :: istate = 1
 
   ! Compute offsets for addressing into the reordering and coefficient arrays.
@@ -164,7 +162,6 @@ subroutine citrans_sort(mode,ciold,cinew)
   call mkwtab(maxorb,maxdown,wtab)
 
   call mma_allocate(stepvector,my_norb,label='stepvector')
-  call mma_allocate(downvector,my_norb,label='downvector')
 
   ! initialize variables that track the stepvector
   mv = 1
@@ -178,45 +175,8 @@ subroutine citrans_sort(mode,ciold,cinew)
     ! obtain the stepvector
     call stepvector_next(mv,idwn,iup,stepvector,SGS(istate)%nLev)
 
-    ! determine configuration group and rank
-    doub = 0
-    sing = 0
-    ido = 0
-    iso = 0
-    ndown = 0
-    iphase = 1
-    do iorb=1,my_norb
-      select case (stepvector(iorb))
-        case (1)
-          sing = ibset(sing,iorb-ido-1)
-          iso = iso+1
-        case (2)
-          sing = ibset(sing,iorb-ido-1)
-          iso = iso+1
-          ndown = ndown+1
-          downvector(ndown) = iso
-        case (3)
-          doub = ibset(doub,iorb-1)
-          ido = ido+1
-          ! Each time we encounter a '2', we determine the phase change
-          ! needed to put it in front of the string, i.e., (-1)^n, with n
-          ! the number of singly occupied orbitals already encountered.
-          if (mod(iso,2) == 1) iphase = -iphase
-      end select
-    end do
-
-    ! configuration index
-    rankdo = lexrank(doub)
-    rankso = lexrank(sing)
-    ndoc = ndoc_group(ido)
-    nsoc = nsoc_group(ido)
-    ioff_csf = csf_offset(ido)+(nsoc*(rankdo-1)+rankso-1)*ncsf_group(ido)
-
-    ! CSF offset within this configuration, use per-ake's magical wtab
-    ! to get the rank of a ud string within its set.
-    do idown=1,ndown
-      ioff_csf = ioff_csf+nint(wtab(downvector(idown)-2*idown,idown))
-    end do
+    ! position of the CSF in the configuration order, and its phase
+    ioff_csf = csf_rank(stepvector,csf_offset,wtab,iphase)
 
     ! reorder the values
     if (mode == 'C') then
@@ -229,9 +189,89 @@ subroutine citrans_sort(mode,ciold,cinew)
 
   call mma_deallocate(csf_offset)
   call mma_deallocate(stepvector)
-  call mma_deallocate(downvector)
 
 end subroutine citrans_sort
+
+subroutine citrans_csf_rank(stepvector,k,iphase)
+! Position k (1-based) of the CSF with the given GUGA step vector in the
+! configuration order of citrans_sort, and its phase iphase:
+! cinew(k) = iphase*ciold(icsf) for mode 'C'.
+
+  use faroald, only: my_norb
+
+  integer(kind=iwp), intent(in) :: stepvector(my_norb)
+  integer(kind=iwp), intent(out) :: k, iphase
+  integer(kind=iwp) :: ido, ncsf
+  integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
+  real(kind=wp) :: wtab(0:maxorb,maxdown)
+  integer(kind=iwp), allocatable :: csf_offset(:)
+
+  call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')
+  ncsf = 0
+  do ido=ndo_min,ndo_max
+    csf_offset(ido) = ncsf
+    ncsf = ncsf+ndoc_group(ido)*nsoc_group(ido)*ncsf_group(ido)
+  end do
+  call mkwtab(maxorb,maxdown,wtab)
+  k = csf_rank(stepvector,csf_offset,wtab,iphase)+1
+  call mma_deallocate(csf_offset)
+
+end subroutine citrans_csf_rank
+
+function csf_rank(stepvector,csf_offset,wtab,iphase) result(ioff_csf)
+! Offset (0-based) of the CSF with the given step vector in the
+! configuration order, and its phase (see citrans_sort).
+
+  use second_quantization, only: lexrank
+  use faroald, only: my_norb
+
+  integer(kind=iwp) :: ioff_csf
+  integer(kind=iwp), intent(in) :: stepvector(my_norb), csf_offset(ndo_min:ndo_max)
+  real(kind=wp), intent(in) :: wtab(0:,:)
+  integer(kind=iwp), intent(out) :: iphase
+  integer(kind=iwp) :: doub, ido, idown, iorb, iso, ndown, nsoc, rankdo, rankso, sing
+  integer(kind=iwp) :: downvector(my_norb)
+
+  ! determine configuration group and rank
+  doub = 0
+  sing = 0
+  ido = 0
+  iso = 0
+  ndown = 0
+  iphase = 1
+  do iorb=1,my_norb
+    select case (stepvector(iorb))
+      case (1)
+        sing = ibset(sing,iorb-ido-1)
+        iso = iso+1
+      case (2)
+        sing = ibset(sing,iorb-ido-1)
+        iso = iso+1
+        ndown = ndown+1
+        downvector(ndown) = iso
+      case (3)
+        doub = ibset(doub,iorb-1)
+        ido = ido+1
+        ! Each time we encounter a '2', we determine the phase change
+        ! needed to put it in front of the string, i.e., (-1)^n, with n
+        ! the number of singly occupied orbitals already encountered.
+        if (mod(iso,2) == 1) iphase = -iphase
+    end select
+  end do
+
+  ! configuration index
+  rankdo = lexrank(doub)
+  rankso = lexrank(sing)
+  nsoc = nsoc_group(ido)
+  ioff_csf = csf_offset(ido)+(nsoc*(rankdo-1)+rankso-1)*ncsf_group(ido)
+
+  ! CSF offset within this configuration, use per-ake's magical wtab
+  ! to get the rank of a ud string within its set.
+  do idown=1,ndown
+    ioff_csf = ioff_csf+nint(wtab(downvector(idown)-2*idown,idown))
+  end do
+
+end function csf_rank
 
 subroutine citrans_csf2sd(ci,det)
 
