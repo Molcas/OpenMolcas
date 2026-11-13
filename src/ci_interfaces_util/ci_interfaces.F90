@@ -37,6 +37,9 @@ Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
 
+! Mk_IHJ is verified against Mk_H_Psi only once per run.
+logical(kind=iwp) :: IHJ_Verified = .false.
+
 contains
 
 !***********************************************************************************************************************************
@@ -946,7 +949,7 @@ end subroutine Mk_Cnf_Layout
 !> diagonal. (Lucia back end: CNHCN for each pair of configurations.)
 subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 use Index_Functions, only: nTri_Elem
-use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS
+use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, Sigma_on_disk
 use csfbas, only: NAEL, NBEL
 use rasscf_global, only: ExFac
 use spinfo, only: NCSFTP, NDTFTP, NTYP
@@ -1013,7 +1016,100 @@ call mma_deallocate(CNHCNM)
 call mma_deallocate(Scr)
 call mma_deallocate(HONE)
 
+! CI development (MOLCAS_CI_VERIFY=SIGMA): compare the block, once per run,
+! with exact columns H e_J from Mk_H_Psi.
+if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
+  IHJ_Verified = .true.
+  call Verify_IHJ()
+end if
+
 contains
+
+  ! Compare PHP with columns H e_J computed by Mk_H_Psi (the sigma vector of
+  ! the CI back end, with SIGMA the one of SGUGA) for at most mxCol CSFs J
+  ! of the selection, evenly spaced. CNHCN scales the exchange by ExFac, the
+  ! sigma codes do not, so the check is skipped for ExFac /= 1.
+  subroutine Verify_IHJ()
+    use Constants, only: One
+    integer(kind=iwp), parameter :: mxCol = 32
+    real(kind=wp), parameter :: Thr = 1.0e-10_wp
+    integer(kind=iwp) :: I, J, JJ, nCol, nTmp, iCnf, iOff, kCnf, ICSF
+    integer(kind=iwp), allocatable :: nCSFCnf(:), iCSF1(:), IPCSF(:)
+    real(kind=wp), allocatable :: EJ(:), HEJ(:), cTmp(:), sTmp(:)
+    real(kind=wp) :: Ref, Err, ErrMax
+    logical(kind=iwp) :: Sigma_Save
+
+    if (ExFac /= One) then
+      write(u6,*) 'Mk_IHJ: verification against Mk_H_Psi skipped, ExFac /= 1:',ExFac
+      return
+    end if
+
+    ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection
+    call Mk_Cnf_Layout(IREFSM,nCSFCnf)
+    call mma_allocate(iCSF1,size(nCSFCnf),Label='iCSF1')
+    iOff = 1
+    do iCnf=1,size(nCSFCnf)
+      iCSF1(iCnf) = iOff
+      iOff = iOff+nCSFCnf(iCnf)
+    end do
+    if (iOff-1 /= nConf) then
+      write(u6,*) 'Mk_IHJ: inconsistent CSF layout:',iOff-1,nConf
+      call Abend()
+    end if
+    call mma_allocate(IPCSF,NPCSF,Label='IPCSF')
+    ICSF = 0
+    do kCnf=1,NPCNF
+      do I=1,nCSFCnf(IPCNF(kCnf))
+        ICSF = ICSF+1
+        IPCSF(ICSF) = iCSF1(IPCNF(kCnf))+I-1
+      end do
+    end do
+
+    if (DoFaro) then
+      nTmp = nDetA*nDetB
+    else
+      nTmp = nDet
+    end if
+    call mma_allocate(cTmp,nTmp,Label='cTmp')
+    call mma_allocate(sTmp,nTmp,Label='sTmp')
+    call mma_allocate(EJ,nConf,Label='EJ')
+    ! CSDTVC may write beyond nConf (cf. David5)
+    call mma_allocate(HEJ,max(nConf,nDet),Label='HEJ')
+
+    Sigma_Save = Sigma_on_disk
+    nCol = min(NPCSF,mxCol)
+    ErrMax = Zero
+    do JJ=1,nCol
+      J = 1+((JJ-1)*(NPCSF-1))/max(nCol-1,1)
+      EJ(:) = Zero
+      EJ(IPCSF(J)) = One
+      call Mk_H_Psi(1,IREFSM,nConf,EJ,HEJ,cTmp,sTmp,nTmp,nDetA,nDetB,nTU,TU,nTUVX,TUVX)
+      do I=1,NPCSF
+        Ref = HEJ(IPCSF(I))
+        if (I == J) Ref = Ref+ECORE
+        Err = abs(PHP(nTri_Elem(max(I,J)-1)+min(I,J))-Ref)
+        ErrMax = max(ErrMax,Err)
+        if (Err > Thr) then
+          write(u6,*) 'Mk_IHJ: <I|H|J> differs from (H e_J)(I)'
+          write(u6,*) 'I, J, CSF(I), CSF(J) =',I,J,IPCSF(I),IPCSF(J)
+          write(u6,*) 'Mk_IHJ   =',PHP(nTri_Elem(max(I,J)-1)+min(I,J))
+          write(u6,*) 'Mk_H_Psi =',Ref
+          call Abend()
+        end if
+      end do
+    end do
+    Sigma_on_disk = Sigma_Save
+    write(u6,'(1X,A,I0,A,I0,A,ES10.3)') 'Mk_IHJ verified against Mk_H_Psi: ',nCol,' of ',NPCSF,' columns, max. error ',ErrMax
+
+    call mma_deallocate(HEJ)
+    call mma_deallocate(EJ)
+    call mma_deallocate(sTmp)
+    call mma_deallocate(cTmp)
+    call mma_deallocate(IPCSF)
+    call mma_deallocate(iCSF1)
+    call mma_deallocate(nCSFCnf)
+
+  end subroutine Verify_IHJ
 
   ! Configuration type of the selected configuration iSel.
   subroutine GetCnf_Type(iSel,iTypOut)
