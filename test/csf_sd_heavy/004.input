@@ -8,7 +8,7 @@
 *           verified for now (EPQ); the full check (YES) is too slow here.
 *           Heavy test, about 2-3 min with the current checks.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=EPQ
+>export MOLCAS_CI_VERIFY=EPQ,SIGMA,FARO
 
 &GATEWAY
  coord

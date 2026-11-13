@@ -9,7 +9,7 @@
 *           Heavy test, about 15 min with the current checks; needs
 *           MOLCAS_TIMELIM above the default 600 s of verify.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=EPQ
+>export MOLCAS_CI_VERIFY=EPQ,SIGMA,FARO
 
 &GATEWAY
  coord

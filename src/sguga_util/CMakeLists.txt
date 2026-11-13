@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     ci_verify_options.F90
      sg_ci_diag.F90
      sg_ci_full.F90
      sg_citra.F90
@@ -30,6 +31,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     ci_verify_options.F90
      sguga.F90
 )
 

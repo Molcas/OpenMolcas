@@ -8,7 +8,7 @@
 *           RASSCF runs SG_Test_EpqErs_Ref, which aborts on any mismatch of
 *           the SGUGA <I|Epq|J> and <I|EpqErs|J> against the reference codes.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=YES
+>export MOLCAS_CI_VERIFY=ALL
 
 &GATEWAY
  coord

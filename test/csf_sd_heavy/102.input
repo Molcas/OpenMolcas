@@ -9,7 +9,7 @@
 *           <I|Epq|J> and <I|EpqErs|J> against the reference codes.
 *           Heavy test, about 20 s with the current checks.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=YES
+>export MOLCAS_CI_VERIFY=ALL
 
 &GATEWAY
  coord

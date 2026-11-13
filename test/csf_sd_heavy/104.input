@@ -12,7 +12,7 @@
 *           of each spin; the higher spins are in csf_sd:112.
 *           Heavy test, a few minutes with the current checks.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=EPQ
+>export MOLCAS_CI_VERIFY=EPQ,SIGMA,FARO
 * Degenerate states: their multipole moments are an arbitrary mix of the
 * degenerate roots, so they are not checked.
 >export MOLCAS_NOCHECK=MLTPL

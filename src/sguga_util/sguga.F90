@@ -13,7 +13,6 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-#define _SANITY_CHECK_
 module SGUGA
 
 use Molcas, only: MxGas, MxLev, MxSym
@@ -21,6 +20,7 @@ use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
+use CI_Verify_Options, only: CI_Verify
 
 #include "intent.fh"
 
@@ -1101,14 +1101,14 @@ do iOpen = MinOpen, MaxOpen, 2
                          Label='DOC')
       iDOC = 0
       call Make_DOCs(1,1)
-#ifdef _SANITY_CHECK_
+      if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
       if (iDOC /= SGS%CDCInfo(iOpen,mult)%nClosedOCP) then
          write(u6,*) 'DOC generation failed'
          write(u6,*) 'Generated = ',iDOC
          write(u6,*) 'Expected  = ',SGS%CDCInfo(iOpen,mult)%nClosedOCP
          call Abend()
       endif
-#endif
+      end if
    endif
 
    nSOCSym(:) = 0
@@ -1143,7 +1143,7 @@ do iOpen = MinOpen, MaxOpen, 2
       nSOCSym(:) = 0
       call Make_SOCs(1,1,1)
 
-#ifdef _SANITY_CHECK_
+      if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
       if (iSOC /= nSOC) then
          write(u6,*) 'SOC generation failed'
          write(u6,*) 'Generated = ',iSOC
@@ -1159,7 +1159,7 @@ do iOpen = MinOpen, MaxOpen, 2
             call Abend()
          endif
       enddo
-#endif
+      end if
 
    endif
 
@@ -1256,7 +1256,7 @@ do iOpen = MinOpen, MaxOpen, 2
    endif
 
 
-#ifdef _SANITY_CHECK_
+   if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
    do iSym=1,SGS%nSym
       if (SGS%CDCInfo(iOpen,mult)%nOCP(iSym) /= &
           SGS%CDCInfo(iOpen,mult)%nOpenOCP(iSym) * &
@@ -1268,7 +1268,7 @@ do iOpen = MinOpen, MaxOpen, 2
    if (sum(SGS%CDCInfo(iOpen,mult)%nOpenOCP) /= binomial(iOpen,SGS%nLev)) then
       call Abend()
    endif
-#endif
+   end if
 
    ! Compute the number of orbital occupatation configurations per symmetry.
    ! Here the order doesn't matter, we will deal with that in the next loop
@@ -1335,7 +1335,7 @@ Do While (NoNew == 0)
       End Do
    End Do
 
-#ifdef _SANITY_CHECK_
+   if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
    If (nDOC > 0) Then
       Do i=1,nDOC
          If (DOCOcc(i) /= SGS%CDCInfo(nSOC,mult)%DOC(i,iDOC)) Then
@@ -1348,7 +1348,7 @@ Do While (NoNew == 0)
          End If
       End Do
    End If
-#endif
+   end if
 
    iSOC = 1
    Do i=1,nSOC
@@ -1365,7 +1365,7 @@ Do While (NoNew == 0)
 
    End Do
 
-#ifdef _SANITY_CHECK_
+   if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
    If (nSOC > 0) Then
       Do i=1,nSOC
          If (SOCOcc(i) /= SGS%CDCInfo(nSOC,mult)%SOC(i,iSOC)) Then
@@ -1379,7 +1379,7 @@ Do While (NoNew == 0)
       End Do
    End If
 !  Write(u6,'(A,4I8)') 'OC:', nConf,nSOC,iDOC,iSOC
-#endif
+   end if
 
    if (nSOC == 0) then
       iSym = 1
@@ -1387,7 +1387,7 @@ Do While (NoNew == 0)
    else
       iSym = SOC_Sym(SGS%ISm,nSOC,SOCOcc)
 
-#ifdef _SANITY_CHECK_
+      if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
       do i=1,nSOC
          if (SOCOcc(i) /= SGS%CDCInfo(nSOC,mult)%SOC(i,iSOC)) then
             write(u6,*) 'SOC ranking mismatch'
@@ -1403,7 +1403,7 @@ Do While (NoNew == 0)
          write(u6,*) 'SOC symmetry mismatch'
          call Abend()
       end if
-#endif
+      end if
    end if
 
    SGS%CDCInfo(nSOC,mult)%nOCSym(iSym) = SGS%CDCInfo(nSOC,mult)%nOCSym(iSym) + 1
@@ -1773,7 +1773,7 @@ subroutine Mk_SDREO_SGUGA(SGS)
 
               iOpen = nOpen
 
-#ifdef _SANITY_CHECK_
+if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
 If (2_iwp*nDouble+iOpen /= SGS%nActEl) Then
    Write (u6,*) 'Mk_SDREO_SGUGA_new: inconsistent occupation counts'
    Call Abend()
@@ -1802,7 +1802,7 @@ If (nDouble /= 0_iwp .and. .NOT.Allocated(SGS%CDCInfo(nOpen,mult)%DOC) ) Then
    Write (u6,*) 'Mk_SDREO_SGUGA_new: ...%DOC not allocated while nDouble /= 0!'
    Call Abend()
 End If
-#endif
+end if
               If (nDouble == 0_iwp) Then
                  iDOC = 1_iwp
               Else
@@ -1827,19 +1827,19 @@ End If
                                iOC)
 
 
-#ifdef _SANITY_CHECK_
+              if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
               If (SGS%CDCInfo(nOpen,Mult)%OCReverse(iDOC,iSOC,iRefSm) /= iOC) Then
                  Write (u6,'(A)') 'SGS%CDCInfo(nOpen,Mult)%OCReverse(iDOC,iSOC,iRefSm) /= iOC'
                  Call Abend()
               End If
-#endif
+              end if
 
               Call FindSpinIndex(OpenSP,                                               &
                                  iOpen,                                                &
                                  SGS%CDCInfo(iOpen,mult)%DetSpin,                      &
                                  iSpinPattern)
 
-#ifdef _SANITY_CHECK_
+              if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
               Do i=1,iOpen
                  If (OpenSP(i) == 1_iwp) Then
                     If (SGS%CDCInfo(iOpen,mult)%DetSpin(i,iSpinPattern) /= 1_iwp) Then
@@ -1853,11 +1853,11 @@ End If
                     End If
                  End If
               End Do
-#endif
+              end if
               iAdrSDConfOrder = iOpenOffset(iOpen)                  &
                               + (iOC-1_iwp)*SGS%CDCInfo(iOpen,mult)%nDet + iSpinPattern
               iDet = iDet + 1_iwp
-#ifdef _SANITY_CHECK_
+              if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
               If (iAdrSDConfOrder < 1_iwp .or. &
                   iAdrSDConfOrder > nDetTotal) Then
                  Write(u6,'(A,2(1X,I0))') 'ADDRESS RANGE', iAdrSDConfOrder, nDetTotal
@@ -1869,7 +1869,7 @@ End If
                  Write(u6,'(A)') 'Mk_SDREO_SGUGA: duplicate SDREO address'
                  Call Abend()
               End If
-#endif
+              end if
 
               SGS%SDREO(iRefSm)%List(iAdrSDConfOrder) = iSign*iDet
 
@@ -1880,7 +1880,7 @@ End If
         call mma_deallocate(BetaStrings)
 
      end do
-#ifdef _SANITY_CHECK_
+     if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
      If (iDet /= nDetTotal) Then
         Write(u6,'(A,3(1X,I0))') 'SDREO SIZE MISMATCH', iRefSm, iDet, nDetTotal
         Write(u6,'(A)') 'Mk_SDREO_SGUGA: incorrect determinant count'
@@ -1892,7 +1892,7 @@ End If
         Write(u6,'(A)') 'Mk_SDREO_SGUGA: incomplete SDREO vector'
         Call Abend()
      End If
-#endif
+     end if
 
   end do
 
@@ -9531,13 +9531,13 @@ if (p==q) then
    ! <I|EppErs> = <I|Epp|I> <I|Ers|J>
    Value=MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),p,p,ISYCI,I,I,.False.)* &
          MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),r_in,s_in,ISYCJ,I,J,.False.)
-#  ifdef _SANITY_CHECK_
+   if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
    XRef=MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)
    if (abs(Value-XRef) > 1.0e-12_wp) then
       write(u6,*) '<I|EppErs|J> discrepancy:',I,J,p,r_in,s_in,Value,XRef
       call Abend()
    end if
-#  endif
+   end if
    return
 end if
 

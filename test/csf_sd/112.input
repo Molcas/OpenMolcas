@@ -11,7 +11,7 @@
 *           Quintet and septet in the irrep of the lowest state of each
 *           spin; the singlet and triplet are in csf_sd_heavy:104-107.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=YES
+>export MOLCAS_CI_VERIFY=ALL
 * Degenerate states: their multipole moments are an arbitrary mix of the
 * degenerate roots, so they are not checked.
 >export MOLCAS_NOCHECK=MLTPL

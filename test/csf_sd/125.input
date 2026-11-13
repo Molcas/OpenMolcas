@@ -10,7 +10,7 @@
 *           (csf_sd:121-127, csf_sd_heavy:005). RASSCF runs SG_Test_EpqErs_Ref,
 *           which aborts on any mismatch against the reference codes.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=YES
+>export MOLCAS_CI_VERIFY=ALL
 * Degenerate states: their multipole moments are an arbitrary mix of the
 * degenerate roots, so they are not checked.
 >export MOLCAS_NOCHECK=MLTPL

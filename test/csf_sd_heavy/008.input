@@ -12,7 +12,7 @@
 *           tests (csf_sd:013,129-135, csf_sd_heavy:006-008,108-114).
 *           Heavy test, several minutes with the current checks.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=EPQ
+>export MOLCAS_CI_VERIFY=EPQ,SIGMA,FARO
 * Degenerate states: their multipole moments are an arbitrary mix of the
 * degenerate roots, so they are not checked.
 >export MOLCAS_NOCHECK=MLTPL

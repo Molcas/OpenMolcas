@@ -11,12 +11,12 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-#define _SANITY_CHECK_
 module SD_CSF_Codec_Module
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One
   use sguga, only: SGS
   use Definitions, only: wp, iwp, u6
+  use CI_Verify_Options, only: CI_Verify
   implicit none
   private
   public :: SD_CSF_Codec
@@ -44,7 +44,7 @@ contains
   MaxOpen = Min(SGS(iState)%nActEl, 2*SGS(iState)%nLev-SGS(iState)%nActel)
   if (mod(MaxOpen-MinOpen,2) /= 0) MaxOpen = MaxOpen - 1
 
-#ifdef _SANITY_CHECK_
+  if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
   if (.not. allocated(SGS(iState)%SDREO)) then
      write(u6,*) 'SD_CSF_Codec: SDREO not allocated'
      call Abend()
@@ -63,7 +63,7 @@ contains
      write(u6,*) 'SD_CSF_Codec: SDREO List contains an invalid address'
      call Abend()
   endif
-#endif
+  end if
 
   call mma_allocate(SD_Work,size(SD),Label='SD_Work')
 
@@ -97,7 +97,7 @@ contains
   iCSF = 1
   iSD  = 1
   do iOpen = MinOpen, MaxOpen, 2
-#ifdef _SANITY_CHECK_
+     if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
      if (.not. allocated(SGS(iState)%CDCInfo(iOpen,Mult)%CDC)) then
         write(u6,*) 'SD_CSF_Codec: CDC not allocated'
         call Abend()
@@ -106,7 +106,7 @@ contains
         write(u6,*) 'SD_CSF_Codec: DTOC not allocated'
         call Abend()
      endif
-#endif
+     end if
 !    This code is only intended for conversion between the CASVB format and
 !    the format of FAROALD and SGUGA.
 !    if (Mult == 1) then
@@ -137,12 +137,12 @@ contains
      iSD  = iSD  + nSD*nOC
   end do
 
-#ifdef _SANITY_CHECK_
+  if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
   if (iSD-1 /= size(SD_Work)) then
      write(u6,*) 'SD_CSF_Codec: codec SD size mismatch', iSD-1, size(SD_Work)
      call Abend()
   endif
-#endif
+  end if
 
   if (Direction == CSF_TO_SD) then
      do i = 1, size(SD)

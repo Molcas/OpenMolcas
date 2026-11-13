@@ -12,7 +12,7 @@
 *           so all energies must agree with the other H12 icosahedron
 *           tests (csf_sd:013,129-135, csf_sd_heavy:006-008,108-114).
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=YES
+>export MOLCAS_CI_VERIFY=ALL
 * Degenerate states: their multipole moments are an arbitrary mix of the
 * degenerate roots, so they are not checked.
 >export MOLCAS_NOCHECK=MLTPL
@@ -67,7 +67,7 @@ Symmetry
  6
 CIOnly
 
->export MOLCAS_CI_VERIFY=EPQ
+>export MOLCAS_CI_VERIFY=EPQ,SIGMA,FARO
 
  &RASSCF
 Inactive

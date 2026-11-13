@@ -11,7 +11,7 @@
 *           which aborts on any mismatch against the reference codes.
 *           Heavy test, a few minutes with the current checks.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=YES
+>export MOLCAS_CI_VERIFY=ALL
 * Degenerate states: their multipole moments are an arbitrary mix of the
 * degenerate roots, so they are not checked.
 >export MOLCAS_NOCHECK=MLTPL

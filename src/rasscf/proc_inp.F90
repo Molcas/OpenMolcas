@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use ci_interfaces, only: CI_Initialize
+use ci_interfaces, only: CI_Initialize, CI_Verify
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -4081,20 +4081,21 @@ endif
 if (.not. SkipGUGA) then
   call StatusLine('RASSCF: ','Initializing Lucia/SGUGA/Faroald')
 
-#define _FAROALD_VERIFY_
-# ifdef _FAROALD_VERIFY_
-  ! Turn on the Faroald SD CI code in case of
+  ! CI development only (MOLCAS_CI_VERIFY=FARO or ALL, see CI_Verify):
+  ! force the Faroald SD CI code, to compare it with Lucia, in case of
   ! 1) no symmetry
   ! 2) not RASSCF or GASSCF
   ! 3) not using the expert, the HEXS or the DEXS key word
-  if ((nSym == 1) .and. &
-      ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
-      (.not. iDoGas) .and. &
-      (.not. Key('HEXS')) .and. &
-      (.not. Key('DEXS')) .and. &
-      (.not. Key('EXPE')) &
-     ) DoFaro = .true.
-# endif
+  ! Normal runs use Faroald only if requested with the FARO keyword.
+  if (CI_Verify('FARO')) then
+    if ((nSym == 1) .and. &
+        ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
+        (.not. iDoGas) .and. &
+        (.not. Key('HEXS')) .and. &
+        (.not. Key('DEXS')) .and. &
+        (.not. Key('EXPE')) &
+       ) DoFaro = .true.
+  end if
 
   call CI_Initialize(.NOT. iDoGAS, DOFARO)
 

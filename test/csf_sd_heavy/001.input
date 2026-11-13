@@ -9,7 +9,7 @@
 *           <I|Epq|J> and <I|EpqErs|J> against the reference codes.
 *           Heavy test, a few minutes with the current checks.
 *-------------------------------------------------------------------------------
->export MOLCAS_CI_VERIFY=YES
+>export MOLCAS_CI_VERIFY=ALL
 
 &GATEWAY
  coord

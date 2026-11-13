@@ -11,8 +11,6 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-#define _SANITY_CHECK_
-#define _SGUGA_VERIFY_
 module CI_Interfaces
 use sguga, only: SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
@@ -25,16 +23,18 @@ use spinfo, only: NDTASM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use definitions, only: wp, iwp, u6
-#ifdef _SGUGA_VERIFY_
 use sguga, only: CIS, SGS, EXS
 use general_data, only: iDoGAS, nRsPrt
-#endif
+use CI_Verify_Options, only: CI_Verify
 
 #include "intent.fh"
 
 Private
 
-Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close
+Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close, CI_Verify
+
+! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
+! run-time verification options (MOLCAS_CI_VERIFY).
 
 contains
 
@@ -58,10 +58,8 @@ integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 integer(kind=iwp) :: IREFSM_SAVE, nDet
 
-#ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_Href, Check_H
 real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:)
-#endif
 
 if (DOFARO) then
 
@@ -146,8 +144,9 @@ else
 
 end if
 
-#ifdef _SGUGA_VERIFY_
-If (.NOT.iDoGAS .and. nRsPrt==1) Then
+! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the SGUGA sigma
+! vector, which is then used.
+If (CI_Verify('SIGMA') .and. .NOT.iDoGAS .and. nRsPrt==1) Then
    Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
    call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
    Check_Href=CheckSum(Sigma_Vec,nCSF)
@@ -167,7 +166,6 @@ If (.NOT.iDoGAS .and. nRsPrt==1) Then
    Call mma_deallocate(SG_SGM)
    Call mma_deallocate(SG_PSI)
 End if
-#endif
 
 End Subroutine Mk_H_Psi
 
@@ -191,11 +189,8 @@ integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, nCSF
 integer(kind=iwp) :: iDet
 integer(kind=iwp) :: IREFSM_SAVE
 
-#ifdef _SGUGA_VERIFY_
-!integer(kind=iwp) :: iDet
 #ifdef _Compute_Full_CI_Matrix
 real(kind=wp), allocatable :: Full(:,:)
-#endif
 #endif
 
 !Note that we Lucia code doesn't explicily spin adapt the SD. Rather it just process the input coefficients.
@@ -203,7 +198,6 @@ real(kind=wp), allocatable :: Full(:,:)
 ! we have effectivly generated a SD coefficient vector that is implicitly spin-adapted. Since the CASVB code generates
 ! starting CI vectors that are not spin-adapted there will be a difference in the convergence patterns.
 
-#ifdef _SGUGA_VERIFY_
 #ifdef _Compute_Full_CI_Matrix
 ! Reference computation of the full CI matrix.
 ! in CSF basis
@@ -222,7 +216,6 @@ Call ci_full_det(nDet,STSym, &
                 Full)
 Call mma_deallocate(Full)
 ! in SD basis
-#endif
 #endif
 
 if (DOFARO) then
@@ -320,7 +313,9 @@ else
   ISSM=IREFSM
 endif
 
-#ifdef _SGUGA_VERIFY_
+! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the SGUGA sigma
+! vector (CASSCF without symmetry only), which is then used.
+If (CI_Verify('SIGMA')) Then
   If (SGS(iState)%nRsPrt /= 1) Then
      Write (6,*) ' This option is only available for CASSCF'
      Call abend()
@@ -359,9 +354,7 @@ endif
   Sigma_Vec(1:nDet)=temp1(1:nDet)
   Call mma_deallocate(temp1)
   Call mma_deallocate(temp2)
-#endif
-
-#ifdef _SGUGA_VERIFY_
+End If
 
 #ifdef _Compute_Full_CI_Matrix
 Contains
@@ -417,7 +410,6 @@ use cands, only: ICSM, ISSM
 
 end subroutine ci_full_det
 #endif
-#endif
 
 End Subroutine Mk_H_Psi_Det
 
@@ -426,9 +418,6 @@ End Subroutine Mk_H_Psi_Det
 
 Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM, T1SDM)
 use Lucia_Data, only: DTmp, DSTmp
-#ifdef _SGUGA_VERIFY_
-use general_data, only: iDoGAS
-#endif
 implicit none
 integer(kind=iwp), intent(in) :: nVec, nT1DM
 real(kind=wp), intent(_IN_):: Bra_Vec(nVec), Ket_Vec(nVec)
@@ -491,10 +480,6 @@ Else
    If (Free_D ) Call mma_deallocate(DTMP )
    If (Free_DS) Call mma_deallocate(DSTMP)
 End If
-#ifdef _SGUGA_VERIFY_
-If (.NOT.iDoGAS) Then
-End If
-#endif
 
 End Subroutine Mk_T1DM
 
@@ -503,9 +488,7 @@ End Subroutine Mk_T1DM
 
 Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
 use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
-#ifdef _SGUGA_VERIFY_
 use rasscf_global, only: NACPAR, NACPR2
-#endif
 
  implicit none
  integer(kind=iwp), intent(in) :: nCIVEC
@@ -521,11 +504,9 @@ use rasscf_global, only: NACPAR, NACPR2
  real(kind=wp), allocatable :: CIV(:), temp(:)
  integer(kind=iwp), parameter :: iState=1
 
-#ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_D1, Check_P, Check_PA
 real(kind=wp), allocatable :: D_Sguga(:)
 real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
-#endif
 
  If (DoFaro) Then
    call mma_allocate(D_loc,nD,Label='D_loc')
@@ -587,14 +568,16 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    Call mma_deallocate(PATMP)
  End If
 
-! temporary code to verify the functionality of the SGUGA code and its interface
-#ifdef _SGUGA_VERIFY_
-        If (.NOT.iDoGAS) Then
+! CI development (MOLCAS_CI_VERIFY=SIGMA): verify the SGUGA density matrices
+! against the CI back end. D, P and PA are optional, so only those present
+! are compared.
+        If (CI_Verify('SIGMA') .and. .NOT.iDoGAS) Then
 
           Call mma_allocate(CIV,nCIVEC,Label='CIV')
           call SG_Reord(iState,STSYM,0,nCIVEC,CIVEC,CIV)
 
 !         Test the one-particle density matrix
+          If (Present(D)) Then
           Check_D1=CheckSum(D,NACPAR)
           Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
 
@@ -605,11 +588,13 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
              Call Abend()
           End If
           Call mma_deallocate(D_sguga)
+          End If
 
 !         Test the one-particle spin-density matrix
 !         This option is not yet developed for the SGUGA code. To come...
 
 !         Test the symmetric two-particle density matrix.
+          If (Present(P) .and. Present(PA)) Then
           Check_P=CheckSum(P,NACPR2)
           Check_PA=CheckSum(PA,NACPR2)
 
@@ -636,11 +621,10 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
           Call mma_deallocate(PA_sguga)
           Call mma_deallocate(P_sguga)
+          End If
           Call mma_deallocate(CIV)
 
         END IF
-#endif
-! end temporary code
 
  End Subroutine Mk_pdms
 
@@ -695,7 +679,6 @@ use spinfo, only: ncsasm, ndtasm
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
-character(len=8) :: Env
 
 ! Construct the determinant tables
 ! Initialize LUCIA and determinant control
@@ -708,25 +691,19 @@ nDet = MaxVal(ndtasm(1:mxsym))
 
 ! Initiate the SGUGA environment conditional to all flags
 If (Do_SGUGA) Then
-#ifdef _SGUGA_VERIFY_
-    write(u6,'(1X,A)') '**EXPERIMENTAL**'
-    write(u6,'(1X,A)') 'CI backend is SGUGA instead of LUCIA.'
-    write(u6,'(1X,A)') '**EXPERIMENTAL**'
-#endif
+   if (CI_Verify('SIGMA')) then
+      write(u6,'(1X,A)') '**EXPERIMENTAL**'
+      write(u6,'(1X,A)') 'CI back end cross-checked against SGUGA (MOLCAS_CI_VERIFY=SIGMA).'
+      write(u6,'(1X,A)') '**EXPERIMENTAL**'
+   end if
    call SG_Setup_RASSCF()
    ! Exhaustive verification of the SGUGA coupling-coefficient codes,
-   ! only on request (used by the test/csf_sd groups):
-   !   MOLCAS_CI_VERIFY=YES  <I|Epq|J> and <I|EpqErs|J>
-   !   MOLCAS_CI_VERIFY=EPQ  <I|Epq|J> only
-   Env=' '
-   call get_environment_variable('MOLCAS_CI_VERIFY',Env)
-   call UpCase(Env)
-   select case (Env)
-     case ('YES')
-       call SG_Test_EpqErs_Ref(iState,STSym)
-     case ('EPQ')
-       call SG_Test_EpqErs_Ref(iState,STSym,Epq_Only=.true.)
-   end select
+   ! only on request (used by the test/csf_sd groups), see CI_Verify.
+   if (CI_Verify('YES')) then
+      call SG_Test_EpqErs_Ref(iState,STSym)
+   else if (CI_Verify('EPQ')) then
+      call SG_Test_EpqErs_Ref(iState,STSym,Epq_Only=.true.)
+   end if
 End If
 
 ! faroald initializations
@@ -938,14 +915,15 @@ real(kind=wp), allocatable :: dtemp(:)
 
 integer(kind=iwp) :: iCSF
 real(kind=wp), allocatable :: CI_Faroald(:)
-#ifdef _SGUGA_VERIFY_
 real(kind=wp), allocatable :: CI_SGUGA(:)
-#endif
+logical(kind=iwp) :: Verify_SG
 
-#ifdef _SGUGA_VERIFY_
+! CI development (MOLCAS_CI_VERIFY=SIGMA): also transform with SGUGA and compare.
+Verify_SG = CI_Verify('SIGMA') .and. .NOT.iDoGAS .and. nRsPrt==1
+If (Verify_SG) Then
   Call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
   CI_SGUGA(:) = CI_Vector(:)
-#endif
+End If
 
 If (DoFaro) Then
   Call mma_allocate(CI_Faroald,nCSF,Label='CI_Faroald')
@@ -992,8 +970,7 @@ End Do
 Call mma_deallocate(CI_Faroald)
 Endif
 
-#ifdef _SGUGA_VERIFY_
-If (.NOT.iDoGAS .and. nRsPrt==1) Then
+If (Verify_SG) Then
 
 !  Call SG_TRACI(iState,STSYM,TU,nTU,CI_SGUGA,nCSF)
    Call mma_allocate(ctemp,nCSF,Label='ctemp')
@@ -1010,9 +987,8 @@ If (.NOT.iDoGAS .and. nRsPrt==1) Then
          Call Abend()
       End If
    End Do
+   Call mma_deallocate(CI_SGUGA)
 End If
-Call mma_deallocate(CI_SGUGA)
-#endif
 
 End subroutine Mk_Tra_Psi
 
