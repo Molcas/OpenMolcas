@@ -14,9 +14,13 @@ branch). TO BE HANDLED IN THE FUTURE:
        CASPT2 reference value (or the test setup) needs to be checked and
        the checkfile updated if the new value is confirmed.
 
-* 918  passes, but takes about 17 minutes instead of the "about 2 min 15 sec"
-       stated in the input; nearly all of it is ALASKA (about 13 minutes).
-       This should be investigated, or the estimate updated.
+* 918  passes, but takes about 16-17 minutes instead of the "about 2 min 15 sec"
+       stated in the input; nearly all of it is ALASKA (11-13 minutes). This
+       is not a regression: at the commit that added the test (d3f477a99,
+       2026-07-01) it takes 940 s with the same build settings (seward 142 s,
+       rasscf 37 s, caspt2 64 s, mclr 7 s, alaska 680 s). The estimate in the
+       input header was wrong from the start; it now says about 16 min.
+       (If a short test was the intention, the test should be made cheaper.)
 
 * The "Runtime:" estimates in the input headers are outdated: on current
   hardware most tests take a fraction of the stated time (e.g. 900 takes

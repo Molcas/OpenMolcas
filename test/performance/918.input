@@ -1,6 +1,6 @@
 *Responsible person: Roland Lindh
 *Testing:  SEW,SCF,RASSCF,CASPT2,CASPT2_GRAD for naphtalene
-*Runtime: about 2 min 15 sec
+*Runtime: about 16 min (about 11-13 min of it in ALASKA)
 *-------------------------------------------------------------------------------
 
 >>export MOLCAS_MOLDEN=OFF
