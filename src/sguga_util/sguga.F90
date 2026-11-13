@@ -6886,6 +6886,14 @@ write(u6,*)
 !
 do iTopology=1,nTopology
 
+   ! Empty ranges by default: every valid topology sets them below and the
+   ! default case aborts, but some compilers cannot see that (Abend does
+   ! not return) and warn that they may be used uninitialized.
+   pMin = 1; pMax = 0
+   qMin = 1; qMax = 0
+   rMin = 1; rMax = 0
+   sMin = 1; sMax = 0
+
    select case (iTopology)
 
    case (iUU)
@@ -7085,6 +7093,8 @@ do iTopology=1,nTopology
                                    r,s )
                      end if
 
+                     ! Set in every valid case below; the default aborts.
+                     XTest = Zero
                      select case (iTopology)
 
                      case (iUU)
