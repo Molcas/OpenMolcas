@@ -7414,6 +7414,16 @@ write(u6,*) ' END OF TWO-OPERATOR TEST'
 write(u6,*) '========================================='
 write(u6,*)
 
+! <I|H|J> from MatEl_Epq and the MatEl_EpqErs_* routines, against sg_h_psi.
+if (sum(nDiscrepancies) == 0) then
+   if (SGS(iState)%nSym == 1) then
+      call Check_MatEl_H()
+   else
+      write(u6,'(A)') 'MatEl_H test skipped: with symmetry H contains symmetry-changing E_pq E_rs,'
+      write(u6,'(A)') 'which MatEl_EpqErs_UU/LL/UL/LU do not support yet.'
+   end if
+end if
+
 call mma_deallocate(Occ)
 
 if (sum(nDiscrepancies) /= 0) then
@@ -10166,6 +10176,205 @@ do MV1 = 1, 2
 end do
 
 end function MatEl_EpqErs_OO
+
+!
+! <I|E_pq E_rs|J> for I and J of symmetry LSM, by topology: each operator is
+! U (both levels upper), L (both lower) or O (open). Screened with the exact
+! quick zero test first.
+!
+function MatEl_EpqErs(I,J,p,q,r,s) result(X)
+
+  integer(kind=iwp), intent(in) :: I, J, p, q, r, s
+  real(kind=wp) :: X
+  character(len=2) :: Top
+
+  X = Zero
+  if (Quick_Zero(I,J,p,q,r,s)) return
+  Top = Op_Class(p,q)//Op_Class(r,s)
+  select case (Top)
+    case ('UU')
+      X = MatEl_EpqErs_UU(LSM,I,J,p,q,r,s)
+    case ('LL')
+      X = MatEl_EpqErs_LL(LSM,I,J,p,q,r,s)
+    case ('UL')
+      X = MatEl_EpqErs_UL(LSM,I,J,p,q,r,s)
+    case ('LU')
+      X = MatEl_EpqErs_LU(LSM,I,J,p,q,r,s)
+    case ('UO')
+      X = MatEl_EpqErs_UO(LSM,I,J,p,q,r,s)
+    case ('OU')
+      X = MatEl_EpqErs_OU(LSM,I,J,p,q,r,s)
+    case ('LO')
+      X = MatEl_EpqErs_LO(LSM,I,J,p,q,r,s)
+    case ('OL')
+      X = MatEl_EpqErs_OL(LSM,I,J,p,q,r,s)
+    case ('OO')
+      X = MatEl_EpqErs_OO(LSM,I,J,p,q,r,s)
+  end select
+
+end function MatEl_EpqErs
+
+!> 'U', 'L' or 'O' for an operator E_pq with both levels in the upper half,
+!> both in the lower half, or crossing the midlevel.
+function Op_Class(p,q) result(C)
+  integer(kind=iwp), intent(in) :: p, q
+  character(len=1) :: C
+  if ((p > SGS(iState)%MidLev) .and. (q > SGS(iState)%MidLev)) then
+    C = 'U'
+  else if ((p <= SGS(iState)%MidLev) .and. (q <= SGS(iState)%MidLev)) then
+    C = 'L'
+  else
+    C = 'O'
+  end if
+end function Op_Class
+
+!
+! <I|H|J> for I and J of symmetry LSM, in the form used by sg_h_psi:
+!
+!   H = Sum_{i>=j, G(ij)=1} k_ij Ehat_ij + Sum_{i>=j} Sum_{k>=l, G(kl)=G(ij)} 1/2 (kl|ij) Ehat_kl Ehat_ij
+!
+! with Ehat_ij = E_ij + E_ji (E_ii for i = j), k_ij = h_ij - 1/2 Sum_k (ik|kj),
+! and triangularly packed TU (h) and TUVX ((kl|ij)), as in sg_h_psi.
+!
+function MatEl_H(I,J,TU,nTU,TUVX,nTUVX) result(H)
+
+  use Index_functions, only: iTri
+  use Constants, only: Half
+
+  integer(kind=iwp), intent(in) :: I, J, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp) :: H
+  integer(kind=iwp) :: iO, jO, kO, lO, ij, kl, nL
+  real(kind=wp) :: OneInt, TwoInt, G
+
+  H = Zero
+  nL = SGS(iState)%nLev
+  do iO = 1, nL
+    do jO = 1, iO
+      ij = iTri(iO,jO)
+      if (SGS(iState)%ISm(iO) == SGS(iState)%ISm(jO)) then
+        TwoInt = Zero
+        do kO = 1, nL
+          TwoInt = TwoInt+TUVX(iTri(iTri(iO,kO),iTri(kO,jO)))
+        end do
+        OneInt = TU(ij)-Half*TwoInt
+        H = H+OneInt*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),iO,jO,LSM,I,J,.False.)
+        if (iO /= jO) H = H+OneInt*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),jO,iO,LSM,I,J,.False.)
+      end if
+      do kO = 1, nL
+        do lO = 1, kO
+          kl = iTri(kO,lO)
+          if (Mul(SGS(iState)%ISm(kO),SGS(iState)%ISm(lO)) /= &
+              Mul(SGS(iState)%ISm(iO),SGS(iState)%ISm(jO))) cycle
+          G = Half*TUVX(iTri(kl,ij))
+          if (G == Zero) cycle
+          ! Ehat_kl Ehat_ij
+          H = H+G*MatEl_EpqErs(I,J,kO,lO,iO,jO)
+          if (iO /= jO) H = H+G*MatEl_EpqErs(I,J,kO,lO,jO,iO)
+          if (kO /= lO) then
+            H = H+G*MatEl_EpqErs(I,J,lO,kO,iO,jO)
+            if (iO /= jO) H = H+G*MatEl_EpqErs(I,J,lO,kO,jO,iO)
+          end if
+        end do
+      end do
+    end do
+  end do
+
+end function MatEl_H
+
+!
+! Verify MatEl_H against sg_h_psi: with reproducible pseudo-random integrals
+! (any values with the permutational symmetry of the triangular packing will
+! do), compare <I|H|J> with (H e_J)_I for all I and for all columns J, or a
+! random sample of MaxHCol columns. Aborts on a mismatch.
+!
+subroutine Check_MatEl_H()
+
+  integer(kind=iwp), parameter :: MaxHCol = 20
+  real(kind=wp), parameter :: TolH = 1.0e-10_wp
+  integer(kind=iwp) :: nL, nTU, nTUVX, nC, nCol, iCol, I, J, k, nTestH, nFailH
+  integer(kind=int64) :: iInt
+  real(kind=wp), allocatable :: TU(:), TUVX(:), Psi(:), Sgm(:)
+  real(kind=wp) :: X, Dev, MaxDev
+  logical(kind=iwp) :: Reuse_Save, AllCols
+
+  interface
+    subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+      import :: SGStruct, CIStruct, EXStruct, iwp, wp
+      type(SGStruct), intent(in) :: SGS
+      type(CIStruct), intent(in) :: CIS
+      type(EXStruct), intent(inout) :: EXS
+      integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+      real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+      real(kind=wp), intent(out) :: Sigma(nCSFs)
+    end subroutine sg_h_psi
+  end interface
+
+  nL = SGS(iState)%nLev
+  nTU = nL*(nL+1)/2
+  nTUVX = nTU*(nTU+1)/2
+  nC = CIS(iState)%NCSF(LSM)
+
+  ! Reproducible integrals in [-0.5,0.5), independent of the sampling seed.
+  call mma_allocate(TU,nTU,Label='TU_H')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX_H')
+  iInt = 271828183_int64
+  do k = 1, nTU
+    iInt = mod(48271_int64*iInt,2147483647_int64)
+    TU(k) = real(iInt,kind=wp)/2147483647.0_wp-0.5_wp
+  end do
+  do k = 1, nTUVX
+    iInt = mod(48271_int64*iInt,2147483647_int64)
+    TUVX(k) = real(iInt,kind=wp)/2147483647.0_wp-0.5_wp
+  end do
+
+  call mma_allocate(Psi,nC,Label='Psi_H')
+  call mma_allocate(Sgm,nC,Label='Sgm_H')
+  Reuse_Save = EXS(iState)%ReUse_SGTMP
+  EXS(iState)%ReUse_SGTMP = .False.
+
+  AllCols = nC <= MaxHCol
+  nCol = merge(nC,MaxHCol,AllCols)
+  nTestH = 0
+  nFailH = 0
+  MaxDev = Zero
+  do iCol = 1, nCol
+    J = merge(iCol,Rand_Index(nC),AllCols)
+    Psi(:) = Zero
+    Psi(J) = One
+    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
+    do I = 1, nC
+      X = MatEl_H(I,J,TU,nTU,TUVX,nTUVX)
+      Dev = abs(X-Sgm(I))
+      MaxDev = max(MaxDev,Dev)
+      nTestH = nTestH+1
+      if (Dev > TolH*max(One,abs(Sgm(I)))) then
+        nFailH = nFailH+1
+        if (nFailH <= 10) write(u6,'(A,2I8,3ES22.13)') 'MatEl_H mismatch: I,J,<I|H|J>,sg_h_psi,diff = ', &
+                                                     I,J,X,Sgm(I),X-Sgm(I)
+      end if
+    end do
+  end do
+
+  EXS(iState)%ReUse_SGTMP = Reuse_Save
+  call mma_deallocate(Sgm)
+  call mma_deallocate(Psi)
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
+
+  write(u6,*)
+  write(u6,'(A)') ' MatEl_H verification against sg_h_psi (pseudo-random integrals)'
+  write(u6,'(A,I0,A,I0,A)') 'Columns tested         : ',nCol,' of ',nC, merge(' (all)   ',' (random)',AllCols)
+  write(u6,'(A,I0)')   'Matrix elements tested : ',nTestH
+  write(u6,'(A,I0)')   'Failures               : ',nFailH
+  write(u6,'(A,ES12.4)') 'Maximum abs. deviation : ',MaxDev
+  if (nFailH /= 0) then
+    write(u6,'(A)') 'MatEl_H consistency check FAILED.'
+    call Abend()
+  end if
+  write(u6,'(A)') 'MatEl_H consistency check PASSED.'
+
+end subroutine Check_MatEl_H
 
 function MatEl_EpqErs_LU( &
            ISYCI, &
