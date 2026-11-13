@@ -58,8 +58,6 @@ real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
 integer(kind=iwp), intent(in):: nTU, nTUVX
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
-integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
-real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 integer(kind=iwp) :: IREFSM_SAVE, nDet
 
 real(kind=wp) :: Check_Href, Check_H
@@ -67,48 +65,8 @@ real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:)
 
 if (DOFARO) then
 
-  htu(:,:) = Zero
-  gtuvx(:,:,:,:) = Zero
-  itu = 0
-  ituvx = 0
-  do it=1,my_norb
-    do iu=1,it
-      itu = itu+1
-      htu(iu,it) = TU(itu)
-      htu(it,iu) = TU(itu)
-      do iv=1,it
-        ixmax = iv
-        if (it == iv) ixmax = iu
-        do ix=1,ixmax
-          ituvx = ituvx+1
-          GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
-          GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
-          GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
-          GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
-          GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
-          GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
-          GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
-          GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
-        end do
-      end do
-    end do
-  end do
-
-  Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
-  Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
-
-  call SG_REORD(iState,STSYM,0,nCSF,CI_Vec,ctemp)
-  call CITRANS_SORT('C',ctemp,Sigma_Vec)
-  Faroald_PSI(:,:) = Zero
-  call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
-  Faroald_SGM(:,:) = Zero
-  call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
-  call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
-  call CITRANS_SORT('O',Sigma_Vec,ctemp)
-  call SG_Reord(iState,STSYM,1,nCSF,ctemp,Sigma_Vec)
-
-  Faroald_Psi => Null()
-  Faroald_SGM => Null()
+  call Faroald_Ints(TU,TUVX)
+  call Faroald_Sigma(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
 
 else
 
@@ -173,6 +131,69 @@ End if
 
 End Subroutine Mk_H_Psi
 
+!> Unpack the active one- and two-electron integrals (triangular packing)
+!> into the square arrays htu and gtuvx of Faroald.
+subroutine Faroald_Ints(TU,TUVX)
+real(kind=wp), intent(in) :: TU(:), TUVX(:)
+integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
+
+htu(:,:) = Zero
+gtuvx(:,:,:,:) = Zero
+itu = 0
+ituvx = 0
+do it=1,my_norb
+  do iu=1,it
+    itu = itu+1
+    htu(iu,it) = TU(itu)
+    htu(it,iu) = TU(itu)
+    do iv=1,it
+      ixmax = iv
+      if (it == iv) ixmax = iu
+      do ix=1,ixmax
+        ituvx = ituvx+1
+        GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
+        GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
+        GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
+        GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
+        GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
+        GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
+        GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
+        GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
+      end do
+    end do
+  end do
+end do
+
+end subroutine Faroald_Ints
+
+!> Faroald sigma vector Sigma_Vec = H CI_Vec in Lucia's CSF basis, with the
+!> integrals set by Faroald_Ints. ctemp and sigtemp are scratch of at least
+!> nDetA*nDetB elements (Faroald determinant basis).
+subroutine Faroald_Sigma(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+integer(kind=iwp), intent(in) :: iState, STSYM, nCSF, ntemp, ndeta, ndetb
+real(kind=wp), intent(in) :: CI_Vec(nCSF)
+real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
+real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
+real(kind=wp), pointer :: Faroald_PSI(:,:), Faroald_SGM(:,:)
+
+Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
+Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
+
+call SG_REORD(iState,STSYM,0,nCSF,CI_Vec,ctemp)
+call CITRANS_SORT('C',ctemp,Sigma_Vec)
+Faroald_PSI(:,:) = Zero
+call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
+Faroald_SGM(:,:) = Zero
+call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
+call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
+call CITRANS_SORT('O',Sigma_Vec,ctemp)
+call SG_Reord(iState,STSYM,1,nCSF,ctemp,Sigma_Vec)
+
+Faroald_Psi => Null()
+Faroald_SGM => Null()
+
+end subroutine Faroald_Sigma
+
 Subroutine Mk_H_Psi_Det(istate,STSYM,nDet,CI_Vec,Sigma_Vec,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
 use sd_csf_codec_module, only: sd_csf_codec, sd_to_csf, csf_to_sd
@@ -189,7 +210,7 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 real(kind=wp), allocatable, target:: temp1(:), temp2(:)  ! Local scratch
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 
-integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, nCSF
+integer(kind=iwp) :: nCSF
 integer(kind=iwp) :: iDet
 integer(kind=iwp) :: IREFSM_SAVE
 
@@ -224,32 +245,7 @@ Call mma_deallocate(Full)
 
 if (DOFARO) then
 
-  htu(:,:) = Zero
-  gtuvx(:,:,:,:) = Zero
-  itu = 0
-  ituvx = 0
-  do it=1,my_norb
-    do iu=1,it
-      itu = itu+1
-      htu(iu,it) = TU(itu)
-      htu(it,iu) = TU(itu)
-      do iv=1,it
-        ixmax = iv
-        if (it == iv) ixmax = iu
-        do ix=1,ixmax
-          ituvx = ituvx+1
-          GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
-          GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
-          GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
-          GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
-          GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
-          GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
-          GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
-          GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
-        end do
-      end do
-    end do
-  end do
+  call Faroald_Ints(TU,TUVX)
 
   ! We need to convert this to the correct form! The input is in LUCIA format.
 
@@ -801,32 +797,7 @@ If (DoFaro) Then
 !Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
 !Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
 
-  htu(:,:) = Zero
-  gtuvx(:,:,:,:) = Zero
-  itu = 0
-  ituvx = 0
-  do it=1,my_norb
-    do iu=1,it
-      itu = itu+1
-      htu(iu,it) = TU(itu)
-      htu(it,iu) = TU(itu)
-      do iv=1,it
-        ixmax = iv
-        if (it == iv) ixmax = iu
-        do ix=1,ixmax
-          ituvx = ituvx+1
-          GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
-          GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
-          GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
-          GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
-          GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
-          GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
-          GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
-          GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
-        end do
-      end do
-    end do
-  end do
+  call Faroald_Ints(TU,TUVX)
 
   Call mma_allocate(Diag,nComb_tot,Label='Diag')
   Call mma_allocate(CSFDIA_Faroald,nConf,Label='CSFDIA_F')
@@ -949,7 +920,14 @@ end subroutine Mk_Cnf_Layout
 !> diagonal. The Hamiltonian is defined by TU and TUVX alone, as for the
 !> sigma vector (Mk_H_Psi): no scaling of the exchange (ExFac), which would
 !> only be consistent if built into the integrals by the caller.
-!> (Lucia back end: CNHCN for each pair of configurations.)
+!>
+!> Back ends:
+!>  - Lucia: CNHCN for each pair of configurations (determinant block,
+!>    transformed with DTOC).
+!>  - Faroald (DoFaro): columns H e_J of the Faroald sigma vector for each
+!>    selected CSF J (exact, one sigma vector per CSF of the selection).
+!> With MOLCAS_CI_VERIFY=SIGMA, the Faroald block is compared with the
+!> Lucia one, and the block is checked against Mk_H_Psi (once per run).
 subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 use Index_Functions, only: nTri_Elem
 use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, Sigma_on_disk
@@ -961,63 +939,31 @@ integer(kind=iwp), intent(in) :: nPHP, NPCNF, IPCNF(NPCNF), IREFSM, nTU, nTUVX
 real(kind=wp), intent(out) :: PHP(nPHP)
 real(kind=wp), intent(in) :: ECORE, TU(nTU), TUVX(nTUVX)
 integer(kind=iwp), intent(inout) :: NTEST
-integer(kind=iwp) :: NEL, MXDT, MXCS, nScr, ICNL, ICNR, ILTYP, IRTYP, NCSFL, NCSFR, IILB, IIRB, IIL, IIR, IIRMAX, NPCSF
-integer(kind=iwp), allocatable :: ICONFL(:), ICONFR(:)
-real(kind=wp), allocatable :: HONE(:,:), CNHCNM(:), Scr(:)
+integer(kind=iwp) :: NPCSF
+integer(kind=iwp), allocatable :: IPCSF(:)
+real(kind=wp), allocatable :: PHP_Lucia(:)
+real(kind=wp), parameter :: Thr = 1.0e-10_wp
 
-NEL = NAEL+NBEL
-MXDT = maxval(NDTFTP(1:NTYP))
-MXCS = maxval(NCSFTP(1:NTYP))
-
-! Size check: the CSFs of the selected configurations must fit into PHP.
-NPCSF = 0
-do ICNL=1,NPCNF
-  call GetCnf_Type(ICNL,ILTYP)
-  NPCSF = NPCSF+NCSFTP(ILTYP)
-end do
+! CSF indices (in the CSF basis of symmetry IREFSM) of the selection.
+call Sel_CSFs()
+NPCSF = size(IPCSF)
 if (nTri_Elem(NPCSF) > nPHP) then
   write(u6,*) 'Mk_IHJ: PHP too small for the selected CSFs:',nTri_Elem(NPCSF),nPHP
   call Abend()
 end if
 
-! One-body matrix in square storage, as CNHCN wants it.
-call mma_allocate(HONE,NAC,NAC,Label='HONE')
-call SQUARE(TU,HONE,NAC,1,NAC)
-
-! Scratch for CNHCN: determinant strings and signs of both configurations,
-! CNFSTR work space, the determinant block, DIHDJ_MOLCAS work space and the
-! half-transformed block.
-nScr = 2*MXDT*(NEL+1)+NEL*(MXDT+1)+MXDT*MXDT+4*NAC+MXDT+MXCS*MXDT+64
-call mma_allocate(Scr,nScr,Label='IHJ_Scr')
-call mma_allocate(CNHCNM,MXCS*MXCS,Label='CNHCNM')
-call mma_allocate(ICONFL,NEL,Label='ICONFL')
-call mma_allocate(ICONFR,NEL,Label='ICONFR')
-
-IILB = 1
-do ICNL=1,NPCNF
-  call GETCNF(ICONFL,ILTYP,IPCNF(ICNL),Conf_Occ(IREFSM)%A,IREFSM,NEL)
-  NCSFL = NCSFTP(ILTYP)
-  IIRB = 1
-  do ICNR=1,ICNL
-    call GETCNF(ICONFR,IRTYP,IPCNF(ICNR),Conf_Occ(IREFSM)%A,IREFSM,NEL)
-    NCSFR = NCSFTP(IRTYP)
-    call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECORE,HONE,DFTP,DTOC,NAC,TUVX,NTEST,One,IREOTS)
-    do IIL=1,NCSFL
-      IIRMAX = merge(IIL,NCSFR,IILB == IIRB)
-      do IIR=1,IIRMAX
-        PHP(nTri_Elem(IILB-1+IIL-1)+IIRB-1+IIR) = CNHCNM((IIR-1)*NCSFL+IIL)
-      end do
-    end do
-    IIRB = IIRB+NCSFR
-  end do
-  IILB = IILB+NCSFL
-end do
-
-call mma_deallocate(ICONFR)
-call mma_deallocate(ICONFL)
-call mma_deallocate(CNHCNM)
-call mma_deallocate(Scr)
-call mma_deallocate(HONE)
+if (DoFaro) then
+  call IHJ_Faroald(PHP)
+  ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the Lucia block.
+  if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
+    call mma_allocate(PHP_Lucia,nTri_Elem(NPCSF),Label='PHP_Lucia')
+    call IHJ_Lucia(PHP_Lucia)
+    call Compare_IHJ('Faroald','Lucia',PHP_Lucia)
+    call mma_deallocate(PHP_Lucia)
+  end if
+else
+  call IHJ_Lucia(PHP)
+end if
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare the block, once per run,
 ! with exact columns H e_J from Mk_H_Psi.
@@ -1026,21 +972,15 @@ if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
   call Verify_IHJ()
 end if
 
+call mma_deallocate(IPCSF)
+
 contains
 
-  ! Compare PHP with columns H e_J computed by Mk_H_Psi (the sigma vector of
-  ! the CI back end, with SIGMA the one of SGUGA) for at most mxCol CSFs J
-  ! of the selection, evenly spaced.
-  subroutine Verify_IHJ()
-    integer(kind=iwp), parameter :: mxCol = 32
-    real(kind=wp), parameter :: Thr = 1.0e-10_wp
-    integer(kind=iwp) :: I, J, JJ, nCol, nTmp, iCnf, iOff, kCnf, ICSF
-    integer(kind=iwp), allocatable :: nCSFCnf(:), iCSF1(:), IPCSF(:)
-    real(kind=wp), allocatable :: EJ(:), HEJ(:), cTmp(:), sTmp(:)
-    real(kind=wp) :: Ref, Err, ErrMax
-    logical(kind=iwp) :: Sigma_Save
+  ! IPCSF: the CSFs of the selected configurations, in the order of PHP.
+  subroutine Sel_CSFs()
+    integer(kind=iwp) :: iCnf, iOff, kCnf, I, ICSF
+    integer(kind=iwp), allocatable :: nCSFCnf(:), iCSF1(:)
 
-    ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection
     call Mk_Cnf_Layout(IREFSM,nCSFCnf)
     call mma_allocate(iCSF1,size(nCSFCnf),Label='iCSF1')
     iOff = 1
@@ -1048,11 +988,7 @@ contains
       iCSF1(iCnf) = iOff
       iOff = iOff+nCSFCnf(iCnf)
     end do
-    if (iOff-1 /= nConf) then
-      write(u6,*) 'Mk_IHJ: inconsistent CSF layout:',iOff-1,nConf
-      call Abend()
-    end if
-    call mma_allocate(IPCSF,NPCSF,Label='IPCSF')
+    call mma_allocate(IPCSF,sum(nCSFCnf(IPCNF(1:NPCNF))),Label='IPCSF')
     ICSF = 0
     do kCnf=1,NPCNF
       do I=1,nCSFCnf(IPCNF(kCnf))
@@ -1060,6 +996,129 @@ contains
         IPCSF(ICSF) = iCSF1(IPCNF(kCnf))+I-1
       end do
     end do
+    call mma_deallocate(iCSF1)
+    call mma_deallocate(nCSFCnf)
+
+  end subroutine Sel_CSFs
+
+  ! Lucia back end: CNHCN for each pair of selected configurations.
+  subroutine IHJ_Lucia(H)
+    real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
+    integer(kind=iwp) :: NEL, MXDT, MXCS, nScr, ICNL, ICNR, ILTYP, IRTYP, NCSFL, NCSFR, IILB, IIRB, IIL, IIR, IIRMAX
+    integer(kind=iwp), allocatable :: ICONFL(:), ICONFR(:)
+    real(kind=wp), allocatable :: HONE(:,:), CNHCNM(:), Scr(:)
+
+    NEL = NAEL+NBEL
+    MXDT = maxval(NDTFTP(1:NTYP))
+    MXCS = maxval(NCSFTP(1:NTYP))
+
+    ! One-body matrix in square storage, as CNHCN wants it.
+    call mma_allocate(HONE,NAC,NAC,Label='HONE')
+    call SQUARE(TU,HONE,NAC,1,NAC)
+
+    ! Scratch for CNHCN: determinant strings and signs of both configurations,
+    ! CNFSTR work space, the determinant block, DIHDJ_MOLCAS work space and the
+    ! half-transformed block.
+    nScr = 2*MXDT*(NEL+1)+NEL*(MXDT+1)+MXDT*MXDT+4*NAC+MXDT+MXCS*MXDT+64
+    call mma_allocate(Scr,nScr,Label='IHJ_Scr')
+    call mma_allocate(CNHCNM,MXCS*MXCS,Label='CNHCNM')
+    call mma_allocate(ICONFL,NEL,Label='ICONFL')
+    call mma_allocate(ICONFR,NEL,Label='ICONFR')
+
+    IILB = 1
+    do ICNL=1,NPCNF
+      call GETCNF(ICONFL,ILTYP,IPCNF(ICNL),Conf_Occ(IREFSM)%A,IREFSM,NEL)
+      NCSFL = NCSFTP(ILTYP)
+      IIRB = 1
+      do ICNR=1,ICNL
+        call GETCNF(ICONFR,IRTYP,IPCNF(ICNR),Conf_Occ(IREFSM)%A,IREFSM,NEL)
+        NCSFR = NCSFTP(IRTYP)
+        call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECORE,HONE,DFTP,DTOC,NAC,TUVX,NTEST,One,IREOTS)
+        do IIL=1,NCSFL
+          IIRMAX = merge(IIL,NCSFR,IILB == IIRB)
+          do IIR=1,IIRMAX
+            H(nTri_Elem(IILB-1+IIL-1)+IIRB-1+IIR) = CNHCNM((IIR-1)*NCSFL+IIL)
+          end do
+        end do
+        IIRB = IIRB+NCSFR
+      end do
+      IILB = IILB+NCSFL
+    end do
+
+    call mma_deallocate(ICONFR)
+    call mma_deallocate(ICONFL)
+    call mma_deallocate(CNHCNM)
+    call mma_deallocate(Scr)
+    call mma_deallocate(HONE)
+
+  end subroutine IHJ_Lucia
+
+  ! Faroald back end: H(I,J) = (H e_J)(I) from the Faroald sigma vector of
+  ! the unit vector e_J, J over the selected CSFs.
+  subroutine IHJ_Faroald(H)
+    real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
+    integer(kind=iwp) :: I, J, nTmp
+    real(kind=wp), allocatable :: EJ(:), HEJ(:), cTmp(:), sTmp(:)
+
+    nTmp = nDetA*nDetB
+    call mma_allocate(cTmp,nTmp,Label='cTmp')
+    call mma_allocate(sTmp,nTmp,Label='sTmp')
+    call mma_allocate(EJ,nConf,Label='EJ')
+    call mma_allocate(HEJ,nConf,Label='HEJ')
+
+    call Faroald_Ints(TU,TUVX)
+    EJ(:) = Zero
+    do J=1,NPCSF
+      EJ(IPCSF(J)) = One
+      call Faroald_Sigma(1,IREFSM,nConf,EJ,HEJ,cTmp,sTmp,nTmp,nDetA,nDetB)
+      EJ(IPCSF(J)) = Zero
+      do I=J,NPCSF
+        H(nTri_Elem(I-1)+J) = HEJ(IPCSF(I))
+      end do
+      H(nTri_Elem(J)) = H(nTri_Elem(J))+ECORE
+    end do
+
+    call mma_deallocate(HEJ)
+    call mma_deallocate(EJ)
+    call mma_deallocate(sTmp)
+    call mma_deallocate(cTmp)
+
+  end subroutine IHJ_Faroald
+
+  ! Compare PHP (back end Lab) with the reference block HRef (back end LabRef).
+  subroutine Compare_IHJ(Lab,LabRef,HRef)
+    character(len=*), intent(in) :: Lab, LabRef
+    real(kind=wp), intent(in) :: HRef(nTri_Elem(NPCSF))
+    integer(kind=iwp) :: I, J, IJ
+    real(kind=wp) :: ErrMax
+
+    ErrMax = Zero
+    do I=1,NPCSF
+      do J=1,I
+        IJ = nTri_Elem(I-1)+J
+        ErrMax = max(ErrMax,abs(PHP(IJ)-HRef(IJ)))
+        if (abs(PHP(IJ)-HRef(IJ)) > Thr) then
+          write(u6,*) 'Mk_IHJ: <I|H|J> of ',Lab,' differs from ',LabRef
+          write(u6,*) 'I, J, CSF(I), CSF(J) =',I,J,IPCSF(I),IPCSF(J)
+          write(u6,*) Lab,' =',PHP(IJ)
+          write(u6,*) LabRef,' =',HRef(IJ)
+          call Abend()
+        end if
+      end do
+    end do
+    write(u6,'(1X,5A,I0,A,ES10.3)') 'Mk_IHJ: ',Lab,' verified against ',LabRef,', ',NPCSF,' CSFs, max. error ',ErrMax
+
+  end subroutine Compare_IHJ
+
+  ! Compare PHP with columns H e_J computed by Mk_H_Psi (the sigma vector of
+  ! the CI back end, with SIGMA the one of SGUGA) for at most mxCol CSFs J
+  ! of the selection, evenly spaced.
+  subroutine Verify_IHJ()
+    integer(kind=iwp), parameter :: mxCol = 32
+    integer(kind=iwp) :: I, J, JJ, nCol, nTmp
+    real(kind=wp), allocatable :: EJ(:), HEJ(:), cTmp(:), sTmp(:)
+    real(kind=wp) :: Ref, Err, ErrMax
+    logical(kind=iwp) :: Sigma_Save
 
     if (DoFaro) then
       nTmp = nDetA*nDetB
@@ -1101,21 +1160,8 @@ contains
     call mma_deallocate(EJ)
     call mma_deallocate(sTmp)
     call mma_deallocate(cTmp)
-    call mma_deallocate(IPCSF)
-    call mma_deallocate(iCSF1)
-    call mma_deallocate(nCSFCnf)
 
   end subroutine Verify_IHJ
-
-  ! Configuration type of the selected configuration iSel.
-  subroutine GetCnf_Type(iSel,iTypOut)
-    integer(kind=iwp), intent(in) :: iSel
-    integer(kind=iwp), intent(out) :: iTypOut
-    integer(kind=iwp), allocatable :: iTmp(:)
-    call mma_allocate(iTmp,NEL,Label='iTmp')
-    call GETCNF(iTmp,iTypOut,IPCNF(iSel),Conf_Occ(IREFSM)%A,IREFSM,NEL)
-    call mma_deallocate(iTmp)
-  end subroutine GetCnf_Type
 
 end subroutine Mk_IHJ
 
