@@ -9,7 +9,7 @@
 *           slow for CAS(12,12) at these spins.
 *           State symmetries are those of the lowest state of each spin,
 *           so all energies must agree with the other H12 icosahedron
-*           tests (csf_sd:013,129-135, csf_sd_heavy:006-008,108-114).
+*           tests (csf_sd_heavy:006-009,108-121).
 *           Heavy test, several minutes with the current checks.
 *-------------------------------------------------------------------------------
 >export MOLCAS_CI_VERIFY=EPQ,SIGMA,FARO

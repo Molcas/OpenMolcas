@@ -10,7 +10,8 @@
 *           <I|EpqErs|J> part only tests totally symmetric operators.
 *           State symmetries are those of the lowest state of each spin,
 *           so all energies must agree with the other H12 icosahedron
-*           tests (csf_sd:013,129-135, csf_sd_heavy:006-008,108-114).
+*           tests (csf_sd_heavy:006-009,108-121).
+*           Heavy test, about 0.5-4 min with the current checks.
 *-------------------------------------------------------------------------------
 >export MOLCAS_CI_VERIFY=ALL
 * Degenerate states: their multipole moments are an arbitrary mix of the
