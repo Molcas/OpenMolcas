@@ -946,13 +946,16 @@ end subroutine Mk_Cnf_Layout
 !> configuration by configuration in the order given, the CSFs of each
 !> configuration consecutively. TU and TUVX are the one- and two-electron
 !> integrals in triangular packing (as for Mk_IHI); ECORE is added on the
-!> diagonal. (Lucia back end: CNHCN for each pair of configurations.)
+!> diagonal. The Hamiltonian is defined by TU and TUVX alone, as for the
+!> sigma vector (Mk_H_Psi): no scaling of the exchange (ExFac), which would
+!> only be consistent if built into the integrals by the caller.
+!> (Lucia back end: CNHCN for each pair of configurations.)
 subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 use Index_Functions, only: nTri_Elem
 use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, Sigma_on_disk
 use csfbas, only: NAEL, NBEL
-use rasscf_global, only: ExFac
 use spinfo, only: NCSFTP, NDTFTP, NTYP
+use Constants, only: One
 
 integer(kind=iwp), intent(in) :: nPHP, NPCNF, IPCNF(NPCNF), IREFSM, nTU, nTUVX
 real(kind=wp), intent(out) :: PHP(nPHP)
@@ -998,7 +1001,7 @@ do ICNL=1,NPCNF
   do ICNR=1,ICNL
     call GETCNF(ICONFR,IRTYP,IPCNF(ICNR),Conf_Occ(IREFSM)%A,IREFSM,NEL)
     NCSFR = NCSFTP(IRTYP)
-    call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECORE,HONE,DFTP,DTOC,NAC,TUVX,NTEST,ExFac,IREOTS)
+    call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECORE,HONE,DFTP,DTOC,NAC,TUVX,NTEST,One,IREOTS)
     do IIL=1,NCSFL
       IIRMAX = merge(IIL,NCSFR,IILB == IIRB)
       do IIR=1,IIRMAX
@@ -1027,10 +1030,8 @@ contains
 
   ! Compare PHP with columns H e_J computed by Mk_H_Psi (the sigma vector of
   ! the CI back end, with SIGMA the one of SGUGA) for at most mxCol CSFs J
-  ! of the selection, evenly spaced. CNHCN scales the exchange by ExFac, the
-  ! sigma codes do not, so the check is skipped for ExFac /= 1.
+  ! of the selection, evenly spaced.
   subroutine Verify_IHJ()
-    use Constants, only: One
     integer(kind=iwp), parameter :: mxCol = 32
     real(kind=wp), parameter :: Thr = 1.0e-10_wp
     integer(kind=iwp) :: I, J, JJ, nCol, nTmp, iCnf, iOff, kCnf, ICSF
@@ -1038,11 +1039,6 @@ contains
     real(kind=wp), allocatable :: EJ(:), HEJ(:), cTmp(:), sTmp(:)
     real(kind=wp) :: Ref, Err, ErrMax
     logical(kind=iwp) :: Sigma_Save
-
-    if (ExFac /= One) then
-      write(u6,*) 'Mk_IHJ: verification against Mk_H_Psi skipped, ExFac /= 1:',ExFac
-      return
-    end if
 
     ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection
     call Mk_Cnf_Layout(IREFSM,nCSFCnf)
