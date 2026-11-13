@@ -14,7 +14,7 @@
 module SD_CSF_Codec_Module
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One
-  use sguga, only: SGS
+  use sguga, only: SGS, SG_Mk_SDREO
   use Definitions, only: wp, iwp, u6
   use CI_Verify_Options, only: CI_Verify
   implicit none
@@ -43,6 +43,9 @@ contains
   MinOpen = mult - 1
   MaxOpen = Min(SGS(iState)%nActEl, 2*SGS(iState)%nLev-SGS(iState)%nActel)
   if (mod(MaxOpen-MinOpen,2) /= 0) MaxOpen = MaxOpen - 1
+
+  ! The CDC and SDREO tables are built on first use (not in SG_Init).
+  call SG_Mk_SDREO(iState)
 
   if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
   if (.not. allocated(SGS(iState)%SDREO)) then

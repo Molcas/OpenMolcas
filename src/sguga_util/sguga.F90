@@ -251,6 +251,7 @@ integer(kind=iwp), parameter :: TR_WEIGHT = 32
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
 public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, SG_ReOrd_Orig, StepVec, SG_TRACI
 public :: SG_Test_EpqErs_Ref
+public :: SG_Mk_SDREO
 !#define _TEST_CSFDET_
 #ifdef _TEST_CSFDET_
 public :: test_sg_csfdet
@@ -863,13 +864,31 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
     ! Generate the Configuration-to-Determinant Coefficients
     ! Generate Occupation Configurations a la Lucia.
     ! Temporarily just enabled for CAS
+    ! (CDCInfo is needed by SG_ReOrd. The determinant reordering SDREO is
+    ! only needed by the SD/CSF codec and is built on first use by
+    ! SG_Mk_SDREO: building it here made e.g. a CAS(12,12) RASSCF about 75%
+    ! slower.)
 
   if (SGS(iState)%nRsPrt == 1) then
      call Mk_CDC(SGS(iState))
-     call Mk_SDREO_SGUGA(SGS(iState))
   end if
 
 end subroutine SG_Init
+
+!> Build the determinant reordering (SDREO) for state iState, if not yet
+!> done. It is needed only by the SD/CSF codec (CASVB with Faroald, and the
+!> MOLCAS_CI_VERIFY=SIGMA checks). Only available for CAS, where SG_Init has
+!> already built the CDCInfo tables it relies on.
+subroutine SG_Mk_SDREO(iState)
+  integer(kind=iwp), intent(in) :: iState
+  if (allocated(SGS(iState)%SDREO)) return
+  if (SGS(iState)%nRsPrt /= 1) then
+     write(u6,*) 'SG_Mk_SDREO: the SD/CSF codec is only available for CASSCF'
+     call Abend()
+  end if
+  if (.not. allocated(SGS(iState)%CDCInfo)) call Mk_CDC(SGS(iState))
+  call Mk_SDREO_SGUGA(SGS(iState))
+end subroutine SG_Mk_SDREO
 
 subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
                           nRas,nRasEl,nRsPrt,                     &
