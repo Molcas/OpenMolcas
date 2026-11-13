@@ -6691,11 +6691,13 @@ integer(kind=iwp), parameter :: iUL = 3
 integer(kind=iwp), parameter :: iLU = 4
 integer(kind=iwp), parameter :: iUO = 5
 integer(kind=iwp), parameter :: iOU = 6
+integer(kind=iwp), parameter :: iLO = 7
+integer(kind=iwp), parameter :: iOL = 8
 
-integer(kind=iwp), parameter :: nTopology = 6
+integer(kind=iwp), parameter :: nTopology = 8
 
 character(len=2), parameter :: TopologyName(nTopology) = &
-   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU', 'UO', 'OU' ]
+   [ character(len=2) :: 'UU', 'LL', 'UL', 'LU', 'UO', 'OU', 'LO', 'OL' ]
 
 !
 ! Diagonal-status classes.
@@ -6896,7 +6898,7 @@ write(u6,'(A,I0)') 'Number of CSFs:         ', &
 write(u6,*)
 
 !
-! Test all six operator-product topologies:
+! Test all eight operator-product topologies:
 !
 !     UU: E_pq(upper) E_rs(upper)
 !     LL: E_pq(lower) E_rs(lower)
@@ -6904,6 +6906,8 @@ write(u6,*)
 !     LU: E_pq(lower) E_rs(upper)
 !     UO: E_pq(upper) E_rs(open, i.e. crossing the midlevel)
 !     OU: E_pq(open) E_rs(upper)
+!     LO: E_pq(lower) E_rs(open)
+!     OL: E_pq(open) E_rs(lower)
 !
 do iTopology=1,nTopology
 
@@ -6948,6 +6952,18 @@ do iTopology=1,nTopology
       qMin=1; qMax=SGS(iState)%nLev
       rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
       sMin=rMin; sMax=rMax
+   case (iLO)
+      ! First operator lower, second operator open (filtered below).
+      pMin=1; pMax=SGS(iState)%MidLev
+      qMin=1; qMax=SGS(iState)%MidLev
+      rMin=1; rMax=SGS(iState)%nLev
+      sMin=1; sMax=SGS(iState)%nLev
+   case (iOL)
+      ! First operator open (filtered below), second operator lower.
+      pMin=1; pMax=SGS(iState)%nLev
+      qMin=1; qMax=SGS(iState)%nLev
+      rMin=1; rMax=SGS(iState)%MidLev
+      sMin=1; sMax=SGS(iState)%MidLev
 !     Restrict to only canonical case r > s
 !     rMin=SGS(iState)%MidLev+1; rMax=SGS(iState)%nLev
 !     sMin=1; sMax=SGS(iState)%MidLev
@@ -6971,7 +6987,7 @@ do iTopology=1,nTopology
    do p=pMin,pMax
       do q=qMin,qMax
 
-         if (iTopology==iOU) then
+         if ((iTopology==iOU) .or. (iTopology==iOL)) then
             ! Enforce that the first operator is open
             if (p==q) cycle
             if ((p>SGS(iState)%MidLev) .eqv. &
@@ -6994,7 +7010,7 @@ do iTopology=1,nTopology
          do r=rMin,rMax
             do s=sMin,sMax
 
-               if (iTopology==iUO) then
+               if ((iTopology==iUO) .or. (iTopology==iLO)) then
                   ! Enforce that the second operator is open
                   if (r==s) cycle
                   if ((r>SGS(iState)%MidLev) .eqv. &
@@ -7188,6 +7204,14 @@ do iTopology=1,nTopology
                      case (iOU)
 
                         XTest = MatEl_EpqErs_OU( LSM,I,J,p,q,r,s )
+
+                     case (iLO)
+
+                        XTest = MatEl_EpqErs_LO( LSM,I,J,p,q,r,s )
+
+                     case (iOL)
+
+                        XTest = MatEl_EpqErs_OL( LSM,I,J,p,q,r,s )
 
                      case default
 
@@ -9750,6 +9774,245 @@ ISYCI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)), &
 Value = MatEl_EpqErs_UO(ISYCI,J,I,s,r,q,p)
 
 end function MatEl_EpqErs_OU
+
+!
+! Compute <I|EpqErs|J> as Sum_K <I|Epq|K><K|Ers|J>
+!
+! Where <I|Epq|K> is a lower closed loop: Lpq(Il,Kl) x Delta(Iu,Ku)
+! and   <K|Ers|J> is an open loop: A_r(Ku,Ju) x A_s(Kl,Jl)
+!
+! Which reduce to
+!
+!  A_r(Iu,Ju) x Sum_Kl Lpq(Il,Kl) A_s(Kl,Jl)
+!
+! This is the mirror image of MatEl_EpqErs_UO with the roles of the upper
+! and lower halves exchanged. ISYCJ is the symmetry of the ket J.
+!
+function MatEl_EpqErs_LO(ISYCJ,I,J,p,q,r_in,s_in) result(Value)
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+use Symmetry_Info, only: Mul
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r_in,s_in
+
+real(kind=wp) :: Value
+real(kind=wp) :: XUpper,XLower,XOpen,XClosed,XRef
+
+integer(kind=iwp) :: r,s
+integer(kind=iwp) :: MVI,MVJ,MVK,MVX,MV
+integer(kind=iwp) :: ISYUI,ISYUJ,ISYUK
+integer(kind=iwp) :: IUI,IUJ
+integer(kind=iwp) :: IDI,IDJ
+integer(kind=iwp) :: ISYDI,ISYDJ,ISYDK
+integer(kind=iwp) :: iBand
+integer(kind=iwp) :: INDEO_R,INDEO_S,INDEO_PQ
+integer(kind=iwp) :: NOU,NOL,NL
+integer(kind=iwp) :: OffOU,OffOL,OffL
+integer(kind=iwp) :: iO,iL,iValue
+integer(kind=iwp) :: FromO,ToO,FromL,ToL
+integer(kind=iwp) :: ISYCI, ISYP, ISYQ, ISYPQ, ISYR, ISYS, ISYRS, ISYPQRS
+
+logical(kind=iwp) :: Reverse_L
+logical(kind=iwp) :: Swap_rs, Verbose
+
+Verbose=.False.
+Value=Zero
+
+! Canonical open loop: r in the upper, s in the lower half.
+Swap_rs = s_in > r_in
+r = merge(s_in,r_in,Swap_rs)
+s = merge(r_in,s_in,Swap_rs)
+
+ISYP =SGS(iState)%ISm(p)
+ISYQ =SGS(iState)%ISm(q)
+ISYPQ=Mul(ISYP,ISYQ)
+ISYR =SGS(iState)%ISm(r)
+ISYS =SGS(iState)%ISm(s)
+ISYRS=Mul(ISYR,ISYS)
+ISYPQRS=Mul(ISYPQ,ISYRS)
+ISYCI = Mul(ISYPQRS,ISYCJ)
+
+if (I < 1 .or. I > CIS(iState)%NCSF(ISYCI)) return
+if (J < 1 .or. J > CIS(iState)%NCSF(ISYCJ)) return
+
+if (p<1 .or. q<1 .or. p>SGS(iState)%MidLev .or. q>SGS(iState)%MidLev) return
+if (r<=SGS(iState)%MidLev .or. r>SGS(iState)%nLev .or. s<1 .or. s>SGS(iState)%MidLev) return
+
+call Decode_CSF(CIS(iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_CSF(CIS(iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+ISYDI=Mul(ISYCI,ISYUI)
+ISYDJ=Mul(ISYCJ,ISYUJ)
+
+! The intermediate K has the upper walk and the midvertex of I, and the
+! lower walk symmetry Gamma(Kl) = Gamma(pq) Gamma(Il).
+MVK  =MVI
+ISYUK=ISYUI
+ISYDK=Mul(ISYPQ,ISYDI)
+
+If (Verbose) Then
+   Write (u6,*) '        ISYP, ISYQ  =', ISYP, ISYQ
+   Write (u6,*) '        MVI, MVJ  =', MVI, MVJ
+   Write (u6,*) '        IUP, JUP  =', IUI, IUJ
+   Write (u6,*) '        IDN, JDN  =', IDI, IDJ
+   Write (u6,*) '        ISYCI, ISYCJ=', ISYCI, ISYCJ
+End If
+
+if (p==q) then
+   ! E_pp is diagonal in the CSF basis: <I|EppErs|J> = <I|Epp|I> <I|Ers|J>
+   Value=MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),p,p,ISYCI,I,I,.False.)* &
+         MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),r_in,s_in,ISYCJ,I,J,.False.)
+   if (CI_Verify('ANY')) then  ! sanity check, only when verifying CI developments
+   XRef=MatEl_EpqErs_Ref(ISYCJ,I,J,p,q,r_in,s_in)
+   if (abs(Value-XRef) > 1.0e-12_wp) then
+      write(u6,*) '<I|EppErs|J> discrepancy (LO):',I,J,p,r_in,s_in,Value,XRef
+      call Abend()
+   end if
+   end if
+   return
+end if
+
+! For the open loop A_r(Ku(m),Ju(m')) with m=MVK find the connecting m'=MVJ.
+iBand=0
+do MV = 1, 2
+   MVX=MERGE(EXS(istate)%MVR(MVK,MV),EXS(istate)%MVL(MVK,MV),Swap_rs)
+   If (MVX == 0 .or. MVX /= MVJ) cycle
+   iBand = MV
+end do
+If (iBand==0) Return
+MV=iBand
+
+INDEO_R=(MV-1)*SGS(iState)%nLev+r  ! Open-Loop Upper
+INDEO_S=(MV-1)*SGS(iState)%nLev+s  ! Open-Loop Lower
+If (Verbose) Write (u6,*) 'INDEO_R,INDEO_S=',INDEO_R,INDEO_S
+
+! Symmetry relations for the two open-loop factors.
+if (ISYUJ /= Mul(ISYR,ISYUK)) return
+if (ISYDJ /= Mul(ISYS,ISYDK)) return
+
+! ---------------------------------------------------------------
+! Upper open-loop factor
+!
+!   XUpper = A_r(Iu(m),Ju(m'))      (Ku = Iu)
+! ---------------------------------------------------------------
+
+NOU  = MERGE(EXS(iState)%NOCP(INDEO_R,ISYUK,MVK), &
+             EXS(iState)%NOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
+OffOU= MERGE(EXS(iState)%IOCP(INDEO_R,ISYUK,MVK), &
+             EXS(iState)%IOCP(INDEO_R,ISYUJ,MVJ),Swap_rs)
+If (Verbose) Write (u6,*) 'NOU=',NOU
+If (NOU==0) return
+
+XUpper=Zero
+do iO=1,NOU
+   ! FromO=Ju, ToO=Ku=Iu
+   FromO = merge(EXS(iState)%ICoup(2,OffOU+iO), &
+                 EXS(iState)%ICoup(1,OffOU+iO), &
+                 Swap_rs)
+   if (FromO/=IUJ) cycle
+   ToO   = merge(EXS(iState)%ICoup(1,OffOU+iO), &
+                 EXS(iState)%ICoup(2,OffOU+iO), &
+                 Swap_rs)
+   if (ToO/=IUI) cycle
+   iValue=EXS(iState)%ICoup(3,OffOU+iO)
+   XUpper=XUpper+EXS(iState)%VTab(iValue)
+end do
+If (Verbose) Write (u6,*) 'XUpper=',XUpper
+if (XUpper==Zero) return
+
+! ---------------------------------------------------------------
+! Lower contraction
+!
+!   XLower = sum_Kl L_pq(Il(m),Kl(m)) x A_s(Kl(m),Jl(m'))
+! ---------------------------------------------------------------
+
+! Process: A_s(Kl(m),Jl(m'))
+NOL  = MERGE(EXS(iState)%NOCP(INDEO_S,ISYDK,MVK), &
+             EXS(iState)%NOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
+OffOL= MERGE(EXS(iState)%IOCP(INDEO_S,ISYDK,MVK), &
+             EXS(iState)%IOCP(INDEO_S,ISYDJ,MVJ),Swap_rs)
+If (Verbose) Write (u6,*) 'NOL=',NOL
+if (NOL==0) return
+
+! The lower closed-loop operator E_pq: Lpq(Il,Kl). As in MatEl_Epq, the
+! table is indexed by the bra (Il) symmetry for p < q and by the ket (Kl)
+! symmetry otherwise.
+Reverse_L=p<q
+call Decode_Lower_Operator(SGS(iState),p,q,INDEO_PQ)
+NL  =merge(EXS(iState)%NOCP(INDEO_PQ,ISYDI,MVI), &
+           EXS(iState)%NOCP(INDEO_PQ,ISYDK,MVI),Reverse_L)
+OffL=merge(EXS(iState)%IOCP(INDEO_PQ,ISYDI,MVI), &
+           EXS(iState)%IOCP(INDEO_PQ,ISYDK,MVI),Reverse_L)
+If (Verbose) Write (u6,*) 'NL=',NL
+if (NL==0) return
+
+XLower=Zero
+do iO=1,NOL
+
+   ! FromO=Jl, ToO=Kl
+   FromO = merge(EXS(iState)%ICoup(2,OffOL+iO), &
+                 EXS(iState)%ICoup(1,OffOL+iO), &
+                 Swap_rs)
+   if (FromO/=IDJ) cycle
+   ToO   = merge(EXS(iState)%ICoup(1,OffOL+iO), &
+                 EXS(iState)%ICoup(2,OffOL+iO), &
+                 Swap_rs)
+   If (Verbose) Write(u6,*) 'FromO, ToO=',FromO, ToO
+
+   iValue=EXS(iState)%ICoup(3,OffOL+iO)
+   XOpen=EXS(iState)%VTab(iValue)
+
+   do iL=1,NL
+      ! FromL=Kl (ket), ToL=Il (bra)
+      FromL=MERGE(EXS(iState)%ICoup(2,OffL+iL), &
+                  EXS(iState)%ICoup(1,OffL+iL), Reverse_L)
+      ToL  =MERGE(EXS(iState)%ICoup(1,OffL+iL), &
+                  EXS(iState)%ICoup(2,OffL+iL), Reverse_L)
+      if (FromL/=ToO .or. ToL/=IDI) cycle
+
+      iValue=EXS(iState)%ICoup(3,OffL+iL)
+      XClosed=EXS(iState)%VTab(iValue)
+
+      XLower=XLower+XClosed*XOpen
+   end do
+
+end do
+If (Verbose) Write (u6,*) 'XLower=',XLower
+
+Value=XUpper*XLower
+If (Verbose) Write (u6,*) 'Value=',Value
+
+end function MatEl_EpqErs_LO
+
+!
+! <I|E_pq E_rs|J> with E_pq open (crossing the midlevel) and E_rs in the
+! lower half.
+!
+! For real CI vectors <I|E_pq E_rs|J> = <J|E_sr E_qp|I>, and E_sr E_qp is a
+! lower x open product, so this is MatEl_EpqErs_LO with bra and ket
+! exchanged and the indices (p,q,r,s) -> (s,r,q,p). The operators may share
+! a lower level, so they do not commute in general.
+!
+! MatEl_EpqErs_LO takes the symmetry of its ket, here I:
+! Gamma(I) = Gamma(p) Gamma(q) Gamma(r) Gamma(s) Gamma(J).
+!
+function MatEl_EpqErs_OL(ISYCJ,I,J,p,q,r,s) result(Value)
+
+use Symmetry_Info, only: Mul
+use Definitions, only: wp, iwp
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r,s
+real(kind=wp) :: Value
+integer(kind=iwp) :: ISYCI
+
+ISYCI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)), &
+            Mul(Mul(SGS(iState)%ISm(r),SGS(iState)%ISm(s)),ISYCJ))
+Value = MatEl_EpqErs_LO(ISYCI,J,I,s,r,q,p)
+
+end function MatEl_EpqErs_OL
 
 function MatEl_EpqErs_LU( &
            ISYCI, &
