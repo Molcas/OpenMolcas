@@ -975,9 +975,9 @@ contains
       iRkMax = 0
       do k=1,nCnf
         if ((SelL(k) .eqv. SelMin(k)) .and. (SelL(k) .eqv. SelMean(k))) cycle
-        iRk(1) = Rank(KeyL,k)
-        iRk(2) = Rank(KeyMin,k)
-        iRk(3) = Rank(KeyMean,k)
+        iRk(1) = Cnf_Rank(KeyL,k)
+        iRk(2) = Cnf_Rank(KeyMin,k)
+        iRk(3) = Cnf_Rank(KeyMean,k)
         iRkMin = min(iRkMin,minval(iRk))
         iRkMax = max(iRkMax,maxval(iRk))
         nPrt = nPrt+1
@@ -1046,7 +1046,7 @@ contains
   end subroutine Exact_Diag
 
   ! Position of Key(k) in the order of increasing Key (ties by index).
-  function Rank(Key,k) result(iRank)
+  function Cnf_Rank(Key,k) result(iRank)
     real(kind=wp), intent(in) :: Key(:)
     integer(kind=iwp), intent(in) :: k
     integer(kind=iwp) :: iRank, l
@@ -1056,7 +1056,7 @@ contains
       if ((Key(l) < Key(k)) .or. ((Key(l) == Key(k)) .and. (l < k))) iRank = iRank+1
     end do
 
-  end function Rank
+  end function Cnf_Rank
 
   ! Configurations selected by PHPCSF for the explicit subspace with the
   ! configuration energies Key: the lowest first (ties within Acc in the
