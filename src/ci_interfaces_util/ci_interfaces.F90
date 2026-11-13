@@ -1149,11 +1149,11 @@ end subroutine Mk_Cnf_Layout
 !>  - Faroald (DoFaro): for each pair of configurations the determinant
 !>    block (Slater-Condon rules, Faroald_HDet) transformed with the spin
 !>    tables of citrans, C_L^T H C_R.
-!>  - SGUGA (IHJ_SGUGA, without symmetry): <I|H|J> for each pair of CSFs
+!>  - SGUGA (IHJ_SGUGA): <I|H|J> for each pair of CSFs
 !>    from the occupation difference (SG_MatEl_H); for now a reference only.
 !> With MOLCAS_CI_VERIFY=SIGMA, once per run: the Faroald block is compared
 !> with columns H e_J of the Faroald sigma vector and with the Lucia block,
-!> the block of the back end in use with the SGUGA one (without symmetry),
+!> the block of the back end in use with the SGUGA one (no GAS, one RAS space),
 !> and the block is checked against Mk_H_Psi.
 subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 use Index_Functions, only: nTri_Elem
@@ -1196,16 +1196,16 @@ else
 end if
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare the block, once per run,
-! with the SGUGA one (without symmetry) and with exact columns H e_J from
+! with the SGUGA one (no GAS, single RAS partition) and with exact columns H e_J from
 ! Mk_H_Psi.
 if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
-  if ((SGS(1)%nSym == 1) .and. (SGS(1)%nRsPrt == 1) .and. (.not. iDoGAS)) then
+  if ((SGS(1)%nRsPrt == 1) .and. (.not. iDoGAS)) then
     call mma_allocate(PHP_Ref,nTri_Elem(NPCSF),Label='PHP_Ref')
     call IHJ_SGUGA(PHP_Ref)
     call Compare_IHJ(trim(merge('Faroald','Lucia  ',DoFaro)),'SGUGA',PHP_Ref)
     call mma_deallocate(PHP_Ref)
   else
-    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (only without symmetry and GAS, single RAS partition)'
+    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (only without GAS and for a single RAS partition)'
   end if
   IHJ_Verified = .true.
   call Verify_IHJ()
@@ -1521,7 +1521,7 @@ contains
 
   ! SGUGA back end: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECORE, with
   ! I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
-  ! (mode 0: c_G(I_G) = P_I c(I)), from SG_MatEl_H. Without symmetry only.
+  ! (mode 0: c_G(I_G) = P_I c(I)), from SG_MatEl_H.
   subroutine IHJ_SGUGA(H)
     use Molcas, only: MxAct
     use sguga, only: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_NUM

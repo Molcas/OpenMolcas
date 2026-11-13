@@ -6943,9 +6943,9 @@ write(u6,*) ' GENERAL TWO-OPERATOR TEST'
 ! the topologies actually tested.
 write(u6,'(2X,*(A,:,", "))') (TopologyName(iTopology),iTopology=1,nTopology)
 write(u6,*) ' INCLUDING DIAGONAL OPERATORS'
-! E_pq and E_rs are each restricted to Gamma(p)=Gamma(q), Gamma(r)=Gamma(s)
-! (see the loops below), so symmetry-changing operators are not covered.
-write(u6,*) ' TOTALLY SYMMETRIC OPERATORS ONLY'
+! The products E_pq E_rs are restricted to Gamma(p)Gamma(q) = Gamma(r)Gamma(s)
+! (totally symmetric, as in H); each operator may change the symmetry.
+write(u6,*) ' TOTALLY SYMMETRIC PRODUCTS (SINGLE OPERATORS OF ANY SYMMETRY)'
 write(u6,*) '========================================='
 write(u6,'(A,I0)') 'Number of graph levels: ', &
                     SGS(iState)%nLev
@@ -7063,14 +7063,11 @@ do iTopology=1,nTopology
          FirstCanonical = p > q
 
          !
-         ! The present test covers operators that individually
-         ! preserve spatial symmetry. Diagonal operators are
-         ! automatically totally symmetric.
+         ! Diagonal operators are totally symmetric; the others may
+         ! change the symmetry.
          !
-         if (.not. FirstDiagonal) then
-            if (SGS(iState)%ISM(p) /= &
-                SGS(iState)%ISM(q)) cycle
-         end if
+         ! (Each operator may change the symmetry; only the product has
+         ! to be totally symmetric, see the second operator.)
 
          do r=rMin,rMax
             do s=sMin,sMax
@@ -7085,10 +7082,10 @@ do iTopology=1,nTopology
                SecondDiagonal  = r == s
                SecondCanonical = r > s
 
-               if (.not. SecondDiagonal) then
-                  if (SGS(iState)%ISM(r) /= &
-                      SGS(iState)%ISM(s)) cycle
-               end if
+               ! Totally symmetric product: Gamma(p)Gamma(q) = Gamma(r)Gamma(s),
+               ! as in H. The single operators may change the symmetry.
+               if (Mul(SGS(iState)%ISM(r),SGS(iState)%ISM(s)) /= &
+                   Mul(SGS(iState)%ISM(p),SGS(iState)%ISM(q))) cycle
 
                nOperatorPairs(iTopology) = &
                   nOperatorPairs(iTopology)+1
@@ -7472,14 +7469,7 @@ write(u6,*) '========================================='
 write(u6,*)
 
 ! <I|H|J> from MatEl_Epq and the MatEl_EpqErs_* routines, against sg_h_psi.
-if (sum(nDiscrepancies) == 0) then
-   if (SGS(iState)%nSym == 1) then
-      call Check_MatEl_H()
-   else
-      write(u6,'(A)') 'MatEl_H test skipped: with symmetry H contains symmetry-changing E_pq E_rs,'
-      write(u6,'(A)') 'which MatEl_EpqErs_UU/LL/UL/LU do not support yet.'
-   end if
-end if
+if (sum(nDiscrepancies) == 0) call Check_MatEl_H()
 
 call mma_deallocate(Occ)
 
@@ -8766,7 +8756,7 @@ end function MatEl_Lower_One
 subroutine Contract_Lower_Blocks( &
            INDEO_Right,Reverse_Right, &
            INDEO_Left, Reverse_Left,  &
-           ISYDWN,MV, &
+           ISYDWN,ISYK,MV, &
            nTerm, &
            IFrom,ITo,XVal )
 
@@ -8795,7 +8785,12 @@ integer(kind=iwp), intent(in) :: INDEO_Left
 logical, intent(in) :: Reverse_Right
 logical, intent(in) :: Reverse_Left
 
+! A coupling block is indexed by the symmetry of its ICoup(1) walk, the
+! source in canonical orientation (the destination if reversed). IFrom and
+! ITo have the symmetry ISYDWN, the intermediate walk K the symmetry ISYK
+! (= ISYDWN for totally symmetric operators).
 integer(kind=iwp), intent(in) :: ISYDWN
+integer(kind=iwp), intent(in) :: ISYK
 integer(kind=iwp), intent(in) :: MV
 
 integer(kind=iwp), intent(out) :: nTerm
@@ -8807,6 +8802,8 @@ real(kind=wp), allocatable, intent(out) :: XVal(:)
 
 integer(kind=iwp) :: NRight
 integer(kind=iwp) :: NLeft
+integer(kind=iwp) :: ISYRight
+integer(kind=iwp) :: ISYLeft
 
 integer(kind=iwp) :: OffRight
 integer(kind=iwp) :: OffLeft
@@ -8830,11 +8827,14 @@ real(kind=wp) :: X
 
 logical :: Found
 
+ISYRight = merge(ISYK,ISYDWN,Reverse_Right)
+ISYLeft  = merge(ISYDWN,ISYK,Reverse_Left)
+
 NRight = EXS(ME_iState)%NOCP( &
-              INDEO_Right,ISYDWN,MV )
+              INDEO_Right,ISYRight,MV )
 
 NLeft = EXS(ME_iState)%NOCP( &
-             INDEO_Left,ISYDWN,MV )
+             INDEO_Left,ISYLeft,MV )
 
 if (NRight == 0 .or. NLeft == 0) then
 
@@ -8849,10 +8849,10 @@ if (NRight == 0 .or. NLeft == 0) then
 end if
 
 OffRight = EXS(ME_iState)%IOCP( &
-               INDEO_Right,ISYDWN,MV )
+               INDEO_Right,ISYRight,MV )
 
 OffLeft = EXS(ME_iState)%IOCP( &
-              INDEO_Left,ISYDWN,MV )
+              INDEO_Left,ISYLeft,MV )
 
 call mma_allocate( &
      IFrom,NRight*NLeft,Label='IFrom')
@@ -9244,7 +9244,7 @@ end function MatEl_EpqErs_Ref
 subroutine Contract_Upper_Blocks( &
            INDEO_Right,Reverse_Right, &
            INDEO_Left, Reverse_Left,  &
-           ISYUP,MV, &
+           ISYUP,ISYK,MV, &
            nTerm, &
            IFrom,ITo,XVal )
 
@@ -9273,7 +9273,12 @@ integer(kind=iwp), intent(in) :: INDEO_Left
 logical, intent(in) :: Reverse_Right
 logical, intent(in) :: Reverse_Left
 
+! A coupling block is indexed by the symmetry of its ICoup(1) walk, the
+! source in canonical orientation (the destination if reversed). IFrom and
+! ITo have the symmetry ISYUP, the intermediate walk K the symmetry ISYK
+! (= ISYUP for totally symmetric operators).
 integer(kind=iwp), intent(in) :: ISYUP
+integer(kind=iwp), intent(in) :: ISYK
 integer(kind=iwp), intent(in) :: MV
 
 integer(kind=iwp), intent(out) :: nTerm
@@ -9285,6 +9290,8 @@ real(kind=wp), allocatable, intent(out) :: XVal(:)
 
 integer(kind=iwp) :: NRight
 integer(kind=iwp) :: NLeft
+integer(kind=iwp) :: ISYRight
+integer(kind=iwp) :: ISYLeft
 
 integer(kind=iwp) :: OffRight
 integer(kind=iwp) :: OffLeft
@@ -9308,8 +9315,10 @@ real(kind=wp) :: X
 
 logical :: Found
 
-NRight = EXS(ME_iState)%NOCP(INDEO_Right,ISYUP,MV)
-NLeft  = EXS(ME_iState)%NOCP(INDEO_Left, ISYUP,MV)
+ISYRight = merge(ISYK,ISYUP,Reverse_Right)
+ISYLeft  = merge(ISYUP,ISYK,Reverse_Left)
+NRight = EXS(ME_iState)%NOCP(INDEO_Right,ISYRight,MV)
+NLeft  = EXS(ME_iState)%NOCP(INDEO_Left, ISYLeft, MV)
 
 if (NRight == 0 .or. NLeft == 0) then
 
@@ -9323,8 +9332,8 @@ if (NRight == 0 .or. NLeft == 0) then
 
 end if
 
-OffRight = EXS(ME_iState)%IOCP(INDEO_Right,ISYUP,MV)
-OffLeft  = EXS(ME_iState)%IOCP(INDEO_Left, ISYUP,MV)
+OffRight = EXS(ME_iState)%IOCP(INDEO_Right,ISYRight,MV)
+OffLeft  = EXS(ME_iState)%IOCP(INDEO_Left, ISYLeft, MV)
 
 call mma_allocate( &
      IFrom,NRight*NLeft,Label='IFrom')
@@ -9444,7 +9453,8 @@ end subroutine Contract_Upper_Blocks
 function MatEl_LL( &
            I,J, &
            INDEO_Left,Reverse_Left, &
-           INDEO_Right,Reverse_Right ) result(Value)
+           INDEO_Right,Reverse_Right, &
+           ISYRS ) result(Value)
 
 use Constants,   only: Zero
 use Definitions, only: wp, iwp
@@ -9460,6 +9470,9 @@ integer(kind=iwp), intent(in) :: INDEO_Right
 
 logical, intent(in) :: Reverse_Left
 logical, intent(in) :: Reverse_Right
+
+! Symmetry of the right operator, Gamma(r)Gamma(s)
+integer(kind=iwp), intent(in) :: ISYRS
 
 real(kind=wp) :: Value
 
@@ -9522,7 +9535,7 @@ ISYDWN = Mul(ME_LSM,ISYUPI)
 call Contract_Lower_Blocks( &
      INDEO_Right,Reverse_Right, &
      INDEO_Left, Reverse_Left,  &
-     ISYDWN,MVI, &
+     ISYDWN,Mul(ISYRS,ISYDWN),MVI, &
      nTerm, &
      IFrom,ITo,XVal )
 
@@ -9545,7 +9558,8 @@ function MatEl_UU( &
            ISYCI, &
            I,J, &
            INDEO_Left,Reverse_Left, &
-           INDEO_Right,Reverse_Right ) result(Value)
+           INDEO_Right,Reverse_Right, &
+           ISYRS ) result(Value)
 
 use Constants,   only: Zero
 use Definitions, only: wp, iwp
@@ -9563,6 +9577,9 @@ integer(kind=iwp), intent(in) :: INDEO_Right
 
 logical, intent(in) :: Reverse_Left
 logical, intent(in) :: Reverse_Right
+
+! Symmetry of the right operator, Gamma(r)Gamma(s)
+integer(kind=iwp), intent(in) :: ISYRS
 
 real(kind=wp) :: Value
 
@@ -9618,7 +9635,7 @@ if (IDWNI  /= IDWNJ)  return
 call Contract_Upper_Blocks( &
      INDEO_Right,Reverse_Right, &
      INDEO_Left, Reverse_Left,  &
-     ISYUPI,MVI, &
+     ISYUPI,Mul(ISYRS,ISYUPI),MVI, &
      nTerm, &
      IFrom,ITo,XVal )
 
@@ -9868,7 +9885,8 @@ Value = MatEl_UU( &
            ISYCI, &
            I,J, &
            INDEO_Left, Reverse_Left, &
-           INDEO_Right,Reverse_Right )
+           INDEO_Right,Reverse_Right, &
+           Mul(SGS(ME_iState)%ISm(r),SGS(ME_iState)%ISm(s)) )
 
 end function MatEl_EpqErs_UU
 
@@ -10062,7 +10080,8 @@ call Decode_Lower_Operator( &
 Value = MatEl_LL( &
            I,J, &
            INDEO_Left, Reverse_Left, &
-           INDEO_Right,Reverse_Right )
+           INDEO_Right,Reverse_Right, &
+           Mul(SGS(ME_iState)%ISm(r),SGS(ME_iState)%ISm(s)) )
 
 end function MatEl_EpqErs_LL
 
@@ -10183,7 +10202,9 @@ If (Verbose) Write (u6,*) 'INDEO_R,INDEO_S=',INDEO_R,INDEO_S
 
 ! Symmetry relations for the two canonical open-loop factors.
 
-if (ISYUJ /= Mul(SGS(ME_iState)%ISm(r),ISYUI)) return
+! The open loop E_rs connects J to the intermediate K (not to I), whose
+! upper walk has the symmetry ISYUK = Gamma(pq) Gamma(Iu).
+if (ISYUJ /= Mul(SGS(ME_iState)%ISm(r),ISYUK)) return
 
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
@@ -10211,8 +10232,11 @@ Reverse_U=p<q
 
 call Decode_Upper_Operator(SGS(ME_iState),p,q,INDEO_PQ)
 
-NU  =EXS(ME_iState)%NOCP(INDEO_PQ,ISYUI,MVI)
-OffU=EXS(ME_iState)%IOCP(INDEO_PQ,ISYUI,MVI)
+! A closed-loop block is indexed by the symmetry of its ICoup(1) (left)
+! walk: K in canonical orientation, I if reversed (they differ for
+! Gamma(pq) /= 1).
+NU  =EXS(ME_iState)%NOCP(INDEO_PQ,merge(ISYUI,ISYUK,Reverse_U),MVI)
+OffU=EXS(ME_iState)%IOCP(INDEO_PQ,merge(ISYUI,ISYUK,Reverse_U),MVI)
 if (NU==0) return
 If (Verbose) Write (u6,*) 'NU=',NU
 
@@ -10965,22 +10989,24 @@ call Decode_CSF( &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
 !
-! The current LU implementation tests operators that individually
-! preserve spatial symmetry. Bra and ket must consequently belong
-! to the same split-graph block.
+! The upper operator changes the upper-walk symmetry by Gamma(r)Gamma(s)
+! (and the lower one the lower-walk symmetry by Gamma(p)Gamma(q), the
+! same for a totally symmetric product). A coupling block is indexed by
+! the symmetry of its ICoup(1) walk: the source (J) in canonical
+! orientation, the destination (I) if reversed.
 !
 if (MVI    /= MVJ)    return
-if (ISYUPI /= ISYUPJ) return
+if (ISYUPI /= Mul(Mul(SGS(ME_iState)%ISm(r),SGS(ME_iState)%ISm(s)),ISYUPJ)) return
 
 XL = MatEl_Lower_Half( &
-        ISYCI,ISYUPI,MVI, &
+        ISYCI,merge(ISYUPI,ISYUPJ,p < q),MVI, &
         IDWNI,IDWNJ, &
         p,q )
 
 if (abs(XL) <= 1.0e-15_wp) return
 
 XU = MatEl_Upper_Half( &
-        ISYUPI,MVI, &
+        merge(ISYUPI,ISYUPJ,r < s),MVI, &
         IUPI,IUPJ, &
         r,s )
 
@@ -11357,16 +11383,12 @@ end subroutine SG_CSF_Occ
 !> <I|H|J> between the GUGA CSFs I and J with the occupations OccI and OccJ
 !> (SG_CSF_Occ), H = Sum_pq h_pq E_pq + 1/2 Sum_pqrs (pq|rs) (E_pq E_rs -
 !> delta_qr E_ps) with the triangularly packed TU and TUVX, without core
-!> energy (MatEl_H_Direct, after SG_MatEl_Init). Without symmetry only:
-!> MatEl_EpqErs does not support products of symmetry-changing operators.
+!> energy (MatEl_H_Direct, after SG_MatEl_Init); I and J of the same
+!> symmetry.
 function SG_MatEl_H(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
   integer(kind=iwp), intent(in) :: I, J, OccI(:), OccJ(:), nTU, nTUVX
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
   real(kind=wp) :: H
-  if (SGS(ME_iState)%nSym /= 1) then
-    write(u6,*) 'SG_MatEl_H: only without symmetry'
-    call Abend()
-  end if
   H = MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX)
 end function SG_MatEl_H
 
