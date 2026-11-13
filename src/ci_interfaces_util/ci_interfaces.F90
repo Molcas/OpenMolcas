@@ -737,26 +737,25 @@ end subroutine CI_Close
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-! Activate verification of the SGUGA to computed CI diagonal in the CSF basis.
-! The analytic result is computed by sg_hdiag_fast (using sg_EpqEqp_diag).
-! sg_hdiag_ref computes the diagonal brute force by setting the CI element iCSF to 1 and compute the matrix element
-! <Psi|H|Psi> using the routine sg_h_psi.
-!#define _SGUGA_VERIFY_EXTRA_
-
-!> Diagonal of the CI Hamiltonian in the CSF basis, CSFDIA(I) = <I|H|I>.
-!> Computed by Lucia; with DoFaro also by Faroald (compared, then used),
-!> and optionally by SGUGA (sg_hdiag_ref/sg_hdiag_fast, compiled with
-!> _SGUGA_VERIFY_EXTRA_). The counterpart for an explicit block <I|H|J>
-!> of selected CSFs is to follow as Mk_IHJ.
+!> Diagonal of the CI Hamiltonian in the CSF basis as used by the CI solver
+!> (preconditioner, selection of the explicit subspace in PHPCSF): for each
+!> configuration the average of its determinant diagonals, assigned to all
+!> of its CSFs (Lucia, CSDIAG). With DoFaro the same average from Faroald
+!> (hdiag), compared with Lucia and then used.
+!>
+!> With MOLCAS_CI_VERIFY=SIGMA (single RAS partition, no GAS) the exact
+!> diagonal <I|H|I> is computed by SGUGA (sg_hdiag_fast, for small spaces
+!> checked against sg_hdiag_ref) and compared (Verify_IHI): exactly for the
+!> single-determinant configurations, where the average is exact, and
+!> otherwise by the configurations that the selection of PHPCSF would pick
+!> with either diagonal. The latter is reported, not enforced, since the
+!> average is an approximation.
 subroutine Mk_IHI(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
-use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
 use faroald, only: hdiag, ncomb_tot
-!use faroald, only: nPat, hdiag, ncomb_tot
-#ifdef _SGUGA_VERIFY_EXTRA_
-use sguga, only: SGS, EXS, CIS
-#endif
+use Constants, only: One
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(out):: CSFDIA(nConf)
@@ -766,11 +765,7 @@ real(kind=wp), allocatable :: DDIA(:), DIAG(:), CSFDIA_Faroald(:)
 integer(kind=iwp):: IPRINT=0
 
 integer(kind=iwp) :: i
-#ifdef _SGUGA_VERIFY_EXTRA_
-integer(kind=iwp), parameter :: iState=1
-real(kind=wp), allocatable :: TMP(:), CSFDIA_SGUGA(:), CSFDIA_FAST(:)
-real(kind=wp) :: Err
-#endif
+real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
@@ -805,7 +800,7 @@ If (DoFaro) Then
   Call hdiag(htu,gtuvx,diag,CSFDIA_Faroald,nConf)
 ! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
   Do i=1,nComb_tot
-     If (abs(ddia(i)-diag(i))/real(nComb_tot,wp)>1.0e-10_wp) Then
+     If (abs(ddia(i)-diag(i)) > ThrDia*max(One,abs(ddia(i)))) Then
         Write (u6,*) 'i, abs(ddia(i)-diag(i))'
         Write (u6,*) i, abs(ddia(i)-diag(i))
         Write (u6,*) ddia(i),diag(i)
@@ -815,7 +810,7 @@ If (DoFaro) Then
      End If
   End Do
   Do i=1,nConf
-     If (abs(CSFDIA(i)-CSFDIA_Faroald(i))/real(nConf,wp)>1.0e-10_wp) Then
+     If (abs(CSFDIA(i)-CSFDIA_Faroald(i)) > ThrDia*max(One,abs(CSFDIA(i)))) Then
         Write (u6,*) 'i, abs(CSFDIA(i)-CSFDIA_Faroald(i))', i, abs(CSFDIA(i)-CSFDIA_Faroald(i))
         Write (u6,*) CSFDIA(i),CSFDIA_Faroald(i)
         Call RecPrt('CSFDIA(LUCIA)',' ',CSFDIA,1,nConf)
@@ -834,51 +829,237 @@ End If
 ! DEALLOCATE LOCAL MEMORY
 call mma_deallocate(DDIA)
 
-#ifdef _SGUGA_VERIFY_EXTRA_
-If (.NOT.iDoGAS .and. nRsPrt==1) Then
-Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
-Call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState), &
-                  nConf,STSYM, &
-                  TUVX,nTUVX, &
-                  TU,nTU, &
-                  TMP)
-!Call RecPrt('TMP',' ',TMP,1,nConf)
-Call mma_allocate(CSFDIA_SGUGA,nConf,Label='CSFDIA_S')
-Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_SGUGA)
-Call mma_deallocate(TMP)
-! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
-CSFDIA_SGUGA(:)=-ABS(CSFDIA_SGUGA(:))
-Call RecPrt('CSFDIA(SGUGA_ref)',' ',CSFDIA_SGUGA,1,nConf)
+! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the exact diagonal.
+if (CI_Verify('SIGMA') .and. (.not. iDoGAS) .and. (nRsPrt == 1)) call Verify_IHI()
 
-Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
-Call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState), &
-                   nConf,STSYM, &
-                   TUVX,nTUVX, &
-                   TU,nTU, &
-                   TMP)
-!Call RecPrt('TMP',' ',TMP,1,nConf)
-Call mma_allocate(CSFDIA_FAST,nConf,Label='CSFDIA_S')
-Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_FAST)
-Call mma_deallocate(TMP)
-! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
-CSFDIA_FAST(:)=-ABS(CSFDIA_FAST(:))
-Call RecPrt('CSFDIA(SGUGA_fast)',' ',CSFDIA_FAST,1,nConf)
+contains
 
-Do i=1,nConf
-   Err = Abs(CSFDIA_SGUGA(i)-CSFDIA_fast(i))
-   If (Err > 1.0D-12) Then
-      Write(6,*) 'CSF=',i
-      Write(6,*) 'REF =',CSFDIA_SGUGA(i)
-      Write(6,*) 'FAST=',CSFDIA_fast(i)
-      Write(6,*) 'ERR =',Err
-   End If
-End Do
+  subroutine Verify_IHI()
+    use general_data, only: NSEL
+    use sguga, only: SGStruct, CIStruct, EXStruct
+    integer(kind=iwp), parameter :: iState = 1, MxRef = 500, MxPrt = 10
+    integer(kind=iwp) :: i, iTyp, iCnf, k, nCnf, nC, iC, nSD, nSDErr, nSelL, nSelMin, nSelMean, nBoth, nPrt, iRk(3), iRkMin, &
+                         iRkMax
+    integer(kind=iwp), allocatable :: nCSFCnf(:), nOpCnf(:)
+    real(kind=wp) :: Dev, MaxDev
+    real(kind=wp), allocatable :: DSG(:), DRef(:), DEx(:), Idx(:), Map(:), KeyL(:), KeyMin(:), KeyMean(:)
+    logical(kind=iwp), allocatable :: SelL(:), SelMin(:), SelMean(:)
+    interface
+      subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
+        import :: SGStruct, CIStruct, EXStruct, iwp, wp
+        type(SGStruct), intent(in) :: SGS
+        type(CIStruct), intent(in) :: CIS
+        type(EXStruct), intent(inout) :: EXS
+        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
+        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+        real(kind=wp), intent(out) :: Diag(nCSFs)
+      end subroutine sg_hdiag_fast
+      subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
+        import :: SGStruct, CIStruct, EXStruct, iwp, wp
+        type(SGStruct), intent(in) :: SGS
+        type(CIStruct), intent(in) :: CIS
+        type(EXStruct), intent(inout) :: EXS
+        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
+        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+        real(kind=wp), intent(out) :: Diag(nCSFs)
+      end subroutine sg_hdiag_ref
+    end interface
 
-Call mma_deallocate(CSFDIA_SGUGA)
-Call mma_deallocate(CSFDIA_FAST)
-endif
+    ! exact diagonal in the SGUGA order
+    call mma_allocate(DSG,nConf,Label='DSG')
+    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
+    if (nConf <= MxRef) then
+      call mma_allocate(DRef,nConf,Label='DRef')
+      call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DRef)
+      MaxDev = Zero
+      do i=1,nConf
+        Dev = abs(DSG(i)-DRef(i))
+        MaxDev = max(MaxDev,Dev)
+        if (Dev > ThrDia*max(One,abs(DRef(i)))) then
+          write(u6,*) 'Mk_IHI: sg_hdiag_fast differs from sg_hdiag_ref for CSF',i,DSG(i),DRef(i)
+          call Abend()
+        end if
+      end do
+      write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI: sg_hdiag_fast verified against sg_hdiag_ref, ',nConf,' CSFs, max. error ',MaxDev
+      call mma_deallocate(DRef)
+    end if
 
-#endif
+    ! to the Lucia CSF order: a permutation, without the CSF phases
+    ! (SG_ReOrd of the index vector: Idx(ICSF) = +-ISG)
+    call mma_allocate(Map,nConf,Label='Map')
+    call mma_allocate(Idx,nConf,Label='Idx')
+    call mma_allocate(DEx,nConf,Label='DEx')
+    do i=1,nConf
+      Map(i) = real(i,kind=wp)
+    end do
+    call SG_ReOrd(iState,STSYM,1,nConf,Map,Idx)
+    do i=1,nConf
+      DEx(i) = DSG(nint(abs(Idx(i))))
+    end do
+    call mma_deallocate(Idx)
+    call mma_deallocate(Map)
+    call mma_deallocate(DSG)
+
+    ! configuration layout (as Mk_Cnf_Layout) with the number of open shells
+    ! (NDTFTP counts spin combinations, not determinants, for MS = 0)
+    nCnf = sum(NCNFTP(1:NTYP,STSYM))
+    call mma_allocate(nCSFCnf,nCnf,Label='nCSFCnf')
+    call mma_allocate(nOpCnf,nCnf,Label='nOpCnf')
+    k = 0
+    do iTyp=1,NTYP
+      do iCnf=1,NCNFTP(iTyp,STSYM)
+        k = k+1
+        nCSFCnf(k) = NCSFTP(iTyp)
+        nOpCnf(k) = iTyp-1+MINOP
+      end do
+    end do
+
+    ! keys per configuration: Lucia (the average, as PHPCSF uses it) and
+    ! the exact lowest and mean CSF energies; exact check for single
+    ! determinants: closed shells, or all open shells parallel (2S open
+    ! shells, the high-spin determinant is the only one with MS = S)
+    call mma_allocate(KeyL,nCnf,Label='KeyL')
+    call mma_allocate(KeyMin,nCnf,Label='KeyMin')
+    call mma_allocate(KeyMean,nCnf,Label='KeyMean')
+    nSD = 0
+    nSDErr = 0
+    MaxDev = Zero
+    iC = 0
+    do k=1,nCnf
+      nC = nCSFCnf(k)
+      KeyL(k) = CSFDIA(iC+1)
+      KeyMin(k) = minval(DEx(iC+1:iC+nC))
+      KeyMean(k) = sum(DEx(iC+1:iC+nC))/real(nC,kind=wp)
+      if (nOpCnf(k) == ISPIN-1) then
+        nSD = nSD+1
+        Dev = abs(CSFDIA(iC+1)-DEx(iC+1))
+        MaxDev = max(MaxDev,Dev)
+        if (Dev > ThrDia*max(One,abs(DEx(iC+1)))) then
+          nSDErr = nSDErr+1
+          if (nSDErr <= MxPrt) write(u6,*) 'Mk_IHI: single-determinant configuration',k,' CI solver:',CSFDIA(iC+1), &
+                                           ' exact:',DEx(iC+1)
+        end if
+      end if
+      iC = iC+nC
+    end do
+    if (nSDErr > 0) then
+      write(u6,*) 'Mk_IHI: diagonal of single-determinant configurations differs from SGUGA'
+      call Abend()
+    end if
+    write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI: diagonal verified against SGUGA for ',nSD,' single-determinant configurations, &
+                                   &max. error ',MaxDev
+
+    ! selection of PHPCSF with each key
+    call mma_allocate(SelL,nCnf,Label='SelL')
+    call mma_allocate(SelMin,nCnf,Label='SelMin')
+    call mma_allocate(SelMean,nCnf,Label='SelMean')
+    call Sel_PHP(KeyL,SelL)
+    call Sel_PHP(KeyMin,SelMin)
+    call Sel_PHP(KeyMean,SelMean)
+    nSelL = count(SelL)
+    nSelMin = count(SelMin)
+    nSelMean = count(SelMean)
+    write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A)') 'Mk_IHI: explicit subspace (NSEL = ',NSEL,' of ',nConf,' CSFs, ',nCnf, &
+                                           ' configurations) from the CI-solver diagonal: ',nSelL,' configurations'
+    if (NSEL >= nConf) write(u6,'(1X,A)') '        (the whole space, the comparison is trivial)'
+    nBoth = count(SelL .and. SelMin)
+    write(u6,'(1X,A,I0,A,I0,A,I0,A)') '        exact lowest CSF energy per configuration: ',nSelMin,' configurations, ', &
+                                      nBoth,' in common, ',count(SelL .neqv. SelMin),' differ'
+    nBoth = count(SelL .and. SelMean)
+    write(u6,'(1X,A,I0,A,I0,A,I0,A)') '        exact mean CSF energy per configuration:   ',nSelMean,' configurations, ', &
+                                      nBoth,' in common, ',count(SelL .neqv. SelMean),' differ'
+    ! The selection stops at the first configuration that does not fit into
+    ! NSEL CSFs, so near the cutoff the sizes of the configurations decide;
+    ! what matters is whether the differing configurations are ranked near
+    ! the cutoff (rank = position in the order of increasing energy).
+    if (any(SelL .neqv. SelMin) .or. any(SelL .neqv. SelMean)) then
+      write(u6,'(1X,A)') '        differing configurations (selected by CI solver/exact lowest/exact mean, CSFs, '// &
+                         'open shells, rank by CI-solver key, by exact lowest, by exact mean):'
+      nPrt = 0
+      iRkMin = huge(iRkMin)
+      iRkMax = 0
+      do k=1,nCnf
+        if ((SelL(k) .eqv. SelMin(k)) .and. (SelL(k) .eqv. SelMean(k))) cycle
+        iRk(1) = Rank(KeyL,k)
+        iRk(2) = Rank(KeyMin,k)
+        iRk(3) = Rank(KeyMean,k)
+        iRkMin = min(iRkMin,minval(iRk))
+        iRkMax = max(iRkMax,maxval(iRk))
+        nPrt = nPrt+1
+        if (nPrt <= MxPrt) write(u6,'(9X,I8,3L2,2I6,3I8)') k,SelL(k),SelMin(k),SelMean(k),nCSFCnf(k),nOpCnf(k),iRk(:)
+      end do
+      write(u6,'(1X,A,I0,A,I0,A,I0,A)') '        differing configurations are ranked ',iRkMin,' to ',iRkMax, &
+                                        ' (',nSelL,' selected by the CI solver)'
+    end if
+
+    call mma_deallocate(SelMean)
+    call mma_deallocate(SelMin)
+    call mma_deallocate(SelL)
+    call mma_deallocate(KeyMean)
+    call mma_deallocate(KeyMin)
+    call mma_deallocate(KeyL)
+    call mma_deallocate(nOpCnf)
+    call mma_deallocate(nCSFCnf)
+    call mma_deallocate(DEx)
+
+  end subroutine Verify_IHI
+
+  ! Position of Key(k) in the order of increasing Key (ties by index).
+  function Rank(Key,k) result(iRank)
+    real(kind=wp), intent(in) :: Key(:)
+    integer(kind=iwp), intent(in) :: k
+    integer(kind=iwp) :: iRank, l
+
+    iRank = 1
+    do l=1,size(Key)
+      if ((Key(l) < Key(k)) .or. ((Key(l) == Key(k)) .and. (l < k))) iRank = iRank+1
+    end do
+
+  end function Rank
+
+  ! Configurations selected by PHPCSF for the explicit subspace with the
+  ! configuration energies Key: the lowest first (ties within Acc in the
+  ! order of the configurations), until the next one does not fit into NSEL
+  ! CSFs.
+  subroutine Sel_PHP(Key,Sel)
+    use general_data, only: NSEL
+    real(kind=wp), intent(in) :: Key(:)
+    logical(kind=iwp), intent(out) :: Sel(size(Key))
+    integer(kind=iwp) :: k, kMin, nP, nPCnf, nCMin
+    real(kind=wp) :: XMax, XMin
+    real(kind=wp), allocatable :: Wrk(:)
+    real(kind=wp), parameter :: Acc = 1.0e-13_wp
+    integer(kind=iwp), allocatable :: nCSFCnf(:)
+
+    call Mk_Cnf_Layout(STSYM,nCSFCnf)
+    call mma_allocate(Wrk,size(Key),Label='Wrk')
+    Wrk(:) = Key(:)
+    XMax = maxval(abs(Key))
+    Sel(:) = .false.
+    nP = 0
+    nPCnf = 0
+    do
+      XMin = XMax+One
+      kMin = 0
+      nCMin = 0
+      do k=1,size(Key)
+        if (Wrk(k)+Acc < XMin) then
+          XMin = Wrk(k)
+          kMin = k
+          nCMin = nCSFCnf(k)
+        end if
+      end do
+      if ((kMin == 0) .or. (nP+nCMin > NSEL)) exit
+      Sel(kMin) = .true.
+      nP = nP+nCMin
+      nPCnf = nPCnf+1
+      Wrk(kMin) = XMax+One
+      if (nPCnf >= size(Key)) exit
+    end do
+    call mma_deallocate(Wrk)
+    call mma_deallocate(nCSFCnf)
+
+  end subroutine Sel_PHP
 
 End subroutine Mk_IHI
 
