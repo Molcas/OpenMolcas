@@ -10330,6 +10330,154 @@ function MatEl_H(I,J,TU,nTU,TUVX,nTUVX) result(H)
 end function MatEl_H
 
 !
+! <I|H|J> as MatEl_H, but only from the operator strings that can connect J
+! to I, as given by the occupation difference: with the creations P and the
+! annihilations M (multisets, I <- J) the term E_pq E_rs contributes only if
+! {p,r} = P + X and {q,s} = M + X, X of size 2-|P|:
+!
+!   |P| > 2 : zero
+!   |P| = 2 : the (at most 4) orderings of P and M
+!   |P| = 1 : k_ab <I|E_ab|J>, and X = {x} for every level x
+!   |P| = 0 : the diagonal Sum_t k_tt n_t + 1/2 Sum_xy (xx|yy) n_x n_y for
+!             I = J, and the exchange terms E_xy E_yx for x /= y: by loop
+!             walks only for pairs of open shells, otherwise (I = J only)
+!             analytically
+!
+! with H = Sum_pq k_pq E_pq + 1/2 Sum_pqrs (pq|rs) E_pq E_rs (the form of
+! MatEl_H). The cost per element is O(n) MatEl_EpqErs calls for a single
+! and O(o**2) (o open shells) for equal occupations, instead of O(n**4).
+!
+function MatEl_H_Direct(I,J,TU,nTU,TUVX,nTUVX) result(H)
+
+  use Constants, only: Half
+
+  integer(kind=iwp), intent(in) :: I, J, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp) :: H
+  integer(kind=iwp) :: nL, t, d, k, nP, nM, x, y
+  integer(kind=iwp) :: Pl(2), Mi(2)
+
+  H = Zero
+  nL = SGS(iState)%nLev
+
+  ! creations (Pl) and annihilations (Mi) taking J to I
+  nP = 0
+  nM = 0
+  do t = 1, nL
+    d = Occ(t,I)-Occ(t,J)
+    do k = 1, d
+      nP = nP+1
+      if (nP > 2) return
+      Pl(nP) = t
+    end do
+    do k = 1, -d
+      nM = nM+1
+      if (nM > 2) return
+      Mi(nM) = t
+    end do
+  end do
+
+  select case (nP)
+    case (2)
+      H = H_Ops(I,J,Pl(1),Pl(2),Mi(1),Mi(2),TUVX,nTUVX)
+    case (1)
+      H = H_Int1(Pl(1),Mi(1),TU,nTU,TUVX,nTUVX)*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),Pl(1),Mi(1),LSM,I,J,.False.)
+      do x = 1, nL
+        H = H+H_Ops(I,J,Pl(1),x,Mi(1),x,TUVX,nTUVX)
+      end do
+    case (0)
+      if (I == J) then
+        do x = 1, nL
+          if (Occ(x,J) == 0) cycle
+          H = H+H_Int1(x,x,TU,nTU,TUVX,nTUVX)*Occ(x,J)
+          do y = 1, nL
+            H = H+Half*H_Int2(x,x,y,y,TUVX,nTUVX)*Occ(x,J)*Occ(y,J)
+          end do
+        end do
+      end if
+      ! Exchange terms. With E_xy E_yx = n_x - 1/2 n_x n_y - 2 S_x.S_y (x /= y)
+      ! and S_t = 0 for a closed or empty level, a pair that is not open-open
+      ! contributes only to I = J, analytically:
+      ! E_xy E_yx + E_yx E_xy = n_x + n_y - n_x n_y.
+      do x = 1, nL
+        do y = x+1, nL
+          if ((Occ(x,J) == 1) .and. (Occ(y,J) == 1)) then
+            H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(MatEl_EpqErs(I,J,x,y,y,x)+MatEl_EpqErs(I,J,y,x,x,y))
+          else if (I == J) then
+            H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(Occ(x,J)+Occ(y,J)-Occ(x,J)*Occ(y,J))
+          end if
+        end do
+      end do
+  end select
+
+end function MatEl_H_Direct
+
+! Sum of 1/2 (pq|rs) <I|E_pq E_rs|J> over the distinct orderings {p,r} of
+! {a1,a2} and {q,s} of {b1,b2} (for MatEl_H_Direct).
+function H_Ops(I,J,a1,a2,b1,b2,TUVX,nTUVX) result(V)
+
+  use Constants, only: Half
+
+  integer(kind=iwp), intent(in) :: I, J, a1, a2, b1, b2, nTUVX
+  real(kind=wp), intent(in) :: TUVX(nTUVX)
+  real(kind=wp) :: V
+  integer(kind=iwp) :: Tup(4,4), nTup, iA, iB, iT, p, q, r, s
+  logical(kind=iwp) :: New
+
+  V = Zero
+  nTup = 0
+  do iA = 1, 2
+    p = merge(a1,a2,iA == 1)
+    r = merge(a2,a1,iA == 1)
+    do iB = 1, 2
+      q = merge(b1,b2,iB == 1)
+      s = merge(b2,b1,iB == 1)
+      New = .true.
+      do iT = 1, nTup
+        if (all(Tup(:,iT) == [p,q,r,s])) New = .false.
+      end do
+      if (.not. New) cycle
+      nTup = nTup+1
+      Tup(:,nTup) = [p,q,r,s]
+      V = V+Half*H_Int2(p,q,r,s,TUVX,nTUVX)*MatEl_EpqErs(I,J,p,q,r,s)
+    end do
+  end do
+
+end function H_Ops
+
+! (pq|rs) from the triangular packing of TUVX.
+function H_Int2(p,q,r,s,TUVX,nTUVX) result(V)
+
+  use Index_functions, only: iTri
+
+  integer(kind=iwp), intent(in) :: p, q, r, s, nTUVX
+  real(kind=wp), intent(in) :: TUVX(nTUVX)
+  real(kind=wp) :: V
+
+  V = TUVX(iTri(iTri(p,q),iTri(r,s)))
+
+end function H_Int2
+
+! k_pq = h_pq - 1/2 Sum_k (pk|kq).
+function H_Int1(p,q,TU,nTU,TUVX,nTUVX) result(V)
+
+  use Index_functions, only: iTri
+  use Constants, only: Half
+
+  integer(kind=iwp), intent(in) :: p, q, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp) :: V
+  integer(kind=iwp) :: kO
+
+  V = Zero
+  do kO = 1, SGS(iState)%nLev
+    V = V+H_Int2(p,kO,kO,q,TUVX,nTUVX)
+  end do
+  V = TU(iTri(p,q))-Half*V
+
+end function H_Int1
+
+!
 ! Verify MatEl_H against sg_h_psi: with reproducible pseudo-random integrals
 ! (any values with the permutational symmetry of the triangular packing will
 ! do), compare <I|H|J> with (H e_J)_I for all I and for all columns J, or a
@@ -10339,10 +10487,10 @@ subroutine Check_MatEl_H()
 
   integer(kind=iwp), parameter :: MaxHCol = 20
   real(kind=wp), parameter :: TolH = 1.0e-10_wp
-  integer(kind=iwp) :: nL, nTU, nTUVX, nC, nCol, iCol, I, J, k, nTestH, nFailH
+  integer(kind=iwp) :: nL, nTU, nTUVX, nC, nCol, iCol, I, J, k, nTestH, nFailH, nFailD
   integer(kind=int64) :: iInt
   real(kind=wp), allocatable :: TU(:), TUVX(:), Psi(:), Sgm(:)
-  real(kind=wp) :: X, Dev, MaxDev
+  real(kind=wp) :: X, Dev, MaxDev, MaxDevD, T0, T1, W, TimH, TimD
   logical(kind=iwp) :: Reuse_Save, AllCols
 
   interface
@@ -10384,20 +10532,38 @@ subroutine Check_MatEl_H()
   nCol = merge(nC,MaxHCol,AllCols)
   nTestH = 0
   nFailH = 0
+  nFailD = 0
   MaxDev = Zero
+  MaxDevD = Zero
+  TimH = Zero
+  TimD = Zero
   do iCol = 1, nCol
     J = merge(iCol,Rand_Index(nC),AllCols)
     Psi(:) = Zero
     Psi(J) = One
     call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
     do I = 1, nC
+      call CWTime(T0,W)
       X = MatEl_H(I,J,TU,nTU,TUVX,nTUVX)
+      call CWTime(T1,W)
+      TimH = TimH+T1-T0
       Dev = abs(X-Sgm(I))
       MaxDev = max(MaxDev,Dev)
       nTestH = nTestH+1
       if (Dev > TolH*max(One,abs(Sgm(I)))) then
         nFailH = nFailH+1
         if (nFailH <= 10) write(u6,'(A,2I8,3ES22.13)') 'MatEl_H mismatch: I,J,<I|H|J>,sg_h_psi,diff = ', &
+                                                     I,J,X,Sgm(I),X-Sgm(I)
+      end if
+      call CWTime(T0,W)
+      X = MatEl_H_Direct(I,J,TU,nTU,TUVX,nTUVX)
+      call CWTime(T1,W)
+      TimD = TimD+T1-T0
+      Dev = abs(X-Sgm(I))
+      MaxDevD = max(MaxDevD,Dev)
+      if (Dev > TolH*max(One,abs(Sgm(I)))) then
+        nFailD = nFailD+1
+        if (nFailD <= 10) write(u6,'(A,2I8,3ES22.13)') 'MatEl_H_Direct mismatch: I,J,<I|H|J>,sg_h_psi,diff = ', &
                                                      I,J,X,Sgm(I),X-Sgm(I)
       end if
     end do
@@ -10413,9 +10579,10 @@ subroutine Check_MatEl_H()
   write(u6,'(A)') ' MatEl_H verification against sg_h_psi (pseudo-random integrals)'
   write(u6,'(A,I0,A,I0,A)') 'Columns tested         : ',nCol,' of ',nC, merge(' (all)   ',' (random)',AllCols)
   write(u6,'(A,I0)')   'Matrix elements tested : ',nTestH
-  write(u6,'(A,I0)')   'Failures               : ',nFailH
-  write(u6,'(A,ES12.4)') 'Maximum abs. deviation : ',MaxDev
-  if (nFailH /= 0) then
+  write(u6,'(A,2I8)')  'Failures (H, Direct)   : ',nFailH,nFailD
+  write(u6,'(A,2ES12.4)') 'Maximum abs. deviation : ',MaxDev,MaxDevD
+  write(u6,'(A,2F12.3)') 'CPU time (H, Direct)   : ',TimH,TimD
+  if ((nFailH /= 0) .or. (nFailD /= 0)) then
     write(u6,'(A)') 'MatEl_H consistency check FAILED.'
     call Abend()
   end if
