@@ -286,13 +286,6 @@ if (DoGrad) then
     end do
   end do
 
-  ! Nuclear derivative of the translated tau (arXiv:2506.03304, Eqs. 10, 39-44):
-  ! tau_a/b = (1 +/- zeta) tau/2, with zeta = zeta(R) and R = 4 Pi/rho**2, so
-  ! d tau_a/b = (1 +/- zeta)/2 d tau +/- 1/2 tau d zeta
-  ! dZeta already contains the contribution of dPi, through dRatio.
-  ! Mk_Rho stores the Cartesian derivatives of tau multiplied by four (they are paired with
-  ! a factor Quart*vTau in DFT_Grad), whereas TauAB follows the libxc definition. The
-  ! d(zeta) term is therefore scaled by four as well.
   if (lmGGA1) then
     call mma_allocate(GradTauAB,mGrid,nEGrad,label='GradTauAB')
     GradTauAB(:,:) = dRho_dr(9,:,:)+dRho_dr(10,:,:)
