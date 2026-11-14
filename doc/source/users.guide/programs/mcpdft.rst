@@ -224,6 +224,7 @@ The :kword:`FUNC` is the only required keyword.
   and without Cholesky decomposition. The hybrid gradient is the weighted sum
   :math:`\lambda g^{\mathrm{CAS}} + (1-\lambda) g^{\mathrm{PDFT}}`, so
   :math:`\lambda = 0` reproduces MC-PDFT and :math:`\lambda = 1` reproduces the CASSCF gradient.
+  Non-adiabatic couplings (:kword:`NAC`) are not implemented for meta-GGA on-top functionals.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>

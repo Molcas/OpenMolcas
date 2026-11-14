@@ -15,8 +15,8 @@
 module libxc_parameters
 
 use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_aux_func_ids, xc_f03_aux_func_weights, xc_f03_func_end, &
-                        xc_f03_func_get_info, xc_f03_func_info_get_kind, xc_f03_func_info_t, xc_f03_func_init, &
-                        xc_f03_func_set_ext_params, xc_f03_func_t, xc_f03_num_aux_funcs
+                        xc_f03_func_get_info, xc_f03_func_info_get_kind, xc_f03_func_info_get_n_ext_params, xc_f03_func_info_t, &
+                        xc_f03_func_init, xc_f03_func_set_ext_params, xc_f03_func_t, xc_f03_num_aux_funcs
 use Constants, only: Zero
 use Definitions, only: wp, iwp, LibxcInt
 
@@ -142,6 +142,17 @@ subroutine Set_External_Params()
   integer(kind=iwp) :: iFunc
 
   if (allocated(FuncExtParams)) then
+    ! Parameters stored on the RunFile may belong to another functional (e.g. left by a previous run)
+    if (size(FuncExtParams,2) < nFuncs) then
+      call WarningMessage(2,'External parameters do not match the functional (number of functions)!')
+      call Quit_OnUserError()
+    end if
+    do iFunc=1,nFuncs
+      if (xc_f03_func_info_get_n_ext_params(xc_info(iFunc)) > size(FuncExtParams,1)) then
+        call WarningMessage(2,'External parameters do not match the functional (number of parameters)!')
+        call Quit_OnUserError()
+      end if
+    end do
     do iFunc=1,nFuncs
       call xc_f03_func_set_ext_params(xc_func(iFunc),FuncExtParams(:,iFunc))
     end do
@@ -203,7 +214,11 @@ subroutine Get_External_Params()
   call Get_dArray('ExtFuncParams',Flat,nFlat)
   nF = nint(Flat(1))
   nP = nint(Flat(2))
-  if ((nF > 0) .and. (nP > 0) .and. (nFlat == 2+nP*nF)) then
+  if ((nF > 0) .and. (nP > 0)) then
+    if (nFlat /= 2+nP*nF) then
+      call WarningMessage(2,'Corrupted external functional parameters on the RunFile!')
+      call Quit_OnUserError()
+    end if
     if (allocated(FuncExtParams)) call mma_deallocate(FuncExtParams)
     call mma_allocate(FuncExtParams,nP,nF,Label='FuncExtParams')
     FuncExtParams(:,:) = reshape(Flat(3:),[nP,nF])
