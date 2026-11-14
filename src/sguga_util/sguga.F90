@@ -283,6 +283,11 @@ Public:: SGS, CIS, EXS, State_is_used
 ! MatEl_EpqErs, MatEl_H_Direct and their helpers), set by
 ! SG_Test_EpqErs_Ref and by SG_MatEl_Init.
 integer(kind=iwp) :: ME_iState = 1, ME_LSM = 1
+! Decode_ME: the last two decoded CSFs (symmetry, CSF, MV, ISYUP, IUP, IDWN)
+! of CIS(ME_iState); reset by Reset_Decode_ME when ME_iState is (re)set.
+integer(kind=iwp) :: ME_Dec(6,2) = 0, ME_DecNext = 1
+! Coup_Value, Path_Value: blocks up to this size are scanned, not searched
+integer(kind=iwp), parameter :: nCoup_Lin = 16
 
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init
 
@@ -4242,7 +4247,7 @@ real(kind=wp) :: X
 ! declarations to facilitate the reuse of sigma vectors if possible
 integer(kind=iwp), save:: i_save_p=0, i_save_q=0
 integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
-logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Test3
+logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Test3, Moved
 real(kind=wp) :: CI_ID=Zero
 integer(kind=iwp) ::  iOff, jOff
 
@@ -4293,7 +4298,9 @@ if (Test1) then
       ! get the off-set to the block of compressed coupling coefficients.
       LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),Swap)
       ! CASE IS: LOWER HALF, EXCITE:
-      call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
+      call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap,Moved)
+      ! the walk index (EXS%IOrd) of a reordered block must follow
+      if (Moved .and. allocated(EXS%IOrd)) call Index_Coup_Block(EXS,LICP,NCP)
       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
 
     end do
@@ -4512,13 +4519,15 @@ end if
 
 contains
 
-  subroutine sort_icoup_block(ICOUP,NCP,swap)
+  subroutine sort_icoup_block(ICOUP,NCP,swap,Moved)
 
   integer(kind=iwp), intent(in) :: NCP
   integer(kind=iwp), intent(inout) :: ICOUP(3,NCP)
   logical(kind=iwp), intent(in) :: swap
+  logical(kind=iwp), intent(out) :: Moved
     integer(kind=iwp) :: i, j, temp(3)
 
+  Moved = .false.
   do i = 2, NCP
      temp = ICOUP(:,i)
      j = i-1
@@ -4530,6 +4539,7 @@ contains
         end if
         ICOUP(:,j+1) = ICOUP(:,j)
         j = j - 1
+        Moved = .true.
      end do
      ICOUP(:,j+1) = temp
   end do
@@ -5908,6 +5918,38 @@ iCSF = IOFF + IUP + (IDWN-1)*NUP
 end subroutine Encode_CSF
 #endif
 
+!> Decode_CSF for CIS(ME_iState), remembering the last two CSFs: the
+!> matrix-element routines decode the same bra and ket for every operator
+!> string of a matrix element.
+subroutine Decode_ME(ISYCI,iCSF,MV,ISYUP,IUP,IDWN)
+
+use Definitions, only: iwp
+
+integer(kind=iwp), intent(in)  :: ISYCI, iCSF
+integer(kind=iwp), intent(out) :: MV, ISYUP, IUP, IDWN
+integer(kind=iwp) :: k
+
+do k=1,2
+  if ((ME_Dec(1,k) == ISYCI) .and. (ME_Dec(2,k) == iCSF)) then
+    MV = ME_Dec(3,k)
+    ISYUP = ME_Dec(4,k)
+    IUP = ME_Dec(5,k)
+    IDWN = ME_Dec(6,k)
+    return
+  end if
+end do
+call Decode_CSF(CIS(ME_iState),ISYCI,iCSF,MV,ISYUP,IUP,IDWN)
+k = ME_DecNext
+ME_Dec(:,k) = [ISYCI,iCSF,MV,ISYUP,IUP,IDWN]
+ME_DecNext = 3-k
+
+end subroutine Decode_ME
+
+subroutine Reset_Decode_ME()
+ME_Dec(:,:) = 0
+ME_DecNext = 1
+end subroutine Reset_Decode_ME
+
 subroutine Decode_CSF( &
            CIS,ISYCI, &
            iCSF, &
@@ -6907,6 +6949,7 @@ End Do
 ! State and symmetry of the module-level matrix-element routines
 ME_iState = iState
 ME_LSM = LSM
+call Reset_Decode_ME()
 if (.not. allocated(EXS(iState)%IOrd)) call Mk_Coup_Index(EXS(iState))
 ! Verify that MatEl_Epq is correct
 
@@ -8694,13 +8737,13 @@ if (q < 1) return
 if (p > SGS(ME_iState)%MidLev) return
 if (q > SGS(ME_iState)%MidLev) return
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -8888,13 +8931,13 @@ if (p == q) return
 if (p <= SGS(ME_iState)%MidLev) return
 if (q <= SGS(ME_iState)%MidLev) return
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -9077,13 +9120,13 @@ integer(kind=iwp) :: IDWNJ
 
 Value = Zero
 
-call Decode_CSF( &
-     CIS(ME_iState),ME_LSM, &
+call Decode_ME( &
+     ME_LSM, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
-call Decode_CSF( &
-     CIS(ME_iState),ME_LSM, &
+call Decode_ME( &
+     ME_LSM, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -9162,13 +9205,13 @@ integer(kind=iwp) :: IDWNJ
 
 Value = Zero
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -9202,41 +9245,24 @@ end function MatEl_UU
 ! half graph (upper or lower) at midvertex MV. The blocks of both operators
 ! are given by INDEO, orientation (Reverse: transposed stored transitions)
 ! and the symmetry under which the block is stored (that of its ICoup(1)
-! walk). Only the transitions starting at IFromJ are followed, so the cost
-! is that of scanning the two blocks once, not of contracting them.
+! walk). Only the transitions starting at IFromJ are followed, located
+! by the walk index (Path_Value).
 !
 function Walk_Path_Value(INDEO_Right,Reverse_Right,ISYRight,INDEO_Left,Reverse_Left,ISYLeft,MV,IFromJ,IToI) result(Value)
 
-use Constants,   only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: INDEO_Right, ISYRight, INDEO_Left, ISYLeft, MV, IFromJ, IToI
 logical, intent(in) :: Reverse_Right, Reverse_Left
 real(kind=wp) :: Value
-integer(kind=iwp) :: NRight, NLeft, OffRight, OffLeft, iRight, iLeft, FromRight, ToRight, FromLeft, ToLeft
-real(kind=wp) :: XRight
+integer(kind=iwp) :: NRight, NLeft
 
-Value = Zero
 NRight = EXS(ME_iState)%NOCP(INDEO_Right,ISYRight,MV)
 NLeft  = EXS(ME_iState)%NOCP(INDEO_Left, ISYLeft, MV)
-if ((NRight == 0) .or. (NLeft == 0)) return
-OffRight = EXS(ME_iState)%IOCP(INDEO_Right,ISYRight,MV)
-OffLeft  = EXS(ME_iState)%IOCP(INDEO_Left, ISYLeft, MV)
-
-do iRight=1,NRight
-  FromRight = EXS(ME_iState)%ICoup(merge(2,1,Reverse_Right),OffRight+iRight)
-  if (FromRight /= IFromJ) cycle
-  ToRight = EXS(ME_iState)%ICoup(merge(1,2,Reverse_Right),OffRight+iRight)
-  XRight = EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,OffRight+iRight))
-  do iLeft=1,NLeft
-    FromLeft = EXS(ME_iState)%ICoup(merge(2,1,Reverse_Left),OffLeft+iLeft)
-    if (FromLeft /= ToRight) cycle
-    ToLeft = EXS(ME_iState)%ICoup(merge(1,2,Reverse_Left),OffLeft+iLeft)
-    if (ToLeft /= IToI) cycle
-    Value = Value+XRight*EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,OffLeft+iLeft))
-  end do
-end do
+Value = Path_Value(EXS(ME_iState), &
+                   EXS(ME_iState)%IOCP(INDEO_Right,ISYRight,MV),NRight,merge(2,1,Reverse_Right),IFromJ, &
+                   EXS(ME_iState)%IOCP(INDEO_Left, ISYLeft, MV),NLeft, merge(2,1,Reverse_Left), IToI)
 
 end function Walk_Path_Value
 
@@ -9346,13 +9372,13 @@ Diagonal_Right = r == s
 ! Decode the bra and ket CSFs. The decoded upper walks are
 ! required for diagonal weights.
 !
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -9542,13 +9568,13 @@ Diagonal_Right = r == s
 !
 ! Decode the bra and ket CSFs.
 !
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI, &
+call Decode_ME( &
+     ISYCI, &
      J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
@@ -9692,7 +9718,7 @@ implicit none
 integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r_in,s_in
 
 real(kind=wp) :: Value
-real(kind=wp) :: XUpper,XLower,XOpen,XClosed,XRef
+real(kind=wp) :: XUpper,XLower,XRef
 
 integer(kind=iwp) :: r,s
 integer(kind=iwp) :: MVI,MVJ,MVK,MVX,MV
@@ -9704,8 +9730,6 @@ integer(kind=iwp) :: iBand
 integer(kind=iwp) :: INDEO_R,INDEO_S,INDEO_PQ
 integer(kind=iwp) :: NOU,NOL,NU
 integer(kind=iwp) :: OffOU,OffOL,OffU
-integer(kind=iwp) :: iO,iL,iU,iValue
-integer(kind=iwp) :: FromO,ToO,FromU,ToU
 integer(kind=iwp) :: ISYCI, ISYP, ISYQ, ISYPQ, ISYR, ISYS, ISYRS, ISYPQRS
 
 logical(kind=iwp) :: Reverse_U
@@ -9734,8 +9758,8 @@ if (p<=SGS(ME_iState)%MidLev .or. q<=SGS(ME_iState)%MidLev) return
 if (r<=SGS(ME_iState)%MidLev .or. s<1 .or. s>SGS(ME_iState)%MidLev) return
 if (max(p,q,r)>SGS(ME_iState)%nLev) return
 
-call Decode_CSF(CIS(ME_iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
-call Decode_CSF(CIS(ME_iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+call Decode_ME(ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_ME(ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
 ISYUK=Mul(ISYPQ,ISYUI)
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
@@ -9826,51 +9850,9 @@ OffU=EXS(ME_iState)%IOCP(INDEO_PQ,merge(ISYUI,ISYUK,Reverse_U),MVI)
 if (NU==0) return
 If (Verbose) Write (u6,*) 'NU=',NU
 
-!Loop over  A_r(Ku(m),Ju(m')).
-
-XUpper=Zero
-do iO=1,NOU
-
-   ! FromO= Ju
-   ! ToO  = Ku
-   FromO = merge(EXS(ME_iState)%ICoup(2,OffOU+iO), &
-                 EXS(ME_iState)%ICoup(1,OffOU+iO), &
-                 Swap_rs)
-   if (FromO/=IUJ) cycle
-   ToO   = merge(EXS(ME_iState)%ICoup(1,OffOU+iO), &
-                 EXS(ME_iState)%ICoup(2,OffOU+iO), &
-                 Swap_rs)
-   If (Verbose) Write(u6,*) 'FromO, ToO=',FromO, ToO
-   ! Select A_r that has a matching Ju value (IUJ)
-
-   ! Pick up the segment value A_r
-   iValue=EXS(ME_iState)%ICoup(3,OffOU+iO)
-   XOpen=EXS(ME_iState)%VTab(iValue)
-
-   !Lookp over U_pq(Iu(m),Ku(m)).
-   do iU=1,NU
-
-      ! Decode the orientation of U_pq(Iu,Ku).
-      ! FromU=Iu
-      ! ToU  =Ku
-      FromU=MERGE(EXS(ME_iState)%ICoup(2,OffU+iU), &
-                  EXS(ME_iState)%ICoup(1,OffU+iU), Reverse_U)
-      ToU  =MERGE(EXS(ME_iState)%ICoup(1,OffU+iU), &
-                  EXS(ME_iState)%ICoup(2,OffU+iU), Reverse_U)
-      ! Skip if ToU not match Iu value (IUPI)
-      ! Skip if FromU not match Ku value (ToO)
-
-      if (ToO/=FromU .or. ToU/=IUI) cycle
-
-      ! Pick up the segment value U_pq
-      iValue=EXS(ME_iState)%ICoup(3,OffU+iU)
-      XClosed=EXS(ME_iState)%VTab(iValue)
-
-      XUpper=XUpper+XClosed*XOpen
-
-   end do
-
-end do
+! Sum_Ku U_pq(Iu,Ku) A_r(Ku,Ju): only the transitions of A_r starting at
+! Ju and of U_pq starting at Ku (walk index, Path_Value).
+XUpper=Path_Value(EXS(ME_iState),OffOU,NOU,merge(2,1,Swap_rs),IUJ,OffU,NU,merge(2,1,Reverse_U),IUI)
 If (Verbose) Write (u6,*) 'XUpper=',XUpper
 if (XUpper==Zero) return
 
@@ -9888,26 +9870,7 @@ OffOL= MERGE(EXS(ME_iState)%IOCP(INDEO_S,ISYDI,MVI), &
 If (NOL==0) return
 If (Verbose) Write (u6,*) 'NOL=',NOL
 
-! loop over all A_s
-XLower=Zero
-do iL=1,NOL
-
-   ! FromO=Il
-   ! ToO  =Jl
-   FromO = merge(EXS(ME_iState)%ICoup(2,OffOL+iL), &
-                 EXS(ME_iState)%ICoup(1,OffOL+iL), &
-                 Swap_rs)
-   if (FromO/=IDJ) cycle
-
-   ToO   = merge(EXS(ME_iState)%ICoup(1,OffOL+iL), &
-                 EXS(ME_iState)%ICoup(2,OffOL+iL), &
-                 Swap_rs)
-   if (ToO/=IDI) cycle
-
-   iValue=EXS(ME_iState)%ICoup(3,OffOL+iL)
-   XLower=XLower+EXS(ME_iState)%VTab(iValue)
-
-end do
+XLower=Coup_Value(EXS(ME_iState),OffOL,NOL,merge(2,1,Swap_rs),IDJ,IDI)
 If (Verbose) Write (u6,*) 'XLower=',XLower
 
 Value=XUpper*XLower
@@ -9968,7 +9931,7 @@ implicit none
 integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r_in,s_in
 
 real(kind=wp) :: Value
-real(kind=wp) :: XUpper,XLower,XOpen,XClosed,XRef
+real(kind=wp) :: XUpper,XLower,XRef
 
 integer(kind=iwp) :: r,s
 integer(kind=iwp) :: MVI,MVJ,MVK,MVX,MV
@@ -9980,8 +9943,6 @@ integer(kind=iwp) :: iBand
 integer(kind=iwp) :: INDEO_R,INDEO_S,INDEO_PQ
 integer(kind=iwp) :: NOU,NOL,NL
 integer(kind=iwp) :: OffOU,OffOL,OffL
-integer(kind=iwp) :: iO,iL,iValue
-integer(kind=iwp) :: FromO,ToO,FromL,ToL
 integer(kind=iwp) :: ISYCI, ISYP, ISYQ, ISYPQ, ISYR, ISYS, ISYRS, ISYPQRS
 
 logical(kind=iwp) :: Reverse_L
@@ -10010,8 +9971,8 @@ if (J < 1 .or. J > CIS(ME_iState)%NCSF(ISYCJ)) return
 if (p<1 .or. q<1 .or. p>SGS(ME_iState)%MidLev .or. q>SGS(ME_iState)%MidLev) return
 if (r<=SGS(ME_iState)%MidLev .or. r>SGS(ME_iState)%nLev .or. s<1 .or. s>SGS(ME_iState)%MidLev) return
 
-call Decode_CSF(CIS(ME_iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
-call Decode_CSF(CIS(ME_iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+call Decode_ME(ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_ME(ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
 
@@ -10074,20 +10035,7 @@ OffOU= MERGE(EXS(ME_iState)%IOCP(INDEO_R,ISYUK,MVK), &
 If (Verbose) Write (u6,*) 'NOU=',NOU
 If (NOU==0) return
 
-XUpper=Zero
-do iO=1,NOU
-   ! FromO=Ju, ToO=Ku=Iu
-   FromO = merge(EXS(ME_iState)%ICoup(2,OffOU+iO), &
-                 EXS(ME_iState)%ICoup(1,OffOU+iO), &
-                 Swap_rs)
-   if (FromO/=IUJ) cycle
-   ToO   = merge(EXS(ME_iState)%ICoup(1,OffOU+iO), &
-                 EXS(ME_iState)%ICoup(2,OffOU+iO), &
-                 Swap_rs)
-   if (ToO/=IUI) cycle
-   iValue=EXS(ME_iState)%ICoup(3,OffOU+iO)
-   XUpper=XUpper+EXS(ME_iState)%VTab(iValue)
-end do
+XUpper=Coup_Value(EXS(ME_iState),OffOU,NOU,merge(2,1,Swap_rs),IUJ,IUI)
 If (Verbose) Write (u6,*) 'XUpper=',XUpper
 if (XUpper==Zero) return
 
@@ -10117,37 +10065,8 @@ OffL=merge(EXS(ME_iState)%IOCP(INDEO_PQ,ISYDI,MVI), &
 If (Verbose) Write (u6,*) 'NL=',NL
 if (NL==0) return
 
-XLower=Zero
-do iO=1,NOL
-
-   ! FromO=Jl, ToO=Kl
-   FromO = merge(EXS(ME_iState)%ICoup(2,OffOL+iO), &
-                 EXS(ME_iState)%ICoup(1,OffOL+iO), &
-                 Swap_rs)
-   if (FromO/=IDJ) cycle
-   ToO   = merge(EXS(ME_iState)%ICoup(1,OffOL+iO), &
-                 EXS(ME_iState)%ICoup(2,OffOL+iO), &
-                 Swap_rs)
-   If (Verbose) Write(u6,*) 'FromO, ToO=',FromO, ToO
-
-   iValue=EXS(ME_iState)%ICoup(3,OffOL+iO)
-   XOpen=EXS(ME_iState)%VTab(iValue)
-
-   do iL=1,NL
-      ! FromL=Kl (ket), ToL=Il (bra)
-      FromL=MERGE(EXS(ME_iState)%ICoup(2,OffL+iL), &
-                  EXS(ME_iState)%ICoup(1,OffL+iL), Reverse_L)
-      ToL  =MERGE(EXS(ME_iState)%ICoup(1,OffL+iL), &
-                  EXS(ME_iState)%ICoup(2,OffL+iL), Reverse_L)
-      if (FromL/=ToO .or. ToL/=IDI) cycle
-
-      iValue=EXS(ME_iState)%ICoup(3,OffL+iL)
-      XClosed=EXS(ME_iState)%VTab(iValue)
-
-      XLower=XLower+XClosed*XOpen
-   end do
-
-end do
+! Sum_Kl L_pq(Il,Kl) A_s(Kl,Jl): walk index, Path_Value.
+XLower=Path_Value(EXS(ME_iState),OffOL,NOL,merge(2,1,Swap_rs),IDJ,OffL,NL,merge(2,1,Reverse_L),IDI)
 If (Verbose) Write (u6,*) 'XLower=',XLower
 
 Value=XUpper*XLower
@@ -10212,7 +10131,7 @@ implicit none
 integer(kind=iwp), intent(in) :: ISYCJ,I,J,p,q,r,s
 
 real(kind=wp) :: Value
-real(kind=wp) :: XU, XL, X2
+real(kind=wp) :: XU, XL
 
 integer(kind=iwp) :: MidLev, nLev
 integer(kind=iwp) :: ISYCI
@@ -10222,7 +10141,7 @@ integer(kind=iwp) :: IUI,IUJ,IDI,IDJ
 integer(kind=iwp) :: U1,L1,U2,L2
 integer(kind=iwp) :: INDEO
 integer(kind=iwp) :: N1,Off1,N2,Off2
-integer(kind=iwp) :: i1,i2,iK,c1,c2,j1,j2,j1a,j1b,j2a,j2b
+integer(kind=iwp) :: iK
 logical(kind=iwp) :: Swap1, Swap2
 
 Value=Zero
@@ -10245,8 +10164,8 @@ ISYCI = Mul(Mul(SGS(ME_iState)%ISm(p),SGS(ME_iState)%ISm(q)), &
 if (I < 1 .or. I > CIS(ME_iState)%NCSF(ISYCI)) return
 if (J < 1 .or. J > CIS(ME_iState)%NCSF(ISYCJ)) return
 
-call Decode_CSF(CIS(ME_iState),ISYCI,I,MVI,ISYUI,IUI,IDI)
-call Decode_CSF(CIS(ME_iState),ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
+call Decode_ME(ISYCI,I,MVI,ISYUI,IUI,IDI)
+call Decode_ME(ISYCJ,J,MVJ,ISYUJ,IUJ,IDJ)
 ISYDI=Mul(ISYCI,ISYUI)
 ISYDJ=Mul(ISYCJ,ISYUJ)
 
@@ -10279,23 +10198,9 @@ do MV1 = 1, 2
    N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYUK,MVK),Swap1)
    Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYUK,MVK),Swap1)
    if (N1 == 0) cycle
-   ! Walk index (EXS%IOrd): the transitions of E_rs starting at the ket
-   ! walk IUJ and of E_pq starting at K, by binary search.
-   XU = Zero
-   c2 = merge(2,1,Swap2)
-   c1 = merge(2,1,Swap1)
-   call Coup_Range(Off2,N2,c2,IUJ,j2a,j2b)
-   do j2 = j2a, j2b
-      i2 = EXS(ME_iState)%IOrd(c2,Off2+j2)
-      iK = EXS(ME_iState)%ICoup(3-c2,Off2+i2)
-      X2 = EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off2+i2))
-      call Coup_Range(Off1,N1,c1,iK,j1a,j1b)
-      do j1 = j1a, j1b
-         i1 = EXS(ME_iState)%IOrd(c1,Off1+j1)
-         if (EXS(ME_iState)%ICoup(3-c1,Off1+i1) /= IUI) cycle
-         XU = XU+EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off1+i1))*X2
-      end do
-   end do
+   ! Walk index (Path_Value): only the transitions of E_rs starting at the
+   ! ket walk IUJ and of E_pq starting at K.
+   XU = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IUJ,Off1,N1,merge(2,1,Swap1),IUI)
    if (XU == Zero) cycle
 
    ! ------------------------------------------------------------
@@ -10309,23 +10214,9 @@ do MV1 = 1, 2
    N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYDK,MVK),Swap1)
    Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYDK,MVK),Swap1)
    if (N1 == 0) cycle
-   ! Walk index (EXS%IOrd): the transitions of E_rs starting at the ket
-   ! walk IDJ and of E_pq starting at K, by binary search.
-   XL = Zero
-   c2 = merge(2,1,Swap2)
-   c1 = merge(2,1,Swap1)
-   call Coup_Range(Off2,N2,c2,IDJ,j2a,j2b)
-   do j2 = j2a, j2b
-      i2 = EXS(ME_iState)%IOrd(c2,Off2+j2)
-      iK = EXS(ME_iState)%ICoup(3-c2,Off2+i2)
-      X2 = EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off2+i2))
-      call Coup_Range(Off1,N1,c1,iK,j1a,j1b)
-      do j1 = j1a, j1b
-         i1 = EXS(ME_iState)%IOrd(c1,Off1+j1)
-         if (EXS(ME_iState)%ICoup(3-c1,Off1+i1) /= IDI) cycle
-         XL = XL+EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off1+i1))*X2
-      end do
-   end do
+   ! Walk index (Path_Value): only the transitions of E_rs starting at the
+   ! ket walk IDJ and of E_pq starting at K.
+   XL = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IDJ,Off1,N1,merge(2,1,Swap1),IDI)
 
    Value = Value+XU*XL
 end do
@@ -10585,12 +10476,12 @@ if (s <= SGS(ME_iState)%MidLev) return
 if (r >  SGS(ME_iState)%nLev) return
 if (s >  SGS(ME_iState)%nLev) return
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI,I, &
+call Decode_ME( &
+     ISYCI,I, &
      MVI,ISYUPI,IUPI,IDWNI )
 
-call Decode_CSF( &
-     CIS(ME_iState),ISYCI,J, &
+call Decode_ME( &
+     ISYCI,J, &
      MVJ,ISYUPJ,IUPJ,IDWNJ )
 
 !
@@ -10670,11 +10561,10 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
   integer(kind=iwp) :: MVI, MVJ, ISYUI, ISYUJ
   integer(kind=iwp) :: IUP, IDN, JUP, JDN
   logical(kind=iwp) :: Swap, Lower, Upper
-  integer(kind=iwp) :: INDEO, NCP, LICP, k
+  integer(kind=iwp) :: INDEO, NCP, LICP
   integer(kind=iwp) :: INDEO_P, INDEO_Q
-  integer(kind=iwp) :: src, dst, irow, icol
   integer(kind=iwp) :: MV, MVX, NCP1, NCP2, LICP1, LICP2, iBand
-  integer(kind=iwp) :: ISYDI, ISYUC, ISYDC, JP, JQ, a, b, ISYDJ
+  integer(kind=iwp) :: ISYDI, ISYUC, ISYDC, JP, JQ, ISYDJ
   integer(kind=iwp) :: IOUW, IOLW, IPSHFT, IPPOW, IC, ICS
   real(kind=wp) :: Upper_Factor, Lower_Factor
 
@@ -10772,27 +10662,20 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
                  EXS%IOCP(INDEO,ISYDJ,MVI),Swap)
     If (Verbose) Write (u6,*) ' NCP, LICP=',NCP,LICP
     Upper_Factor = 1.0_wp
-    do k=1,NCP
-      src=MERGE(EXS%ICOUP(2,LICP+k),EXS%ICOUP(1,LICP+k),Swap)
-      dst=MERGE(EXS%ICOUP(1,LICP+k),EXS%ICOUP(2,LICP+k),Swap)
-      if (src == JDN .and. dst == IDN) then
-        Lower_Factor = EXS%VTab(EXS%ICOUP(3,LICP+k))
-        EIJ = Lower_Factor * Upper_Factor
-        If (Verbose) Then
-        write(u6,'(/,A)') 'MatEl_Epq: CLOSED LOOP (p/=q)'
-        write(u6,'(A)') '  case              = lower-half excitation'
-        write(u6,'(A,5I8)') '  I,J,p,q,k         =', &
-                            I_CSF,J_CSF,IP,IQ,k
-        Write(u6,'(A,L1)') 'Swap=',Swap
-        write(u6,'(A,2I8)') '  lower src,dst     =',src,dst
-        write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
-        write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
-        write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
-        Write (u6,*) 'Exit: MatEl_epq'
-        Write (u6,*)
-        End If
-      end if
-    end do
+    ! the transition JDN -> IDN (walk index)
+    Lower_Factor = Coup_Value(EXS,LICP,NCP,merge(2,1,Swap),JDN,IDN)
+    EIJ = Lower_Factor*Upper_Factor
+    If (Verbose) Then
+    write(u6,'(/,A)') 'MatEl_Epq: CLOSED LOOP (p/=q)'
+    write(u6,'(A)') '  case              = lower-half excitation'
+    write(u6,'(A,4I8)') '  I,J,p,q           =',I_CSF,J_CSF,IP,IQ
+    Write(u6,'(A,L1)') 'Swap=',Swap
+    write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
+    write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
+    write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
+    Write (u6,*) 'Exit: MatEl_epq'
+    Write (u6,*)
+    End If
 
   else if (Upper) then
     If (Verbose) Write (u6,*) 'Non-diagonal upper closed-loop case'
@@ -10809,30 +10692,20 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
                  EXS%IOCP(INDEO,ISYUJ,MVI),Swap)
     If (Verbose) Write (u6,*) ' NCP, LICP=',NCP,LICP
     Lower_Factor = 1.0_wp
-    do k=1,NCP
-      if (Swap) then
-        src=EXS%ICOUP(2,LICP+k); dst=EXS%ICOUP(1,LICP+k)
-      else
-        src=EXS%ICOUP(1,LICP+k); dst=EXS%ICOUP(2,LICP+k)
-      end if
-      if (src == JUP .and. dst == IUP) then
-        Upper_Factor = EXS%VTab(EXS%ICOUP(3,LICP+k))
-        EIJ =  Lower_Factor*Upper_Factor
-        If (Verbose) Then
-        write(u6,'(/,A)') 'MatEl_Epq: CLOSED LOOP (p/=q)'
-        write(u6,'(A)') '  case              = upper-half excitation'
-        write(u6,'(A,5I8)') '  I,J,p,q,k         =', &
-                            I_CSF,J_CSF,IP,IQ,k
-        Write(u6,'(A,L1)') 'Swap=',Swap
-        write(u6,'(A,2I8)') '  upper src,dst     =',src,dst
-        write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
-        write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
-        write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
-        Write (u6,*) 'Exit: MatEl_epq'
-        Write (u6,*)
-        End If
-      end if
-    end do
+    ! the transition JUP -> IUP (walk index)
+    Upper_Factor = Coup_Value(EXS,LICP,NCP,merge(2,1,Swap),JUP,IUP)
+    EIJ = Lower_Factor*Upper_Factor
+    If (Verbose) Then
+    write(u6,'(/,A)') 'MatEl_Epq: CLOSED LOOP (p/=q)'
+    write(u6,'(A)') '  case              = upper-half excitation'
+    write(u6,'(A,4I8)') '  I,J,p,q           =',I_CSF,J_CSF,IP,IQ
+    Write(u6,'(A,L1)') 'Swap=',Swap
+    write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
+    write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
+    write(u6,'(A,ES24.14)') '  EIJ               =',EIJ
+    Write (u6,*) 'Exit: MatEl_epq'
+    Write (u6,*)
+    End If
 
   else
     If (Verbose) Write (u6,*) 'Non-diagonal open-loop case'
@@ -10876,17 +10749,8 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
                 EXS%NOCP(INDEO_P,ISYUJ,MVJ),Swap)
     LICP1=merge(EXS%IOCP(INDEO_P,ISYUI,MVI), &
                 EXS%IOCP(INDEO_P,ISYUJ,MVJ),Swap)
-    Upper_Factor=Zero
-    ! Loop through the open-loops until you find the one corresponds to
-    ! src==JUP, irow==IUP
-    do a=1,NCP1
-      src =MERGE(EXS%ICOUP(2,LICP1+a),EXS%ICOUP(1,LICP1+a),Swap)
-      irow=MERGE(EXS%ICOUP(1,LICP1+a),EXS%ICOUP(2,LICP1+a),Swap)
-      if ((src == JUP) .and. (irow == IUP)) then
-        Upper_Factor=EXS%VTab(EXS%ICOUP(3,LICP1+a))
-        exit
-      end if
-    end do
+    ! the transition JUP -> IUP (walk index)
+    Upper_Factor=Coup_Value(EXS,LICP1,NCP1,merge(2,1,Swap),JUP,IUP)
 
     If (Upper_Factor==Zero) Return
 
@@ -10902,17 +10766,8 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
                 EXS%NOCP(INDEO_Q,ISYDJ,MVJ),Swap)
     LICP2=merge(EXS%IOCP(INDEO_Q,ISYDI,MVI), &
                 EXS%IOCP(INDEO_Q,ISYDJ,MVJ),Swap)
-    Lower_Factor=Zero
-    ! Loop through the open-loops until you find the one corresponds to
-    ! icol==JDN, Dst==IDN
-    do b=1,NCP2
-      icol=MERGE(EXS%ICOUP(2,LICP2+b),EXS%ICOUP(1,LICP2+b),Swap)
-      dst =MERGE(EXS%ICOUP(1,LICP2+b),EXS%ICOUP(2,LICP2+b),Swap)
-      if ((icol == JDN) .and. (dst == IDN)) then
-        Lower_Factor=EXS%VTab(EXS%ICOUP(3,LICP2+b))
-        exit
-      end if
-    end do
+    ! the transition JDN -> IDN (walk index)
+    Lower_Factor=Coup_Value(EXS,LICP2,NCP2,merge(2,1,Swap),JDN,IDN)
 
     If (Lower_Factor==Zero) Return
 
@@ -10921,12 +10776,9 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     If (Verbose) Then
        write(u6,'(/,A)') 'MatEl_Epq: OPEN LOOP (p/=q)'
        write(u6,'(A)') '  case              = crossing excitation'
-       write(u6,'(A,6I8)') '  I,J,p,q,a,b       =', &
-                            I_CSF,J_CSF,IP,IQ,a,b
+       write(u6,'(A,4I8)') '  I,J,p,q           =',I_CSF,J_CSF,IP,IQ
        Write(u6,'(A,L1)') 'Swap=',Swap
        write(u6,'(A,2I8)') '  MVI, MVX          =',MVI,MVX
-       write(u6,'(A,2I8)') '  upper src,irow    =',src,irow
-       write(u6,'(A,2I8)') '  lower icol,dst    =',icol,dst
        write(u6,'(A,I8)') '  crossing branch   =',MV
        write(u6,'(A,ES24.14)') '  upper factor      =',Upper_Factor
        write(u6,'(A,ES24.14)') '  lower factor      =',Lower_Factor
@@ -10950,7 +10802,7 @@ subroutine CSF_Occupation(ISY,I,OccVec)
   integer(kind=iwp), intent(in)  :: ISY, I
   integer(kind=iwp), intent(out) :: OccVec(:)
   integer(kind=iwp) :: MV, ISYU, ISYD, IUP, IDN, iLev, IOW0, IPSHFT, IC, ICS
-  call Decode_CSF(CIS(ME_iState),ISY,I,MV,ISYU,IUP,IDN)
+  call Decode_ME(ISY,I,MV,ISYU,IUP,IDN)
   ISYD = Mul(ISY,ISYU)
   do iLev = 1, SGS(ME_iState)%nLev
     if (iLev > SGS(ME_iState)%MidLev) then
@@ -10974,6 +10826,7 @@ subroutine SG_MatEl_Init(iState,LSM)
   integer(kind=iwp), intent(in) :: iState, LSM
   ME_iState = iState
   ME_LSM = LSM
+  call Reset_Decode_ME()
   if (.not. allocated(CIS(iState)%ICase)) call MkCOT(SGS(iState),CIS(iState))
   if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(LSM,SGS(iState),CIS(iState),EXS(iState))
   if (.not. allocated(EXS(iState)%IOrd)) call Mk_Coup_Index(EXS(iState))
@@ -10983,30 +10836,42 @@ end subroutine SG_MatEl_Init
 !> block sorted by ICoup(1,:) and by ICoup(2,:) (heapsort, O(N log N)).
 subroutine Mk_Coup_Index(EXS)
   type(EXStruct), intent(inout) :: EXS
-  integer(kind=iwp) :: INDEO, iSym, MV, k, N, Off, i
-  integer(kind=iwp), allocatable :: Key(:)
+  integer(kind=iwp) :: INDEO, iSym, MV, N
 
   call mma_allocate(EXS%IOrd,2,max(1,size(EXS%ICoup,2)),Label='EXS%IOrd')
-  call mma_allocate(Key,max(1,maxval(EXS%NOCP)),Label='Key')
   do MV=1,size(EXS%NOCP,3)
     do iSym=1,size(EXS%NOCP,2)
       do INDEO=1,size(EXS%NOCP,1)
         N = EXS%NOCP(INDEO,iSym,MV)
-        if (N == 0) cycle
-        Off = EXS%IOCP(INDEO,iSym,MV)
-        do k=1,2
-          do i=1,N
-            EXS%IOrd(k,Off+i) = i
-            Key(i) = EXS%ICoup(k,Off+i)
-          end do
-          call Heap_Sort_Index(N,Key,EXS%IOrd(k,Off+1:Off+N))
-        end do
+        if (N > 0) call Index_Coup_Block(EXS,EXS%IOCP(INDEO,iSym,MV),N)
       end do
     end do
   end do
-  call mma_deallocate(Key)
 
 end subroutine Mk_Coup_Index
+
+!> Walk index EXS%IOrd(:,Off+1:Off+N) of one coupling block. Also called by
+!> SG_Epq_Psi, which reorders the tuples of a block in place.
+subroutine Index_Coup_Block(EXS,Off,N)
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(in) :: Off, N
+  integer(kind=iwp) :: k, i
+  integer(kind=iwp), allocatable :: Key(:), Idx(:)
+
+  call mma_allocate(Key,N,Label='Key')
+  call mma_allocate(Idx,N,Label='Idx')
+  do k=1,2
+    do i=1,N
+      Idx(i) = i
+      Key(i) = EXS%ICoup(k,Off+i)
+    end do
+    call Heap_Sort_Index(N,Key,Idx)
+    EXS%IOrd(k,Off+1:Off+N) = Idx(:)
+  end do
+  call mma_deallocate(Key)
+  call mma_deallocate(Idx)
+
+end subroutine Index_Coup_Block
 
 !> Sort Key(1:N) in increasing order (heapsort), permuting Idx(1:N) along.
 subroutine Heap_Sort_Index(N,Key,Idx)
@@ -11054,9 +10919,10 @@ contains
 end subroutine Heap_Sort_Index
 
 !> Positions iFirst..iLast (within the NOCP block of N tuples at offset Off,
-!> order IOrd(k,:)) of the tuples with ICoup(k,:) = iWalk (binary search);
+!> order X%IOrd(k,:)) of the tuples with ICoup(k,:) = iWalk (binary search);
 !> iFirst > iLast if there are none.
-subroutine Coup_Range(Off,N,k,iWalk,iFirst,iLast)
+subroutine Coup_Range(X,Off,N,k,iWalk,iFirst,iLast)
+  type(EXStruct), intent(in) :: X
   integer(kind=iwp), intent(in) :: Off, N, k, iWalk
   integer(kind=iwp), intent(out) :: iFirst, iLast
   integer(kind=iwp) :: iLo, iHi, iMid
@@ -11066,7 +10932,7 @@ subroutine Coup_Range(Off,N,k,iWalk,iFirst,iLast)
   iHi = N+1
   do while (iLo < iHi)
     iMid = (iLo+iHi)/2
-    if (EXS(ME_iState)%ICoup(k,Off+EXS(ME_iState)%IOrd(k,Off+iMid)) < iWalk) then
+    if (X%ICoup(k,Off+X%IOrd(k,Off+iMid)) < iWalk) then
       iLo = iMid+1
     else
       iHi = iMid
@@ -11077,7 +10943,7 @@ subroutine Coup_Range(Off,N,k,iWalk,iFirst,iLast)
   iHi = N+1
   do while (iLo < iHi)
     iMid = (iLo+iHi)/2
-    if (EXS(ME_iState)%ICoup(k,Off+EXS(ME_iState)%IOrd(k,Off+iMid)) <= iWalk) then
+    if (X%ICoup(k,Off+X%IOrd(k,Off+iMid)) <= iWalk) then
       iLo = iMid+1
     else
       iHi = iMid
@@ -11086,6 +10952,58 @@ subroutine Coup_Range(Off,N,k,iWalk,iFirst,iLast)
   iLast = iLo-1
 
 end subroutine Coup_Range
+
+!> Sum of the coupling coefficients of the tuples (block of N at offset Off)
+!> with ICoup(c,:) = iFrom and ICoup(3-c,:) = iTo, i.e. the transition
+!> iFrom -> iTo (c = 1 canonical, c = 2 transposed). Uses the walk index
+!> X%IOrd when present, else scans the block.
+function Coup_Value(X,Off,N,c,iFrom,iTo) result(V)
+  type(EXStruct), intent(in) :: X
+  integer(kind=iwp), intent(in) :: Off, N, c, iFrom, iTo
+  real(kind=wp) :: V
+  integer(kind=iwp) :: i, j, ja, jb
+
+  V = Zero
+  if (N <= 0) return
+  if (allocated(X%IOrd) .and. (N > nCoup_Lin)) then
+    call Coup_Range(X,Off,N,c,iFrom,ja,jb)
+    do j=ja,jb
+      i = X%IOrd(c,Off+j)
+      if (X%ICoup(3-c,Off+i) == iTo) V = V+X%VTab(X%ICoup(3,Off+i))
+    end do
+  else
+    do i=1,N
+      if ((X%ICoup(c,Off+i) == iFrom) .and. (X%ICoup(3-c,Off+i) == iTo)) V = V+X%VTab(X%ICoup(3,Off+i))
+    end do
+  end if
+
+end function Coup_Value
+
+!> Sum_K A1(iTo <- K) A2(K <- iFrom) for two blocks (Off2,N2,c2: the first
+!> operator, applied to iFrom; Off1,N1,c1: the second, ending at iTo); c as
+!> in Coup_Value. Only the transitions starting at iFrom are followed.
+function Path_Value(X,Off2,N2,c2,iFrom,Off1,N1,c1,iTo) result(V)
+  type(EXStruct), intent(in) :: X
+  integer(kind=iwp), intent(in) :: Off2, N2, c2, iFrom, Off1, N1, c1, iTo
+  real(kind=wp) :: V
+  integer(kind=iwp) :: i2, j2, j2a, j2b
+
+  V = Zero
+  if ((N2 <= 0) .or. (N1 <= 0)) return
+  if (allocated(X%IOrd) .and. (N2 > nCoup_Lin)) then
+    call Coup_Range(X,Off2,N2,c2,iFrom,j2a,j2b)
+    do j2=j2a,j2b
+      i2 = X%IOrd(c2,Off2+j2)
+      V = V+X%VTab(X%ICoup(3,Off2+i2))*Coup_Value(X,Off1,N1,c1,X%ICoup(3-c2,Off2+i2),iTo)
+    end do
+  else
+    do i2=1,N2
+      if (X%ICoup(c2,Off2+i2) /= iFrom) cycle
+      V = V+X%VTab(X%ICoup(3,Off2+i2))*Coup_Value(X,Off1,N1,c1,X%ICoup(3-c2,Off2+i2),iTo)
+    end do
+  end if
+
+end function Path_Value
 
 !> Orbital occupations (per level) of the GUGA CSF I (after SG_MatEl_Init).
 subroutine SG_CSF_Occ(I,OccVec)
