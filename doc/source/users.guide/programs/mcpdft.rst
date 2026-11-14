@@ -224,10 +224,7 @@ The :kword:`FUNC` is the only required keyword.
   (:kword:`EXPM`), for single-state, state-averaged and CMS-PDFT calculations.
   Hybrid on-top functionals (:kword:`LAMBda`) and Cholesky decomposition (RICD)
   are supported for single-state and state-averaged MC-PDFT gradients, but not
-  for MS-PDFT. The hybrid gradient is the weighted sum
-  :math:`\lambda g^{\mathrm{CAS}} + (1-\lambda) g^{\mathrm{PDFT}}`, so
-  :math:`\lambda = 0` reproduces MC-PDFT and :math:`\lambda = 1` reproduces the CASSCF gradient.
-  Non-adiabatic couplings (:kword:`NAC`) and :kword:`MECI` are not implemented for meta-GGA on-top functionals.
+  for MS-PDFT.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>
