@@ -220,11 +220,14 @@ The :kword:`FUNC` is the only required keyword.
   Analytical gradients are not implemented for L-PDFT, and the combination of
   :kword:`GRAD` and :kword:`LPDF` results in an input error.
   Analytical gradients are available for translated type-1 meta-GGA on-top
-  functionals (e.g. ``T:M06L``), also in their hybrid form (:kword:`LAMBda`), with
-  and without Cholesky decomposition. The hybrid gradient is the weighted sum
+  functionals (e.g. ``T:M06L``), including functionals with external parameters
+  (:kword:`EXPM`), for single-state, state-averaged and CMS-PDFT calculations.
+  Hybrid on-top functionals (:kword:`LAMBda`) and Cholesky decomposition (RICD)
+  are supported for single-state and state-averaged MC-PDFT gradients, but not
+  for MS-PDFT. The hybrid gradient is the weighted sum
   :math:`\lambda g^{\mathrm{CAS}} + (1-\lambda) g^{\mathrm{PDFT}}`, so
   :math:`\lambda = 0` reproduces MC-PDFT and :math:`\lambda = 1` reproduces the CASSCF gradient.
-  Non-adiabatic couplings (:kword:`NAC`) are not implemented for meta-GGA on-top functionals.
+  Non-adiabatic couplings (:kword:`NAC`) and :kword:`MECI` are not implemented for meta-GGA on-top functionals.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>
@@ -388,6 +391,7 @@ The :kword:`FUNC` is the only required keyword.
   specifying the states between which the coupling is required.
   Note that, unlike :kword:`SALA`, the numbering here is absolute,
   regardless of which roots are included in the state average.
+  Not implemented for meta-GGA on-top functionals.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="NAC" APPEAR="Nonadiabatic coupling: root selection" KIND="INTS" SIZE="2" LEVEL="BASIC">
               %%Keyword: NAC <basic>
@@ -404,6 +408,7 @@ The :kword:`FUNC` is the only required keyword.
   minimum energy conical intersections (MECIs)
   This calculates the first derivative of the effective Hamiltonian matrix element rather
   than the NAC.
+  Not implemented for meta-GGA on-top functionals.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="MECI" APPEAR="Potentials for Off-Diagaonal Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MECI <basic>
