@@ -286,6 +286,18 @@ integer(kind=iwp) :: ME_iState = 1, ME_LSM = 1
 ! Decode_ME: the last two decoded CSFs (symmetry, CSF, MV, ISYUP, IUP, IDWN)
 ! of CIS(ME_iState); reset by Reset_Decode_ME when ME_iState is (re)set.
 integer(kind=iwp) :: ME_Dec(6,2) = 0, ME_DecNext = 1
+! ME_Blk(:,k,ISYC): the nonempty (ISYUP,MV) CSF blocks of CIS(ME_iState)
+! for CSF symmetry ISYC, (offset, ISYUP, MV), sorted by offset (ME_nBlk of
+! them), for a binary search in Decode_ME.
+integer(kind=iwp), allocatable :: ME_Blk(:,:,:), ME_nBlk(:)
+! MatEl_H_Direct: occupation-only parts kept for the CSF pairs of one
+! configuration pair, the diagonal part ME_HD (occupation ME_HD_Occ) and the
+! single-excitation coefficient ME_HW (E_ab, ket occupation ME_HW_Occ);
+! invalidated (Reset_MatEl_H) whenever the integrals may change.
+logical(kind=iwp) :: ME_HD_Valid = .false., ME_HW_Valid = .false.
+integer(kind=iwp) :: ME_HW_ab(2) = 0
+integer(kind=iwp), allocatable :: ME_HD_Occ(:), ME_HW_Occ(:)
+real(kind=wp) :: ME_HD = Zero, ME_HW = Zero
 ! Coup_Value, Path_Value: blocks up to this size are scanned, not searched
 integer(kind=iwp), parameter :: nCoup_Lin = 16
 
@@ -1056,6 +1068,11 @@ call mma_deallocate(CIS%IOW,safe='*')
 call mma_deallocate(CIS%NCSF,safe='*')
 call mma_deallocate(CIS%NOCSF,safe='*')
 call mma_deallocate(CIS%IOCSF,safe='*')
+call mma_deallocate(ME_Blk,safe='*')
+call mma_deallocate(ME_nBlk,safe='*')
+call mma_deallocate(ME_HD_Occ,safe='*')
+call mma_deallocate(ME_HW_Occ,safe='*')
+call Reset_MatEl_H()
 call mma_deallocate(CIS%ICase,safe='*')
 call mma_deallocate(CIS%VSGM,safe='*')
 call mma_deallocate(CIS%IVR,safe='*')
@@ -5918,16 +5935,17 @@ iCSF = IOFF + IUP + (IDWN-1)*NUP
 end subroutine Encode_CSF
 #endif
 
-!> Decode_CSF for CIS(ME_iState), remembering the last two CSFs: the
-!> matrix-element routines decode the same bra and ket for every operator
-!> string of a matrix element.
+!> Decode_CSF for CIS(ME_iState), remembering the last two CSFs (least
+!> recently used slot replaced): the matrix-element routines decode the same
+!> bra and ket for every operator string of a matrix element. A new CSF is
+!> located by a binary search over the sorted block offsets ME_Blk.
 subroutine Decode_ME(ISYCI,iCSF,MV,ISYUP,IUP,IDWN)
 
 use Definitions, only: iwp
 
 integer(kind=iwp), intent(in)  :: ISYCI, iCSF
 integer(kind=iwp), intent(out) :: MV, ISYUP, IUP, IDWN
-integer(kind=iwp) :: k
+integer(kind=iwp) :: k, iLo, iHi, iMid, ILOC, NUP
 
 do k=1,2
   if ((ME_Dec(1,k) == ISYCI) .and. (ME_Dec(2,k) == iCSF)) then
@@ -5935,20 +5953,89 @@ do k=1,2
     ISYUP = ME_Dec(4,k)
     IUP = ME_Dec(5,k)
     IDWN = ME_Dec(6,k)
+    ME_DecNext = 3-k
     return
   end if
 end do
-call Decode_CSF(CIS(ME_iState),ISYCI,iCSF,MV,ISYUP,IUP,IDWN)
+if (.not. allocated(ME_Blk)) call Reset_Decode_ME()
+! last block with offset < iCSF
+iLo = 1
+iHi = ME_nBlk(ISYCI)
+if (iHi < 1) call Abend()
+do while (iLo < iHi)
+  iMid = (iLo+iHi+1)/2
+  if (ME_Blk(1,iMid,ISYCI) < iCSF) then
+    iLo = iMid
+  else
+    iHi = iMid-1
+  end if
+end do
+ISYUP = ME_Blk(2,iLo,ISYCI)
+MV = ME_Blk(3,iLo,ISYCI)
+ILOC = iCSF-ME_Blk(1,iLo,ISYCI)
+if ((ILOC < 1) .or. (ILOC > CIS(ME_iState)%NOCSF(ISYUP,MV,ISYCI))) call Abend()
+NUP = CIS(ME_iState)%NOW(1,ISYUP,MV)
+IDWN = (ILOC-1)/NUP+1
+IUP = ILOC-(IDWN-1)*NUP
 k = ME_DecNext
 ME_Dec(:,k) = [ISYCI,iCSF,MV,ISYUP,IUP,IDWN]
 ME_DecNext = 3-k
 
 end subroutine Decode_ME
 
+!> Forget the decoded CSFs and rebuild ME_Blk for CIS(ME_iState).
 subroutine Reset_Decode_ME()
+
+integer(kind=iwp) :: nSy, nMV, ISYC, ISYU, MV, n, k, Tmp(3)
+
 ME_Dec(:,:) = 0
 ME_DecNext = 1
+call Reset_MatEl_H()
+call mma_deallocate(ME_Blk,safe='*')
+call mma_deallocate(ME_nBlk,safe='*')
+if (.not. allocated(CIS(ME_iState)%NOCSF)) return
+nSy = size(CIS(ME_iState)%NOCSF,1)
+nMV = CIS(ME_iState)%nMidV
+call mma_allocate(ME_Blk,3,max(1,nSy*nMV),size(CIS(ME_iState)%NOCSF,3),Label='ME_Blk')
+call mma_allocate(ME_nBlk,size(CIS(ME_iState)%NOCSF,3),Label='ME_nBlk')
+do ISYC=1,size(CIS(ME_iState)%NOCSF,3)
+  n = 0
+  do MV=1,nMV
+    do ISYU=1,nSy
+      if (CIS(ME_iState)%NOCSF(ISYU,MV,ISYC) <= 0) cycle
+      n = n+1
+      ME_Blk(:,n,ISYC) = [CIS(ME_iState)%IOCSF(ISYU,MV,ISYC),ISYU,MV]
+      ! insertion sort by offset
+      k = n
+      do while (k > 1)
+        if (ME_Blk(1,k-1,ISYC) <= ME_Blk(1,k,ISYC)) exit
+        Tmp(:) = ME_Blk(:,k,ISYC)
+        ME_Blk(:,k,ISYC) = ME_Blk(:,k-1,ISYC)
+        ME_Blk(:,k-1,ISYC) = Tmp(:)
+        k = k-1
+      end do
+    end do
+  end do
+  ME_nBlk(ISYC) = n
+end do
+
 end subroutine Reset_Decode_ME
+
+!> Invalidate the occupation-only parts kept by MatEl_H_Direct.
+subroutine Reset_MatEl_H()
+ME_HD_Valid = .false.
+ME_HW_Valid = .false.
+end subroutine Reset_MatEl_H
+
+subroutine Keep_Occ(Kept,Occ,nL)
+integer(kind=iwp), allocatable, intent(inout) :: Kept(:)
+integer(kind=iwp), intent(in) :: Occ(:), nL
+if (allocated(Kept)) then
+  if (size(Kept) < nL) call mma_deallocate(Kept)
+end if
+if (.not. allocated(Kept)) call mma_allocate(Kept,nL,Label='ME_H_Occ')
+Kept(1:nL) = Occ(1:nL)
+end subroutine Keep_Occ
 
 subroutine Decode_CSF( &
            CIS,ISYCI, &
@@ -8041,6 +8128,8 @@ subroutine Check_MatEl_H()
     iInt = mod(48271_int64*iInt,2147483647_int64)
     TUVX(k) = real(iInt,kind=wp)/2147483647.0_wp-0.5_wp
   end do
+  ! new integrals for MatEl_H_Direct
+  call Reset_MatEl_H()
 
   call mma_allocate(Psi,nC,Label='Psi_H')
   call mma_allocate(Sgm,nC,Label='Sgm_H')
@@ -8716,11 +8805,7 @@ integer(kind=iwp) :: IDWNJ
 integer(kind=iwp) :: INDEO
 integer(kind=iwp) :: NCP
 integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: ICP
 
-integer(kind=iwp) :: IFrom
-integer(kind=iwp) :: ITo
-integer(kind=iwp) :: iValue
 
 logical :: Reverse
 
@@ -8770,36 +8855,8 @@ if (NCP == 0) return
 
 IOFF = EXS(ME_iState)%IOCP(INDEO,ISYDWN,MVI)
 
-do ICP=1,NCP
-
-   if (Reverse) then
-
-      !
-      ! Reverse orientation:
-      !
-      !     E_pq = E_qp^dagger.
-      !
-      IFrom = EXS(ME_iState)%ICoup(2,IOFF+ICP)
-      ITo   = EXS(ME_iState)%ICoup(1,IOFF+ICP)
-
-   else
-
-      !
-      ! Canonical orientation.
-      !
-      IFrom = EXS(ME_iState)%ICoup(1,IOFF+ICP)
-      ITo   = EXS(ME_iState)%ICoup(2,IOFF+ICP)
-
-   end if
-
-   if (IFrom /= IDWNJ) cycle
-   if (ITo   /= IDWNI) cycle
-
-   iValue = EXS(ME_iState)%ICoup(3,IOFF+ICP)
-
-   Value = Value + EXS(ME_iState)%VTab(iValue)
-
-end do
+! the transition IDWNJ -> IDWNI (walk index)
+Value = Coup_Value(EXS(ME_iState),IOFF,NCP,merge(2,1,Reverse),IDWNJ,IDWNI)
 
 end function MatEl_Lower_One
 
@@ -8913,11 +8970,7 @@ integer(kind=iwp) :: IDWNJ
 integer(kind=iwp) :: INDEO
 integer(kind=iwp) :: NCP
 integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: ICP
 
-integer(kind=iwp) :: IFrom
-integer(kind=iwp) :: ITo
-integer(kind=iwp) :: iValue
 
 logical :: Reverse
 
@@ -8959,31 +9012,8 @@ if (NCP == 0) return
 
 IOFF = EXS(ME_iState)%IOCP(INDEO,ISYUPI,MVI)
 
-do ICP=1,NCP
-
-   if (.not. Reverse) then
-
-      IFrom = EXS(ME_iState)%ICoup(1,IOFF+ICP)
-      ITo   = EXS(ME_iState)%ICoup(2,IOFF+ICP)
-
-   else
-
-      !
-      ! E_pq = E_qp^dagger.
-      !
-      IFrom = EXS(ME_iState)%ICoup(2,IOFF+ICP)
-      ITo   = EXS(ME_iState)%ICoup(1,IOFF+ICP)
-
-   end if
-
-   if (IFrom /= IUPJ) cycle
-   if (ITo   /= IUPI) cycle
-
-   iValue = EXS(ME_iState)%ICoup(3,IOFF+ICP)
-
-   Value = Value + EXS(ME_iState)%VTab(iValue)
-
-end do
+! the transition IUPJ -> IUPI (walk index)
+Value = Coup_Value(EXS(ME_iState),IOFF,NCP,merge(2,1,Reverse),IUPJ,IUPI)
 
 end function MatEl_Upper_One
 
@@ -10232,10 +10262,23 @@ function MatEl_EpqErs(I,J,p,q,r,s,OccI,OccJ) result(X)
 
   integer(kind=iwp), intent(in) :: I, J, p, q, r, s, OccI(:), OccJ(:)
   real(kind=wp) :: X
-  character(len=2) :: Top
 
   X = Zero
   if (Quick_Zero(OccI,OccJ,p,q,r,s)) return
+  X = MatEl_EpqErs_Top(I,J,p,q,r,s)
+
+end function MatEl_EpqErs
+
+!> <I|E_pq E_rs|J> by the topology of the two operators, without the
+!> occupation test of MatEl_EpqErs: for callers whose operators are already
+!> allowed by the occupations of I and J (MatEl_H_Direct, H_Double).
+function MatEl_EpqErs_Top(I,J,p,q,r,s) result(X)
+
+  integer(kind=iwp), intent(in) :: I, J, p, q, r, s
+  real(kind=wp) :: X
+  character(len=2) :: Top
+
+  X = Zero
   Top = Op_Class(p,q)//Op_Class(r,s)
   select case (Top)
     case ('UU')
@@ -10258,7 +10301,7 @@ function MatEl_EpqErs(I,J,p,q,r,s,OccI,OccJ) result(X)
       X = MatEl_EpqErs_OO(ME_LSM,I,J,p,q,r,s)
   end select
 
-end function MatEl_EpqErs
+end function MatEl_EpqErs_Top
 
 !> 'U', 'L' or 'O' for an operator E_pq with both levels in the upper half,
 !> both in the lower half, or crossing the midlevel.
@@ -10307,6 +10350,7 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
   integer(kind=iwp) :: nL, t, d, k, nP, nM, x, y, a, b
   real(kind=wp) :: E1, W, G
   integer(kind=iwp) :: Pl(2), Mi(2)
+  logical(kind=iwp) :: Hit
 
   H = Zero
   nL = SGS(ME_iState)%nLev
@@ -10330,31 +10374,69 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
 
   select case (nP)
     case (2)
-      H = H_Double(I,J,OccI,OccJ,Pl(1),Pl(2),Mi(1),Mi(2),TUVX,nTUVX)
+      H = H_Double(I,J,Pl(1),Pl(2),Mi(1),Mi(2),TUVX,nTUVX)
     case (1)
       a = Pl(1)
       b = Mi(1)
       E1 = MatEl_Epq(SGS(ME_iState),CIS(ME_iState),EXS(ME_iState),a,b,ME_LSM,I,J,.False.)
-      ! coefficient of <I|E_ab|J>
-      W = H_Int1(a,b,TU,nTU,TUVX,nTUVX)+Half*H_Int2(a,b,a,a,TUVX,nTUVX)*(OccI(a)+OccJ(a))+ &
-          Half*H_Int2(a,b,b,b,TUVX,nTUVX)*(OccI(b)+OccJ(b))
+      ! coefficient W of <I|E_ab|J>: it depends only on the occupations, so it
+      ! is kept for the CSF pairs of the same configuration pair (ME_HW).
+      if (ME_HW_Valid .and. (ME_HW_ab(1) == a) .and. (ME_HW_ab(2) == b)) then
+        Hit = all(ME_HW_Occ(1:nL) == OccJ(1:nL))
+      else
+        Hit = .false.
+      end if
+      if (Hit) then
+        W = ME_HW
+      else
+        W = H_Int1(a,b,TU,nTU,TUVX,nTUVX)+Half*H_Int2(a,b,a,a,TUVX,nTUVX)*(OccI(a)+OccJ(a))+ &
+            Half*H_Int2(a,b,b,b,TUVX,nTUVX)*(OccI(b)+OccJ(b))
+        do x = 1, nL
+          if ((x == a) .or. (x == b)) cycle
+          W = W+H_Int2(a,b,x,x,TUVX,nTUVX)*OccJ(x)+merge(Half,-Half,OccJ(x) == 0)*H_Int2(a,x,x,b,TUVX,nTUVX)
+        end do
+        call Keep_Occ(ME_HW_Occ,OccJ,nL)
+        ME_HW_ab(:) = [a,b]
+        ME_HW = W
+        ME_HW_Valid = .true.
+      end if
+      ! open shells x: the spin coupling needs the loop walk
       do x = 1, nL
-        if ((x == a) .or. (x == b)) cycle
+        if ((OccJ(x) /= 1) .or. (x == a) .or. (x == b)) cycle
         G = H_Int2(a,x,x,b,TUVX,nTUVX)
-        W = W+H_Int2(a,b,x,x,TUVX,nTUVX)*OccJ(x)+merge(Half,-Half,OccJ(x) == 0)*G
-        ! open shell x: the spin coupling needs the loop walk
-        if (OccJ(x) == 1) H = H+G*MatEl_EpqErs(I,J,a,x,x,b,OccI,OccJ)
+        H = H+G*MatEl_EpqErs_Top(I,J,a,x,x,b)
       end do
       H = H+W*E1
     case (0)
+      ! the part of <I|H|I> that depends only on the occupations (ME_HD):
+      ! one-electron and Coulomb terms, and the exchange of the pairs that
+      ! are not open-open (see below)
       if (I == J) then
-        do x = 1, nL
-          if (OccJ(x) == 0) cycle
-          H = H+H_Int1(x,x,TU,nTU,TUVX,nTUVX)*OccJ(x)
-          do y = 1, nL
-            H = H+Half*H_Int2(x,x,y,y,TUVX,nTUVX)*OccJ(x)*OccJ(y)
+        if (ME_HD_Valid) then
+          Hit = all(ME_HD_Occ(1:nL) == OccJ(1:nL))
+        else
+          Hit = .false.
+        end if
+        if (Hit) then
+          H = ME_HD
+        else
+          do x = 1, nL
+            if (OccJ(x) == 0) cycle
+            H = H+H_Int1(x,x,TU,nTU,TUVX,nTUVX)*OccJ(x)
+            do y = 1, nL
+              H = H+Half*H_Int2(x,x,y,y,TUVX,nTUVX)*OccJ(x)*OccJ(y)
+            end do
           end do
-        end do
+          do x = 1, nL
+            do y = x+1, nL
+              if ((OccJ(x) == 1) .and. (OccJ(y) == 1)) cycle
+              H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(OccJ(x)+OccJ(y)-OccJ(x)*OccJ(y))
+            end do
+          end do
+          call Keep_Occ(ME_HD_Occ,OccJ,nL)
+          ME_HD = H
+          ME_HD_Valid = .true.
+        end if
       end if
       ! Exchange terms. With E_xy E_yx = n_x - 1/2 n_x n_y - 2 S_x.S_y (x /= y)
       ! and S_t = 0 for a closed or empty level, a pair that is not open-open
@@ -10363,12 +10445,10 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
       ! For an open-open pair E_yx E_xy = E_xy E_yx - (E_xx - E_yy) has the
       ! same matrix element (n_x = n_y), so one loop walk suffices.
       do x = 1, nL
+        if (OccJ(x) /= 1) cycle
         do y = x+1, nL
-          if ((OccJ(x) == 1) .and. (OccJ(y) == 1)) then
-            H = H+H_Int2(x,y,y,x,TUVX,nTUVX)*MatEl_EpqErs(I,J,x,y,y,x,OccI,OccJ)
-          else if (I == J) then
-            H = H+Half*H_Int2(x,y,y,x,TUVX,nTUVX)*(OccJ(x)+OccJ(y)-OccJ(x)*OccJ(y))
-          end if
+          if (OccJ(y) /= 1) cycle
+          H = H+H_Int2(x,y,y,x,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,x,y,y,x)
         end do
       end do
   end select
@@ -10381,45 +10461,53 @@ end function MatEl_H_Direct
 ! common index, so they commute ([E_pq,E_rs] = delta_qr E_ps - delta_ps E_rq
 ! = 0) and the strings with the order reversed give the same value: at most
 ! two loop walks.
-function H_Double(I,J,OccI,OccJ,a1,a2,b1,b2,TUVX,nTUVX) result(V)
+function H_Double(I,J,a1,a2,b1,b2,TUVX,nTUVX) result(V)
 
   use Constants, only: Half
 
-  integer(kind=iwp), intent(in) :: I, J, OccI(:), OccJ(:), a1, a2, b1, b2, nTUVX
+  integer(kind=iwp), intent(in) :: I, J, a1, a2, b1, b2, nTUVX
   real(kind=wp), intent(in) :: TUVX(nTUVX)
   real(kind=wp) :: V
 
   if ((a1 == a2) .and. (b1 == b2)) then
     ! the single string E_ab E_ab
-    V = Half*H_Int2(a1,b1,a1,b1,TUVX,nTUVX)*MatEl_EpqErs(I,J,a1,b1,a1,b1,OccI,OccJ)
+    V = Half*H_Int2(a1,b1,a1,b1,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,a1,b1,a1,b1)
   else if ((a1 == a2) .or. (b1 == b2)) then
     ! E_a1b1 E_a2b2 and its reverse
-    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*MatEl_EpqErs(I,J,a1,b1,a2,b2,OccI,OccJ)
+    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,a1,b1,a2,b2)
   else
     ! E_a1b1 E_a2b2, E_a1b2 E_a2b1 and their reverses
-    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*MatEl_EpqErs(I,J,a1,b1,a2,b2,OccI,OccJ)+ &
-        H_Int2(a1,b2,a2,b1,TUVX,nTUVX)*MatEl_EpqErs(I,J,a1,b2,a2,b1,OccI,OccJ)
+    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,a1,b1,a2,b2)+ &
+        H_Int2(a1,b2,a2,b1,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,a1,b2,a2,b1)
   end if
 
 end function H_Double
 
+! iTri of Index_functions, here in the module so that the compiler can
+! inline it in the integral lookups of MatEl_H_Direct.
+pure function Tri_SG(i,j) result(ij)
+
+  integer(kind=iwp), intent(in) :: i, j
+  integer(kind=iwp) :: ij
+
+  ij = merge(j*(j-1)/2+i,i*(i-1)/2+j,j > i)
+
+end function Tri_SG
+
 ! (pq|rs) from the triangular packing of TUVX.
 function H_Int2(p,q,r,s,TUVX,nTUVX) result(V)
-
-  use Index_functions, only: iTri
 
   integer(kind=iwp), intent(in) :: p, q, r, s, nTUVX
   real(kind=wp), intent(in) :: TUVX(nTUVX)
   real(kind=wp) :: V
 
-  V = TUVX(iTri(iTri(p,q),iTri(r,s)))
+  V = TUVX(Tri_SG(Tri_SG(p,q),Tri_SG(r,s)))
 
 end function H_Int2
 
 ! k_pq = h_pq - 1/2 Sum_k (pk|kq).
 function H_Int1(p,q,TU,nTU,TUVX,nTUVX) result(V)
 
-  use Index_functions, only: iTri
   use Constants, only: Half
 
   integer(kind=iwp), intent(in) :: p, q, nTU, nTUVX
@@ -10431,7 +10519,7 @@ function H_Int1(p,q,TU,nTU,TUVX,nTUVX) result(V)
   do kO = 1, SGS(ME_iState)%nLev
     V = V+H_Int2(p,kO,kO,q,TUVX,nTUVX)
   end do
-  V = TU(iTri(p,q))-Half*V
+  V = TU(Tri_SG(p,q))-Half*V
 
 end function H_Int1
 
