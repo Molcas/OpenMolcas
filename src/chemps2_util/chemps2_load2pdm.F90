@@ -23,10 +23,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: NAC, CHEMROOT
 real(kind=wp), intent(out) :: PT(NAC,NAC,NAC,NAC)
+logical(kind=iwp), intent(in) :: TRANS
 character(len=30) :: file_2rdm
 character(len=10) :: rootindex
 integer(kind=iwp) :: file_h5, group_h5, i, j, k, l, idx
-logical(kind=iwp), intent(in) :: TRANS
 logical(kind=iwp) :: irdm
 real(kind=wp), allocatable :: two_rdm(:)
 
