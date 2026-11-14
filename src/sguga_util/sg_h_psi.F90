@@ -153,3 +153,19 @@ call mma_deallocate(Ekl_Eij_Psi)
 call mma_deallocate(Eij_Psi_X)
 
 end subroutine sg_h_psi
+
+!> sg_h_psi for the module state iState (SGS/CIS/EXS of module SGUGA); lets
+!> procedures of SGUGA call sg_h_psi with intrinsic arguments only.
+subroutine sg_h_psi_state(iState,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+
+use sguga, only: SGS, CIS, EXS
+use Definitions, only: iwp, wp
+
+implicit none
+integer(kind=iwp), intent(in) :: iState, nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+real(kind=wp), intent(out) :: Sigma(nCSFs)
+
+call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+
+end subroutine sg_h_psi_state

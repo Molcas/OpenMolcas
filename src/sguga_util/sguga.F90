@@ -8099,16 +8099,16 @@ subroutine Check_MatEl_H()
   real(kind=wp) :: X, Dev, MaxDev, MaxDevD, T0, T1, W, TimH, TimD
   logical(kind=iwp) :: Reuse_Save, AllCols
 
+  ! sg_h_psi uses this module, so it is called through a wrapper with
+  ! intrinsic arguments only (an interface block with the derived types of
+  ! the host module conflicts with the external procedure, Intel #8000)
   interface
-    subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
-      import :: SGStruct, CIStruct, EXStruct, iwp, wp
-      type(SGStruct), intent(in) :: SGS
-      type(CIStruct), intent(in) :: CIS
-      type(EXStruct), intent(inout) :: EXS
-      integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+    subroutine sg_h_psi_state(iState,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+      import :: iwp, wp
+      integer(kind=iwp), intent(in) :: iState, nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
       real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
       real(kind=wp), intent(out) :: Sigma(nCSFs)
-    end subroutine sg_h_psi
+    end subroutine sg_h_psi_state
   end interface
 
   nL = SGS(iState)%nLev
@@ -8149,7 +8149,7 @@ subroutine Check_MatEl_H()
     J = merge(iCol,Rand_Index(nC),AllCols)
     Psi(:) = Zero
     Psi(J) = One
-    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
+    call sg_h_psi_state(iState,Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
     do I = 1, nC
       call CWTime(T0,W)
       X = MatEl_H(I,J,TU,nTU,TUVX,nTUVX)
