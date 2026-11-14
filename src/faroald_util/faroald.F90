@@ -903,7 +903,8 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
   real(kind=wp) :: CSFDIA(nConf)
   real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
 
-  real(kind=wp), intent(out) :: diag(my_ndet)
+  ! one element per spin combination (ib <= ia for singlets, see below)
+  real(kind=wp), intent(out) :: diag(ncomb_tot)
 
   real(kind=wp), allocatable :: Da(:), Db(:)
 
