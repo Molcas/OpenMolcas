@@ -132,9 +132,12 @@ end type CIStruct
 ! USGN(:,:): map from upper reverese-direct-arc-weight sums to upper walk numbers
 ! LSGN(:,:): map from lower direct-arc-weight sums to lower walk numbers
 ! VTAB(:): pool of distinct numerical coupling values.
+! IOrd(k,:): index of the coupling tuples by walk (Mk_Coup_Index): within each
+!            NOCP block (offset IOCP), IOrd(k,IOCP+i), i=1..NOCP, is the local
+!            index of the tuple with the i-th smallest ICoup(k,:) (k=1,2).
 type EXStruct
   integer(kind=iwp) :: MxEO, nICoup
-  integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:)
+  integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:), IOrd(:,:)
   real(kind=wp), allocatable :: VTab(:), SGTMP(:)
   logical(kind=iwp) :: Reuse_SGTMP
   integer(kind=iwp), allocatable:: I1list(:), I2list(:)
@@ -1056,6 +1059,7 @@ call mma_deallocate(CIS%ISGM,safe='*')
  call mma_deallocate(EXS%NOCP,safe='*')
  call mma_deallocate(EXS%IOCP,safe='*')
  call mma_deallocate(EXS%ICoup,safe='*')
+ call mma_deallocate(EXS%IOrd,safe='*')
  call mma_deallocate(EXS%VTab,safe='*')
  call mma_deallocate(EXS%SGTMP,safe='*')
  call mma_deallocate(EXS%MVL,safe='*')
@@ -3505,6 +3509,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 #endif
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+  ! a new coupling table invalidates its index
+  call mma_deallocate(EXS%IOrd,safe='*')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 
   MxEO_Block = nOpenBands * SGS%nLev
@@ -6901,6 +6907,7 @@ End Do
 ! State and symmetry of the module-level matrix-element routines
 ME_iState = iState
 ME_LSM = LSM
+if (.not. allocated(EXS(iState)%IOrd)) call Mk_Coup_Index(EXS(iState))
 ! Verify that MatEl_Epq is correct
 
 call Init_Rand_Seed()
@@ -10215,7 +10222,7 @@ integer(kind=iwp) :: IUI,IUJ,IDI,IDJ
 integer(kind=iwp) :: U1,L1,U2,L2
 integer(kind=iwp) :: INDEO
 integer(kind=iwp) :: N1,Off1,N2,Off2
-integer(kind=iwp) :: i1,i2,iK
+integer(kind=iwp) :: i1,i2,iK,c1,c2,j1,j2,j1a,j1b,j2a,j2b
 logical(kind=iwp) :: Swap1, Swap2
 
 Value=Zero
@@ -10272,16 +10279,20 @@ do MV1 = 1, 2
    N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYUK,MVK),Swap1)
    Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYUK,MVK),Swap1)
    if (N1 == 0) cycle
+   ! Walk index (EXS%IOrd): the transitions of E_rs starting at the ket
+   ! walk IUJ and of E_pq starting at K, by binary search.
    XU = Zero
-   do i2 = 1, N2
-      ! E_rs: ket Ju, bra Ku
-      if (merge(EXS(ME_iState)%ICoup(2,Off2+i2),EXS(ME_iState)%ICoup(1,Off2+i2),Swap2) /= IUJ) cycle
-      iK = merge(EXS(ME_iState)%ICoup(1,Off2+i2),EXS(ME_iState)%ICoup(2,Off2+i2),Swap2)
+   c2 = merge(2,1,Swap2)
+   c1 = merge(2,1,Swap1)
+   call Coup_Range(Off2,N2,c2,IUJ,j2a,j2b)
+   do j2 = j2a, j2b
+      i2 = EXS(ME_iState)%IOrd(c2,Off2+j2)
+      iK = EXS(ME_iState)%ICoup(3-c2,Off2+i2)
       X2 = EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off2+i2))
-      do i1 = 1, N1
-         ! E_pq: ket Ku, bra Iu
-         if (merge(EXS(ME_iState)%ICoup(2,Off1+i1),EXS(ME_iState)%ICoup(1,Off1+i1),Swap1) /= iK) cycle
-         if (merge(EXS(ME_iState)%ICoup(1,Off1+i1),EXS(ME_iState)%ICoup(2,Off1+i1),Swap1) /= IUI) cycle
+      call Coup_Range(Off1,N1,c1,iK,j1a,j1b)
+      do j1 = j1a, j1b
+         i1 = EXS(ME_iState)%IOrd(c1,Off1+j1)
+         if (EXS(ME_iState)%ICoup(3-c1,Off1+i1) /= IUI) cycle
          XU = XU+EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off1+i1))*X2
       end do
    end do
@@ -10298,16 +10309,20 @@ do MV1 = 1, 2
    N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYDK,MVK),Swap1)
    Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYDK,MVK),Swap1)
    if (N1 == 0) cycle
+   ! Walk index (EXS%IOrd): the transitions of E_rs starting at the ket
+   ! walk IDJ and of E_pq starting at K, by binary search.
    XL = Zero
-   do i2 = 1, N2
-      ! E_rs: ket Jl, bra Kl
-      if (merge(EXS(ME_iState)%ICoup(2,Off2+i2),EXS(ME_iState)%ICoup(1,Off2+i2),Swap2) /= IDJ) cycle
-      iK = merge(EXS(ME_iState)%ICoup(1,Off2+i2),EXS(ME_iState)%ICoup(2,Off2+i2),Swap2)
+   c2 = merge(2,1,Swap2)
+   c1 = merge(2,1,Swap1)
+   call Coup_Range(Off2,N2,c2,IDJ,j2a,j2b)
+   do j2 = j2a, j2b
+      i2 = EXS(ME_iState)%IOrd(c2,Off2+j2)
+      iK = EXS(ME_iState)%ICoup(3-c2,Off2+i2)
       X2 = EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off2+i2))
-      do i1 = 1, N1
-         ! E_pq: ket Kl, bra Il
-         if (merge(EXS(ME_iState)%ICoup(2,Off1+i1),EXS(ME_iState)%ICoup(1,Off1+i1),Swap1) /= iK) cycle
-         if (merge(EXS(ME_iState)%ICoup(1,Off1+i1),EXS(ME_iState)%ICoup(2,Off1+i1),Swap1) /= IDI) cycle
+      call Coup_Range(Off1,N1,c1,iK,j1a,j1b)
+      do j1 = j1a, j1b
+         i1 = EXS(ME_iState)%IOrd(c1,Off1+j1)
+         if (EXS(ME_iState)%ICoup(3-c1,Off1+i1) /= IDI) cycle
          XL = XL+EXS(ME_iState)%VTab(EXS(ME_iState)%ICoup(3,Off1+i1))*X2
       end do
    end do
@@ -10961,7 +10976,116 @@ subroutine SG_MatEl_Init(iState,LSM)
   ME_LSM = LSM
   if (.not. allocated(CIS(iState)%ICase)) call MkCOT(SGS(iState),CIS(iState))
   if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(LSM,SGS(iState),CIS(iState),EXS(iState))
+  if (.not. allocated(EXS(iState)%IOrd)) call Mk_Coup_Index(EXS(iState))
 end subroutine SG_MatEl_Init
+
+!> Index of the coupling tuples by walk, EXS%IOrd (see EXStruct): each NOCP
+!> block sorted by ICoup(1,:) and by ICoup(2,:) (heapsort, O(N log N)).
+subroutine Mk_Coup_Index(EXS)
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp) :: INDEO, iSym, MV, k, N, Off, i
+  integer(kind=iwp), allocatable :: Key(:)
+
+  call mma_allocate(EXS%IOrd,2,max(1,size(EXS%ICoup,2)),Label='EXS%IOrd')
+  call mma_allocate(Key,max(1,maxval(EXS%NOCP)),Label='Key')
+  do MV=1,size(EXS%NOCP,3)
+    do iSym=1,size(EXS%NOCP,2)
+      do INDEO=1,size(EXS%NOCP,1)
+        N = EXS%NOCP(INDEO,iSym,MV)
+        if (N == 0) cycle
+        Off = EXS%IOCP(INDEO,iSym,MV)
+        do k=1,2
+          do i=1,N
+            EXS%IOrd(k,Off+i) = i
+            Key(i) = EXS%ICoup(k,Off+i)
+          end do
+          call Heap_Sort_Index(N,Key,EXS%IOrd(k,Off+1:Off+N))
+        end do
+      end do
+    end do
+  end do
+  call mma_deallocate(Key)
+
+end subroutine Mk_Coup_Index
+
+!> Sort Key(1:N) in increasing order (heapsort), permuting Idx(1:N) along.
+subroutine Heap_Sort_Index(N,Key,Idx)
+  integer(kind=iwp), intent(in) :: N
+  integer(kind=iwp), intent(inout) :: Key(N), Idx(N)
+  integer(kind=iwp) :: i, iEnd
+
+  do i=N/2,1,-1
+    call Sift_Down(i,N)
+  end do
+  do iEnd=N,2,-1
+    call Swap_Entries(1,iEnd)
+    call Sift_Down(1,iEnd-1)
+  end do
+
+contains
+
+  subroutine Sift_Down(iStart,iLast)
+    integer(kind=iwp), intent(in) :: iStart, iLast
+    integer(kind=iwp) :: iRoot, iChild
+    iRoot = iStart
+    do
+      iChild = 2*iRoot
+      if (iChild > iLast) exit
+      if (iChild < iLast) then
+        if (Key(iChild+1) > Key(iChild)) iChild = iChild+1
+      end if
+      if (Key(iRoot) >= Key(iChild)) exit
+      call Swap_Entries(iRoot,iChild)
+      iRoot = iChild
+    end do
+  end subroutine Sift_Down
+
+  subroutine Swap_Entries(i1,i2)
+    integer(kind=iwp), intent(in) :: i1, i2
+    integer(kind=iwp) :: iTmp
+    iTmp = Key(i1)
+    Key(i1) = Key(i2)
+    Key(i2) = iTmp
+    iTmp = Idx(i1)
+    Idx(i1) = Idx(i2)
+    Idx(i2) = iTmp
+  end subroutine Swap_Entries
+
+end subroutine Heap_Sort_Index
+
+!> Positions iFirst..iLast (within the NOCP block of N tuples at offset Off,
+!> order IOrd(k,:)) of the tuples with ICoup(k,:) = iWalk (binary search);
+!> iFirst > iLast if there are none.
+subroutine Coup_Range(Off,N,k,iWalk,iFirst,iLast)
+  integer(kind=iwp), intent(in) :: Off, N, k, iWalk
+  integer(kind=iwp), intent(out) :: iFirst, iLast
+  integer(kind=iwp) :: iLo, iHi, iMid
+
+  ! first position with key >= iWalk
+  iLo = 1
+  iHi = N+1
+  do while (iLo < iHi)
+    iMid = (iLo+iHi)/2
+    if (EXS(ME_iState)%ICoup(k,Off+EXS(ME_iState)%IOrd(k,Off+iMid)) < iWalk) then
+      iLo = iMid+1
+    else
+      iHi = iMid
+    end if
+  end do
+  iFirst = iLo
+  ! first position with key > iWalk
+  iHi = N+1
+  do while (iLo < iHi)
+    iMid = (iLo+iHi)/2
+    if (EXS(ME_iState)%ICoup(k,Off+EXS(ME_iState)%IOrd(k,Off+iMid)) <= iWalk) then
+      iLo = iMid+1
+    else
+      iHi = iMid
+    end if
+  end do
+  iLast = iLo-1
+
+end subroutine Coup_Range
 
 !> Orbital occupations (per level) of the GUGA CSF I (after SG_MatEl_Init).
 subroutine SG_CSF_Occ(I,OccVec)
