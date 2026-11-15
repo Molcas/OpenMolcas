@@ -4083,11 +4083,6 @@ call mma_deallocate(initial_occ,safe='*')
 
 call Setup_RASSCF()
 
-if (DOFARO .and. (NSYM > 1)) then
-  write(u6,'(1X,A)') 'FARO keyword was used, but NSYM > 1,'
-  write(u6,'(1X,A)') 'switching to LUCIA as the CI backend.'
-  DOFARO = .false.
-endif
 if (DoSGEx .and. iDoGAS) then
   write(u6,'(1X,A)') 'SGEX keyword was used, but SGUGA is not available with GAS,'
   write(u6,'(1X,A)') 'the explicit Hamiltonian is computed by the CI backend.'
