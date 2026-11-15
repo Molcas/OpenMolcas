@@ -65,6 +65,9 @@ subroutine Lucia_Util(ModLab,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
   Module_ = ModLab
   call UpCase(Module_)
 
+  ! closing a Lucia that was never initialized (the CI was not set up) is
+  ! harmless
+  if ((Module_(1:5) == 'CLOSE') .and. (.not. Lucia_Initialized)) return
   if ((Module_(1:3) /= 'INI') .and. (.not. Lucia_Initialized)) then
     write(u6,*) 'Lucia_Util: Lucia is not initialized, request ',trim(ModLab)
     call Abend()
