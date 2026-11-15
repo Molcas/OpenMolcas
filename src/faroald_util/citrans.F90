@@ -616,7 +616,7 @@ subroutine citrans_csf2sd(ci,det)
 
   real(kind=wp), intent(in) :: ci(:)
   real(kind=wp), intent(out) :: det(ndeta,ndetb)
-  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -643,8 +643,6 @@ subroutine citrans_csf2sd(ci,det)
 #   ifdef _DEBUGPRINT_
     write(u6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
 #   endif
-    ndoc = ndoc_group(ido)
-    nsoc = nsoc_group(ido)
     nconf = nkeep_group(ido)
     ndet = ndet_group(ido)
     ncsf = ncsf_group(ido)
@@ -690,7 +688,7 @@ subroutine citrans_sd2csf(det,ci)
 
   real(kind=wp), intent(in) :: det(ndeta,ndetb)
   real(kind=wp), intent(out) :: ci(:)
-  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -706,8 +704,6 @@ subroutine citrans_sd2csf(det,ci)
 
   ioff_csf1 = 1
   do ido=ndo_min,ndo_max
-    ndoc = ndoc_group(ido)
-    nsoc = nsoc_group(ido)
     nconf = nkeep_group(ido)
     ndet = ndet_group(ido)
     ncsf = ncsf_group(ido)
@@ -755,7 +751,7 @@ subroutine citrans_csf2ras(ci,vec)
 
   real(kind=wp), intent(in) :: ci(:)
   real(kind=wp), intent(out) :: vec(n_ras)
-  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -782,8 +778,6 @@ subroutine citrans_csf2ras(ci,vec)
 #   ifdef _DEBUGPRINT_
     write(u6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
 #   endif
-    ndoc = ndoc_group(ido)
-    nsoc = nsoc_group(ido)
     nconf = nkeep_group(ido)
     ndet = ndet_group(ido)
     ncsf = ncsf_group(ido)
@@ -830,7 +824,7 @@ subroutine citrans_ras2csf(vec,ci)
 
   real(kind=wp), intent(in) :: vec(n_ras)
   real(kind=wp), intent(out) :: ci(:)
-  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -846,8 +840,6 @@ subroutine citrans_ras2csf(vec,ci)
 
   ioff_csf1 = 1
   do ido=ndo_min,ndo_max
-    ndoc = ndoc_group(ido)
-    nsoc = nsoc_group(ido)
     nconf = nkeep_group(ido)
     ndet = ndet_group(ido)
     ncsf = ncsf_group(ido)
