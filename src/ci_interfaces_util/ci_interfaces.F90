@@ -16,7 +16,7 @@ use sguga, only: SG_Free, SG_ReOrd, SG_Lucia_Walk, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
-use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_sd2csf, citrans_sort
+use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
@@ -32,7 +32,8 @@ use CI_Verify_Options, only: CI_Verify
 Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
-Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify, SG_CI, CI_Lucia_Active
+Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify, SG_CI, CI_Lucia_Active, CI_Basis, CI_Basis_To_File, &
+          CI_File_To_Basis, CI_File_Index_To_Basis
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
@@ -59,6 +60,9 @@ logical(kind=iwp) :: IHI_SG_Verified = .false.
 logical(kind=iwp) :: IHI_Avg_Verified = .false.
 ! SGCI: the SGUGA transition densities compared with Lucia (SIGMA), printed once.
 logical(kind=iwp) :: T1DM_SG_Verified = .false.
+! FARO: the Faroald steps verified against Lucia and SGUGA (SIGMA), printed once
+logical(kind=iwp) :: HPsi_Faro_Verified = .false., PDM_Faro_Verified = .false., T1DM_Faro_Verified = .false., &
+                     TraPsi_Faro_Verified = .false., IHI_Faro_SG_Verified = .false.
 ! Lucia has been initialized (not for SGCI, except as the SIGMA reference)
 logical(kind=iwp) :: Lucia_Active = .true.
 
@@ -78,6 +82,171 @@ function CI_Lucia_Active() result(Active)
 logical(kind=iwp) :: Active
 Active = Lucia_Active
 end function CI_Lucia_Active
+
+!> The CSF basis of the CI vectors of RASSCF: 1 = Lucia, 2 = the split-graph
+!> basis of SGUGA (SGCI; the order of the files), 3 = the configuration
+!> order of Faroald (citrans; keyword FARO).
+function CI_Basis() result(iBasis)
+integer(kind=iwp) :: iBasis
+if (SG_CI()) then
+  iBasis = 2
+else if (DoFaro) then
+  iBasis = 3
+else
+  iBasis = 1
+end if
+end function CI_Basis
+
+!> A CI vector from the basis of the CI back end to the split-graph order of
+!> the JOBIPH/HDF5 files (and of SGUGA).
+subroutine CI_Basis_To_File(iState,LSM,n,Cin,Cout)
+integer(kind=iwp), intent(in) :: iState, LSM, n
+real(kind=wp), intent(in) :: Cin(n)
+real(kind=wp), intent(out) :: Cout(n)
+select case (CI_Basis())
+  case (1)
+    call SG_Reord(iState,LSM,0,n,Cin,Cout)
+  case (2)
+    Cout(:) = Cin(:)
+  case (3)
+    call CITRANS_SORT('O',Cin,Cout)
+end select
+end subroutine CI_Basis_To_File
+
+!> A CI vector from the split-graph order of the files to the basis of the
+!> CI back end.
+subroutine CI_File_To_Basis(iState,LSM,n,Cin,Cout)
+integer(kind=iwp), intent(in) :: iState, LSM, n
+real(kind=wp), intent(in) :: Cin(n)
+real(kind=wp), intent(out) :: Cout(n)
+select case (CI_Basis())
+  case (1)
+    call SG_Reord(iState,LSM,1,n,Cin,Cout)
+  case (2)
+    Cout(:) = Cin(:)
+  case (3)
+    call CITRANS_SORT('C',Cin,Cout)
+end select
+end subroutine CI_File_To_Basis
+
+!> A CI vector from the basis of the CI back end to the Lucia basis (the
+!> reference of MOLCAS_CI_VERIFY=SIGMA).
+subroutine CI_Basis_To_Lucia(iState,LSM,n,Cin,Cout)
+integer(kind=iwp), intent(in) :: iState, LSM, n
+real(kind=wp), intent(in) :: Cin(n)
+real(kind=wp), intent(out) :: Cout(n)
+real(kind=wp), allocatable :: Tmp(:)
+if (CI_Basis() == 1) then
+  Cout(:) = Cin(:)
+else
+  call mma_allocate(Tmp,n,Label='Tmp_File')
+  call CI_Basis_To_File(iState,LSM,n,Cin,Tmp)
+  call SG_Reord(iState,LSM,1,n,Tmp,Cout)
+  call mma_deallocate(Tmp)
+end if
+end subroutine CI_Basis_To_Lucia
+
+!> A CI vector from the Lucia basis to the basis of the CI back end.
+subroutine CI_Lucia_To_Basis(iState,LSM,n,Cin,Cout)
+integer(kind=iwp), intent(in) :: iState, LSM, n
+real(kind=wp), intent(in) :: Cin(n)
+real(kind=wp), intent(out) :: Cout(n)
+real(kind=wp), allocatable :: Tmp(:)
+if (CI_Basis() == 1) then
+  Cout(:) = Cin(:)
+else
+  call mma_allocate(Tmp,n,Label='Tmp_File')
+  call SG_Reord(iState,LSM,0,n,Cin,Tmp)
+  call CI_File_To_Basis(iState,LSM,n,Tmp,Cout)
+  call mma_deallocate(Tmp)
+end if
+end subroutine CI_Lucia_To_Basis
+
+!> Reference sigma vectors (CI development, MOLCAS_CI_VERIFY=SIGMA): Sout =
+!> H Cin, both in the basis of the CI back end, computed by Lucia (Lab =
+!> 'Lucia', the vector reordered to the Lucia basis and back) or by SGUGA
+!> (Lab = 'SGUGA', through the split-graph order of the files).
+subroutine Ref_Sigma(Lab,iState,LSM,n,Cin,Sout,nTU,TU,nTUVX,TUVX)
+use lucia_data, only: IREFSM, Sigma_on_disk
+use cands, only: ICSM, ISSM
+character(len=*), intent(in) :: Lab
+integer(kind=iwp), intent(in) :: iState, LSM, n, nTU, nTUVX
+real(kind=wp), intent(in) :: Cin(n), TU(nTU), TUVX(nTUVX)
+real(kind=wp), intent(out) :: Sout(n)
+integer(kind=iwp) :: IREFSM_Keep, nD, nT
+logical(kind=iwp) :: Sigma_Keep
+real(kind=wp), allocatable :: C1(:), C2(:)
+
+select case (Lab)
+  case ('Lucia')
+    nD = NDTASM(LSM)
+    nT = max(n,nD)
+    call mma_allocate(C1,nT,Label='C1')
+    call mma_allocate(C2,nT,Label='C2')
+    IREFSM_Keep = IREFSM
+    Sigma_Keep = Sigma_on_disk
+    IREFSM = LSM
+    ICSM = LSM
+    ISSM = LSM
+    C1(:) = Zero
+    call CI_Basis_To_Lucia(iState,LSM,n,Cin,C1(1:n))
+    C2(:) = Zero
+    call csdtvc(C1,C2,1,LSM,0)
+    C1(1:nD) = C2(1:nD)
+    call Lucia_Util('Sigma',CI_Vector=C1(:),Sigma_Vector=C2(:),nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+    call CSDTVC(C1,C2,2,LSM,0)
+    call CI_Lucia_To_Basis(iState,LSM,n,C1(1:n),Sout)
+    IREFSM = IREFSM_Keep
+    ICSM = IREFSM
+    ISSM = IREFSM
+    Sigma_on_disk = Sigma_Keep
+  case ('SGUGA')
+    call mma_allocate(C1,n,Label='C1')
+    call mma_allocate(C2,n,Label='C2')
+    call CI_Basis_To_File(iState,LSM,n,Cin,C1)
+    if (nRsPrt == 1) then
+      call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C1,n,LSM,C2,TUVX,nTUVX,TU,nTU)
+    else
+      call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C1,n,LSM,C2,TUVX,nTUVX,TU,nTU)
+    end if
+    call CI_File_To_Basis(iState,LSM,n,C2,Sout)
+  case default
+    write(u6,*) 'Ref_Sigma: unknown back end ',Lab
+    call Abend()
+end select
+call mma_deallocate(C2)
+call mma_deallocate(C1)
+end subroutine Ref_Sigma
+
+!> Report (once, Done) and check a maximal deviation of a verification.
+subroutine Report_Dev(Text,Dev,Thr,Done)
+character(len=*), intent(in) :: Text
+real(kind=wp), intent(in) :: Dev, Thr
+logical(kind=iwp), intent(inout) :: Done
+if (.not. Done) write(u6,'(1X,2A,ES10.3)') Text,', max. abs. difference',Dev
+Done = .true.
+if (Dev > Thr) then
+  write(u6,'(1X,3A,ES10.3)') 'Verification failed: ',Text,', max. abs. difference',Dev
+  call Abend()
+end if
+end subroutine Report_Dev
+
+!> Index and phase in the basis of the CI back end of the CSF iFile of the
+!> split-graph order of the files (e.g. the reference CSFs of CIRO).
+subroutine CI_File_Index_To_Basis(iState,LSM,n,iFile,iBasis,iPhase)
+integer(kind=iwp), intent(in) :: iState, LSM, n, iFile
+integer(kind=iwp), intent(out) :: iBasis, iPhase
+real(kind=wp), allocatable :: E(:), F(:)
+call mma_allocate(E,n,Label='E_File')
+call mma_allocate(F,n,Label='F_Basis')
+E(:) = Zero
+E(iFile) = One
+call CI_File_To_Basis(iState,LSM,n,E,F)
+iBasis = maxloc(abs(F),1)
+iPhase = nint(F(iBasis))
+call mma_deallocate(F)
+call mma_deallocate(E)
+end subroutine CI_File_Index_To_Basis
 
 !> SGUGA covers the CI space of RASSCF: CAS or RAS, but not GAS (no graph)
 !> and not HEXS/DEXS (I_ELIMINATE_GAS), which remove configurations that the
@@ -107,6 +276,7 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 integer(kind=iwp) :: IREFSM_SAVE, nDet
 
 real(kind=wp) :: Check_Href, Check_H, DMax
+logical(kind=iwp) :: Lucia_Done, SG_Done
 real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:), SG_RAS(:)
 
 ! SGCI: the CI is in the SGUGA (split-graph) CSF basis. Under
@@ -142,7 +312,17 @@ end if
 if (DOFARO) then
 
   call Faroald_Ints(TU,TUVX)
-  call Faroald_Sigma(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+  call Faroald_Sigma(nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+  ! CI development (MOLCAS_CI_VERIFY=SIGMA): the Faroald sigma vector
+  ! against Lucia (and below against SGUGA)
+  if (CI_Verify('SIGMA')) then
+    call mma_allocate(SG_SGM,nCSF,Label='Lucia_SGM')
+    call Ref_Sigma('Lucia',iState,STSYM,nCSF,CI_Vec,SG_SGM,nTU,TU,nTUVX,TUVX)
+    DMax = maxval(abs(SG_SGM(:)-Sigma_Vec(:)))
+    Lucia_Done = HPsi_Faro_Verified
+    call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs Lucia',DMax,1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:)))),Lucia_Done)
+    call mma_deallocate(SG_SGM)
+  end if
 
 else
 
@@ -190,7 +370,7 @@ end if
 ! SGUGA graph.
 If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
-   call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
+   call CI_Basis_To_File(iState,STSYM,nCSF,CI_VEC,SG_PSI)
    Check_Href=CheckSum(Sigma_Vec,nCSF)
    Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
    if (nRsPrt == 1) then
@@ -210,7 +390,7 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    else
      Call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
    end if
-   call SG_Reord(iState,STSYM,1,nCSF,SG_SGM,SG_PSI)
+   call CI_File_To_Basis(iState,STSYM,nCSF,SG_SGM,SG_PSI)
    if (nRsPrt /= 1) then
      DMax = maxval(abs(SG_PSI(:)-Sigma_Vec(:)))
      if (.not. HPsi_RAS_Verified) &
@@ -220,6 +400,12 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
        write(u6,'(1X,A,ES10.3)') 'SGUGA error in sg_h_psi_ras (RAS), max. abs. difference',DMax
        call Abend()
      end if
+   end if
+   if (DoFaro) then
+     SG_Done = HPsi_Faro_Verified
+     call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs SGUGA',maxval(abs(SG_PSI(:)-Sigma_Vec(:))), &
+                     1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:)))),SG_Done)
+     HPsi_Faro_Verified = .true.
    end if
    Check_H   =CheckSum(SG_PSI,nCSF)
    If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
@@ -299,11 +485,11 @@ end do
 
 end subroutine Faroald_Ints
 
-!> Faroald sigma vector Sigma_Vec = H CI_Vec in Lucia's CSF basis, with the
+!> Faroald sigma vector Sigma_Vec = H CI_Vec in its own CSF basis (citrans), with the
 !> integrals set by Faroald_Ints. ctemp and sigtemp are scratch of at least
 !> nDetA*nDetB elements (Faroald determinant basis).
-subroutine Faroald_Sigma(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
-integer(kind=iwp), intent(in) :: iState, STSYM, nCSF, ntemp, ndeta, ndetb
+subroutine Faroald_Sigma(nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+integer(kind=iwp), intent(in) :: nCSF, ntemp, ndeta, ndetb
 real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
@@ -312,15 +498,12 @@ real(kind=wp), pointer :: Faroald_PSI(:,:), Faroald_SGM(:,:)
 Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
 Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 
-call SG_REORD(iState,STSYM,0,nCSF,CI_Vec,ctemp)
-call CITRANS_SORT('C',ctemp,Sigma_Vec)
+! (the CI vectors are in the configuration order of Faroald, citrans)
 Faroald_PSI(:,:) = Zero
-call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
+call CITRANS_CSF2SD(CI_Vec,Faroald_PSI)
 Faroald_SGM(:,:) = Zero
 call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
 call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
-call CITRANS_SORT('O',Sigma_Vec,ctemp)
-call SG_Reord(iState,STSYM,1,nCSF,ctemp,Sigma_Vec)
 
 Faroald_Psi => Null()
 Faroald_SGM => Null()
@@ -558,7 +741,7 @@ real(kind=wp), intent(_IN_):: Bra_Vec(nVec), Ket_Vec(nVec)
 real(kind=wp), intent(out):: T1DM(nT1DM)
 real(kind=wp), optional, intent(out):: T1SDM(nT1DM)
 
-real(kind=wp), allocatable:: T1SDM_loc(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), temp(:)
+real(kind=wp), allocatable:: T1SDM_loc(:), Bra_SD(:,:), Ket_SD(:,:)
 integer(kind=iwp), parameter :: iState=1
 logical(kind=iwp) :: free_D, free_DS
 
@@ -572,35 +755,24 @@ end if
 If (DoFaro) Then
    Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
 
-   Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
-   Call mma_allocate(temp,nDetA*nDetB,Label='temp')
    Call mma_allocate(Bra_SD,nDetA,nDetB,Label='Psi')
    Call mma_allocate(Ket_SD,nDetA,nDetB,Label='Psi')
 
-   CIV(:)=Zero
-   call SG_Reord(iState,STSYM,0,nVec,Bra_Vec,CIV)
-   Temp(:)=Zero
-   call CITRANS_SORT('C',CIV,temp)
+   ! (the CI vectors are in the configuration order of Faroald, citrans)
    Bra_SD(:,:)=Zero
-   call CITRANS_CSF2SD(temp,Bra_SD)
-
-   CIV(:)=Zero
-   call SG_Reord(iState,STSYM,0,nVec,Ket_Vec,CIV)
-   Temp(:)=Zero
-   call CITRANS_SORT('C',CIV,temp)
+   call CITRANS_CSF2SD(Bra_Vec,Bra_SD)
    Ket_SD(:,:)=Zero
-   call CITRANS_CSF2SD(temp,Ket_SD)
+   call CITRANS_CSF2SD(Ket_Vec,Ket_SD)
 
 !  Don't ask me why we need to do it the other way?
 !  Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM_loc)
    Call Transition_One_PDM(Ket_SD,Bra_SD,T1DM,T1SDM_loc)
 
    If (present(T1SDM)) T1SDM(1:nT1DM) = T1SDM_loc(1:nT1DM)
+   If (CI_Verify('SIGMA')) call Faroald_Check_T1DM()
 
    Call mma_deallocate(Ket_SD)
    Call mma_deallocate(Bra_SD)
-   Call mma_deallocate(temp)
-   Call mma_deallocate(CIV)
    Call mma_deallocate(T1SDM_loc)
 Else
    Free_D =.False.
@@ -623,6 +795,53 @@ Else
 End If
 
 contains
+
+  ! FARO (CI development, SIGMA): the Faroald transition densities against
+  ! Lucia (no spin density for singlets) and SGUGA (sg_trans_pdm, whose
+  ! layout is the transpose).
+  subroutine Faroald_Check_T1DM()
+    real(kind=wp), allocatable :: BL(:), KL(:), TS(:), TSS(:)
+    real(kind=wp) :: Dev(2)
+    integer(kind=iwp) :: p, q
+    logical(kind=iwp) :: Done
+    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
+
+    call mma_allocate(BL,nVec,Label='BL')
+    call mma_allocate(KL,nVec,Label='KL')
+    call CI_Basis_To_Lucia(iState,STSYM,nVec,Bra_Vec,BL)
+    call CI_Basis_To_Lucia(iState,STSYM,nVec,Ket_Vec,KL)
+    call mma_allocate(DTMP,max(nT1DM,NAC*NAC),Label='DTMP')
+    call mma_allocate(DSTMP,max(nT1DM,NAC*NAC),Label='DSTMP')
+    call Lucia_Util('Densi',CI_Vector=KL(:),RVec=BL(:))
+    Dev(1) = maxval(abs(DTMP(1:NAC*NAC)-T1DM(1:NAC*NAC)))
+    Dev(2) = Zero
+    if (ISPIN > 1) Dev(2) = maxval(abs(DSTMP(1:NAC*NAC)-T1SDM_loc(1:NAC*NAC)))
+    Done = T1DM_Faro_Verified
+    call Report_Dev('Mk_T1DM (FARO): Faroald T1DM, T1SDM vs Lucia',maxval(Dev),ThrD,Done)
+    call mma_deallocate(DSTMP)
+    call mma_deallocate(DTMP)
+    if (SG_Avail()) then
+      call CI_Basis_To_File(iState,STSYM,nVec,Bra_Vec,BL)
+      call CI_Basis_To_File(iState,STSYM,nVec,Ket_Vec,KL)
+      call mma_allocate(TS,NAC*NAC,Label='TS')
+      call mma_allocate(TSS,NAC*NAC,Label='TSS')
+      call sg_trans_pdm(SGS(iState),CIS(iState),EXS(iState),BL,KL,nVec,STSYM,NAC,TS,TSS,.true.)
+      Dev(:) = Zero
+      do q=1,NAC
+        do p=1,NAC
+          Dev(1) = max(Dev(1),abs(T1DM(p+(q-1)*NAC)-TS(q+(p-1)*NAC)))
+          Dev(2) = max(Dev(2),abs(T1SDM_loc(p+(q-1)*NAC)-TSS(q+(p-1)*NAC)))
+        end do
+      end do
+      Done = T1DM_Faro_Verified
+      call Report_Dev('Mk_T1DM (FARO): Faroald T1DM, T1SDM vs SGUGA',maxval(Dev),ThrD,Done)
+      call mma_deallocate(TSS)
+      call mma_deallocate(TS)
+    end if
+    T1DM_Faro_Verified = .true.
+    call mma_deallocate(KL)
+    call mma_deallocate(BL)
+  end subroutine Faroald_Check_T1DM
 
   subroutine SGCI_T1DM()
     real(kind=wp), allocatable :: TS(:), TSS(:), BL(:), KL(:)
@@ -694,7 +913,7 @@ use rasscf_global, only: NACPAR, NACPR2
  real(kind=wp), allocatable :: SD_FAROALD(:,:)
  real(kind=wp), allocatable :: Faroald_Psi(:,:)
  real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
- real(kind=wp), allocatable :: CIV(:), temp(:)
+ real(kind=wp), allocatable :: CIV(:)
  integer(kind=iwp), parameter :: iState=1
 
 real(kind=wp) :: Check_D1, Check_P, Check_PA
@@ -715,19 +934,11 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    call mma_allocate(P_loc,nP,Label='P_loc')
    call mma_allocate(PA_loc,nP,Label='PA_loc')
 
-   Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
-   CIV(:)=Zero
-   Call mma_allocate(Temp,nDetA*nDetB,Label='temp')
    Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
 
-   call SG_Reord(istate,STSYM,0,nCIVEC,CIVEC,CIV)
-   Temp(:)=Zero
-   call CITRANS_SORT('C',CIV,temp)
+   ! (the CI vector is in the configuration order of Faroald, citrans)
    Faroald_Psi(:,:)=Zero
-   call CITRANS_CSF2SD(temp,Faroald_PSI)
-
-   Call mma_deallocate(CIV)
-   Call mma_deallocate(temp)
+   call CITRANS_CSF2SD(CIVEC,Faroald_PSI)
 
    Call mma_allocate(D_Faroald,NAC,NAC)
    Call mma_allocate(SD_Faroald,NAC,NAC)
@@ -748,6 +959,8 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
    If (Present(P)) P(1:nP)=P_loc(1:nP)
    If (Present(PA)) PA(1:nP)=PA_loc(1:nP)
+
+   If (CI_Verify('SIGMA')) call Faroald_Check_Densities()
 
    call mma_deallocate(D_loc)
    call mma_deallocate(SD_loc)
@@ -772,10 +985,10 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): verify the SGUGA density matrices
 ! against the CI back end. D, P and PA are optional, so only those present
 ! are compared.
-        If (CI_Verify('SIGMA') .and. .NOT.iDoGAS) Then
+        If (CI_Verify('SIGMA') .and. (.NOT.iDoGAS) .and. (.NOT.DoFaro)) Then
 
           Call mma_allocate(CIV,nCIVEC,Label='CIV')
-          call SG_Reord(iState,STSYM,0,nCIVEC,CIVEC,CIV)
+          call CI_Basis_To_File(iState,STSYM,nCIVEC,CIVEC,CIV)
 
 !         Test the one-particle density matrix
           If (Present(D)) Then
@@ -828,6 +1041,57 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
         END IF
 
 contains
+
+  ! FARO (CI development, SIGMA): the Faroald densities D, SD, P, PA against
+  ! Lucia (vector in the Lucia basis; no spin density for singlets) and
+  ! SGUGA (vector in the split-graph order), element by element.
+  subroutine Faroald_Check_Densities()
+    real(kind=wp), allocatable :: CIL(:), DS(:), SDS(:), PS(:), PAS(:)
+    real(kind=wp) :: Dev(4)
+    logical(kind=iwp) :: Done
+    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
+
+    call mma_allocate(CIL,nCIVEC,Label='CIL')
+    call CI_Basis_To_Lucia(iState,STSYM,nCIVEC,CIVEC,CIL)
+    call mma_allocate(DTMP,nD,Label='DTMP')
+    call mma_allocate(DSTMP,nD,Label='DSTMP')
+    call mma_allocate(PTMP,nP,Label='PTMP')
+    call mma_allocate(PATMP,nP,Label='PATMP')
+    call Lucia_Util('Densi',CI_Vector=CIL)
+    Dev(1) = maxval(abs(DTMP(1:NACPAR)-D_loc(1:NACPAR)))
+    Dev(2) = Zero
+    if (ISPIN > 1) Dev(2) = maxval(abs(DSTMP(1:NACPAR)-SD_loc(1:NACPAR)))
+    Dev(3) = maxval(abs(PTMP(1:nP)-P_loc(1:nP)))
+    Dev(4) = maxval(abs(PATMP(1:nP)-PA_loc(1:nP)))
+    Done = PDM_Faro_Verified
+    call Report_Dev('Mk_pdms (FARO): Faroald D, SD, P, PA vs Lucia',maxval(Dev),ThrD,Done)
+    call mma_deallocate(PATMP)
+    call mma_deallocate(PTMP)
+    call mma_deallocate(DSTMP)
+    call mma_deallocate(DTMP)
+    if (SG_Avail()) then
+      call CI_Basis_To_File(iState,STSYM,nCIVEC,CIVEC,CIL)
+      call mma_allocate(DS,NACPAR,Label='DS')
+      call mma_allocate(SDS,NACPAR,Label='SDS')
+      call mma_allocate(PS,NACPR2,Label='PS')
+      call mma_allocate(PAS,NACPR2,Label='PAS')
+      call sg_one_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,STSYM,DS,NACPAR)
+      call sg_spin_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,STSYM,DS,SDS,NACPAR)
+      call sg_two_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,STSYM,PS,PAS,NACPR2)
+      Dev(1) = maxval(abs(DS(:)-D_loc(1:NACPAR)))
+      Dev(2) = maxval(abs(SDS(:)-SD_loc(1:NACPAR)))
+      Dev(3) = maxval(abs(PS(1:nP)-P_loc(1:nP)))
+      Dev(4) = maxval(abs(PAS(1:nP)-PA_loc(1:nP)))
+      Done = PDM_Faro_Verified
+      call Report_Dev('Mk_pdms (FARO): Faroald D, SD, P, PA vs SGUGA',maxval(Dev),ThrD,Done)
+      call mma_deallocate(PAS)
+      call mma_deallocate(PS)
+      call mma_deallocate(SDS)
+      call mma_deallocate(DS)
+    end if
+    PDM_Faro_Verified = .true.
+    call mma_deallocate(CIL)
+  end subroutine Faroald_Check_Densities
 
   subroutine SGCI_Densities()
     real(kind=wp), allocatable :: DS(:), SDS(:), PS(:), PAS(:), CIL(:)
@@ -952,7 +1216,7 @@ integer(kind=iwp), parameter :: iState=1
 
 ! SGCI does not need Lucia; it is set up only as the reference of
 ! MOLCAS_CI_VERIFY=SIGMA.
-Lucia_Active = .not. (Do_SGUGA .and. SG_CI() .and. (.not. CI_Verify('SIGMA')))
+Lucia_Active = .not. (((Do_SGUGA .and. SG_CI()) .or. Do_Faroald) .and. (.not. CI_Verify('SIGMA')))
 
 if (Lucia_Active) then
   ! Construct the determinant tables
@@ -980,7 +1244,7 @@ If (Do_SGUGA) Then
      ncsasm(1:nSym) = CIS(iState)%nCSF(1:nSym)
      ndtasm(:) = ncsasm(:)
      nDet = nConf
-     write(u6,'(1X,A)') 'SGCI: Lucia is not initialized.'
+     write(u6,'(1X,A)') 'SGCI/FARO: Lucia is not initialized.'
    end if
    ! Exhaustive verification of the SGUGA coupling-coefficient codes,
    ! only on request (used by the test/csf_sd groups), see CI_Verify.
@@ -1040,22 +1304,25 @@ subroutine Mk_IHI(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
-use faroald, only: hdiag, ncomb_tot
 use Constants, only: One
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(out):: CSFDIA(nConf)
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
-real(kind=wp), allocatable :: DDIA(:), DIAG(:), CSFDIA_Faroald(:)
+real(kind=wp), allocatable :: DDIA(:)
 integer(kind=iwp):: IPRINT=0
 
-integer(kind=iwp) :: i
 real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
 
 ! SGCI: the exact diagonal in the SGUGA basis, no Lucia
 if (SG_CI()) then
   call SGCI_Diag()
+  return
+end if
+! Faroald (FARO): the configuration average in its own basis
+if (DoFaro) then
+  call Faroald_Diag()
   return
 end if
 
@@ -1071,53 +1338,6 @@ call get_diag(DDIA,ndet)
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
-If (DoFaro) Then
-! If (nDet/=nComb_tot) Then
-!    Write (u6,*) 'Warning: nDet/=nComb'
-!    Write (u6,*) 'iSpin=',iSpin
-!    Write (u6,*) 'nConf=',nConf
-!    Write (u6,*) 'nDet=',nDet
-!    Write (u6,*) 'nPat=',nPat
-!    Write (u6,*) 'nComb_tot',nComb_tot
-!    Call Abend()
-! End If
-!Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
-!Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
-
-  call Faroald_Ints(TU,TUVX)
-
-  Call mma_allocate(Diag,nComb_tot,Label='Diag')
-  Call mma_allocate(CSFDIA_Faroald,nConf,Label='CSFDIA_F')
-  Diag(:)=Zero
-  Call hdiag(htu,gtuvx,diag,CSFDIA_Faroald,nConf)
-! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
-  Do i=1,nComb_tot
-     If (abs(ddia(i)-diag(i)) > ThrDia*max(One,abs(ddia(i)))) Then
-        Write (u6,*) 'i, abs(ddia(i)-diag(i))'
-        Write (u6,*) i, abs(ddia(i)-diag(i))
-        Write (u6,*) ddia(i),diag(i)
-        Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
-        Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
-        Call abend()
-     End If
-  End Do
-  Do i=1,nConf
-     If (abs(CSFDIA(i)-CSFDIA_Faroald(i)) > ThrDia*max(One,abs(CSFDIA(i)))) Then
-        Write (u6,*) 'i, abs(CSFDIA(i)-CSFDIA_Faroald(i))', i, abs(CSFDIA(i)-CSFDIA_Faroald(i))
-        Write (u6,*) CSFDIA(i),CSFDIA_Faroald(i)
-        Call RecPrt('CSFDIA(LUCIA)',' ',CSFDIA,1,nConf)
-        Call RecPrt('CSFDIA(Faroald)',' ',CSFDIA_Faroald,1,nConf)
-        Call abend()
-     End If
-  End Do
-! Call RecPrt('CSFDIA(Faroald)',' ',CSFDIA_Faroald,1,nConf)
-  CSFDIA(:)= CSFDIA_Faroald(:)
-
-  Call mma_deallocate(CSFDIA_Faroald)
-  Call mma_deallocate(Diag)
-
-End If
-
 ! DEALLOCATE LOCAL MEMORY
 call mma_deallocate(DDIA)
 
@@ -1131,6 +1351,94 @@ if (CI_Verify('HDIAG') .and. SG_Avail()) then
 end if
 
 contains
+
+  ! Faroald (FARO): the CI-solver diagonal in its own basis (citrans), the
+  ! configuration average of Lucia: for each configuration the average of
+  ! the diagonal elements of its determinants (M_S = S), Faroald_HDet. Under
+  ! SIGMA compared with Lucia (the diagonal reordered to the Lucia basis).
+  subroutine Faroald_Diag()
+    use citrans, only: citrans_conf_dets
+    integer(kind=iwp), parameter :: iState = 1
+    integer(kind=iwp) :: k, k1, nc, nd, i
+    integer(kind=iwp), allocatable :: da(:), db(:)
+    real(kind=wp) :: E, MaxDev
+    real(kind=wp), allocatable :: cf(:,:), DD(:), DL(:), Idx(:), Map(:)
+
+    call Faroald_Ints(TU,TUVX)
+    k = 1
+    do while (k <= nConf)
+      call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
+      E = Zero
+      do i=1,nd
+        E = E+Faroald_HDet(da(i),db(i),da(i),db(i))
+      end do
+      CSFDIA(k1:k1+nc-1) = E/real(max(nd,1),kind=wp)
+      k = k1+nc
+      call mma_deallocate(da)
+      call mma_deallocate(db)
+      call mma_deallocate(cf)
+    end do
+    if (CI_Verify('SIGMA')) then
+      call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+      call mma_allocate(DD,NDET,label='DETDIA')
+      call get_diag(DD,ndet)
+      call mma_allocate(DL,nConf,Label='DL')
+      call CSDIAG(NCONF,ndet,DL,DD,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
+      ! the permutation Faroald -> Lucia basis
+      call mma_allocate(Idx,nConf,Label='Idx')
+      call mma_allocate(Map,nConf,Label='Map')
+      do i=1,nConf
+        Idx(i) = real(i,kind=wp)
+      end do
+      call CI_Basis_To_Lucia(iState,STSYM,nConf,Idx,Map)
+      MaxDev = Zero
+      do i=1,nConf
+        MaxDev = max(MaxDev,abs(CSFDIA(nint(abs(Map(i))))-DL(i)))
+      end do
+      if (.not. IHI_Avg_Verified) &
+        write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (Faroald): configuration-average diagonal verified against Lucia, ',nConf, &
+                                       ' CSFs, max. error ',MaxDev
+      IHI_Avg_Verified = .true.
+      if (MaxDev > ThrDia*max(One,maxval(abs(DL(:))))) then
+        write(u6,*) 'Mk_IHI: the Faroald configuration-average diagonal differs from Lucia'
+        call Abend()
+      end if
+      call mma_deallocate(Map)
+      call mma_deallocate(Idx)
+      call mma_deallocate(DL)
+      call mma_deallocate(DD)
+      if (SG_Avail()) call Faroald_Diag_SG()
+    end if
+  end subroutine Faroald_Diag
+
+  ! The Faroald configuration-average diagonal against that of SGUGA
+  ! (SG_Cnf_Avg_Diag, split-graph order of the files).
+  subroutine Faroald_Diag_SG()
+    use sguga, only: SG_Mk_Cnf_List, SG_Cnf_Avg_Diag
+    type(SGCnfList) :: Cnf
+    integer(kind=iwp) :: i
+    real(kind=wp) :: MaxDev
+    real(kind=wp), allocatable :: DSG(:), Idx(:), Map(:)
+    call SG_Mk_Cnf_List(1,STSYM,Cnf)
+    call mma_allocate(DSG,nConf,Label='DSG')
+    call SG_Cnf_Avg_Diag(1,Cnf,TU,nTU,TUVX,nTUVX,DSG)
+    call mma_allocate(Idx,nConf,Label='Idx')
+    call mma_allocate(Map,nConf,Label='Map')
+    do i=1,nConf
+      Idx(i) = real(i,kind=wp)
+    end do
+    call CI_Basis_To_File(1,STSYM,nConf,Idx,Map)
+    MaxDev = Zero
+    do i=1,nConf
+      MaxDev = max(MaxDev,abs(CSFDIA(nint(abs(Map(i))))-DSG(i)))
+    end do
+    call Report_Dev('Mk_IHI (FARO): Faroald configuration-average diagonal vs SGUGA',MaxDev, &
+                    ThrDia*max(One,maxval(abs(DSG(:)))),IHI_Faro_SG_Verified)
+    call mma_deallocate(Map)
+    call mma_deallocate(Idx)
+    call mma_deallocate(DSG)
+    call SG_Free_Cnf_List(Cnf)
+  end subroutine Faroald_Diag_SG
 
   ! SGCI: the CI-solver diagonal in the split-graph CSF basis: the
   ! configuration average of Lucia (SG_Cnf_Avg_Diag), so that SGCI follows
@@ -1511,6 +1819,15 @@ if (SG_CI()) then
     call mma_allocate(iCSFCnf,Cnf_SG%iOff(Cnf_SG%nCnf+1),Label='iCSFCnf')
     iCSFCnf(:) = Cnf_SG%iCSF(1:Cnf_SG%iOff(Cnf_SG%nCnf+1))
   end if
+else if (DoFaro) then
+  ! Faroald (citrans): the CSFs of a configuration are contiguous
+  call Mk_Cnf_Layout_Faroald(nCSFCnf)
+  if (present(iCSFCnf)) then
+    call mma_allocate(iCSFCnf,sum(nCSFCnf),Label='iCSFCnf')
+    do I=1,size(iCSFCnf)
+      iCSFCnf(I) = I
+    end do
+  end if
 else
   call Mk_Cnf_Layout_Lucia(IREFSM,nCSFCnf)
   if (present(iCSFCnf)) then
@@ -1530,6 +1847,29 @@ use sguga, only: SG_Mk_Cnf_List
 integer(kind=iwp), intent(in) :: LSM
 if ((Cnf_SG%nCnf == 0) .or. (Cnf_SG%LSM /= LSM)) call SG_Mk_Cnf_List(1,LSM,Cnf_SG)
 end subroutine SG_Cnf_Kept
+
+!> The configurations of Faroald (citrans order) and their numbers of CSFs.
+subroutine Mk_Cnf_Layout_Faroald(nCSFCnf)
+use citrans, only: citrans_conf_dets
+integer(kind=iwp), allocatable, intent(out) :: nCSFCnf(:)
+integer(kind=iwp) :: iPass, k, k1, nc, nd, nCnf
+integer(kind=iwp), allocatable :: da(:), db(:)
+real(kind=wp), allocatable :: cf(:,:)
+do iPass=1,2
+  nCnf = 0
+  k = 1
+  do while (k <= nConf)
+    call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
+    nCnf = nCnf+1
+    if (iPass == 2) nCSFCnf(nCnf) = nc
+    k = k1+nc
+    call mma_deallocate(da)
+    call mma_deallocate(db)
+    call mma_deallocate(cf)
+  end do
+  if (iPass == 1) call mma_allocate(nCSFCnf,nCnf,Label='nCSFCnf')
+end do
+end subroutine Mk_Cnf_Layout_Faroald
 
 subroutine Mk_Cnf_Layout_Lucia(IREFSM,nCSFCnf)
 use spinfo, only: NCNFTP, NCSFTP, NTYP
@@ -1627,7 +1967,7 @@ end if
 UseSG = DoSGEx .and. SG_OK
 Verify = CI_Verify('SIGMA') .and. (.not. IHJ_Verified)
 ! the walks of the Lucia CSFs, once per run
-if (Verify .and. SG_OK) call SG_Verify_Lucia_Walk(1,IREFSM,nConf)
+if (Verify .and. SG_OK .and. (.not. DoFaro)) call SG_Verify_Lucia_Walk(1,IREFSM,nConf)
 
 call CWTime(T0,W)
 if (UseSG) then
@@ -1647,13 +1987,16 @@ call CWTime(T1,W)
 if (Verify) then
   write(u6,'(1X,3A,I0,A,F10.3,A)') 'Mk_IHJ: ',trim(Lab),' block, ',NPCSF,' CSFs, CPU ',T1-T0,' s'
   call mma_allocate(PHP_Ref,nTri_Elem(NPCSF),Label='PHP_Ref')
-  if (UseSG .or. DoFaro) call Ref_Block('Lucia')
+  ! (with FARO the block is in the basis of Faroald: the references of
+  ! Lucia and SGUGA are their columns H e_J in that basis, Ref_Sigma)
+  if (UseSG .and. (.not. DoFaro)) call Ref_Block('Lucia')
   if (DoFaro) then
-    if (UseSG) call Ref_Block('Faroald')
     call Ref_Block('Faroald H e_J')
+    call Ref_Block('Lucia H e_J')
+    if (SG_OK) call Ref_Block('SGUGA H e_J')
   end if
   if (SG_OK) then
-    if (.not. UseSG) call Ref_Block('SGUGA')
+    if ((.not. UseSG) .and. (.not. DoFaro)) call Ref_Block('SGUGA')
     call Verify_SG_Explicit()
   else
     write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (not available with GAS, HEXS or DEXS)'
@@ -1681,6 +2024,10 @@ contains
         call IHJ_Faroald(PHP_Ref)
       case ('Faroald H e_J')
         call IHJ_Faroald_Col(PHP_Ref)
+      case ('Lucia H e_J')
+        call IHJ_Ref_Col('Lucia',PHP_Ref)
+      case ('SGUGA H e_J')
+        call IHJ_Ref_Col('SGUGA',PHP_Ref)
       case ('SGUGA')
         call IHJ_SGUGA(PHP_Ref)
     end select
@@ -1804,10 +2151,9 @@ contains
   ! Faroald back end: for each pair of selected configurations L, R the
   ! determinant block <D_L|H|D_R> (Faroald_HDet) is transformed to the CSFs
   ! with the spin tables of citrans, C_L^T H C_R; pairs of configurations
-  ! more than a double excitation apart are skipped (Cnf_Exc). The selected
-  ! CSFs of the CI vector (Lucia's CSF basis) are mapped to the
-  ! configuration order of citrans, with the phases of SG_ReOrd and
-  ! citrans_sort, as in Faroald_Sigma (Map_Sel).
+  ! more than a double excitation apart are skipped (Cnf_Exc). The CI
+  ! vectors (and the selected CSFs) are in the configuration order of
+  ! citrans (FARO).
   subroutine IHJ_Faroald(H)
     real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
     integer(kind=iwp) :: I, J, kCnf, ICNL, ICNR, IILB, IIRB, IIL, IIR, IIRMAX, k1, nc, nd, nDTot, nCTot, nL, nR, ndL, ndR
@@ -1820,7 +2166,9 @@ contains
     ! selected CSF J <-> citrans CSF kSel(J), with phase iSel(J)
     call mma_allocate(kSel,NPCSF,Label='kSel')
     call mma_allocate(iSel,NPCSF,Label='iSel')
-    call Map_Sel(kSel,iSel)
+    ! (the selected CSFs are citrans CSFs: FARO works in that basis)
+    kSel(:) = IPCSF(:)
+    iSel(:) = 1
 
     ! Determinants and CSF coefficients of the selected configurations.
     call mma_allocate(nDCnf,NPCNF,Label='nDCnf')
@@ -1927,74 +2275,6 @@ contains
 
   end subroutine IHJ_Faroald
 
-  ! Selected CSF J (Lucia CSF IPCSF(J)) <-> citrans CSF kSel(J), with phase
-  ! iSel(J): cinew(kSel(J)) = iSel(J)*ciold(IPCSF(J)) for the reordering
-  ! SG_ReOrd (mode 0) followed by citrans_sort (mode 'C'). For a single RAS
-  ! partition from the step vectors of the selected CSFs alone, otherwise
-  ! by reordering the index vector 1..nConf (Map_All). With
-  ! MOLCAS_CI_VERIFY=SIGMA the two are compared (once per run).
-  subroutine Map_Sel(kSel,iSel)
-    use Molcas, only: MxAct
-    integer(kind=iwp), intent(out) :: kSel(NPCSF), iSel(NPCSF)
-    integer(kind=iwp) :: J, IP, iPh
-    integer(kind=iwp) :: IWALK(MxAct)
-    integer(kind=iwp), allocatable :: kRef(:), iRef(:)
-
-    if (SGS(1)%nRsPrt /= 1) then
-      call Map_All(kSel,iSel)
-      return
-    end if
-    do J=1,NPCSF
-      call SG_Lucia_Walk(1,IREFSM,IPCSF(J),IWALK,IP)
-      call citrans_csf_rank(IWALK(1:NAC),kSel(J),iPh)
-      iSel(J) = IP*iPh
-    end do
-
-    if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
-      call mma_allocate(kRef,NPCSF,Label='kRef')
-      call mma_allocate(iRef,NPCSF,Label='iRef')
-      call Map_All(kRef,iRef)
-      if (any(kSel(:) /= kRef(:)) .or. any(iSel(:) /= iRef(:))) then
-        write(u6,*) 'Mk_IHJ: mapping of the selected CSFs to citrans differs from SG_ReOrd + citrans_sort'
-        call Abend()
-      end if
-      write(u6,'(1X,A,I0,A)') 'Mk_IHJ: mapping of ',NPCSF,' selected CSFs to citrans verified'
-      call mma_deallocate(iRef)
-      call mma_deallocate(kRef)
-    end if
-
-  end subroutine Map_Sel
-
-  ! Map_Sel by reordering the full index vector 1..nConf.
-  subroutine Map_All(kSel,iSel)
-    integer(kind=iwp), intent(out) :: kSel(NPCSF), iSel(NPCSF)
-    integer(kind=iwp) :: I, K
-    integer(kind=iwp), allocatable :: kAll(:), iAll(:)
-    real(kind=wp), allocatable :: Idx(:), Map(:)
-
-    call mma_allocate(Idx,nConf,Label='Idx')
-    call mma_allocate(Map,nConf,Label='Map')
-    do I=1,nConf
-      Map(I) = real(I,kind=wp)
-    end do
-    call SG_REORD(1,IREFSM,0,nConf,Map,Idx)
-    call CITRANS_SORT('C',Idx,Map)
-    call mma_allocate(kAll,nConf,Label='kAll')
-    call mma_allocate(iAll,nConf,Label='iAll')
-    do K=1,nConf
-      I = nint(abs(Map(K)))
-      kAll(I) = K
-      iAll(I) = nint(sign(One,Map(K)))
-    end do
-    kSel(:) = kAll(IPCSF(:))
-    iSel(:) = iAll(IPCSF(:))
-    call mma_deallocate(iAll)
-    call mma_deallocate(kAll)
-    call mma_deallocate(Map)
-    call mma_deallocate(Idx)
-
-  end subroutine Map_All
-
   ! SGUGA back end: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECORE, with
   ! I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
   ! (mode 0: c_G(I_G) = P_I c(I)); the block <I_G|H|J_G> from SG_Block_H
@@ -2050,7 +2330,7 @@ contains
     do I=1,nConf
       Idx(I) = real(I,kind=wp)
     end do
-    call SG_ReOrd(1,IREFSM,0,nConf,Idx,Map)
+    call CI_Basis_To_File(1,IREFSM,nConf,Idx,Map)
     call mma_allocate(LtoG,nConf,Label='LtoG')
     do I=1,nConf
       LtoG(nint(abs(Map(I)))) = I
@@ -2062,7 +2342,7 @@ contains
       CnfOfG(Cnf%iCSF(Cnf%iOff(kG)+1:Cnf%iOff(kG+1))) = kG
     end do
     ! (1) configurations of the back end -> SGUGA configurations, a bijection
-    call Mk_Cnf_Layout_Lucia(IREFSM,nCSFL)
+    call Mk_Cnf_Layout(IREFSM,nCSFL)
     if (size(nCSFL) /= Cnf%nCnf) then
       write(u6,*) 'Mk_IHJ: number of configurations, CI back end and SGUGA:',size(nCSFL),Cnf%nCnf
       call Abend()
@@ -2172,7 +2452,7 @@ contains
     EJ(:) = Zero
     do J=1,NPCSF
       EJ(IPCSF(J)) = One
-      call Faroald_Sigma(1,IREFSM,nConf,EJ,HEJ,cTmp,sTmp,nTmp,nDetA,nDetB)
+      call Faroald_Sigma(nConf,EJ,HEJ,cTmp,sTmp,nTmp,nDetA,nDetB)
       EJ(IPCSF(J)) = Zero
       do I=J,NPCSF
         H(nTri_Elem(I-1)+J) = HEJ(IPCSF(I))
@@ -2186,6 +2466,31 @@ contains
     call mma_deallocate(cTmp)
 
   end subroutine IHJ_Faroald_Col
+
+  ! Reference block from the columns H e_J of Lucia or SGUGA (Ref_Sigma) in
+  ! the basis of the CI back end, J over the selected CSFs.
+  subroutine IHJ_Ref_Col(LabRef,H)
+    character(len=*), intent(in) :: LabRef
+    real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
+    integer(kind=iwp) :: I, J
+    real(kind=wp), allocatable :: EJ(:), HEJ(:)
+
+    call mma_allocate(EJ,nConf,Label='EJ')
+    call mma_allocate(HEJ,nConf,Label='HEJ')
+    EJ(:) = Zero
+    do J=1,NPCSF
+      EJ(IPCSF(J)) = One
+      call Ref_Sigma(LabRef,1,IREFSM,nConf,EJ,HEJ,nTU,TU,nTUVX,TUVX)
+      EJ(IPCSF(J)) = Zero
+      do I=J,NPCSF
+        H(nTri_Elem(I-1)+J) = HEJ(IPCSF(I))
+      end do
+      H(nTri_Elem(J)) = H(nTri_Elem(J))+ECORE
+    end do
+    call mma_deallocate(HEJ)
+    call mma_deallocate(EJ)
+
+  end subroutine IHJ_Ref_Col
 
   ! Compare PHP (back end Lab) with the reference block HRef (back end LabRef).
   subroutine Compare_IHJ(Lab,LabRef,HRef)
@@ -2409,7 +2714,6 @@ real(kind=wp), intent(in) :: TU(nTU)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 
 real(kind=wp), allocatable :: Faroald_Psi(:,:), ctemp(:)
-real(kind=wp), allocatable :: dtemp(:)
 
 integer(kind=iwp) :: iCSF
 real(kind=wp), allocatable :: CI_Faroald(:)
@@ -2450,58 +2754,44 @@ If (Verify_SG) Then
   CI_SGUGA(:) = CI_Vector(:)
 End If
 
-If (DoFaro) Then
-  Call mma_allocate(CI_Faroald,nCSF,Label='CI_Faroald')
-  CI_Faroald(:) = CI_Vector(:)
-
-  Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
-  Call mma_allocate(ctemp,Max(nCSF,nDetA*nDetB),Label='ctemp')
-  Call mma_allocate(dtemp,nDetA*nDetB,Label='dtemp')
-
-  call SG_REORD(iState,STSYM,0,nCSF,CI_Vector,ctemp)
-  call CITRANS_SORT('C',ctemp,dTemp)
-  Faroald_PSI(:,:) = Zero
-  call CITRANS_CSF2SD(dTemp,Faroald_PSI)
-
-  Call traci_faroald(TU,nTU,Faroald_Psi)
-
-  call CITRANS_SD2CSF(Faroald_Psi,dTemp)
-  call CITRANS_SORT('O',dTemp,ctemp)
-! call SG_Reord(iState,STSYM,1,nCSF,cTemp,CI_Vector)
-  call SG_Reord(iState,STSYM,1,nCSF,cTemp,CI_Faroald)
-
-  Call mma_deallocate(dTemp)
-  Call mma_deallocate(ctemp)
-  Call mma_deallocate(Faroald_Psi)
+If (DoFaro .and. CI_Verify('SIGMA')) Then
+  ! the reference of Lucia, in the Lucia basis
+  Call mma_allocate(CI_Faroald,nCSF,Label='CI_Lucia')
+  call CI_Basis_To_Lucia(iState,STSYM,nCSF,CI_Vector,CI_Faroald)
+  Call Lucia_util('TRACI',CI_Vector=CI_Faroald(:),TU=TU(:),nTU=nTU)
 End If
-!Else
 
-!  Note that the CI vector is transformed to Lucia format inside the routine! This
-!  in difference to the other calls to Lucia_util.
-   Call Lucia_util('TRACI', &
-                   CI_Vector=CI_Vector(:), &
-                   TU=TU(:), nTU=nTU)
-!End If
-
-if (DoFaro) Then
-Do iCSF = 1, nCSF
-   If (Abs(CI_Vector(iCSF)-CI_Faroald(iCSF))/nCSF>1.0E-12_wp) Then
-      Write (6,*) 'Mk_Tra_Psi error, iCSF=',iCSF
-      Write (6,*) 'CI_Vector(iCSF) =',CI_Vector(iCSF)
-      Write (6,*) 'CI_Faroald(iCSF)=',CI_Faroald(iCSF)
-      Call Abend()
-   End If
-End Do
-Call mma_deallocate(CI_Faroald)
-Endif
+If (DoFaro) Then
+  ! Faroald in its own basis (citrans), through the determinants
+  Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
+  Faroald_PSI(:,:) = Zero
+  call CITRANS_CSF2SD(CI_Vector,Faroald_PSI)
+  Call traci_faroald(TU,nTU,Faroald_Psi)
+  call CITRANS_SD2CSF(Faroald_Psi,CI_Vector)
+  Call mma_deallocate(Faroald_Psi)
+  If (CI_Verify('SIGMA')) Then
+    Call mma_allocate(ctemp,nCSF,Label='ctemp')
+    call CI_Lucia_To_Basis(iState,STSYM,nCSF,CI_Faroald,ctemp)
+    call Report_Dev('Mk_Tra_Psi (FARO): Faroald CI transformation vs Lucia',maxval(abs(CI_Vector(:)-ctemp(:))),1.0e-10_wp, &
+                    TraPsi_Faro_Verified)
+    Call mma_deallocate(ctemp)
+    Call mma_deallocate(CI_Faroald)
+  End If
+Else
+  ! Note that the CI vector is transformed to Lucia format inside the
+  ! routine! This in difference to the other calls to Lucia_util.
+  Call Lucia_util('TRACI', &
+                  CI_Vector=CI_Vector(:), &
+                  TU=TU(:), nTU=nTU)
+End If
 
 If (Verify_SG) Then
 
 !  Call SG_TRACI(iState,STSYM,TU,nTU,CI_SGUGA,nCSF)
    Call mma_allocate(ctemp,nCSF,Label='ctemp')
-   call SG_REORD(iState,STSYM,0,nCSF,CI_SGUGA,ctemp)
+   call CI_Basis_To_File(iState,STSYM,nCSF,CI_SGUGA,ctemp)
    Call SG_TRACI(iState,STSYM,TU,nTU,ctemp,nCSF)
-   call SG_REORD(iState,STSYM,1,nCSF,ctemp,CI_SGUGA)
+   call CI_File_To_Basis(iState,STSYM,nCSF,ctemp,CI_SGUGA)
    Call mma_deallocate(ctemp)
    If (.not. TraPsi_Verified) Then
       Write (u6,'(1X,A,I0,A,ES10.3)') 'Mk_Tra_Psi: SGUGA CI transformation verified against the CI back end, ',nCSF, &

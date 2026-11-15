@@ -1269,12 +1269,14 @@ A list of these keywords is given below:
   :math:`n_{\text{Ref}}`, up to five.
   The second line gives :math:`n_{\text{Ref}}` reference configuration indices.
   The third line gives estimates of CI coefficients for these CSF's.
+  The CSF indices are those of the CI vectors on the JOBIPH/HDF5 files
+  (the split-graph order of the CI printout), whatever CI back end is used.
   The program will select the roots which have the largest overlap with
   this input.
   Be careful to use a large enough value for LROOTS (see above) to cover
   the roots of interest.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CISELECT" LEVEL="ADVANCED" APPEAR="CI select" KIND="UNKNOWN">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CISELECT" LEVEL="ADVANCED" APPEAR="CI select" KIND="CUSTOM">
               %%Keyword: CISElect <advanced>
               <HELP>
               This keyword is used to select CI roots by an overlap
@@ -1284,6 +1286,8 @@ A list of these keywords is given below:
               nRef, where nRef at most 5.
               The second line gives nRef reference configuration indices.
               The third line gives estimates of CI coefficients for these CSF's.
+              The CSF indices are those of the CI vectors on the JOBIPH/HDF5
+              files (the split-graph order of the printout).
               </HELP>
               </KEYWORD>
 

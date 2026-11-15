@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use ci_interfaces, only: CI_Initialize, CI_Verify, SG_CI
+use ci_interfaces, only: CI_Basis, CI_File_Index_To_Basis, CI_Initialize, CI_Verify
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -111,6 +111,7 @@ character(len=20) :: guess_dmrg
 integer(kind=iwp) :: lRoots_l, mh5id
 character, allocatable :: typestring(:)
 #endif
+integer(kind=iwp) :: iPh, iRt, jRt
 integer(kind=iwp), external :: IsFreeUnit, nToken
 real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Is_First_Iter
@@ -4115,14 +4116,19 @@ if (.not. SkipGUGA) then
   ! 2) not RASSCF or GASSCF
   ! 3) not using the expert, the HEXS or the DEXS key word
   ! Normal runs use Faroald only if requested with the FARO keyword.
-  if (CI_Verify('FARO') .and. (.not. DoSGCI)) then
-    if ((nSym == 1) .and. &
-        ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
-        (.not. iDoGas) .and. &
-        (.not. Key('HEXS')) .and. &
-        (.not. Key('DEXS')) .and. &
-        (.not. Key('EXPE')) &
-       ) DoFaro = .true.
+  if (CI_Verify('FARO') .and. (.not. DoSGCI) .and. (.not. Key('EXPE'))) DoFaro = .true.
+  ! FARO: the CI in the configuration basis of Faroald (citrans), for
+  ! C1 CAS spaces only and not with the other CI back ends or CASVB (which
+  ! works with the CSF basis of Lucia).
+  if (DoFaro) then
+    if ((nSym /= 1) .or. (nHole1 /= 0) .or. (nElec3 /= 0) .or. iDoGas .or. Key('HEXS') .or. Key('DEXS') .or. DoDMRG .or. &
+        DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+      if (Key('FARO')) then
+        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (symmetry, RAS, GAS, HEXS, DEXS, DMRG, NECI'
+        write(u6,'(1X,A)') 'or CASVB); the CI is done by the CI backend.'
+      end if
+      DoFaro = .false.
+    end if
   end if
 
   call CI_Initialize(.NOT. iDoGAS, DOFARO)
@@ -4145,10 +4151,18 @@ end if
 ! (SGCI: the CI vectors are in the split-graph order of the reference CSF
 ! numbers already)
 if (ICICH == 1 .and. (.not. SkipGUGA)) then
-  if (SG_CI()) then
-    JCJ(:,:) = ICI(:,:)
-  else
+  if (CI_Basis() == 1) then
     call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
+  else
+    ! SGCI and FARO: map the reference CSFs from the file order
+    JCJ(:,:) = 0
+    do iRt=1,NROOTS
+      do jRt=1,size(ICI,2)
+        if (ICI(iRt,jRt) <= 0) cycle
+        call CI_File_Index_To_Basis(1,STSYM,NCONF,ICI(iRt,jRt),JCJ(iRt,jRt),iPh)
+        CCI(iRt,jRt) = iPh*CCI(iRt,jRt)
+      end do
+    end do
   end if
 end if
 ! ====================================================================

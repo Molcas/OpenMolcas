@@ -99,7 +99,7 @@ use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, emb
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_attr, mh5_put_dset
-use ci_interfaces, only: Mk_T1DM, SG_CI
+use ci_interfaces, only: CI_File_To_Basis, Mk_T1DM
 use sguga, only: sg_reord
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
@@ -1585,21 +1585,13 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       do jRoot=2,lRoots
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
-        ! (SGCI: JOBIPH holds the split-graph order, the CI basis)
-        if (SG_CI()) then
-          VecL(:) = Tmp(:)
-        else
-          call SG_Reord(iState,STSYM,1,nConf,Tmp,VecL)
-        end if
+        ! (JOBIPH holds the split-graph order)
+        call CI_File_To_Basis(iState,STSYM,nConf,Tmp,VecL)
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          if (SG_CI()) then
-            VecR(:) = Tmp(:)
-          else
-            call SG_Reord(iState,STSYM,1,nConf,Tmp,VecR)
-          end if
+          call CI_File_To_Basis(iState,STSYM,nConf,Tmp,VecR)
           ! Compute TDM and store in h5 file
           call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
           call mma_allocate(XTmp,NAC**2,Label='XTmp')

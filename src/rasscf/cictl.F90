@@ -80,7 +80,7 @@ use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
 use general_data, only: ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM, iDoGAS
 use sguga, only: SG_ReOrd, SGS
-use ci_interfaces, only: SG_CI
+use ci_interfaces, only: CI_Basis_To_File
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -597,12 +597,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         if (.not. iDoGas) then
-          ! to the split-graph order of the files (SGCI: already in it)
-          if (SG_CI()) then
-            CIV(:) = CIVEC(:)
-          else
-            call SG_Reord(istate,STSYM,0,nConf,CIVEC,CIV)
-          end if
+          ! to the split-graph order of the files
+          call CI_Basis_To_File(istate,STSYM,nConf,CIVEC,CIV)
           ! the phase in this common order, the same for all CI back ends
           call VecPhase(CIV,nConf)
 
