@@ -31,6 +31,7 @@ use CI_Verify_Options, only: CI_Verify
 
 #include "intent.fh"
 
+implicit none
 Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
@@ -1421,6 +1422,8 @@ real(kind=wp), allocatable :: DDIA(:)
 integer(kind=iwp):: IPRINT=0
 
 real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
+! the CI state of RASSCF (SGS, CIS, EXS)
+integer(kind=iwp), parameter :: iState = 1
 
 ! SGCI: the exact diagonal in the SGUGA basis, no Lucia
 if (SG_CI()) then
@@ -1465,7 +1468,6 @@ contains
   ! SIGMA compared with Lucia (the diagonal reordered to the Lucia basis).
   subroutine Faroald_Diag()
     use citrans, only: citrans_conf_dets
-    integer(kind=iwp), parameter :: iState = 1
     integer(kind=iwp) :: k, k1, nc, nd, i
     integer(kind=iwp), allocatable :: da(:), db(:)
     real(kind=wp) :: E, MaxDev
@@ -1526,15 +1528,15 @@ contains
     integer(kind=iwp) :: i
     real(kind=wp) :: MaxDev
     real(kind=wp), allocatable :: DSG(:), Idx(:), Map(:)
-    call SG_Mk_Cnf_List(1,STSYM,Cnf)
+    call SG_Mk_Cnf_List(iState,STSYM,Cnf)
     call mma_allocate(DSG,nConf,Label='DSG')
-    call SG_Cnf_Avg_Diag(1,Cnf,TU,nTU,TUVX,nTUVX,DSG)
+    call SG_Cnf_Avg_Diag(iState,Cnf,TU,nTU,TUVX,nTUVX,DSG)
     call mma_allocate(Idx,nConf,Label='Idx')
     call mma_allocate(Map,nConf,Label='Map')
     do i=1,nConf
       Idx(i) = real(i,kind=wp)
     end do
-    call CI_Basis_To_File(1,STSYM,nConf,Idx,Map)
+    call CI_Basis_To_File(iState,STSYM,nConf,Idx,Map)
     MaxDev = Zero
     do i=1,nConf
       MaxDev = max(MaxDev,abs(CSFDIA(nint(abs(Map(i))))-DSG(i)))
@@ -1554,7 +1556,7 @@ contains
   ! against sg_hdiag_ref (small spaces) and the average against Lucia.
   subroutine SGCI_Diag()
     use sguga, only: SGStruct, CIStruct, EXStruct, SG_Cnf_Avg_Diag
-    integer(kind=iwp), parameter :: iState = 1, MxRef = 500
+    integer(kind=iwp), parameter :: MxRef = 500
     real(kind=wp) :: MaxDev
     real(kind=wp), allocatable :: DRef(:), DAvg(:), DAvgL(:), DL(:), DD(:)
     interface
@@ -1636,7 +1638,7 @@ contains
   subroutine Verify_IHI()
     use general_data, only: NSEL
     use sguga, only: SGStruct, CIStruct, EXStruct
-    integer(kind=iwp), parameter :: iState = 1, MxRef = 500, MxPrt = 10
+    integer(kind=iwp), parameter :: MxRef = 500, MxPrt = 10
     integer(kind=iwp) :: i, iTyp, iCnf, k, nCnf, nC, iC, nSD, nSDErr, nSelL, nSelMin, nSelMean, nBoth, nPrt, iRk(3), iRkMin, &
                          iRkMax
     integer(kind=iwp), allocatable :: nCSFCnf(:), nOpCnf(:)
@@ -1805,7 +1807,7 @@ contains
     do j=1,nConf
       Map(j) = real(j,kind=wp)
     end do
-    call SG_ReOrd(1,STSYM,1,nConf,Map,Idx)
+    call SG_ReOrd(iState,STSYM,1,nConf,Map,Idx)
     do j=1,nConf
       DL(j) = DSG(nint(abs(Idx(j))))
     end do
@@ -1832,7 +1834,7 @@ contains
     end interface
 
     call mma_allocate(DSG,nConf,Label='DSG')
-    call sg_hdiag_fast(SGS(1),CIS(1),EXS(1),nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
+    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
     call Diag_to_Lucia(DSG,DL)
     call mma_deallocate(DSG)
 
@@ -1952,7 +1954,9 @@ end subroutine Mk_Cnf_Layout
 subroutine SG_Cnf_Kept(LSM)
 use sguga, only: SG_Mk_Cnf_List
 integer(kind=iwp), intent(in) :: LSM
-if ((Cnf_SG%nCnf == 0) .or. (Cnf_SG%LSM /= LSM)) call SG_Mk_Cnf_List(1,LSM,Cnf_SG)
+! the CI state of RASSCF (SGS, CIS, EXS)
+integer(kind=iwp), parameter :: iState = 1
+if ((Cnf_SG%nCnf == 0) .or. (Cnf_SG%LSM /= LSM)) call SG_Mk_Cnf_List(iState,LSM,Cnf_SG)
 end subroutine SG_Cnf_Kept
 
 !> The configurations of Faroald (citrans order) and their numbers of CSFs.
@@ -2038,6 +2042,8 @@ integer(kind=iwp), allocatable :: IPCSF(:), nSelCnf(:)
 real(kind=wp) :: T0, T1, W
 real(kind=wp), allocatable :: PHP_Ref(:)
 real(kind=wp), parameter :: Thr = 1.0e-10_wp
+! the CI state of RASSCF (SGS, CIS, EXS)
+integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp) :: SG_OK, UseSG, Verify
 character(len=8) :: Lab
 
@@ -2054,7 +2060,7 @@ end if
 ! with Lucia there).
 if (SG_CI()) then
   call SG_Cnf_Kept(IREFSM)
-  call SG_Explicit_Block(1,Cnf_SG,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,PHP)
+  call SG_Explicit_Block(iState,Cnf_SG,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,PHP)
   if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
     IHJ_Verified = .true.
     call Verify_IHJ()
@@ -2080,7 +2086,7 @@ end if
 UseSG = DoSGEx .and. SG_OK .and. (.not. DoFaro)
 Verify = CI_Verify('SIGMA') .and. (.not. IHJ_Verified)
 ! the walks of the Lucia CSFs, once per run
-if (Verify .and. SG_OK .and. (.not. DoFaro)) call SG_Verify_Lucia_Walk(1,IREFSM,nConf)
+if (Verify .and. SG_OK .and. (.not. DoFaro)) call SG_Verify_Lucia_Walk(iState,IREFSM,nConf)
 
 call CWTime(T0,W)
 if (UseSG) then
@@ -2400,12 +2406,12 @@ contains
     integer(kind=iwp) :: IWALK(MxAct)
     integer(kind=iwp), allocatable :: iG(:), iPG(:)
 
-    call SG_MatEl_Init(1,IREFSM)
+    call SG_MatEl_Init(iState,IREFSM)
     call mma_allocate(iG,NPCSF,Label='iG')
     call mma_allocate(iPG,NPCSF,Label='iPG')
     do J=1,NPCSF
-      call SG_Lucia_Walk(1,IREFSM,IPCSF(J),IWALK,iPG(J))
-      iG(J) = SG_NUM(SGS(1),EXS(1),IWALK)
+      call SG_Lucia_Walk(iState,IREFSM,IPCSF(J),IWALK,iPG(J))
+      iG(J) = SG_NUM(SGS(iState),EXS(iState),IWALK)
     end do
     call SG_Block_H(IREFSM,NPCNF,nSelCnf,NPCSF,iG,TU,nTU,TUVX,nTUVX,H)
     do I=1,NPCSF
@@ -2436,14 +2442,14 @@ contains
     real(kind=wp) :: Dev
     real(kind=wp), allocatable :: Idx(:), Map(:), DSG(:), HG(:), EG(:), EL(:)
 
-    call SG_Mk_Cnf_List(1,IREFSM,Cnf)
+    call SG_Mk_Cnf_List(iState,IREFSM,Cnf)
     ! back-end CSF -> split-graph CSF, and the SGUGA configuration of each
     call mma_allocate(Idx,nConf,Label='Idx')
     call mma_allocate(Map,nConf,Label='Map')
     do I=1,nConf
       Idx(I) = real(I,kind=wp)
     end do
-    call CI_Basis_To_File(1,IREFSM,nConf,Idx,Map)
+    call CI_Basis_To_File(iState,IREFSM,nConf,Idx,Map)
     call mma_allocate(LtoG,nConf,Label='LtoG')
     do I=1,nConf
       LtoG(nint(abs(Map(I)))) = I
@@ -2479,7 +2485,7 @@ contains
     ! key of SGCI and of Lucia: differences come from ties only)
     MxDim = nint((sqrt(real(8*nPHP+1,kind=wp))-One)/Two)
     call mma_allocate(DSG,nConf,Label='DSG')
-    call SG_Cnf_Avg_Diag(1,Cnf,TU,nTU,TUVX,nTUVX,DSG)
+    call SG_Cnf_Avg_Diag(iState,Cnf,TU,nTU,TUVX,nTUVX,DSG)
     call mma_allocate(GSel,Cnf%nCnf,Label='GSel')
     call mma_allocate(GCSF,max(1,MxDim),Label='GCSF')
     call SG_Select_Explicit(Cnf,DSG,MxDim,nGSel,GSel,nGCSF,GCSF)
@@ -2498,7 +2504,7 @@ contains
     call mma_allocate(GtoL,max(1,NPCNF),Label='GtoL')
     GtoL(1:NPCNF) = LtoGCnf(IPCNF(1:NPCNF))
     call mma_allocate(HG,nTri_Elem(NPCSF),Label='HG')
-    call SG_Explicit_Block(1,Cnf,NPCNF,GtoL,ECORE,TU,nTU,TUVX,nTUVX,HG)
+    call SG_Explicit_Block(iState,Cnf,NPCNF,GtoL,ECORE,TU,nTU,TUVX,nTUVX,HG)
     call mma_allocate(EG,NPCSF,Label='EG')
     call mma_allocate(EL,NPCSF,Label='EL')
     call Block_Eigenvalues(HG,NPCSF,EG)
@@ -2658,7 +2664,7 @@ contains
       J = 1+((JJ-1)*(NPCSF-1))/max(nCol-1,1)
       EJ(:) = Zero
       EJ(IPCSF(J)) = One
-      call Mk_H_Psi(1,IREFSM,nConf,EJ,HEJ,cTmp,sTmp,nTmp,nDetA,nDetB,nTU,TU,nTUVX,TUVX)
+      call Mk_H_Psi(iState,IREFSM,nConf,EJ,HEJ,cTmp,sTmp,nTmp,nDetA,nDetB,nTU,TU,nTUVX,TUVX)
       do I=1,NPCSF
         Ref = HEJ(IPCSF(I))
         if (I == J) Ref = Ref+ECORE

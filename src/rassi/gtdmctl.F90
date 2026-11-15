@@ -394,7 +394,7 @@ if (WFTP1 == 'GENERAL') then
       call SG_Print(iState1)
     end if
     ! CI sizes, as function of symmetry, are now known.
-    NCONF1 = CIS(1)%NCSF(LSYM1)
+    NCONF1 = CIS(iState1)%NCSF(LSYM1)
   else
     NCONF1 = 1
   end if
@@ -513,7 +513,7 @@ if (WFTP2 == 'GENERAL') then
       call SG_Print(iState2)
     end if
     ! CI sizes, as function of symmetry, are now known.
-    NCONF2 = CIS(2)%NCSF(LSYM2)
+    NCONF2 = CIS(iState2)%NCSF(LSYM2)
   else
     NCONF2 = 1
   end if

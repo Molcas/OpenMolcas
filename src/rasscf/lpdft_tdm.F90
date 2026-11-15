@@ -45,6 +45,8 @@ implicit none
 integer(kind=iwp) :: dDisk, fileId, iDisk, iPair, jRoot, kDisk, kRoot, lFileName, nPairs, oneTdmId, rootPairsId, twoTdmId
 character(len=1024) :: fileName
 integer(kind=iwp), allocatable :: rootPairs(:,:)
+! the CI state of RASSCF (CIS)
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), allocatable :: Dstate(:,:), DStmp(:), Dtmp(:), Pstate(:,:), Ptmp(:), Tdm1(:), Tmp(:), VecL(:), VecR(:), VecSum(:)
 character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
 #endif
@@ -96,14 +98,14 @@ dDisk = IADR15(3)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
   ! JOBIPH holds the split-graph order
-  call CI_File_To_Basis(1,STSYM,CIS(1)%nCSF(STSYM),Tmp,VecL)
+  call CI_File_To_Basis(iState,STSYM,CIS(iState)%nCSF(STSYM),Tmp,VecL)
   ! 1-RDM and 2-PDM of the root, needed for the polarization identity below.
   VecSum(:) = VecL(:)
   call Mk_pdms(VecSum,nConf,D=Dstate(:,jRoot),P=Pstate(:,jRoot),nD=NAC*NAC,nP=NACPR2)
   kDisk = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-    call CI_File_To_Basis(1,STSYM,CIS(1)%nCSF(STSYM),Tmp,VecR)
+    call CI_File_To_Basis(iState,STSYM,CIS(iState)%nCSF(STSYM),Tmp,VecR)
     ! Symmetrized transition 1-RDM and 2-PDM from polarization of the (bilinear) densities:
     ! X[L+R] = X[L] + X[R] + (X_LR + X_RL), so (X_LR + X_RL)/2 = (X[L+R] - X[L] - X[R])/2.
     ! These are the only parts of the 1-TDM and 2-TDM that contract with the (symmetric) L-PDFT
