@@ -861,7 +861,7 @@ subroutine SG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
   integer(kind=iwp), intent(out) :: ICS(G%nLev)
   integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, ISYDWN, IUW0, LEV, NDWN, NNN, NUP
 
-  call Skip_Empty()
+  call Walk_Skip_Empty(G%nSym,W%nMidV,W%NOW,LSM,MV,ISYUP)
   if (MV == 0) then
     write(u6,'(1X,A)') 'SG_Walk_Next: no more walks'
     call Abend()
@@ -906,38 +906,44 @@ subroutine SG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
     IUP = 1
     if (IDWN == NDWN) then
       IDWN = 1
-      call Next_Block()
+      call Walk_Next_Block(G%nSym,W%nMidV,MV,ISYUP)
     else
       IDWN = IDWN+1
     end if
   else
     IUP = IUP+1
   end if
-  call Skip_Empty()
-
-contains
-
-  subroutine Next_Block()
-    if (ISYUP == G%nSym) then
-      ISYUP = 1
-      if (MV == W%nMidV) then
-        MV = 0
-      else
-        MV = MV+1
-      end if
-    else
-      ISYUP = ISYUP+1
-    end if
-  end subroutine Next_Block
-
-  subroutine Skip_Empty()
-    do while (MV /= 0)
-      if (W%NOW(1,ISYUP,MV)*W%NOW(2,Mul(LSM,ISYUP),MV) > 0) exit
-      call Next_Block()
-    end do
-  end subroutine Skip_Empty
+  call Walk_Skip_Empty(G%nSym,W%nMidV,W%NOW,LSM,MV,ISYUP)
 
 end subroutine SG_Walk_Next
+
+!> The next (MV, ISYUP) block of SG_Walk_Next: ISYUP fastest; MV = 0 after
+!> the last one. (Module procedures with explicit arguments: internal
+!> procedures that changed the host's MV/ISYUP made nvfortran loop forever.)
+subroutine Walk_Next_Block(nSym,nMidV,MV,ISYUP)
+  integer(kind=iwp), intent(in) :: nSym, nMidV
+  integer(kind=iwp), intent(inout) :: MV, ISYUP
+  if (ISYUP == nSym) then
+    ISYUP = 1
+    if (MV == nMidV) then
+      MV = 0
+    else
+      MV = MV+1
+    end if
+  else
+    ISYUP = ISYUP+1
+  end if
+end subroutine Walk_Next_Block
+
+!> Advance (MV, ISYUP) to the next block with CSFs of symmetry LSM.
+subroutine Walk_Skip_Empty(nSym,nMidV,NOW,LSM,MV,ISYUP)
+  integer(kind=iwp), intent(in) :: nSym, nMidV, NOW(:,:,:), LSM
+  integer(kind=iwp), intent(inout) :: MV, ISYUP
+  do while (MV /= 0)
+    if (NOW(1,ISYUP,MV)*NOW(2,Mul(LSM,ISYUP),MV) > 0) exit
+    call Walk_Next_Block(nSym,nMidV,MV,ISYUP)
+  end do
+end subroutine Walk_Skip_Empty
 
 !> Free the arrays of a graph and its walks built by MkSGUGA.
 subroutine Free_SG_Graph(G,W)
