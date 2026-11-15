@@ -17,7 +17,8 @@ use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
 use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort
-use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma
+use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma, ras_traci, ras_trans_one_pdm, &
+                       ras_trans_two_pdm
 use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
@@ -795,18 +796,27 @@ end if
 If (DoFaro) Then
    Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
 
-   Call mma_allocate(Bra_SD,nDetA,nDetB,Label='Psi')
-   Call mma_allocate(Ket_SD,nDetA,nDetB,Label='Psi')
+   If (ras_active) Then
+     ! RAS: in the RAS string classes (faroald_ras)
+     Call mma_allocate(Bra_SD,max(1,n_ras),1,Label='Psi')
+     Call mma_allocate(Ket_SD,max(1,n_ras),1,Label='Psi')
+     call CITRANS_CSF2RAS(Bra_Vec,Bra_SD(:,1))
+     call CITRANS_CSF2RAS(Ket_Vec,Ket_SD(:,1))
+     Call RAS_Trans_One_PDM(Ket_SD(:,1),Bra_SD(:,1),T1DM,T1SDM_loc)
+   Else
+     Call mma_allocate(Bra_SD,nDetA,nDetB,Label='Psi')
+     Call mma_allocate(Ket_SD,nDetA,nDetB,Label='Psi')
 
-   ! (the CI vectors are in the configuration order of Faroald, citrans)
-   Bra_SD(:,:)=Zero
-   call CITRANS_CSF2SD(Bra_Vec,Bra_SD)
-   Ket_SD(:,:)=Zero
-   call CITRANS_CSF2SD(Ket_Vec,Ket_SD)
+     ! (the CI vectors are in the configuration order of Faroald, citrans)
+     Bra_SD(:,:)=Zero
+     call CITRANS_CSF2SD(Bra_Vec,Bra_SD)
+     Ket_SD(:,:)=Zero
+     call CITRANS_CSF2SD(Ket_Vec,Ket_SD)
 
-!  Don't ask me why we need to do it the other way?
-!  Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM_loc)
-   Call Transition_One_PDM(Ket_SD,Bra_SD,T1DM,T1SDM_loc)
+!    Don't ask me why we need to do it the other way?
+!    Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM_loc)
+     Call Transition_One_PDM(Ket_SD,Bra_SD,T1DM,T1SDM_loc)
+   End If
 
    If (present(T1SDM)) T1SDM(1:nT1DM) = T1SDM_loc(1:nT1DM)
    If (CI_Verify('SIGMA')) call Faroald_Check_T1DM()
@@ -974,20 +984,27 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    call mma_allocate(P_loc,nP,Label='P_loc')
    call mma_allocate(PA_loc,nP,Label='PA_loc')
 
-   Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
-
-   ! (the CI vector is in the configuration order of Faroald, citrans)
-   Faroald_Psi(:,:)=Zero
-   call CITRANS_CSF2SD(CIVEC,Faroald_PSI)
-
    Call mma_allocate(D_Faroald,NAC,NAC)
    Call mma_allocate(SD_Faroald,NAC,NAC)
-   Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
+   Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
+   If (ras_active) Then
+     ! RAS: in the RAS string classes (faroald_ras)
+     Call mma_allocate(Faroald_Psi,max(1,n_ras),1,Label='Psi')
+     call CITRANS_CSF2RAS(CIVEC,Faroald_Psi(:,1))
+     Call RAS_Trans_One_PDM(Faroald_Psi(:,1),Faroald_Psi(:,1),D_Faroald,SD_Faroald)
+     Call RAS_Trans_Two_PDM(Faroald_Psi(:,1),Faroald_Psi(:,1),P_Faroald)
+   Else
+     Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
+
+     ! (the CI vector is in the configuration order of Faroald, citrans)
+     Faroald_Psi(:,:)=Zero
+     call CITRANS_CSF2SD(CIVEC,Faroald_PSI)
+
+     Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
+     Call two_pdm(Faroald_psi,P_Faroald)
+   End If
    Call Fold2(1,[NAC],D_faroald,D_loc)
    Call Fold2(1,[NAC],SD_faroald,SD_loc)
-
-   Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
-   Call two_pdm(Faroald_psi,P_Faroald)
    Call Fold_Two_pdm(P_Faroald,P_loc,PA_loc)
 
    Call mma_deallocate(Faroald_Psi)
@@ -2862,9 +2879,6 @@ End If
 
 If (DoFaro) Then
   ! Faroald in its own basis (citrans), through the determinants
-  Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
-  Faroald_PSI(:,:) = Zero
-  call CITRANS_CSF2SD(CI_Vector,Faroald_PSI)
   ! the transformation matrix in symmetry blocks -> NAC x NAC over the
   ! orbitals of Faroald (the levels, Faro_L2O)
   Call mma_allocate(TFull,NAC*NAC,Label='TFull')
@@ -2885,9 +2899,20 @@ If (DoFaro) Then
     iOffO = iOffO+NASH(iSym)
   end do
   Call mma_deallocate(O2L)
-  Call traci_faroald(TFull,NAC*NAC,Faroald_Psi)
+  If (ras_active) Then
+    ! RAS: in the RAS string classes (faroald_ras)
+    Call mma_allocate(Faroald_Psi,max(1,n_ras),1,Label='Faroald_Psi')
+    call CITRANS_CSF2RAS(CI_Vector,Faroald_Psi(:,1))
+    Call RAS_Traci(TFull,NAC*NAC,Faroald_Psi(:,1))
+    call CITRANS_RAS2CSF(Faroald_Psi(:,1),CI_Vector)
+  Else
+    Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
+    Faroald_PSI(:,:) = Zero
+    call CITRANS_CSF2SD(CI_Vector,Faroald_PSI)
+    Call traci_faroald(TFull,NAC*NAC,Faroald_Psi)
+    call CITRANS_SD2CSF(Faroald_Psi,CI_Vector)
+  End If
   Call mma_deallocate(TFull)
-  call CITRANS_SD2CSF(Faroald_Psi,CI_Vector)
   Call mma_deallocate(Faroald_Psi)
   If (CI_Verify('SIGMA')) Then
     Call mma_allocate(ctemp,nCSF,Label='ctemp')

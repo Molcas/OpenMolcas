@@ -37,7 +37,7 @@ module faroald_ras
 
 use second_quantization, only: ann2, binom_coef, cre2, ex1, fase, lex_init, lex_next, lexrank
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -64,7 +64,8 @@ type(ras_spin) :: sa, sb
 integer(kind=iwp), allocatable :: blk_off(:,:), blk_offT(:,:)
 logical(kind=iwp) :: ras_active = .false.
 
-public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_from_full, ras_sigma, ras_to_full
+public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_from_full, ras_sigma, &
+          ras_to_full, ras_traci, ras_trans_one_pdm, ras_trans_two_pdm
 
 contains
 
@@ -588,5 +589,262 @@ subroutine opposite_spin(g,vec,sgm)
   call mma_deallocate(pq_sgn)
 
 end subroutine opposite_spin
+
+!> Transition one-particle densities between RAS vectors:
+!> da(p,q) = <bra|a+_pa a_qa|ket>, db(p,q) = <bra|a+_pb a_qb|ket>,
+!> d = da+db, sd = da-db (as Faroald's transition_one_pdm).
+subroutine ras_trans_one_pdm(bra,ket,d,sd)
+  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(out) :: d(ras_norb,ras_norb), sd(ras_norb,ras_norb)
+  real(kind=wp), allocatable :: da(:,:), db(:,:), bT(:), kT(:)
+
+  call mma_allocate(da,ras_norb,ras_norb,label='ras_da')
+  call mma_allocate(db,ras_norb,ras_norb,label='ras_db')
+  call mma_allocate(bT,max(1,n_ras),label='ras_bT')
+  call mma_allocate(kT,max(1,n_ras),label='ras_kT')
+  da(:,:) = Zero
+  db(:,:) = Zero
+  call col_one_pdm(sa,sb,blk_off,bra,ket,db)
+  call transpose_blocks(bra,bT,.true.)
+  call transpose_blocks(ket,kT,.true.)
+  call col_one_pdm(sb,sa,blk_offT,bT,kT,da)
+  d(:,:) = da(:,:)+db(:,:)
+  sd(:,:) = da(:,:)-db(:,:)
+  call mma_deallocate(da)
+  call mma_deallocate(db)
+  call mma_deallocate(bT)
+  call mma_deallocate(kT)
+end subroutine ras_trans_one_pdm
+
+!> dm(p,q) += <bra|a+_p a_q|ket> for the column spin c (row spin r).
+subroutine col_one_pdm(r,c,off,bra,ket,dm)
+  type(ras_spin), intent(in) :: r, c
+  integer(kind=iwp), intent(in) :: off(:,:)
+  real(kind=wp), intent(in) :: bra(:), ket(:)
+  real(kind=wp), intent(inout) :: dm(ras_norb,ras_norb)
+  integer(kind=iwp) :: gi, gj, e, cr, nr, oi, oj
+  do gi=1,c%nstr
+    do e=c%ex_off(gi)+1,c%ex_off(gi+1)
+      gj = c%ex_j(e)
+      do cr=1,r%ncls
+        if ((off(cr,c%str_cls(gi)) < 0) .or. (off(cr,c%str_cls(gj)) < 0)) cycle
+        nr = r%cls_nstr(cr)
+        oi = off(cr,c%str_cls(gi))+(c%str_idx(gi)-1)*nr
+        oj = off(cr,c%str_cls(gj))+(c%str_idx(gj)-1)*nr
+        dm(c%ex_p(e),c%ex_q(e)) = dm(c%ex_p(e),c%ex_q(e))+c%ex_sgn(e)*dot_product(bra(oj+1:oj+nr),ket(oi+1:oi+nr))
+      end do
+    end do
+  end do
+end subroutine col_one_pdm
+
+!> Spin-free transition two-particle density between RAS vectors,
+!> p2(t,u,v,x) = <bra|E_tu E_vx - delta_uv E_tx|ket>
+!>             = sum_{s,s'} <bra|a+_ts a+_vs' a_xs' a_us|ket>
+!> (as Faroald's transition_two_pdm).
+subroutine ras_trans_two_pdm(bra,ket,p2)
+  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(out) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
+  real(kind=wp), allocatable :: bT(:), kT(:)
+  integer(kind=iwp) :: ea, eb, ja, ia, jb, ib, caj, cai, cbj, cbi, t, u, v, x
+  real(kind=wp) :: c
+
+  p2(:,:,:,:) = Zero
+  ! same spin
+  call col_two_pdm(sa,sb,blk_off,bra,ket,p2)
+  call mma_allocate(bT,max(1,n_ras),label='ras_bT')
+  call mma_allocate(kT,max(1,n_ras),label='ras_kT')
+  call transpose_blocks(bra,bT,.true.)
+  call transpose_blocks(ket,kT,.true.)
+  call col_two_pdm(sb,sa,blk_offT,bT,kT,p2)
+  call mma_deallocate(bT)
+  call mma_deallocate(kT)
+  ! opposite spin: <a+_ta a_ua a+_vb a_xb>, also as (v,x,t,u)
+  do ja=1,sa%nstr
+    caj = sa%str_cls(ja)
+    do ea=sa%ex_off(ja)+1,sa%ex_off(ja+1)
+      ia = sa%ex_j(ea)
+      cai = sa%str_cls(ia)
+      t = sa%ex_p(ea)
+      u = sa%ex_q(ea)
+      do jb=1,sb%nstr
+        cbj = sb%str_cls(jb)
+        if (blk_off(caj,cbj) < 0) cycle
+        do eb=sb%ex_off(jb)+1,sb%ex_off(jb+1)
+          ib = sb%ex_j(eb)
+          cbi = sb%str_cls(ib)
+          if (blk_off(cai,cbi) < 0) cycle
+          v = sb%ex_p(eb)
+          x = sb%ex_q(eb)
+          c = real(sa%ex_sgn(ea)*sb%ex_sgn(eb),kind=wp)* &
+              bra(blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai))* &
+              ket(blk_off(caj,cbj)+sa%str_idx(ja)+(sb%str_idx(jb)-1)*sa%cls_nstr(caj))
+          p2(t,u,v,x) = p2(t,u,v,x)+c
+          p2(v,x,t,u) = p2(v,x,t,u)+c
+        end do
+      end do
+    end do
+  end do
+end subroutine ras_trans_two_pdm
+
+!> p2 += <bra|a+_t a+_v a_x a_u|ket> (all index orders) for the column
+!> spin c (row spin r); J = a+_t a+_v a_x a_u I with t > v, u > x.
+subroutine col_two_pdm(r,c,off,bra,ket,p2)
+  type(ras_spin), intent(in) :: r, c
+  integer(kind=iwp), intent(in) :: off(:,:)
+  real(kind=wp), intent(in) :: bra(:), ket(:)
+  real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
+  integer(kind=iwp) :: gi, gj, cr, nr, oi, oj, t, u, v, x, d, dd
+  real(kind=wp) :: val
+  do gi=1,c%nstr
+    do u=2,ras_norb
+      if (.not. btest(c%str(gi),u-1)) cycle
+      do x=1,u-1
+        d = ann2(x,u,c%str(gi))
+        if (d == -1) cycle
+        do t=2,ras_norb
+          if (btest(d,t-1)) cycle
+          do v=1,t-1
+            dd = cre2(t,v,d)
+            if (dd == -1) cycle
+            gj = str_index(c,ibits(dd,0,31))
+            if (gj == 0) cycle
+            val = Zero
+            do cr=1,r%ncls
+              if ((off(cr,c%str_cls(gi)) < 0) .or. (off(cr,c%str_cls(gj)) < 0)) cycle
+              nr = r%cls_nstr(cr)
+              oi = off(cr,c%str_cls(gi))+(c%str_idx(gi)-1)*nr
+              oj = off(cr,c%str_cls(gj))+(c%str_idx(gj)-1)*nr
+              val = val+dot_product(bra(oj+1:oj+nr),ket(oi+1:oi+nr))
+            end do
+            if (val == Zero) cycle
+            val = fase(dd)*val
+            p2(t,u,v,x) = p2(t,u,v,x)+val
+            p2(v,x,t,u) = p2(v,x,t,u)+val
+            p2(t,x,v,u) = p2(t,x,v,u)-val
+            p2(v,u,t,x) = p2(v,u,t,x)-val
+          end do
+        end do
+      end do
+    end do
+  end do
+end subroutine col_two_pdm
+
+!> out = sum_pq h1(p,q) E_pq vin (both spins).
+subroutine ras_apply_1e(h1,vin,vout)
+  real(kind=wp), intent(in) :: h1(ras_norb,ras_norb), vin(n_ras)
+  real(kind=wp), intent(out) :: vout(n_ras)
+  real(kind=wp), allocatable :: iT(:), oT(:)
+  vout(:) = Zero
+  call col_apply_1e(sa,sb,blk_off,h1,vin,vout)
+  call mma_allocate(iT,max(1,n_ras),label='ras_iT')
+  call mma_allocate(oT,max(1,n_ras),label='ras_oT')
+  call transpose_blocks(vin,iT,.true.)
+  oT(:) = Zero
+  call col_apply_1e(sb,sa,blk_offT,h1,iT,oT)
+  call transpose_blocks(oT,iT,.false.)
+  vout(:) = vout(:)+iT(1:n_ras)
+  call mma_deallocate(iT)
+  call mma_deallocate(oT)
+end subroutine ras_apply_1e
+
+!> vout(:,J) += h1(p,q) <J|a+_p a_q|I> vin(:,I) for the column spin c.
+subroutine col_apply_1e(r,c,off,h1,vin,vout)
+  type(ras_spin), intent(in) :: r, c
+  integer(kind=iwp), intent(in) :: off(:,:)
+  real(kind=wp), intent(in) :: h1(ras_norb,ras_norb), vin(:)
+  real(kind=wp), intent(inout) :: vout(:)
+  integer(kind=iwp) :: gi, gj, e, cr, nr, oi, oj
+  real(kind=wp) :: f
+  do gi=1,c%nstr
+    do e=c%ex_off(gi)+1,c%ex_off(gi+1)
+      f = c%ex_sgn(e)*h1(c%ex_p(e),c%ex_q(e))
+      if (f == Zero) cycle
+      gj = c%ex_j(e)
+      do cr=1,r%ncls
+        if ((off(cr,c%str_cls(gi)) < 0) .or. (off(cr,c%str_cls(gj)) < 0)) cycle
+        nr = r%cls_nstr(cr)
+        oi = off(cr,c%str_cls(gi))+(c%str_idx(gi)-1)*nr
+        oj = off(cr,c%str_cls(gj))+(c%str_idx(gj)-1)*nr
+        vout(oj+1:oj+nr) = vout(oj+1:oj+nr)+f*vin(oi+1:oi+nr)
+      end do
+    end do
+  end do
+end subroutine col_apply_1e
+
+!> The CI transformation of traci_faroald (Malmqvist, one orbital at a
+!> time) in the RAS space; T (norb x norb over the orbitals of Faroald)
+!> must not mix the RAS partitions, so that every step stays in the RAS
+!> space: elements between partitions up to ThrMix (rounding noise) are set
+!> to zero in a local copy Tc, larger ones are an error.
+subroutine ras_traci(T,nT,vec)
+  integer(kind=iwp), intent(in) :: nT
+  real(kind=wp), intent(in) :: T(nT)
+  real(kind=wp), intent(inout) :: vec(n_ras)
+  real(kind=wp), allocatable :: Tc(:), h1(:,:), v0(:), v1(:), v2(:)
+  integer(kind=iwp) :: k, p, prt(30), ca, cb, ia, ib, nk, o
+  real(kind=wp) :: tkk, fac(0:2)
+  real(kind=wp), parameter :: ThrMix = 1.0e-10_wp
+
+  do p=1,ras_norb
+    if (p <= ras_pos(2)) then
+      prt(p) = 1
+    else if (p <= ras_pos(3)) then
+      prt(p) = 2
+    else
+      prt(p) = 3
+    end if
+  end do
+  call mma_allocate(Tc,nT,label='ras_Tc')
+  Tc(:) = T(:)
+  do k=1,ras_norb
+    do p=1,ras_norb
+      if (prt(p) == prt(k)) cycle
+      if (abs(Tc((k-1)*ras_norb+p)) > ThrMix) then
+        write(u6,*) 'ras_traci: the transformation mixes RAS partitions',p,k,Tc((k-1)*ras_norb+p)
+        call Abend()
+      end if
+      Tc((k-1)*ras_norb+p) = Zero
+    end do
+  end do
+
+  call mma_allocate(h1,ras_norb,ras_norb,label='ras_h1')
+  call mma_allocate(v0,max(1,n_ras),label='ras_v0')
+  call mma_allocate(v1,max(1,n_ras),label='ras_v1')
+  call mma_allocate(v2,max(1,n_ras),label='ras_v2')
+  do k=1,ras_norb
+    tkk = Tc((k-1)*ras_norb+k)
+    h1(:,:) = Zero
+    do p=1,ras_norb
+      if (p /= k) h1(p,k) = Tc((k-1)*ras_norb+p)/tkk
+    end do
+    fac(0) = One
+    fac(1) = tkk
+    fac(2) = tkk*tkk
+    ! v0 = tkk^n_k vec
+    do cb=1,sb%ncls
+      do ca=1,sa%ncls
+        if (blk_off(ca,cb) < 0) cycle
+        o = blk_off(ca,cb)
+        do ib=1,sb%cls_nstr(cb)
+          do ia=1,sa%cls_nstr(ca)
+            o = o+1
+            nk = 0
+            if (btest(sa%str(sa%cls_off(ca)+ia),k-1)) nk = nk+1
+            if (btest(sb%str(sb%cls_off(cb)+ib),k-1)) nk = nk+1
+            v0(o) = fac(nk)*vec(o)
+          end do
+        end do
+      end do
+    end do
+    call ras_apply_1e(h1,v0,v1)
+    call ras_apply_1e(h1,v1,v2)
+    vec(:) = v0(1:n_ras)+v1(1:n_ras)+Half*v2(1:n_ras)
+  end do
+  call mma_deallocate(Tc)
+  call mma_deallocate(h1)
+  call mma_deallocate(v0)
+  call mma_deallocate(v1)
+  call mma_deallocate(v2)
+end subroutine ras_traci
 
 end module faroald_ras
