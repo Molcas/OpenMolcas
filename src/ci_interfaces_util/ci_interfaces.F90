@@ -21,7 +21,7 @@ use rasscf_global, only: DoFaro, DoSGEx
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS
 use general_data, only: iDoGAS, nRsPrt
@@ -39,6 +39,9 @@ Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify
 
 ! Mk_IHJ is verified against Mk_H_Psi only once per run.
 logical(kind=iwp) :: IHJ_Verified = .false.
+! sg_h_psi_ras is compared with sg_h_psi (CAS) only once per run; for RAS
+! the difference to the CI back end is printed once (checked every time).
+logical(kind=iwp) :: HPsi_RAS_Verified = .false.
 ! SGEX given but SGUGA not available: warned once.
 logical(kind=iwp) :: SGEx_Warned = .false.
 
@@ -50,6 +53,7 @@ contains
 Subroutine Mk_H_Psi(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
 use cands, only: ICSM, ISSM
+use spinfo, only: I_ELIMINATE_GAS
 Implicit None
 
 integer(kind=iwp), intent(in):: iState, STSYM, nCSF
@@ -62,8 +66,8 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp) :: IREFSM_SAVE, nDet
 
-real(kind=wp) :: Check_Href, Check_H
-real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:)
+real(kind=wp) :: Check_Href, Check_H, DMax
+real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:), SG_RAS(:)
 
 if (DOFARO) then
 
@@ -109,14 +113,44 @@ else
 end if
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the SGUGA sigma
-! vector, which is then used.
-If (CI_Verify('SIGMA') .and. .NOT.iDoGAS .and. nRsPrt==1) Then
+! vector, which is then used. With RAS partitions it comes from
+! sg_h_psi_ras (no intermediate states outside the RAS space); for CAS from
+! sg_h_psi, checked once per run against sg_h_psi_ras. Not with HEXS/DEXS
+! (I_ELIMINATE_GAS): the configurations they remove are not part of the
+! SGUGA graph.
+If (CI_Verify('SIGMA') .and. (.NOT.iDoGAS) .and. (I_ELIMINATE_GAS == 0)) Then
    Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
    call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
    Check_Href=CheckSum(Sigma_Vec,nCSF)
    Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
-   Call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
+   if (nRsPrt == 1) then
+     Call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
+     if (.not. HPsi_RAS_Verified) then
+       call mma_allocate(SG_RAS,nCSF,Label='SG_RAS')
+       call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_RAS,TUVX,nTUVX,TU,nTU)
+       DMax = maxval(abs(SG_RAS(:)-SG_SGM(:)))
+       write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs sg_h_psi, max. abs. difference',DMax
+       if (DMax > 1.0e-12_wp*max(One,maxval(abs(SG_SGM(:))))) then
+         write(u6,*) 'SGUGA error in sg_h_psi_ras'
+         call Abend()
+       end if
+       call mma_deallocate(SG_RAS)
+       HPsi_RAS_Verified = .true.
+     end if
+   else
+     Call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
+   end if
    call SG_Reord(iState,STSYM,1,nCSF,SG_SGM,SG_PSI)
+   if (nRsPrt /= 1) then
+     DMax = maxval(abs(SG_PSI(:)-Sigma_Vec(:)))
+     if (.not. HPsi_RAS_Verified) &
+       write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs CI back end (RAS), max. abs. difference',DMax
+     HPsi_RAS_Verified = .true.
+     if (DMax > 1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:))))) then
+       write(u6,'(1X,A,ES10.3)') 'SGUGA error in sg_h_psi_ras (RAS), max. abs. difference',DMax
+       call Abend()
+     end if
+   end if
    Check_H   =CheckSum(SG_PSI,nCSF)
    If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
       Write (u6,*) 'SGUGA error in H|Psi>'
