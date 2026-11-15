@@ -44,23 +44,37 @@ implicit none
 private
 
 type ras_spin
-  integer(kind=iwp) :: nel = 0, ncls = 0, nstr = 0, nex = 0
-  ! per class: electrons in RAS1/2/3, number of substrings, number of
-  ! strings and offset of its strings in the global string list (0-based)
-  integer(kind=iwp), allocatable :: cls_n(:,:), cls_cnt(:,:), cls_nstr(:), cls_off(:)
-  ! class of (n1,n3), 0 if not a class of this spin
-  integer(kind=iwp), allocatable :: cls_of(:,:)
-  ! per global string: bit string, class, index within the class
+  integer(kind=iwp) :: nel = 0, nocc = 0, ncls = 0, nstr = 0, nex = 0
+  ! occupation classes: electrons in RAS1/2/3, number of substrings,
+  ! number of strings and offset in the rank order (0-based); occ_of(n1,n3)
+  ! the class of (n1,n3), 0 if not one of this spin
+  integer(kind=iwp), allocatable :: occ_n(:,:), occ_cnt(:,:), occ_nstr(:), occ_off(:), occ_of(:,:)
+  ! the groups (the blocks of the CI layout): occupation class and string
+  ! symmetry; per group: electrons in RAS1/2/3 (cls_n), symmetry (cls_sym),
+  ! number of strings, offset of its strings in the global string list
+  ! (0-based). The strings are numbered group by group.
+  integer(kind=iwp), allocatable :: cls_n(:,:), cls_sym(:), cls_nstr(:), cls_off(:)
+  ! perm(k): the global string of rank address k (occ_off+ranks)
+  integer(kind=iwp), allocatable :: perm(:)
+  ! per global string: bit string, group, index within the group
   integer(kind=iwp), allocatable :: str(:), str_cls(:), str_idx(:)
   ! single excitations J = a+_p a_q I (sign sgn), I = 1..nstr, entries
   ! ex_off(I)+1..ex_off(I+1); only J of this spin's classes
   integer(kind=iwp), allocatable :: ex_off(:), ex_p(:), ex_q(:), ex_sgn(:), ex_j(:)
+  ! same-spin double excitations J = a+_t a+_v a_x a_u I (t > v, u > x),
+  ! entries dex_off(I)+1..dex_off(I+1): J, sign, (t,u,v,x) packed (pack4);
+  ! has_dex = .false. if they did not fit in memory (generated on the fly)
+  logical(kind=iwp) :: has_dex = .false.
+  integer(kind=iwp) :: ndex = 0
+  integer(kind=iwp), allocatable :: dex_off(:), dex_j(:), dex_sgn(:), dex_tuvx(:)
 end type ras_spin
 
-integer(kind=iwp) :: ras_norb = 0, ras_o(3) = 0, ras_pos(3) = 0, ras_minr1 = 0, ras_maxr3 = 0, n_ras = 0
+integer(kind=iwp) :: ras_norb = 0, ras_o(3) = 0, ras_pos(3) = 0, ras_minr1 = 0, ras_maxr3 = 0, n_ras = 0, ras_nsym = 1, &
+                     ras_lsym = 1, ras_osym(30) = 1
 type(ras_spin) :: sa, sb
-! block offsets (0-based) of (alpha class, beta class), -1 outside the
-! RAS space; blk_offT: the same blocks transposed (beta x alpha)
+! block offsets (0-based) of (alpha group, beta group), -1 outside the
+! RAS space or of another symmetry; blk_offT: the same blocks transposed
+! (beta x alpha)
 integer(kind=iwp), allocatable :: blk_off(:,:), blk_offT(:,:)
 logical(kind=iwp) :: ras_active = .false.
 
@@ -69,11 +83,13 @@ public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_c
 
 contains
 
-!> Set up the string classes, the single-excitation lists and the CI layout
+!> Set up the string groups, the single-excitation lists and the CI layout
 !> for nela/nelb electrons in norb orbitals, o(1:3) of them in RAS1/2/3,
-!> with at least minr1 electrons in RAS1 and at most maxr3 in RAS3.
-subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3)
-  integer(kind=iwp), intent(in) :: nela, nelb, norb, o(3), minr1, maxr3
+!> with at least minr1 electrons in RAS1 and at most maxr3 in RAS3; the
+!> orbitals have the symmetries osym (nsym irreps), the CI space the
+!> symmetry lsym (determinants sym(alpha) x sym(beta) = lsym only).
+subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3,nsym,osym,lsym)
+  integer(kind=iwp), intent(in) :: nela, nelb, norb, o(3), minr1, maxr3, nsym, osym(norb), lsym
   integer(kind=iwp) :: ca, cb, n
 
   call faroald_ras_free()
@@ -92,6 +108,10 @@ subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3)
   ras_pos(3) = o(1)+o(2)
   ras_minr1 = minr1
   ras_maxr3 = maxr3
+  ras_nsym = nsym
+  ras_lsym = lsym
+  ras_osym(:) = 1
+  ras_osym(1:norb) = osym(1:norb)
 
   call mk_classes(sa,nela,nelb)
   call mk_classes(sb,nelb,nela)
@@ -99,6 +119,8 @@ subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3)
   call mk_strings(sb)
   call mk_singles(sa)
   call mk_singles(sb)
+  call mk_doubles(sa)
+  call mk_doubles(sb)
 
   call mma_allocate(blk_off,sa%ncls,sb%ncls,label='blk_off')
   call mma_allocate(blk_offT,sb%ncls,sa%ncls,label='blk_offT')
@@ -107,7 +129,7 @@ subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3)
   n = 0
   do cb=1,sb%ncls
     do ca=1,sa%ncls
-      if (allowed(sa%cls_n(:,ca),sb%cls_n(:,cb))) then
+      if (allowed(sa%cls_n(:,ca),sb%cls_n(:,cb)) .and. (ieor(sa%cls_sym(ca)-1,sb%cls_sym(cb)-1)+1 == ras_lsym)) then
         blk_off(ca,cb) = n
         n = n+sa%cls_nstr(ca)*sb%cls_nstr(cb)
       end if
@@ -138,11 +160,16 @@ end subroutine faroald_ras_free
 
 subroutine free_spin(s)
   type(ras_spin), intent(inout) :: s
+  call mma_deallocate(s%occ_n,safe='*')
+  call mma_deallocate(s%occ_cnt,safe='*')
+  call mma_deallocate(s%occ_nstr,safe='*')
+  call mma_deallocate(s%occ_off,safe='*')
+  call mma_deallocate(s%occ_of,safe='*')
   call mma_deallocate(s%cls_n,safe='*')
-  call mma_deallocate(s%cls_cnt,safe='*')
+  call mma_deallocate(s%cls_sym,safe='*')
   call mma_deallocate(s%cls_nstr,safe='*')
   call mma_deallocate(s%cls_off,safe='*')
-  call mma_deallocate(s%cls_of,safe='*')
+  call mma_deallocate(s%perm,safe='*')
   call mma_deallocate(s%str,safe='*')
   call mma_deallocate(s%str_cls,safe='*')
   call mma_deallocate(s%str_idx,safe='*')
@@ -151,7 +178,14 @@ subroutine free_spin(s)
   call mma_deallocate(s%ex_q,safe='*')
   call mma_deallocate(s%ex_sgn,safe='*')
   call mma_deallocate(s%ex_j,safe='*')
+  call mma_deallocate(s%dex_off,safe='*')
+  call mma_deallocate(s%dex_j,safe='*')
+  call mma_deallocate(s%dex_sgn,safe='*')
+  call mma_deallocate(s%dex_tuvx,safe='*')
+  s%has_dex = .false.
+  s%ndex = 0
   s%nel = 0
+  s%nocc = 0
   s%ncls = 0
   s%nstr = 0
   s%nex = 0
@@ -165,8 +199,9 @@ pure function allowed(n_a,n_b) result(ok)
   ok = (n_a(1)+n_b(1) >= ras_minr1) .and. (n_a(3)+n_b(3) <= ras_maxr3)
 end function allowed
 
-!> The classes of a spin with nel electrons (the other spin has nelo): all
-!> (n1,n2,n3) that occur in at least one determinant of the RAS space.
+!> The occupation classes of a spin with nel electrons (the other spin has
+!> nelo): all (n1,n2,n3) that occur in at least one determinant of the RAS
+!> space.
 subroutine mk_classes(s,nel,nelo)
   type(ras_spin), intent(inout) :: s
   integer(kind=iwp), intent(in) :: nel, nelo
@@ -175,8 +210,8 @@ subroutine mk_classes(s,nel,nelo)
   logical(kind=iwp) :: ok
 
   s%nel = nel
-  call mma_allocate(s%cls_of,[0,ras_o(1)],[0,ras_o(3)],label='cls_of')
-  s%cls_of(:,:) = 0
+  call mma_allocate(s%occ_of,[0,ras_o(1)],[0,ras_o(3)],label='occ_of')
+  s%occ_of(:,:) = 0
   do pass=1,2
     k = 0
     do n3=0,min(ras_o(3),nel)
@@ -194,62 +229,127 @@ subroutine mk_classes(s,nel,nelo)
         if (.not. ok) cycle
         k = k+1
         if (pass == 2) then
-          s%cls_n(:,k) = n(:)
-          s%cls_cnt(1,k) = binom_coef(n(1),ras_o(1))
-          s%cls_cnt(2,k) = binom_coef(n(2),ras_o(2))
-          s%cls_cnt(3,k) = binom_coef(n(3),ras_o(3))
-          s%cls_nstr(k) = product(s%cls_cnt(:,k))
-          s%cls_of(n1,n3) = k
+          s%occ_n(:,k) = n(:)
+          s%occ_cnt(1,k) = binom_coef(n(1),ras_o(1))
+          s%occ_cnt(2,k) = binom_coef(n(2),ras_o(2))
+          s%occ_cnt(3,k) = binom_coef(n(3),ras_o(3))
+          s%occ_nstr(k) = product(s%occ_cnt(:,k))
+          s%occ_of(n1,n3) = k
         end if
       end do
     end do
     if (pass == 1) then
-      s%ncls = k
-      call mma_allocate(s%cls_n,3,max(1,k),label='cls_n')
-      call mma_allocate(s%cls_cnt,3,max(1,k),label='cls_cnt')
-      call mma_allocate(s%cls_nstr,max(1,k),label='cls_nstr')
-      call mma_allocate(s%cls_off,max(1,k),label='cls_off')
+      s%nocc = k
+      call mma_allocate(s%occ_n,3,max(1,k),label='occ_n')
+      call mma_allocate(s%occ_cnt,3,max(1,k),label='occ_cnt')
+      call mma_allocate(s%occ_nstr,max(1,k),label='occ_nstr')
+      call mma_allocate(s%occ_off,max(1,k),label='occ_off')
     end if
   end do
   s%nstr = 0
-  do k=1,s%ncls
-    s%cls_off(k) = s%nstr
-    s%nstr = s%nstr+s%cls_nstr(k)
+  do k=1,s%nocc
+    s%occ_off(k) = s%nstr
+    s%nstr = s%nstr+s%occ_nstr(k)
   end do
 end subroutine mk_classes
 
-!> The bit strings of all strings of the classes, in address order.
+!> The strings of all occupation classes, grouped by class and symmetry:
+!> the groups (cls_*), the bit strings in group order and the map perm
+!> from the rank address to the group order.
 subroutine mk_strings(s)
   type(ras_spin), intent(inout) :: s
-  integer(kind=iwp) :: k, g, i1, i2, i3, p1, p2, p3
+  integer(kind=iwp) :: k, g, i1, i2, i3, p1, p2, p3, isym, ng, c, gnew
+  integer(kind=iwp), allocatable :: bits(:), sym(:), cnt(:,:), pos(:,:)
 
+  ! the strings in rank order and their symmetries
+  call mma_allocate(bits,max(1,s%nstr),label='ras_bits')
+  call mma_allocate(sym,max(1,s%nstr),label='ras_sym')
+  call mma_allocate(cnt,ras_nsym,max(1,s%nocc),label='ras_cnt')
+  cnt(:,:) = 0
+  g = 0
+  do k=1,s%nocc
+    p3 = lex_init(s%occ_n(3,k),ras_o(3))
+    do i3=1,s%occ_cnt(3,k)
+      p2 = lex_init(s%occ_n(2,k),ras_o(2))
+      do i2=1,s%occ_cnt(2,k)
+        p1 = lex_init(s%occ_n(1,k),ras_o(1))
+        do i1=1,s%occ_cnt(1,k)
+          g = g+1
+          bits(g) = ior(ior(p1,ishft(p2,ras_pos(2))),ishft(p3,ras_pos(3)))
+          sym(g) = str_sym(bits(g))
+          cnt(sym(g),k) = cnt(sym(g),k)+1
+          if (i1 < s%occ_cnt(1,k)) p1 = lex_next(p1)
+        end do
+        if (i2 < s%occ_cnt(2,k)) p2 = lex_next(p2)
+      end do
+      if (i3 < s%occ_cnt(3,k)) p3 = lex_next(p3)
+    end do
+  end do
+
+  ! the groups: (class, symmetry) with strings
+  ng = count(cnt(:,:) > 0)
+  s%ncls = ng
+  call mma_allocate(s%cls_n,3,max(1,ng),label='cls_n')
+  call mma_allocate(s%cls_sym,max(1,ng),label='cls_sym')
+  call mma_allocate(s%cls_nstr,max(1,ng),label='cls_nstr')
+  call mma_allocate(s%cls_off,max(1,ng),label='cls_off')
+  call mma_allocate(pos,ras_nsym,max(1,s%nocc),label='ras_pos')
+  pos(:,:) = 0
+  c = 0
+  g = 0
+  do k=1,s%nocc
+    do isym=1,ras_nsym
+      if (cnt(isym,k) == 0) cycle
+      c = c+1
+      s%cls_n(:,c) = s%occ_n(:,k)
+      s%cls_sym(c) = isym
+      s%cls_nstr(c) = cnt(isym,k)
+      s%cls_off(c) = g
+      pos(isym,k) = c
+      g = g+cnt(isym,k)
+    end do
+  end do
+
+  ! the strings in group order
   call mma_allocate(s%str,max(1,s%nstr),label='ras_str')
   call mma_allocate(s%str_cls,max(1,s%nstr),label='ras_str_cls')
   call mma_allocate(s%str_idx,max(1,s%nstr),label='ras_str_idx')
-  g = 0
-  do k=1,s%ncls
-    p3 = lex_init(s%cls_n(3,k),ras_o(3))
-    do i3=1,s%cls_cnt(3,k)
-      p2 = lex_init(s%cls_n(2,k),ras_o(2))
-      do i2=1,s%cls_cnt(2,k)
-        p1 = lex_init(s%cls_n(1,k),ras_o(1))
-        do i1=1,s%cls_cnt(1,k)
-          g = g+1
-          s%str(g) = ior(ior(p1,ishft(p2,ras_pos(2))),ishft(p3,ras_pos(3)))
-          s%str_cls(g) = k
-          s%str_idx(g) = g-s%cls_off(k)
-          if (str_index(s,s%str(g)) /= g) then
-            write(u6,*) 'faroald_ras: inconsistent string address',g,str_index(s,s%str(g))
-            call Abend()
-          end if
-          if (i1 < s%cls_cnt(1,k)) p1 = lex_next(p1)
-        end do
-        if (i2 < s%cls_cnt(2,k)) p2 = lex_next(p2)
-      end do
-      if (i3 < s%cls_cnt(3,k)) p3 = lex_next(p3)
+  call mma_allocate(s%perm,max(1,s%nstr),label='ras_perm')
+  cnt(:,:) = 0
+  do k=1,s%nocc
+    do g=s%occ_off(k)+1,s%occ_off(k)+s%occ_nstr(k)
+      c = pos(sym(g),k)
+      cnt(sym(g),k) = cnt(sym(g),k)+1
+      gnew = s%cls_off(c)+cnt(sym(g),k)
+      s%perm(g) = gnew
+      s%str(gnew) = bits(g)
+      s%str_cls(gnew) = c
+      s%str_idx(gnew) = cnt(sym(g),k)
     end do
   end do
+  do g=1,s%nstr
+    if (str_index(s,s%str(g)) /= g) then
+      write(u6,*) 'faroald_ras: inconsistent string address',g,str_index(s,s%str(g))
+      call Abend()
+    end if
+  end do
+  call mma_deallocate(bits)
+  call mma_deallocate(sym)
+  call mma_deallocate(cnt)
+  call mma_deallocate(pos)
 end subroutine mk_strings
+
+!> The symmetry of a string (product of the symmetries of its orbitals).
+function str_sym(c) result(isym)
+  integer(kind=iwp), intent(in) :: c
+  integer(kind=iwp) :: isym
+  integer(kind=iwp) :: iorb
+  isym = 0
+  do iorb=1,ras_norb
+    if (btest(c,iorb-1)) isym = ieor(isym,ras_osym(iorb)-1)
+  end do
+  isym = isym+1
+end function str_sym
 
 !> Bits pos+1..pos+len of c (0 for len = 0).
 pure function sub_bits(c,pos,len) result(d)
@@ -275,9 +375,9 @@ function str_index(s,c) result(g)
   b2 = sub_bits(c,ras_pos(2),ras_o(2))
   b3 = sub_bits(c,ras_pos(3),ras_o(3))
   if (popcnt(b1)+popcnt(b2)+popcnt(b3) /= s%nel) return
-  k = s%cls_of(popcnt(b1),popcnt(b3))
+  k = s%occ_of(popcnt(b1),popcnt(b3))
   if (k == 0) return
-  g = s%cls_off(k)+lexrank(b1)+s%cls_cnt(1,k)*((lexrank(b2)-1)+s%cls_cnt(2,k)*(lexrank(b3)-1))
+  g = s%perm(s%occ_off(k)+lexrank(b1)+s%occ_cnt(1,k)*((lexrank(b2)-1)+s%occ_cnt(2,k)*(lexrank(b3)-1)))
 end function str_index
 
 !> Single excitations a+_p a_q of each string within the strings of s.
@@ -317,6 +417,78 @@ subroutine mk_singles(s)
     end if
   end do
 end subroutine mk_singles
+
+!> The same-spin double excitations of each string within the strings of s
+!> (lists, if they fit in a quarter of the available memory).
+subroutine mk_doubles(s)
+  use stdalloc, only: mma_maxDBLE
+  type(ras_spin), intent(inout) :: s
+  integer(kind=iwp) :: g, t, u, v, x, d, dd, j, n, pass, mxmem
+
+  call mma_allocate(s%dex_off,s%nstr+1,label='ras_dex_off')
+  do pass=1,2
+    n = 0
+    do g=1,s%nstr
+      s%dex_off(g) = n
+      do u=2,ras_norb
+        if (.not. btest(s%str(g),u-1)) cycle
+        do x=1,u-1
+          d = ann2(x,u,s%str(g))
+          if (d == -1) cycle
+          do t=2,ras_norb
+            if (btest(d,t-1)) cycle
+            do v=1,t-1
+              dd = cre2(t,v,d)
+              if (dd == -1) cycle
+              j = str_index(s,ibits(dd,0,31))
+              if (j == 0) cycle
+              n = n+1
+              if (pass == 2) then
+                s%dex_j(n) = j
+                s%dex_sgn(n) = fase(dd)
+                s%dex_tuvx(n) = pack4(t,u,v,x)
+              end if
+            end do
+          end do
+        end do
+      end do
+    end do
+    s%dex_off(s%nstr+1) = n
+    if (pass == 1) then
+      call mma_maxDBLE(mxmem)
+      if (3*n > mxmem/4) then
+        call mma_deallocate(s%dex_off)
+        s%has_dex = .false.
+        return
+      end if
+      s%ndex = n
+      call mma_allocate(s%dex_j,max(1,n),label='ras_dex_j')
+      call mma_allocate(s%dex_sgn,max(1,n),label='ras_dex_sgn')
+      call mma_allocate(s%dex_tuvx,max(1,n),label='ras_dex_tuvx')
+    end if
+  end do
+  s%has_dex = .true.
+end subroutine mk_doubles
+
+!> (t,u,v,x) packed into one integer, and back.
+pure function pack4(t,u,v,x) result(k)
+  integer(kind=iwp), intent(in) :: t, u, v, x
+  integer(kind=iwp) :: k
+  k = (t-1)+ras_norb*((u-1)+ras_norb*((v-1)+ras_norb*(x-1)))
+end function pack4
+
+pure subroutine unpack4(k,t,u,v,x)
+  integer(kind=iwp), intent(in) :: k
+  integer(kind=iwp), intent(out) :: t, u, v, x
+  integer(kind=iwp) :: r
+  r = k
+  t = mod(r,ras_norb)+1
+  r = r/ras_norb
+  u = mod(r,ras_norb)+1
+  r = r/ras_norb
+  v = mod(r,ras_norb)+1
+  x = r/ras_norb+1
+end subroutine unpack4
 
 !> Position (1-based) of the determinant |deta detb> in the RAS vector, 0
 !> if it is not in the RAS space.
@@ -456,23 +628,30 @@ subroutine same_spin(r,c,off,h,g,vec,sgm)
       call add(gj,c%ex_sgn(e)*h(c%ex_p(e),c%ex_q(e)))
     end do
     ! two-electron, same spin: J = a+_t a+_v a_x a_u I, t > v, u > x
-    do u=2,ras_norb
-      if (.not. btest(c%str(gi),u-1)) cycle
-      do x=1,u-1
-        d = ann2(x,u,c%str(gi))
-        if (d == -1) cycle
-        do t=2,ras_norb
-          if (btest(d,t-1)) cycle
-          do v=1,t-1
-            dd = cre2(t,v,d)
-            if (dd == -1) cycle
-            gj = str_index(c,ibits(dd,0,31))
-            if (gj == 0) cycle
-            call add(gj,fase(dd)*(g(t,u,v,x)-g(t,x,v,u)))
+    if (c%has_dex) then
+      do e=c%dex_off(gi)+1,c%dex_off(gi+1)
+        call unpack4(c%dex_tuvx(e),t,u,v,x)
+        call add(c%dex_j(e),c%dex_sgn(e)*(g(t,u,v,x)-g(t,x,v,u)))
+      end do
+    else
+      do u=2,ras_norb
+        if (.not. btest(c%str(gi),u-1)) cycle
+        do x=1,u-1
+          d = ann2(x,u,c%str(gi))
+          if (d == -1) cycle
+          do t=2,ras_norb
+            if (btest(d,t-1)) cycle
+            do v=1,t-1
+              dd = cre2(t,v,d)
+              if (dd == -1) cycle
+              gj = str_index(c,ibits(dd,0,31))
+              if (gj == 0) cycle
+              call add(gj,fase(dd)*(g(t,u,v,x)-g(t,x,v,u)))
+            end do
           end do
         end do
       end do
-    end do
+    end if
     ! sigma update
     ii = c%str_idx(gi)
     do il=1,nl
@@ -658,40 +837,57 @@ subroutine col_two_pdm(r,c,off,bra,ket,p2)
   integer(kind=iwp), intent(in) :: off(:,:)
   real(kind=wp), intent(in) :: bra(:), ket(:)
   real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
-  integer(kind=iwp) :: gi, gj, cr, nr, oi, oj, t, u, v, x, d, dd
-  real(kind=wp) :: val
+  integer(kind=iwp) :: gi, e, t, u, v, x, d, dd, gj
   do gi=1,c%nstr
-    do u=2,ras_norb
-      if (.not. btest(c%str(gi),u-1)) cycle
-      do x=1,u-1
-        d = ann2(x,u,c%str(gi))
-        if (d == -1) cycle
-        do t=2,ras_norb
-          if (btest(d,t-1)) cycle
-          do v=1,t-1
-            dd = cre2(t,v,d)
-            if (dd == -1) cycle
-            gj = str_index(c,ibits(dd,0,31))
-            if (gj == 0) cycle
-            val = Zero
-            do cr=1,r%ncls
-              if ((off(cr,c%str_cls(gi)) < 0) .or. (off(cr,c%str_cls(gj)) < 0)) cycle
-              nr = r%cls_nstr(cr)
-              oi = off(cr,c%str_cls(gi))+(c%str_idx(gi)-1)*nr
-              oj = off(cr,c%str_cls(gj))+(c%str_idx(gj)-1)*nr
-              val = val+dot_product(bra(oj+1:oj+nr),ket(oi+1:oi+nr))
+    if (c%has_dex) then
+      do e=c%dex_off(gi)+1,c%dex_off(gi+1)
+        call unpack4(c%dex_tuvx(e),t,u,v,x)
+        call put(gi,c%dex_j(e),c%dex_sgn(e),t,u,v,x)
+      end do
+    else
+      do u=2,ras_norb
+        if (.not. btest(c%str(gi),u-1)) cycle
+        do x=1,u-1
+          d = ann2(x,u,c%str(gi))
+          if (d == -1) cycle
+          do t=2,ras_norb
+            if (btest(d,t-1)) cycle
+            do v=1,t-1
+              dd = cre2(t,v,d)
+              if (dd == -1) cycle
+              gj = str_index(c,ibits(dd,0,31))
+              if (gj == 0) cycle
+              call put(gi,gj,fase(dd),t,u,v,x)
             end do
-            if (val == Zero) cycle
-            val = fase(dd)*val
-            p2(t,u,v,x) = p2(t,u,v,x)+val
-            p2(v,x,t,u) = p2(v,x,t,u)+val
-            p2(t,x,v,u) = p2(t,x,v,u)-val
-            p2(v,u,t,x) = p2(v,u,t,x)-val
           end do
         end do
       end do
-    end do
+    end if
   end do
+
+contains
+
+  ! the contribution of J = a+_t a+_v a_x a_u I (sign sg) in all index orders
+  subroutine put(gi,gj,sg,t,u,v,x)
+    integer(kind=iwp), intent(in) :: gi, gj, sg, t, u, v, x
+    integer(kind=iwp) :: cr, nr, oi, oj
+    real(kind=wp) :: val
+    val = Zero
+    do cr=1,r%ncls
+      if ((off(cr,c%str_cls(gi)) < 0) .or. (off(cr,c%str_cls(gj)) < 0)) cycle
+      nr = r%cls_nstr(cr)
+      oi = off(cr,c%str_cls(gi))+(c%str_idx(gi)-1)*nr
+      oj = off(cr,c%str_cls(gj))+(c%str_idx(gj)-1)*nr
+      val = val+dot_product(bra(oj+1:oj+nr),ket(oi+1:oi+nr))
+    end do
+    if (val == Zero) return
+    val = sg*val
+    p2(t,u,v,x) = p2(t,u,v,x)+val
+    p2(v,x,t,u) = p2(v,x,t,u)+val
+    p2(t,x,v,u) = p2(t,x,v,u)-val
+    p2(v,u,t,x) = p2(v,u,t,x)-val
+  end subroutine put
+
 end subroutine col_two_pdm
 
 !> out = sum_pq h1(p,q) E_pq vin (both spins).

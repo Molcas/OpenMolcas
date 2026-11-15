@@ -1396,8 +1396,8 @@ if (DO_FAROALD) then
   ! RAS: the sigma vector in the RAS string classes (faroald_ras)
   if (nRsPrt == 3) then
     call faroald_ras_init(nela,nelb,nAct,[count(OrbRas(1:nAct) == 1),count(OrbRas(1:nAct) == 2),count(OrbRas(1:nAct) == 3)], &
-                          nRasEl(1),NACTEL-nRasEl(2))
-    write(u6,'(1X,A,I0,A)') 'Faroald: string-driven RAS sigma, ',n_ras,' determinants'
+                          nRasEl(1),NACTEL-nRasEl(2),nSym,OrbSym(1:nAct),STSym)
+    write(u6,'(1X,A,I0,A)') 'Faroald: string-driven RAS, ',n_ras,' determinants of the CI symmetry'
   end if
   call mma_deallocate(OrbSym)
   call mma_deallocate(OrbRas)
