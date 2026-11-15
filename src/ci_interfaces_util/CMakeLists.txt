@@ -11,6 +11,7 @@
 
 set (sources
      ci_interfaces.F90
+     csf_graph.F90
      general_data.F90
      SD_CSF_Codec_module.F90
 )
@@ -18,6 +19,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      ci_interfaces.F90
+     csf_graph.F90
      general_data.F90
      SD_CSF_Codec_module.F90
 )
