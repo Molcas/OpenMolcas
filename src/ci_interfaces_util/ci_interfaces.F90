@@ -16,7 +16,7 @@ use sguga, only: SG_Free, SG_ReOrd, SG_Lucia_Walk, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
-use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_sd2csf, citrans_sort
+use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_ncsf, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
@@ -1213,6 +1213,8 @@ use spinfo, only: ncsasm, ndtasm
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
+integer(kind=iwp) :: nAct, k, iSym
+integer(kind=iwp), allocatable :: OrbSym(:)
 
 ! SGCI does not need Lucia; it is set up only as the reference of
 ! MOLCAS_CI_VERIFY=SIGMA.
@@ -1260,8 +1262,22 @@ if (DO_FAROALD) then
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
   write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
-  call FAROALD_INIT(NACTEL,NASH(1),ISPIN)
-  call CITRANS_INIT(NACTEL,NASH(1),ISPIN)
+  ! the active orbitals in the symmetry-blocked order of RASSCF (= the
+  ! levels of the CAS split graph)
+  nAct = sum(NASH(1:nSym))
+  call mma_allocate(OrbSym,max(1,nAct),Label='OrbSym')
+  k = 0
+  do iSym=1,nSym
+    OrbSym(k+1:k+NASH(iSym)) = iSym
+    k = k+NASH(iSym)
+  end do
+  call FAROALD_INIT(NACTEL,nAct,ISPIN)
+  call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym)
+  call mma_deallocate(OrbSym)
+  if ((citrans_ncsf() /= nConf) .and. (nActEl > 0)) then
+    write(u6,*) 'CI_Initialize: number of CSFs, Faroald and RASSCF:',citrans_ncsf(),nConf
+    call Abend()
+  end if
 end if
 
 End subroutine CI_Initialize
@@ -2708,12 +2724,14 @@ end function Faroald_HDet
 subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
 
 use sguga, only: sg_traci
+use general_data, only: nSym
 
 integer(kind=iwp), intent(in) ::  iState,nTU, nCSF
 real(kind=wp), intent(in) :: TU(nTU)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 
-real(kind=wp), allocatable :: Faroald_Psi(:,:), ctemp(:)
+real(kind=wp), allocatable :: Faroald_Psi(:,:), ctemp(:), TFull(:)
+integer(kind=iwp) :: iSym, iOffT, iOffO, kk, pp
 
 integer(kind=iwp) :: iCSF
 real(kind=wp), allocatable :: CI_Faroald(:)
@@ -2766,7 +2784,22 @@ If (DoFaro) Then
   Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
   Faroald_PSI(:,:) = Zero
   call CITRANS_CSF2SD(CI_Vector,Faroald_PSI)
-  Call traci_faroald(TU,nTU,Faroald_Psi)
+  ! the transformation matrix in symmetry blocks -> NAC x NAC
+  Call mma_allocate(TFull,NAC*NAC,Label='TFull')
+  TFull(:) = Zero
+  iOffT = 0
+  iOffO = 0
+  do iSym=1,nSym
+    do kk=1,NASH(iSym)
+      do pp=1,NASH(iSym)
+        TFull(iOffO+pp+(iOffO+kk-1)*NAC) = TU(iOffT+pp+(kk-1)*NASH(iSym))
+      end do
+    end do
+    iOffT = iOffT+NASH(iSym)**2
+    iOffO = iOffO+NASH(iSym)
+  end do
+  Call traci_faroald(TFull,NAC*NAC,Faroald_Psi)
+  Call mma_deallocate(TFull)
   call CITRANS_SD2CSF(Faroald_Psi,CI_Vector)
   Call mma_deallocate(Faroald_Psi)
   If (CI_Verify('SIGMA')) Then

@@ -2243,6 +2243,25 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`FAROald`
+  Do the whole CI with Faroald, a determinant-based CI code, in its own CSF
+  basis (the CSFs grouped by configuration): the diagonal, the explicit
+  Hamiltonian of the Davidson procedure, the sigma vectors, the density and
+  transition density matrices and the CI transformation of the orbital
+  optimization, without Lucia. The CI vectors on the JobIph and HDF5 files are
+  in the usual (split-graph) order. For CASSCF, with or without symmetry; with
+  RAS partitions, GAS, :kword:`HEXS`, :kword:`DEXS`, DMRG, NECI or CASVB the
+  keyword is ignored. Experimental.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" APPEAR="Faroald CI" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: FAROald <advanced>
+              <HELP>
+              Do the whole CI with Faroald (determinant-based) in its own CSF
+              basis, without Lucia. CASSCF with or without symmetry, not with
+              RAS partitions, GAS, HEXS, DEXS, DMRG, NECI or CASVB. Experimental.
+              </HELP>
+              </KEYWORD>
+
 :kword:`SGCI`
   Do the whole CI with SGUGA in its own (split-graph) CSF basis: the diagonal,
   the explicit Hamiltonian of the Davidson procedure, the sigma vectors, the
@@ -3173,8 +3192,6 @@ Input example for HCI-CASSCF with Dice--|molcas| interface: ::
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="H5CI" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="AVERAGE" LEVEL="UNDOCUMENTED" KIND="INTS_COMPUTED" SIZE="2" />
-
-.. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DEXS" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
 

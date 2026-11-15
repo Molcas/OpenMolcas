@@ -4111,20 +4111,18 @@ if (.not. SkipGUGA) then
   call StatusLine('RASSCF: ','Initializing Lucia/SGUGA/Faroald')
 
   ! CI development only (MOLCAS_CI_VERIFY=FARO or ALL, see CI_Verify):
-  ! force the Faroald SD CI code, to compare it with Lucia, in case of
-  ! 1) no symmetry
-  ! 2) not RASSCF or GASSCF
-  ! 3) not using the expert, the HEXS or the DEXS key word
-  ! Normal runs use Faroald only if requested with the FARO keyword.
+  ! force the Faroald SD CI code, to compare it with Lucia (not with the
+  ! expert keyword; the restrictions of FARO below apply). Normal runs use
+  ! Faroald only if requested with the FARO keyword.
   if (CI_Verify('FARO') .and. (.not. DoSGCI) .and. (.not. Key('EXPE'))) DoFaro = .true.
   ! FARO: the CI in the configuration basis of Faroald (citrans), for
-  ! C1 CAS spaces only and not with the other CI back ends or CASVB (which
-  ! works with the CSF basis of Lucia).
+  ! CAS spaces (with symmetry) only, not with the other CI back ends or
+  ! CASVB (which works with the CSF basis of Lucia).
   if (DoFaro) then
-    if ((nSym /= 1) .or. (nHole1 /= 0) .or. (nElec3 /= 0) .or. iDoGas .or. Key('HEXS') .or. Key('DEXS') .or. DoDMRG .or. &
+    if ((nHole1 /= 0) .or. (nElec3 /= 0) .or. iDoGas .or. Key('HEXS') .or. Key('DEXS') .or. DoDMRG .or. &
         DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
       if (Key('FARO')) then
-        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (symmetry, RAS, GAS, HEXS, DEXS, DMRG, NECI'
+        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (RAS, GAS, HEXS, DEXS, DMRG, NECI'
         write(u6,'(1X,A)') 'or CASVB); the CI is done by the CI backend.'
       end if
       DoFaro = .false.

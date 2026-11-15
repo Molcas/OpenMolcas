@@ -848,24 +848,29 @@ do MV=1,CIS%nMidV
 end do
 end subroutine Mk_IOW
 
-!> The next CSF (walk) of symmetry 1 in the split-graph order, as its step
-!> vector ICS(1:nLev) (0 empty, 1 up, 2 down, 3 doubly occupied); start with
-!> MV = IDWN = IUP = 1, MV = 0 after the last walk (as GETSTEPVECTOR).
-subroutine SG_Walk_Next(G,W,MV,IDWN,IUP,ICS)
+!> The next CSF (walk) of symmetry LSM in the split-graph order, as its step
+!> vector ICS(1:nLev) (0 empty, 1 up, 2 down, 3 doubly occupied). The CSFs
+!> come in blocks (MV, ISYUP), MV outermost (CSFCOUNT), each block with the
+!> upper walks running fastest (as GETSTEPVECTOR for symmetry 1). Start with
+!> MV = ISYUP = IDWN = IUP = 1; MV = 0 after the last walk.
+subroutine SG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
   class(SG_Graph), intent(in) :: G
   class(SG_Walks), intent(in) :: W
-  integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
+  integer(kind=iwp), intent(in) :: LSM
+  integer(kind=iwp), intent(inout) :: MV, ISYUP, IDWN, IUP
   integer(kind=iwp), intent(out) :: ICS(G%nLev)
-  integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NDWN, NNN, NUP
+  integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, ISYDWN, IUW0, LEV, NDWN, NNN, NUP
 
+  call Skip_Empty()
   if (MV == 0) then
     write(u6,'(1X,A)') 'SG_Walk_Next: no more walks'
     call Abend()
   end if
-  NUP = W%NOW(1,1,MV)
-  NDWN = W%NOW(2,1,MV)
-  IUW0 = 1-W%nIpWlk+W%IOW(1,1,MV)
-  IDW0 = 1-W%nIpWlk+W%IOW(2,1,MV)
+  ISYDWN = Mul(LSM,ISYUP)
+  NUP = W%NOW(1,ISYUP,MV)
+  NDWN = W%NOW(2,ISYDWN,MV)
+  IUW0 = 1-W%nIpWlk+W%IOW(1,ISYUP,MV)
+  IDW0 = 1-W%nIpWlk+W%IOW(2,ISYDWN,MV)
   ! lower walk
   ICDPOS = IDW0+IDWN*W%nIpWlk
   ICDWN = W%ICASE(ICDPOS)
@@ -896,22 +901,41 @@ subroutine SG_Walk_Next(G,W,MV,IDWN,IUP,ICS)
     ICS(LEV) = ICUP-4*IC1
     ICUP = IC1
   end do
-  ! next indices: upper walks fastest, then lower walks, then midvertices
+  ! next indices: upper walks fastest, then lower walks, then the blocks
   if (IUP == NUP) then
+    IUP = 1
     if (IDWN == NDWN) then
+      IDWN = 1
+      call Next_Block()
+    else
+      IDWN = IDWN+1
+    end if
+  else
+    IUP = IUP+1
+  end if
+  call Skip_Empty()
+
+contains
+
+  subroutine Next_Block()
+    if (ISYUP == G%nSym) then
+      ISYUP = 1
       if (MV == W%nMidV) then
         MV = 0
       else
         MV = MV+1
       end if
-      IDWN = 1
     else
-      IDWN = IDWN+1
+      ISYUP = ISYUP+1
     end if
-    IUP = 1
-  else
-    IUP = IUP+1
-  end if
+  end subroutine Next_Block
+
+  subroutine Skip_Empty()
+    do while (MV /= 0)
+      if (W%NOW(1,ISYUP,MV)*W%NOW(2,Mul(LSM,ISYUP),MV) > 0) exit
+      call Next_Block()
+    end do
+  end subroutine Skip_Empty
 
 end subroutine SG_Walk_Next
 
