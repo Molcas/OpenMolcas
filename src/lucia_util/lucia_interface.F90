@@ -19,6 +19,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
+! .true. between Lucia_Util('Ini') and Lucia_Util('Close'); any other
+! request outside that window is an error (the CI back ends SGCI and FARO
+! run without Lucia unless MOLCAS_CI_VERIFY asks for it as a reference).
+logical(kind=iwp) :: Lucia_Initialized = .false.
+
 public :: Lucia_Util
 
 contains
@@ -60,6 +65,11 @@ subroutine Lucia_Util(ModLab,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
   Module_ = ModLab
   call UpCase(Module_)
 
+  if ((Module_(1:3) /= 'INI') .and. (.not. Lucia_Initialized)) then
+    write(u6,*) 'Lucia_Util: Lucia is not initialized, request ',trim(ModLab)
+    call Abend()
+  end if
+
   ! Call the appropriate routines according to ModLab
 
   if (Module_(1:4) == 'DIAG') then
@@ -87,11 +97,13 @@ subroutine Lucia_Util(ModLab,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
     call Lucia_Ini()
     call DetCtl_Gas()
+    Lucia_Initialized = .true.
 
   else if (Module_(1:5) == 'CLOSE') then
 
     call CSFDIM_FREE(IREFSM)
     call Lucia_Close()
+    Lucia_Initialized = .false.
 
   else
 
