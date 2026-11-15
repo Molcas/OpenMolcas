@@ -4130,7 +4130,11 @@ if (.not. SkipGUGA) then
   if (DoFaro) then
     call mma_maxDBLE(MaxFaro)
     nDetFaro = Binom_R((NACTEL+ISPIN-1)/2,NAC)*Binom_R((NACTEL-ISPIN+1)/2,NAC)
-    if (8.0_wp*nDetFaro > real(MaxFaro,kind=wp)) then
+    if (NAC > 30) then
+      write(u6,'(1X,A,I0,A)') 'Faroald cannot run this CI: ',NAC,' active orbitals (at most 30, bit strings);'
+      write(u6,'(1X,A)') 'the CI is done by the CI backend.'
+      DoFaro = .false.
+    else if (8.0_wp*nDetFaro > real(MaxFaro,kind=wp)) then
       write(u6,'(1X,A,ES10.3,A)') 'Faroald cannot run this CI: ',nDetFaro,' determinants in the CAS space'
       write(u6,'(1X,A)') 'do not fit in the available memory; the CI is done by the CI backend.'
       DoFaro = .false.

@@ -16,7 +16,8 @@ use sguga, only: SG_Free, SG_ReOrd, SG_Lucia_Walk, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
-use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_ncsf, citrans_sd2csf, citrans_sort
+use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort
+use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma
 use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
@@ -72,6 +73,9 @@ logical(kind=iwp) :: Lucia_Active = .true.
 ! the identity for CAS. The densities are in level order (as Lucia's and
 ! SGUGA's).
 integer(kind=iwp), allocatable :: Faro_L2O(:)
+! FARO with RAS: the string-driven sigma (faroald_ras) checked once against
+! the sigma of the full determinant space (SIGMA)
+logical(kind=iwp) :: HPsi_FaroRAS_Verified = .false.
 
 contains
 
@@ -504,6 +508,24 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
 real(kind=wp), pointer :: Faroald_PSI(:,:), Faroald_SGM(:,:)
 
+real(kind=wp), allocatable :: VRas(:), SRas(:), SFull(:)
+real(kind=wp) :: DMax
+
+! RAS: string-driven, only the determinants of the RAS space
+if (ras_active) then
+  call mma_allocate(VRas,max(1,n_ras),Label='VRas')
+  call mma_allocate(SRas,max(1,n_ras),Label='SRas')
+  call CITRANS_CSF2RAS(CI_Vec,VRas)
+  call RAS_SIGMA(HTU,GTUVX,VRas,SRas)
+  call CITRANS_RAS2CSF(SRas,Sigma_Vec)
+  call mma_deallocate(VRas)
+  call mma_deallocate(SRas)
+  ! CI development (MOLCAS_CI_VERIFY=SIGMA): once against the sigma of the
+  ! full determinant space (P H P)
+  if (HPsi_FaroRAS_Verified .or. (.not. CI_Verify('SIGMA'))) return
+  call mma_allocate(SFull,nCSF,Label='SFull')
+end if
+
 Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
 Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 
@@ -512,10 +534,19 @@ Faroald_PSI(:,:) = Zero
 call CITRANS_CSF2SD(CI_Vec,Faroald_PSI)
 Faroald_SGM(:,:) = Zero
 call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
-call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
 
 Faroald_Psi => Null()
 Faroald_SGM => Null()
+
+if (ras_active) then
+  call CITRANS_SD2CSF(sigtemp,SFull)
+  DMax = maxval(abs(SFull(:)-Sigma_Vec(:)))
+  call Report_Dev('Faroald_Sigma: string-driven RAS sigma vs full determinant space',DMax, &
+                  1.0e-10_wp*max(One,maxval(abs(SFull(:)))),HPsi_FaroRAS_Verified)
+  call mma_deallocate(SFull)
+else
+  call CITRANS_SD2CSF(sigtemp,Sigma_Vec)
+end if
 
 end subroutine Faroald_Sigma
 
@@ -1215,6 +1246,7 @@ end subroutine CI_Timer
 
 subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
 use sguga, only: SG_Test_EpqErs_Ref
+use faroald, only: nela, nelb
 use general_data, only: STSym, nSym
 use Molcas, only: MxSym
 use spinfo, only: ncsasm, ndtasm
@@ -1306,6 +1338,12 @@ if (DO_FAROALD) then
   call mma_deallocate(nOff)
   call FAROALD_INIT(NACTEL,nAct,ISPIN)
   call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym,nRsPrt,OrbRas,nRasEl(1:nRsPrt))
+  ! RAS: the sigma vector in the RAS string classes (faroald_ras)
+  if (nRsPrt == 3) then
+    call faroald_ras_init(nela,nelb,nAct,[count(OrbRas(1:nAct) == 1),count(OrbRas(1:nAct) == 2),count(OrbRas(1:nAct) == 3)], &
+                          nRasEl(1),NACTEL-nRasEl(2))
+    write(u6,'(1X,A,I0,A)') 'Faroald: string-driven RAS sigma, ',n_ras,' determinants'
+  end if
   call mma_deallocate(OrbSym)
   call mma_deallocate(OrbRas)
   if ((citrans_ncsf() /= nConf) .and. (nActEl > 0)) then
@@ -1327,6 +1365,7 @@ integer(kind=iwp), Intent(in):: iState
 if (Lucia_Active) Call Lucia_Util('Close')
 
 call faroald_free()
+call faroald_ras_free()
 call citrans_free()
 call mma_deallocate(Faro_L2O,safe='*')
 

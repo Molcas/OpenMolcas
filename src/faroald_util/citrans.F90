@@ -110,9 +110,9 @@ type(SG_Walks) :: FileW
 integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1, ci_nrsprt = 1
 integer(kind=iwp), allocatable :: orbsym(:), orbras(:), ci_nrasel(:), conf_off(:), conf_pos(:), conf_list(:), nkeep_group(:)
 
-public :: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, citrans_graph_init, citrans_ncsf, &
-          citrans_sd2csf, citrans_sort, citrans_sym_free, citrans_sym_init, ncsf_group, ndet_group, ndo_max, ndo_min, &
-          ndoc_group, nsoc_group, spintable_create, spintabs, spintabs_allocate, spintabs_free
+public :: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, citrans_graph_init, &
+          citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort, citrans_sym_free, citrans_sym_init, ncsf_group, ndet_group, &
+          ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs, spintabs_allocate, spintabs_free
 
 ! Private extensions to mma interfaces
 
@@ -605,6 +605,164 @@ subroutine citrans_sd2csf(det,ci)
   call mma_deallocate(stepvector)
 
 end subroutine citrans_sd2csf
+
+!> As citrans_csf2sd and citrans_sd2csf, with the CI vector of the RAS
+!> string classes (faroald_ras) instead of the full determinant matrix.
+subroutine citrans_csf2ras(ci,vec)
+
+  use second_quantization, only: lex_init, lex_next
+  use faroald, only: my_nel, my_norb, nela
+  use faroald_ras, only: n_ras, ras_addr
+
+  real(kind=wp), intent(in) :: ci(:)
+  real(kind=wp), intent(out) :: vec(n_ras)
+  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+                       doub, sing, alfa, beta, & ! occupation substrings
+                       deta, detb, phase         ! determinant strings
+  integer(kind=iwp), allocatable :: stepvector(:)
+  real(kind=wp), allocatable :: tmp(:,:)
+
+  ! Loop through the do,so configuration groups. For each group, load
+  ! the spin table. Loop through the configurations and perform a matrix
+  ! multiplication of the coefficient array with the spin table and get
+  ! the determinant coefficients. Then, loop through each configuration
+  ! and put the determinants in the correct place with the right phase.
+  ! (Only the configurations of the symmetry of the CSF space, conf_pos;
+  ! the determinants of the others are zero.)
+
+  call mma_allocate(stepvector,my_norb,label='stepvector')
+  vec(:) = Zero
+
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'citrans_csf2ras'
+  write(u6,'(5(1x,a4))') 'ido','ndoc','nsoc','ndet','ncsf'
+# endif
+
+  ioff_csf1 = 1
+  do ido=ndo_min,ndo_max
+#   ifdef _DEBUGPRINT_
+    write(u6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
+#   endif
+    ndoc = ndoc_group(ido)
+    nsoc = nsoc_group(ido)
+    nconf = nkeep_group(ido)
+    ndet = ndet_group(ido)
+    ncsf = ncsf_group(ido)
+    ioff_csf2 = ioff_csf1+ncsf*nconf-1
+
+    call mma_allocate(tmp,ndet,nconf,label='tmp')
+    tmp = Zero
+
+    ! Compute the determinant coefficients from the CSF coefficients.
+    call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf1:ioff_csf2),ncsf,Zero,tmp,ndet)
+
+    ! Store the determinant coefficients with the right phase factor in
+    ! the correct place in the determinant matrix. The loops runs over
+    ! the determinants in the order they are stored in the tmp array.
+
+    iso = my_nel-2*ido
+    isoa = nela-ido
+
+    iconf = 0
+    doub = lex_init(ido,my_norb)
+    do idoc=1,ndoc
+      sing = lex_init(iso,my_norb-ido)
+      do isoc=1,nsoc
+        iconf = iconf+1
+        kconf = conf_pos(conf_off(ido)+iconf)
+        if (kconf > 0) then
+          alfa = lex_init(isoa,iso)
+          do idet=1,ndet
+            beta = ibits(not(alfa),0,iso)
+            phase = ds2ab(doub,sing,alfa,beta,deta,detb)
+            vec(ras_addr(deta,detb)) = phase*tmp(idet,kconf)
+            alfa = lex_next(alfa)
+          end do
+        end if
+        sing = lex_next(sing)
+      end do
+      doub = lex_next(doub)
+    end do
+
+    call mma_deallocate(tmp)
+    ioff_csf1 = ioff_csf2+1
+  end do
+
+  call mma_deallocate(stepvector)
+
+end subroutine citrans_csf2ras
+
+subroutine citrans_ras2csf(vec,ci)
+
+  use second_quantization, only: lex_init, lex_next
+  use faroald, only: my_nel, my_norb, nela
+  use faroald_ras, only: n_ras, ras_addr
+
+  real(kind=wp), intent(in) :: vec(n_ras)
+  real(kind=wp), intent(out) :: ci(:)
+  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+                       doub, sing, alfa, beta, & ! occupation substrings
+                       deta, detb, phase         ! determinant strings
+  integer(kind=iwp), allocatable :: stepvector(:)
+  real(kind=wp), allocatable :: tmp(:,:)
+
+  ! Loop through the do,so configuration groups. For each group, load
+  ! the spin table. Loop through the configurations and perform a matrix
+  ! multiplication of the coefficient array with the spin table and get
+  ! the determinant coefficients. Then, loop through each configuration
+  ! and put the determinants in the correct place with the right phase.
+
+  call mma_allocate(stepvector,my_norb,label='stepvector')
+
+  ioff_csf1 = 1
+  do ido=ndo_min,ndo_max
+    ndoc = ndoc_group(ido)
+    nsoc = nsoc_group(ido)
+    nconf = nkeep_group(ido)
+    ndet = ndet_group(ido)
+    ncsf = ncsf_group(ido)
+    ioff_csf2 = ioff_csf1+ncsf*nconf-1
+
+    call mma_allocate(tmp,ndet,nconf,label='tmp')
+
+    ! Collect the determinant coefficients with the right phase factor
+    ! from the correct place in the determinant matrix. The loops runs
+    ! over the determinants in the order they should end up in tmp.
+
+    iso = my_nel-2*ido
+    isoa = nela-ido
+
+    iconf = 0
+    doub = lex_init(ido,my_norb)
+    do idoc=1,ndoc
+      sing = lex_init(iso,my_norb-ido)
+      do isoc=1,nsoc
+        iconf = iconf+1
+        kconf = conf_pos(conf_off(ido)+iconf)
+        if (kconf > 0) then
+          alfa = lex_init(isoa,iso)
+          do idet=1,ndet
+            beta = ibits(not(alfa),0,iso)
+            phase = ds2ab(doub,sing,alfa,beta,deta,detb)
+            tmp(idet,kconf) = phase*vec(ras_addr(deta,detb))
+            alfa = lex_next(alfa)
+          end do
+        end if
+        sing = lex_next(sing)
+      end do
+      doub = lex_next(doub)
+    end do
+
+    ! Compute the determinant coefficients from the CSF coefficients.
+    call dgemm_('T','N',ncsf,nconf,ndet,One,spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf1:ioff_csf2),ncsf)
+
+    call mma_deallocate(tmp)
+    ioff_csf1 = ioff_csf2+1
+  end do
+
+  call mma_deallocate(stepvector)
+
+end subroutine citrans_ras2csf
 
 subroutine citrans_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
 ! Determinant expansion of the configuration holding the CSF kcsf, kcsf
