@@ -48,7 +48,6 @@ use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vector
 use rasscf_files, only: JOBIPH, JOBOLD, LUDAVID
 use general_data, only: iDoGas, NCONF, NSEL, STSYM
 use ci_interfaces, only: CI_File_To_Basis
-use sguga, only: sg_reord
 #ifdef _HDF5_
 use rasscf_files, only: STARTORBFILE
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file

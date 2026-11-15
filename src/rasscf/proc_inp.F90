@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use ci_interfaces, only: CI_Basis, CI_File_Index_To_Basis, CI_Initialize, CI_Verify
+use ci_interfaces, only: CI_Basis, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Initialize, CI_Verify
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -73,7 +73,6 @@ use Para_Info, only: mpp_nprocs, mpp_procid
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-use faroald_ras, only: ras_count_dets
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -4132,7 +4131,7 @@ if (.not. SkipGUGA) then
   if (DoFaro) then
     call mma_maxDBLE(MaxFaro)
     if (nHole1+nElec3 /= 0) then
-      nDetFaro = ras_count_dets((NACTEL+ISPIN-1)/2,(NACTEL-ISPIN+1)/2,[sum(NRS1(1:NSYM)),sum(NRS2(1:NSYM)),sum(NRS3(1:NSYM))], &
+      nDetFaro = CI_Faro_nDet_RAS((NACTEL+ISPIN-1)/2,(NACTEL-ISPIN+1)/2,[sum(NRS1(1:NSYM)),sum(NRS2(1:NSYM)),sum(NRS3(1:NSYM))], &
                                 2*sum(NRS1(1:NSYM))-nHole1,nElec3)
     else
       nDetFaro = Binom_R((NACTEL+ISPIN-1)/2,NAC)*Binom_R((NACTEL-ISPIN+1)/2,NAC)

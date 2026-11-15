@@ -38,7 +38,7 @@ subroutine POLY3(mkF)
 
 use caspt2_qmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: VERBOSE
-use sguga, only: CIS, SGS
+use CI_Info, only: CI_St
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
 use general_data, only: NACTEL, nLev, STSym
 use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState
@@ -59,12 +59,12 @@ real(kind=wp), pointer :: F1(:), F2(:), F3(:)
 integer(kind=iwp), parameter :: istate = 1
 
 ! Note that in case of FCIQMC nConf is set to 0.
-nCI = CIS(istate)%NCSF(STSYM)
+nCI = CI_St(istate)%nCSF(STSYM)
 
 if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
   do ILEV=1,NLEV
-    ETA(ILEV) = EPSA(SGS(istate)%L2ACT(ILEV))
+    ETA(ILEV) = EPSA(CI_St(istate)%L2Act(ILEV))
   end do
 end if
 

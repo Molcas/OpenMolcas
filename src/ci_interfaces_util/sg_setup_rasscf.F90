@@ -12,7 +12,8 @@
 subroutine SG_Setup_RASSCF()
 
 use general_data, only: iSpin, Level, nActel, nConf, NLEV, nRas, nRasEl, nRsPrt, NSM, nSym, STSYM
-use sguga, only: CIS, SG_init
+use CI_States, only: CI_Setup_SG
+use CI_Info, only: CI_St
 #ifdef _DMRG_
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
@@ -27,14 +28,11 @@ integer(kind=iwp), parameter :: istate = 1
 
 call Timing(Eterna_1,dum1,dum2,dum3)
 
-call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
-             xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
-
-if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
+call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,Level,NLEV,NSM,'FULL')
 
 call SETSXCI()
 
-NCONF = CIS(istate)%NCSF(STSYM)
+NCONF = CI_St(istate)%nCSF(STSYM)
 
 call Timing(Eterna_2,dum1,dum2,dum3)
 

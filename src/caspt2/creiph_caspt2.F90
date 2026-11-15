@@ -25,7 +25,7 @@ use PrintLevel, only: USUAL
 use REFWFN, only: IADR15, REFWFN_FILENAME
 use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
-use sguga, only: SGS
+use CI_Info, only: CI_St
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
 use general_data, only: ISPIN, NACTEL, NASH, nElec3, NHOLE1, STSYM
 use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, LROOTS, &
@@ -156,10 +156,10 @@ IAD15 = IADR15(18)
 !Copy to local array since L2Act and Level are protected.
 call mma_allocate(xL2Act,MxLev,Label='xL2Act')
 call mma_allocate(xLevel,MxLev,Label='xLevel')
-XL2Act(:) = SGS(jstate)%L2Act(:)
+XL2Act(:) = CI_St(jstate)%L2Act(:)
 call IDAFILE(JOBMIX,1,xL2ACT,mxAct,IAD15)
 !SVC: translates orbital index to levels
-XLevel(:) = SGS(jstate)%Level(:)
+XLevel(:) = CI_St(jstate)%Level(:)
 call IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
 call mma_deallocate(xL2Act)
 call mma_deallocate(xLevel)

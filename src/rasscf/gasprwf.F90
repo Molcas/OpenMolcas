@@ -38,7 +38,7 @@ subroutine gasprwf(NORB,NEL,IREFSM,CICOEF,kcnf)
 !                                                                      *
 !***********************************************************************
 
-use sguga, only: stepvec
+use CI_States, only: CI_StepVec
 use rasscf_global, only: PrwThr
 use general_data, only: NSM
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
@@ -117,7 +117,7 @@ do ITYP=1,NTYP
       end do
 
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
+      call CI_StepVec(KCNF(1),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
       ! SKIP IT OR PRINT IT?
       COEF = CICOEF(ICSFJP)
       if (abs(COEF) < PRWTHR) cycle

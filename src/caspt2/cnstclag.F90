@@ -14,7 +14,7 @@
 subroutine CnstCLag(IFF,nLev,NG3,NCONF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
 use PrintLevel, only: VERBOSE
-use sguga, only: SGS
+use CI_Info, only: CI_St
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
 use general_data, only: STSYM
 use caspt2_module, only: CITHR, EPSA, ETA, ISCF, JSTATE, MSTATE, NSTATE
@@ -36,7 +36,7 @@ integer(kind=iwp), parameter :: istate = 1
 if (IFF == 1) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
   do ILEV=1,NLEV
-    ETA(ILEV) = EPSA(SGS(istate)%L2ACT(ILEV))
+    ETA(ILEV) = EPSA(CI_St(istate)%L2Act(ILEV))
   end do
 end if
 

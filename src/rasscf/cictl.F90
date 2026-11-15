@@ -79,7 +79,8 @@ use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
 use general_data, only: ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM, iDoGAS
-use sguga, only: SG_ReOrd, SGS
+use CI_Info, only: CI_St
+use CI_States, only: CI_PrWF
 use ci_interfaces, only: CI_Basis_To_File
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -126,7 +127,7 @@ if (IfCRPR) call MKPROJ(CRVEC,CMO,TUVX)
 ! IFRAS = 0: This is a CAS calculation
 ! IFRAS = 1: This is a RAS calculation
 
-if (iDoGas .or. (SGS(istate)%IFRAS > 2)) call setsxci()
+if (iDoGas .or. (CI_St(istate)%IFRAS > 2)) call setsxci()
 if (IPRLEV > DEBUG) then
   write(u6,*)
   write(u6,*) ' Enter CI section, CICTL routine'
@@ -287,7 +288,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
       end if
     end if
 
-    if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
+    if ((CI_St(istate)%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
@@ -488,7 +489,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
       end if
     end if
 
-    if ((.not. doDMRG) .and. ((SGS(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
+    if ((.not. doDMRG) .and. ((CI_St(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
     ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
     if (doDMRG) then
 #     ifdef _DMRG_
@@ -624,7 +625,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
               call Molcas_open(LuVecDet,filename)
               write(LuVecDet,'(8i4)') nish
             end if
-            call SG_PrWF(iState,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+            call CI_PrWF(iState,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
             ! Close GronOR vecdet file (tps/cdg 20210430)
             if (Key('PRSD')) close(LuVecDet)
           end if

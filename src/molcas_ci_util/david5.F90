@@ -16,7 +16,6 @@ use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use ci_interfaces, only: Faro_nTmp, Mk_H_Psi
 use rasscf_files, only: ITERFILE, LUDAVID
 use general_data, only: NCONF, NSEL, STSYM
-use faroald, only: ndeta, ndetb
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use output_ras, only: IPRLOC, RC_CI
 use PrintLevel, only: DEBUG, USUAL
@@ -115,7 +114,7 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    call Mk_H_Psi(iState,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,size(ctemp),nDeta,nDetb,nTU,TU,nTUVX,TUVX)
+    call Mk_H_Psi(iState,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,size(ctemp),nTU,TU,nTUVX,TUVX)
 
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)

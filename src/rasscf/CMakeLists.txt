@@ -10,7 +10,6 @@
 #***********************************************************************
 
 set (sources
-     main.F90
      alter_mo.F90
      calceigvec.F90
      calcfcko.F90
@@ -21,17 +20,17 @@ set (sources
      calcnewx.F90
      calcnsumvee.F90
      calcqaa.F90
-     calcvee2.F90
      calcvee.F90
+     calcvee2.F90
      casdft_terms.F90
      casinfo1_rvb.F90
      cc_ci_mod.F90
      chkifkey.F90
      chkinp.F90
      cho_rasscf_rdinp.F90
+     ci_solver_util.F90
      cictl.F90
      cisx.F90
-     ci_solver_util.F90
      clnmo.F90
      clsfls_rasscf.F90
      cms.F90
@@ -54,8 +53,8 @@ set (sources
      done_rasscf.F90
      dwdens_rasscf.F90
      export1.F90
-     fcidump_dump.F90
      fcidump.F90
+     fcidump_dump.F90
      fcidump_reorder.F90
      fcidump_tables.F90
      fcidump_transformations.F90
@@ -79,27 +78,28 @@ set (sources
      linpur.F90
      loadgtuvx.F90
      lpdft_tdm.F90
+     main.F90
      make_close_rvb.F90
      mkcrvec.F90
      mkproj.F90
      mod_p2.F90
      natorb_rasscf.F90
      neworb_rasscf.F90
-     nstateopt2.F90
      nstateopt.F90
+     nstateopt2.F90
      opnfls_rasscf.F90
-     optoneangle2.F90
      optoneangle.F90
+     optoneangle2.F90
      ortho1.F90
      ortho2.F90
-     orthonormalization.F90
      ortho_rasscf.F90
+     orthonormalization.F90
      outctl.F90
      ovlp.F90
      primo_rasscf.F90
+     print_mcpdft.F90
      printcmsiter.F90
      printmat.F90
-     print_mcpdft.F90
      proc_inp.F90
      putrlx.F90
      qcmaquis_rdinp.F90
@@ -130,14 +130,13 @@ set (sources
      supsch.F90
      sxctl.F90
      sxham.F90
-     traci_master.F90
-     thetaopt2.F90
      thetaopt.F90
-     ug2sg.F90
-     updaterotmat.F90
+     thetaopt2.F90
+     traci_master.F90
      upd_fa.F90
+     updaterotmat.F90
      write_orbital_files.F90
      xmsrot.F90
-    )
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

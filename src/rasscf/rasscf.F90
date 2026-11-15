@@ -100,7 +100,6 @@ use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, emb
 #ifdef _HDF5_
 use mh5, only: mh5_put_attr, mh5_put_dset
 use ci_interfaces, only: CI_File_To_Basis, Mk_T1DM
-use sguga, only: sg_reord
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
 use general_data, only: STSYM

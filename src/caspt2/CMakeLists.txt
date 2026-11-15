@@ -82,7 +82,6 @@ set (sources
      df3_depsa_mpp.F90
      diadns.F90
      diafck.F90
-     dielmv.F90
      done_caspt2.F90
      dpt2_trf.F90
      dpt2_trfstore.F90

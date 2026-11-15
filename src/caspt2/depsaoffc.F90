@@ -15,7 +15,8 @@ subroutine DEPSAOffC(NCONF,NSTATE,NASHT,NBAST,CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
 use Symmetry_Info, only: Mul
 use PrintLevel, only: VERBOSE
-use sguga, only: CIS, nPack, SGS
+use CI_Info, only: CI_St
+use CI_States, only: CI_Walk_Next
 use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
 use general_data, only: NASH, STSYM
 use caspt2_module, only: IFRMS, IFXMS, ISCF, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM
@@ -30,7 +31,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NCONF, NSTATE, NASHT, NBAST
 real(kind=wp), intent(inout) :: CLag(nConf,nState), DEPSA(nAshT,nAshT), WRK1(nBasT,nBasT), WRK2(nBasT**2)
 real(kind=wp), intent(in) :: FIFA(nBasT**2), FIMO(nBasT**2), U0(nState,nState)
-integer(kind=iwp) :: ID, iState, isyci, iSym, Iter, MaxIter, nLev, nMidV
+integer(kind=iwp) :: ID, iState, isyci, iSym, Iter, MaxIter, nLev
 real(kind=wp) :: Alpha, AlphaC, Beta, CPE, CPTF0, CPTF1, CPTF2, CPUT, Delta, Delta0, DeltaC, Res, ResCI, Thres, TIOE, TIOTF0, &
                  TIOTF1, TIOTF2, WALLT
 real(kind=wp), allocatable :: Eact(:), G2(:), INT1(:), INT2(:), VecCID(:,:), VecCIT(:,:), VecFancy(:), VecPre(:), VecS1(:,:), &
@@ -38,8 +39,7 @@ real(kind=wp), allocatable :: Eact(:), G2(:), INT1(:), INT2(:), VecCID(:,:), Vec
 integer(kind=iwp), parameter :: jState = 1
 real(kind=wp), external :: DDot_
 
-nLev = SGS(jstate)%nLev
-nMidV = CIS(jstate)%nMidV
+nLev = CI_St(jstate)%nLev
 
 Thres = ConvInvar !! 1.0e-7_wp
 
@@ -119,7 +119,7 @@ isyci = 1
 
 !! Precondition
 call CnstInt(2,nAshT,INT1,INT2)
-call CnstPrec(ISYCI,nConf,nRoots,NLEV,nMidV,VecPre,VecCIT,INT1,INT2,VecFancy)
+call CnstPrec(ISYCI,nConf,nRoots,NLEV,VecPre,VecCIT,INT1,INT2,VecFancy)
 call CnstInt(0,nAshT,INT1,INT2)
 
 !! Begin!
@@ -498,7 +498,7 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
   real(kind=wp), allocatable :: SGM1(:), SGM2(:)
   integer(kind=iwp), allocatable :: TASK(:,:)
 
-  nLev = SGS(jstate)%nLev
+  nLev = CI_St(jstate)%nLev
 
   !  --- H_{IJ}*P_J
   ! <CI1|EtuEvx|CI2>=<CI1|Evx
@@ -525,17 +525,17 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
     do while (Rsv_Tsk(ID,iTask))
       LT = TASK(iTask,1)
       !tras = lt <= nras1(1)
-      IST = SGS(jstate)%ISM(LT)
-      IT = SGS(jstate)%L2ACT(LT)
+      IST = CI_St(jstate)%ISm(LT)
+      IT = CI_St(jstate)%L2Act(LT)
       LU = Task(iTask,2)
       !uras = lu > nras1(1)+nras2(1)
       !if (tras .and. uras) cycle
       !LTU = iTask
-      ISU = SGS(jstate)%ISM(LU)
-      IU = SGS(jstate)%L2ACT(LU)
+      ISU = CI_St(jstate)%ISm(LU)
+      IU = CI_St(jstate)%L2Act(LU)
       ISTU = Mul(IST,ISU)
       ISSG = Mul(ISTU,STSYM)
-      NSGM = CIS(jstate)%NCSF(ISSG)
+      NSGM = CI_St(jstate)%nCSF(ISSG)
       if (NSGM == 0) cycle
       !! <CIin|Etu
       call GETSGM2(LU,LT,STSYM,CIin(1,kState),nConf,SGM1,NSGM)
@@ -543,17 +543,17 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
       if (ISTU == 1) CIout(1:NSGM,kState) = CIout(1:NSGM,kState)+INT1(IT,IU)*SGM1(1:NSGM)
       LVX = 0
       do LV=1,NLEV
-        ISV = SGS(jstate)%ISM(LV)
-        IV = SGS(jstate)%L2ACT(LV)
+        ISV = CI_St(jstate)%ISm(LV)
+        IV = CI_St(jstate)%L2Act(LV)
         !vras = lv <= nras1(1)
         do LX=1,NLEV
           LVX = LVX+1
-          ISX = SGS(jstate)%ISM(LX)
+          ISX = CI_St(jstate)%ISm(LX)
           ISVX = Mul(ISV,ISX)
           !xras = lx > nras1(1)+nras2(1)
           !if (vras .and. xras) cycle
           if (ISVX /= ISTU) cycle
-          IX = SGS(jstate)%L2ACT(LX)
+          IX = CI_St(jstate)%L2Act(LX)
           call GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NSGM)
           CIout(1:NSGM,kState) = CIout(1:NSGM,kState)+INT2(IT,IU,IV,IX)*SGM2(1:NSGM)
         end do
@@ -609,7 +609,7 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
   real(kind=wp) :: EigI, EigJ, OLagIJ, rd, Tmp, vSLag, Wgt
   real(kind=wp), allocatable :: Fock(:), FockOut(:), G1T(:), G2T(:), SGM1(:), SGM2(:)
 
-  nLev = SGS(jState)%nLev
+  nLev = CI_St(jState)%nLev
 
   ! This subroutine computes the second term in Eq. (70) or the RHS of
   ! Eq. (72) in the CASPT2-IPEA gradient paper
@@ -752,19 +752,16 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
 end subroutine CnstDEPSA
 
 !! PRWF1_CP2
-subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
+subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,PRE,CI,INT1,INT2,Fancy)
 
   use molcas, only: MXLEV
   use Constants, only: Two, Four
 
-  integer(kind=iwp), intent(in) :: ISYCI, NCONF, NROOTS, nLev, nMidV
+  integer(kind=iwp), intent(in) :: ISYCI, NCONF, NROOTS, nLev
   real(kind=wp), intent(out) :: PRE(nConf), Fancy(nRoots,nRoots,nRoots)
   real(kind=wp), intent(in) :: CI(nConf*nRoots), INT1(NLEV,NLEV), INT2(NLEV,NLEV,NLEV,NLEV)
-  integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, iSt, ISY, ISYDWN, ISYUP, IUP, IUW0, jSt, K, &
-                       kSt, LENCSF, LEV, LEV2, MV, NCI, NDWN, nIpWlk, NNN, NUP
-  real(kind=wp) :: dnum, Ene, ICS(MXLEV), val, val2
-
-  nIpWlk = CIS(jstate)%nIpWlk
+  integer(kind=iwp) :: ICONF, ICS(MXLEV), iSt, ISY, it(4), jSt, K, kSt, LENCSF, LEV, LEV2
+  real(kind=wp) :: dnum, Ene, val, val2
 
   ! Construct (approximate?) preconditioner for the active linear
   ! equation that should be solved for non-invariant CASPT2 methods
@@ -779,8 +776,8 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
   LENCSF = 0
   ISY = 0
   do LEV=1,NLEV
-    if (ISY /= SGS(jstate)%ISM(LEV)) then
-      ISY = SGS(jstate)%ISM(LEV)
+    if (ISY /= CI_St(jstate)%ISm(LEV)) then
+      ISY = CI_St(jstate)%ISm(LEV)
       LENCSF = LENCSF+1
     end if
     LENCSF = LENCSF+1
@@ -790,108 +787,58 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
 
   !LINE = ''
 
-  ! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
-  !    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-  do MV=1,NMIDV
-    do ISYUP=1,NSYM
-      NCI = CIS(jstate)%NOCSF(ISYUP,MV,ISYCI)
-      if (NCI == 0) cycle
-      NUP = CIS(jstate)%NOW(1,ISYUP,MV)
-      ISYDWN = Mul(ISYUP,ISYCI)
-      NDWN = CIS(jstate)%NOW(2,ISYDWN,MV)
-      ICONF = CIS(jstate)%IOCSF(ISYUP,MV,ISYCI)
-      IUW0 = 1-NIPWLK+CIS(jstate)%IOW(1,ISYUP,MV)
-      IDW0 = 1-NIPWLK+CIS(jstate)%IOW(2,ISYDWN,MV)
-      IDWNSV = 0
-      do IDWN=1,NDWN
-        do IUP=1,NUP
-          ICONF = ICONF+1
-          !COEF = CI(ICONF)
-          ! -- SKIP OR PRINT IT OUT?
-          !if (abs(COEF) < THR) cycle
-          if (IDWNSV /= IDWN) then
-            ICDPOS = IDW0+IDWN*NIPWLK
-            ICDWN = CIS(jstate)%ICASE(ICDPOS)
-            ! -- UNPACK LOWER WALK.
-            NNN = 0
-            do LEV=1,SGS(jstate)%MIDLEV
-              NNN = NNN+1
-              if (NNN == nPack+1) then
-                NNN = 1
-                ICDPOS = ICDPOS+1
-                ICDWN = CIS(jstate)%ICASE(ICDPOS)
-              end if
-              IC1 = ICDWN/4
-              ICS(LEV) = ICDWN-4*IC1
-              ICDWN = IC1
-            end do
-            IDWNSV = IDWN
+  ! -- THE CSFs ONE BY ONE, IN THE ORDER OF THE CI VECTOR, WITH THEIR
+  !    STEP VECTORS (CI INTERFACE)
+  it(:) = 1
+  do ICONF=1,NCONF
+    call CI_Walk_Next(jstate,ISYCI,it,ICS)
+    ! -- PRINT IT!
+    K = 0
+    ISY = 0
+    PRE(ICONF) = Zero
+    do LEV=1,NLEV
+      if (ISY /= CI_St(jstate)%ISm(LEV)) then
+        ISY = CI_St(jstate)%ISm(LEV)
+        K = K+1
+        !LINE(K:K) = ' '
+      end if
+      K = K+1
+      !LINE(K:K) = CODE(ICS(LEV))
+      if (ICS(LEV) == 0) then
+        VAL = Zero
+      else if (ICS(LEV) == 3) then
+        VAL = Two*INT1(LEV,LEV)
+        !L = 0
+        !JSY = 0
+        do LEV2=1,NLEV
+          if (ICS(LEV2) == 0) then
+          else if (((LEV == LEV2) .and. (ICS(LEV2) == 3)) .or. ((LEV /= LEV2) .and. (ICS(LEV2) == 1)) .or. &
+                   ((LEV /= LEV2) .and. (ICS(LEV2) == 2))) then
+            val2 = Four*int2(lev,lev,lev2,lev2)-Two*int2(lev,lev2,lev,lev2)
+            val = val+val2
+          else if ((LEV /= LEV2) .and. (ICS(LEV2) == 3)) then
+            val2 = Four*int2(lev,lev,lev2,lev2)-Two*int2(lev,lev2,lev,lev2)
+            val = val+val2
           end if
-          ICUPOS = IUW0+NIPWLK*IUP
-          ICUP = CIS(jstate)%ICASE(ICUPOS)
-          ! -- UNPACK UPPER WALK:
-          NNN = 0
-          do LEV=SGS(jstate)%MIDLEV+1,NLEV
-            NNN = NNN+1
-            if (NNN == nPack+1) then
-              NNN = 1
-              ICUPOS = ICUPOS+1
-              ICUP = CIS(jstate)%ICASE(ICUPOS)
-            end if
-            IC1 = ICUP/4
-            ICS(LEV) = ICUP-4*IC1
-            ICUP = IC1
-          end do
-          ! -- PRINT IT!
-          K = 0
-          ISY = 0
-          PRE(ICONF) = Zero
-          do LEV=1,NLEV
-            if (ISY /= SGS(jstate)%ISM(LEV)) then
-              ISY = SGS(jstate)%ISM(LEV)
-              K = K+1
-              !LINE(K:K) = ' '
-            end if
-            K = K+1
-            !LINE(K:K) = CODE(ICS(LEV))
-            if (ICS(LEV) == 0) then
-              VAL = Zero
-            else if (ICS(LEV) == 3) then
-              VAL = Two*INT1(LEV,LEV)
-              !L = 0
-              !JSY = 0
-              do LEV2=1,NLEV
-                if (ICS(LEV2) == 0) then
-                else if (((LEV == LEV2) .and. (ICS(LEV2) == 3)) .or. ((LEV /= LEV2) .and. (ICS(LEV2) == 1)) .or. &
-                         ((LEV /= LEV2) .and. (ICS(LEV2) == 2))) then
-                  val2 = Four*int2(lev,lev,lev2,lev2)-Two*int2(lev,lev2,lev,lev2)
-                  val = val+val2
-                else if ((LEV /= LEV2) .and. (ICS(LEV2) == 3)) then
-                  val2 = Four*int2(lev,lev,lev2,lev2)-Two*int2(lev,lev2,lev,lev2)
-                  val = val+val2
-                end if
-              end do
-            else
-              VAL = INT1(LEV,LEV)
-              !L = 0
-              !JSY = 0
-              do LEV2=1,NLEV
-                if ((ICS(LEV2) == 0) .or. (LEV == LEV2)) then
-                else if (ICS(LEV2) == 3) then
-                  !val2 = Two*int2(lev,lev,lev2,lev2)-One*int2(lev,lev2,lev,lev2)
-                  !val2 = Zero
-                  !val = val+val2*Half
-                else
-                  val2 = int2(lev,lev,lev2,lev2)+int2(lev,lev2,lev,lev2)
-                  if (ics(lev) == ics(lev2)) val2 = int2(lev,lev,lev2,lev2)-int2(lev,lev2,lev,lev2)
-                  val = val+val2
-                end if
-              end do
-            end if
-            PRE(ICONF) = PRE(ICONF)+VAL
-          end do
         end do
-      end do
+      else
+        VAL = INT1(LEV,LEV)
+        !L = 0
+        !JSY = 0
+        do LEV2=1,NLEV
+          if ((ICS(LEV2) == 0) .or. (LEV == LEV2)) then
+          else if (ICS(LEV2) == 3) then
+            !val2 = Two*int2(lev,lev,lev2,lev2)-One*int2(lev,lev2,lev,lev2)
+            !val2 = Zero
+            !val = val+val2*Half
+          else
+            val2 = int2(lev,lev,lev2,lev2)+int2(lev,lev2,lev,lev2)
+            if (ics(lev) == ics(lev2)) val2 = int2(lev,lev,lev2,lev2)-int2(lev,lev2,lev,lev2)
+            val = val+val2
+          end if
+        end do
+      end if
+      PRE(ICONF) = PRE(ICONF)+VAL
     end do
   end do
 

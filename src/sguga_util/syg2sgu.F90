@@ -9,16 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW)
-! SGS       : Data that define a Split Graph
-! qCIS : Data that define a CI array structure
+subroutine SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,IPGLOB)
+! iState    : the split graph and CI array structure of SGUGA state iState
+! IPGLOB    : print level
 ! IMODE=0 transforms a Symmetric Group CI array to SGUGA
 ! IMODE=1 transforms a Split GUGA CI array to Symm Group
 ! ...Configuration and Spin Coupling tables, fill this in later.
 ! CIOLD and CINEW are obvious.
 
-use rassi_aux, only: ipglob
-use sguga, only: CIStruct, SGStruct
+use sguga, only: CIS_All=>CIS, SGS_All=>SGS
 use Molcas, only: MxLev
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
@@ -27,9 +26,7 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: IMODE, LSYM, ICNFTAB(*), ISPNTAB(*)
-type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
+integer(kind=iwp), intent(in) :: IMODE, iState, LSYM, ICNFTAB(*), ISPNTAB(*), IPGLOB
 real(kind=wp), intent(in) :: CIOLD(*)
 real(kind=wp), intent(_OUT_) :: CINEW(*)
 integer(kind=iwp), parameter :: IFUP2CS(0:1) = [2,1], MXCPI = 15, NBUFFER = 600
@@ -39,6 +36,8 @@ integer(kind=iwp) :: I, ICASE(400), ICNF, ICNUM(NBUFFER), ICPL, ICSPLT, ICSYMG, 
                      NWLKLST, NWRD
 real(kind=wp) :: PHASE(NBUFFER), PHS
 integer(kind=iwp), allocatable :: MWS2W(:), OrbArr(:)
+
+associate (SGS=>SGS_All(iState),CIS=>CIS_All(iState))
 
 ! Dereference CIS and SGS       for some data:
 NCONF = CIS%NCSF(LSYM)
@@ -450,5 +449,7 @@ end if
 
 call mma_deallocate(OrbArr)
 call mma_deallocate(MWS2W)
+
+end associate
 
 end subroutine SYG2SGU

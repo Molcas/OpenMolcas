@@ -22,7 +22,7 @@ subroutine SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nLev,mG3)
 ! OR CLOSED-SHELL SCF CASE.
 
 use Index_Functions, only: nTri_Elem
-use sguga, only: SGS
+use CI_Info, only: CI_St
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use caspt2_module, only: ETA, iSCF, NG3
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -52,7 +52,7 @@ OCC = Two
 if (ISCF == 2) OCC = One
 do IT=1,nLev
   G1(IT,IT) = OCC
-  LT = SGS(istate)%LEVEL(IT)
+  LT = CI_St(istate)%Level(IT)
   F1(IT,IT) = (ESUM*OCC-ETA(LT))*G1(IT,IT)
 end do
 
@@ -66,9 +66,9 @@ end do
 !end if
 
 do IT=1,nLev
-  LT = SGS(istate)%LEVEL(IT)
+  LT = CI_St(istate)%Level(IT)
   do IU=1,nLev
-    LU = SGS(istate)%LEVEL(IU)
+    LU = CI_St(istate)%Level(IU)
     G2(IT,IT,IU,IU) = G1(IT,IT)*G1(IU,IU)
     if (IU == IT) then
       G2(IT,IT,IU,IU) = G2(IT,IT,IU,IU)-G1(IT,IU)
@@ -139,10 +139,10 @@ Outer: do
 
   IT1 = IDX2IJ(1,IND1)
   IU1 = IDX2IJ(2,IND1)
-  LU1 = SGS(istate)%LEVEL(IU1)
+  LU1 = CI_St(istate)%Level(IU1)
   IT2 = IDX2IJ(1,IND2)
   IU2 = IDX2IJ(2,IND2)
-  LU2 = SGS(istate)%LEVEL(IU2)
+  LU2 = CI_St(istate)%Level(IU2)
 
   do IND3=1,IND2
     IT3 = IDX2IJ(1,IND3)
@@ -154,7 +154,7 @@ Outer: do
       if (IND2 > NTRI1) IND1MX = IJ2IDX(IU3,IT3)
     end if
     if (IND1 <= IND1MX) then
-      LU3 = SGS(istate)%LEVEL(IU3)
+      LU3 = CI_St(istate)%Level(IU3)
       VAL = G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)
 
       ! Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>

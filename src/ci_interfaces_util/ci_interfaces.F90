@@ -12,7 +12,8 @@
 !***********************************************************************
 
 module CI_Interfaces
-use sguga, only: SG_Free, SG_ReOrd, SG_Lucia_Walk, SG_Verify_Lucia_Walk
+use sguga, only: SG_Free
+use SG_Lucia_Bridge, only: SG_Lucia_Walk, SG_ReOrd, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, &
                    fold_two_pdm, traci_faroald
@@ -35,8 +36,8 @@ implicit none
 Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
-Public :: Faro_nTmp, CI_Timer, CI_Initialize, CI_Close, CI_Verify, SG_CI, CI_Lucia_Active, CI_Basis, CI_Basis_To_File, &
-          CI_File_To_Basis, CI_File_Index_To_Basis
+Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, CI_Initialize, &
+          CI_Lucia_Active, CI_Timer, CI_Verify, Faro_nTmp, SG_CI
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
@@ -88,6 +89,17 @@ function SG_CI() result(SGMode)
 logical(kind=iwp) :: SGMode
 SGMode = DoSGCI .and. SG_Avail()
 end function SG_CI
+
+!> FARO: the number of determinants of the RAS space of Faroald (all
+!> symmetries; nela/nelb electrons, o(1:3) orbitals in RAS1/2/3, at least
+!> minr1 electrons in RAS1, at most maxr3 in RAS3), before any setup, for
+!> the memory estimate of RASSCF.
+function CI_Faro_nDet_RAS(nela,nelb,o,minr1,maxr3) result(n)
+use faroald_ras, only: ras_count_dets
+integer(kind=iwp), intent(in) :: nela, nelb, o(3), minr1, maxr3
+real(kind=wp) :: n
+n = ras_count_dets(nela,nelb,o,minr1,maxr3)
+end function CI_Faro_nDet_RAS
 
 !> FARO: the size of the determinant scratch of Faroald_Sigma (ctemp,
 !> sigtemp): the full determinant matrix, not needed with RAS (faroald_ras).
@@ -284,7 +296,7 @@ end function SG_Avail
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-Subroutine Mk_H_Psi(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
+Subroutine Mk_H_Psi(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
 use cands, only: ICSM, ISSM
 Implicit None
@@ -292,7 +304,7 @@ Implicit None
 integer(kind=iwp), intent(in):: iState, STSYM, nCSF
 real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
-integer(kind=iwp), intent(in) :: ntemp,ndeta,ndetb
+integer(kind=iwp), intent(in) :: ntemp
 real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
 integer(kind=iwp), intent(in):: nTU, nTUVX
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
@@ -2689,7 +2701,7 @@ contains
       J = 1+((JJ-1)*(NPCSF-1))/max(nCol-1,1)
       EJ(:) = Zero
       EJ(IPCSF(J)) = One
-      call Mk_H_Psi(iState,IREFSM,nConf,EJ,HEJ,cTmp,sTmp,nTmp,nDetA,nDetB,nTU,TU,nTUVX,TUVX)
+      call Mk_H_Psi(iState,IREFSM,nConf,EJ,HEJ,cTmp,sTmp,nTmp,nTU,TU,nTUVX,TUVX)
       do I=1,NPCSF
         Ref = HEJ(IPCSF(I))
         if (I == J) Ref = Ref+ECORE
