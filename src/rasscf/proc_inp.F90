@@ -72,7 +72,7 @@ use Para_Info, only: mpp_nprocs, mpp_procid
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -86,7 +86,8 @@ integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2
                      length, mBas, mCof, mConf, mm, mOrb, N, NA, NAO, NASHT, NBAS_L(8), NCHRG, nClean, nCof, NCRPROJ, NDEL_L(8), &
                      nDiff, NFRO_L(8), nGrp, NGSSH_HI, NGSSH_LO, NISH_L(8), NISHT, NISHT_old, nItems, nNUc, NORB_L(8), nOrbRoot, &
                      nOrbs, NRS1_L(8), NRS2_L(8), NRS3_L(8), NSSH_L(8), nSym_l, nT, nU, nW, start, step
-real(kind=wp) :: dSum, Dummy(1), POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
+integer(kind=iwp) :: MaxFaro
+real(kind=wp) :: dSum, Dummy(1), nDetFaro, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
 logical(kind=iwp) :: DBG, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists, SkipGUGA
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=256) :: myTitle
@@ -4111,15 +4112,27 @@ if (.not. SkipGUGA) then
   ! Faroald only if requested with the FARO keyword.
   if (CI_Verify('FARO') .and. (.not. DoSGCI) .and. (.not. Key('EXPE'))) DoFaro = .true.
   ! FARO: the CI in the configuration basis of Faroald (citrans), for
-  ! CAS spaces (with symmetry) only, not with the other CI back ends or
-  ! CASVB (which works with the CSF basis of Lucia).
+  ! CAS and RAS spaces (with symmetry), not GAS, HEXS or DEXS, and not with
+  ! the other CI back ends or CASVB (which works with the CSF basis of
+  ! Lucia).
   if (DoFaro) then
-    if ((nHole1 /= 0) .or. (nElec3 /= 0) .or. iDoGas .or. Key('HEXS') .or. Key('DEXS') .or. DoDMRG .or. &
-        DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+    if (iDoGas .or. Key('HEXS') .or. Key('DEXS') .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
       if (Key('FARO')) then
-        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (RAS, GAS, HEXS, DEXS, DMRG, NECI'
+        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (GAS, HEXS, DEXS, DMRG, NECI'
         write(u6,'(1X,A)') 'or CASVB); the CI is done by the CI backend.'
       end if
+      DoFaro = .false.
+    end if
+  end if
+  ! Faroald works in the full (C1 CAS) determinant space, also for RAS and
+  ! symmetry: fall back to the CI backend if a few vectors of that size do
+  ! not fit in the available memory.
+  if (DoFaro) then
+    call mma_maxDBLE(MaxFaro)
+    nDetFaro = Binom_R((NACTEL+ISPIN-1)/2,NAC)*Binom_R((NACTEL-ISPIN+1)/2,NAC)
+    if (8.0_wp*nDetFaro > real(MaxFaro,kind=wp)) then
+      write(u6,'(1X,A,ES10.3,A)') 'Faroald cannot run this CI: ',nDetFaro,' determinants in the CAS space'
+      write(u6,'(1X,A)') 'do not fit in the available memory; the CI is done by the CI backend.'
       DoFaro = .false.
     end if
   end if
@@ -4164,6 +4177,19 @@ end if
 if (DBG) write(u6,*) ' Normal exit from PROC_INP.'
 
 contains
+
+! the binomial coefficient (n over k), in floating point (no overflow)
+function Binom_R(k,n) result(b)
+  integer(kind=iwp), intent(in) :: k, n
+  real(kind=wp) :: b
+  integer(kind=iwp) :: i
+  b = Zero
+  if ((k < 0) .or. (k > n)) return
+  b = One
+  do i=1,min(k,n-k)
+    b = b*real(n-min(k,n-k)+i,kind=wp)/real(i,kind=wp)
+  end do
+end function Binom_R
 
 subroutine Error(code)
 

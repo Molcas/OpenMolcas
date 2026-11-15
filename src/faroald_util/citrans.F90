@@ -103,8 +103,12 @@ type(SG_Walks) :: FileW
 ! +iconf) is their position among the kept ones (0 if not kept), and
 ! conf_list(conf_off(ido)+k) the configuration of kept position k. Without
 ! symmetry all configurations are kept.
-integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1
-integer(kind=iwp), allocatable :: orbsym(:), conf_off(:), conf_pos(:), conf_list(:), nkeep_group(:)
+! RAS: the orbitals are the levels of the split graph (partition by
+! partition, within each by symmetry), orbras their partition; a
+! configuration is kept if the partitions 1..k hold at least ci_nrasel(k)
+! electrons (k < ci_nrsprt), as the graph of SGUGA. CAS: ci_nrsprt = 1.
+integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1, ci_nrsprt = 1
+integer(kind=iwp), allocatable :: orbsym(:), orbras(:), ci_nrasel(:), conf_off(:), conf_pos(:), conf_list(:), nkeep_group(:)
 
 public :: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, citrans_graph_init, citrans_ncsf, &
           citrans_sd2csf, citrans_sort, citrans_sym_free, citrans_sym_init, ncsf_group, ndet_group, ndo_max, ndo_min, &
@@ -123,50 +127,64 @@ end interface
 
 contains
 
-!> The split graph of the CAS space (nel electrons in norb orbitals of the
-!> symmetries orbsym, multiplicity mult) in the file order, as SGUGA sets it
-!> up for RASSCF (SG_Init_Light: one partition, IFRAS = the number of
-!> symmetries with active orbitals).
+!> The split graph of the CAS or RAS space (nel electrons in norb orbitals
+!> = levels of the symmetries orbsym and partitions orbras, multiplicity
+!> mult) in the file order, as SGUGA sets it up for RASSCF (SG_Init_Light:
+!> IFRAS = 1 for three partitions, plus the number of symmetries with
+!> active orbitals).
 subroutine citrans_graph_init(nel,norb,mult)
   integer(kind=iwp), intent(in) :: nel, norb, mult
-  integer(kind=iwp) :: isym
+  integer(kind=iwp) :: isym, iprt
   call Free_SG_Graph(FileG,FileW)
   FileG%nSym = ci_nsym
   FileG%nActEl = nel
   FileG%iSpin = mult
   FileG%nLev = norb
-  FileG%nRsPrt = 1
+  FileG%nRsPrt = ci_nrsprt
   FileG%nRas(:,:) = 0
   FileG%nRasEl(:) = 0
-  FileG%nRasEl(1) = nel
+  FileG%nRasEl(1:ci_nrsprt) = ci_nrasel(1:ci_nrsprt)
   FileG%IFRAS = 0
+  if (ci_nrsprt == 3) FileG%IFRAS = 1
   do isym=1,ci_nsym
-    FileG%nRas(isym,1) = count(orbsym(1:norb) == isym)
-    if (FileG%nRas(isym,1) /= 0) FileG%IFRAS = FileG%IFRAS+1
+    do iprt=1,ci_nrsprt
+      FileG%nRas(isym,iprt) = count((orbsym(1:norb) == isym) .and. (orbras(1:norb) == iprt))
+    end do
+    if (sum(FileG%nRas(isym,1:ci_nrsprt)) /= 0) FileG%IFRAS = FileG%IFRAS+1
   end do
   call mma_allocate(FileG%ISm,norb,Label='FileG%ISm')
   FileG%ISm(:) = orbsym(1:norb)
   call MkSGUGA(FileG,FileW)
 end subroutine citrans_graph_init
 
-!> The symmetry of the CSF space: nsym irreps, the symmetries osym of the
-!> norb active orbitals, the target symmetry lsym; builds the configuration
+!> The CSF space: nsym irreps, the symmetries osym of the norb active
+!> orbitals, the target symmetry lsym, and the RAS restrictions (nrsprt
+!> partitions, oras the partition of each orbital, nrasel the minimum
+!> number of electrons in the partitions 1..k); builds the configuration
 !> maps (after the group sizes of citrans_init). Without the optional
-!> arguments C1.
-subroutine citrans_sym_init(nel,norb,nsym,osym,lsym)
+!> arguments C1 CAS.
+subroutine citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel)
   use second_quantization, only: lex_init, lex_next
   integer(kind=iwp), intent(in) :: nel, norb
-  integer(kind=iwp), intent(in), optional :: nsym, osym(norb), lsym
+  integer(kind=iwp), intent(in), optional :: nsym, osym(norb), lsym, nrsprt, oras(norb), nrasel(:)
   integer(kind=iwp) :: ido, iso, idoc, isoc, iconf, k, ntot, doub, sing
 
   call citrans_sym_free()
   ci_nsym = 1
   ci_lsym = 1
+  ci_nrsprt = 1
   call mma_allocate(orbsym,max(1,norb),label='orbsym')
+  call mma_allocate(orbras,max(1,norb),label='orbras')
   orbsym(:) = 1
+  orbras(:) = 1
   if (present(nsym)) ci_nsym = nsym
   if (present(osym)) orbsym(1:norb) = osym(1:norb)
   if (present(lsym)) ci_lsym = lsym
+  if (present(nrsprt)) ci_nrsprt = nrsprt
+  call mma_allocate(ci_nrasel,ci_nrsprt,label='ci_nrasel')
+  ci_nrasel(:) = nel
+  if (present(nrasel)) ci_nrasel(1:ci_nrsprt) = nrasel(1:ci_nrsprt)
+  if (present(oras)) orbras(1:norb) = oras(1:norb)
 
   call mma_allocate(conf_off,[ndo_min,ndo_max],label='conf_off')
   call mma_allocate(nkeep_group,[ndo_min,ndo_max],label='nkeep_group')
@@ -188,7 +206,7 @@ subroutine citrans_sym_init(nel,norb,nsym,osym,lsym)
       sing = lex_init(iso,norb-ido)
       do isoc=1,nsoc_group(ido)
         iconf = iconf+1
-        if (conf_sym(doub,sing,norb) == ci_lsym) then
+        if ((conf_sym(doub,sing,norb) == ci_lsym) .and. conf_ras(doub,sing,norb)) then
           k = k+1
           conf_pos(conf_off(ido)+iconf) = k
           conf_list(conf_off(ido)+k) = iconf
@@ -204,6 +222,8 @@ end subroutine citrans_sym_init
 
 subroutine citrans_sym_free()
   call mma_deallocate(orbsym,safe='*')
+  call mma_deallocate(orbras,safe='*')
+  call mma_deallocate(ci_nrasel,safe='*')
   call mma_deallocate(conf_off,safe='*')
   call mma_deallocate(conf_pos,safe='*')
   call mma_deallocate(conf_list,safe='*')
@@ -224,6 +244,29 @@ function conf_sym(doub,sing,norb) result(isym)
   end do
   isym = isym+1
 end function conf_sym
+
+!> Whether a configuration (doub, sing as in conf_sym) fulfils the RAS
+!> restrictions: at least ci_nrasel(k) electrons in the partitions 1..k.
+function conf_ras(doub,sing,norb) result(ok)
+  logical(kind=iwp) :: ok
+  integer(kind=iwp), intent(in) :: doub, sing, norb
+  integer(kind=iwp) :: iorb, socc, k, n
+  ok = .true.
+  if (ci_nrsprt == 1) return
+  socc = pdep(sing,ibits(not(doub),0,norb))
+  do k=1,ci_nrsprt-1
+    n = 0
+    do iorb=1,norb
+      if (orbras(iorb) > k) cycle
+      if (btest(doub,iorb-1)) n = n+2
+      if (btest(socc,iorb-1)) n = n+1
+    end do
+    if (n < ci_nrasel(k)) then
+      ok = .false.
+      return
+    end if
+  end do
+end function conf_ras
 
 !> The number of CSFs of the CSF space (of symmetry ci_lsym).
 function citrans_ncsf() result(n)

@@ -24,7 +24,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use general_data, only: iDoGAS, nRsPrt
+use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl, NSM
 use CI_Verify_Options, only: CI_Verify
 
 #include "intent.fh"
@@ -65,6 +65,13 @@ logical(kind=iwp) :: HPsi_Faro_Verified = .false., PDM_Faro_Verified = .false., 
                      TraPsi_Faro_Verified = .false., IHI_Faro_SG_Verified = .false.
 ! Lucia has been initialized (not for SGCI, except as the SIGMA reference)
 logical(kind=iwp) :: Lucia_Active = .true.
+! FARO: Faroald works with the active orbitals in the order of the levels
+! of the split graph (by RAS partition, within each by symmetry), so that
+! its CSFs couple the spins in the order of the file basis. Faro_L2O(lev)
+! is the active orbital (symmetry-blocked order of TU/TUVX) of level lev;
+! the identity for CAS. The densities are in level order (as Lucia's and
+! SGUGA's).
+integer(kind=iwp), allocatable :: Faro_L2O(:)
 
 contains
 
@@ -452,36 +459,38 @@ End Subroutine Mk_H_Psi
 
 !> Unpack the active one- and two-electron integrals (triangular packing)
 !> into the square arrays htu and gtuvx of Faroald.
+!> The integrals of Faroald (htu, gtuvx over its orbitals = the levels)
+!> from TU/TUVX (triangular, symmetry-blocked active orbitals), via Faro_L2O.
 subroutine Faroald_Ints(TU,TUVX)
 real(kind=wp), intent(in) :: TU(:), TUVX(:)
-integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
+integer(kind=iwp) :: it, iu, iv, ix, ot, ou, ov, ox, otu, ovx
 
 htu(:,:) = Zero
 gtuvx(:,:,:,:) = Zero
-itu = 0
-ituvx = 0
 do it=1,my_norb
-  do iu=1,it
-    itu = itu+1
-    htu(iu,it) = TU(itu)
-    htu(it,iu) = TU(itu)
-    do iv=1,it
-      ixmax = iv
-      if (it == iv) ixmax = iu
-      do ix=1,ixmax
-        ituvx = ituvx+1
-        GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
-        GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
-        GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
-        GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
-        GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
-        GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
-        GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
-        GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
+  ot = Faro_L2O(it)
+  do iu=1,my_norb
+    ou = Faro_L2O(iu)
+    otu = iTri_F(ot,ou)
+    htu(it,iu) = TU(otu)
+    do iv=1,my_norb
+      ov = Faro_L2O(iv)
+      do ix=1,my_norb
+        ox = Faro_L2O(ix)
+        ovx = iTri_F(ov,ox)
+        gtuvx(it,iu,iv,ix) = TUVX(iTri_F(otu,ovx))
       end do
     end do
   end do
 end do
+
+contains
+
+  pure function iTri_F(i,j) result(ij)
+    integer(kind=iwp), intent(in) :: i, j
+    integer(kind=iwp) :: ij
+    ij = max(i,j)*(max(i,j)-1)/2+min(i,j)
+  end function iTri_F
 
 end subroutine Faroald_Ints
 
@@ -1213,8 +1222,8 @@ use spinfo, only: ncsasm, ndtasm
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
-integer(kind=iwp) :: nAct, k, iSym
-integer(kind=iwp), allocatable :: OrbSym(:)
+integer(kind=iwp) :: nAct, k, iSym, iPrt, iLev
+integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
 
 ! SGCI does not need Lucia; it is set up only as the reference of
 ! MOLCAS_CI_VERIFY=SIGMA.
@@ -1262,18 +1271,43 @@ if (DO_FAROALD) then
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
   write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
-  ! the active orbitals in the symmetry-blocked order of RASSCF (= the
-  ! levels of the CAS split graph)
+  ! the orbitals of Faroald = the levels of the split graph: by RAS
+  ! partition, within each by symmetry (NSM, Setup_RASSCF); Faro_L2O maps
+  ! them to the symmetry-blocked order of RASSCF (within one symmetry the
+  ! orbitals keep the order of their levels)
   nAct = sum(NASH(1:nSym))
   call mma_allocate(OrbSym,max(1,nAct),Label='OrbSym')
-  k = 0
-  do iSym=1,nSym
-    OrbSym(k+1:k+NASH(iSym)) = iSym
-    k = k+NASH(iSym)
+  call mma_allocate(OrbRas,max(1,nAct),Label='OrbRas')
+  call mma_deallocate(Faro_L2O,safe='*')
+  call mma_allocate(Faro_L2O,max(1,nAct),Label='Faro_L2O')
+  iLev = 0
+  do iPrt=1,nRsPrt
+    do iSym=1,nSym
+      do k=1,nRas(iSym,iPrt)
+        iLev = iLev+1
+        OrbSym(iLev) = iSym
+        OrbRas(iLev) = iPrt
+      end do
+    end do
   end do
+  if ((iLev /= nAct) .or. (NAC /= nAct) .or. any(OrbSym(1:nAct) /= NSM(1:nAct))) then
+    write(u6,*) 'CI_Initialize: inconsistent active levels for Faroald',iLev,nAct,NAC
+    call Abend()
+  end if
+  call mma_allocate(nOff,nSym,Label='nOff')
+  nOff(1) = 0
+  do iSym=2,nSym
+    nOff(iSym) = nOff(iSym-1)+NASH(iSym-1)
+  end do
+  do iLev=1,nAct
+    nOff(OrbSym(iLev)) = nOff(OrbSym(iLev))+1
+    Faro_L2O(iLev) = nOff(OrbSym(iLev))
+  end do
+  call mma_deallocate(nOff)
   call FAROALD_INIT(NACTEL,nAct,ISPIN)
-  call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym)
+  call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym,nRsPrt,OrbRas,nRasEl(1:nRsPrt))
   call mma_deallocate(OrbSym)
+  call mma_deallocate(OrbRas)
   if ((citrans_ncsf() /= nConf) .and. (nActEl > 0)) then
     write(u6,*) 'CI_Initialize: number of CSFs, Faroald and RASSCF:',citrans_ncsf(),nConf
     call Abend()
@@ -1294,6 +1328,7 @@ if (Lucia_Active) Call Lucia_Util('Close')
 
 call faroald_free()
 call citrans_free()
+call mma_deallocate(Faro_L2O,safe='*')
 
 Call SG_free(iState)
 call SG_Free_Cnf_List(Cnf_SG)
@@ -1980,7 +2015,13 @@ if (DoSGEx .and. (.not. SG_OK) .and. (.not. SGEx_Warned)) then
   write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA is not available with GAS, HEXS or DEXS; using the CI back end'
   SGEx_Warned = .true.
 end if
-UseSG = DoSGEx .and. SG_OK
+! FARO: the explicit block is always that of Faroald, in its own basis
+! (SGEX belongs to the Lucia path)
+if (DoSGEx .and. DoFaro .and. (.not. SGEx_Warned)) then
+  write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored with FARO; the explicit block is computed by Faroald'
+  SGEx_Warned = .true.
+end if
+UseSG = DoSGEx .and. SG_OK .and. (.not. DoFaro)
 Verify = CI_Verify('SIGMA') .and. (.not. IHJ_Verified)
 ! the walks of the Lucia CSFs, once per run
 if (Verify .and. SG_OK .and. (.not. DoFaro)) call SG_Verify_Lucia_Walk(1,IREFSM,nConf)
@@ -2732,6 +2773,7 @@ real(kind=wp), intent(inout) :: CI_Vector(nCSF)
 
 real(kind=wp), allocatable :: Faroald_Psi(:,:), ctemp(:), TFull(:)
 integer(kind=iwp) :: iSym, iOffT, iOffO, kk, pp
+integer(kind=iwp), allocatable :: O2L(:)
 
 integer(kind=iwp) :: iCSF
 real(kind=wp), allocatable :: CI_Faroald(:)
@@ -2784,20 +2826,26 @@ If (DoFaro) Then
   Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
   Faroald_PSI(:,:) = Zero
   call CITRANS_CSF2SD(CI_Vector,Faroald_PSI)
-  ! the transformation matrix in symmetry blocks -> NAC x NAC
+  ! the transformation matrix in symmetry blocks -> NAC x NAC over the
+  ! orbitals of Faroald (the levels, Faro_L2O)
   Call mma_allocate(TFull,NAC*NAC,Label='TFull')
+  Call mma_allocate(O2L,NAC,Label='O2L')
+  do kk=1,NAC
+    O2L(Faro_L2O(kk)) = kk
+  end do
   TFull(:) = Zero
   iOffT = 0
   iOffO = 0
   do iSym=1,nSym
     do kk=1,NASH(iSym)
       do pp=1,NASH(iSym)
-        TFull(iOffO+pp+(iOffO+kk-1)*NAC) = TU(iOffT+pp+(kk-1)*NASH(iSym))
+        TFull(O2L(iOffO+pp)+(O2L(iOffO+kk)-1)*NAC) = TU(iOffT+pp+(kk-1)*NASH(iSym))
       end do
     end do
     iOffT = iOffT+NASH(iSym)**2
     iOffO = iOffO+NASH(iSym)
   end do
+  Call mma_deallocate(O2L)
   Call traci_faroald(TFull,NAC*NAC,Faroald_Psi)
   Call mma_deallocate(TFull)
   call CITRANS_SD2CSF(Faroald_Psi,CI_Vector)

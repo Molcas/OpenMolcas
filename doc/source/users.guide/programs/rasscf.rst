@@ -2249,16 +2249,19 @@ A list of these keywords is given below:
   Hamiltonian of the Davidson procedure, the sigma vectors, the density and
   transition density matrices and the CI transformation of the orbital
   optimization, without Lucia. The CI vectors on the JobIph and HDF5 files are
-  in the usual (split-graph) order. For CASSCF, with or without symmetry; with
-  RAS partitions, GAS, :kword:`HEXS`, :kword:`DEXS`, DMRG, NECI or CASVB the
-  keyword is ignored. Experimental.
+  in the usual (split-graph) order. For CASSCF and RASSCF, with or without
+  symmetry; a RAS space is handled as a restriction of the CAS determinant
+  space, so memory and time grow with the size of the CAS space. With GAS,
+  :kword:`HEXS`, :kword:`DEXS`, DMRG, NECI or CASVB the keyword is ignored;
+  :kword:`SGEX` has no effect with it. Experimental.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" APPEAR="Faroald CI" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: FAROald <advanced>
               <HELP>
               Do the whole CI with Faroald (determinant-based) in its own CSF
-              basis, without Lucia. CASSCF with or without symmetry, not with
-              RAS partitions, GAS, HEXS, DEXS, DMRG, NECI or CASVB. Experimental.
+              basis, without Lucia. CASSCF and RASSCF with or without symmetry
+              (RAS as a restriction of the CAS determinant space), not with
+              GAS, HEXS, DEXS, DMRG, NECI or CASVB. Experimental.
               </HELP>
               </KEYWORD>
 
