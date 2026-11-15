@@ -4706,9 +4706,11 @@ function binomial(k,n) result(b)
   integer(kind=iwp), intent(in) :: k, n
   integer(kind=iwp) :: b
   integer(kind=iwp) :: i
+  ! exactly as binom_coef: 0 for k > n, 1 for k <= 0
   b = 0
-  if ((k < 0) .or. (k > n)) return
+  if (k > n) return
   b = 1
+  if (k <= 0) return
   do i=1,min(k,n-k)
     b = (b*(n-min(k,n-k)+i))/i
   end do
