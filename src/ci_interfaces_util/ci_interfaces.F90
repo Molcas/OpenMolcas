@@ -12,7 +12,7 @@
 !***********************************************************************
 
 module CI_Interfaces
-use sguga, only: SG_Free, SG_ReOrd, SG_Lucia_Walk
+use sguga, only: SG_Free, SG_ReOrd, SG_Lucia_Walk, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
@@ -42,10 +42,22 @@ logical(kind=iwp) :: IHJ_Verified = .false.
 ! sg_h_psi_ras is compared with sg_h_psi (CAS) only once per run; for RAS
 ! the difference to the CI back end is printed once (checked every time).
 logical(kind=iwp) :: HPsi_RAS_Verified = .false.
+! The SGUGA CI transformation (Mk_Tra_Psi, SIGMA) is checked on every call,
+! its maximum error printed once.
+logical(kind=iwp) :: TraPsi_Verified = .false.
 ! SGEX given but SGUGA not available: warned once.
 logical(kind=iwp) :: SGEx_Warned = .false.
 
 contains
+
+!> SGUGA covers the CI space of RASSCF: CAS or RAS, but not GAS (no graph)
+!> and not HEXS/DEXS (I_ELIMINATE_GAS), which remove configurations that the
+!> graph keeps.
+function SG_Avail() result(Avail)
+use spinfo, only: I_ELIMINATE_GAS
+logical(kind=iwp) :: Avail
+Avail = (.not. iDoGAS) .and. (I_ELIMINATE_GAS == 0)
+end function SG_Avail
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
@@ -53,7 +65,6 @@ contains
 Subroutine Mk_H_Psi(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
 use cands, only: ICSM, ISSM
-use spinfo, only: I_ELIMINATE_GAS
 Implicit None
 
 integer(kind=iwp), intent(in):: iState, STSYM, nCSF
@@ -118,7 +129,7 @@ end if
 ! sg_h_psi, checked once per run against sg_h_psi_ras. Not with HEXS/DEXS
 ! (I_ELIMINATE_GAS): the configurations they remove are not part of the
 ! SGUGA graph.
-If (CI_Verify('SIGMA') .and. (.NOT.iDoGAS) .and. (I_ELIMINATE_GAS == 0)) Then
+If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
    call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
    Check_Href=CheckSum(Sigma_Vec,nCSF)
@@ -350,11 +361,12 @@ else
 endif
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the SGUGA sigma
-! vector (CASSCF without symmetry only), which is then used.
+! vector (CASSCF without symmetry only), which is then used. The
+! determinant (CASVB) route needs the SD/CSF codec, which exists for CAS
+! only; with RAS partitions the check is skipped.
 If (CI_Verify('SIGMA')) Then
   If (SGS(iState)%nRsPrt /= 1) Then
-     Write (6,*) ' This option is only available for CASSCF'
-     Call abend()
+     Return
   End If
   If (SGS(iState)%nSym /= 1) Return
   nCSF=CIS(istate)%nCSF(STSym)
@@ -866,10 +878,10 @@ End If
 call mma_deallocate(DDIA)
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the exact diagonal.
-if (CI_Verify('SIGMA') .and. (.not. iDoGAS) .and. (nRsPrt == 1)) call Verify_IHI()
+if (CI_Verify('SIGMA') .and. SG_Avail()) call Verify_IHI()
 
 ! CI development (MOLCAS_CI_VERIFY=HDIAG): use the exact diagonal instead.
-if (CI_Verify('HDIAG') .and. (.not. iDoGAS) .and. (nRsPrt == 1)) then
+if (CI_Verify('HDIAG') .and. SG_Avail()) then
   call Exact_Diag(CSFDIA)
   write(u6,'(1X,A)') 'Mk_IHI: exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
 end if
@@ -1221,14 +1233,15 @@ end if
 
 ! SGUGA is available without GAS and for a single RAS partition (SGS is not
 ! set up with GAS, so test iDoGAS first).
-SG_OK = .false.
-if (.not. iDoGAS) SG_OK = SGS(1)%nRsPrt == 1
+SG_OK = SG_Avail()
 if (DoSGEx .and. (.not. SG_OK) .and. (.not. SGEx_Warned)) then
-  write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA needs a single RAS partition; using the CI back end'
+  write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA is not available with GAS, HEXS or DEXS; using the CI back end'
   SGEx_Warned = .true.
 end if
 UseSG = DoSGEx .and. SG_OK
 Verify = CI_Verify('SIGMA') .and. (.not. IHJ_Verified)
+! the walks of the Lucia CSFs, once per run
+if (Verify .and. SG_OK) call SG_Verify_Lucia_Walk(1,IREFSM,nConf)
 
 call CWTime(T0,W)
 if (UseSG) then
@@ -1256,7 +1269,7 @@ if (Verify) then
   if (SG_OK) then
     if (.not. UseSG) call Ref_Block('SGUGA')
   else
-    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (only without GAS and for a single RAS partition)'
+    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (not available with GAS, HEXS or DEXS)'
   end if
   call mma_deallocate(PHP_Ref)
   IHJ_Verified = .true.
@@ -1600,13 +1613,19 @@ contains
   ! than a double excitation apart (Cnf_Exc) are skipped as a whole.
   subroutine IHJ_SGUGA(H)
     use Molcas, only: MxAct
-    use sguga, only: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_NUM
+    use sguga, only: SG_CSF_Occ, SG_Level_Ints, SG_MatEl_H, SG_MatEl_Init, SG_NUM
     real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
     integer(kind=iwp) :: I, J, t, kCnf, ICNL, ICNR, IILB, IIRB, IIL, IIR, IIRMAX, nL, nR
     integer(kind=iwp) :: IWALK(MxAct)
     integer(kind=iwp), allocatable :: iG(:), iPG(:), OccG(:,:), DOcc(:), SOcc(:)
+    real(kind=wp), allocatable :: TU_L(:), TUVX_L(:)
 
     call SG_MatEl_Init(1,IREFSM)
+    ! MatEl_H_Direct indexes the integrals by graph level (RAS: not the
+    ! symmetry-blocked order of TU/TUVX)
+    call mma_allocate(TU_L,nTU,Label='TU_L')
+    call mma_allocate(TUVX_L,nTUVX,Label='TUVX_L')
+    call SG_Level_Ints(SGS(1),TU,nTU,TUVX,nTUVX,TU_L,TUVX_L)
     call mma_allocate(iG,NPCSF,Label='iG')
     call mma_allocate(iPG,NPCSF,Label='iPG')
     call mma_allocate(OccG,NAC,NPCSF,Label='OccG')
@@ -1644,7 +1663,7 @@ contains
           else
             do IIR=1,IIRMAX
               J = IIRB-1+IIR
-              H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*SG_MatEl_H(iG(I),iG(J),OccG(:,I),OccG(:,J),TU,nTU,TUVX,nTUVX)
+              H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*SG_MatEl_H(iG(I),iG(J),OccG(:,I),OccG(:,J),TU_L,nTU,TUVX_L,nTUVX)
             end do
           end if
         end do
@@ -1661,6 +1680,8 @@ contains
     call mma_deallocate(OccG)
     call mma_deallocate(iPG)
     call mma_deallocate(iG)
+    call mma_deallocate(TUVX_L)
+    call mma_deallocate(TU_L)
 
   end subroutine IHJ_SGUGA
 
@@ -1926,7 +1947,7 @@ real(kind=wp), allocatable :: CI_SGUGA(:)
 logical(kind=iwp) :: Verify_SG
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): also transform with SGUGA and compare.
-Verify_SG = CI_Verify('SIGMA') .and. .NOT.iDoGAS .and. nRsPrt==1
+Verify_SG = CI_Verify('SIGMA') .and. SG_Avail()
 If (Verify_SG) Then
   Call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
   CI_SGUGA(:) = CI_Vector(:)
@@ -1985,6 +2006,11 @@ If (Verify_SG) Then
    Call SG_TRACI(iState,STSYM,TU,nTU,ctemp,nCSF)
    call SG_REORD(iState,STSYM,1,nCSF,ctemp,CI_SGUGA)
    Call mma_deallocate(ctemp)
+   If (.not. TraPsi_Verified) Then
+      Write (u6,'(1X,A,I0,A,ES10.3)') 'Mk_Tra_Psi: SGUGA CI transformation verified against the CI back end, ',nCSF, &
+                                     ' CSFs, max. error ',maxval(abs(CI_Vector(:)-CI_SGUGA(:)))
+      TraPsi_Verified = .true.
+   End If
 
    Do iCSF = 1, nCSF
       If (Abs(CI_Vector(iCSF)-CI_SGUGA(iCSF))/nCSF>1.0E-12_wp) Then

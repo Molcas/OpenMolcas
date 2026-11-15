@@ -262,7 +262,7 @@ integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
-public :: SG_Lucia_Walk
+public :: SG_Lucia_Walk, SG_Verify_Lucia_Walk
 public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, SG_ReOrd_Orig, StepVec, SG_TRACI
 public :: SG_Test_EpqErs_Ref
 public :: SG_Mk_SDREO
@@ -311,7 +311,7 @@ real(kind=wp) :: ME_HD = Zero, ME_HW = Zero
 ! Coup_Value, Path_Value: blocks up to this size are scanned, not searched
 integer(kind=iwp), parameter :: nCoup_Lin = 16
 
-public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init
+public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
 
 
 contains
@@ -5722,8 +5722,8 @@ integer(kind=iwp) :: iOpen, ICL, MinOpen, MaxOpen, nOC, nCSF, iOff, IC, IICSF
 integer(kind=iwp) :: KCNF(MxAct)
 
 if (SGS(iState)%nRsPrt /= 1) then
-  write(u6,*) 'SG_Lucia_Walk: only for nRsPrt = 1'
-  call Abend()
+  call SG_Lucia_Walk_CFTP(iState,IREFSM,ICSF,IWALK,IP)
+  return
 end if
 
 MinOpen = SGS(iState)%iSpin-1
@@ -5750,6 +5750,107 @@ write(u6,*) 'SG_Lucia_Walk: CSF index out of range:',ICSF
 call Abend()
 
 end subroutine SG_Lucia_Walk
+
+!> SG_Lucia_Walk from Lucia's own configuration list (Conf_Occ) and prototype
+!> spin couplings (CFTP), as in SG_ReOrd_orig; valid for any RAS partitioning
+!> (used for nRsPrt /= 1, where the CDCInfo tables are not built).
+subroutine SG_Lucia_Walk_CFTP(iState,IREFSM,ICSF,IWALK,IP)
+
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use Lucia_data, only: CFTP, CONF_Occ
+use Molcas, only: MxAct
+
+integer(kind=iwp), intent(in) :: iState, IREFSM, ICSF
+integer(kind=iwp), intent(out) :: IWALK(MxAct), IP
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, IIBCL, IIBOP, IICSF, IOFF, IOPEN, IPBAS, ITYP, JOCC, KCNF(MxAct), KOCC, KORB, &
+                     nBlk
+
+ICNBS0 = 1
+IPBAS = 1
+IOFF = 0
+do ITYP=1,NTYP
+  IOPEN = ITYP+MINOP-1
+  ICL = (SGS(iState)%nActEl-IOPEN)/2
+  if (ITYP > 1) then
+    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(SGS(iState)%nActEl+IOPEN-1)/2
+    IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
+  end if
+  nBlk = NCNFTP(ITYP,IREFSM)*NCSFTP(ITYP)
+  if (ICSF <= IOFF+nBlk) then
+    IC = (ICSF-IOFF-1)/NCSFTP(ITYP)+1
+    IICSF = ICSF-IOFF-(IC-1)*NCSFTP(ITYP)
+    ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
+    ICSBAS = IPBAS+(IICSF-1)*IOPEN
+    ! configuration in standard RASSCF form: closed orbitals, then open ones
+    KCNF(:) = 0
+    IIBOP = 1
+    IIBCL = 1
+    JOCC = ICL+IOPEN
+    do KOCC=0,JOCC-1
+      KORB = Conf_Occ(IREFSM)%A(ICNBS+KOCC)
+      if (KORB < 0) then
+        KCNF(IIBCL) = abs(KORB)
+        IIBCL = IIBCL+1
+      else
+        KCNF(ICL+IIBOP) = KORB
+        IIBOP = IIBOP+1
+      end if
+    end do
+    call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),SGS(iState)%nLev,IWALK)
+    IP = SG_PHASE(SGS(iState),IWALK)
+    return
+  end if
+  IOFF = IOFF+nBlk
+end do
+
+write(u6,*) 'SG_Lucia_Walk_CFTP: CSF index out of range:',ICSF
+call Abend()
+
+end subroutine SG_Lucia_Walk_CFTP
+
+!> Check SG_Lucia_Walk for all nConf CSFs of symmetry IREFSM: the split-graph
+!> index (SG_NUM) and phase of each walk against the reordering SG_ReOrd
+!> (mode 0) of the index vector; for a single RAS partition also the walks
+!> of the CDCInfo route against those of the CFTP route.
+subroutine SG_Verify_Lucia_Walk(iState,IREFSM,nConf)
+
+use Molcas, only: MxAct
+use stdalloc, only: mma_allocate, mma_deallocate
+
+integer(kind=iwp), intent(in) :: iState, IREFSM, nConf
+integer(kind=iwp) :: I, IP, IP2, ISG, nBad
+integer(kind=iwp) :: IWALK(MxAct), IWALK2(MxAct)
+real(kind=wp), allocatable :: Idx(:), Map(:)
+
+call mma_allocate(Idx,nConf,Label='Idx')
+call mma_allocate(Map,nConf,Label='Map')
+do I=1,nConf
+  Idx(I) = real(I,kind=wp)
+end do
+call SG_ReOrd(iState,IREFSM,0,nConf,Idx,Map)
+nBad = 0
+do I=1,nConf
+  call SG_Lucia_Walk(iState,IREFSM,I,IWALK,IP)
+  ISG = SG_NUM(SGS(iState),EXS(iState),IWALK)
+  if ((ISG < 1) .or. (ISG > nConf)) then
+    nBad = nBad+1
+  else if (nint(Map(ISG)) /= merge(-I,I,IP < 0)) then
+    nBad = nBad+1
+  end if
+  if (SGS(iState)%nRsPrt == 1) then
+    call SG_Lucia_Walk_CFTP(iState,IREFSM,I,IWALK2,IP2)
+    if (any(IWALK(1:SGS(iState)%nLev) /= IWALK2(1:SGS(iState)%nLev)) .or. (IP /= IP2)) nBad = nBad+1
+  end if
+end do
+call mma_deallocate(Map)
+call mma_deallocate(Idx)
+if (nBad /= 0) then
+  write(u6,*) 'SG_Verify_Lucia_Walk: walks of the Lucia CSFs differ from SG_ReOrd, errors:',nBad
+  call Abend()
+end if
+write(u6,'(1X,A,I0,A)') 'SG_Verify_Lucia_Walk: walks of ',nConf,' Lucia CSFs verified against SG_ReOrd'
+
+end subroutine SG_Verify_Lucia_Walk
 
 subroutine GetOccupation_SGUGA(iState,iOpen,mult,iSym,iOC,KCNF)
    use Molcas, only: MxAct
@@ -8111,6 +8212,58 @@ function MatEl_H(I,J,TU,nTU,TUVX,nTUVX) result(H)
 
 end function MatEl_H
 
+!
+! <I|H|J> in a RAS graph, in the operator-ordered form of sg_h_psi_ras
+! (Olsen et al. 1988), so that the products <I|E_Q E_P|J> = Sum_K
+! <I|E_Q|K><K|E_P|J> over the graph CSFs K are exact:
+!
+!   H = Sum_ab h'_ab E_ab + Sum_{P<=Q} f_PQ (Q|P) E_Q E_P,  P = (i,j) -> (i-1)*n+j,
+!   h'_ab = h_ab - Sum_{m<a} (am|mb) - [a>b] (aa|ab) - 1/2 delta_ab (aa|aa),
+!
+! f_PP = 1/2, else 1; TU and TUVX indexed by level, as in MatEl_H.
+!
+function MatEl_H_RAS(I,J,TU,nTU,TUVX,nTUVX) result(H)
+
+  use Index_functions, only: iTri
+  use Constants, only: Half
+
+  integer(kind=iwp), intent(in) :: I, J, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp) :: H
+  integer(kind=iwp) :: iO, jO, kO, lO, mO, ij, kl, nL
+  real(kind=wp) :: OneInt, G
+
+  H = Zero
+  nL = SGS(iState)%nLev
+  do iO = 1, nL
+    do jO = 1, nL
+      if (SGS(iState)%ISm(iO) == SGS(iState)%ISm(jO)) then
+        OneInt = TU(iTri(iO,jO))
+        do mO = 1, iO-1
+          OneInt = OneInt-TUVX(iTri(iTri(iO,mO),iTri(mO,jO)))
+        end do
+        if (iO > jO) OneInt = OneInt-TUVX(iTri(iTri(iO,iO),iTri(iO,jO)))
+        if (iO == jO) OneInt = OneInt-Half*TUVX(iTri(iTri(iO,iO),iTri(iO,iO)))
+        H = H+OneInt*MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),iO,jO,LSM,I,J,.False.)
+      end if
+      ij = (iO-1)*nL+jO
+      do kO = iO, nL
+        do lO = 1, nL
+          kl = (kO-1)*nL+lO
+          if (kl < ij) cycle
+          if (Mul(SGS(iState)%ISm(kO),SGS(iState)%ISm(lO)) /= &
+              Mul(SGS(iState)%ISm(iO),SGS(iState)%ISm(jO))) cycle
+          G = TUVX(iTri(iTri(kO,lO),iTri(iO,jO)))
+          if (kl == ij) G = Half*G
+          if (G == Zero) cycle
+          H = H+G*MatEl_EpqErs(I,J,kO,lO,iO,jO,Occ(:,I),Occ(:,J))
+        end do
+      end do
+    end do
+  end do
+
+end function MatEl_H_RAS
+
 
 
 
@@ -8127,9 +8280,11 @@ subroutine Check_MatEl_H()
   real(kind=wp), parameter :: TolH = 1.0e-10_wp
   integer(kind=iwp) :: nL, nTU, nTUVX, nC, nCol, iCol, I, J, k, nTestH, nFailH, nFailD
   integer(kind=int64) :: iInt
-  real(kind=wp), allocatable :: TU(:), TUVX(:), Psi(:), Sgm(:)
+  real(kind=wp), allocatable :: TU(:), TUVX(:), Psi(:), Sgm(:), TU_O(:), TUVX_O(:)
   real(kind=wp) :: X, Dev, MaxDev, MaxDevD, T0, T1, W, TimH, TimD
-  logical(kind=iwp) :: Reuse_Save, AllCols
+  logical(kind=iwp) :: Reuse_Save, AllCols, RAS
+  integer(kind=iwp) :: p, q, r, s, pq, rs
+  integer(kind=iwp), allocatable :: L2Orb(:)
 
   ! sg_h_psi uses this module, so it is called through a wrapper with
   ! intrinsic arguments only (an interface block with the derived types of
@@ -8141,6 +8296,12 @@ subroutine Check_MatEl_H()
       real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
       real(kind=wp), intent(out) :: Sigma(nCSFs)
     end subroutine sg_h_psi_state
+    subroutine sg_h_psi_ras_state(iState,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+      import :: iwp, wp
+      integer(kind=iwp), intent(in) :: iState, nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+      real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+      real(kind=wp), intent(out) :: Sigma(nCSFs)
+    end subroutine sg_h_psi_ras_state
   end interface
 
   nL = SGS(iState)%nLev
@@ -8163,6 +8324,31 @@ subroutine Check_MatEl_H()
   ! new integrals for MatEl_H_Direct
   call Reset_MatEl_H()
 
+  ! RAS graph: the reference is sg_h_psi_ras (sg_h_psi needs intermediates
+  ! outside the RAS space); it reads the integrals in symmetry-blocked
+  ! orbital order, MatEl_H(_Direct) by level.
+  RAS = SGS(iState)%nRsPrt /= 1
+  if (RAS) then
+    call mma_allocate(L2Orb,nL,Label='L2Orb_H')
+    call SG_Level_Map(SGS(iState),L2Orb)
+    call mma_allocate(TU_O,nTU,Label='TU_O')
+    call mma_allocate(TUVX_O,nTUVX,Label='TUVX_O')
+    do p=1,nL
+      do q=1,p
+        pq = Tri_SG(p,q)
+        TU_O(Tri_SG(L2Orb(p),L2Orb(q))) = TU(pq)
+        do r=1,nL
+          do s=1,r
+            rs = Tri_SG(r,s)
+            if (rs > pq) cycle
+            TUVX_O(Tri_SG(Tri_SG(L2Orb(p),L2Orb(q)),Tri_SG(L2Orb(r),L2Orb(s)))) = TUVX(Tri_SG(pq,rs))
+          end do
+        end do
+      end do
+    end do
+    call mma_deallocate(L2Orb)
+  end if
+
   call mma_allocate(Psi,nC,Label='Psi_H')
   call mma_allocate(Sgm,nC,Label='Sgm_H')
   Reuse_Save = EXS(iState)%ReUse_SGTMP
@@ -8181,10 +8367,18 @@ subroutine Check_MatEl_H()
     J = merge(iCol,Rand_Index(nC),AllCols)
     Psi(:) = Zero
     Psi(J) = One
-    call sg_h_psi_state(iState,Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
+    if (RAS) then
+      call sg_h_psi_ras_state(iState,Psi,nC,LSM,Sgm,TUVX_O,nTUVX,TU_O,nTU)
+    else
+      call sg_h_psi_state(iState,Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
+    end if
     do I = 1, nC
       call CWTime(T0,W)
-      X = MatEl_H(I,J,TU,nTU,TUVX,nTUVX)
+      if (RAS) then
+        X = MatEl_H_RAS(I,J,TU,nTU,TUVX,nTUVX)
+      else
+        X = MatEl_H(I,J,TU,nTU,TUVX,nTUVX)
+      end if
       call CWTime(T1,W)
       TimH = TimH+T1-T0
       Dev = abs(X-Sgm(I))
@@ -8214,9 +8408,14 @@ subroutine Check_MatEl_H()
   call mma_deallocate(Psi)
   call mma_deallocate(TUVX)
   call mma_deallocate(TU)
+  if (RAS) then
+    call mma_deallocate(TUVX_O)
+    call mma_deallocate(TU_O)
+  end if
 
   write(u6,*)
-  write(u6,'(A)') ' MatEl_H verification against sg_h_psi (pseudo-random integrals)'
+  write(u6,'(A)') merge(' MatEl_H verification against sg_h_psi_ras (pseudo-random integrals)', &
+                        ' MatEl_H verification against sg_h_psi     (pseudo-random integrals)',RAS)
   write(u6,'(A,I0,A,I0,A)') 'Columns tested         : ',nCol,' of ',nC, merge(' (all)   ',' (random)',AllCols)
   write(u6,'(A,I0)')   'Matrix elements tested : ',nTestH
   write(u6,'(A,2I8)')  'Failures (H, Direct)   : ',nFailH,nFailD
@@ -10432,11 +10631,18 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
         ME_HW = W
         ME_HW_Valid = .true.
       end if
-      ! open shells x: the spin coupling needs the loop walk
+      ! open shells x: the spin coupling needs the loop walk. In a RAS graph
+      ! the walk is a product over the graph CSFs K, exact only if the first
+      ! operator cannot leave the space (see Top_Comm); otherwise use
+      ! E_ax E_xb = E_xb E_ax + E_ab.
       do x = 1, nL
         if ((OccJ(x) /= 1) .or. (x == a) .or. (x == b)) cycle
         G = H_Int2(a,x,x,b,TUVX,nTUVX)
-        H = H+G*MatEl_EpqErs_Top(I,J,a,x,x,b)
+        if ((x <= b) .or. (a >= x)) then
+          H = H+G*MatEl_EpqErs_Top(I,J,a,x,x,b)
+        else
+          H = H+G*(MatEl_EpqErs_Top(I,J,x,b,a,x)+E1)
+        end if
       end do
       H = H+W*E1
     case (0)
@@ -10475,12 +10681,13 @@ function MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
       ! contributes only to I = J, analytically:
       ! E_xy E_yx + E_yx E_xy = n_x + n_y - n_x n_y.
       ! For an open-open pair E_yx E_xy = E_xy E_yx - (E_xx - E_yy) has the
-      ! same matrix element (n_x = n_y), so one loop walk suffices.
+      ! same matrix element (n_x = n_y), so one loop walk suffices; with
+      ! x < y the walk of E_yx E_xy (E_xy first) is also exact in a RAS graph.
       do x = 1, nL
         if (OccJ(x) /= 1) cycle
         do y = x+1, nL
           if (OccJ(y) /= 1) cycle
-          H = H+H_Int2(x,y,y,x,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,x,y,y,x)
+          H = H+H_Int2(x,y,y,x,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,y,x,x,y)
         end do
       end do
   end select
@@ -10506,14 +10713,33 @@ function H_Double(I,J,a1,a2,b1,b2,TUVX,nTUVX) result(V)
     V = Half*H_Int2(a1,b1,a1,b1,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,a1,b1,a1,b1)
   else if ((a1 == a2) .or. (b1 == b2)) then
     ! E_a1b1 E_a2b2 and its reverse
-    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,a1,b1,a2,b2)
+    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*Top_Comm(I,J,a1,b1,a2,b2)
   else
     ! E_a1b1 E_a2b2, E_a1b2 E_a2b1 and their reverses
-    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,a1,b1,a2,b2)+ &
-        H_Int2(a1,b2,a2,b1,TUVX,nTUVX)*MatEl_EpqErs_Top(I,J,a1,b2,a2,b1)
+    V = H_Int2(a1,b1,a2,b2,TUVX,nTUVX)*Top_Comm(I,J,a1,b1,a2,b2)+ &
+        H_Int2(a1,b2,a2,b1,TUVX,nTUVX)*Top_Comm(I,J,a1,b2,a2,b1)
   end if
 
 end function H_Double
+
+! <I|E_pq E_rs|J> for commuting E_pq and E_rs, as the loop walk of the order
+! that is exact in a RAS graph. The walk is a product over the graph CSFs K,
+! Sum_K <I|E_pq|K><K|E_rs|J>; with the levels ordered RAS1 < RAS2 < RAS3 an
+! intermediate E_rs|J> can leave the space only if r > s, and <I|E_pq| only
+! if p < q, so E_pq E_rs is exact unless r > s and p < q, and then E_rs E_pq
+! is. In CAS both orders are exact.
+function Top_Comm(I,J,p,q,r,s) result(X)
+
+  integer(kind=iwp), intent(in) :: I, J, p, q, r, s
+  real(kind=wp) :: X
+
+  if ((r <= s) .or. (p >= q)) then
+    X = MatEl_EpqErs_Top(I,J,p,q,r,s)
+  else
+    X = MatEl_EpqErs_Top(I,J,r,s,p,q)
+  end if
+
+end function Top_Comm
 
 ! iTri of Index_functions, here in the module so that the compiler can
 ! inline it in the integral lookups of MatEl_H_Direct.
@@ -11143,5 +11369,66 @@ function SG_MatEl_H(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX) result(H)
   real(kind=wp) :: H
   H = MatEl_H_Direct(I,J,OccI,OccJ,TU,nTU,TUVX,nTUVX)
 end function SG_MatEl_H
+
+!> Map graph level -> active orbital in symmetry-blocked order, the order
+!> of the RASSCF integrals TU/TUVX. The levels run over the RAS (GAS)
+!> partitions and within each over the symmetries; the orbitals of one
+!> symmetry keep the order of their levels. For CAS the map is the identity.
+subroutine SG_Level_Map(SGS,L2Orb)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  type(SGStruct), intent(in) :: SGS
+  integer(kind=iwp), intent(out) :: L2Orb(SGS%nLev)
+  integer(kind=iwp) :: iLev, iSym, iOrb, n
+  integer(kind=iwp), allocatable :: nOff(:)
+  call mma_allocate(nOff,SGS%nSym,Label='nOff')
+  nOff(:) = 0
+  do iLev=1,SGS%nLev
+    nOff(SGS%ISm(iLev)) = nOff(SGS%ISm(iLev))+1
+  end do
+  iOrb = 0
+  do iSym=1,SGS%nSym
+    n = nOff(iSym)
+    nOff(iSym) = iOrb
+    iOrb = iOrb+n
+  end do
+  do iLev=1,SGS%nLev
+    nOff(SGS%ISm(iLev)) = nOff(SGS%ISm(iLev))+1
+    L2Orb(iLev) = nOff(SGS%ISm(iLev))
+  end do
+  call mma_deallocate(nOff)
+end subroutine SG_Level_Map
+
+!> TU/TUVX (triangular, symmetry-blocked active orbitals) reordered to the
+!> graph levels, for the codes that index the integrals by level
+!> (MatEl_H_Direct, the diagonal codes). Identity for CAS.
+subroutine SG_Level_Ints(SGS,TU,nTU,TUVX,nTUVX,TU_L,TUVX_L)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  type(SGStruct), intent(in) :: SGS
+  integer(kind=iwp), intent(in) :: nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(out) :: TU_L(nTU), TUVX_L(nTUVX)
+  integer(kind=iwp) :: p, q, r, s, pq, rs, PQo, RSo
+  integer(kind=iwp), allocatable :: L2Orb(:)
+  call mma_allocate(L2Orb,SGS%nLev,Label='L2Orb')
+  call SG_Level_Map(SGS,L2Orb)
+  TU_L(:) = Zero
+  TUVX_L(:) = Zero
+  do p=1,SGS%nLev
+    do q=1,p
+      pq = Tri_SG(p,q)
+      PQo = Tri_SG(L2Orb(p),L2Orb(q))
+      TU_L(pq) = TU(PQo)
+      do r=1,SGS%nLev
+        do s=1,r
+          rs = Tri_SG(r,s)
+          if (rs > pq) cycle
+          RSo = Tri_SG(L2Orb(r),L2Orb(s))
+          TUVX_L(Tri_SG(pq,rs)) = TUVX(Tri_SG(PQo,RSo))
+        end do
+      end do
+    end do
+  end do
+  call mma_deallocate(L2Orb)
+end subroutine SG_Level_Ints
 
 end module SGUGA

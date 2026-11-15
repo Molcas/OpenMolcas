@@ -175,7 +175,7 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
 
 use Index_functions, only: iTri
 use symmetry_info, only: MUL
-use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi
+use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_Level_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: iwp, wp
@@ -188,33 +188,17 @@ integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
 real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
 real(kind=wp), intent(out) :: Sigma(nCSFs)
 integer(kind=iwp), parameter :: nBuff = 10
-integer(kind=iwp) :: iBuff, iA, iB, iLev, iOrb, ij, ijSym, iSym, jLev, jOrb, kl, klSym, kLev, kOrb, lLev, lOrb, mCSFs, mLev, nLev, &
+integer(kind=iwp) :: iBuff, iA, iB, iLev, iOrb, ij, ijSym, jLev, jOrb, kl, klSym, kLev, kOrb, lLev, lOrb, mCSFs, mLev, nLev, &
                      SigmaSym
 real(kind=wp) :: Fact, OneInt, TUVX(nBuff)
-integer(kind=iwp), allocatable :: L2Orb(:), nOff(:)
+integer(kind=iwp), allocatable :: L2Orb(:)
 real(kind=wp), allocatable :: Ekl_Eij_Psi(:,:), Eij_Psi(:)
 
 nLev = SGS%nLev
 
-! level -> active orbital (symmetry-blocked; RAS1, RAS2, RAS3 within each
-! symmetry, as the levels within one symmetry)
-call mma_allocate(nOff,SGS%nSym,Label='nOff')
+! level -> active orbital (symmetry-blocked order of TU/TUVX)
 call mma_allocate(L2Orb,nLev,Label='L2Orb')
-nOff(:) = 0
-do iLev=1,nLev
-  nOff(SGS%ISM(iLev)) = nOff(SGS%ISM(iLev))+1
-end do
-iOrb = 0
-do iSym=1,SGS%nSym
-  iA = nOff(iSym)
-  nOff(iSym) = iOrb
-  iOrb = iOrb+iA
-end do
-do iLev=1,nLev
-  nOff(SGS%ISM(iLev)) = nOff(SGS%ISM(iLev))+1
-  L2Orb(iLev) = nOff(SGS%ISM(iLev))
-end do
-call mma_deallocate(nOff)
+call SG_Level_Map(SGS,L2Orb)
 
 call mma_allocate(Eij_Psi,maxval(CIS%nCSF(:)),Label='Eij_Psi')
 call mma_allocate(Ekl_Eij_Psi,nCSFs,nBuff,Label='Ekl_Eij_Psi')
@@ -300,3 +284,19 @@ real(kind=wp), intent(out) :: Sigma(nCSFs)
 call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
 
 end subroutine sg_h_psi_state
+
+!> sg_h_psi_ras for the module state iState (SGS/CIS/EXS of module SGUGA),
+!> with intrinsic arguments only (see sg_h_psi_state).
+subroutine sg_h_psi_ras_state(iState,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+
+use sguga, only: SGS, CIS, EXS
+use Definitions, only: iwp, wp
+
+implicit none
+integer(kind=iwp), intent(in) :: iState, nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+real(kind=wp), intent(out) :: Sigma(nCSFs)
+
+call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+
+end subroutine sg_h_psi_ras_state

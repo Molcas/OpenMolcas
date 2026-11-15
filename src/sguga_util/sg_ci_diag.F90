@@ -125,11 +125,18 @@ Write (u6,*)
 
      Psi(iCSF) = One
 
-     call sg_h_psi(SGS,CIS,EXS, &
-                   Psi,nCSFs,CSFSym, &
-                   Sigma, &
-                   TUVX_Tri,nTUVX_Tri, &
-                   TU_Tri,nTU_Tri)
+     ! sg_h_psi needs intermediate states outside a RAS space; there the
+     ! operator-ordered sg_h_psi_ras is used (both read TU/TUVX in the
+     ! symmetry-blocked orbital order)
+     if (SGS%nRsPrt == 1) then
+       call sg_h_psi(SGS,CIS,EXS, &
+                     Psi,nCSFs,CSFSym, &
+                     Sigma, &
+                     TUVX_Tri,nTUVX_Tri, &
+                     TU_Tri,nTU_Tri)
+     else
+       call sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,CSFSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+     end if
 
      Diag(iCSF) = Sigma(iCSF)
 
@@ -146,9 +153,9 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
                          TU_Tri,nTU_Tri, &
                          Diag)
 
-  use sguga, only: SGStruct, CIStruct, EXStruct, SG_Epq_Psi, SG_EpqEqp_Diag
+  use sguga, only: SGStruct, CIStruct, EXStruct, SG_Epq_Psi, SG_EpqEqp_Diag, SG_Level_Ints
   use stdalloc, only: mma_allocate, mma_deallocate
-  use Constants, only: Zero, One, Half
+  use Constants, only: Zero, One, Half, Two
   use Definitions, only: wp, iwp
   use Index_Functions, only: iTri
 
@@ -173,8 +180,9 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
   real(kind=wp), allocatable :: Epp(:)
   real(kind=wp), allocatable :: Eqq(:)
   real(kind=wp), allocatable :: EqqEpp(:)
-  real(kind=wp), allocatable :: EqpEpq(:)
   real(kind=wp), allocatable :: EpqEqp(:)
+  ! the integrals indexed by graph level (TU/TUVX: symmetry-blocked orbitals)
+  real(kind=wp), allocatable :: TU_L(:), TUVX_L(:)
 
   integer(kind=iwp) :: p,q
   integer(kind=iwp) :: ppTri
@@ -187,11 +195,14 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   Diag(:) = Zero
 
+  call mma_allocate(TU_L,nTU_Tri,Label='TU_L')
+  call mma_allocate(TUVX_L,nTUVX_Tri,Label='TUVX_L')
+  call SG_Level_Ints(SGS,TU_Tri,nTU_Tri,TUVX_Tri,nTUVX_Tri,TU_L,TUVX_L)
+
   call mma_allocate(Psi,nCSFs,Label='Psi')
   call mma_allocate(Epp,nCSFs,Label='Epp')
   call mma_allocate(Eqq,nCSFs,Label='Eqq')
   call mma_allocate(EqqEpp,nCSFs,Label='EqqEpp')
-  call mma_allocate(EqpEpq,nCSFs,Label='EqpEpq')
   call mma_allocate(EpqEqp,nCSFs,Label='EpqEqp')
 
   !
@@ -218,7 +229,7 @@ do p=1,SGS%nLev
 !
    ppTri = iTri(p,p)
 
-   OneInt = TU_Tri(ppTri)
+   OneInt = TU_L(ppTri)
 
    Diag(:) = Diag(:) + OneInt*Epp(:)
 
@@ -230,7 +241,7 @@ do p=1,SGS%nLev
 !-------------------------------------------------------
 !
    ppqqTri = iTri(iTri(p,p),iTri(p,p))
-   Coul    = Half*TUVX_Tri(ppqqTri)
+   Coul    = Half*TUVX_L(ppqqTri)
 
    Diag(:)=Diag(:) + Coul*(Epp(:)**2 - Epp(:))
 
@@ -254,7 +265,7 @@ do p=1,SGS%nLev
 !
       ppqqTri = iTri(iTri(p,p),iTri(q,q))
 
-      Diag(:)=Diag(:) + TUVX_Tri(ppqqTri)*EqqEpp(:)
+      Diag(:)=Diag(:) + TUVX_L(ppqqTri)*EqqEpp(:)
 
 !
 !-------------------------------------------------------
@@ -280,23 +291,20 @@ do p=1,SGS%nLev
                           Psi, &
                           EpqEqp)
 
-      EqpEpq(:)=Zero
-      call SG_EpqEqp_Diag(SGS,CIS,EXS, &
-                          q,p, &
-                          One, &
-                          CSFSym, &
-                          Psi, &
-                          EqpEpq)
-
+      ! EpqEqp = <E_qp E_pq> (p < q), the walk |E_pq e_I|**2, is exact also
+      ! in a RAS graph; <E_pq E_qp> = <E_qp E_pq> + n_p - n_q (its walk
+      ! |E_qp e_I|**2 would need intermediate states outside a RAS space),
+      ! so <E_pq E_qp> + <E_qp E_pq> - n_p - n_q = 2 (<E_qp E_pq> - n_q).
       pqqpTri = iTri(iTri(q,p),iTri(q,p))
-      Exch    = Half*TUVX_Tri(pqqpTri)
+      Exch    = Half*TUVX_L(pqqpTri)
 
-      Diag(:)=Diag(:) + Exch * ( EpqEqp(:) + EqpEpq(:) - Epp(:) - Eqq(:) )
+      Diag(:)=Diag(:) + Exch * Two * ( EpqEqp(:) - Eqq(:) )
    end do
 end do
 
   call mma_deallocate(EpqEqp)
-  call mma_deallocate(EqpEpq)
+  call mma_deallocate(TUVX_L)
+  call mma_deallocate(TU_L)
   call mma_deallocate(EqqEpp)
   call mma_deallocate(Eqq)
   call mma_deallocate(Epp)
