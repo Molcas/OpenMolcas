@@ -1268,6 +1268,7 @@ if (Verify) then
   end if
   if (SG_OK) then
     if (.not. UseSG) call Ref_Block('SGUGA')
+    call Verify_SG_Explicit()
   else
     write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (not available with GAS, HEXS or DEXS)'
   end if
@@ -1608,82 +1609,174 @@ contains
 
   ! SGUGA back end: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECORE, with
   ! I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
-  ! (mode 0: c_G(I_G) = P_I c(I)), from SG_MatEl_H. The CSFs of a selected
-  ! configuration share their occupations, so pairs of configurations more
-  ! than a double excitation apart (Cnf_Exc) are skipped as a whole.
+  ! (mode 0: c_G(I_G) = P_I c(I)); the block <I_G|H|J_G> from SG_Block_H
+  ! (pairs of configurations more than a double excitation apart skipped).
   subroutine IHJ_SGUGA(H)
     use Molcas, only: MxAct
-    use sguga, only: SG_CSF_Occ, SG_Level_Ints, SG_MatEl_H, SG_MatEl_Init, SG_NUM
+    use sguga, only: SG_Block_H, SG_MatEl_Init, SG_NUM
     real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
-    integer(kind=iwp) :: I, J, t, kCnf, ICNL, ICNR, IILB, IIRB, IIL, IIR, IIRMAX, nL, nR
+    integer(kind=iwp) :: I, J
     integer(kind=iwp) :: IWALK(MxAct)
-    integer(kind=iwp), allocatable :: iG(:), iPG(:), OccG(:,:), DOcc(:), SOcc(:)
-    real(kind=wp), allocatable :: TU_L(:), TUVX_L(:)
+    integer(kind=iwp), allocatable :: iG(:), iPG(:)
 
     call SG_MatEl_Init(1,IREFSM)
-    ! MatEl_H_Direct indexes the integrals by graph level (RAS: not the
-    ! symmetry-blocked order of TU/TUVX)
-    call mma_allocate(TU_L,nTU,Label='TU_L')
-    call mma_allocate(TUVX_L,nTUVX,Label='TUVX_L')
-    call SG_Level_Ints(SGS(1),TU,nTU,TUVX,nTUVX,TU_L,TUVX_L)
     call mma_allocate(iG,NPCSF,Label='iG')
     call mma_allocate(iPG,NPCSF,Label='iPG')
-    call mma_allocate(OccG,NAC,NPCSF,Label='OccG')
     do J=1,NPCSF
       call SG_Lucia_Walk(1,IREFSM,IPCSF(J),IWALK,iPG(J))
       iG(J) = SG_NUM(SGS(1),EXS(1),IWALK)
-      call SG_CSF_Occ(iG(J),OccG(:,J))
     end do
-
-    ! doubly and singly occupied orbitals of each selected configuration
-    call mma_allocate(DOcc,NPCNF,Label='DOcc')
-    call mma_allocate(SOcc,NPCNF,Label='SOcc')
-    IILB = 1
-    do kCnf=1,NPCNF
-      DOcc(kCnf) = 0
-      SOcc(kCnf) = 0
-      do t=1,NAC
-        if (OccG(t,IILB) == 2) DOcc(kCnf) = ibset(DOcc(kCnf),t-1)
-        if (OccG(t,IILB) == 1) SOcc(kCnf) = ibset(SOcc(kCnf),t-1)
-      end do
-      IILB = IILB+nSelCnf(kCnf)
-    end do
-
-    IILB = 1
-    do ICNL=1,NPCNF
-      nL = nSelCnf(ICNL)
-      IIRB = 1
-      do ICNR=1,ICNL
-        nR = nSelCnf(ICNR)
-        do IIL=1,nL
-          I = IILB-1+IIL
-          IIRMAX = merge(IIL,nR,IILB == IIRB)
-          if (Cnf_Exc(DOcc(ICNL),SOcc(ICNL),DOcc(ICNR),SOcc(ICNR)) > 2) then
-            H(nTri_Elem(I-1)+IIRB:nTri_Elem(I-1)+IIRB-1+IIRMAX) = Zero
-          else
-            do IIR=1,IIRMAX
-              J = IIRB-1+IIR
-              H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*SG_MatEl_H(iG(I),iG(J),OccG(:,I),OccG(:,J),TU_L,nTU,TUVX_L,nTUVX)
-            end do
-          end if
-        end do
-        IIRB = IIRB+nR
-      end do
-      IILB = IILB+nL
-    end do
+    call SG_Block_H(IREFSM,NPCNF,nSelCnf,NPCSF,iG,TU,nTU,TUVX,nTUVX,H)
     do I=1,NPCSF
+      do J=1,I
+        H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*H(nTri_Elem(I-1)+J)
+      end do
       H(nTri_Elem(I)) = H(nTri_Elem(I))+ECORE
     end do
-
-    call mma_deallocate(SOcc)
-    call mma_deallocate(DOcc)
-    call mma_deallocate(OccG)
     call mma_deallocate(iPG)
     call mma_deallocate(iG)
-    call mma_deallocate(TUVX_L)
-    call mma_deallocate(TU_L)
 
   end subroutine IHJ_SGUGA
+
+  ! CI development (SIGMA): SGUGA's own configuration list and explicit
+  ! subspace (SG_Mk_Cnf_List, SG_Select_Explicit, SG_Explicit_Block) against
+  ! the CI back end: (1) each configuration of the back end is exactly one
+  ! SGUGA configuration (same CSFs), (2) the two selections are compared
+  ! (the keys differ: the configuration average of the back end, the mean
+  ! exact CSF diagonal of SGUGA), (3) the SGUGA block over the configurations
+  ! selected by the back end has the eigenvalues of the block in use.
+  subroutine Verify_SG_Explicit()
+    use Constants, only: Two
+    use sguga, only: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Select_Explicit, SG_Explicit_Block, SGStruct, CIStruct, &
+                     EXStruct
+    type(SGCnfList) :: Cnf
+    integer(kind=iwp) :: I, k, kG, iOffL, MxDim, nGSel, nGCSF, nBoth, nLSel
+    integer(kind=iwp), allocatable :: nCSFL(:), LtoG(:), CnfOfG(:), LtoGCnf(:), GSel(:), GCSF(:), GtoL(:)
+    logical(kind=iwp), allocatable :: SelG(:), SelL(:)
+    real(kind=wp) :: Dev
+    real(kind=wp), allocatable :: Idx(:), Map(:), DSG(:), HG(:), EG(:), EL(:)
+    interface
+      subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
+        import :: SGStruct, CIStruct, EXStruct, iwp, wp
+        type(SGStruct), intent(in) :: SGS
+        type(CIStruct), intent(in) :: CIS
+        type(EXStruct), intent(inout) :: EXS
+        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
+        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+        real(kind=wp), intent(out) :: Diag(nCSFs)
+      end subroutine sg_hdiag_fast
+    end interface
+
+    call SG_Mk_Cnf_List(1,IREFSM,Cnf)
+    ! back-end CSF -> split-graph CSF, and the SGUGA configuration of each
+    call mma_allocate(Idx,nConf,Label='Idx')
+    call mma_allocate(Map,nConf,Label='Map')
+    do I=1,nConf
+      Idx(I) = real(I,kind=wp)
+    end do
+    call SG_ReOrd(1,IREFSM,0,nConf,Idx,Map)
+    call mma_allocate(LtoG,nConf,Label='LtoG')
+    do I=1,nConf
+      LtoG(nint(abs(Map(I)))) = I
+    end do
+    call mma_deallocate(Map)
+    call mma_deallocate(Idx)
+    call mma_allocate(CnfOfG,nConf,Label='CnfOfG')
+    do kG=1,Cnf%nCnf
+      CnfOfG(Cnf%iCSF(Cnf%iOff(kG)+1:Cnf%iOff(kG+1))) = kG
+    end do
+    ! (1) configurations of the back end -> SGUGA configurations, a bijection
+    call Mk_Cnf_Layout(IREFSM,nCSFL)
+    if (size(nCSFL) /= Cnf%nCnf) then
+      write(u6,*) 'Mk_IHJ: number of configurations, CI back end and SGUGA:',size(nCSFL),Cnf%nCnf
+      call Abend()
+    end if
+    call mma_allocate(LtoGCnf,size(nCSFL),Label='LtoGCnf')
+    call mma_allocate(SelG,Cnf%nCnf,Label='SelG')
+    SelG(:) = .false.
+    iOffL = 0
+    do k=1,size(nCSFL)
+      kG = CnfOfG(LtoG(iOffL+1))
+      if (any(CnfOfG(LtoG(iOffL+1:iOffL+nCSFL(k))) /= kG) .or. (nCSFL(k) /= Cnf%iOff(kG+1)-Cnf%iOff(kG)) .or. SelG(kG)) then
+        write(u6,*) 'Mk_IHJ: configuration',k,' of the CI back end is not one SGUGA configuration'
+        call Abend()
+      end if
+      SelG(kG) = .true.
+      LtoGCnf(k) = kG
+      iOffL = iOffL+nCSFL(k)
+    end do
+    write(u6,'(1X,A,I0,A)') 'Mk_IHJ: SGUGA configuration list verified, ',Cnf%nCnf,' configurations as in the CI back end'
+    ! (2) the SGUGA selection with the exact diagonal
+    MxDim = nint((sqrt(real(8*nPHP+1,kind=wp))-One)/Two)
+    call mma_allocate(DSG,nConf,Label='DSG')
+    call sg_hdiag_fast(SGS(1),CIS(1),EXS(1),nConf,IREFSM,TUVX,nTUVX,TU,nTU,DSG)
+    call mma_allocate(GSel,Cnf%nCnf,Label='GSel')
+    call mma_allocate(GCSF,max(1,MxDim),Label='GCSF')
+    call SG_Select_Explicit(Cnf,DSG,MxDim,nGSel,GSel,nGCSF,GCSF)
+    call mma_deallocate(DSG)
+    call mma_allocate(SelL,Cnf%nCnf,Label='SelL')
+    SelG(:) = .false.
+    SelL(:) = .false.
+    SelG(GSel(1:nGSel)) = .true.
+    SelL(LtoGCnf(IPCNF(1:NPCNF))) = .true.
+    nBoth = count(SelG .and. SelL)
+    nLSel = count(SelL)
+    write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A,I0,A)') 'Mk_IHJ: SGUGA selection (mean exact CSF diagonal): ',nGSel, &
+          ' configurations, ',nGCSF,' CSFs; CI back end: ',nLSel,' configurations; ',nBoth,' in common, ', &
+          count(SelG .neqv. SelL),' differ'
+    ! (3) SGUGA block over the configurations selected by the back end
+    call mma_allocate(GtoL,max(1,NPCNF),Label='GtoL')
+    GtoL(1:NPCNF) = LtoGCnf(IPCNF(1:NPCNF))
+    call mma_allocate(HG,nTri_Elem(NPCSF),Label='HG')
+    call SG_Explicit_Block(1,Cnf,NPCNF,GtoL,ECORE,TU,nTU,TUVX,nTUVX,HG)
+    call mma_allocate(EG,NPCSF,Label='EG')
+    call mma_allocate(EL,NPCSF,Label='EL')
+    call Block_Eigenvalues(HG,NPCSF,EG)
+    HG(:) = PHP(1:nTri_Elem(NPCSF))
+    call Block_Eigenvalues(HG,NPCSF,EL)
+    Dev = maxval(abs(EG(:)-EL(:)))
+    write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHJ: SG_Explicit_Block, eigenvalues verified against the block in use, ',NPCSF, &
+                                   ' CSFs, max. error ',Dev
+    if (Dev > Thr*max(One,maxval(abs(EL(:))))) then
+      write(u6,*) 'Mk_IHJ: eigenvalues of the SGUGA explicit block differ'
+      call Abend()
+    end if
+    call mma_deallocate(EL)
+    call mma_deallocate(EG)
+    call mma_deallocate(HG)
+    call mma_deallocate(GtoL)
+    call mma_deallocate(SelL)
+    call mma_deallocate(GCSF)
+    call mma_deallocate(GSel)
+    call mma_deallocate(SelG)
+    call mma_deallocate(LtoGCnf)
+    call mma_deallocate(nCSFL)
+    call mma_deallocate(CnfOfG)
+    call mma_deallocate(LtoG)
+    call SG_Free_Cnf_List(Cnf)
+
+  end subroutine Verify_SG_Explicit
+
+  ! Eigenvalues (increasing) of a lower-triangle packed symmetric matrix;
+  ! the matrix is overwritten.
+  subroutine Block_Eigenvalues(A,n,E)
+    integer(kind=iwp), intent(in) :: n
+    real(kind=wp), intent(inout) :: A(nTri_Elem(n))
+    real(kind=wp), intent(out) :: E(n)
+    integer(kind=iwp) :: I
+    real(kind=wp), allocatable :: V(:,:)
+    call mma_allocate(V,n,n,Label='V')
+    V(:,:) = Zero
+    do I=1,n
+      V(I,I) = One
+    end do
+    call NIdiag_new(A,V,n,n)
+    call JACORD(A,V,n,n)
+    do I=1,n
+      E(I) = A(nTri_Elem(I))
+    end do
+    call mma_deallocate(V)
+  end subroutine Block_Eigenvalues
 
   ! Faroald reference (CI development): H(I,J) = (H e_J)(I) from the Faroald
   ! sigma vector of the unit vector e_J, J over the selected CSFs.

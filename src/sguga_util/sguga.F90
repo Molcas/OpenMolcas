@@ -154,6 +154,20 @@ type EXStruct
   real(kind=wp), allocatable:: XList(:)
 end type EXStruct
 
+! Configurations (orbital occupations) of the CSFs of one symmetry, built
+! from the graph alone (SG_Mk_Cnf_List), in a canonical order: increasing
+! packed occupation Key (2 bits per level, (bit_size-2)/2 levels per word,
+! the first level in the lowest bits of word 1, compared from the last word
+! down).
+!   nCnf      : number of configurations
+!   iOff(k)   : the CSFs of configuration k are iCSF(iOff(k)+1:iOff(k+1)),
+!               split-graph CSF indices in increasing order
+!   Key(:,k)  : packed occupation of configuration k (SG_Cnf_Occ unpacks it)
+type SGCnfList
+  integer(kind=iwp) :: LSM = 0, nCnf = 0, nWord = 0, nLev = 0
+  integer(kind=iwp), allocatable :: iOff(:), iCSF(:), Key(:,:)
+end type SGCnfList
+
 type TRStruct
   ! Metadata
   integer(kind=iwp) :: nClass    = 0   ! number of topological classes
@@ -312,6 +326,7 @@ real(kind=wp) :: ME_HD = Zero, ME_HW = Zero
 integer(kind=iwp), parameter :: nCoup_Lin = 16
 
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
+public :: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Cnf_Occ, SG_Select_Explicit, SG_Block_H, SG_Explicit_Block
 
 
 contains
@@ -11430,5 +11445,286 @@ subroutine SG_Level_Ints(SGS,TU,nTU,TUVX,nTUVX,TU_L,TUVX_L)
   end do
   call mma_deallocate(L2Orb)
 end subroutine SG_Level_Ints
+
+!> The configurations of the CSFs of symmetry LSM of state iState, from the
+!> occupations of their walks (see SGCnfList); independent of any other CI
+!> library. Also sets up the single-CSF matrix elements (SG_MatEl_Init).
+subroutine SG_Mk_Cnf_List(iState,LSM,Cnf)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, LSM
+  type(SGCnfList), intent(inout) :: Cnf
+  integer(kind=iwp), parameter :: nPerWord = (bit_size(0_iwp)-2)/2
+  integer(kind=iwp) :: nC, nL, nW, I, k, iLev, iW
+  integer(kind=iwp), allocatable :: Occ(:), KeyC(:,:), Ord(:)
+
+  call SG_Free_Cnf_List(Cnf)
+  call SG_MatEl_Init(iState,LSM)
+  nC = CIS(iState)%NCSF(LSM)
+  nL = SGS(iState)%nLev
+  nW = max(1,(nL+nPerWord-1)/nPerWord)
+  Cnf%LSM = LSM
+  Cnf%nLev = nL
+  Cnf%nWord = nW
+
+  ! packed occupation of each CSF
+  call mma_allocate(Occ,nL,Label='Cnf_Occ')
+  call mma_allocate(KeyC,nW,max(1,nC),Label='Cnf_KeyC')
+  KeyC(:,:) = 0
+  do I=1,nC
+    call CSF_Occupation(LSM,I,Occ)
+    do iLev=1,nL
+      iW = (iLev-1)/nPerWord+1
+      KeyC(iW,I) = KeyC(iW,I)+Occ(iLev)*4_iwp**(iLev-1-(iW-1)*nPerWord)
+    end do
+  end do
+  call mma_deallocate(Occ)
+
+  ! CSFs sorted by key (ties by CSF index), configurations = runs of equal keys
+  call mma_allocate(Ord,max(1,nC),Label='Cnf_Ord')
+  call Sort_Keys(KeyC,nW,nC,Ord)
+  Cnf%nCnf = 0
+  do I=1,nC
+    if (I == 1) then
+      Cnf%nCnf = 1
+    else if (any(KeyC(:,Ord(I)) /= KeyC(:,Ord(I-1)))) then
+      Cnf%nCnf = Cnf%nCnf+1
+    end if
+  end do
+  call mma_allocate(Cnf%iOff,Cnf%nCnf+1,Label='Cnf%iOff')
+  call mma_allocate(Cnf%iCSF,max(1,nC),Label='Cnf%iCSF')
+  call mma_allocate(Cnf%Key,nW,max(1,Cnf%nCnf),Label='Cnf%Key')
+  k = 0
+  do I=1,nC
+    if (I == 1) then
+      k = 1
+      Cnf%iOff(1) = 0
+      Cnf%Key(:,1) = KeyC(:,Ord(1))
+    else if (any(KeyC(:,Ord(I)) /= KeyC(:,Ord(I-1)))) then
+      k = k+1
+      Cnf%iOff(k) = I-1
+      Cnf%Key(:,k) = KeyC(:,Ord(I))
+    end if
+    Cnf%iCSF(I) = Ord(I)
+  end do
+  Cnf%iOff(Cnf%nCnf+1) = nC
+  call mma_deallocate(Ord)
+  call mma_deallocate(KeyC)
+
+end subroutine SG_Mk_Cnf_List
+
+subroutine SG_Free_Cnf_List(Cnf)
+  use stdalloc, only: mma_deallocate
+  type(SGCnfList), intent(inout) :: Cnf
+  call mma_deallocate(Cnf%iOff,safe='*')
+  call mma_deallocate(Cnf%iCSF,safe='*')
+  call mma_deallocate(Cnf%Key,safe='*')
+  Cnf%nCnf = 0
+end subroutine SG_Free_Cnf_List
+
+!> Occupation numbers (0, 1, 2 per level) of configuration k.
+subroutine SG_Cnf_Occ(Cnf,k,Occ)
+  type(SGCnfList), intent(in) :: Cnf
+  integer(kind=iwp), intent(in) :: k
+  integer(kind=iwp), intent(out) :: Occ(:)
+  integer(kind=iwp), parameter :: nPerWord = (bit_size(0_iwp)-2)/2
+  integer(kind=iwp) :: iLev, iW
+  do iLev=1,Cnf%nLev
+    iW = (iLev-1)/nPerWord+1
+    Occ(iLev) = int(mod(Cnf%Key(iW,k)/4_iwp**(iLev-1-(iW-1)*nPerWord),4_iwp),kind=iwp)
+  end do
+end subroutine SG_Cnf_Occ
+
+! Index heapsort of the multi-word keys K(1:nW,1:n), increasing (word nW
+! most significant), ties by index.
+subroutine Sort_Keys(K,nW,n,Ord)
+  integer(kind=iwp), intent(in) :: nW, n, K(nW,*)
+  integer(kind=iwp), intent(out) :: Ord(*)
+  integer(kind=iwp) :: i, iEnd, t
+  do i=1,n
+    Ord(i) = i
+  end do
+  if (n < 2) return
+  do i=n/2,1,-1
+    call Sift(i,n)
+  end do
+  do iEnd=n,2,-1
+    t = Ord(1)
+    Ord(1) = Ord(iEnd)
+    Ord(iEnd) = t
+    call Sift(1,iEnd-1)
+  end do
+contains
+  subroutine Sift(iStart,iLast)
+    integer(kind=iwp), intent(in) :: iStart, iLast
+    integer(kind=iwp) :: r, c, s
+    r = iStart
+    do
+      c = 2*r
+      if (c > iLast) exit
+      if (c < iLast) then
+        if (Key_Less(Ord(c),Ord(c+1))) c = c+1
+      end if
+      if (.not. Key_Less(Ord(r),Ord(c))) exit
+      s = Ord(r)
+      Ord(r) = Ord(c)
+      Ord(c) = s
+      r = c
+    end do
+  end subroutine Sift
+  function Key_Less(a,b) result(L)
+    integer(kind=iwp), intent(in) :: a, b
+    logical(kind=iwp) :: L
+    integer(kind=iwp) :: w
+    do w=nW,1,-1
+      if (K(w,a) /= K(w,b)) then
+        L = K(w,a) < K(w,b)
+        return
+      end if
+    end do
+    L = a < b
+  end function Key_Less
+end subroutine Sort_Keys
+
+!> Explicit subspace for the Davidson start, with the rule of PHPCSF: whole
+!> configurations in the order of increasing key (ties within Acc in the
+!> order of the configurations) until the next one does not fit into MxDim
+!> CSFs. The key of a configuration is the mean of the exact diagonal
+!> elements Diag (split-graph order) of its CSFs, the trace of H over the
+!> configuration divided by its number of CSFs, independent of the spin
+!> coupling scheme. On output IPCNF(1:NPCNF) are the configurations and
+!> IPCSF(1:NPCSF) their CSFs (split-graph indices, configuration by
+!> configuration).
+subroutine SG_Select_Explicit(Cnf,Diag,MxDim,NPCNF,IPCNF,NPCSF,IPCSF)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One
+  type(SGCnfList), intent(in) :: Cnf
+  real(kind=wp), intent(in) :: Diag(*)
+  integer(kind=iwp), intent(in) :: MxDim
+  integer(kind=iwp), intent(out) :: NPCNF, IPCNF(*), NPCSF, IPCSF(*)
+  real(kind=wp), parameter :: Acc = 1.0e-13_wp
+  integer(kind=iwp) :: k, kMin, n
+  real(kind=wp) :: XMax, XMin
+  real(kind=wp), allocatable :: Key(:)
+
+  call mma_allocate(Key,max(1,Cnf%nCnf),Label='Cnf_Key')
+  do k=1,Cnf%nCnf
+    n = Cnf%iOff(k+1)-Cnf%iOff(k)
+    Key(k) = sum(Diag(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))))/real(n,kind=wp)
+  end do
+  XMax = maxval(Key(1:Cnf%nCnf))
+  NPCNF = 0
+  NPCSF = 0
+  do while (NPCNF < Cnf%nCnf)
+    XMin = XMax+One
+    kMin = 0
+    do k=1,Cnf%nCnf
+      if (Key(k)+Acc < XMin) then
+        XMin = Key(k)
+        kMin = k
+      end if
+    end do
+    if (kMin == 0) exit
+    n = Cnf%iOff(kMin+1)-Cnf%iOff(kMin)
+    if (NPCSF+n > MxDim) exit
+    NPCNF = NPCNF+1
+    IPCNF(NPCNF) = kMin
+    IPCSF(NPCSF+1:NPCSF+n) = Cnf%iCSF(Cnf%iOff(kMin)+1:Cnf%iOff(kMin+1))
+    NPCSF = NPCSF+n
+    Key(kMin) = XMax+One
+  end do
+  call mma_deallocate(Key)
+
+end subroutine SG_Select_Explicit
+
+!> <I|H|J> over the split-graph CSFs iG(1:nG) of symmetry LSM, given
+!> configuration by configuration (nGCnf(1:nGC) CSFs each, all CSFs of a
+!> configuration sharing their occupations), packed as a lower triangle
+!> H(nTri(nG)), without core energy. TU/TUVX in the symmetry-blocked order
+!> of RASSCF (reordered to the levels here). Pairs of configurations more
+!> than a double excitation apart are skipped. Requires SG_MatEl_Init.
+subroutine SG_Block_H(LSM,nGC,nGCnf,nG,iG,TU,nTU,TUVX,nTUVX,H)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: LSM, nGC, nGCnf(nGC), nG, iG(nG), nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(out) :: H(nG*(nG+1)/2)
+  integer(kind=iwp) :: nL, kL, kR, IILB, IIRB, IIL, IIR, IIRMAX, I, J, nX, t
+  integer(kind=iwp), allocatable :: Occ(:,:)
+  real(kind=wp), allocatable :: TU_L(:), TUVX_L(:)
+
+  nL = SGS(ME_iState)%nLev
+  call mma_allocate(TU_L,nTU,Label='TU_L')
+  call mma_allocate(TUVX_L,nTUVX,Label='TUVX_L')
+  call SG_Level_Ints(SGS(ME_iState),TU,nTU,TUVX,nTUVX,TU_L,TUVX_L)
+  call mma_allocate(Occ,nL,max(1,nGC),Label='Blk_Occ')
+  IILB = 1
+  do kL=1,nGC
+    call CSF_Occupation(LSM,iG(IILB),Occ(:,kL))
+    IILB = IILB+nGCnf(kL)
+  end do
+  IILB = 1
+  do kL=1,nGC
+    IIRB = 1
+    do kR=1,kL
+      ! excitation level between the two configurations
+      nX = 0
+      do t=1,nL
+        nX = nX+max(0_iwp,Occ(t,kL)-Occ(t,kR))
+      end do
+      do IIL=1,nGCnf(kL)
+        I = IILB-1+IIL
+        IIRMAX = merge(IIL,nGCnf(kR),IILB == IIRB)
+        do IIR=1,IIRMAX
+          J = IIRB-1+IIR
+          if (nX > 2) then
+            H(I*(I-1)/2+J) = Zero
+          else
+            H(I*(I-1)/2+J) = MatEl_H_Direct(iG(I),iG(J),Occ(:,kL),Occ(:,kR),TU_L,nTU,TUVX_L,nTUVX)
+          end if
+        end do
+      end do
+      IIRB = IIRB+nGCnf(kR)
+    end do
+    IILB = IILB+nGCnf(kL)
+  end do
+  call mma_deallocate(Occ)
+  call mma_deallocate(TUVX_L)
+  call mma_deallocate(TU_L)
+
+end subroutine SG_Block_H
+
+!> Explicit Hamiltonian over the CSFs of the configurations IPCNF(1:NPCNF)
+!> of Cnf (SG_Select_Explicit), in the order of IPCSF there, packed as a
+!> lower triangle, with ECORE on the diagonal; SGUGA only.
+subroutine SG_Explicit_Block(iState,Cnf,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,H)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, NPCNF, IPCNF(NPCNF), nTU, nTUVX
+  type(SGCnfList), intent(in) :: Cnf
+  real(kind=wp), intent(in) :: ECORE, TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(out) :: H(*)
+  integer(kind=iwp) :: k, n, nG, I
+  integer(kind=iwp), allocatable :: nGCnf(:), iG(:)
+
+  call SG_MatEl_Init(iState,Cnf%LSM)
+  call mma_allocate(nGCnf,max(1,NPCNF),Label='nGCnf')
+  nG = 0
+  do k=1,NPCNF
+    nGCnf(k) = Cnf%iOff(IPCNF(k)+1)-Cnf%iOff(IPCNF(k))
+    nG = nG+nGCnf(k)
+  end do
+  call mma_allocate(iG,max(1,nG),Label='iG')
+  nG = 0
+  do k=1,NPCNF
+    n = nGCnf(k)
+    iG(nG+1:nG+n) = Cnf%iCSF(Cnf%iOff(IPCNF(k))+1:Cnf%iOff(IPCNF(k)+1))
+    nG = nG+n
+  end do
+  call SG_Block_H(Cnf%LSM,NPCNF,nGCnf,nG,iG,TU,nTU,TUVX,nTUVX,H)
+  do I=1,nG
+    H(I*(I+1)/2) = H(I*(I+1)/2)+ECORE
+  end do
+  call mma_deallocate(iG)
+  call mma_deallocate(nGCnf)
+
+end subroutine SG_Explicit_Block
 
 end module SGUGA
