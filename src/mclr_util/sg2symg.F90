@@ -12,7 +12,7 @@
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
 use CI_Info, only: CI_St
-use CI_States, only: CI_Free_State, CI_PrWF, CI_ReOrd_Orig
+use CI_States, only: CI_Free_State, CI_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC
 use general_data, only: nSym, STSym
@@ -20,6 +20,7 @@ use input_mclr, only: NCSF, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
+use CI_States, only: CI_PrWF
 use Definitions, only: u6
 #endif
 

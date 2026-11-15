@@ -15,12 +15,12 @@
 !#define _DEBUGPRINT_
 module SGUGA
 
-use Molcas, only: MxGas, MxLev, MxSym
+use Molcas, only: MxLev, MxSym
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-use CSF_Graph, only: SG_Graph, SG_Walks, nPack, LTAB, NTAB, ATAB, BTAB, CTAB, MkSGUGA, MkCOT, CSFCOUNT, Mk_IOW
+use CSF_Graph, only: SG_Graph, SG_Walks, nPack, LTAB, ATAB, BTAB, MkSGUGA, MkCOT, CSFCOUNT, Mk_IOW
 
 #include "intent.fh"
 

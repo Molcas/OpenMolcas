@@ -18,9 +18,6 @@
 module SG_Lucia_Bridge
 
 use sguga, only: CIS, EXS, MkCOT, MkSgNum, SG_NUM, SG_PHASE, SGS, StepVec
-use Symmetry_Info, only: Mul
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
