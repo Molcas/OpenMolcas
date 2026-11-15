@@ -193,11 +193,8 @@ integer(kind=iwp) :: iBuff, iA, iB, iLev, iOrb, ij, ijSym, iSym, jLev, jOrb, kl,
 real(kind=wp) :: Fact, OneInt, TUVX(nBuff)
 integer(kind=iwp), allocatable :: L2Orb(:), nOff(:)
 real(kind=wp), allocatable :: Ekl_Eij_Psi(:,:), Eij_Psi(:)
-logical(kind=iwp) :: Reuse_Save
 
 nLev = SGS%nLev
-Reuse_Save = EXS%Reuse_SGTMP
-EXS%Reuse_SGTMP = .false.
 
 ! level -> active orbital (symmetry-blocked; RAS1, RAS2, RAS3 within each
 ! symmetry, as the levels within one symmetry)
@@ -285,7 +282,6 @@ end do
 call mma_deallocate(Ekl_Eij_Psi)
 call mma_deallocate(Eij_Psi)
 call mma_deallocate(L2Orb)
-EXS%Reuse_SGTMP = Reuse_Save
 
 end subroutine sg_h_psi_ras
 

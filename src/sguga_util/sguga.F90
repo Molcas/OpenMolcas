@@ -135,11 +135,21 @@ end type CIStruct
 ! IOrd(k,:): index of the coupling tuples by walk (Mk_Coup_Index): within each
 !            NOCP block (offset IOCP), IOrd(k,IOCP+i), i=1..NOCP, is the local
 !            index of the tuple with the i-th smallest ICoup(k,:) (k=1,2).
+! SGTMP(:): intermediates of SG_Epq_Psi for the operators crossing the
+!           midlevel; with Reuse_SGTMP they are kept for the next call with
+!           the same upper-half orbital (Save_U), the same symmetry of the
+!           lower-half orbital (Save_LSym) and the same CI vector (Save_CISym,
+!           Save_nCSF and the fingerprints Save_ID); Save_Valid tells whether
+!           SGTMP holds the intermediates of that key, Save_Owner which routine
+!           wrote them (1: SG_Epq_Psi, 2: SG_EpqEqp_Diag; different layouts).
 type EXStruct
   integer(kind=iwp) :: MxEO, nICoup
   integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:), IOrd(:,:)
   real(kind=wp), allocatable :: VTab(:), SGTMP(:)
   logical(kind=iwp) :: Reuse_SGTMP
+  logical(kind=iwp) :: Save_Valid = .false., Save_Swap = .false.
+  integer(kind=iwp) :: Save_Owner = 0, Save_U = 0, Save_LSym = 0, Save_CISym = 0, Save_nCSF = 0
+  real(kind=wp) :: Save_ID(2) = 0.0_wp
   integer(kind=iwp), allocatable:: I1list(:), I2list(:)
   real(kind=wp), allocatable:: XList(:)
 end type EXStruct
@@ -1084,6 +1094,7 @@ call mma_deallocate(CIS%ISGM,safe='*')
  call mma_deallocate(EXS%IOrd,safe='*')
  call mma_deallocate(EXS%VTab,safe='*')
  call mma_deallocate(EXS%SGTMP,safe='*')
+ EXS%Save_Valid = .false.
  call mma_deallocate(EXS%MVL,safe='*')
  call mma_deallocate(EXS%MVR,safe='*')
  call mma_deallocate(EXS%USGN,safe='*')
@@ -3395,6 +3406,7 @@ else
    EXS%Reuse_SGTMP=.false.
 endif
 EXS%SGTMP(:)=Zero
+EXS%Save_Valid=.false.
 
 #ifdef _DEBUGPRINT_
 write(u6,600) MXUP,MXDWN,NSGMX,NSGMX,NSGTMP
@@ -4261,11 +4273,10 @@ integer(kind=iwp) :: I, IC, ICS, INDEO, IOC, IOLW, IOUW, IPPOW, IPSHFT, ISGSTA, 
                      NUPSG, NCP1, NCP2, MV, MVX, nCSFs, LICP1, LICP2, JQ, JP
 real(kind=wp) :: X
 
-! declarations to facilitate the reuse of sigma vectors if possible
-integer(kind=iwp), save:: i_save_p=0, i_save_q=0
-integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
-logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Test3, Moved
-real(kind=wp) :: CI_ID=Zero
+! declarations to facilitate the reuse of sigma vectors if possible (the key
+! is kept in EXS, next to SGTMP)
+logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Moved
+real(kind=wp) :: CI_ID(2)
 integer(kind=iwp) ::  iOff, jOff
 
 !*********************************************************************
@@ -4351,13 +4362,18 @@ else
   !   sigma(Jl(m),Ju(m)) = Sum(Il(m'),Iu(m')) C(Il(m'),Iu(m'))
   !                       x A^p(Ju(m),Iu(m')) x A^q(Ju(m),Iu(m'))
   iOff=1
-  Reuse_Sigma = .false.
-  Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
-              (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
-  if (EXS%Reuse_SGTMP .and.  Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
-
   JP=MERGE(IQ,IP,SWAP)
   JQ=MERGE(IP,IQ,SWAP)
+  ! The intermediates depend on the CI vector, on the upper-half orbital JP
+  ! and on the symmetry of the lower-half orbital JQ.
+  Reuse_Sigma = .false.
+  CI_ID(:) = Zero
+  if (EXS%Reuse_SGTMP) then
+    CI_ID(:) = CI_Fingerprint(CI,nCSFs)
+    Reuse_Sigma = EXS%Save_Valid .and. (EXS%Save_Owner == 1) .and. (EXS%Save_Swap .eqv. Swap) .and. (EXS%Save_U == JP) .and. &
+                  (EXS%Save_LSym == SGS%ISm(JQ)) .and. (EXS%Save_CISym == ISYCI) .and. (EXS%Save_nCSF == nCSFs) .and. &
+                  all(EXS%Save_ID(:) == CI_ID(:))
+  end if
   ! Loop over all mid vertex
   do MVSGM=1,CIS%nMidV  ! m
     ! loop over delta b = -1 and +1
@@ -4452,18 +4468,21 @@ else
     end do
   end do
 
-  If (SWAP) Then
-    i_save_q=IQ
-    i_save_p_sym=ISYP
-    i_save_p=0
-    i_save_q_sym=-1
+  if (EXS%Reuse_SGTMP) then
+    if (.not. Reuse_Sigma) then
+      EXS%Save_Valid = .true.
+      EXS%Save_Owner = 1
+      EXS%Save_Swap = Swap
+      EXS%Save_U = JP
+      EXS%Save_LSym = SGS%ISm(JQ)
+      EXS%Save_CISym = ISYCI
+      EXS%Save_nCSF = nCSFs
+      EXS%Save_ID(:) = CI_ID(:)
+    end if
   else
-    i_save_p=IP
-    i_save_q_sym=ISYQ
-    i_save_q=0
-    i_save_p_sym=-1
+    ! SGTMP was overwritten
+    EXS%Save_Valid = .false.
   end if
-  if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
 end if
 
@@ -4527,14 +4546,27 @@ else
     end do
 
   end if
-  i_save_q=0
-  i_save_p_sym=-1
-  i_save_p=0
-  i_save_q_sym=-1
-  CI_ID=Zero
 end if
 
 contains
+
+  ! Two weighted checksums of the CI vector, with distinct, non-repeating
+  ! weights 1+frac(i*w), so that vectors with equal component sums (e.g.
+  ! E_pq e_I = c e_J) are told apart.
+  function CI_Fingerprint(C,n) result(F)
+    integer(kind=iwp), intent(in) :: n
+    real(kind=wp), intent(in) :: C(n)
+    real(kind=wp) :: F(2)
+    real(kind=wp), parameter :: W1 = 0.6180339887498949_wp, W2 = 0.4142135623730951_wp
+    real(kind=wp) :: X
+    integer(kind=iwp) :: k
+    F(:) = Zero
+    do k=1,n
+      X = real(k,kind=wp)
+      F(1) = F(1)+C(k)*(One+(X*W1-aint(X*W1)))
+      F(2) = F(2)+C(k)*(One+(X*W2-aint(X*W2)))
+    end do
+  end function CI_Fingerprint
 
   subroutine sort_icoup_block(ICOUP,NCP,swap,Moved)
 
@@ -4986,12 +5018,10 @@ integer(kind=iwp) :: INDEO, IOC, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
                      ISYUC, ISYUSG, LICP, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
                      NUPSG, NCP1, NCP2, MV, MVX, nCSFs, LICP1, LICP2
 
-! declarations to facilitate the reuse of sigma vectors if possible
-integer(kind=iwp), save:: i_save_p=0, i_save_q=0
-integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
-logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Test3
-real(kind=wp) :: CI_ID=Zero
-integer(kind=iwp) ::  iOff, jOff
+! declarations to facilitate the reuse of the intermediates in SGTMP (the key
+! is kept in EXS; here they depend only on the couplings, not on CI)
+logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2
+integer(kind=iwp) ::  iOff, jOff, JP, JQ
 
 !*********************************************************************
 !  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
@@ -5074,10 +5104,10 @@ if (IQ /= IP) Then
     ! EXCITING CASE, IQ<=MIDLEV<IP
 
     iOff=1
-    Reuse_Sigma = .false.
-    Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
-                (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
-    if (EXS%Reuse_SGTMP .and. Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
+    JP=MERGE(IQ,IP,SWAP)
+    JQ=MERGE(IP,IQ,SWAP)
+    Reuse_Sigma = EXS%Reuse_SGTMP .and. EXS%Save_Valid .and. (EXS%Save_Owner == 2) .and. (EXS%Save_Swap .eqv. Swap) .and. &
+                  (EXS%Save_U == JP) .and. (EXS%Save_LSym == SGS%ISm(JQ)) .and. (EXS%Save_CISym == ISYCI)
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
@@ -5143,18 +5173,20 @@ if (IQ /= IP) Then
         end do
       end do
     end do
-    If (SWAP) Then
-      i_save_q=IQ
-      i_save_p_sym=ISYP
-      i_save_p=0
-      i_save_q_sym=-1
-    Else
-      i_save_p=IP
-      i_save_q_sym=ISYQ
-      i_save_q=0
-      i_save_p_sym=-1
-    End If
-    if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
+    if (EXS%Reuse_SGTMP) then
+      if (.not. Reuse_Sigma) then
+        EXS%Save_Valid = .true.
+        EXS%Save_Owner = 2
+        EXS%Save_Swap = Swap
+        EXS%Save_U = JP
+        EXS%Save_LSym = SGS%ISm(JQ)
+        EXS%Save_CISym = ISYCI
+        EXS%Save_nCSF = nCSFs
+      end if
+    else
+      ! SGTMP was overwritten
+      EXS%Save_Valid = .false.
+    end if
   End If
 Else
   CI(1:nCSFs)=One
