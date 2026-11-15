@@ -24,6 +24,7 @@ implicit none
 private
 
 integer(kind=iwp), parameter :: MxCIState = 3
+integer(kind=iwp) :: iq
 
 !> nSym, nActEl, iSpin: symmetry, electrons, multiplicity of the CI space;
 !> nLev: number of levels (active orbitals) of the split graph, MidLev its
@@ -35,7 +36,9 @@ type CI_State_Info
   logical(kind=iwp) :: Active = .false.
   integer(kind=iwp) :: nSym = 0, nActEl = 0, iSpin = 0, nLev = 0, MidLev = 0, IFRAS = 0, nRsPrt = 0
   integer(kind=iwp) :: nCSF(MxSym) = 0
-  integer(kind=iwp) :: Level(MxLev) = 0, L2Act(MxLev) = 0, ISm(MxLev) = 0
+  ! (Level and L2Act default to the identity, as in the split graph: the
+  ! programs may read them before the setup, e.g. CASPT2's pt2wfn_init)
+  integer(kind=iwp) :: Level(MxLev) = [(iq,iq=1,MxLev)], L2Act(MxLev) = [(iq,iq=1,MxLev)], ISm(MxLev) = 0
 end type CI_State_Info
 
 type(CI_State_Info) :: CI_St(MxCIState)
