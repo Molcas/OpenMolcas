@@ -31,6 +31,7 @@ subroutine OutCtl(CMO,OCCN,SMAT,lOPTO)
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
+use ci_interfaces, only: CI_Lucia_Active
 use general_data, only: iDoGAS, NGAS, NGSSH
 use input_ras, only: Key
 use rasscf_global, only: BName, CBLBM, cCI, CleanMask, CMAX, DE, DoDMRG, ECAS, Ener, ESX, FDIAG, HalfQ, iADR15, IBLBM, iCI, ICICH, &
@@ -217,7 +218,7 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
       write(u6,Fmt2//'A)') '----------------------------'
       write(u6,*)
       write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-      write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
+      if (CI_Lucia_Active()) write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
     end if
     write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
     if (ICICH == 0) then

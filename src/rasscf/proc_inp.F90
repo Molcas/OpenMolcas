@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use ci_interfaces, only: CI_Initialize, CI_Verify
+use ci_interfaces, only: CI_Initialize, CI_Verify, SG_CI
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -4142,7 +4142,15 @@ end if
 ! to the symmetric group numbering
 
 ! ====================================================================
-if (ICICH == 1 .and. (.not. SkipGUGA)) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
+! (SGCI: the CI vectors are in the split-graph order of the reference CSF
+! numbers already)
+if (ICICH == 1 .and. (.not. SkipGUGA)) then
+  if (SG_CI()) then
+    JCJ(:,:) = ICI(:,:)
+  else
+    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
+  end if
+end if
 ! ====================================================================
 
 !---  Normal exit -----------------------------------------------------*

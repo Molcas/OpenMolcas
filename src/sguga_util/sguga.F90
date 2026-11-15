@@ -327,6 +327,7 @@ integer(kind=iwp), parameter :: nCoup_Lin = 16
 
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
 public :: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Cnf_Occ, SG_Select_Explicit, SG_Block_H, SG_Explicit_Block
+public :: SG_Cnf_Avg_Diag
 
 
 contains
@@ -11726,5 +11727,66 @@ subroutine SG_Explicit_Block(iState,Cnf,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,H)
   call mma_deallocate(nGCnf)
 
 end subroutine SG_Explicit_Block
+
+!> Configuration-average diagonal (the CI-solver diagonal of Lucia): for
+!> each configuration of Cnf the average of the diagonal elements of its
+!> determinants with M_S = S, assigned to all its CSFs (Diag, split-graph
+!> order):
+!>
+!>   E_avg = Sum_i n_i h_ii + Sum_{i<j} n_i n_j (ii|jj) + Sum_{n_i=2} (ii|ii)
+!>           - Sum_{i<j} c_ij (ij|ji),
+!>
+!> c_ij = 2 (both doubly occupied), 1 (one doubly, one singly), and for two
+!> open shells the probability that they have the same spin,
+!> [na(na-1) + nb(nb-1)]/[No(No-1)], with No open shells, na = (No+2S)/2,
+!> nb = (No-2S)/2. TU/TUVX in the symmetry-blocked order of RASSCF; no core
+!> energy.
+subroutine SG_Cnf_Avg_Diag(iState,Cnf,TU,nTU,TUVX,nTUVX,Diag)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, nTU, nTUVX
+  type(SGCnfList), intent(in) :: Cnf
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(inout) :: Diag(*)
+  integer(kind=iwp) :: k, i, j, nL, nO, na, nb
+  real(kind=wp) :: E, PSame, cij
+  integer(kind=iwp), allocatable :: Occ(:)
+  real(kind=wp), allocatable :: TU_L(:), TUVX_L(:)
+
+  nL = SGS(iState)%nLev
+  call mma_allocate(TU_L,nTU,Label='TU_L')
+  call mma_allocate(TUVX_L,nTUVX,Label='TUVX_L')
+  call SG_Level_Ints(SGS(iState),TU,nTU,TUVX,nTUVX,TU_L,TUVX_L)
+  call mma_allocate(Occ,nL,Label='Avg_Occ')
+  do k=1,Cnf%nCnf
+    call SG_Cnf_Occ(Cnf,k,Occ)
+    nO = count(Occ(1:nL) == 1)
+    na = (nO+SGS(iState)%iSpin-1)/2
+    nb = (nO-SGS(iState)%iSpin+1)/2
+    PSame = Zero
+    if (nO > 1) PSame = real(na*(na-1)+nb*(nb-1),kind=wp)/real(nO*(nO-1),kind=wp)
+    E = Zero
+    do i=1,nL
+      if (Occ(i) == 0) cycle
+      E = E+Occ(i)*TU_L(Tri_SG(i,i))
+      if (Occ(i) == 2) E = E+TUVX_L(Tri_SG(Tri_SG(i,i),Tri_SG(i,i)))
+      do j=i+1,nL
+        if (Occ(j) == 0) cycle
+        E = E+Occ(i)*Occ(j)*TUVX_L(Tri_SG(Tri_SG(i,i),Tri_SG(j,j)))
+        if ((Occ(i) == 2) .and. (Occ(j) == 2)) then
+          cij = Two
+        else if ((Occ(i) == 2) .or. (Occ(j) == 2)) then
+          cij = One
+        else
+          cij = PSame
+        end if
+        E = E-cij*TUVX_L(Tri_SG(Tri_SG(i,j),Tri_SG(j,i)))
+      end do
+    end do
+    Diag(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))) = E
+  end do
+  call mma_deallocate(Occ)
+  call mma_deallocate(TUVX_L)
+  call mma_deallocate(TU_L)
+end subroutine SG_Cnf_Avg_Diag
 
 end module SGUGA

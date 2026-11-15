@@ -32,7 +32,7 @@ use CI_Verify_Options, only: CI_Verify
 Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
-Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify, SG_CI
+Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify, SG_CI, CI_Lucia_Active
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
@@ -55,8 +55,12 @@ type(SGCnfList) :: Cnf_SG
 logical(kind=iwp) :: PDM_SG_Verified = .false.
 ! SGCI: the SGUGA diagonal checked against sg_hdiag_ref (SIGMA), printed once.
 logical(kind=iwp) :: IHI_SG_Verified = .false.
+! SGCI: the SGUGA configuration-average diagonal checked against Lucia, printed once.
+logical(kind=iwp) :: IHI_Avg_Verified = .false.
 ! SGCI: the SGUGA transition densities compared with Lucia (SIGMA), printed once.
 logical(kind=iwp) :: T1DM_SG_Verified = .false.
+! Lucia has been initialized (not for SGCI, except as the SIGMA reference)
+logical(kind=iwp) :: Lucia_Active = .true.
 
 contains
 
@@ -67,6 +71,13 @@ function SG_CI() result(SGMode)
 logical(kind=iwp) :: SGMode
 SGMode = DoSGCI .and. SG_Avail()
 end function SG_CI
+
+!> Lucia is initialized (CI_Initialize): its tables (determinant counts,
+!> configuration types) may be used.
+function CI_Lucia_Active() result(Active)
+logical(kind=iwp) :: Active
+Active = Lucia_Active
+end function CI_Lucia_Active
 
 !> SGUGA covers the CI space of RASSCF: CAS or RAS, but not GAS (no graph)
 !> and not HEXS/DEXS (I_ELIMINATE_GAS), which remove configurations that the
@@ -931,7 +942,7 @@ end subroutine CI_Timer
 
 subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
 use sguga, only: SG_Test_EpqErs_Ref
-use general_data, only: STSym
+use general_data, only: STSym, nSym
 use Molcas, only: MxSym
 use spinfo, only: ncsasm, ndtasm
 
@@ -939,14 +950,20 @@ implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
 
-! Construct the determinant tables
-! Initialize LUCIA and determinant control
-call Lucia_Util('Ini')
+! SGCI does not need Lucia; it is set up only as the reference of
+! MOLCAS_CI_VERIFY=SIGMA.
+Lucia_Active = .not. (Do_SGUGA .and. SG_CI() .and. (.not. CI_Verify('SIGMA')))
 
-! to get number of CSFs for GAS
-! and number of determinants to store
-nconf = MaxVal(ncsasm(1:mxsym))
-nDet = MaxVal(ndtasm(1:mxsym))
+if (Lucia_Active) then
+  ! Construct the determinant tables
+  ! Initialize LUCIA and determinant control
+  call Lucia_Util('Ini')
+
+  ! to get number of CSFs for GAS
+  ! and number of determinants to store
+  nconf = MaxVal(ncsasm(1:mxsym))
+  nDet = MaxVal(ndtasm(1:mxsym))
+end if
 
 ! Initiate the SGUGA environment conditional to all flags
 If (Do_SGUGA) Then
@@ -956,6 +973,15 @@ If (Do_SGUGA) Then
       write(u6,'(1X,A)') '**EXPERIMENTAL**'
    end if
    call SG_Setup_RASSCF()
+   if (.not. Lucia_Active) then
+     ! the CSF counts from SGUGA; no determinants (the Davidson scratch for
+     ! the determinant expansion of the other back ends is not needed)
+     ncsasm(:) = 0
+     ncsasm(1:nSym) = CIS(iState)%nCSF(1:nSym)
+     ndtasm(:) = ncsasm(:)
+     nDet = nConf
+     write(u6,'(1X,A)') 'SGCI: Lucia is not initialized.'
+   end if
    ! Exhaustive verification of the SGUGA coupling-coefficient codes,
    ! only on request (used by the test/csf_sd groups), see CI_Verify.
    if (CI_Verify('YES')) then
@@ -984,7 +1010,7 @@ integer(kind=iwp), Intent(in):: iState
 
 ! All of these are safe to call even of their corresponding environment have not been activated.
 
-Call Lucia_Util('Close')
+if (Lucia_Active) Call Lucia_Util('Close')
 
 call faroald_free()
 call citrans_free()
@@ -1106,13 +1132,16 @@ end if
 
 contains
 
-  ! SGCI: CSFDIA = <I|H|I> in the split-graph CSF basis (sg_hdiag_fast);
-  ! under SIGMA checked against sg_hdiag_ref for small spaces.
+  ! SGCI: the CI-solver diagonal in the split-graph CSF basis: the
+  ! configuration average of Lucia (SG_Cnf_Avg_Diag), so that SGCI follows
+  ! the iterations of Lucia, or with MOLCAS_CI_VERIFY=HDIAG the exact
+  ! <I|H|I> (sg_hdiag_fast). Under SIGMA the exact diagonal is checked
+  ! against sg_hdiag_ref (small spaces) and the average against Lucia.
   subroutine SGCI_Diag()
-    use sguga, only: SGStruct, CIStruct, EXStruct
+    use sguga, only: SGStruct, CIStruct, EXStruct, SG_Cnf_Avg_Diag
     integer(kind=iwp), parameter :: iState = 1, MxRef = 500
     real(kind=wp) :: MaxDev
-    real(kind=wp), allocatable :: DRef(:)
+    real(kind=wp), allocatable :: DRef(:), DAvg(:), DAvgL(:), DL(:), DD(:)
     interface
       subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
         import :: SGStruct, CIStruct, EXStruct, iwp, wp
@@ -1133,11 +1162,49 @@ contains
         real(kind=wp), intent(out) :: Diag(nCSFs)
       end subroutine sg_hdiag_ref
     end interface
-    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,CSFDIA)
+    call SG_Cnf_Kept(STSYM)
+    call mma_allocate(DAvg,nConf,Label='DAvg')
+    call SG_Cnf_Avg_Diag(iState,Cnf_SG,TU,nTU,TUVX,nTUVX,DAvg)
+    if (CI_Verify('SIGMA')) then
+      ! Lucia's configuration-average diagonal, in the Lucia basis
+      call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+      call mma_allocate(DD,NDET,label='DETDIA')
+      call get_diag(DD,ndet)
+      call mma_allocate(DL,nConf,Label='DL')
+      call CSDIAG(NCONF,ndet,DL,DD,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
+      call mma_allocate(DAvgL,nConf,Label='DAvgL')
+      call Diag_to_Lucia(DAvg,DAvgL)
+      MaxDev = maxval(abs(DAvgL(:)-DL(:)))
+      if (.not. IHI_Avg_Verified) &
+        write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (SGCI): SGUGA configuration-average diagonal verified against Lucia, ',nConf, &
+                                       ' CSFs, max. error ',MaxDev
+      IHI_Avg_Verified = .true.
+      if (MaxDev > ThrDia*max(One,maxval(abs(DL(:))))) then
+        write(u6,*) 'Mk_IHI: the SGUGA configuration-average diagonal differs from Lucia'
+        call Abend()
+      end if
+      call mma_deallocate(DAvgL)
+      call mma_deallocate(DL)
+      call mma_deallocate(DD)
+    end if
+    if (.not. CI_Verify('HDIAG')) then
+      CSFDIA(:) = DAvg(:)
+      call mma_deallocate(DAvg)
+      if (.not. CI_Verify('SIGMA')) return
+    else
+      call mma_deallocate(DAvg)
+    end if
+    ! the exact diagonal (HDIAG, and its check under SIGMA)
+    call mma_allocate(DAvg,nConf,Label='DExact')
+    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DAvg)
+    if (CI_Verify('HDIAG')) then
+      CSFDIA(:) = DAvg(:)
+      write(u6,'(1X,A)') 'Mk_IHI (SGCI): exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
+    end if
     if (CI_Verify('SIGMA') .and. (nConf <= MxRef)) then
       call mma_allocate(DRef,nConf,Label='DRef')
       call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DRef)
-      MaxDev = maxval(abs(CSFDIA(:)-DRef(:)))
+      MaxDev = maxval(abs(DAvg(:)-DRef(:)))
       if (.not. IHI_SG_Verified) &
         write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (SGCI): sg_hdiag_fast verified against sg_hdiag_ref, ',nConf,' CSFs, max. error ', &
                                        MaxDev
@@ -1148,6 +1215,7 @@ contains
       end if
       call mma_deallocate(DRef)
     end if
+    call mma_deallocate(DAvg)
   end subroutine SGCI_Diag
 
   subroutine Verify_IHI()
@@ -1967,25 +2035,13 @@ contains
   ! selected by the back end has the eigenvalues of the block in use.
   subroutine Verify_SG_Explicit()
     use Constants, only: Two
-    use sguga, only: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Select_Explicit, SG_Explicit_Block, SGStruct, CIStruct, &
-                     EXStruct
+    use sguga, only: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Select_Explicit, SG_Explicit_Block, SG_Cnf_Avg_Diag
     type(SGCnfList) :: Cnf
     integer(kind=iwp) :: I, k, kG, iOffL, MxDim, nGSel, nGCSF, nBoth, nLSel
     integer(kind=iwp), allocatable :: nCSFL(:), LtoG(:), CnfOfG(:), LtoGCnf(:), GSel(:), GCSF(:), GtoL(:)
     logical(kind=iwp), allocatable :: SelG(:), SelL(:)
     real(kind=wp) :: Dev
     real(kind=wp), allocatable :: Idx(:), Map(:), DSG(:), HG(:), EG(:), EL(:)
-    interface
-      subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
-        import :: SGStruct, CIStruct, EXStruct, iwp, wp
-        type(SGStruct), intent(in) :: SGS
-        type(CIStruct), intent(in) :: CIS
-        type(EXStruct), intent(inout) :: EXS
-        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
-        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-        real(kind=wp), intent(out) :: Diag(nCSFs)
-      end subroutine sg_hdiag_fast
-    end interface
 
     call SG_Mk_Cnf_List(1,IREFSM,Cnf)
     ! back-end CSF -> split-graph CSF, and the SGUGA configuration of each
@@ -2026,10 +2082,11 @@ contains
       iOffL = iOffL+nCSFL(k)
     end do
     write(u6,'(1X,A,I0,A)') 'Mk_IHJ: SGUGA configuration list verified, ',Cnf%nCnf,' configurations as in the CI back end'
-    ! (2) the SGUGA selection with the exact diagonal
+    ! (2) the SGUGA selection with its configuration-average diagonal (the
+    ! key of SGCI and of Lucia: differences come from ties only)
     MxDim = nint((sqrt(real(8*nPHP+1,kind=wp))-One)/Two)
     call mma_allocate(DSG,nConf,Label='DSG')
-    call sg_hdiag_fast(SGS(1),CIS(1),EXS(1),nConf,IREFSM,TUVX,nTUVX,TU,nTU,DSG)
+    call SG_Cnf_Avg_Diag(1,Cnf,TU,nTU,TUVX,nTUVX,DSG)
     call mma_allocate(GSel,Cnf%nCnf,Label='GSel')
     call mma_allocate(GCSF,max(1,MxDim),Label='GCSF')
     call SG_Select_Explicit(Cnf,DSG,MxDim,nGSel,GSel,nGCSF,GCSF)
@@ -2041,7 +2098,7 @@ contains
     SelL(LtoGCnf(IPCNF(1:NPCNF))) = .true.
     nBoth = count(SelG .and. SelL)
     nLSel = count(SelL)
-    write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A,I0,A)') 'Mk_IHJ: SGUGA selection (mean exact CSF diagonal): ',nGSel, &
+    write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A,I0,A)') 'Mk_IHJ: SGUGA selection (configuration average): ',nGSel, &
           ' configurations, ',nGCSF,' CSFs; CI back end: ',nLSel,' configurations; ',nBoth,' in common, ', &
           count(SelG .neqv. SelL),' differ'
     ! (3) SGUGA block over the configurations selected by the back end
