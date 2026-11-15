@@ -2227,7 +2227,7 @@ A list of these keywords is given below:
   symmetric-group graphical unitary group approach (SGUGA) directly in the
   CSF basis, instead of by the CI back end (Lucia, or Faroald with
   :kword:`FAROALD`) through the determinant expansion of each configuration.
-  Only for a single RAS space (CASSCF) without GAS; otherwise the keyword
+  For CASSCF and RASSCF; with GAS, :kword:`HEXS` or :kword:`DEXS` the keyword
   is ignored. Experimental.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGEX" APPEAR="SGUGA explicit Hamiltonian" LEVEL="ADVANCED" KIND="SINGLE">
@@ -2235,7 +2235,7 @@ A list of these keywords is given below:
               <HELP>
               Compute the explicit Hamiltonian of the Davidson procedure (SDAV)
               with SGUGA in the CSF basis instead of with the CI back end.
-              CASSCF without GAS only. Experimental.
+              CASSCF and RASSCF, not with GAS, HEXS or DEXS. Experimental.
               </HELP>
               </KEYWORD>
 
