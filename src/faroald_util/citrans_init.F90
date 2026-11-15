@@ -12,7 +12,8 @@
 subroutine citrans_init(nel,norb,mult)
 
 use second_quantization, only: binom_coef
-use citrans, only: ndet_group, ncsf_group, ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs, spintabs_allocate
+use citrans, only: citrans_graph_init, ndet_group, ncsf_group, ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, &
+                   spintabs, spintabs_allocate
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
@@ -52,5 +53,8 @@ do ido=ndo_min,ndo_max
   spintabs(ido)%ncsf = ncsf_group(ido)
   call spintable_create(iso,nelb-ido,spintabs(ido))
 end do
+
+! the file order of the CSFs (citrans_sort)
+call citrans_graph_init(nel,norb,mult)
 
 end subroutine citrans_init

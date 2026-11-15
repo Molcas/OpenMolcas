@@ -11,7 +11,7 @@
 
 subroutine citrans_free()
 
-use citrans, only: ndet_group, ncsf_group, ndoc_group, nsoc_group, spintabs_free
+use citrans, only: citrans_graph_free, ndet_group, ncsf_group, ndoc_group, nsoc_group, spintabs_free
 use stdalloc, only: mma_deallocate
 
 implicit none
@@ -21,5 +21,6 @@ call mma_deallocate(nsoc_group,safe='*')
 call mma_deallocate(ndet_group,safe='*')
 call mma_deallocate(ncsf_group,safe='*')
 call spintabs_free()
+call citrans_graph_free()
 
 end subroutine citrans_free

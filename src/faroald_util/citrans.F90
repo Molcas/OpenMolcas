@@ -67,7 +67,7 @@ module citrans
 ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
-use sguga, only: SGS
+use CSF_Graph, only: Free_SG_Graph, MkSGUGA, SG_Graph, SG_Walk_Next, SG_Walks
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -90,8 +90,15 @@ end type spintable
 
 type(spintable), allocatable :: spintabs(:)
 
-public :: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, ndo_max, &
-          ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs, spintabs_allocate, spintabs_free
+! The split graph of the CSF space in the order of the CI vectors of the
+! files (CSF_Graph), built by citrans itself, so that citrans_sort does not
+! need SGUGA.
+type(SG_Graph), target :: FileG
+type(SG_Walks) :: FileW
+
+public :: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, citrans_graph_init, citrans_sd2csf, &
+          citrans_sort, ncsf_group, ndet_group, ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs, &
+          spintabs_allocate, spintabs_free
 
 ! Private extensions to mma interfaces
 
@@ -105,6 +112,32 @@ end interface
 #include "compiler_features.h"
 
 contains
+
+!> The split graph of the C1 CAS space (nel electrons in norb orbitals,
+!> multiplicity mult) in the file order, as SGUGA sets it up for RASSCF
+!> (SG_Init_Light: one partition, IFRAS = 1 for the one occupied symmetry).
+subroutine citrans_graph_init(nel,norb,mult)
+  integer(kind=iwp), intent(in) :: nel, norb, mult
+  call Free_SG_Graph(FileG,FileW)
+  FileG%nSym = 1
+  FileG%nActEl = nel
+  FileG%iSpin = mult
+  FileG%nLev = norb
+  FileG%nRsPrt = 1
+  FileG%nRas(:,:) = 0
+  FileG%nRas(1,1) = norb
+  FileG%nRasEl(:) = 0
+  FileG%nRasEl(1) = nel
+  FileG%IFRAS = 0
+  if (norb > 0) FileG%IFRAS = 1
+  call mma_allocate(FileG%ISm,norb,Label='FileG%ISm')
+  FileG%ISm(:) = 1
+  call MkSGUGA(FileG,FileW)
+end subroutine citrans_graph_init
+
+subroutine citrans_graph_free()
+  call Free_SG_Graph(FileG,FileW)
+end subroutine citrans_graph_free
 
 subroutine citrans_sort(mode,ciold,cinew)
 ! sort CSFs such that they are grouped by configurations
@@ -122,7 +155,6 @@ subroutine citrans_sort(mode,ciold,cinew)
   integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
   real(kind=wp) :: wtab(0:maxorb,maxdown)
   integer(kind=iwp), allocatable :: csf_offset(:), stepvector(:)
-  integer(kind=iwp), parameter :: istate = 1
 
   ! Compute offsets for addressing into the reordering and coefficient arrays.
   call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')
@@ -173,7 +205,7 @@ subroutine citrans_sort(mode,ciold,cinew)
       exit
     end if
     ! obtain the stepvector
-    call stepvector_next(mv,idwn,iup,stepvector,SGS(istate)%nLev)
+    call SG_Walk_Next(FileG,FileW,mv,idwn,iup,stepvector)
 
     ! position of the CSF in the configuration order, and its phase
     ioff_csf = csf_rank(stepvector,csf_offset,wtab,iphase)
