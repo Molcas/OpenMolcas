@@ -73,6 +73,7 @@ use Para_Info, only: mpp_nprocs, mpp_procid
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use faroald_ras, only: ras_count_dets
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -4124,18 +4125,24 @@ if (.not. SkipGUGA) then
       DoFaro = .false.
     end if
   end if
-  ! Faroald works in the full (C1 CAS) determinant space, also for RAS and
-  ! symmetry: fall back to the CI backend if a few vectors of that size do
-  ! not fit in the available memory.
+  ! Faroald works in the full (C1) determinant space of CAS, and in the RAS
+  ! determinant space (all symmetries) with RAS partitions (faroald_ras):
+  ! fall back to the CI backend if a few vectors of that size do not fit
+  ! in the available memory.
   if (DoFaro) then
     call mma_maxDBLE(MaxFaro)
-    nDetFaro = Binom_R((NACTEL+ISPIN-1)/2,NAC)*Binom_R((NACTEL-ISPIN+1)/2,NAC)
+    if (nHole1+nElec3 /= 0) then
+      nDetFaro = ras_count_dets((NACTEL+ISPIN-1)/2,(NACTEL-ISPIN+1)/2,[sum(NRS1(1:NSYM)),sum(NRS2(1:NSYM)),sum(NRS3(1:NSYM))], &
+                                2*sum(NRS1(1:NSYM))-nHole1,nElec3)
+    else
+      nDetFaro = Binom_R((NACTEL+ISPIN-1)/2,NAC)*Binom_R((NACTEL-ISPIN+1)/2,NAC)
+    end if
     if (NAC > 30) then
       write(u6,'(1X,A,I0,A)') 'Faroald cannot run this CI: ',NAC,' active orbitals (at most 30, bit strings);'
       write(u6,'(1X,A)') 'the CI is done by the CI backend.'
       DoFaro = .false.
     else if (8.0_wp*nDetFaro > real(MaxFaro,kind=wp)) then
-      write(u6,'(1X,A,ES10.3,A)') 'Faroald cannot run this CI: ',nDetFaro,' determinants in the CAS space'
+      write(u6,'(1X,A,ES10.3,A)') 'Faroald cannot run this CI: ',nDetFaro,' determinants'
       write(u6,'(1X,A)') 'do not fit in the available memory; the CI is done by the CI backend.'
       DoFaro = .false.
     end if

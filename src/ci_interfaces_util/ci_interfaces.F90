@@ -14,8 +14,8 @@
 module CI_Interfaces
 use sguga, only: SG_Free, SG_ReOrd, SG_Lucia_Walk, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
-use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
-                   traci_faroald
+use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, &
+                   fold_two_pdm, traci_faroald
 use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort
 use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma, ras_traci, ras_trans_one_pdm, &
                        ras_trans_two_pdm
@@ -35,7 +35,7 @@ implicit none
 Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
-Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify, SG_CI, CI_Lucia_Active, CI_Basis, CI_Basis_To_File, &
+Public :: Faro_nTmp, CI_Timer, CI_Initialize, CI_Close, CI_Verify, SG_CI, CI_Lucia_Active, CI_Basis, CI_Basis_To_File, &
           CI_File_To_Basis, CI_File_Index_To_Basis
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
@@ -88,6 +88,17 @@ function SG_CI() result(SGMode)
 logical(kind=iwp) :: SGMode
 SGMode = DoSGCI .and. SG_Avail()
 end function SG_CI
+
+!> FARO: the size of the determinant scratch of Faroald_Sigma (ctemp,
+!> sigtemp): the full determinant matrix, not needed with RAS (faroald_ras).
+function Faro_nTmp() result(n)
+integer(kind=iwp) :: n
+if (ras_active) then
+  n = 1
+else
+  n = nDetA*nDetB
+end if
+end function Faro_nTmp
 
 !> Lucia is initialized (CI_Initialize): its tables (determinant counts,
 !> configuration types) may be used.
@@ -511,6 +522,7 @@ real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
 real(kind=wp), pointer :: Faroald_PSI(:,:), Faroald_SGM(:,:)
 
 real(kind=wp), allocatable :: VRas(:), SRas(:), SFull(:)
+real(kind=wp), allocatable, target :: PFull(:), QFull(:)
 real(kind=wp) :: DMax
 
 ! RAS: string-driven, only the determinants of the RAS space
@@ -523,13 +535,17 @@ if (ras_active) then
   call mma_deallocate(VRas)
   call mma_deallocate(SRas)
   ! CI development (MOLCAS_CI_VERIFY=SIGMA): once against the sigma of the
-  ! full determinant space (P H P)
-  if (HPsi_FaroRAS_Verified .or. (.not. CI_Verify('SIGMA'))) return
+  ! full determinant space (P H P), if its tables are set up (faroald_full)
+  if (HPsi_FaroRAS_Verified .or. (.not. CI_Verify('SIGMA')) .or. (.not. faroald_full)) return
   call mma_allocate(SFull,nCSF,Label='SFull')
+  call mma_allocate(PFull,nDetA*nDetB,Label='PFull')
+  call mma_allocate(QFull,nDetA*nDetB,Label='QFull')
+  Faroald_Psi(1:nDetA,1:nDetB) => PFull(:)
+  Faroald_SGM(1:nDetA,1:nDetB) => QFull(:)
+else
+  Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
+  Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 end if
-
-Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
-Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 
 ! (the CI vectors are in the configuration order of Faroald, citrans)
 Faroald_PSI(:,:) = Zero
@@ -541,11 +557,13 @@ Faroald_Psi => Null()
 Faroald_SGM => Null()
 
 if (ras_active) then
-  call CITRANS_SD2CSF(sigtemp,SFull)
+  call CITRANS_SD2CSF(QFull,SFull)
   DMax = maxval(abs(SFull(:)-Sigma_Vec(:)))
   call Report_Dev('Faroald_Sigma: string-driven RAS sigma vs full determinant space',DMax, &
                   1.0e-10_wp*max(One,maxval(abs(SFull(:)))),HPsi_FaroRAS_Verified)
   call mma_deallocate(SFull)
+  call mma_deallocate(PFull)
+  call mma_deallocate(QFull)
 else
   call CITRANS_SD2CSF(sigtemp,Sigma_Vec)
 end if
@@ -1265,6 +1283,7 @@ end subroutine CI_Timer
 subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
 use sguga, only: SG_Test_EpqErs_Ref
 use faroald, only: nela, nelb
+use second_quantization, only: binom_coef
 use general_data, only: STSym, nSym
 use Molcas, only: MxSym
 use spinfo, only: ncsasm, ndtasm
@@ -1273,6 +1292,7 @@ implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
 integer(kind=iwp) :: nAct, k, iSym, iPrt, iLev
+logical(kind=iwp) :: Full
 integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
 
 ! SGCI does not need Lucia; it is set up only as the reference of
@@ -1354,7 +1374,12 @@ if (DO_FAROALD) then
     Faro_L2O(iLev) = nOff(OrbSym(iLev))
   end do
   call mma_deallocate(nOff)
-  call FAROALD_INIT(NACTEL,nAct,ISPIN)
+  ! the tables of the full determinant space: for CAS; with RAS only as
+  ! the reference of MOLCAS_CI_VERIFY=SIGMA, for small CAS spaces
+  Full = (nRsPrt /= 3)
+  if ((.not. Full) .and. CI_Verify('SIGMA')) &
+    Full = real(binom_coef((NACTEL+ISPIN-1)/2,nAct),kind=wp)*real(binom_coef((NACTEL-ISPIN+1)/2,nAct),kind=wp) <= 1.0e6_wp
+  call FAROALD_INIT(NACTEL,nAct,ISPIN,Full)
   call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym,nRsPrt,OrbRas,nRasEl(1:nRsPrt))
   ! RAS: the sigma vector in the RAS string classes (faroald_ras)
   if (nRsPrt == 3) then
@@ -2561,7 +2586,7 @@ contains
     integer(kind=iwp) :: I, J, nTmp
     real(kind=wp), allocatable :: EJ(:), HEJ(:), cTmp(:), sTmp(:)
 
-    nTmp = nDetA*nDetB
+    nTmp = Faro_nTmp()
     call mma_allocate(cTmp,nTmp,Label='cTmp')
     call mma_allocate(sTmp,nTmp,Label='sTmp')
     call mma_allocate(EJ,nConf,Label='EJ')
@@ -2647,7 +2672,7 @@ contains
     logical(kind=iwp) :: Sigma_Save
 
     if (DoFaro) then
-      nTmp = nDetA*nDetB
+      nTmp = Faro_nTmp()
     else
       nTmp = nDet
     end if

@@ -35,6 +35,8 @@ private
 
 ! wavefunction info
 integer(kind=iwp) :: my_nel, my_norb, mult, nela, nelb, nhoa, nhob, ndeta, ndetb, my_ndet
+! the tables of the full string/determinant spaces are set up (faroald_init)
+logical(kind=iwp) :: faroald_full = .false.
 
 ! excitation tables
 type ex1_struct
@@ -65,10 +67,10 @@ integer(kind=iwp), allocatable :: ibcomb(:)
 integer(kind=iwp) :: ncomb_tot
 integer(kind=iwp), allocatable :: ictsdt(:)
 
-public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
-          my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
-          two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, build_pattern_diagonal, &
-          build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot, pattern_combinations
+public :: ex1_a, ex1_b, ex1_init, faroald_full, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, &
+          my_ndet, my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, &
+          transition_two_pdm, two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, &
+          build_pattern_diagonal, build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot, pattern_combinations
 public :: npat, occpat, ipat_of_det
 public :: combination_occupations
 public :: combination_diagonal

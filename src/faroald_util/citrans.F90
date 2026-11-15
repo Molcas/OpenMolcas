@@ -98,17 +98,18 @@ type(SG_Walks) :: FileW
 
 ! Symmetry: the CSF space holds the configurations of symmetry ci_lsym only
 ! (the symmetry of a configuration is the product of the symmetries of its
-! singly occupied orbitals, orbsym). Per group ido the configurations in
-! the order (rankdo, rankso) are iconf = 1..ndoc*nsoc; conf_pos(conf_off(ido)
-! +iconf) is their position among the kept ones (0 if not kept), and
-! conf_list(conf_off(ido)+k) the configuration of kept position k. Without
-! symmetry all configurations are kept.
+! singly occupied orbitals, orbsym). Only the kept configurations are
+! stored: per group ido, k = 1..nkeep_group(ido), the doubly occupied
+! string conf_doub, the singly occupied string conf_sing (over the orbitals
+! not doubly occupied) and the key conf_key = nsoc*(rankdo-1)+rankso, at
+! conf_off(ido)+k, sorted by the key (the order of the full CAS list).
 ! RAS: the orbitals are the levels of the split graph (partition by
 ! partition, within each by symmetry), orbras their partition; a
 ! configuration is kept if the partitions 1..k hold at least ci_nrasel(k)
 ! electrons (k < ci_nrsprt), as the graph of SGUGA. CAS: ci_nrsprt = 1.
-integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1, ci_nrsprt = 1
-integer(kind=iwp), allocatable :: orbsym(:), orbras(:), ci_nrasel(:), conf_off(:), conf_pos(:), conf_list(:), nkeep_group(:)
+integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1, ci_nrsprt = 1, part_pos(3) = 0, part_n(3) = 0
+integer(kind=iwp), allocatable :: orbsym(:), orbras(:), ci_nrasel(:), conf_off(:), conf_key(:), conf_doub(:), conf_sing(:), &
+                                  nkeep_group(:)
 
 public :: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, citrans_graph_init, &
           citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort, citrans_sym_free, citrans_sym_init, ncsf_group, ndet_group, &
@@ -164,10 +165,9 @@ end subroutine citrans_graph_init
 !> maps (after the group sizes of citrans_init). Without the optional
 !> arguments C1 CAS.
 subroutine citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel)
-  use second_quantization, only: lex_init, lex_next
   integer(kind=iwp), intent(in) :: nel, norb
   integer(kind=iwp), intent(in), optional :: nsym, osym(norb), lsym, nrsprt, oras(norb), nrasel(:)
-  integer(kind=iwp) :: ido, iso, idoc, isoc, iconf, k, ntot, doub, sing
+  integer(kind=iwp) :: ido, ntot
 
   call citrans_sym_free()
   ci_nsym = 1
@@ -188,34 +188,21 @@ subroutine citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel)
 
   call mma_allocate(conf_off,[ndo_min,ndo_max],label='conf_off')
   call mma_allocate(nkeep_group,[ndo_min,ndo_max],label='nkeep_group')
+  call ras_partitions(norb)
+  ! upper bound of the number of kept configurations (RAS, no symmetry)
+  ntot = 0
+  do ido=ndo_min,ndo_max
+    ntot = ntot+gen_confs(nel,norb,ido,.false.,0)
+  end do
+  call mma_allocate(conf_key,max(1,ntot),label='conf_key')
+  call mma_allocate(conf_doub,max(1,ntot),label='conf_doub')
+  call mma_allocate(conf_sing,max(1,ntot),label='conf_sing')
   ntot = 0
   do ido=ndo_min,ndo_max
     conf_off(ido) = ntot
-    ntot = ntot+ndoc_group(ido)*nsoc_group(ido)
-  end do
-  call mma_allocate(conf_pos,max(1,ntot),label='conf_pos')
-  call mma_allocate(conf_list,max(1,ntot),label='conf_list')
-  conf_pos(:) = 0
-  conf_list(:) = 0
-  do ido=ndo_min,ndo_max
-    iso = nel-2*ido
-    k = 0
-    iconf = 0
-    doub = lex_init(ido,norb)
-    do idoc=1,ndoc_group(ido)
-      sing = lex_init(iso,norb-ido)
-      do isoc=1,nsoc_group(ido)
-        iconf = iconf+1
-        if ((conf_sym(doub,sing,norb) == ci_lsym) .and. conf_ras(doub,sing,norb)) then
-          k = k+1
-          conf_pos(conf_off(ido)+iconf) = k
-          conf_list(conf_off(ido)+k) = iconf
-        end if
-        sing = lex_next(sing)
-      end do
-      doub = lex_next(doub)
-    end do
-    nkeep_group(ido) = k
+    nkeep_group(ido) = gen_confs(nel,norb,ido,.true.,ntot)
+    call sort_confs(ntot,nkeep_group(ido))
+    ntot = ntot+nkeep_group(ido)
   end do
 
 end subroutine citrans_sym_init
@@ -225,10 +212,203 @@ subroutine citrans_sym_free()
   call mma_deallocate(orbras,safe='*')
   call mma_deallocate(ci_nrasel,safe='*')
   call mma_deallocate(conf_off,safe='*')
-  call mma_deallocate(conf_pos,safe='*')
-  call mma_deallocate(conf_list,safe='*')
+  call mma_deallocate(conf_key,safe='*')
+  call mma_deallocate(conf_doub,safe='*')
+  call mma_deallocate(conf_sing,safe='*')
   call mma_deallocate(nkeep_group,safe='*')
 end subroutine citrans_sym_free
+
+!> The partitions of the orbitals (contiguous, as the levels): first
+!> orbital minus one, part_pos, and number of orbitals, part_n, of
+!> partition k = 1..3 (empty partitions beyond ci_nrsprt).
+subroutine ras_partitions(norb)
+  integer(kind=iwp), intent(in) :: norb
+  integer(kind=iwp) :: iorb, k
+  part_n(:) = 0
+  do iorb=1,norb
+    if ((orbras(iorb) < 1) .or. (orbras(iorb) > ci_nrsprt)) then
+      write(u6,*) 'citrans: illegal RAS partition of orbital',iorb,orbras(iorb)
+      call Abend()
+    end if
+    if (iorb > 1) then
+      if (orbras(iorb) < orbras(iorb-1)) then
+        write(u6,*) 'citrans: the RAS partitions are not contiguous'
+        call Abend()
+      end if
+    end if
+    part_n(orbras(iorb)) = part_n(orbras(iorb))+1
+  end do
+  part_pos(1) = 0
+  do k=2,3
+    part_pos(k) = part_pos(k-1)+part_n(k-1)
+  end do
+end subroutine ras_partitions
+
+!> The configurations of group ido (ido doubly, nel-2*ido singly occupied
+!> orbitals) that fulfil the RAS restrictions, generated partition by
+!> partition (never the full CAS list). Returns their number; with store,
+!> those of symmetry ci_lsym are stored from conf_* (off+1) on, unsorted,
+!> and their number is returned.
+function gen_confs(nel,norb,ido,store,off) result(n)
+  use second_quantization, only: binom_coef, lex_init, lex_next, lexrank
+  integer(kind=iwp), intent(in) :: nel, norb, ido, off
+  logical(kind=iwp), intent(in) :: store
+  integer(kind=iwp) :: n
+  integer(kind=iwp) :: iso, nsoc, d(3), sx(3), d1, d2, s1, s2, k, ne, i1, i2, i3, doub, socc, sing
+  integer(kind=iwp), allocatable :: lst(:,:,:), nl(:)
+  logical(kind=iwp) :: ok
+
+  n = 0
+  iso = nel-2*ido
+  nsoc = binom_coef(iso,norb-ido)
+  do d1=0,min(ido,part_n(1))
+    do d2=0,min(ido-d1,part_n(2))
+      d = [d1,d2,ido-d1-d2]
+      if (d(3) > part_n(3)) cycle
+      do s1=0,min(iso,part_n(1)-d(1))
+        do s2=0,min(iso-s1,part_n(2)-d(2))
+          sx = [s1,s2,iso-s1-s2]
+          if (sx(3) > part_n(3)-d(3)) cycle
+          ! RAS: at least ci_nrasel(k) electrons in the partitions 1..k
+          ok = .true.
+          ne = 0
+          do k=1,ci_nrsprt-1
+            ne = ne+2*d(k)+sx(k)
+            if (ne < ci_nrasel(k)) ok = .false.
+          end do
+          if (.not. ok) cycle
+          if (.not. store) then
+            k = 1
+            do i1=1,3
+              k = k*binom_coef(d(i1),part_n(i1))*binom_coef(sx(i1),part_n(i1)-d(i1))
+            end do
+            n = n+k
+            cycle
+          end if
+          ! the (doubly, singly) occupied patterns of each partition
+          call part_lists(d,sx,lst,nl)
+          do i3=1,nl(3)
+            do i2=1,nl(2)
+              do i1=1,nl(1)
+                doub = ior(ior(lst(1,i1,1),lst(1,i2,2)),lst(1,i3,3))
+                socc = ior(ior(lst(2,i1,1),lst(2,i2,2)),lst(2,i3,3))
+                sing = pext(socc,ibits(not(doub),0,norb))
+                if (conf_sym(doub,sing,norb) /= ci_lsym) cycle
+                n = n+1
+                conf_doub(off+n) = doub
+                conf_sing(off+n) = sing
+                conf_key(off+n) = nsoc*(lexrank(doub)-1)+lexrank(sing)
+              end do
+            end do
+          end do
+          call mma_deallocate(lst)
+          call mma_deallocate(nl)
+        end do
+      end do
+    end do
+  end do
+
+contains
+
+  ! lst(1:2,i,k): doubly and singly occupied bits (whole orbital range)
+  ! of the i-th pattern of partition k
+  subroutine part_lists(d,sx,lst,nl)
+    integer(kind=iwp), intent(in) :: d(3), sx(3)
+    integer(kind=iwp), allocatable, intent(out) :: lst(:,:,:), nl(:)
+    integer(kind=iwp) :: k, nd, ns, id, is, pd, ps, i, mx
+    call mma_allocate(nl,3,label='nl')
+    mx = 1
+    do k=1,3
+      nl(k) = binom_coef(d(k),part_n(k))*binom_coef(sx(k),part_n(k)-d(k))
+      mx = max(mx,nl(k))
+    end do
+    call mma_allocate(lst,[1,2],[1,mx],[1,3],label='lst')
+    do k=1,3
+      nd = binom_coef(d(k),part_n(k))
+      ns = binom_coef(sx(k),part_n(k)-d(k))
+      i = 0
+      pd = lex_init(d(k),part_n(k))
+      do id=1,nd
+        ps = lex_init(sx(k),part_n(k)-d(k))
+        do is=1,ns
+          i = i+1
+          lst(1,i,k) = ishft(pd,part_pos(k))
+          lst(2,i,k) = ishft(pdep(ps,ibits(not(pd),0,max(part_n(k),1))),part_pos(k))
+          if (is < ns) ps = lex_next(ps)
+        end do
+        if (id < nd) pd = lex_next(pd)
+      end do
+    end do
+  end subroutine part_lists
+
+end function gen_confs
+
+!> Sort the n configurations from conf_* (off+1) on by their key (heap sort).
+subroutine sort_confs(off,n)
+  integer(kind=iwp), intent(in) :: off, n
+  integer(kind=iwp) :: i, iend
+  do i=n/2,1,-1
+    call sift(i,n)
+  end do
+  do iend=n,2,-1
+    call swap(1,iend)
+    call sift(1,iend-1)
+  end do
+
+contains
+
+  subroutine sift(i0,m)
+    integer(kind=iwp), intent(in) :: i0, m
+    integer(kind=iwp) :: r, c
+    r = i0
+    do while (2*r <= m)
+      c = 2*r
+      if (c < m) then
+        if (conf_key(off+c+1) > conf_key(off+c)) c = c+1
+      end if
+      if (conf_key(off+r) >= conf_key(off+c)) return
+      call swap(r,c)
+      r = c
+    end do
+  end subroutine sift
+
+  subroutine swap(a,b)
+    integer(kind=iwp), intent(in) :: a, b
+    integer(kind=iwp) :: t
+    t = conf_key(off+a)
+    conf_key(off+a) = conf_key(off+b)
+    conf_key(off+b) = t
+    t = conf_doub(off+a)
+    conf_doub(off+a) = conf_doub(off+b)
+    conf_doub(off+b) = t
+    t = conf_sing(off+a)
+    conf_sing(off+a) = conf_sing(off+b)
+    conf_sing(off+b) = t
+  end subroutine swap
+
+end subroutine sort_confs
+
+!> The kept position (1..nkeep_group(ido)) of the configuration with key,
+!> 0 if it is not kept (binary search).
+function find_conf(ido,key) result(k)
+  integer(kind=iwp), intent(in) :: ido, key
+  integer(kind=iwp) :: k
+  integer(kind=iwp) :: lo, hi, mid
+  k = 0
+  lo = 1
+  hi = nkeep_group(ido)
+  do while (lo <= hi)
+    mid = (lo+hi)/2
+    if (conf_key(conf_off(ido)+mid) == key) then
+      k = mid
+      return
+    else if (conf_key(conf_off(ido)+mid) < key) then
+      lo = mid+1
+    else
+      hi = mid-1
+    end if
+  end do
+end function find_conf
 
 !> The symmetry of a configuration (doubly occupied string doub, singly
 !> occupied string sing within the other orbitals): the product of the
@@ -244,29 +424,6 @@ function conf_sym(doub,sing,norb) result(isym)
   end do
   isym = isym+1
 end function conf_sym
-
-!> Whether a configuration (doub, sing as in conf_sym) fulfils the RAS
-!> restrictions: at least ci_nrasel(k) electrons in the partitions 1..k.
-function conf_ras(doub,sing,norb) result(ok)
-  logical(kind=iwp) :: ok
-  integer(kind=iwp), intent(in) :: doub, sing, norb
-  integer(kind=iwp) :: iorb, socc, k, n
-  ok = .true.
-  if (ci_nrsprt == 1) return
-  socc = pdep(sing,ibits(not(doub),0,norb))
-  do k=1,ci_nrsprt-1
-    n = 0
-    do iorb=1,norb
-      if (orbras(iorb) > k) cycle
-      if (btest(doub,iorb-1)) n = n+2
-      if (btest(socc,iorb-1)) n = n+1
-    end do
-    if (n < ci_nrasel(k)) then
-      ok = .false.
-      return
-    end if
-  end do
-end function conf_ras
 
 !> The number of CSFs of the CSF space (of symmetry ci_lsym).
 function citrans_ncsf() result(n)
@@ -437,7 +594,7 @@ function csf_rank(stepvector,csf_offset,wtab,iphase) result(ioff_csf)
   rankdo = lexrank(doub)
   rankso = lexrank(sing)
   nsoc = nsoc_group(ido)
-  kconf = conf_pos(conf_off(ido)+nsoc*(rankdo-1)+rankso)
+  kconf = find_conf(ido,nsoc*(rankdo-1)+rankso)
   if (kconf == 0) then
     write(u6,*) 'csf_rank: the CSF is not of the symmetry of the CSF space'
     call Abend()
@@ -459,7 +616,7 @@ subroutine citrans_csf2sd(ci,det)
 
   real(kind=wp), intent(in) :: ci(:)
   real(kind=wp), intent(out) :: det(ndeta,ndetb)
-  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -470,7 +627,7 @@ subroutine citrans_csf2sd(ci,det)
   ! multiplication of the coefficient array with the spin table and get
   ! the determinant coefficients. Then, loop through each configuration
   ! and put the determinants in the correct place with the right phase.
-  ! (Only the configurations of the symmetry of the CSF space, conf_pos;
+  ! (Only the kept configurations of the CSF space, conf_doub/conf_sing;
   ! the determinants of the others are zero.)
 
   call mma_allocate(stepvector,my_norb,label='stepvector')
@@ -506,25 +663,16 @@ subroutine citrans_csf2sd(ci,det)
     iso = my_nel-2*ido
     isoa = nela-ido
 
-    iconf = 0
-    doub = lex_init(ido,my_norb)
-    do idoc=1,ndoc
-      sing = lex_init(iso,my_norb-ido)
-      do isoc=1,nsoc
-        iconf = iconf+1
-        kconf = conf_pos(conf_off(ido)+iconf)
-        if (kconf > 0) then
-          alfa = lex_init(isoa,iso)
-          do idet=1,ndet
-            beta = ibits(not(alfa),0,iso)
-            phase = ds2ab(doub,sing,alfa,beta,deta,detb)
-            det(lexrank(deta),lexrank(detb)) = phase*tmp(idet,kconf)
-            alfa = lex_next(alfa)
-          end do
-        end if
-        sing = lex_next(sing)
+    do kconf=1,nconf
+      doub = conf_doub(conf_off(ido)+kconf)
+      sing = conf_sing(conf_off(ido)+kconf)
+      alfa = lex_init(isoa,iso)
+      do idet=1,ndet
+        beta = ibits(not(alfa),0,iso)
+        phase = ds2ab(doub,sing,alfa,beta,deta,detb)
+        det(lexrank(deta),lexrank(detb)) = phase*tmp(idet,kconf)
+        alfa = lex_next(alfa)
       end do
-      doub = lex_next(doub)
     end do
 
     call mma_deallocate(tmp)
@@ -542,7 +690,7 @@ subroutine citrans_sd2csf(det,ci)
 
   real(kind=wp), intent(in) :: det(ndeta,ndetb)
   real(kind=wp), intent(out) :: ci(:)
-  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -574,25 +722,16 @@ subroutine citrans_sd2csf(det,ci)
     iso = my_nel-2*ido
     isoa = nela-ido
 
-    iconf = 0
-    doub = lex_init(ido,my_norb)
-    do idoc=1,ndoc
-      sing = lex_init(iso,my_norb-ido)
-      do isoc=1,nsoc
-        iconf = iconf+1
-        kconf = conf_pos(conf_off(ido)+iconf)
-        if (kconf > 0) then
-          alfa = lex_init(isoa,iso)
-          do idet=1,ndet
-            beta = ibits(not(alfa),0,iso)
-            phase = ds2ab(doub,sing,alfa,beta,deta,detb)
-            tmp(idet,kconf) = phase*det(lexrank(deta),lexrank(detb))
-            alfa = lex_next(alfa)
-          end do
-        end if
-        sing = lex_next(sing)
+    do kconf=1,nconf
+      doub = conf_doub(conf_off(ido)+kconf)
+      sing = conf_sing(conf_off(ido)+kconf)
+      alfa = lex_init(isoa,iso)
+      do idet=1,ndet
+        beta = ibits(not(alfa),0,iso)
+        phase = ds2ab(doub,sing,alfa,beta,deta,detb)
+        tmp(idet,kconf) = phase*det(lexrank(deta),lexrank(detb))
+        alfa = lex_next(alfa)
       end do
-      doub = lex_next(doub)
     end do
 
     ! Compute the determinant coefficients from the CSF coefficients.
@@ -616,7 +755,7 @@ subroutine citrans_csf2ras(ci,vec)
 
   real(kind=wp), intent(in) :: ci(:)
   real(kind=wp), intent(out) :: vec(n_ras)
-  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -627,7 +766,7 @@ subroutine citrans_csf2ras(ci,vec)
   ! multiplication of the coefficient array with the spin table and get
   ! the determinant coefficients. Then, loop through each configuration
   ! and put the determinants in the correct place with the right phase.
-  ! (Only the configurations of the symmetry of the CSF space, conf_pos;
+  ! (Only the kept configurations of the CSF space, conf_doub/conf_sing;
   ! the determinants of the others are zero.)
 
   call mma_allocate(stepvector,my_norb,label='stepvector')
@@ -663,25 +802,16 @@ subroutine citrans_csf2ras(ci,vec)
     iso = my_nel-2*ido
     isoa = nela-ido
 
-    iconf = 0
-    doub = lex_init(ido,my_norb)
-    do idoc=1,ndoc
-      sing = lex_init(iso,my_norb-ido)
-      do isoc=1,nsoc
-        iconf = iconf+1
-        kconf = conf_pos(conf_off(ido)+iconf)
-        if (kconf > 0) then
-          alfa = lex_init(isoa,iso)
-          do idet=1,ndet
-            beta = ibits(not(alfa),0,iso)
-            phase = ds2ab(doub,sing,alfa,beta,deta,detb)
-            vec(ras_addr(deta,detb)) = phase*tmp(idet,kconf)
-            alfa = lex_next(alfa)
-          end do
-        end if
-        sing = lex_next(sing)
+    do kconf=1,nconf
+      doub = conf_doub(conf_off(ido)+kconf)
+      sing = conf_sing(conf_off(ido)+kconf)
+      alfa = lex_init(isoa,iso)
+      do idet=1,ndet
+        beta = ibits(not(alfa),0,iso)
+        phase = ds2ab(doub,sing,alfa,beta,deta,detb)
+        vec(ras_addr(deta,detb)) = phase*tmp(idet,kconf)
+        alfa = lex_next(alfa)
       end do
-      doub = lex_next(doub)
     end do
 
     call mma_deallocate(tmp)
@@ -700,7 +830,7 @@ subroutine citrans_ras2csf(vec,ci)
 
   real(kind=wp), intent(in) :: vec(n_ras)
   real(kind=wp), intent(out) :: ci(:)
-  integer(kind=iwp) :: ido, iso, isoa, idoc, isoc, iconf, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndoc, nsoc, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -732,25 +862,16 @@ subroutine citrans_ras2csf(vec,ci)
     iso = my_nel-2*ido
     isoa = nela-ido
 
-    iconf = 0
-    doub = lex_init(ido,my_norb)
-    do idoc=1,ndoc
-      sing = lex_init(iso,my_norb-ido)
-      do isoc=1,nsoc
-        iconf = iconf+1
-        kconf = conf_pos(conf_off(ido)+iconf)
-        if (kconf > 0) then
-          alfa = lex_init(isoa,iso)
-          do idet=1,ndet
-            beta = ibits(not(alfa),0,iso)
-            phase = ds2ab(doub,sing,alfa,beta,deta,detb)
-            tmp(idet,kconf) = phase*vec(ras_addr(deta,detb))
-            alfa = lex_next(alfa)
-          end do
-        end if
-        sing = lex_next(sing)
+    do kconf=1,nconf
+      doub = conf_doub(conf_off(ido)+kconf)
+      sing = conf_sing(conf_off(ido)+kconf)
+      alfa = lex_init(isoa,iso)
+      do idet=1,ndet
+        beta = ibits(not(alfa),0,iso)
+        phase = ds2ab(doub,sing,alfa,beta,deta,detb)
+        tmp(idet,kconf) = phase*vec(ras_addr(deta,detb))
+        alfa = lex_next(alfa)
       end do
-      doub = lex_next(doub)
     end do
 
     ! Compute the determinant coefficients from the CSF coefficients.
@@ -773,13 +894,13 @@ subroutine citrans_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
 ! deta, detb and coef are allocated here, to be freed by the caller.
 
   use second_quantization, only: lex_init, lex_next
-  use faroald, only: my_nel, my_norb, nela
+  use faroald, only: my_nel, nela
 
   integer(kind=iwp), intent(in) :: kcsf
   integer(kind=iwp), intent(out) :: k1, ncsf, ndet
   integer(kind=iwp), allocatable, intent(out) :: deta(:), detb(:)
   real(kind=wp), allocatable, intent(out) :: coef(:,:)
-  integer(kind=iwp) :: ido, iso, isoa, ioff, iconf, idoc, isoc, i, idet, doub, sing, alfa, beta, phase, kconf
+  integer(kind=iwp) :: ido, iso, isoa, ioff, idet, doub, sing, alfa, beta, phase, kconf
 
   ! locate the configuration group and the configuration within it (among
   ! those of the symmetry of the CSF space)
@@ -796,20 +917,11 @@ subroutine citrans_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
   ndet = ndet_group(ido)
   kconf = (kcsf-ioff-1)/ncsf+1
   k1 = ioff+(kconf-1)*ncsf+1
-  iconf = conf_list(conf_off(ido)+kconf)
-  idoc = (iconf-1)/nsoc_group(ido)+1
-  isoc = iconf-(idoc-1)*nsoc_group(ido)
+  doub = conf_doub(conf_off(ido)+kconf)
+  sing = conf_sing(conf_off(ido)+kconf)
 
   iso = my_nel-2*ido
   isoa = nela-ido
-  doub = lex_init(ido,my_norb)
-  do i=2,idoc
-    doub = lex_next(doub)
-  end do
-  sing = lex_init(iso,my_norb-ido)
-  do i=2,isoc
-    sing = lex_next(sing)
-  end do
 
   call mma_allocate(deta,ndet,label='deta')
   call mma_allocate(detb,ndet,label='detb')
@@ -1086,6 +1198,29 @@ subroutine spintabs_allocate()
       end do
 
     end function pdep
+
+    ! the inverse of pdep: gathers the bits of 'val' at the positions set in
+    ! 'mask' into the lowest bits of 'res'
+    function pext(val,mask) result(res)
+
+      integer(kind=iwp) :: res
+      integer(kind=iwp), intent(in) :: val, mask
+      integer(kind=iwp) :: pos, k, tmp_mask
+
+      res = 0
+      tmp_mask = mask
+      pos = 0
+      k = 0
+      do while (tmp_mask /= 0)
+        if (iand(tmp_mask,1) == 1) then
+          if (btest(val,pos)) res = ibset(res,k)
+          k = k+1
+        end if
+        tmp_mask = ishft(tmp_mask,-1)
+        pos = pos+1
+      end do
+
+    end function pext
 
 ! a CSF is a CSF consisting of singly occupied orbitals and is given
 ! by its down_orb string, that is the orbitals which are down coupled.

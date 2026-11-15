@@ -64,7 +64,7 @@ type(ras_spin) :: sa, sb
 integer(kind=iwp), allocatable :: blk_off(:,:), blk_offT(:,:)
 logical(kind=iwp) :: ras_active = .false.
 
-public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_from_full, ras_sigma, &
+public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_count_dets, ras_from_full, ras_sigma, &
           ras_to_full, ras_traci, ras_trans_one_pdm, ras_trans_two_pdm
 
 contains
@@ -512,81 +512,43 @@ contains
 end subroutine same_spin
 
 !> The alpha-beta part: sgm(Ia,Ib) += sum_tuvx g_tuvx <Ia|e^a_tu|Ja>
-!> <Ib|e^b_vx|Jb> vec(Ja,Jb), for each alpha operator (t,u) over its pairs
-!> (Ja -> Ia) and the beta single excitations of each Ib.
+!> <Ib|e^b_vx|Jb> vec(Ja,Jb), over the determinants (Ja,Jb) of the RAS
+!> space only: for each beta string Jb and its single excitations
+!> Jb -> Ib (v,x), the alpha strings Ja of the allowed blocks and their
+!> single excitations Ja -> Ia (t,u).
 subroutine opposite_spin(g,vec,sgm)
   real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
   real(kind=wp), intent(inout) :: sgm(n_ras)
-  integer(kind=iwp) :: npq, pq, e, ga, k, ib, cbi, nl, il, ia, ja, cai, caj, cbj, oi, sgn_a
-  integer(kind=iwp), allocatable :: pq_off(:), pq_ja(:), pq_ia(:), pq_sgn(:), pos(:), lst_j(:)
-  real(kind=wp), allocatable :: f(:)
-  real(kind=wp) :: val
+  integer(kind=iwp) :: gb, cbj, cbi, eb, ib, v, x, caj, cai, ja, ga, ea, ia, oj, oi, sgb
+  real(kind=wp) :: c
 
-  npq = ras_norb*ras_norb
-  ! the alpha pairs grouped by operator (p,q)
-  call mma_allocate(pq_off,npq+1,label='ras_pq_off')
-  call mma_allocate(pos,npq,label='ras_pos')
-  pq_off(:) = 0
-  do e=1,sa%nex
-    pq = (sa%ex_q(e)-1)*ras_norb+sa%ex_p(e)
-    pq_off(pq+1) = pq_off(pq+1)+1
-  end do
-  do pq=1,npq
-    pq_off(pq+1) = pq_off(pq+1)+pq_off(pq)
-  end do
-  call mma_allocate(pq_ja,max(1,sa%nex),label='ras_pq_ja')
-  call mma_allocate(pq_ia,max(1,sa%nex),label='ras_pq_ia')
-  call mma_allocate(pq_sgn,max(1,sa%nex),label='ras_pq_sgn')
-  pos(:) = pq_off(1:npq)
-  do ga=1,sa%nstr
-    do e=sa%ex_off(ga)+1,sa%ex_off(ga+1)
-      pq = (sa%ex_q(e)-1)*ras_norb+sa%ex_p(e)
-      pos(pq) = pos(pq)+1
-      pq_ja(pos(pq)) = ga
-      pq_ia(pos(pq)) = sa%ex_j(e)
-      pq_sgn(pos(pq)) = sa%ex_sgn(e)
-    end do
-  end do
-
-  call mma_allocate(f,max(1,sb%nex),label='ras_fab')
-  call mma_allocate(lst_j,max(1,sb%nex),label='ras_lst_j')
-  do pq=1,npq
-    if (pq_off(pq+1) == pq_off(pq)) cycle
-    ! (t,u) = (p,q) of the alpha operator
-    do ib=1,sb%nstr
+  do gb=1,sb%nstr
+    cbj = sb%str_cls(gb)
+    do eb=sb%ex_off(gb)+1,sb%ex_off(gb+1)
+      ib = sb%ex_j(eb)
       cbi = sb%str_cls(ib)
-      ! f(Jb) = sum_vx g_tuvx <Ib|e_vx|Jb>, from Jb = e_p'q' Ib: v = q', x = p'
-      nl = 0
-      do e=sb%ex_off(ib)+1,sb%ex_off(ib+1)
-        nl = nl+1
-        lst_j(nl) = sb%ex_j(e)
-        f(nl) = sb%ex_sgn(e)*g(mod(pq-1,ras_norb)+1,(pq-1)/ras_norb+1,sb%ex_q(e),sb%ex_p(e))
-      end do
-      do k=pq_off(pq)+1,pq_off(pq+1)
-        ia = pq_ia(k)
-        ja = pq_ja(k)
-        sgn_a = pq_sgn(k)
-        cai = sa%str_cls(ia)
-        if (blk_off(cai,cbi) < 0) cycle
-        caj = sa%str_cls(ja)
-        val = Zero
-        do il=1,nl
-          cbj = sb%str_cls(lst_j(il))
-          if (blk_off(caj,cbj) < 0) cycle
-          val = val+f(il)*vec(blk_off(caj,cbj)+sa%str_idx(ja)+(sb%str_idx(lst_j(il))-1)*sa%cls_nstr(caj))
+      v = sb%ex_p(eb)
+      x = sb%ex_q(eb)
+      sgb = sb%ex_sgn(eb)
+      do caj=1,sa%ncls
+        if (blk_off(caj,cbj) < 0) cycle
+        oj = blk_off(caj,cbj)+(sb%str_idx(gb)-1)*sa%cls_nstr(caj)
+        do ja=1,sa%cls_nstr(caj)
+          c = vec(oj+ja)
+          if (c == Zero) cycle
+          c = sgb*c
+          ga = sa%cls_off(caj)+ja
+          do ea=sa%ex_off(ga)+1,sa%ex_off(ga+1)
+            ia = sa%ex_j(ea)
+            cai = sa%str_cls(ia)
+            if (blk_off(cai,cbi) < 0) cycle
+            oi = blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai)
+            sgm(oi) = sgm(oi)+sa%ex_sgn(ea)*g(sa%ex_p(ea),sa%ex_q(ea),v,x)*c
+          end do
         end do
-        oi = blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai)
-        sgm(oi) = sgm(oi)+sgn_a*val
       end do
     end do
   end do
-  call mma_deallocate(f)
-  call mma_deallocate(lst_j)
-  call mma_deallocate(pq_off)
-  call mma_deallocate(pos)
-  call mma_deallocate(pq_ja)
-  call mma_deallocate(pq_ia)
-  call mma_deallocate(pq_sgn)
 
 end subroutine opposite_spin
 
@@ -646,7 +608,7 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   real(kind=wp), intent(out) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
   real(kind=wp), allocatable :: bT(:), kT(:)
   integer(kind=iwp) :: ea, eb, ja, ia, jb, ib, caj, cai, cbj, cbi, t, u, v, x
-  real(kind=wp) :: c
+  real(kind=wp) :: c, val
 
   p2(:,:,:,:) = Zero
   ! same spin
@@ -658,28 +620,31 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   call col_two_pdm(sb,sa,blk_offT,bT,kT,p2)
   call mma_deallocate(bT)
   call mma_deallocate(kT)
-  ! opposite spin: <a+_ta a_ua a+_vb a_xb>, also as (v,x,t,u)
-  do ja=1,sa%nstr
-    caj = sa%str_cls(ja)
-    do ea=sa%ex_off(ja)+1,sa%ex_off(ja+1)
-      ia = sa%ex_j(ea)
-      cai = sa%str_cls(ia)
-      t = sa%ex_p(ea)
-      u = sa%ex_q(ea)
-      do jb=1,sb%nstr
-        cbj = sb%str_cls(jb)
+  ! opposite spin: <a+_ta a_ua a+_vb a_xb>, also as (v,x,t,u); over the
+  ! ket determinants (Ja,Jb) of the RAS space
+  do jb=1,sb%nstr
+    cbj = sb%str_cls(jb)
+    do eb=sb%ex_off(jb)+1,sb%ex_off(jb+1)
+      ib = sb%ex_j(eb)
+      cbi = sb%str_cls(ib)
+      v = sb%ex_p(eb)
+      x = sb%ex_q(eb)
+      do caj=1,sa%ncls
         if (blk_off(caj,cbj) < 0) cycle
-        do eb=sb%ex_off(jb)+1,sb%ex_off(jb+1)
-          ib = sb%ex_j(eb)
-          cbi = sb%str_cls(ib)
-          if (blk_off(cai,cbi) < 0) cycle
-          v = sb%ex_p(eb)
-          x = sb%ex_q(eb)
-          c = real(sa%ex_sgn(ea)*sb%ex_sgn(eb),kind=wp)* &
-              bra(blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai))* &
-              ket(blk_off(caj,cbj)+sa%str_idx(ja)+(sb%str_idx(jb)-1)*sa%cls_nstr(caj))
-          p2(t,u,v,x) = p2(t,u,v,x)+c
-          p2(v,x,t,u) = p2(v,x,t,u)+c
+        do ja=sa%cls_off(caj)+1,sa%cls_off(caj)+sa%cls_nstr(caj)
+          c = ket(blk_off(caj,cbj)+sa%str_idx(ja)+(sb%str_idx(jb)-1)*sa%cls_nstr(caj))
+          if (c == Zero) cycle
+          c = sb%ex_sgn(eb)*c
+          do ea=sa%ex_off(ja)+1,sa%ex_off(ja+1)
+            ia = sa%ex_j(ea)
+            cai = sa%str_cls(ia)
+            if (blk_off(cai,cbi) < 0) cycle
+            t = sa%ex_p(ea)
+            u = sa%ex_q(ea)
+            val = sa%ex_sgn(ea)*c*bra(blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai))
+            p2(t,u,v,x) = p2(t,u,v,x)+val
+            p2(v,x,t,u) = p2(v,x,t,u)+val
+          end do
         end do
       end do
     end do
@@ -846,5 +811,42 @@ subroutine ras_traci(T,nT,vec)
   call mma_deallocate(v1)
   call mma_deallocate(v2)
 end subroutine ras_traci
+
+!> The number of determinants of the RAS space (all symmetries), without
+!> setting anything up; in floating point (no overflow), for the memory
+!> estimate of RASSCF.
+function ras_count_dets(nela,nelb,o,minr1,maxr3) result(n)
+  integer(kind=iwp), intent(in) :: nela, nelb, o(3), minr1, maxr3
+  real(kind=wp) :: n
+  integer(kind=iwp) :: a1, a3, b1, b3
+  n = Zero
+  do a3=0,min(o(3),nela)
+    do a1=0,min(o(1),nela-a3)
+      if (nela-a1-a3 > o(2)) cycle
+      do b3=0,min(o(3),nelb)
+        do b1=0,min(o(1),nelb-b3)
+          if (nelb-b1-b3 > o(2)) cycle
+          if ((a1+b1 < minr1) .or. (a3+b3 > maxr3)) cycle
+          n = n+bin_r(a1,o(1))*bin_r(nela-a1-a3,o(2))*bin_r(a3,o(3))*bin_r(b1,o(1))*bin_r(nelb-b1-b3,o(2))*bin_r(b3,o(3))
+        end do
+      end do
+    end do
+  end do
+
+contains
+
+  pure function bin_r(k,m) result(b)
+    integer(kind=iwp), intent(in) :: k, m
+    real(kind=wp) :: b
+    integer(kind=iwp) :: i
+    b = Zero
+    if ((k < 0) .or. (k > m)) return
+    b = One
+    do i=1,min(k,m-k)
+      b = b*real(m-min(k,m-k)+i,kind=wp)/real(i,kind=wp)
+    end do
+  end function bin_r
+
+end function ras_count_dets
 
 end module faroald_ras
