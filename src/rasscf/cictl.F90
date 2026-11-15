@@ -603,6 +603,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
           else
             call SG_Reord(istate,STSYM,0,nConf,CIVEC,CIV)
           end if
+          ! the phase in this common order, the same for all CI back ends
+          call VecPhase(CIV,nConf)
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then
