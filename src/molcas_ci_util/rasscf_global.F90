@@ -38,6 +38,10 @@ logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_cas
 ! Explicit CI Hamiltonian of the CI start from SGUGA (keyword SGEX)
 logical(kind=iwp) :: DoSGEx = .false.
 public :: DoSGEx
+! The whole CI in the SGUGA (split-graph) CSF basis, without Lucia (keyword
+! SGCI); development, see ci_interfaces
+logical(kind=iwp) :: DoSGCI = .false.
+public :: DoSGCI
 character(len=LenIn+8) :: BName(mxOrb)
 character(len=256) :: CMSStartMat
 character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)

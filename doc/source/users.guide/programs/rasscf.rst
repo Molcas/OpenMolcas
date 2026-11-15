@@ -2239,6 +2239,24 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`SGCI`
+  Do the whole CI with SGUGA in its own (split-graph) CSF basis: the diagonal,
+  the explicit Hamiltonian of the Davidson procedure, the sigma vectors, the
+  density matrices (including the spin density) and the CI transformation of
+  the orbital optimization, without Lucia. For CASSCF and RASSCF; with GAS,
+  :kword:`HEXS`, :kword:`DEXS`, :kword:`FAROALD`, DMRG or CASVB the keyword is
+  ignored. Not yet available with :kword:`TDM`.
+  Experimental.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGCI" APPEAR="SGUGA CI" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: SGCI <advanced>
+              <HELP>
+              Do the whole CI with SGUGA in its own CSF basis, without Lucia.
+              CASSCF and RASSCF, not with GAS, HEXS, DEXS, FAROALD, DMRG or CASVB.
+              Experimental.
+              </HELP>
+              </KEYWORD>
+
 :kword:`NKEE`
   Here follows the maximum dimension of the full Davidson Hamiltonian.
   This Hamiltonian contains the current CI vectors for each state as well

@@ -50,23 +50,33 @@ real(kind=wp), intent(out) :: PHP(nTri_Elem(MXPDIM))
 integer(kind=iwp), intent(out) :: IPCSF(MXPDIM), NPCSF
 real(kind=wp), intent(in) :: ECORE, DIAG(*), TU(nTU), TUVX(nTUVX)
 integer(kind=iwp), intent(inout) :: NTEST
-integer(kind=iwp) :: i, ICNF, ICSFMN, IFINIT, IICSF, IMIN, NCONF, NCSFMN, NPCNF
+integer(kind=iwp) :: ICNF, ICSFMN, IFINIT, IICSF, IMIN, NCONF, NCSFMN, NPCNF
 real(kind=wp) :: XMAX, XMIN
-integer(kind=iwp), allocatable :: nCSFCnf(:), IPCNF(:), iCSF1(:)
+integer(kind=iwp), allocatable :: nCSFCnf(:), IPCNF(:), iCSF1(:), iCSFCnf(:)
 real(kind=wp), allocatable :: CnfDia(:)
 real(kind=wp), parameter :: Acc = 1.0e-13_wp ! Assumed machine accuray (give and take)
 real(kind=wp), external :: FNDMNX
 
-! Layout of the CSF basis by configuration, and the diagonal value and
-! first CSF of each configuration.
-call Mk_Cnf_Layout(IREFSM,nCSFCnf)
+! Layout of the CSF basis by configuration (the CSFs of a configuration need
+! not be contiguous, iCSFCnf), and the key of each configuration: the mean of
+! the diagonal over its CSFs (for a back end with a configuration average
+! diagonal, its value; for an exact diagonal, the trace of H over the
+! configuration divided by its number of CSFs).
+call Mk_Cnf_Layout(IREFSM,nCSFCnf,iCSFCnf)
 NCONF = size(nCSFCnf)
 call mma_allocate(CnfDia,NCONF,Label='CnfDia')
 call mma_allocate(iCSF1,NCONF,Label='iCSF1')
 call mma_allocate(IPCNF,NCONF,Label='IPCNF')
 IICSF = 1
 do ICNF=1,NCONF
-  CnfDia(ICNF) = DIAG(IICSF)
+  ! (all equal: that value exactly, so that ties are not decided by rounding)
+  XMIN = minval(DIAG(iCSFCnf(IICSF:IICSF+nCSFCnf(ICNF)-1)))
+  XMAX = maxval(DIAG(iCSFCnf(IICSF:IICSF+nCSFCnf(ICNF)-1)))
+  if (XMIN == XMAX) then
+    CnfDia(ICNF) = XMIN
+  else
+    CnfDia(ICNF) = sum(DIAG(iCSFCnf(IICSF:IICSF+nCSFCnf(ICNF)-1)))/real(nCSFCnf(ICNF),kind=wp)
+  end if
   iCSF1(ICNF) = IICSF
   IICSF = IICSF+nCSFCnf(ICNF)
 end do
@@ -96,7 +106,7 @@ do
     ! add new configuration
     NPCNF = NPCNF+1
     IPCNF(NPCNF) = IMIN
-    IPCSF(NPCSF+1:NPCSF+NCSFMN) = [(i,i=ICSFMN,ICSFMN+NCSFMN-1)]
+    IPCSF(NPCSF+1:NPCSF+NCSFMN) = iCSFCnf(ICSFMN:ICSFMN+NCSFMN-1)
     NPCSF = NPCSF+NCSFMN
     CnfDia(IMIN) = XMAX+One
   else
@@ -136,6 +146,7 @@ end if
 call Mk_IHJ(PHP,nTri_Elem(MXPDIM),IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 
 call mma_deallocate(IPCNF)
+call mma_deallocate(iCSFCnf)
 call mma_deallocate(iCSF1)
 call mma_deallocate(CnfDia)
 call mma_deallocate(nCSFCnf)

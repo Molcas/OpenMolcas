@@ -29,7 +29,7 @@ subroutine LPDFT_TDM()
 use input_ras, only: Key
 #ifdef _HDF5_
 use Index_Functions, only: nTri_Elem
-use ci_interfaces, only: Mk_pdms
+use ci_interfaces, only: Mk_pdms, SG_CI
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
 use general_data, only: iDoGAS, NCONF, NELEC3, NHOLE1, STSYM
 use rasscf_files, only: JOBIPH
@@ -95,14 +95,23 @@ iDisk = IADR15(4)
 dDisk = IADR15(3)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
-  call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecL)
+  ! JOBIPH holds the split-graph order, the CI basis of SGCI
+  if (SG_CI()) then
+    VecL(:) = Tmp(:)
+  else
+    call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecL)
+  end if
   ! 1-RDM and 2-PDM of the root, needed for the polarization identity below.
   VecSum(:) = VecL(:)
   call Mk_pdms(VecSum,nConf,D=Dstate(:,jRoot),P=Pstate(:,jRoot),nD=NAC*NAC,nP=NACPR2)
   kDisk = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-    call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecR)
+    if (SG_CI()) then
+      VecR(:) = Tmp(:)
+    else
+      call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecR)
+    end if
     ! Symmetrized transition 1-RDM and 2-PDM from polarization of the (bilinear) densities:
     ! X[L+R] = X[L] + X[R] + (X_LR + X_RL), so (X_LR + X_RL)/2 = (X[L+R] - X[L] - X[R])/2.
     ! These are the only parts of the 1-TDM and 2-TDM that contract with the (symmetric) L-PDFT

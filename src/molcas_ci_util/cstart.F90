@@ -47,6 +47,7 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use rasscf_files, only: JOBIPH, JOBOLD, LUDAVID
 use general_data, only: iDoGas, NCONF, NSEL, STSYM
+use ci_interfaces, only: SG_CI
 use sguga, only: sg_reord
 #ifdef _HDF5_
 use rasscf_files, only: STARTORBFILE
@@ -129,7 +130,7 @@ if (Start_Vectors) then
         call mma_allocate(Tmp1,nConf,label='Scr1')
         do i=1,lRoots
           call mh5_fetch_dset(mh5id,'CI_VECTORS',Tmp1,[nconf,1],[0,i-1])
-          if (.not. iDoGas) then
+          if ((.not. iDoGas) .and. (.not. SG_CI())) then
             call SG_Reord(iState,STSYM,1,nConf,Tmp1,C)
           else
             C(1:nConf) = Tmp1(1:nConf)
@@ -170,7 +171,7 @@ if (Start_Vectors) then
       call mma_allocate(Tmp1,nConf,label='Scr1')
       do i=1,lRoots
         call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
-        if (.not. iDoGas) then
+        if ((.not. iDoGas) .and. (.not. SG_CI())) then
           call SG_Reord(iState,STSYM,1,nConf,Tmp1,C)
         else
           C(1:nConf) = Tmp1(1:nConf)

@@ -99,7 +99,7 @@ use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, emb
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_attr, mh5_put_dset
-use ci_interfaces, only: Mk_T1DM
+use ci_interfaces, only: Mk_T1DM, SG_CI
 use sguga, only: sg_reord
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
@@ -1573,6 +1573,10 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     call mma_deallocate(OCCX)
 
     ! Compute transition density matrices
+    if (Key('TDM') .and. SG_CI()) then
+      write(u6,'(1X,A)') 'TDM is not available with SGCI yet.'
+      call Abend()
+    end if
     if (Key('TDM')) then
 #     ifdef _HDF5_
       call mma_allocate(Tmp,NConf,Label='Tmp')

@@ -55,7 +55,7 @@ use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, C
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
-use rasscf_global, only: DoSGEx
+use rasscf_global, only: DoSGEx, DoSGCI
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, &
                          Do3RDM, Max_Canonical, Max_Sweep, MxDMRG
@@ -119,6 +119,7 @@ character(len=180), external :: Get_LN
 
 DoFaro = .false.
 DoSGEx = .false.
+DoSGCI = .false.
 
 #ifdef _DMRG_
 ! Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
@@ -3509,6 +3510,9 @@ else
   ! CI development: MOLCAS_CI_VERIFY=SGEX forces it (see CI_Verify)
   if (CI_Verify('SGEX')) DoSGEx = .true.
 
+  !---  Process SGCI command (the whole CI with SGUGA, in its own CSF basis)
+  if (Key('SGCI')) DoSGCI = .true.
+
   !---  Process NOCA command
   if (DBG) write(u6,*) ' Check if NOCALC case.'
   if (Key('NOCA')) then
@@ -4088,6 +4092,18 @@ if (DoSGEx .and. iDoGAS) then
   write(u6,'(1X,A)') 'the explicit Hamiltonian is computed by the CI backend.'
   DoSGEx = .false.
 end if
+! SGCI: SGUGA covers CAS and RAS spaces, not GAS, HEXS/DEXS (configurations
+! removed from the graph space), and is not combined with the other CI
+! back ends or wave function types.
+if (DoSGCI) then
+  if (iDoGAS .or. Key('HEXS') .or. Key('DEXS') .or. DoFaro .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+    write(u6,'(1X,A)') 'SGCI keyword was used, but SGUGA cannot run this CI (GAS, HEXS, DEXS, FARO, DMRG, NECI or CASVB);'
+    write(u6,'(1X,A)') 'the CI is done by the CI backend.'
+    DoSGCI = .false.
+  else
+    write(u6,'(1X,A)') '**EXPERIMENTAL** SGCI: the CI is done by SGUGA in its own CSF basis.'
+  end if
+end if
 ! ======================================================================
 
 if (.not. SkipGUGA) then
@@ -4099,7 +4115,7 @@ if (.not. SkipGUGA) then
   ! 2) not RASSCF or GASSCF
   ! 3) not using the expert, the HEXS or the DEXS key word
   ! Normal runs use Faroald only if requested with the FARO keyword.
-  if (CI_Verify('FARO')) then
+  if (CI_Verify('FARO') .and. (.not. DoSGCI)) then
     if ((nSym == 1) .and. &
         ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
         (.not. iDoGas) .and. &

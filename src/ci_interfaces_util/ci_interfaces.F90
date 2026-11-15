@@ -17,13 +17,13 @@ use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, &
                    traci_faroald
 use citrans, only: citrans_conf_dets, citrans_csf2sd, citrans_csf_rank, citrans_sd2csf, citrans_sort
-use rasscf_global, only: DoFaro, DoSGEx
+use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use spinfo, only: NDTASM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
-use sguga, only: CIS, SGS, EXS
+use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
 use general_data, only: iDoGAS, nRsPrt
 use CI_Verify_Options, only: CI_Verify
 
@@ -32,7 +32,7 @@ use CI_Verify_Options, only: CI_Verify
 Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
-Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify
+Public :: CI_Timer, CI_Initialize, CI_Close, CI_Verify, SG_CI
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
@@ -47,8 +47,24 @@ logical(kind=iwp) :: HPsi_RAS_Verified = .false.
 logical(kind=iwp) :: TraPsi_Verified = .false.
 ! SGEX given but SGUGA not available: warned once.
 logical(kind=iwp) :: SGEx_Warned = .false.
+! SGCI: the SGUGA sigma vector compared with Lucia (SIGMA), printed once.
+logical(kind=iwp) :: HPsi_SG_Verified = .false.
+! SGCI: the SGUGA configuration list of the CI symmetry (SG_Cnf_Kept)
+type(SGCnfList) :: Cnf_SG
+! SGCI: the SGUGA densities compared with Lucia (SIGMA), printed once.
+logical(kind=iwp) :: PDM_SG_Verified = .false.
+! SGCI: the SGUGA diagonal checked against sg_hdiag_ref (SIGMA), printed once.
+logical(kind=iwp) :: IHI_SG_Verified = .false.
 
 contains
+
+!> SGCI: the whole CI (diagonal, explicit subspace, sigma vectors, density
+!> matrices) is done by SGUGA in its own split-graph CSF basis, without
+!> Lucia (RASSCF keyword SGCI, only where SGUGA covers the CI space).
+function SG_CI() result(SGMode)
+logical(kind=iwp) :: SGMode
+SGMode = DoSGCI .and. SG_Avail()
+end function SG_CI
 
 !> SGUGA covers the CI space of RASSCF: CAS or RAS, but not GAS (no graph)
 !> and not HEXS/DEXS (I_ELIMINATE_GAS), which remove configurations that the
@@ -79,6 +95,36 @@ integer(kind=iwp) :: IREFSM_SAVE, nDet
 
 real(kind=wp) :: Check_Href, Check_H, DMax
 real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:), SG_RAS(:)
+
+! SGCI: the CI is in the SGUGA (split-graph) CSF basis. Under
+! MOLCAS_CI_VERIFY=SIGMA the sigma vector is compared with that of Lucia
+! (vector reordered to the Lucia basis and the result back).
+if (SG_CI()) then
+  if (nRsPrt == 1) then
+    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU)
+  else
+    call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU)
+  end if
+  if (CI_Verify('SIGMA')) then
+    call mma_allocate(SG_PSI,max(nCSF,NDTASM(STSYM)),Label='SG_PSI')
+    call mma_allocate(SG_SGM,max(nCSF,NDTASM(STSYM)),Label='SG_SGM')
+    call SG_Reord(iState,STSYM,1,nCSF,CI_Vec,SG_PSI)
+    call Lucia_Sigma(SG_PSI,SG_SGM)
+    call SG_Reord(iState,STSYM,0,nCSF,SG_SGM,SG_PSI)
+    DMax = maxval(abs(SG_PSI(1:nCSF)-Sigma_Vec(:)))
+    if (.not. HPsi_SG_Verified) then
+      write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi (SGCI): SGUGA sigma vs Lucia, max. abs. difference',DMax
+      HPsi_SG_Verified = .true.
+    end if
+    if (DMax > 1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:))))) then
+      write(u6,'(1X,A,ES10.3)') 'SGUGA error in H|Psi> (SGCI), max. abs. difference',DMax
+      call Abend()
+    end if
+    call mma_deallocate(SG_SGM)
+    call mma_deallocate(SG_PSI)
+  end if
+  return
+end if
 
 if (DOFARO) then
 
@@ -175,6 +221,33 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    Call mma_deallocate(SG_SGM)
    Call mma_deallocate(SG_PSI)
 End if
+
+contains
+
+  ! Lucia sigma vector of the CSF vector Cin (Lucia basis), the reference
+  ! of SGCI; Sout must hold max(nCSF,nDet) elements (CSDTVC).
+  subroutine Lucia_Sigma(Cin,Sout)
+    real(kind=wp), intent(in) :: Cin(*)
+    real(kind=wp), intent(inout) :: Sout(*)
+    integer(kind=iwp) :: IREFSM_Keep, nD
+
+    IREFSM_Keep = IREFSM
+    IREFSM = STSYM
+    ICSM = STSYM
+    ISSM = STSYM
+    nD = NDTASM(IREFSM)
+    ctemp(1:nCSF) = Cin(1:nCSF)
+    sigtemp(:) = Zero
+    call csdtvc(ctemp,sigtemp,1,STSym,0)
+    ctemp(1:nD) = sigtemp(1:nD)
+    call Lucia_Util('Sigma',CI_Vector=ctemp(:),Sigma_Vector=sigtemp(:),nTU=Size(TU),TU=TU,nTUVX=Size(TUVX),TUVX=TUVX)
+    Sigma_on_disk = .true.
+    call CSDTVC(Sout,sigtemp,2,STSym,0)
+    IREFSM = IREFSM_Keep
+    ICSM = IREFSM
+    ISSM = IREFSM
+
+  end subroutine Lucia_Sigma
 
 End Subroutine Mk_H_Psi
 
@@ -556,6 +629,14 @@ real(kind=wp) :: Check_D1, Check_P, Check_PA
 real(kind=wp), allocatable :: D_Sguga(:)
 real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
+ ! SGCI: the densities from SGUGA in its basis (D, SD in the triangular
+ ! packing of the levels, P and PA as sg_two_pdm); under SIGMA compared
+ ! with those of Lucia for the vector reordered to the Lucia basis.
+ if (SG_CI()) then
+   call SGCI_Densities()
+   return
+ end if
+
  If (DoFaro) Then
    call mma_allocate(D_loc,nD,Label='D_loc')
    call mma_allocate(SD_loc,nD,Label='SD_loc')
@@ -674,6 +755,75 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
         END IF
 
+contains
+
+  subroutine SGCI_Densities()
+    real(kind=wp), allocatable :: DS(:), SDS(:), PS(:), PAS(:), CIL(:)
+    real(kind=wp) :: Dev(4)
+    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
+
+    call mma_allocate(DS,NACPAR,Label='DS')
+    call mma_allocate(SDS,NACPAR,Label='SDS')
+    call mma_allocate(PS,NACPR2,Label='PS')
+    call mma_allocate(PAS,NACPR2,Label='PAS')
+    call sg_one_pdm(SGS(iState),CIS(iState),EXS(iState),CIVEC,nCIVEC,STSYM,DS,NACPAR)
+    SDS(:) = Zero
+    if (Present(SD)) call sg_spin_pdm(SGS(iState),CIS(iState),EXS(iState),CIVEC,nCIVEC,STSYM,DS,SDS,NACPAR)
+    PS(:) = Zero
+    PAS(:) = Zero
+    if (Present(P) .or. Present(PA)) call sg_two_pdm(SGS(iState),CIS(iState),EXS(iState),CIVEC,nCIVEC,STSYM,PS,PAS,NACPR2)
+    if (Present(D)) then
+      D(1:nD) = Zero
+      D(1:NACPAR) = DS(:)
+    end if
+    if (Present(SD)) then
+      SD(1:nD) = Zero
+      SD(1:NACPAR) = SDS(:)
+    end if
+    if (Present(P)) P(1:nP) = PS(1:nP)
+    if (Present(PA)) PA(1:nP) = PAS(1:nP)
+
+    if (CI_Verify('SIGMA')) then
+      ! Lucia densities of the vector in the Lucia basis
+      call mma_allocate(CIL,nCIVEC,Label='CIL')
+      call SG_Reord(iState,STSYM,1,nCIVEC,CIVEC,CIL)
+      call mma_allocate(DTMP,nD,Label='DTMP')
+      call mma_allocate(DSTMP,nD,Label='DSTMP')
+      call mma_allocate(PTMP,nP,Label='PTMP')
+      call mma_allocate(PATMP,nP,Label='PATMP')
+      call Lucia_Util('Densi',CI_Vector=CIL)
+      ! Only the triangles are defined (DTMP and DSTMP are not initialized
+      ! behind them), and Lucia computes no spin density for singlets.
+      Dev(1) = maxval(abs(DTMP(1:NACPAR)-DS(:)))
+      Dev(2) = Zero
+      if (Present(SD) .and. (SGS(iState)%iSpin > 1)) Dev(2) = maxval(abs(DSTMP(1:NACPAR)-SDS(:)))
+      Dev(3) = Zero
+      Dev(4) = Zero
+      if (Present(P) .or. Present(PA)) then
+        Dev(3) = maxval(abs(PTMP(1:nP)-PS(1:nP)))
+        Dev(4) = maxval(abs(PATMP(1:nP)-PAS(1:nP)))
+      end if
+      if (.not. PDM_SG_Verified) then
+        write(u6,'(1X,A,4ES10.3)') 'Mk_pdms (SGCI): SGUGA D, SD, P, PA vs Lucia, max. abs. differences',Dev(:)
+        PDM_SG_Verified = .true.
+      end if
+      if (any(Dev(:) > ThrD)) then
+        write(u6,'(1X,A,4ES10.3)') 'SGUGA error in the density matrices (SGCI), max. abs. differences',Dev(:)
+        call Abend()
+      end if
+      call mma_deallocate(PATMP)
+      call mma_deallocate(PTMP)
+      call mma_deallocate(DSTMP)
+      call mma_deallocate(DTMP)
+      call mma_deallocate(CIL)
+    end if
+
+    call mma_deallocate(PAS)
+    call mma_deallocate(PS)
+    call mma_deallocate(SDS)
+    call mma_deallocate(DS)
+  end subroutine SGCI_Densities
+
  End Subroutine Mk_pdms
 
 !***********************************************************************************************************************************
@@ -779,6 +929,7 @@ call faroald_free()
 call citrans_free()
 
 Call SG_free(iState)
+call SG_Free_Cnf_List(Cnf_SG)
 
 end subroutine CI_Close
 
@@ -814,6 +965,12 @@ integer(kind=iwp):: IPRINT=0
 
 integer(kind=iwp) :: i
 real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
+
+! SGCI: the exact diagonal in the SGUGA basis, no Lucia
+if (SG_CI()) then
+  call SGCI_Diag()
+  return
+end if
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
@@ -887,6 +1044,50 @@ if (CI_Verify('HDIAG') .and. SG_Avail()) then
 end if
 
 contains
+
+  ! SGCI: CSFDIA = <I|H|I> in the split-graph CSF basis (sg_hdiag_fast);
+  ! under SIGMA checked against sg_hdiag_ref for small spaces.
+  subroutine SGCI_Diag()
+    use sguga, only: SGStruct, CIStruct, EXStruct
+    integer(kind=iwp), parameter :: iState = 1, MxRef = 500
+    real(kind=wp) :: MaxDev
+    real(kind=wp), allocatable :: DRef(:)
+    interface
+      subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
+        import :: SGStruct, CIStruct, EXStruct, iwp, wp
+        type(SGStruct), intent(in) :: SGS
+        type(CIStruct), intent(in) :: CIS
+        type(EXStruct), intent(inout) :: EXS
+        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
+        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+        real(kind=wp), intent(out) :: Diag(nCSFs)
+      end subroutine sg_hdiag_fast
+      subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
+        import :: SGStruct, CIStruct, EXStruct, iwp, wp
+        type(SGStruct), intent(in) :: SGS
+        type(CIStruct), intent(in) :: CIS
+        type(EXStruct), intent(inout) :: EXS
+        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
+        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+        real(kind=wp), intent(out) :: Diag(nCSFs)
+      end subroutine sg_hdiag_ref
+    end interface
+    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,CSFDIA)
+    if (CI_Verify('SIGMA') .and. (nConf <= MxRef)) then
+      call mma_allocate(DRef,nConf,Label='DRef')
+      call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DRef)
+      MaxDev = maxval(abs(CSFDIA(:)-DRef(:)))
+      if (.not. IHI_SG_Verified) &
+        write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (SGCI): sg_hdiag_fast verified against sg_hdiag_ref, ',nConf,' CSFs, max. error ', &
+                                       MaxDev
+      IHI_SG_Verified = .true.
+      if (MaxDev > ThrDia*max(One,maxval(abs(DRef(:))))) then
+        write(u6,*) 'Mk_IHI: sg_hdiag_fast differs from sg_hdiag_ref'
+        call Abend()
+      end if
+      call mma_deallocate(DRef)
+    end if
+  end subroutine SGCI_Diag
 
   subroutine Verify_IHI()
     use general_data, only: NSEL
@@ -1120,7 +1321,7 @@ contains
     real(kind=wp), parameter :: Acc = 1.0e-13_wp
     integer(kind=iwp), allocatable :: nCSFCnf(:)
 
-    call Mk_Cnf_Layout(STSYM,nCSFCnf)
+    call Mk_Cnf_Layout_Lucia(STSYM,nCSFCnf)
     call mma_allocate(Wrk,size(Key),Label='Wrk')
     Wrk(:) = Key(:)
     XMax = maxval(abs(Key))
@@ -1160,7 +1361,48 @@ End subroutine Mk_IHI
 !> configurations being in the order of the CSF basis (the CSFs of one
 !> configuration are consecutive). Allocated here, to be freed by the caller
 !> with mma_deallocate. (Lucia back end: configuration types from spinfo.)
-subroutine Mk_Cnf_Layout(IREFSM,nCSFCnf)
+!> Layout of the CSF basis of symmetry IREFSM by configuration: nCSFCnf(k)
+!> CSFs in configuration k, and optionally their indices in the CSF basis,
+!> iCSFCnf(iOff+1:iOff+nCSFCnf(k)) (configuration by configuration). With
+!> SGCI the SGUGA configurations and split-graph CSF indices (not
+!> contiguous), otherwise those of the CI back end (contiguous).
+subroutine Mk_Cnf_Layout(IREFSM,nCSFCnf,iCSFCnf)
+integer(kind=iwp), intent(in) :: IREFSM
+integer(kind=iwp), allocatable, intent(out) :: nCSFCnf(:)
+integer(kind=iwp), allocatable, intent(out), optional :: iCSFCnf(:)
+integer(kind=iwp) :: k, I
+
+if (SG_CI()) then
+  call SG_Cnf_Kept(IREFSM)
+  call mma_allocate(nCSFCnf,Cnf_SG%nCnf,Label='nCSFCnf')
+  do k=1,Cnf_SG%nCnf
+    nCSFCnf(k) = Cnf_SG%iOff(k+1)-Cnf_SG%iOff(k)
+  end do
+  if (present(iCSFCnf)) then
+    call mma_allocate(iCSFCnf,Cnf_SG%iOff(Cnf_SG%nCnf+1),Label='iCSFCnf')
+    iCSFCnf(:) = Cnf_SG%iCSF(1:Cnf_SG%iOff(Cnf_SG%nCnf+1))
+  end if
+else
+  call Mk_Cnf_Layout_Lucia(IREFSM,nCSFCnf)
+  if (present(iCSFCnf)) then
+    call mma_allocate(iCSFCnf,sum(nCSFCnf),Label='iCSFCnf')
+    do I=1,size(iCSFCnf)
+      iCSFCnf(I) = I
+    end do
+  end if
+end if
+
+end subroutine Mk_Cnf_Layout
+
+!> The SGUGA configuration list of symmetry LSM, built once and kept
+!> (Cnf_SG) for SGCI.
+subroutine SG_Cnf_Kept(LSM)
+use sguga, only: SG_Mk_Cnf_List
+integer(kind=iwp), intent(in) :: LSM
+if ((Cnf_SG%nCnf == 0) .or. (Cnf_SG%LSM /= LSM)) call SG_Mk_Cnf_List(1,LSM,Cnf_SG)
+end subroutine SG_Cnf_Kept
+
+subroutine Mk_Cnf_Layout_Lucia(IREFSM,nCSFCnf)
 use spinfo, only: NCNFTP, NCSFTP, NTYP
 
 integer(kind=iwp), intent(in) :: IREFSM
@@ -1176,7 +1418,7 @@ do iTyp=1,NTYP
   end do
 end do
 
-end subroutine Mk_Cnf_Layout
+end subroutine Mk_Cnf_Layout_Lucia
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
@@ -1229,6 +1471,21 @@ NPCSF = size(IPCSF)
 if (nTri_Elem(NPCSF) > nPHP) then
   write(u6,*) 'Mk_IHJ: PHP too small for the selected CSFs:',nTri_Elem(NPCSF),nPHP
   call Abend()
+end if
+
+! SGCI: SGUGA configurations and split-graph CSFs; under SIGMA the block is
+! checked once against exact columns H e_J of Mk_H_Psi (itself compared
+! with Lucia there).
+if (SG_CI()) then
+  call SG_Cnf_Kept(IREFSM)
+  call SG_Explicit_Block(1,Cnf_SG,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,PHP)
+  if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
+    IHJ_Verified = .true.
+    call Verify_IHJ()
+  end if
+  call mma_deallocate(IPCSF)
+  call mma_deallocate(nSelCnf)
+  return
 end if
 
 ! SGUGA is available without GAS and for a single RAS partition (SGS is not
@@ -1308,9 +1565,10 @@ contains
   ! nSelCnf: the number of CSFs of each selected configuration.
   subroutine Sel_CSFs()
     integer(kind=iwp) :: iCnf, iOff, kCnf, I, ICSF
-    integer(kind=iwp), allocatable :: nCSFCnf(:), iCSF1(:)
+    integer(kind=iwp), allocatable :: nCSFCnf(:), iCSF1(:), iCSFCnf(:)
 
-    call Mk_Cnf_Layout(IREFSM,nCSFCnf)
+    call Mk_Cnf_Layout(IREFSM,nCSFCnf,iCSFCnf)
+    ! iCSF1(k): position of the first CSF of configuration k in iCSFCnf
     call mma_allocate(iCSF1,size(nCSFCnf),Label='iCSF1')
     iOff = 1
     do iCnf=1,size(nCSFCnf)
@@ -1324,9 +1582,10 @@ contains
       nSelCnf(kCnf) = nCSFCnf(IPCNF(kCnf))
       do I=1,nCSFCnf(IPCNF(kCnf))
         ICSF = ICSF+1
-        IPCSF(ICSF) = iCSF1(IPCNF(kCnf))+I-1
+        IPCSF(ICSF) = iCSFCnf(iCSF1(IPCNF(kCnf))+I-1)
       end do
     end do
+    call mma_deallocate(iCSFCnf)
     call mma_deallocate(iCSF1)
     call mma_deallocate(nCSFCnf)
 
@@ -1686,7 +1945,7 @@ contains
       CnfOfG(Cnf%iCSF(Cnf%iOff(kG)+1:Cnf%iOff(kG+1))) = kG
     end do
     ! (1) configurations of the back end -> SGUGA configurations, a bijection
-    call Mk_Cnf_Layout(IREFSM,nCSFL)
+    call Mk_Cnf_Layout_Lucia(IREFSM,nCSFL)
     if (size(nCSFL) /= Cnf%nCnf) then
       write(u6,*) 'Mk_IHJ: number of configurations, CI back end and SGUGA:',size(nCSFL),Cnf%nCnf
       call Abend()
@@ -2038,6 +2297,33 @@ integer(kind=iwp) :: iCSF
 real(kind=wp), allocatable :: CI_Faroald(:)
 real(kind=wp), allocatable :: CI_SGUGA(:)
 logical(kind=iwp) :: Verify_SG
+
+! SGCI: the vector is in the SGUGA basis, transformed by SGUGA; under SIGMA
+! compared with Lucia (vector reordered to the Lucia basis and back).
+if (SG_CI()) then
+  if (CI_Verify('SIGMA')) then
+    call mma_allocate(CI_Faroald,nCSF,Label='CI_Lucia')
+    call SG_REORD(iState,STSYM,1,nCSF,CI_Vector,CI_Faroald)
+    call Lucia_util('TRACI',CI_Vector=CI_Faroald(:),TU=TU(:),nTU=nTU)
+  end if
+  call SG_TRACI(iState,STSYM,TU,nTU,CI_Vector,nCSF)
+  if (CI_Verify('SIGMA')) then
+    call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
+    call SG_REORD(iState,STSYM,0,nCSF,CI_Faroald,CI_SGUGA)
+    if (.not. TraPsi_Verified) then
+      write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_Tra_Psi (SGCI): SGUGA CI transformation verified against Lucia, ',nCSF, &
+                                     ' CSFs, max. error ',maxval(abs(CI_Vector(:)-CI_SGUGA(:)))
+      TraPsi_Verified = .true.
+    end if
+    if (maxval(abs(CI_Vector(:)-CI_SGUGA(:))) > 1.0e-10_wp) then
+      write(u6,*) 'Mk_Tra_Psi (SGCI): SGUGA and Lucia CI transformations differ'
+      call Abend()
+    end if
+    call mma_deallocate(CI_SGUGA)
+    call mma_deallocate(CI_Faroald)
+  end if
+  return
+end if
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): also transform with SGUGA and compare.
 Verify_SG = CI_Verify('SIGMA') .and. SG_Avail()
