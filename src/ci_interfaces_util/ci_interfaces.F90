@@ -55,6 +55,8 @@ type(SGCnfList) :: Cnf_SG
 logical(kind=iwp) :: PDM_SG_Verified = .false.
 ! SGCI: the SGUGA diagonal checked against sg_hdiag_ref (SIGMA), printed once.
 logical(kind=iwp) :: IHI_SG_Verified = .false.
+! SGCI: the SGUGA transition densities compared with Lucia (SIGMA), printed once.
+logical(kind=iwp) :: T1DM_SG_Verified = .false.
 
 contains
 
@@ -549,6 +551,13 @@ real(kind=wp), allocatable:: T1SDM_loc(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), tem
 integer(kind=iwp), parameter :: iState=1
 logical(kind=iwp) :: free_D, free_DS
 
+! SGCI: transition densities from SGUGA in its basis; under SIGMA compared
+! with Lucia (both vectors reordered to the Lucia basis).
+if (SG_CI()) then
+  call SGCI_T1DM()
+  return
+end if
+
 If (DoFaro) Then
    Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
 
@@ -601,6 +610,58 @@ Else
    If (Free_D ) Call mma_deallocate(DTMP )
    If (Free_DS) Call mma_deallocate(DSTMP)
 End If
+
+contains
+
+  subroutine SGCI_T1DM()
+    real(kind=wp), allocatable :: TS(:), TSS(:), BL(:), KL(:)
+    real(kind=wp) :: Dev(2)
+    integer(kind=iwp) :: p, q
+    logical(kind=iwp) :: Spin
+    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
+
+    Spin = present(T1SDM)
+    call mma_allocate(TS,NAC*NAC,Label='TS')
+    call mma_allocate(TSS,NAC*NAC,Label='TSS')
+    call sg_trans_pdm(SGS(iState),CIS(iState),EXS(iState),Bra_Vec,Ket_Vec,nVec,STSYM,NAC,TS,TSS,Spin)
+    ! layout of the CI interface (as Lucia): element p+(q-1)*NAC is
+    ! <Bra|E_qp|Ket>, the transpose of sg_trans_pdm
+    T1DM(:) = Zero
+    if (Spin) T1SDM(:) = Zero
+    do q=1,NAC
+      do p=1,NAC
+        T1DM(p+(q-1)*NAC) = TS(q+(p-1)*NAC)
+        if (Spin) T1SDM(p+(q-1)*NAC) = TSS(q+(p-1)*NAC)
+      end do
+    end do
+    if (CI_Verify('SIGMA')) then
+      call mma_allocate(BL,nVec,Label='BL')
+      call mma_allocate(KL,nVec,Label='KL')
+      call SG_Reord(iState,STSYM,1,nVec,Bra_Vec,BL)
+      call SG_Reord(iState,STSYM,1,nVec,Ket_Vec,KL)
+      call mma_allocate(DTMP,max(nT1DM,NAC*NAC),Label='DTMP')
+      call mma_allocate(DSTMP,max(nT1DM,NAC*NAC),Label='DSTMP')
+      call Lucia_Util('Densi',CI_Vector=KL(:),RVec=BL(:))
+      ! (Lucia computes no spin density for singlets)
+      Dev(1) = maxval(abs(DTMP(1:NAC*NAC)-T1DM(1:NAC*NAC)))
+      Dev(2) = Zero
+      if (Spin .and. (SGS(iState)%iSpin > 1)) Dev(2) = maxval(abs(DSTMP(1:NAC*NAC)-T1SDM(1:NAC*NAC)))
+      if (.not. T1DM_SG_Verified) then
+        write(u6,'(1X,A,2ES10.3)') 'Mk_T1DM (SGCI): SGUGA T1DM, T1SDM vs Lucia, max. abs. differences',Dev(1:2)
+        T1DM_SG_Verified = .true.
+      end if
+      if (any(Dev(1:2) > ThrD)) then
+        write(u6,'(1X,A,2ES10.3)') 'SGUGA error in the transition densities (SGCI), max. abs. differences',Dev(1:2)
+        call Abend()
+      end if
+      call mma_deallocate(DSTMP)
+      call mma_deallocate(DTMP)
+      call mma_deallocate(KL)
+      call mma_deallocate(BL)
+    end if
+    call mma_deallocate(TSS)
+    call mma_deallocate(TS)
+  end subroutine SGCI_T1DM
 
 End Subroutine Mk_T1DM
 

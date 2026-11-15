@@ -1573,10 +1573,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     call mma_deallocate(OCCX)
 
     ! Compute transition density matrices
-    if (Key('TDM') .and. SG_CI()) then
-      write(u6,'(1X,A)') 'TDM is not available with SGCI yet.'
-      call Abend()
-    end if
     if (Key('TDM')) then
 #     ifdef _HDF5_
       call mma_allocate(Tmp,NConf,Label='Tmp')
@@ -1589,12 +1585,21 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       do jRoot=2,lRoots
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
-        call SG_Reord(iState,STSYM,1,nConf,Tmp,VecL)
+        ! (SGCI: JOBIPH holds the split-graph order, the CI basis)
+        if (SG_CI()) then
+          VecL(:) = Tmp(:)
+        else
+          call SG_Reord(iState,STSYM,1,nConf,Tmp,VecL)
+        end if
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          call SG_Reord(iState,STSYM,1,nConf,Tmp,VecR)
+          if (SG_CI()) then
+            VecR(:) = Tmp(:)
+          else
+            call SG_Reord(iState,STSYM,1,nConf,Tmp,VecR)
+          end if
           ! Compute TDM and store in h5 file
           call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
           call mma_allocate(XTmp,NAC**2,Label='XTmp')
