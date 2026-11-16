@@ -34,10 +34,19 @@ module faroald_ras
 ! so that no intermediate string outside the RAS space is needed.
 !
 ! A CAS space is the special case o1 = o3 = 0 (one class per spin).
+!
+! Singlets (spin_flip, nela = nelb, M_S = S = 0): the vectors are
+! symmetric under the exchange of the alpha and beta strings,
+! C(Ia,Ib) = C(Ib,Ia) (Faroald's phase convention, as in sigma_update).
+! Then the alpha and beta strings are the same, block (ga,gb) is the
+! transpose of block (gb,ga), and sigma = X + X^T with X = the beta-beta
+! part plus half of the alpha-beta part (pairs tu >= vx of
+! g_tuvx a+_ta a_ua a+_vb a_xb, tu = vx with weight 1/2); the alpha-alpha
+! density equals the beta-beta one and the spin density is zero.
 
 use second_quantization, only: ann2, binom_coef, cre2, ex1, fase, lex_init, lex_next, lexrank
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -76,7 +85,7 @@ type(ras_spin) :: sa, sb
 ! RAS space or of another symmetry; blk_offT: the same blocks transposed
 ! (beta x alpha)
 integer(kind=iwp), allocatable :: blk_off(:,:), blk_offT(:,:)
-logical(kind=iwp) :: ras_active = .false.
+logical(kind=iwp) :: ras_active = .false., ras_singlet = .false.
 
 public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_count_dets, ras_from_full, ras_sigma, &
           ras_to_full, ras_traci, ras_trans_one_pdm, ras_trans_two_pdm
@@ -88,8 +97,11 @@ contains
 !> with at least minr1 electrons in RAS1 and at most maxr3 in RAS3; the
 !> orbitals have the symmetries osym (nsym irreps), the CI space the
 !> symmetry lsym (determinants sym(alpha) x sym(beta) = lsym only).
-subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3,nsym,osym,lsym)
+!> spin_flip: all vectors are singlets (nela = nelb), symmetric under the
+!> exchange of the alpha and beta strings.
+subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3,nsym,osym,lsym,spin_flip)
   integer(kind=iwp), intent(in) :: nela, nelb, norb, o(3), minr1, maxr3, nsym, osym(norb), lsym
+  logical(kind=iwp), intent(in) :: spin_flip
   integer(kind=iwp) :: ca, cb, n
 
   call faroald_ras_free()
@@ -112,6 +124,11 @@ subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3,nsym,osym,lsym)
   ras_lsym = lsym
   ras_osym(:) = 1
   ras_osym(1:norb) = osym(1:norb)
+  if (spin_flip .and. (nela /= nelb)) then
+    write(u6,*) 'faroald_ras_init: spin-flip symmetry needs nela = nelb',nela,nelb
+    call Abend()
+  end if
+  ras_singlet = spin_flip
 
   call mk_classes(sa,nela,nelb)
   call mk_classes(sb,nelb,nela)
@@ -156,6 +173,7 @@ subroutine faroald_ras_free()
   call mma_deallocate(blk_offT,safe='*')
   n_ras = 0
   ras_active = .false.
+  ras_singlet = .false.
 end subroutine faroald_ras_free
 
 subroutine free_spin(s)
@@ -558,6 +576,12 @@ subroutine ras_sigma(h,g,vec,sgm)
   sgm(:) = Zero
   ! beta-beta: the columns of the blocks
   call same_spin(sa,sb,blk_off,h,g,vec,sgm)
+  if (ras_singlet) then
+    ! half of alpha-beta, then sgm := sgm + sgm^T
+    call opposite_spin(g,vec,sgm)
+    call sym_add(sgm)
+    return
+  end if
   ! alpha-alpha: the columns of the transposed blocks
   call mma_allocate(vT,max(1,n_ras),label='ras_vT')
   call mma_allocate(sT,max(1,n_ras),label='ras_sT')
@@ -572,6 +596,40 @@ subroutine ras_sigma(h,g,vec,sgm)
   call opposite_spin(g,vec,sgm)
 
 end subroutine ras_sigma
+
+!> Singlets: v := v + v^T (v^T: alpha and beta strings exchanged).
+subroutine sym_add(v)
+  real(kind=wp), intent(inout) :: v(n_ras)
+  integer(kind=iwp) :: ca, cb, na, nb, ia, ib, o, oT
+  real(kind=wp) :: w
+  do cb=1,sb%ncls
+    do ca=cb,sa%ncls
+      if (blk_off(ca,cb) < 0) cycle
+      na = sa%cls_nstr(ca)
+      nb = sb%cls_nstr(cb)
+      o = blk_off(ca,cb)
+      oT = blk_off(cb,ca)
+      if (ca == cb) then
+        do ib=1,nb
+          v(o+ib+(ib-1)*na) = Two*v(o+ib+(ib-1)*na)
+          do ia=ib+1,na
+            w = v(o+ia+(ib-1)*na)+v(o+ib+(ia-1)*na)
+            v(o+ia+(ib-1)*na) = w
+            v(o+ib+(ia-1)*na) = w
+          end do
+        end do
+      else
+        do ib=1,nb
+          do ia=1,na
+            w = v(o+ia+(ib-1)*na)+v(oT+ib+(ia-1)*nb)
+            v(o+ia+(ib-1)*na) = w
+            v(oT+ib+(ia-1)*nb) = w
+          end do
+        end do
+      end if
+    end do
+  end do
+end subroutine sym_add
 
 !> forward: v (blocks na x nb) -> w (blocks nb x na); backward the inverse.
 subroutine transpose_blocks(v,w,forward)
@@ -694,13 +752,16 @@ end subroutine same_spin
 !> <Ib|e^b_vx|Jb> vec(Ja,Jb), over the determinants (Ja,Jb) of the RAS
 !> space only: for each beta string Jb and its single excitations
 !> Jb -> Ib (v,x), the alpha strings Ja of the allowed blocks and their
-!> single excitations Ja -> Ia (t,u).
+!> single excitations Ja -> Ia (t,u). Singlets: only the pairs tu >= vx
+!> (pair key (u-1)*norb+t, the order of the excitation lists), tu = vx
+!> with weight 1/2.
 subroutine opposite_spin(g,vec,sgm)
   real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
   real(kind=wp), intent(inout) :: sgm(n_ras)
-  integer(kind=iwp) :: gb, cbj, cbi, eb, ib, v, x, caj, cai, ja, ga, ea, ia, oj, oi, sgb
-  real(kind=wp) :: c
+  integer(kind=iwp) :: gb, cbj, cbi, eb, ib, v, x, caj, cai, ja, ga, ea, ia, oj, oi, sgb, kb, ea1
+  real(kind=wp) :: c, w
 
+  kb = 0
   do gb=1,sb%nstr
     cbj = sb%str_cls(gb)
     do eb=sb%ex_off(gb)+1,sb%ex_off(gb+1)
@@ -709,6 +770,7 @@ subroutine opposite_spin(g,vec,sgm)
       v = sb%ex_p(eb)
       x = sb%ex_q(eb)
       sgb = sb%ex_sgn(eb)
+      if (ras_singlet) kb = (x-1)*ras_norb+v
       do caj=1,sa%ncls
         if (blk_off(caj,cbj) < 0) cycle
         oj = blk_off(caj,cbj)+(sb%str_idx(gb)-1)*sa%cls_nstr(caj)
@@ -717,12 +779,22 @@ subroutine opposite_spin(g,vec,sgm)
           if (c == Zero) cycle
           c = sgb*c
           ga = sa%cls_off(caj)+ja
-          do ea=sa%ex_off(ga)+1,sa%ex_off(ga+1)
+          ea1 = sa%ex_off(ga)+1
+          if (ras_singlet) then
+            ! the list is sorted by the pair key: skip the pairs tu < vx
+            do while (ea1 <= sa%ex_off(ga+1))
+              if ((sa%ex_q(ea1)-1)*ras_norb+sa%ex_p(ea1) >= kb) exit
+              ea1 = ea1+1
+            end do
+          end if
+          do ea=ea1,sa%ex_off(ga+1)
             ia = sa%ex_j(ea)
             cai = sa%str_cls(ia)
             if (blk_off(cai,cbi) < 0) cycle
             oi = blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai)
-            sgm(oi) = sgm(oi)+sa%ex_sgn(ea)*g(sa%ex_p(ea),sa%ex_q(ea),v,x)*c
+            w = sa%ex_sgn(ea)*g(sa%ex_p(ea),sa%ex_q(ea),v,x)*c
+            if (ras_singlet .and. (ea == ea1) .and. (sa%ex_p(ea) == v) .and. (sa%ex_q(ea) == x)) w = Half*w
+            sgm(oi) = sgm(oi)+w
           end do
         end do
       end do
@@ -746,6 +818,16 @@ subroutine ras_trans_one_pdm(bra,ket,d,sd)
   da(:,:) = Zero
   db(:,:) = Zero
   call col_one_pdm(sa,sb,blk_off,bra,ket,db)
+  if (ras_singlet) then
+    ! alpha = beta
+    d(:,:) = Two*db(:,:)
+    sd(:,:) = Zero
+    call mma_deallocate(da)
+    call mma_deallocate(db)
+    call mma_deallocate(bT)
+    call mma_deallocate(kT)
+    return
+  end if
   call transpose_blocks(bra,bT,.true.)
   call transpose_blocks(ket,kT,.true.)
   call col_one_pdm(sb,sa,blk_offT,bT,kT,da)
@@ -792,6 +874,12 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   p2(:,:,:,:) = Zero
   ! same spin
   call col_two_pdm(sa,sb,blk_off,bra,ket,p2)
+  if (ras_singlet) then
+    ! alpha-alpha = beta-beta; alpha-beta only for the pairs tu >= vx
+    p2(:,:,:,:) = Two*p2(:,:,:,:)
+    call singlet_ab_two_pdm(bra,ket,p2)
+    return
+  end if
   call mma_allocate(bT,max(1,n_ras),label='ras_bT')
   call mma_allocate(kT,max(1,n_ras),label='ras_kT')
   call transpose_blocks(bra,bT,.true.)
@@ -829,6 +917,46 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
     end do
   end do
 end subroutine ras_trans_two_pdm
+
+!> Singlets: the alpha-beta part of ras_trans_two_pdm from the pairs
+!> tu >= vx: P_ab(tuvx) = P_ab(vxtu), so 2 val goes to (t,u,v,x) and
+!> (v,x,t,u) (once for tu = vx).
+subroutine singlet_ab_two_pdm(bra,ket,p2)
+  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
+  integer(kind=iwp) :: ea, eb, ja, ia, jb, ib, caj, cai, cbj, cbi, t, u, v, x, kb
+  real(kind=wp) :: c, val
+
+  do jb=1,sb%nstr
+    cbj = sb%str_cls(jb)
+    do eb=sb%ex_off(jb)+1,sb%ex_off(jb+1)
+      ib = sb%ex_j(eb)
+      cbi = sb%str_cls(ib)
+      v = sb%ex_p(eb)
+      x = sb%ex_q(eb)
+      kb = (x-1)*ras_norb+v
+      do caj=1,sa%ncls
+        if (blk_off(caj,cbj) < 0) cycle
+        do ja=sa%cls_off(caj)+1,sa%cls_off(caj)+sa%cls_nstr(caj)
+          c = ket(blk_off(caj,cbj)+sa%str_idx(ja)+(sb%str_idx(jb)-1)*sa%cls_nstr(caj))
+          if (c == Zero) cycle
+          c = Two*sb%ex_sgn(eb)*c
+          do ea=sa%ex_off(ja+1),sa%ex_off(ja)+1,-1
+            t = sa%ex_p(ea)
+            u = sa%ex_q(ea)
+            if ((u-1)*ras_norb+t < kb) exit
+            ia = sa%ex_j(ea)
+            cai = sa%str_cls(ia)
+            if (blk_off(cai,cbi) < 0) cycle
+            val = sa%ex_sgn(ea)*c*bra(blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai))
+            p2(t,u,v,x) = p2(t,u,v,x)+val
+            if ((t /= v) .or. (u /= x)) p2(v,x,t,u) = p2(v,x,t,u)+val
+          end do
+        end do
+      end do
+    end do
+  end do
+end subroutine singlet_ab_two_pdm
 
 !> p2 += <bra|a+_t a+_v a_x a_u|ket> (all index orders) for the column
 !> spin c (row spin r); J = a+_t a+_v a_x a_u I with t > v, u > x.
