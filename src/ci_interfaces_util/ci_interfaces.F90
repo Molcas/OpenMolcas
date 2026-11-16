@@ -31,6 +31,7 @@ use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl, NSM
 use CI_Verify_Options, only: CI_Verify
 use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
 use CI_Info, only: Space_CI
+use Molcas, only: MxGAS
 
 #include "intent.fh"
 
@@ -87,12 +88,11 @@ logical(kind=iwp) :: SD_ASTA_Verified = .false.
 ! with the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in
 ! the listed RAS partitions are removed as in Lucia: their CSFs stay in the
 ! vectors, the CI works with P H P (zero sigma, zero diagonal there). The
-! maximum occupation of partition g is HEXS_NMx(g) = maxa(g) + maxb(g), the
+! maximum occupation of partition g is maxa(g) + maxb(g) (Space_Max_Occ), the
 ! largest numbers of alpha and beta electrons in g in the determinants of
 ! the space (Lucia's rule for the determinant blocks, I_AM_SO_EXCITED).
 ! HEXS_Keep: the kept CSFs in the CI basis (SGCI, FARO; Lucia does it
 ! itself); HEXS_Keep_SG: in the split-graph basis (the SGUGA references).
-integer(kind=iwp) :: HEXS_NMx(3) = 0
 logical(kind=iwp), allocatable :: HEXS_Keep(:), HEXS_Keep_SG(:)
 
 contains
@@ -309,75 +309,14 @@ logical(kind=iwp) :: Avail
 Avail = .not. iDoGAS
 end function SG_Avail
 
-!> HEXS/DEXS: the maximum occupations HEXS_NMx of the RAS partitions,
-!> maxa + maxb over the pairs of alpha and beta partition occupations that
-!> satisfy the RAS restrictions (partitions 1..k hold at least nRasEl(k)
-!> electrons).
-subroutine HEXS_Max_Occ()
-use general_data, only: nSym
-integer(kind=iwp) :: na, nb, o(3), el(3), k, a1, a2, a3, b1, b2, b3, mxa(3), mxb(3)
-na = (NACTEL+ISPIN-1)/2
-nb = NACTEL-na
-o(:) = 0
-el(:) = NACTEL
-do k=1,nRsPrt
-  o(k) = sum(nRas(1:nSym,k))
-  el(k) = nRasEl(k)
-end do
-mxa(:) = -1
-mxb(:) = -1
-do a1=0,min(o(1),na)
-  do a2=0,min(o(2),na-a1)
-    a3 = na-a1-a2
-    if (a3 > o(3)) cycle
-    do b1=0,min(o(1),nb)
-      do b2=0,min(o(2),nb-b1)
-        b3 = nb-b1-b2
-        if (b3 > o(3)) cycle
-        if ((a1+b1 < el(1)) .or. (a1+a2+b1+b2 < el(2)) .or. (na+nb < el(3))) cycle
-        mxa(:) = max(mxa(:),[a1,a2,a3])
-        mxb(:) = max(mxb(:),[b1,b2,b3])
-      end do
-    end do
-  end do
-end do
-HEXS_NMx(:) = mxa(:)+mxb(:)
-end subroutine HEXS_Max_Occ
-
-!> HEXS/DEXS: is a configuration with nOcc(g) electrons in partition g removed?
+!> HEXS/DEXS: is a configuration with nOcc(k) electrons in partition k of
+!> Space_CI removed (the removal rules of the CI space)?
 function HEXS_Removed(nOcc) result(Rem)
-use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
-integer(kind=iwp), intent(in) :: nOcc(3)
+use CI_Space_Def, only: Space_Allowed
+integer(kind=iwp), intent(in) :: nOcc(:)
 logical(kind=iwp) :: Rem
-integer(kind=iwp) :: i, g
-Rem = .false.
-if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
-  do i=1,N_ELIMINATED_GAS
-    g = IELIMINATED_IN_GAS(i)
-    if ((g >= 1) .and. (g <= 3)) Rem = Rem .or. (nOcc(g) == HEXS_NMx(g))
-  end do
-end if
-if (I_ELIMINATE_GAS > 1) then
-  do i=1,N_2ELIMINATED_GAS
-    g = I2ELIMINATED_IN_GAS(i)
-    if ((g >= 1) .and. (g <= 3)) Rem = Rem .or. (nOcc(g) >= HEXS_NMx(g)-1)
-  end do
-end if
+Rem = .not. Space_Allowed(Space_CI,nOcc(1:Space_CI%nPart))
 end function HEXS_Removed
-
-!> The RAS partition of each level (levels by partition, then symmetry).
-subroutine HEXS_Lev_Prt(LevPrt)
-use general_data, only: nSym
-integer(kind=iwp), intent(out) :: LevPrt(:)
-integer(kind=iwp) :: iPrt, iLev, n
-iLev = 0
-do iPrt=1,nRsPrt
-  do n=1,sum(nRas(1:nSym,iPrt))
-    iLev = iLev+1
-    LevPrt(iLev) = iPrt
-  end do
-end do
-end subroutine HEXS_Lev_Prt
 
 !> HEXS/DEXS: the kept CSFs of symmetry STSYM in the split-graph basis,
 !> from the SGUGA configurations.
@@ -385,22 +324,19 @@ subroutine HEXS_Mask_SG(Keep)
 use sguga, only: SG_Mk_Cnf_List, SG_Cnf_Occ
 logical(kind=iwp), intent(out) :: Keep(:)
 type(SGCnfList) :: Cnf
-integer(kind=iwp) :: k, iLev, nOcc(3)
-integer(kind=iwp), allocatable :: Occ(:), LevPrt(:)
+integer(kind=iwp) :: k, iLev, nOcc(MxGAS)
+integer(kind=iwp), allocatable :: Occ(:)
 call SG_Mk_Cnf_List(1,STSYM,Cnf)
 call mma_allocate(Occ,max(1,Cnf%nLev),Label='HEXS_Occ')
-call mma_allocate(LevPrt,max(1,Cnf%nLev),Label='HEXS_LevPrt')
-call HEXS_Lev_Prt(LevPrt)
 Keep(:) = .true.
 do k=1,Cnf%nCnf
   call SG_Cnf_Occ(Cnf,k,Occ)
   nOcc(:) = 0
   do iLev=1,Cnf%nLev
-    nOcc(LevPrt(iLev)) = nOcc(LevPrt(iLev))+Occ(iLev)
+    nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+Occ(iLev)
   end do
   if (HEXS_Removed(nOcc)) Keep(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))) = .false.
 end do
-call mma_deallocate(LevPrt)
 call mma_deallocate(Occ)
 call SG_Free_Cnf_List(Cnf)
 end subroutine HEXS_Mask_SG
@@ -409,19 +345,17 @@ end subroutine HEXS_Mask_SG
 !> configurations (the orbitals of Faroald are the levels).
 subroutine HEXS_Mask_Faro(Keep)
 logical(kind=iwp), intent(out) :: Keep(:)
-integer(kind=iwp) :: k, k1, nc, nd, iLev, nOcc(3)
-integer(kind=iwp), allocatable :: da(:), db(:), LevPrt(:)
+integer(kind=iwp) :: k, k1, nc, nd, iLev, nOcc(MxGAS)
+integer(kind=iwp), allocatable :: da(:), db(:)
 real(kind=wp), allocatable :: cf(:,:)
-call mma_allocate(LevPrt,max(1,NAC),Label='HEXS_LevPrt')
-call HEXS_Lev_Prt(LevPrt)
 Keep(:) = .true.
 k = 1
 do while (k <= nConf)
   call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
   nOcc(:) = 0
   do iLev=1,NAC
-    if (btest(da(1),iLev-1)) nOcc(LevPrt(iLev)) = nOcc(LevPrt(iLev))+1
-    if (btest(db(1),iLev-1)) nOcc(LevPrt(iLev)) = nOcc(LevPrt(iLev))+1
+    if (btest(da(1),iLev-1)) nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+1
+    if (btest(db(1),iLev-1)) nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+1
   end do
   if (HEXS_Removed(nOcc)) Keep(k1:k1+nc-1) = .false.
   k = k1+nc
@@ -429,21 +363,20 @@ do while (k <= nConf)
   call mma_deallocate(db)
   call mma_deallocate(cf)
 end do
-call mma_deallocate(LevPrt)
 end subroutine HEXS_Mask_Faro
 
 !> HEXS/DEXS: the masks of the kept CSFs (end of CI_Initialize). Without
 !> Lucia the number of kept CSFs (nCSF_HEXS) and the cap of NSEL come from
 !> here; with Lucia they are compared.
 subroutine HEXS_Setup(Do_SGUGA)
-use spinfo, only: I_ELIMINATE_GAS, nCSF_HEXS
+use spinfo, only: nCSF_HEXS
 use general_data, only: NSEL
 logical(kind=iwp), intent(in) :: Do_SGUGA
 integer(kind=iwp) :: nKeep
 call mma_deallocate(HEXS_Keep,safe='*')
 call mma_deallocate(HEXS_Keep_SG,safe='*')
-if (I_ELIMINATE_GAS <= 0) return
-call HEXS_Max_Occ()
+! the removals are part of the CI space (CI_Space_Setup)
+if (Space_CI%nRem <= 0) return
 if (Do_SGUGA .and. SG_Avail()) then
   call mma_allocate(HEXS_Keep_SG,nConf,Label='HEXS_Keep_SG')
   call HEXS_Mask_SG(HEXS_Keep_SG)
@@ -462,7 +395,6 @@ else if (allocated(HEXS_Keep_SG)) then
 else
   return
 end if
-write(u6,'(1X,A,3(1X,I0))') 'HEXS/DEXS: maximum occupations of the RAS partitions',HEXS_NMx(1:nRsPrt)
 write(u6,'(1X,A,I0,A,I0,A)') 'HEXS/DEXS: ',nKeep,' of ',nConf,' CSFs kept'
 if (.not. Lucia_Active) then
   nCSF_HEXS = nKeep
@@ -1554,7 +1486,6 @@ end subroutine CI_Timer
 subroutine CI_Space_Setup()
 use general_data, only: IGSOCCX, NGAS, NGSSH, nSym
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
-use Molcas, only: MxGAS
 integer(kind=iwp) :: g, k, i, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS)
 integer(kind=iwp), allocatable :: NMx(:)
 logical(kind=iwp) :: OK
@@ -1629,19 +1560,6 @@ end if
 if (.not. OK) then
   write(u6,'(1X,A)') 'CI_Space_Setup: the CI space differs from the RAS description (nRsPrt, nRas, nRasEl, NSM)'
   call Abend()
-end if
-! the HEXS/DEXS thresholds of the CI interface (HEXS_Max_Occ, at most 3
-! partitions)
-if ((I_ELIMINATE_GAS > 0) .and. (nRsPrt <= 3) .and. (Space_CI%nPart == nRsPrt)) then
-  call HEXS_Max_Occ()
-  call mma_allocate(NMx,max(1,Space_CI%nPart),Label='NMx')
-  call Space_Max_Occ(Space_CI,NMx)
-  if (any(NMx(1:nRsPrt) /= HEXS_NMx(1:nRsPrt))) then
-    write(u6,'(1X,A,3I4,A,3I4)') 'CI_Space_Setup: maximum occupations differ, CI_Space',NMx(1:nRsPrt),', CI interface', &
-                                 HEXS_NMx(1:nRsPrt)
-    call Abend()
-  end if
-  call mma_deallocate(NMx)
 end if
 write(u6,'(1X,A)') 'CI_Space_Setup: CI space verified against the RAS description'
 end subroutine CI_Space_Setup
