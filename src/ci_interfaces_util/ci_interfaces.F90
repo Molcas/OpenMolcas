@@ -79,6 +79,8 @@ integer(kind=iwp), allocatable :: Faro_L2O(:)
 ! FARO with RAS: the string-driven sigma (faroald_ras) checked once against
 ! the sigma of the full determinant space (SIGMA)
 logical(kind=iwp) :: HPsi_FaroRAS_Verified = .false.
+! SIGMA: the spin density of the ASTA triplet operator checked, printed once
+logical(kind=iwp) :: SD_ASTA_Verified = .false.
 ! HEXS/DEXS (RASSCF keywords, spinfo I_ELIMINATE_GAS): the configurations
 ! with the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in
 ! the listed RAS partitions are removed as in Lucia: their CSFs stay in the
@@ -1187,6 +1189,31 @@ End Subroutine Mk_T1DM
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
+!> One-particle spin density SD(iTri(p,q)) = <Psi|a+_pa a_qa - a+_pb a_qb|Psi>
+!> (levels, triangular packing as sg_spin_pdm) of the CI vector CI in the
+!> split-graph order, from the ASTA triplet operator (SG_Tpq_Psi): the
+!> segment values of the triplet operator, no two-particle intermediates.
+subroutine SG_Spin_Density_ASTA(iState,LSM,n,CI,nTri,SD)
+use sguga, only: SG_Tpq_Psi
+use Index_Functions, only: iTri
+integer(kind=iwp), intent(in) :: iState, LSM, n, nTri
+real(kind=wp), intent(in) :: CI(n)
+real(kind=wp), intent(out) :: SD(nTri)
+integer(kind=iwp) :: p, q
+real(kind=wp), allocatable :: Sgm(:)
+call mma_allocate(Sgm,n,Label='SD_Sgm')
+SD(:) = Zero
+do p=1,SGS(iState)%nLev
+  do q=1,p
+    if (SGS(iState)%ISm(p) /= SGS(iState)%ISm(q)) cycle
+    Sgm(:) = Zero
+    call SG_Tpq_Psi(iState,p,q,One,LSM,CI,Sgm)
+    SD(iTri(p,q)) = dot_product(CI,Sgm)
+  end do
+end do
+call mma_deallocate(Sgm)
+end subroutine SG_Spin_Density_ASTA
+
 Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
 use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
 use rasscf_global, only: NACPAR, NACPR2
@@ -1341,6 +1368,21 @@ contains
   ! FARO (CI development, SIGMA): the Faroald densities D, SD, P, PA against
   ! Lucia (vector in the Lucia basis; no spin density for singlets) and
   ! SGUGA (vector in the split-graph order), element by element.
+  ! CI development (SIGMA): the spin density from the ASTA triplet operator
+  ! (SG_Spin_Density_ASTA, vector CIS in the split-graph order) against SDRef.
+  subroutine Check_SD_ASTA(CIS_,SDRef,Text)
+    real(kind=wp), intent(in) :: CIS_(:), SDRef(:)
+    character(len=*), intent(in) :: Text
+    real(kind=wp), allocatable :: SDA(:)
+    logical(kind=iwp) :: Done
+    call mma_allocate(SDA,NACPAR,Label='SDA')
+    call SG_Spin_Density_ASTA(iState,STSYM,nCIVEC,CIS_,NACPAR,SDA)
+    Done = SD_ASTA_Verified
+    call Report_Dev(Text,maxval(abs(SDA(:)-SDRef(1:NACPAR))),1.0e-10_wp,Done)
+    SD_ASTA_Verified = .true.
+    call mma_deallocate(SDA)
+  end subroutine Check_SD_ASTA
+
   subroutine Faroald_Check_Densities()
     real(kind=wp), allocatable :: CIL(:), DS(:), SDS(:), PS(:), PAS(:)
     real(kind=wp) :: Dev(4)
@@ -1376,6 +1418,7 @@ contains
       call sg_two_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,STSYM,PS,PAS,NACPR2)
       Dev(1) = maxval(abs(DS(:)-D_loc(1:NACPAR)))
       Dev(2) = maxval(abs(SDS(:)-SD_loc(1:NACPAR)))
+      call Check_SD_ASTA(CIL,SD_loc(1:NACPAR),'Mk_pdms (FARO): spin density, ASTA T_pq vs Faroald')
       Dev(3) = maxval(abs(PS(1:nP)-P_loc(1:nP)))
       Dev(4) = maxval(abs(PAS(1:nP)-PA_loc(1:nP)))
       Done = PDM_Faro_Verified
@@ -1429,6 +1472,7 @@ contains
       Dev(1) = maxval(abs(DTMP(1:NACPAR)-DS(:)))
       Dev(2) = Zero
       if (Present(SD) .and. (SGS(iState)%iSpin > 1)) Dev(2) = maxval(abs(DSTMP(1:NACPAR)-SDS(:)))
+      if (Present(SD)) call Check_SD_ASTA(CIVEC,SDS,'Mk_pdms (SGCI): spin density, ASTA T_pq vs sg_spin_pdm')
       Dev(3) = Zero
       Dev(4) = Zero
       if (Present(P) .or. Present(PA)) then

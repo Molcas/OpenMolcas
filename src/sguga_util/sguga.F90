@@ -317,6 +317,13 @@ integer(kind=iwp), parameter :: nCoup_Lin = 16
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
 public :: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Cnf_Occ, SG_Select_Explicit, SG_Block_H, SG_Explicit_Block
 public :: SG_Cnf_Avg_Diag
+public :: SG_CSF_StepVec, SG_MatEl_Tpq, SG_Tpq_Psi, SG_Xpq_Psi
+
+! ASTA (SG_Xpq_Psi): step vectors of all CSFs of state ASTA_iState
+! (symmetry blocks at ASTA_Off), and per symmetry the packed step vectors
+! sorted (ASTA_Key) with their CSF index (ASTA_Idx); see ASTA_Setup.
+integer(kind=iwp) :: ASTA_iState = 0, ASTA_Off(8) = 0
+integer(kind=iwp), allocatable :: ASTA_Steps(:,:), ASTA_Key(:), ASTA_Idx(:)
 
 
 contains
@@ -480,6 +487,7 @@ integer(kind=iwp), intent(in):: iState
 integer(kind=iwp) :: iOpen, mult, iRefSm
 
 If (.Not.State_is_used(iState)) Return
+if (ASTA_iState == iState) call ASTA_Free()
 
 Associate (SGS=>SGS(iState),CIS=>CIS(iState),EXS=>EXS(iState))
 
@@ -5937,6 +5945,9 @@ Do ISYCI=1, SGS(istate)%nSym
    call Check_MatEl_Epq(iState,ISYCI,1.0e-12_wp,nTest,nFail,MaxDiff)
    if (nFail /= 0) call Abend()
 End Do
+! The ASTA walk products of E_pq and of the triplet operator T_pq
+call Check_MatEl_Tpq(iState,nFail)
+if (nFail /= 0) call Abend()
 
 if (present(Epq_Only)) then
    if (Epq_Only) return
@@ -7394,6 +7405,211 @@ subroutine Check_MatEl_Epq(istate,ISYCI,Tol,nTest,nFail,MaxDiff)
   Write (u6,*) '============================'
 
 end subroutine Check_MatEl_Epq
+
+!> Check of the ASTA walk products (ASTA_MatEl) for all symmetries and
+!> level pairs: E_pq against MatEl_Epq and against the determinant
+!> expansion of the CSFs (CSF_Det_Expand, Det_MatEl), and the triplet
+!> operator T_pq = a+_pa a_qa - a+_pb a_qb against the determinant
+!> expansion. All (I,J) pairs of a (p,q) block, or a random sample of
+!> nSample of them if there are more than MaxPairs. Skipped if the
+!> determinant expansion would be too large.
+subroutine Check_MatEl_Tpq(iState,nFail)
+  integer(kind=iwp), intent(in) :: iState
+  integer(kind=iwp), intent(out) :: nFail
+  integer(kind=iwp), parameter :: MxDetTot = 4000000, nSample = 2000, MxPrt = 20
+  real(kind=wp), parameter :: Tol = 1.0e-12_wp
+  integer(kind=iwp) :: nLev, nSym, ISY, ISYI, ISYJ, I, J, k, p, q, iDraw, nDraw, nTest, iOffI, iOffJ, nDetTot, nD
+  integer(kind=iwp) :: iCSF(8), nOpen, nNZ_T, nNZ_TOff
+  integer(kind=iwp), allocatable :: Steps(:,:), DOff(:), DA(:), DB(:), XA(:), XB(:)
+  real(kind=wp), allocatable :: DC(:), XC(:)
+  real(kind=wp) :: eW, eR, eD, tW, tD, dER, dED, dTD
+  logical(kind=iwp) :: Sampled
+
+  nFail = 0
+  nLev = SGS(iState)%nLev
+  nSym = SGS(iState)%nSym
+  iCSF(:) = 0
+  do ISY=2,nSym
+    iCSF(ISY) = iCSF(ISY-1)+CIS(iState)%NCSF(ISY-1)
+  end do
+  k = iCSF(nSym)+CIS(iState)%NCSF(nSym)
+  call mma_allocate(Steps,nLev,max(1,k),Label='Steps')
+  call mma_allocate(DOff,k+1,Label='DOff')
+  nDetTot = 0
+  DOff(1) = 0
+  do ISY=1,nSym
+    do I=1,CIS(iState)%NCSF(ISY)
+      call SG_CSF_StepVec(SGS(iState),CIS(iState),ISY,I,Steps(:,iCSF(ISY)+I))
+      nOpen = count((Steps(:,iCSF(ISY)+I) == 1) .or. (Steps(:,iCSF(ISY)+I) == 2))
+      nDetTot = nDetTot+2**min(nOpen,30)
+    end do
+  end do
+  if (nDetTot > MxDetTot) then
+    write(u6,'(A,I0,A)') ' MatEl_Tpq check skipped: ',nDetTot,' determinants in the expansion'
+    call mma_deallocate(Steps)
+    call mma_deallocate(DOff)
+    return
+  end if
+  call mma_allocate(DA,max(1,nDetTot),Label='DA')
+  call mma_allocate(DB,max(1,nDetTot),Label='DB')
+  call mma_allocate(DC,max(1,nDetTot),Label='DC')
+  do k=1,iCSF(nSym)+CIS(iState)%NCSF(nSym)
+    call CSF_Det_Expand(nLev,Steps(:,k),nD,XA,XB,XC)
+    if (abs(sum(XC(1:nD)**2)-One) > Tol) then
+      write(u6,*) 'CSF_Det_Expand: CSF not normalized',k,sum(XC(1:nD)**2)
+      call Abend()
+    end if
+    DA(DOff(k)+1:DOff(k)+nD) = XA(1:nD)
+    DB(DOff(k)+1:DOff(k)+nD) = XB(1:nD)
+    DC(DOff(k)+1:DOff(k)+nD) = XC(1:nD)
+    DOff(k+1) = DOff(k)+nD
+    call mma_deallocate(XA)
+    call mma_deallocate(XB)
+    call mma_deallocate(XC)
+  end do
+
+  nTest = 0
+  nNZ_T = 0
+  nNZ_TOff = 0
+  dER = Zero
+  dED = Zero
+  dTD = Zero
+  do ISYJ=1,nSym
+    do q=1,nLev
+      do p=1,nLev
+        ISYI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)),ISYJ)
+        if ((CIS(iState)%NCSF(ISYI) == 0) .or. (CIS(iState)%NCSF(ISYJ) == 0)) cycle
+        Sampled = CIS(iState)%NCSF(ISYI)*CIS(iState)%NCSF(ISYJ) > MaxPairs
+        nDraw = merge(nSample,CIS(iState)%NCSF(ISYI)*CIS(iState)%NCSF(ISYJ),Sampled)
+        do iDraw=1,nDraw
+          if (Sampled) then
+            I = Rand_Index(CIS(iState)%NCSF(ISYI))
+            J = Rand_Index(CIS(iState)%NCSF(ISYJ))
+          else
+            J = (iDraw-1)/CIS(iState)%NCSF(ISYI)+1
+            I = mod(iDraw-1,CIS(iState)%NCSF(ISYI))+1
+          end if
+          iOffI = iCSF(ISYI)+I
+          iOffJ = iCSF(ISYJ)+J
+          eW = ASTA_MatEl(nLev,Steps(:,iOffI),Steps(:,iOffJ),p,q,.false.)
+          tW = ASTA_MatEl(nLev,Steps(:,iOffI),Steps(:,iOffJ),p,q,.true.)
+          eR = MatEl_Epq(SGS(iState),CIS(iState),EXS(iState),p,q,ISYJ,I,J,.false.)
+          eD = Det_MatEl(DOff(iOffI+1)-DOff(iOffI),DA(DOff(iOffI)+1:DOff(iOffI+1)),DB(DOff(iOffI)+1:DOff(iOffI+1)), &
+                         DC(DOff(iOffI)+1:DOff(iOffI+1)),DOff(iOffJ+1)-DOff(iOffJ),DA(DOff(iOffJ)+1:DOff(iOffJ+1)), &
+                         DB(DOff(iOffJ)+1:DOff(iOffJ+1)),DC(DOff(iOffJ)+1:DOff(iOffJ+1)),p,q,One)
+          tD = Det_MatEl(DOff(iOffI+1)-DOff(iOffI),DA(DOff(iOffI)+1:DOff(iOffI+1)),DB(DOff(iOffI)+1:DOff(iOffI+1)), &
+                         DC(DOff(iOffI)+1:DOff(iOffI+1)),DOff(iOffJ+1)-DOff(iOffJ),DA(DOff(iOffJ)+1:DOff(iOffJ+1)), &
+                         DB(DOff(iOffJ)+1:DOff(iOffJ+1)),DC(DOff(iOffJ)+1:DOff(iOffJ+1)),p,q,-One)
+          nTest = nTest+1
+          if (abs(tD) > 1.0e-10_wp) then
+            nNZ_T = nNZ_T+1
+            ! bra and ket differ above the loop head (top segments)
+            if (any(Steps(max(p,q)+1:nLev,iOffI) /= Steps(max(p,q)+1:nLev,iOffJ))) nNZ_TOff = nNZ_TOff+1
+          end if
+          dER = max(dER,abs(eW-eR))
+          dED = max(dED,abs(eW-eD))
+          dTD = max(dTD,abs(tW-tD))
+          if ((abs(eW-eR) > Tol) .or. (abs(eW-eD) > Tol) .or. (abs(tW-tD) > Tol)) then
+            nFail = nFail+1
+            if (nFail <= MxPrt) then
+              write(u6,'(A,6I5)') ' MatEl_Tpq mismatch: ISYI,I,ISYJ,J,p,q =',ISYI,I,ISYJ,J,p,q
+              write(u6,'(A,5ES20.12)') '   E walk, MatEl_Epq, det; T walk, det:',eW,eR,eD,tW,tD
+              write(u6,'(A,30I1)') '   bra steps (tail first): ',Steps(:,iOffI)
+              write(u6,'(A,30I1)') '   ket steps (tail first): ',Steps(:,iOffJ)
+            end if
+          end if
+        end do
+      end do
+    end do
+  end do
+  write(u6,'(/,A,I0)') ' MatEl_Tpq (ASTA walk products) tests: ',nTest
+  write(u6,'(A,ES10.3)') '   E_pq walk vs MatEl_Epq,     max. abs. difference ',dER
+  write(u6,'(A,ES10.3)') '   E_pq walk vs determinants,  max. abs. difference ',dED
+  write(u6,'(A,ES10.3)') '   T_pq walk vs determinants,  max. abs. difference ',dTD
+  write(u6,'(A,I0,A,I0,A)') '   nonzero T_pq elements: ',nNZ_T,' (',nNZ_TOff,' with different walks above the loop head)'
+  write(u6,'(A,I0)') '   failures: ',nFail
+  call Check_Xpq_Psi(iState,nFail)
+  call mma_deallocate(Steps)
+  call mma_deallocate(DOff)
+  call mma_deallocate(DA)
+  call mma_deallocate(DB)
+  call mma_deallocate(DC)
+end subroutine Check_MatEl_Tpq
+
+!> SG_Xpq_Psi against SG_Epq_Psi (E_pq) and against the dense product with
+!> ASTA_MatEl (T_pq), for all symmetries and level pairs with at most
+!> MaxPairs (I,J) pairs, with a fixed test vector.
+subroutine Check_Xpq_Psi(iState,nFail)
+  integer(kind=iwp), intent(in) :: iState
+  integer(kind=iwp), intent(inout) :: nFail
+  real(kind=wp), parameter :: Tol = 1.0e-12_wp
+  integer(kind=iwp) :: nLev, ISYI, ISYJ, I, J, p, q, nI, nJ, nTest
+  integer(kind=iwp), allocatable :: SI(:), SJ(:)
+  real(kind=wp), allocatable :: C(:), S1(:), S2(:)
+  real(kind=wp) :: dE, dT
+  logical(kind=iwp) :: Reuse_Save
+  nLev = SGS(iState)%nLev
+  call mma_allocate(SI,nLev,Label='SI')
+  call mma_allocate(SJ,nLev,Label='SJ')
+  Reuse_Save = EXS(iState)%ReUse_SGTMP
+  EXS(iState)%ReUse_SGTMP = .false.
+  nTest = 0
+  dE = Zero
+  dT = Zero
+  do ISYJ=1,SGS(iState)%nSym
+    nJ = CIS(iState)%NCSF(ISYJ)
+    if (nJ == 0) cycle
+    call mma_allocate(C,nJ,Label='C')
+    do J=1,nJ
+      C(J) = sin(real(7*J+3*ISYJ,kind=wp))
+    end do
+    do q=1,nLev
+      do p=1,nLev
+        ISYI = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)),ISYJ)
+        nI = CIS(iState)%NCSF(ISYI)
+        if ((nI == 0) .or. (nI*nJ > MaxPairs)) cycle
+        call mma_allocate(S1,nI,Label='S1')
+        call mma_allocate(S2,nI,Label='S2')
+        ! E_pq
+        S1(:) = Zero
+        call SG_Xpq_Psi(iState,p,q,One,ISYJ,C,S1,.false.)
+        S2(:) = Zero
+        call SG_Epq_Psi(SGS(iState),CIS(iState),EXS(iState),p,q,One,ISYJ,C,S2)
+        dE = max(dE,maxval(abs(S1-S2)))
+        if (maxval(abs(S1-S2)) > Tol) then
+          nFail = nFail+1
+          write(u6,'(A,3I5,ES12.4)') ' SG_Xpq_Psi (E_pq) differs from SG_Epq_Psi: ISYJ,p,q =',ISYJ,p,q,maxval(abs(S1-S2))
+        end if
+        ! T_pq
+        S1(:) = Zero
+        call SG_Tpq_Psi(iState,p,q,One,ISYJ,C,S1)
+        S2(:) = Zero
+        do I=1,nI
+          call SG_CSF_StepVec(SGS(iState),CIS(iState),ISYI,I,SI)
+          do J=1,nJ
+            call SG_CSF_StepVec(SGS(iState),CIS(iState),ISYJ,J,SJ)
+            S2(I) = S2(I)+ASTA_MatEl(nLev,SI,SJ,p,q,.true.)*C(J)
+          end do
+        end do
+        dT = max(dT,maxval(abs(S1-S2)))
+        if (maxval(abs(S1-S2)) > Tol) then
+          nFail = nFail+1
+          write(u6,'(A,3I5,ES12.4)') ' SG_Tpq_Psi differs from the dense product: ISYJ,p,q =',ISYJ,p,q,maxval(abs(S1-S2))
+        end if
+        nTest = nTest+1
+        call mma_deallocate(S1)
+        call mma_deallocate(S2)
+      end do
+    end do
+    call mma_deallocate(C)
+  end do
+  EXS(iState)%ReUse_SGTMP = Reuse_Save
+  call mma_deallocate(SI)
+  call mma_deallocate(SJ)
+  write(u6,'(A,I0,A)') ' SG_Xpq_Psi tests: ',nTest,' (symmetry, p, q) blocks'
+  write(u6,'(A,ES10.3)') '   E_pq vs SG_Epq_Psi,           max. abs. difference ',dE
+  write(u6,'(A,ES10.3)') '   T_pq vs dense ASTA_MatEl,     max. abs. difference ',dT
+end subroutine Check_Xpq_Psi
 
 !
 ! Random index in 1..n from a Park-Miller generator (x <- 48271 x mod
@@ -9924,6 +10140,620 @@ subroutine CSF_Occupation(ISY,I,OccVec)
     OccVec(iLev) = (1+ICS)/2
   end do
 end subroutine CSF_Occupation
+
+!***********************************************************************
+! Matrix elements of the singlet E_pq and of the triplet operator
+! T_pq = a+_pa a_qa - a+_pb a_qb (sqrt(2) T^{1,0}_pq, M = 0) between
+! two CSFs of the same graph, as products of ASTA segment values (the
+! algebraic spin-tensor approach: Fdez. Galvan, Rooein, Lindh, papers I
+! and II). Steps 0,1,2,3 = 0,u,d,2, level 1 at the graph tail; b = 2S at
+! the top of a level. As in the papers, U is the bra and T the ket of a
+! raising operator (p < q: tail at p, head at q); every segment value
+! refers to the b of the top vertex of the ket walk, and db = bT - bU is
+! taken at the top of the segment. A lowering operator is the transpose,
+! <I|X_pq|J> = <J|X_qp|I>. Above the loop head the walks of E_pq coincide;
+! those of T_pq may differ by db = 0 (b /= 0), -2 or +2 (top segments).
+!***********************************************************************
+
+!> Step vector of CSF I of symmetry ISY (0,1,2,3 = 0,u,d,2 per level,
+!> level 1 at the graph tail), from the packed upper and lower walks.
+subroutine SG_CSF_StepVec(SGS,CIS,ISY,I,Step)
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  integer(kind=iwp), intent(in) :: ISY, I
+  integer(kind=iwp), intent(out) :: Step(SGS%nLev)
+  integer(kind=iwp) :: MV, ISYU, ISYD, IUP, IDN, iLev, IOW0, IPSHFT, IC
+  call Decode_CSF(CIS,ISY,I,MV,ISYU,IUP,IDN)
+  ISYD = Mul(ISY,ISYU)
+  do iLev=1,SGS%nLev
+    if (iLev > SGS%MidLev) then
+      IOW0 = CIS%IOW(1,ISYU,MV)
+      IPSHFT = 2*(iLev-1-SGS%MidLev)
+      IC = CIS%ICase(1+IOW0-CIS%nIpWlk+IPSHFT/(2*nPack)+IUP*CIS%nIpWlk)
+    else
+      IOW0 = CIS%IOW(2,ISYD,MV)
+      IPSHFT = 2*(iLev-1)
+      IC = CIS%ICase(1+IOW0-CIS%nIpWlk+IPSHFT/(2*nPack)+IDN*CIS%nIpWlk)
+    end if
+    IPSHFT = mod(IPSHFT,2*nPack)
+    Step(iLev) = mod(IC/2**IPSHFT,4)
+  end do
+end subroutine SG_CSF_StepVec
+
+!> b = 2S at the top of every level of a walk (B(0) = 0, the graph tail).
+pure subroutine Walk_B(nLev,Step,B)
+  integer(kind=iwp), intent(in) :: nLev, Step(nLev)
+  integer(kind=iwp), intent(out) :: B(0:nLev)
+  integer(kind=iwp) :: k
+  B(0) = 0
+  do k=1,nLev
+    select case (Step(k))
+      case (1)
+        B(k) = B(k-1)+1
+      case (2)
+        B(k) = B(k-1)-1
+      case default
+        B(k) = B(k-1)
+    end select
+  end do
+end subroutine Walk_B
+
+pure function Sgn(n) result(s)
+  integer(kind=iwp), intent(in) :: n
+  real(kind=wp) :: s
+  s = One
+  if (mod(abs(n),2) == 1) s = -One
+end function Sgn
+
+pure function Rt(n,m) result(r)
+  ! sqrt(n/m)
+  integer(kind=iwp), intent(in) :: n, m
+  real(kind=wp) :: r
+  r = sqrt(real(n,kind=wp)/real(m,kind=wp))
+end function Rt
+
+!> Tail segment of a raising loop (paper I, Table 3, R_), bra u, ket t.
+pure function ASTA_Tail(u,t,b) result(V)
+  integer(kind=iwp), intent(in) :: u, t, b
+  real(kind=wp) :: V
+  V = Zero
+  select case (4*u+t)
+    case (4)   ! u0
+      V = One
+    case (8)   ! d0
+      V = Sgn(b-1)*Rt(b,b+1)
+    case (13)  ! 2u
+      V = Sgn(b-1)
+    case (14)  ! 2d
+      V = Rt(b+1,b+2)
+  end select
+end function ASTA_Tail
+
+!> Intermediate segment of a raising loop (paper I, Table 4, R), db = +-1.
+pure function ASTA_Mid(u,t,db,b) result(V)
+  integer(kind=iwp), intent(in) :: u, t, db, b
+  real(kind=wp) :: V
+  V = Zero
+  if (abs(db) /= 1) return
+  select case (4*u+t)
+    case (0)   ! 00
+      V = One
+    case (5)   ! uu
+      V = -One
+    case (6)   ! ud
+      if (db == -1) V = Sgn(b+1)/sqrt(real((b+2)*(b+1),kind=wp))
+    case (9)   ! du
+      if (db == 1) V = Sgn(b+1)/sqrt(real((b+1)*b,kind=wp))
+    case (10)  ! dd
+      if (db == -1) then
+        V = sqrt(real((b+3)*(b+1),kind=wp))/real(b+2,kind=wp)
+      else
+        V = sqrt(real((b+2)*b,kind=wp))/real(b+1,kind=wp)
+      end if
+    case (15)  ! 22
+      V = -One
+  end select
+end function ASTA_Mid
+
+!> Head segment of a raising loop of E_pq (paper I, Table 2, R^-), db = 0.
+pure function ASTA_Head(u,t,b) result(V)
+  integer(kind=iwp), intent(in) :: u, t, b
+  real(kind=wp) :: V
+  V = Zero
+  select case (4*u+t)
+    case (1)   ! 0u
+      V = One
+    case (2)   ! 0d
+      V = Sgn(b)*Rt(b+2,b+1)
+    case (7)   ! u2
+      V = Sgn(b+1)
+    case (11)  ! d2
+      V = Rt(b+2,b+1)
+  end select
+end function ASTA_Head
+
+!> Head segment of a raising loop of T_pq (paper II, Table 4), db = 0, +-2.
+pure function ASTA_Head_T(u,t,db,b) result(V)
+  integer(kind=iwp), intent(in) :: u, t, db, b
+  real(kind=wp) :: V
+  V = Zero
+  if ((db == 0) .and. (b == 0)) return
+  select case (4*u+t)
+    case (7)   ! u2
+      if (db == -2) V = Sgn(b)*Two/sqrt(real(b+2,kind=wp))
+      if (db == 0) V = Sgn(b)
+    case (2)   ! 0d
+      if (db == -2) V = Sgn(b+1)*Two*sqrt(real(b+1,kind=wp))/real(b+2,kind=wp)
+      if (db == 0) V = Sgn(b+1)*real(b,kind=wp)/sqrt(real((b+1)*(b+2),kind=wp))
+    case (11)  ! d2
+      if (db == 0) V = real(b,kind=wp)/sqrt(real((b+1)*(b+2),kind=wp))
+      if (db == 2) V = -Two*sqrt(real(b-1,kind=wp))/real(b,kind=wp)
+    case (1)   ! 0u
+      if (db == 0) V = One
+      if (db == 2) V = -Two/sqrt(real(b,kind=wp))
+  end select
+end function ASTA_Head_T
+
+!> Top segment of T_pq above the loop head (paper II, Table 5), db = 0
+!> (b /= 0), -2, +2; the same for raising and lowering operators.
+pure function ASTA_Top_T(u,t,db,b) result(V)
+  integer(kind=iwp), intent(in) :: u, t, db, b
+  real(kind=wp) :: V
+  V = Zero
+  if ((db /= 0) .and. (abs(db) /= 2)) return
+  if ((db == 0) .and. (b == 0)) return
+  select case (4*u+t)
+    case (0,15)  ! 00, 22
+      V = One
+    case (5)     ! uu
+      if (db == -2) V = Rt(b+1,b+2)
+      if (db == 0) V = One
+      if (db == 2) V = Rt(b-1,b)
+    case (10)    ! dd
+      if (db == -2) V = sqrt(real((b+1)*(b+4),kind=wp))/real(b+2,kind=wp)
+      if (db == 0) V = real(b*(b+3),kind=wp)/real((b+2)*(b+1),kind=wp)
+      if (db == 2) V = sqrt(real((b-1)*(b+2),kind=wp))/real(b,kind=wp)
+    case (6)     ! ud
+      if (db == -2) V = Sgn(b)*Two/(real(b+2,kind=wp)*sqrt(real(b+1,kind=wp)))
+      if (db == 0) V = Sgn(b+1)/sqrt(real(b+2,kind=wp))
+    case (9)     ! du
+      if (db == 0) V = Sgn(b+1)/sqrt(real(b+2,kind=wp))
+      if (db == 2) V = Sgn(b)*Two/(real(b,kind=wp)*sqrt(real(b-1,kind=wp)))
+  end select
+end function ASTA_Top_T
+
+!> Weight segment of T_pp (paper II, Table 2): the diagonal steps and the
+!> off-diagonal ud (db = -2) and du (db = +2).
+pure function ASTA_Weight_T(u,t,db,b) result(V)
+  integer(kind=iwp), intent(in) :: u, t, db, b
+  real(kind=wp) :: V
+  V = Zero
+  select case (4*u+t)
+    case (5)   ! uu
+      V = One
+    case (10)  ! dd
+      V = -real(b,kind=wp)/real(b+2,kind=wp)
+    case (6)   ! ud
+      if (db == -2) V = Sgn(b+1)*Two*sqrt(real(b+1,kind=wp))/real(b+2,kind=wp)
+    case (9)   ! du
+      if (db == 2) V = Sgn(b-1)*Two*sqrt(real(b-1,kind=wp))/real(b,kind=wp)
+  end select
+end function ASTA_Weight_T
+
+!> <I|E_pq|J> (Triplet = .false.) or <I|a+_pa a_qa - a+_pb a_qb|J>
+!> (Triplet = .true.) of the CSFs with step vectors SI (bra) and SJ (ket)
+!> of the same graph, as the product of ASTA segment values.
+pure function ASTA_MatEl(nLev,SI,SJ,p,q,Triplet) result(V)
+  integer(kind=iwp), intent(in) :: nLev, SI(nLev), SJ(nLev), p, q
+  logical(kind=iwp), intent(in) :: Triplet
+  real(kind=wp) :: V
+  integer(kind=iwp) :: U(nLev), T(nLev), BU(0:nLev), BT(0:nLev), i, j, k
+  if (p <= q) then
+    U(:) = SI(:)
+    T(:) = SJ(:)
+    i = p
+    j = q
+  else
+    U(:) = SJ(:)
+    T(:) = SI(:)
+    i = q
+    j = p
+  end if
+  V = Zero
+  do k=1,i-1
+    if (U(k) /= T(k)) return
+  end do
+  call Walk_B(nLev,U,BU)
+  call Walk_B(nLev,T,BT)
+  if (i == j) then
+    ! weight segment
+    if (Triplet) then
+      V = ASTA_Weight_T(U(i),T(i),BT(i)-BU(i),BT(i))
+    else if (U(i) == T(i)) then
+      V = real((1+U(i))/2,kind=wp)
+    end if
+  else
+    V = ASTA_Tail(U(i),T(i),BT(i))
+    do k=i+1,j-1
+      if (V == Zero) return
+      V = V*ASTA_Mid(U(k),T(k),BT(k)-BU(k),BT(k))
+    end do
+    if (V == Zero) return
+    if (Triplet) then
+      V = V*ASTA_Head_T(U(j),T(j),BT(j)-BU(j),BT(j))
+    else if (BT(j) == BU(j)) then
+      V = V*ASTA_Head(U(j),T(j),BT(j))
+    else
+      V = Zero
+    end if
+  end if
+  ! above the loop head
+  do k=j+1,nLev
+    if (V == Zero) return
+    if (Triplet) then
+      V = V*ASTA_Top_T(U(k),T(k),BT(k)-BU(k),BT(k))
+    else if (U(k) /= T(k)) then
+      V = Zero
+    end if
+  end do
+  if (BT(nLev) /= BU(nLev)) V = Zero
+end function ASTA_MatEl
+
+!> <I|E_pq|J> or <I|T_pq|J> (Triplet) for CSF I of symmetry ISYI and J of
+!> symmetry ISYJ of state iState (ASTA walk product).
+function SG_MatEl_Tpq(iState,ISYI,I,ISYJ,J,p,q,Triplet) result(V)
+  integer(kind=iwp), intent(in) :: iState, ISYI, I, ISYJ, J, p, q
+  logical(kind=iwp), intent(in) :: Triplet
+  real(kind=wp) :: V
+  integer(kind=iwp), allocatable :: SI(:), SJ(:)
+  V = Zero
+  if (Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)),ISYJ) /= ISYI) return
+  call mma_allocate(SI,SGS(iState)%nLev,Label='SI')
+  call mma_allocate(SJ,SGS(iState)%nLev,Label='SJ')
+  call SG_CSF_StepVec(SGS(iState),CIS(iState),ISYI,I,SI)
+  call SG_CSF_StepVec(SGS(iState),CIS(iState),ISYJ,J,SJ)
+  V = ASTA_MatEl(SGS(iState)%nLev,SI,SJ,p,q,Triplet)
+  call mma_deallocate(SI)
+  call mma_deallocate(SJ)
+end function SG_MatEl_Tpq
+
+!> Determinant expansion (M_S = S) of the genealogical CSF with step vector
+!> Step, from the ASTA definition (paper I): level by level from the top,
+!> u: sum_s C(+1/2,s) a+_{ks}, d: sum_s C(-1/2,s) a+_{ks}, 2: (-1)^b
+!> a+_{kb} a+_{ka}. The creation operators stay in the canonical order
+!> (levels descending from the left, beta before alpha in a level), so the
+!> terms carry no reordering signs. DA/DB: alpha/beta occupations (bit k-1
+!> = level k), DC: coefficients.
+subroutine CSF_Det_Expand(nLev,Step,nDet,DA,DB,DC)
+  integer(kind=iwp), intent(in) :: nLev, Step(nLev)
+  integer(kind=iwp), intent(out) :: nDet
+  integer(kind=iwp), allocatable, intent(out) :: DA(:), DB(:)
+  real(kind=wp), allocatable, intent(out) :: DC(:)
+  integer(kind=iwp) :: B(0:nLev), k, n, m, iT, nMax, s2, m2n
+  integer(kind=iwp), allocatable :: M2(:), NA(:), NB(:), NM(:)
+  real(kind=wp), allocatable :: NC(:)
+  real(kind=wp) :: c
+  call Walk_B(nLev,Step,B)
+  nMax = 2**count((Step(:) == 1) .or. (Step(:) == 2))
+  call mma_allocate(DA,nMax,Label='DA')
+  call mma_allocate(DB,nMax,Label='DB')
+  call mma_allocate(DC,nMax,Label='DC')
+  call mma_allocate(M2,nMax,Label='M2')
+  call mma_allocate(NA,nMax,Label='NA')
+  call mma_allocate(NB,nMax,Label='NB')
+  call mma_allocate(NC,nMax,Label='NC')
+  call mma_allocate(NM,nMax,Label='NM')
+  n = 1
+  DA(1) = 0
+  DB(1) = 0
+  DC(1) = One
+  M2(1) = B(nLev)
+  do k=nLev,1,-1
+    m = 0
+    do iT=1,n
+      select case (Step(k))
+        case (0)
+          m = m+1
+          NA(m) = DA(iT)
+          NB(m) = DB(iT)
+          NC(m) = DC(iT)
+          NM(m) = M2(iT)
+        case (3)
+          m = m+1
+          NA(m) = ibset(DA(iT),k-1)
+          NB(m) = ibset(DB(iT),k-1)
+          NC(m) = Sgn(B(k))*DC(iT)
+          NM(m) = M2(iT)
+        case (1,2)
+          do s2=1,-1,-2
+            ! 2*sigma = s2, new projection M - sigma
+            m2n = M2(iT)-s2
+            if (Step(k) == 1) then
+              if (abs(m2n) > B(k)-1) cycle
+              c = sqrt(real(B(k)+s2*M2(iT),kind=wp)/real(2*B(k),kind=wp))
+            else
+              if (abs(m2n) > B(k)+1) cycle
+              c = Sgn(B(k)+1)*real(s2,kind=wp)*sqrt(real(B(k)+2-s2*M2(iT),kind=wp)/real(2*(B(k)+2),kind=wp))
+            end if
+            if (c == Zero) cycle
+            m = m+1
+            if (s2 == 1) then
+              NA(m) = ibset(DA(iT),k-1)
+              NB(m) = DB(iT)
+            else
+              NA(m) = DA(iT)
+              NB(m) = ibset(DB(iT),k-1)
+            end if
+            NC(m) = c*DC(iT)
+            NM(m) = m2n
+          end do
+      end select
+    end do
+    n = m
+    DA(1:n) = NA(1:n)
+    DB(1:n) = NB(1:n)
+    DC(1:n) = NC(1:n)
+    M2(1:n) = NM(1:n)
+  end do
+  nDet = n
+  call mma_deallocate(M2)
+  call mma_deallocate(NA)
+  call mma_deallocate(NB)
+  call mma_deallocate(NC)
+  call mma_deallocate(NM)
+end subroutine CSF_Det_Expand
+
+!> <I|a+_pa a_qa + sb a+_pb a_qb|J> from the determinant expansions of I
+!> and J (CSF_Det_Expand, canonical operator order); sb = 1 for E_pq, -1
+!> for T_pq.
+pure function Det_MatEl(nI,AI,BI,CI,nJ,AJ,BJ,CJ,p,q,sb) result(V)
+  integer(kind=iwp), intent(in) :: nI, AI(nI), BI(nI), nJ, AJ(nJ), BJ(nJ), p, q
+  real(kind=wp), intent(in) :: CI(nI), CJ(nJ), sb
+  real(kind=wp) :: V
+  integer(kind=iwp) :: iJ, iI, iSpin, a, bb, nLeft
+  real(kind=wp) :: w
+  V = Zero
+  do iJ=1,nJ
+    do iSpin=1,2
+      a = AJ(iJ)
+      bb = BJ(iJ)
+      if (iSpin == 1) then
+        ! alpha: annihilate a_qa, the operators left of it are all of the
+        ! levels above q and the beta of level q
+        if (.not. btest(a,q-1)) cycle
+        nLeft = popcnt(ishft(a,-q))+popcnt(ishft(bb,-q))
+        if (btest(bb,q-1)) nLeft = nLeft+1
+        a = ibclr(a,q-1)
+        if (btest(a,p-1)) cycle
+        nLeft = nLeft+popcnt(ishft(a,-p))+popcnt(ishft(bb,-p))
+        if (btest(bb,p-1)) nLeft = nLeft+1
+        a = ibset(a,p-1)
+        w = One
+      else
+        ! beta: the operators left of it are those of the levels above
+        if (.not. btest(bb,q-1)) cycle
+        nLeft = popcnt(ishft(a,-q))+popcnt(ishft(bb,-q))
+        bb = ibclr(bb,q-1)
+        if (btest(bb,p-1)) cycle
+        nLeft = nLeft+popcnt(ishft(a,-p))+popcnt(ishft(bb,-p))
+        bb = ibset(bb,p-1)
+        w = sb
+      end if
+      w = w*CJ(iJ)
+      if (mod(nLeft,2) == 1) w = -w
+      do iI=1,nI
+        if ((AI(iI) == a) .and. (BI(iI) == bb)) V = V+CI(iI)*w
+      end do
+    end do
+  end do
+end function Det_MatEl
+
+!> The step vectors of all CSFs of state iState (all symmetries, CSF k of
+!> symmetry ISY at column ASTA_Off(ISY)+k) and, per symmetry, the packed
+!> step vectors sorted (ASTA_Key, with the CSF index ASTA_Idx) for the
+!> lookup of a walk; built on first use, freed by ASTA_Free (SG_Free).
+subroutine ASTA_Setup(iState)
+  integer(kind=iwp), intent(in) :: iState
+  integer(kind=iwp) :: ISY, I, k, n, nTot
+  integer(kind=iwp), allocatable :: Ord(:)
+  if (allocated(ASTA_Steps) .and. (ASTA_iState == iState)) return
+  call ASTA_Free()
+  ASTA_iState = iState
+  ASTA_Off(:) = 0
+  do ISY=2,SGS(iState)%nSym
+    ASTA_Off(ISY) = ASTA_Off(ISY-1)+CIS(iState)%NCSF(ISY-1)
+  end do
+  nTot = ASTA_Off(SGS(iState)%nSym)+CIS(iState)%NCSF(SGS(iState)%nSym)
+  call mma_allocate(ASTA_Steps,SGS(iState)%nLev,max(1,nTot),Label='ASTA_Steps')
+  call mma_allocate(ASTA_Key,max(1,nTot),Label='ASTA_Key')
+  call mma_allocate(ASTA_Idx,max(1,nTot),Label='ASTA_Idx')
+  do ISY=1,SGS(iState)%nSym
+    n = CIS(iState)%NCSF(ISY)
+    if (n == 0) cycle
+    do I=1,n
+      call SG_CSF_StepVec(SGS(iState),CIS(iState),ISY,I,ASTA_Steps(:,ASTA_Off(ISY)+I))
+      ASTA_Key(ASTA_Off(ISY)+I) = Walk_Key(SGS(iState)%nLev,ASTA_Steps(:,ASTA_Off(ISY)+I))
+    end do
+    call mma_allocate(Ord,n,Label='Ord')
+    call Sort_Keys(ASTA_Key(ASTA_Off(ISY)+1:ASTA_Off(ISY)+n),1,n,Ord)
+    ASTA_Idx(ASTA_Off(ISY)+1:ASTA_Off(ISY)+n) = Ord(:)
+    ASTA_Key(ASTA_Off(ISY)+1:ASTA_Off(ISY)+n) = ASTA_Key(ASTA_Off(ISY)+Ord(:))
+    do k=2,n
+      if (ASTA_Key(ASTA_Off(ISY)+k) == ASTA_Key(ASTA_Off(ISY)+k-1)) then
+        write(u6,*) 'ASTA_Setup: two CSFs with the same step vector',ISY,k
+        call Abend()
+      end if
+    end do
+    call mma_deallocate(Ord)
+  end do
+end subroutine ASTA_Setup
+
+subroutine ASTA_Free()
+  call mma_deallocate(ASTA_Steps,safe='*')
+  call mma_deallocate(ASTA_Key,safe='*')
+  call mma_deallocate(ASTA_Idx,safe='*')
+  ASTA_iState = 0
+end subroutine ASTA_Free
+
+!> A step vector packed into one integer, 2 bits per level (level 1 lowest).
+pure function Walk_Key(nLev,Step) result(Key)
+  integer(kind=iwp), intent(in) :: nLev, Step(nLev)
+  integer(kind=iwp) :: Key
+  integer(kind=iwp) :: k
+  Key = 0
+  do k=nLev,1,-1
+    Key = 4*Key+Step(k)
+  end do
+end function Walk_Key
+
+!> The CSF of symmetry ISY with the packed step vector Key (0 if none).
+function ASTA_Find(ISY,n,Key) result(I)
+  integer(kind=iwp), intent(in) :: ISY, n, Key
+  integer(kind=iwp) :: I
+  integer(kind=iwp) :: iLo, iHi, iMid
+  I = 0
+  iLo = 1
+  iHi = n
+  do while (iLo <= iHi)
+    iMid = (iLo+iHi)/2
+    if (ASTA_Key(ASTA_Off(ISY)+iMid) == Key) then
+      I = ASTA_Idx(ASTA_Off(ISY)+iMid)
+      return
+    else if (ASTA_Key(ASTA_Off(ISY)+iMid) < Key) then
+      iLo = iMid+1
+    else
+      iHi = iMid-1
+    end if
+  end do
+end function ASTA_Find
+
+!> Sigma = Sigma + X T_pq CI (Triplet: T_pq = a+_pa a_qa - a+_pb a_qb), or
+!> + X E_pq CI (Triplet = .false.; the ASTA reference of SG_Epq_Psi), for a
+!> CI vector of symmetry ISYCI of state iState; Sigma has the symmetry
+!> Gamma(p) x Gamma(q) x ISYCI. For each ket CSF J the partner walks with a
+!> nonzero product of ASTA segment values are generated level by level from
+!> the graph tail (ASTA_Gen) and located by their packed step vectors.
+subroutine SG_Xpq_Psi(iState,p,q,X,ISYCI,CI,Sigma,Triplet)
+  integer(kind=iwp), intent(in) :: iState, p, q, ISYCI
+  real(kind=wp), intent(in) :: X, CI(*)
+  real(kind=wp), intent(inout) :: Sigma(*)
+  logical(kind=iwp), intent(in) :: Triplet
+  integer(kind=iwp) :: ISYS, J, nLev, i_, j_
+  integer(kind=iwp), allocatable :: P_(:), BF(:), BP(:)
+  logical(kind=iwp) :: FixedIsKet
+  call ASTA_Setup(iState)
+  nLev = SGS(iState)%nLev
+  ISYS = Mul(Mul(SGS(iState)%ISm(p),SGS(iState)%ISm(q)),ISYCI)
+  if ((CIS(iState)%NCSF(ISYCI) == 0) .or. (CIS(iState)%NCSF(ISYS) == 0)) return
+  ! raising (p < q): the fixed walk J is the ket of the raising operator;
+  ! lowering: <I|X_pq|J> = <J|X_qp|I>, J is its bra
+  FixedIsKet = (p <= q)
+  i_ = min(p,q)
+  j_ = max(p,q)
+  call mma_allocate(P_,nLev,Label='ASTA_P')
+  call mma_allocate(BF,[0,nLev],Label='ASTA_BF')
+  call mma_allocate(BP,[0,nLev],Label='ASTA_BP')
+  do J=1,CIS(iState)%NCSF(ISYCI)
+    if (CI(J) == Zero) cycle
+    call Walk_B(nLev,ASTA_Steps(:,ASTA_Off(ISYCI)+J),BF)
+    BP(0) = 0
+    call ASTA_Gen(SGS(iState),1,SGS(iState)%nVert,One,nLev,ASTA_Steps(:,ASTA_Off(ISYCI)+J),BF,P_,BP,i_,j_,FixedIsKet, &
+                  Triplet,ISYS,CIS(iState)%NCSF(ISYS),X*CI(J),Sigma)
+  end do
+  call mma_deallocate(P_)
+  call mma_deallocate(BF)
+  call mma_deallocate(BP)
+end subroutine SG_Xpq_Psi
+
+!> Sigma = Sigma + X T_pq CI (T_pq = a+_pa a_qa - a+_pb a_qb), see SG_Xpq_Psi.
+subroutine SG_Tpq_Psi(iState,p,q,X,ISYCI,CI,Sigma)
+  integer(kind=iwp), intent(in) :: iState, p, q, ISYCI
+  real(kind=wp), intent(in) :: X, CI(*)
+  real(kind=wp), intent(inout) :: Sigma(*)
+  call SG_Xpq_Psi(iState,p,q,X,ISYCI,CI,Sigma,.true.)
+end subroutine SG_Tpq_Psi
+
+!> One level k of the generation of the partner walks of SG_Xpq_Psi: the
+!> partner steps P(1:k-1) and their b values BP(0:k-1) are set, the walk is
+!> at vertex iVert (level k-1), with the product V of the segment values so
+!> far. F/BF: the fixed walk. At the graph head Sigma(I) += Y*V.
+recursive subroutine ASTA_Gen(SGS,k,iVert,V,nLev,F,BF,P,BP,i,j,FixedIsKet,Triplet,ISYS,nS,Y,Sigma)
+  type(SGStruct), intent(in) :: SGS
+  integer(kind=iwp), intent(in) :: k, iVert, nLev, F(nLev), BF(0:nLev), i, j, ISYS, nS
+  real(kind=wp), intent(in) :: V, Y
+  integer(kind=iwp), intent(inout) :: P(nLev), BP(0:nLev)
+  logical(kind=iwp), intent(in) :: FixedIsKet, Triplet
+  real(kind=wp), intent(inout) :: Sigma(*)
+  integer(kind=iwp) :: s, iV, u, t, bU, bT, I_
+  real(kind=wp) :: W
+  if (k > nLev) then
+    if (BP(nLev) /= BF(nLev)) return
+    I_ = ASTA_Find(ISYS,nS,Walk_Key(nLev,P))
+    if (I_ == 0) then
+      write(u6,*) 'ASTA_Gen: generated walk not found in symmetry',ISYS
+      call Abend()
+    end if
+    Sigma(I_) = Sigma(I_)+Y*V
+    return
+  end if
+  do s=0,3
+    if ((k < i) .and. (s /= F(k))) cycle
+    if ((.not. Triplet) .and. (k > j) .and. (s /= F(k))) cycle
+    iV = SGS%Up(iVert,s)
+    if (iV == 0) cycle
+    P(k) = s
+    select case (s)
+      case (1)
+        BP(k) = BP(k-1)+1
+      case (2)
+        BP(k) = BP(k-1)-1
+      case default
+        BP(k) = BP(k-1)
+    end select
+    if (FixedIsKet) then
+      u = s
+      t = F(k)
+      bU = BP(k)
+      bT = BF(k)
+    else
+      u = F(k)
+      t = s
+      bU = BF(k)
+      bT = BP(k)
+    end if
+    if (k < i) then
+      W = One
+    else if (k == i) then
+      if (i == j) then
+        if (Triplet) then
+          W = ASTA_Weight_T(u,t,bT-bU,bT)
+        else if (u == t) then
+          W = real((1+u)/2,kind=wp)
+        else
+          W = Zero
+        end if
+      else
+        W = ASTA_Tail(u,t,bT)
+      end if
+    else if (k < j) then
+      W = ASTA_Mid(u,t,bT-bU,bT)
+    else if (k == j) then
+      if (Triplet) then
+        W = ASTA_Head_T(u,t,bT-bU,bT)
+      else if (bT == bU) then
+        W = ASTA_Head(u,t,bT)
+      else
+        W = Zero
+      end if
+    else if (Triplet) then
+      W = ASTA_Top_T(u,t,bT-bU,bT)
+    else
+      W = One
+    end if
+    if (W == Zero) cycle
+    call ASTA_Gen(SGS,k+1,iV,V*W,nLev,F,BF,P,BP,i,j,FixedIsKet,Triplet,ISYS,nS,Y,Sigma)
+  end do
+end subroutine ASTA_Gen
 
 !> Set up the single-CSF matrix elements for the CSFs of symmetry LSM of
 !> state iState (SG_CSF_Occ, SG_MatEl_H).
