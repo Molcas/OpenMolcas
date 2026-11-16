@@ -29,6 +29,7 @@ use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
 use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl, NSM
 use CI_Verify_Options, only: CI_Verify
+use CI_Space_Def, only: CI_Space, Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
 
 #include "intent.fh"
 
@@ -81,6 +82,10 @@ integer(kind=iwp), allocatable :: Faro_L2O(:)
 logical(kind=iwp) :: HPsi_FaroRAS_Verified = .false.
 ! SIGMA: the spin density of the ASTA triplet operator checked, printed once
 logical(kind=iwp) :: SD_ASTA_Verified = .false.
+! The CI space of RASSCF in the common description of all back ends
+! (CI_Space_Def): partitions with cumulative bounds and the removed
+! configurations (HEXS/DEXS); built by CI_Space_Setup in CI_Initialize.
+type(CI_Space) :: Space_CI
 ! HEXS/DEXS (RASSCF keywords, spinfo I_ELIMINATE_GAS): the configurations
 ! with the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in
 ! the listed RAS partitions are removed as in Lucia: their CSFs stay in the
@@ -1544,6 +1549,104 @@ end subroutine CI_Timer
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
+!> The CI space of RASSCF (Space_CI) from the GAS description of the input
+!> (NGAS, NGSSH, IGSOCCX; CAS and RAS are converted to it by proc_inp) and
+!> the HEXS/DEXS lists. With MOLCAS_CI_VERIFY (any level) printed and
+!> checked against the RAS description (nRsPrt, nRas, nRasEl, NSM) and the
+!> HEXS/DEXS thresholds used by the CI interface.
+subroutine CI_Space_Setup()
+use general_data, only: IGSOCCX, NGAS, NGSSH, nSym
+use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
+use Molcas, only: MxGAS
+integer(kind=iwp) :: g, k, i, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS)
+integer(kind=iwp), allocatable :: NMx(:)
+logical(kind=iwp) :: OK
+
+call Space_From_GAS(Space_CI,nSym,NACTEL,ISPIN,NGAS,NGSSH(1:NGAS,1:nSym),IGSOCCX(1:NGAS,1:2))
+! partition of each input space (0: no orbitals, dropped)
+k = 0
+do g=1,NGAS
+  iPart(g) = 0
+  if (sum(NGSSH(g,1:nSym)) == 0) cycle
+  k = k+1
+  iPart(g) = k
+end do
+! HEXS (maximum occupation) and DEXS (maximum - 1) removals
+if (I_ELIMINATE_GAS > 0) then
+  call mma_allocate(NMx,max(1,Space_CI%nPart),Label='NMx')
+  call Space_Max_Occ(Space_CI,NMx)
+  if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
+    do i=1,N_ELIMINATED_GAS
+      g = IELIMINATED_IN_GAS(i)
+      if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g)))
+    end do
+  end if
+  if (I_ELIMINATE_GAS > 1) then
+    do i=1,N_2ELIMINATED_GAS
+      g = I2ELIMINATED_IN_GAS(i)
+      if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g))-1)
+    end do
+  end if
+  call mma_deallocate(NMx)
+end if
+if (.not. CI_Verify('ANY')) return
+
+call Space_Print(Space_CI)
+! the RAS description, with its empty partitions dropped (their lower
+! bound merged into the previous one): the same partitions, the same lower
+! bounds (after tightening to the physical ones), no upper bounds, the same
+! levels
+OK = (Space_CI%nLev == NAC)
+k = 0
+nBelow = 0
+do i=1,nRsPrt
+  if (sum(nRas(1:nSym,i)) == 0) then
+    if (k > 0) MinEO(k) = max(MinEO(k),nRasEl(i))
+    cycle
+  end if
+  k = k+1
+  if (k > Space_CI%nPart) then
+    OK = .false.
+    exit
+  end if
+  OK = OK .and. all(Space_CI%nOrb(1:nSym,k) == nRas(1:nSym,i))
+  MinEO(k) = nRasEl(i)
+end do
+OK = OK .and. (k == Space_CI%nPart)
+if (OK) then
+  do k=1,Space_CI%nPart
+    nBelow = nBelow+sum(Space_CI%nOrb(1:nSym,k))
+    nAbove = sum(Space_CI%nOrb(1:nSym,k+1:Space_CI%nPart))
+    MinR = max(MinEO(k),0,NACTEL-2*nAbove)
+    MaxR = min(NACTEL,2*nBelow)
+    if (k == Space_CI%nPart) then
+      MinR = NACTEL
+      MaxR = NACTEL
+    end if
+    OK = OK .and. (Space_CI%MinEl(k) == MinR) .and. (Space_CI%MaxEl(k) == MaxR)
+  end do
+  OK = OK .and. all(Space_CI%LevSym(1:NAC) == NSM(1:NAC))
+end if
+if (.not. OK) then
+  write(u6,'(1X,A)') 'CI_Space_Setup: the CI space differs from the RAS description (nRsPrt, nRas, nRasEl, NSM)'
+  call Abend()
+end if
+! the HEXS/DEXS thresholds of the CI interface (HEXS_Max_Occ, at most 3
+! partitions)
+if ((I_ELIMINATE_GAS > 0) .and. (nRsPrt <= 3) .and. (Space_CI%nPart == nRsPrt)) then
+  call HEXS_Max_Occ()
+  call mma_allocate(NMx,max(1,Space_CI%nPart),Label='NMx')
+  call Space_Max_Occ(Space_CI,NMx)
+  if (any(NMx(1:nRsPrt) /= HEXS_NMx(1:nRsPrt))) then
+    write(u6,'(1X,A,3I4,A,3I4)') 'CI_Space_Setup: maximum occupations differ, CI_Space',NMx(1:nRsPrt),', CI interface', &
+                                 HEXS_NMx(1:nRsPrt)
+    call Abend()
+  end if
+  call mma_deallocate(NMx)
+end if
+write(u6,'(1X,A)') 'CI_Space_Setup: CI space verified against the RAS description'
+end subroutine CI_Space_Setup
+
 subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
 use sguga, only: SG_Test_EpqErs_Ref
 use faroald, only: nela, nelb
@@ -1562,6 +1665,9 @@ integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
 ! SGCI does not need Lucia; it is set up only as the reference of
 ! MOLCAS_CI_VERIFY=SIGMA.
 Lucia_Active = .not. (((Do_SGUGA .and. SG_CI()) .or. Do_Faroald) .and. (.not. CI_Verify('SIGMA')))
+
+! the CI space in the common description of the back ends
+if (.not. iDoGAS) call CI_Space_Setup()
 
 if (Lucia_Active) then
   ! Construct the determinant tables
@@ -1683,6 +1789,7 @@ Call SG_free(iState)
 call SG_Free_Cnf_List(Cnf_SG)
 call mma_deallocate(HEXS_Keep,safe='*')
 call mma_deallocate(HEXS_Keep_SG,safe='*')
+call Space_Free(Space_CI)
 
 end subroutine CI_Close
 
