@@ -30,7 +30,7 @@ use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
 use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl, NSM
 use CI_Verify_Options, only: CI_Verify
 use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
-use CI_Info, only: Space_CI
+use CI_Info, only: CI_St, Space_CI
 use Molcas, only: MxGAS
 
 #include "intent.fh"
@@ -94,6 +94,16 @@ logical(kind=iwp) :: SD_ASTA_Verified = .false.
 ! HEXS_Keep: the kept CSFs in the CI basis (SGCI, FARO; Lucia does it
 ! itself); HEXS_Keep_SG: in the split-graph basis (the SGUGA references).
 logical(kind=iwp), allocatable :: HEXS_Keep(:), HEXS_Keep_SG(:)
+
+! GAS: SGUGA evaluates products of excitation operators (H, 2-RDM, spin and
+! transition densities, diagonal, explicit block) in the relaxed space of
+! the state (CI_St(iState)%iRel, see SG_Rel_State), which holds all their
+! intermediate states; Rel_Map(LSM)%M(I) is the index there of the CSF I of
+! symmetry LSM (SG_Rel_Map).
+type Rel_Map_Type
+  integer(kind=iwp), allocatable :: M(:)
+end type Rel_Map_Type
+type(Rel_Map_Type) :: Rel_Map(8)
 
 contains
 
@@ -256,11 +266,7 @@ select case (Lab)
     call mma_allocate(C2,n,Label='C2')
     call CI_Basis_To_File(iState,LSM,n,Cin,C1)
     call HEXS_Proj(HEXS_Keep_SG,C1)
-    if (nRsPrt == 1) then
-      call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C1,n,LSM,C2,TUVX,nTUVX,TU,nTU)
-    else
-      call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C1,n,LSM,C2,TUVX,nTUVX,TU,nTU)
-    end if
+    call SG_HPsi(iState,C1,n,LSM,C2,TUVX,nTUVX,TU,nTU,nRsPrt /= 1)
     call HEXS_Proj(HEXS_Keep_SG,C2)
     call CI_File_To_Basis(iState,LSM,n,C2,Sout)
   case default
@@ -301,12 +307,193 @@ call mma_deallocate(F)
 call mma_deallocate(E)
 end subroutine CI_File_Index_To_Basis
 
-!> SGUGA covers the CI space of RASSCF: CAS or RAS, but not GAS (no graph)
-!> and not HEXS/DEXS (I_ELIMINATE_GAS), which remove configurations that the
-!> graph keeps.
+!> GAS: the CSF map of symmetry LSM of state iState into its relaxed space.
+subroutine SG_Rel_Map(iState,LSM)
+use sguga, only: SG_Map_CSFs
+integer(kind=iwp), intent(in) :: iState, LSM
+integer(kind=iwp) :: n
+if (allocated(Rel_Map(LSM)%M)) return
+n = CIS(iState)%NCSF(LSM)
+call mma_allocate(Rel_Map(LSM)%M,max(1,n),Label='Rel_Map')
+Rel_Map(LSM)%M(:) = 0
+call SG_Map_CSFs(iState,CI_St(iState)%iRel,LSM,n,Rel_Map(LSM)%M)
+if (any(Rel_Map(LSM)%M(1:n) == 0)) then
+  write(u6,*) 'SG_Rel_Map: a CSF of the GAS space is missing in the relaxed space'
+  call Abend()
+end if
+end subroutine SG_Rel_Map
+
+subroutine SG_Rel_Free()
+integer(kind=iwp) :: k
+do k=1,size(Rel_Map)
+  call mma_deallocate(Rel_Map(k)%M,safe='*')
+end do
+end subroutine SG_Rel_Free
+
+!> GAS: X (n CSFs of symmetry LSM of iState) into the relaxed space (XR,
+!> zero elsewhere), and back (the components of the GAS CSFs).
+subroutine SG_Rel_Embed(iState,LSM,n,X,XR)
+integer(kind=iwp), intent(in) :: iState, LSM, n
+real(kind=wp), intent(in) :: X(n)
+real(kind=wp), intent(out) :: XR(:)
+call SG_Rel_Map(iState,LSM)
+XR(:) = Zero
+XR(Rel_Map(LSM)%M(1:n)) = X(1:n)
+end subroutine SG_Rel_Embed
+
+subroutine SG_Rel_Project(iState,LSM,n,XR,X)
+integer(kind=iwp), intent(in) :: iState, LSM, n
+real(kind=wp), intent(in) :: XR(:)
+real(kind=wp), intent(out) :: X(n)
+call SG_Rel_Map(iState,LSM)
+X(1:n) = XR(Rel_Map(LSM)%M(1:n))
+end subroutine SG_Rel_Project
+
+!> SGUGA sigma vector of state iState: sg_h_psi_ras (RAS, or Use_RAS) or
+!> sg_h_psi (CAS); for GAS sg_h_psi_ras in the relaxed space.
+subroutine SG_HPsi(iState,Psi,n,LSM,Sigma,TUVX,nTUVX,TU,nTU,Use_RAS)
+integer(kind=iwp), intent(in) :: iState, n, LSM, nTUVX, nTU
+real(kind=wp), intent(in) :: Psi(n), TUVX(nTUVX), TU(nTU)
+real(kind=wp), intent(out) :: Sigma(n)
+logical(kind=iwp), intent(in) :: Use_RAS
+integer(kind=iwp) :: iR, nR
+real(kind=wp), allocatable :: PR(:), SR(:)
+iR = CI_St(iState)%iRel
+if (iR > 0) then
+  nR = CIS(iR)%NCSF(LSM)
+  call mma_allocate(PR,nR,Label='PR')
+  call mma_allocate(SR,nR,Label='SR')
+  call SG_Rel_Embed(iState,LSM,n,Psi,PR)
+  call sg_h_psi_ras(SGS(iR),CIS(iR),EXS(iR),PR,nR,LSM,SR,TUVX,nTUVX,TU,nTU)
+  call SG_Rel_Project(iState,LSM,n,SR,Sigma)
+  call mma_deallocate(SR)
+  call mma_deallocate(PR)
+else if (Use_RAS) then
+  call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),Psi,n,LSM,Sigma,TUVX,nTUVX,TU,nTU)
+else
+  call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),Psi,n,LSM,Sigma,TUVX,nTUVX,TU,nTU)
+end if
+end subroutine SG_HPsi
+
+!> SGUGA 2-RDM (sg_two_pdm) of state iState; for GAS in the relaxed space.
+subroutine SG_Two_PDM_G(iState,C,n,LSM,P,PA,nP)
+integer(kind=iwp), intent(in) :: iState, n, LSM, nP
+real(kind=wp), intent(in) :: C(n)
+real(kind=wp), intent(out) :: P(nP), PA(nP)
+integer(kind=iwp) :: iR, nR
+real(kind=wp), allocatable :: CR(:)
+iR = CI_St(iState)%iRel
+if (iR > 0) then
+  nR = CIS(iR)%NCSF(LSM)
+  call mma_allocate(CR,nR,Label='CR')
+  call SG_Rel_Embed(iState,LSM,n,C,CR)
+  call sg_two_pdm(SGS(iR),CIS(iR),EXS(iR),CR,nR,LSM,P,PA,nP)
+  call mma_deallocate(CR)
+else
+  call sg_two_pdm(SGS(iState),CIS(iState),EXS(iState),C,n,LSM,P,PA,nP)
+end if
+end subroutine SG_Two_PDM_G
+
+!> SGUGA spin density (sg_spin_pdm, D the 1-RDM) of state iState; for GAS
+!> in the relaxed space.
+subroutine SG_Spin_PDM_G(iState,C,n,LSM,D,SD,nD)
+integer(kind=iwp), intent(in) :: iState, n, LSM, nD
+real(kind=wp), intent(in) :: C(n), D(nD)
+real(kind=wp), intent(out) :: SD(nD)
+integer(kind=iwp) :: iR, nR
+real(kind=wp), allocatable :: CR(:)
+iR = CI_St(iState)%iRel
+if (iR > 0) then
+  nR = CIS(iR)%NCSF(LSM)
+  call mma_allocate(CR,nR,Label='CR')
+  call SG_Rel_Embed(iState,LSM,n,C,CR)
+  call sg_spin_pdm(SGS(iR),CIS(iR),EXS(iR),CR,nR,LSM,D,SD,nD)
+  call mma_deallocate(CR)
+else
+  call sg_spin_pdm(SGS(iState),CIS(iState),EXS(iState),C,n,LSM,D,SD,nD)
+end if
+end subroutine SG_Spin_PDM_G
+
+!> SGUGA transition 1-RDM and spin 1-TDM (sg_trans_pdm) of state iState;
+!> for GAS in the relaxed space.
+subroutine SG_Trans_PDM_G(iState,B,K,n,LSM,nA,TS,TSS,Spin)
+integer(kind=iwp), intent(in) :: iState, n, LSM, nA
+real(kind=wp), intent(in) :: B(n), K(n)
+real(kind=wp), intent(out) :: TS(nA*nA), TSS(nA*nA)
+logical(kind=iwp), intent(in) :: Spin
+integer(kind=iwp) :: iR, nR
+real(kind=wp), allocatable :: BR(:), KR(:)
+iR = CI_St(iState)%iRel
+if (iR > 0) then
+  nR = CIS(iR)%NCSF(LSM)
+  call mma_allocate(BR,nR,Label='BR')
+  call mma_allocate(KR,nR,Label='KR')
+  call SG_Rel_Embed(iState,LSM,n,B,BR)
+  call SG_Rel_Embed(iState,LSM,n,K,KR)
+  call sg_trans_pdm(SGS(iR),CIS(iR),EXS(iR),BR,KR,nR,LSM,nA,TS,TSS,Spin)
+  call mma_deallocate(KR)
+  call mma_deallocate(BR)
+else
+  call sg_trans_pdm(SGS(iState),CIS(iState),EXS(iState),B,K,n,LSM,nA,TS,TSS,Spin)
+end if
+end subroutine SG_Trans_PDM_G
+
+!> Exact SGUGA diagonal <I|H|I> of state iState (Mode 'FAST': sg_hdiag_fast,
+!> 'REF': sg_hdiag_ref); for GAS in the relaxed space.
+subroutine SG_HDiag_G(Mode,iState,n,LSM,TUVX,nTUVX,TU,nTU,Diag)
+use sguga, only: SGStruct, CIStruct, EXStruct
+character(len=*), intent(in) :: Mode
+integer(kind=iwp), intent(in) :: iState, n, LSM, nTUVX, nTU
+real(kind=wp), intent(in) :: TUVX(nTUVX), TU(nTU)
+real(kind=wp), intent(out) :: Diag(n)
+integer(kind=iwp) :: iR, iS, nR
+real(kind=wp), allocatable :: DR(:)
+interface
+  subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
+    import :: SGStruct, CIStruct, EXStruct, iwp, wp
+    type(SGStruct), intent(in) :: SGS
+    type(CIStruct), intent(in) :: CIS
+    type(EXStruct), intent(inout) :: EXS
+    integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
+    real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+    real(kind=wp), intent(out) :: Diag(nCSFs)
+  end subroutine sg_hdiag_fast
+  subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
+    import :: SGStruct, CIStruct, EXStruct, iwp, wp
+    type(SGStruct), intent(in) :: SGS
+    type(CIStruct), intent(in) :: CIS
+    type(EXStruct), intent(inout) :: EXS
+    integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
+    real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+    real(kind=wp), intent(out) :: Diag(nCSFs)
+  end subroutine sg_hdiag_ref
+end interface
+iR = CI_St(iState)%iRel
+iS = iState
+nR = n
+if (iR > 0) then
+  iS = iR
+  nR = CIS(iR)%NCSF(LSM)
+end if
+call mma_allocate(DR,nR,Label='DR')
+if (Mode == 'REF') then
+  call sg_hdiag_ref(SGS(iS),CIS(iS),EXS(iS),nR,LSM,TUVX,nTUVX,TU,nTU,DR)
+else
+  call sg_hdiag_fast(SGS(iS),CIS(iS),EXS(iS),nR,LSM,TUVX,nTUVX,TU,nTU,DR)
+end if
+if (iR > 0) then
+  call SG_Rel_Project(iState,LSM,n,DR,Diag)
+else
+  Diag(:) = DR(:)
+end if
+call mma_deallocate(DR)
+end subroutine SG_HDiag_G
+
+!> SGUGA covers the CI space of RASSCF: CAS and RAS directly, GAS through
+!> the relaxed space (set up by SG_Setup_RASSCF; HEXS/DEXS are masks).
 function SG_Avail() result(Avail)
 logical(kind=iwp) :: Avail
-Avail = .not. iDoGAS
+Avail = (.not. iDoGAS) .or. (CI_St(1)%iRel > 0)
 end function SG_Avail
 
 !> HEXS/DEXS: is a configuration with nOcc(k) electrons in partition k of
@@ -460,11 +647,7 @@ real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:), SG_RAS(:)
 ! MOLCAS_CI_VERIFY=SIGMA the sigma vector is compared with that of Lucia
 ! (vector reordered to the Lucia basis and the result back).
 if (SG_CI()) then
-  if (nRsPrt == 1) then
-    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU)
-  else
-    call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU)
-  end if
+  call SG_HPsi(iState,CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU,nRsPrt /= 1)
   call HEXS_Proj(HEXS_Keep,Sigma_Vec)
   if (CI_Verify('SIGMA')) then
     call mma_allocate(SG_PSI,max(nCSF,NDTASM(STSYM)),Label='SG_PSI')
@@ -552,7 +735,7 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    call HEXS_Proj(HEXS_Keep_SG,SG_PSI)
    Check_Href=CheckSum(Sigma_Vec,nCSF)
    Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
-   if (nRsPrt == 1) then
+   if ((nRsPrt == 1) .and. (.not. iDoGAS)) then
      Call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
      if (.not. HPsi_RAS_Verified) then
        call mma_allocate(SG_RAS,nCSF,Label='SG_RAS')
@@ -567,11 +750,11 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
        HPsi_RAS_Verified = .true.
      end if
    else
-     Call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
+     call SG_HPsi(iState,SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU,.true.)
    end if
    call HEXS_Proj(HEXS_Keep_SG,SG_SGM)
    call CI_File_To_Basis(iState,STSYM,nCSF,SG_SGM,SG_PSI)
-   if (nRsPrt /= 1) then
+   if ((nRsPrt /= 1) .or. iDoGAS) then
      DMax = maxval(abs(SG_PSI(:)-Sigma_Vec(:)))
      if (.not. HPsi_RAS_Verified) &
        write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs CI back end (RAS), max. abs. difference',DMax
@@ -729,7 +912,6 @@ end subroutine Faroald_Sigma
 Subroutine Mk_H_Psi_Det(istate,STSYM,nDet,CI_Vec,Sigma_Vec,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
 use sd_csf_codec_module, only: sd_csf_codec, sd_to_csf, csf_to_sd
-use sguga, only: EXS
 use cands, only: ICSM, ISSM
 Implicit None
 
@@ -867,7 +1049,7 @@ If (CI_Verify('SIGMA')) Then
   !     iMode=1 --> from split graph GUGA to SGA order                   *
   call SG_Reord(iState,STSYM,0,nCSF,temp1,temp2)
 
-  Call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),temp2,nCSF,STSYM,temp1,TUVX,nTUVX,TU,nTU)
+  call SG_HPsi(iState,temp2,nCSF,STSYM,temp1,TUVX,nTUVX,TU,nTU,nRsPrt /= 1)
 
   ! Convert from SGUGA CSF basis to Lucia CSF basis
   call SG_Reord(iState,STSYM,1,nCSF,temp1,temp2)
@@ -1050,7 +1232,7 @@ contains
       call CI_Basis_To_File(iState,STSYM,nVec,Ket_Vec,KL)
       call mma_allocate(TS,NAC*NAC,Label='TS')
       call mma_allocate(TSS,NAC*NAC,Label='TSS')
-      call sg_trans_pdm(SGS(iState),CIS(iState),EXS(iState),BL,KL,nVec,STSYM,NAC,TS,TSS,.true.)
+      call SG_Trans_PDM_G(iState,BL,KL,nVec,STSYM,NAC,TS,TSS,.true.)
       Dev(:) = Zero
       do q=1,NAC
         do p=1,NAC
@@ -1078,7 +1260,7 @@ contains
     Spin = present(T1SDM)
     call mma_allocate(TS,NAC*NAC,Label='TS')
     call mma_allocate(TSS,NAC*NAC,Label='TSS')
-    call sg_trans_pdm(SGS(iState),CIS(iState),EXS(iState),Bra_Vec,Ket_Vec,nVec,STSYM,NAC,TS,TSS,Spin)
+    call SG_Trans_PDM_G(iState,Bra_Vec,Ket_Vec,nVec,STSYM,NAC,TS,TSS,Spin)
     ! layout of the CI interface (as Lucia): element p+(q-1)*NAC is
     ! <Bra|E_qp|Ket>, the transpose of sg_trans_pdm
     T1DM(:) = Zero
@@ -1276,7 +1458,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           Call mma_allocate(P_sguga,NACPR2,Label='P')
           Call mma_allocate(PA_sguga,NACPR2,Label='PA')
 
-          Call sg_two_pdm(SGS(istate),CIS(istate),EXS(istate),CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
+          call SG_Two_PDM_G(iState,CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
 
           If (ABS(CheckSum(P_sguga,NACPR2)-Check_P)/SIZE(p_sguga)>1.0e-12_wp) Then
              Check_P=CheckSum(P_sguga,NACPR2)
@@ -1348,8 +1530,8 @@ contains
       call mma_allocate(PS,NACPR2,Label='PS')
       call mma_allocate(PAS,NACPR2,Label='PAS')
       call sg_one_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,STSYM,DS,NACPAR)
-      call sg_spin_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,STSYM,DS,SDS,NACPAR)
-      call sg_two_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,STSYM,PS,PAS,NACPR2)
+      call SG_Spin_PDM_G(iState,CIL,nCIVEC,STSYM,DS,SDS,NACPAR)
+      call SG_Two_PDM_G(iState,CIL,nCIVEC,STSYM,PS,PAS,NACPR2)
       Dev(1) = maxval(abs(DS(:)-D_loc(1:NACPAR)))
       Dev(2) = maxval(abs(SDS(:)-SD_loc(1:NACPAR)))
       call Check_SD_ASTA(CIL,SD_loc(1:NACPAR),'Mk_pdms (FARO): spin density, ASTA T_pq vs Faroald')
@@ -1377,10 +1559,10 @@ contains
     call mma_allocate(PAS,NACPR2,Label='PAS')
     call sg_one_pdm(SGS(iState),CIS(iState),EXS(iState),CIVEC,nCIVEC,STSYM,DS,NACPAR)
     SDS(:) = Zero
-    if (Present(SD)) call sg_spin_pdm(SGS(iState),CIS(iState),EXS(iState),CIVEC,nCIVEC,STSYM,DS,SDS,NACPAR)
+    if (Present(SD)) call SG_Spin_PDM_G(iState,CIVEC,nCIVEC,STSYM,DS,SDS,NACPAR)
     PS(:) = Zero
     PAS(:) = Zero
-    if (Present(P) .or. Present(PA)) call sg_two_pdm(SGS(iState),CIS(iState),EXS(iState),CIVEC,nCIVEC,STSYM,PS,PAS,NACPR2)
+    if (Present(P) .or. Present(PA)) call SG_Two_PDM_G(iState,CIVEC,nCIVEC,STSYM,PS,PAS,NACPR2)
     if (Present(D)) then
       D(1:nD) = Zero
       D(1:NACPAR) = DS(:)
@@ -1629,9 +1811,11 @@ If (Do_SGUGA) Then
    ! Exhaustive verification of the SGUGA coupling-coefficient codes,
    ! only on request (used by the test/csf_sd groups), see CI_Verify. With
    ! GAS only the single operators (E_pq, T_pq), which are exact in any
-   ! restricted graph: the products and H of SGUGA are not yet set up for
-   ! GAS (SG_Avail).
-   if (CI_Verify('YES') .and. SG_Avail()) then
+   ! restricted graph: the products of the self-test sum over the
+   ! intermediate CSFs of the graph itself, which is exact for CAS/RAS only
+   ! (the CI interface evaluates them for GAS in the relaxed space, checked
+   ! under SIGMA against Lucia and Faroald).
+   if (CI_Verify('YES') .and. (.not. iDoGAS)) then
       call SG_Test_EpqErs_Ref(iState,STSym)
    else if (CI_Verify('YES') .or. CI_Verify('EPQ')) then
       call SG_Test_EpqErs_Ref(iState,STSym,Epq_Only=.true.)
@@ -1719,6 +1903,11 @@ call faroald_ras_free()
 call citrans_free()
 call mma_deallocate(Faro_L2O,safe='*')
 
+if (CI_St(iState)%iRel > 0) then
+  call SG_Free(CI_St(iState)%iRel)
+  CI_St(iState)%iRel = 0
+end if
+call SG_Rel_Free()
 Call SG_free(iState)
 call SG_Free_Cnf_List(Cnf_SG)
 call mma_deallocate(HEXS_Keep,safe='*')
@@ -1892,30 +2081,10 @@ contains
   ! <I|H|I> (sg_hdiag_fast). Under SIGMA the exact diagonal is checked
   ! against sg_hdiag_ref (small spaces) and the average against Lucia.
   subroutine SGCI_Diag()
-    use sguga, only: SGStruct, CIStruct, EXStruct, SG_Cnf_Avg_Diag
+    use sguga, only: SG_Cnf_Avg_Diag
     integer(kind=iwp), parameter :: MxRef = 500
     real(kind=wp) :: MaxDev
     real(kind=wp), allocatable :: DRef(:), DAvg(:), DAvgL(:), DL(:), DD(:)
-    interface
-      subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
-        import :: SGStruct, CIStruct, EXStruct, iwp, wp
-        type(SGStruct), intent(in) :: SGS
-        type(CIStruct), intent(in) :: CIS
-        type(EXStruct), intent(inout) :: EXS
-        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
-        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-        real(kind=wp), intent(out) :: Diag(nCSFs)
-      end subroutine sg_hdiag_fast
-      subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
-        import :: SGStruct, CIStruct, EXStruct, iwp, wp
-        type(SGStruct), intent(in) :: SGS
-        type(CIStruct), intent(in) :: CIS
-        type(EXStruct), intent(inout) :: EXS
-        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
-        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-        real(kind=wp), intent(out) :: Diag(nCSFs)
-      end subroutine sg_hdiag_ref
-    end interface
     call SG_Cnf_Kept(STSYM)
     call mma_allocate(DAvg,nConf,Label='DAvg')
     call SG_Cnf_Avg_Diag(iState,Cnf_SG,TU,nTU,TUVX,nTUVX,DAvg)
@@ -1951,7 +2120,7 @@ contains
     end if
     ! the exact diagonal (HDIAG, and its check under SIGMA)
     call mma_allocate(DAvg,nConf,Label='DExact')
-    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DAvg)
+    call SG_HDiag_G('FAST',iState,nConf,STSYM,TUVX,nTUVX,TU,nTU,DAvg)
     if (CI_Verify('HDIAG')) then
       CSFDIA(:) = DAvg(:)
       call HEXS_Proj(HEXS_Keep_SG,CSFDIA)
@@ -1959,7 +2128,7 @@ contains
     end if
     if (CI_Verify('SIGMA') .and. (nConf <= MxRef)) then
       call mma_allocate(DRef,nConf,Label='DRef')
-      call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DRef)
+      call SG_HDiag_G('REF',iState,nConf,STSYM,TUVX,nTUVX,TU,nTU,DRef)
       MaxDev = maxval(abs(DAvg(:)-DRef(:)))
       if (.not. IHI_SG_Verified) &
         write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (SGCI): sg_hdiag_fast verified against sg_hdiag_ref, ',nConf,' CSFs, max. error ', &
@@ -1976,7 +2145,6 @@ contains
 
   subroutine Verify_IHI()
     use general_data, only: NSEL
-    use sguga, only: SGStruct, CIStruct, EXStruct
     integer(kind=iwp), parameter :: MxRef = 500, MxPrt = 10
     integer(kind=iwp) :: i, iTyp, iCnf, k, nCnf, nC, iC, nSD, nSDErr, nSelL, nSelMin, nSelMean, nBoth, nPrt, iRk(3), iRkMin, &
                          iRkMax
@@ -1984,33 +2152,13 @@ contains
     real(kind=wp) :: Dev, MaxDev
     real(kind=wp), allocatable :: DSG(:), DRef(:), DEx(:), KeyL(:), KeyMin(:), KeyMean(:)
     logical(kind=iwp), allocatable :: SelL(:), SelMin(:), SelMean(:)
-    interface
-      subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
-        import :: SGStruct, CIStruct, EXStruct, iwp, wp
-        type(SGStruct), intent(in) :: SGS
-        type(CIStruct), intent(in) :: CIS
-        type(EXStruct), intent(inout) :: EXS
-        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
-        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-        real(kind=wp), intent(out) :: Diag(nCSFs)
-      end subroutine sg_hdiag_fast
-      subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
-        import :: SGStruct, CIStruct, EXStruct, iwp, wp
-        type(SGStruct), intent(in) :: SGS
-        type(CIStruct), intent(in) :: CIS
-        type(EXStruct), intent(inout) :: EXS
-        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
-        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-        real(kind=wp), intent(out) :: Diag(nCSFs)
-      end subroutine sg_hdiag_ref
-    end interface
 
     ! exact diagonal in the SGUGA order
     call mma_allocate(DSG,nConf,Label='DSG')
-    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
+    call SG_HDiag_G('FAST',iState,nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
     if (nConf <= MxRef) then
       call mma_allocate(DRef,nConf,Label='DRef')
-      call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DRef)
+      call SG_HDiag_G('REF',iState,nConf,STSYM,TUVX,nTUVX,TU,nTU,DRef)
       MaxDev = Zero
       do i=1,nConf
         Dev = abs(DSG(i)-DRef(i))
@@ -2159,23 +2307,11 @@ contains
 
   ! Exact diagonal <I|H|I> in the Lucia CSF order (sg_hdiag_fast).
   subroutine Exact_Diag(DL)
-    use sguga, only: SGStruct, CIStruct, EXStruct
     real(kind=wp), intent(out) :: DL(nConf)
     real(kind=wp), allocatable :: DSG(:)
-    interface
-      subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
-        import :: SGStruct, CIStruct, EXStruct, iwp, wp
-        type(SGStruct), intent(in) :: SGS
-        type(CIStruct), intent(in) :: CIS
-        type(EXStruct), intent(inout) :: EXS
-        integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
-        real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-        real(kind=wp), intent(out) :: Diag(nCSFs)
-      end subroutine sg_hdiag_fast
-    end interface
 
     call mma_allocate(DSG,nConf,Label='DSG')
-    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
+    call SG_HDiag_G('FAST',iState,nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
     call HEXS_Proj(HEXS_Keep_SG,DSG)
     call Diag_to_Lucia(DSG,DL)
     call mma_deallocate(DSG)
@@ -2402,7 +2538,7 @@ end if
 ! with Lucia there).
 if (SG_CI()) then
   call SG_Cnf_Kept(IREFSM)
-  call SG_Explicit_Block(iState,Cnf_SG,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,PHP)
+  call SG_Block_G(Cnf_SG,NPCNF,IPCNF,PHP)
   if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
     IHJ_Verified = .true.
     call Verify_IHJ()
@@ -2471,6 +2607,20 @@ call mma_deallocate(IPCSF)
 call mma_deallocate(nSelCnf)
 
 contains
+
+  ! SGUGA explicit block over the configurations IPC(1:NPC) of Cnf; for GAS
+  ! the matrix elements in the relaxed space
+  subroutine SG_Block_G(Cnf,NPC,IPC,HB)
+    type(SGCnfList), intent(in) :: Cnf
+    integer(kind=iwp), intent(in) :: NPC, IPC(NPC)
+    real(kind=wp), intent(out) :: HB(*)
+    if (CI_St(iState)%iRel > 0) then
+      call SG_Rel_Map(iState,Cnf%LSM)
+      call SG_Explicit_Block(iState,Cnf,NPC,IPC,ECORE,TU,nTU,TUVX,nTUVX,HB,iRel=CI_St(iState)%iRel,RelMap=Rel_Map(Cnf%LSM)%M)
+    else
+      call SG_Explicit_Block(iState,Cnf,NPC,IPC,ECORE,TU,nTU,TUVX,nTUVX,HB)
+    end if
+  end subroutine SG_Block_G
 
   ! Reference block of back end LabRef in PHP_Ref, compared with PHP.
   subroutine Ref_Block(LabRef)
@@ -2744,16 +2894,19 @@ contains
     use Molcas, only: MxAct
     use sguga, only: SG_Block_H, SG_MatEl_Init, SG_NUM
     real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
-    integer(kind=iwp) :: I, J
+    integer(kind=iwp) :: I, J, iS
     integer(kind=iwp) :: IWALK(MxAct)
     integer(kind=iwp), allocatable :: iG(:), iPG(:)
 
-    call SG_MatEl_Init(iState,IREFSM)
+    ! GAS: in the relaxed space (the CSFs by their walks)
+    iS = iState
+    if (CI_St(iState)%iRel > 0) iS = CI_St(iState)%iRel
+    call SG_MatEl_Init(iS,IREFSM)
     call mma_allocate(iG,NPCSF,Label='iG')
     call mma_allocate(iPG,NPCSF,Label='iPG')
     do J=1,NPCSF
       call SG_Lucia_Walk(iState,IREFSM,IPCSF(J),IWALK,iPG(J))
-      iG(J) = SG_NUM(SGS(iState),EXS(iState),IWALK)
+      iG(J) = SG_NUM(SGS(iS),EXS(iS),IWALK)
     end do
     call SG_Block_H(IREFSM,NPCNF,nSelCnf,NPCSF,iG,TU,nTU,TUVX,nTUVX,H)
     do I=1,NPCSF
@@ -2847,7 +3000,7 @@ contains
     call mma_allocate(GtoL,max(1,NPCNF),Label='GtoL')
     GtoL(1:NPCNF) = LtoGCnf(IPCNF(1:NPCNF))
     call mma_allocate(HG,nTri_Elem(NPCSF),Label='HG')
-    call SG_Explicit_Block(iState,Cnf,NPCNF,GtoL,ECORE,TU,nTU,TUVX,nTUVX,HG)
+    call SG_Block_G(Cnf,NPCNF,GtoL,HG)
     call mma_allocate(EG,NPCSF,Label='EG')
     call mma_allocate(EL,NPCSF,Label='EL')
     call Block_Eigenvalues(HG,NPCSF,EG)

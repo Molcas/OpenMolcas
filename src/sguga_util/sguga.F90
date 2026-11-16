@@ -301,10 +301,10 @@ public :: test_sg_csfdet
 
 public :: nPack
 
-Type (SGStruct), target :: SGS(3)
-Type (CIStruct) :: CIS(3)
-Type (EXStruct) :: EXS(3)
-Logical(kind=iwp) :: State_is_used(3)=[.False.,.False.,.False.]
+Type (SGStruct), target :: SGS(4)
+Type (CIStruct) :: CIS(4)
+Type (EXStruct) :: EXS(4)
+Logical(kind=iwp) :: State_is_used(4)=.False.
 
 Public:: SGS, CIS, EXS, State_is_used
 
@@ -336,6 +336,7 @@ real(kind=wp) :: ME_HD = Zero, ME_HW = Zero
 integer(kind=iwp), parameter :: nCoup_Lin = 16
 
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
+public :: SG_Map_CSFs
 public :: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Cnf_Occ, SG_Select_Explicit, SG_Block_H, SG_Explicit_Block
 public :: SG_Cnf_Avg_Diag
 public :: SG_CSF_StepVec, SG_MatEl_Tpq, SG_Tpq_Psi, SG_Tpq_Psi_Ref, SG_Xpq_Psi
@@ -10248,6 +10249,87 @@ subroutine SG_CSF_StepVec(SGS,CIS,ISY,I,Step)
   end do
 end subroutine SG_CSF_StepVec
 
+!> Map(I) = the index in state iB of the CSF I (symmetry ISY) of state iA,
+!> identified by its step vector, or 0 if state iB does not hold it. The
+!> two states must have the same levels (e.g. a GAS space and its relaxed
+!> space, which contains it).
+subroutine SG_Map_CSFs(iA,iB,ISY,nA,Map)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iA, iB, ISY, nA
+  integer(kind=iwp), intent(out) :: Map(nA)
+  integer(kind=iwp), parameter :: nPerWord = (bit_size(0_iwp)-2)/2
+  integer(kind=iwp) :: nL, nW, nB, I, lo, hi, md, c
+  integer(kind=iwp), allocatable :: Step(:), KB(:,:), KA(:), Ord(:)
+
+  nL = SGS(iA)%nLev
+  if (SGS(iB)%nLev /= nL) then
+    write(u6,*) 'SG_Map_CSFs: the states have different levels',nL,SGS(iB)%nLev
+    call Abend()
+  end if
+  if (.not. allocated(CIS(iA)%ICase)) call MkCOT(SGS(iA),CIS(iA))
+  if (.not. allocated(CIS(iB)%ICase)) call MkCOT(SGS(iB),CIS(iB))
+  nW = max(1,(nL+nPerWord-1)/nPerWord)
+  nB = CIS(iB)%NCSF(ISY)
+  call mma_allocate(Step,max(1,nL),Label='Map_Step')
+  call mma_allocate(KB,nW,max(1,nB),Label='Map_KB')
+  call mma_allocate(KA,nW,Label='Map_KA')
+  call mma_allocate(Ord,max(1,nB),Label='Map_Ord')
+  do I=1,nB
+    call SG_CSF_StepVec(SGS(iB),CIS(iB),ISY,I,Step)
+    call Pack_Step(Step,KB(:,I))
+  end do
+  call Sort_Keys(KB,nW,nB,Ord)
+  do I=1,nA
+    call SG_CSF_StepVec(SGS(iA),CIS(iA),ISY,I,Step)
+    call Pack_Step(Step,KA)
+    Map(I) = 0
+    lo = 1
+    hi = nB
+    do while (lo <= hi)
+      md = (lo+hi)/2
+      c = Cmp_Key(KA,KB(:,Ord(md)))
+      if (c == 0) then
+        Map(I) = Ord(md)
+        exit
+      else if (c < 0) then
+        hi = md-1
+      else
+        lo = md+1
+      end if
+    end do
+  end do
+  call mma_deallocate(Ord)
+  call mma_deallocate(KA)
+  call mma_deallocate(KB)
+  call mma_deallocate(Step)
+
+contains
+
+  subroutine Pack_Step(St,K)
+    integer(kind=iwp), intent(in) :: St(:)
+    integer(kind=iwp), intent(out) :: K(:)
+    integer(kind=iwp) :: iLev, iW
+    K(:) = 0
+    do iLev=1,nL
+      iW = (iLev-1)/nPerWord+1
+      K(iW) = K(iW)+St(iLev)*4_iwp**(iLev-1-(iW-1)*nPerWord)
+    end do
+  end subroutine Pack_Step
+
+  function Cmp_Key(X,Y) result(c)
+    integer(kind=iwp), intent(in) :: X(:), Y(:)
+    integer(kind=iwp) :: c, w
+    c = 0
+    do w=size(X),1,-1
+      if (X(w) /= Y(w)) then
+        c = merge(-1,1,X(w) < Y(w))
+        return
+      end if
+    end do
+  end function Cmp_Key
+
+end subroutine SG_Map_CSFs
+
 !> b = 2S at the top of every level of a walk (B(0) = 0, the graph tail).
 pure subroutine Walk_B(nLev,Step,B)
   integer(kind=iwp), intent(in) :: nLev, Step(nLev)
@@ -11957,16 +12039,24 @@ end subroutine SG_Block_H
 !> Explicit Hamiltonian over the CSFs of the configurations IPCNF(1:NPCNF)
 !> of Cnf (SG_Select_Explicit), in the order of IPCSF there, packed as a
 !> lower triangle, with ECORE on the diagonal; SGUGA only.
-subroutine SG_Explicit_Block(iState,Cnf,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,H)
+subroutine SG_Explicit_Block(iState,Cnf,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,H,iRel,RelMap)
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, NPCNF, IPCNF(NPCNF), nTU, nTUVX
   type(SGCnfList), intent(in) :: Cnf
   real(kind=wp), intent(in) :: ECORE, TU(nTU), TUVX(nTUVX)
   real(kind=wp), intent(out) :: H(*)
+  ! GAS: the matrix elements are evaluated in the relaxed space iRel (it
+  ! holds every intermediate state of the products), RelMap(I) the index
+  ! there of CSF I of iState
+  integer(kind=iwp), intent(in), optional :: iRel, RelMap(:)
   integer(kind=iwp) :: k, n, nG, I
   integer(kind=iwp), allocatable :: nGCnf(:), iG(:)
 
-  call SG_MatEl_Init(iState,Cnf%LSM)
+  if (present(iRel)) then
+    call SG_MatEl_Init(iRel,Cnf%LSM)
+  else
+    call SG_MatEl_Init(iState,Cnf%LSM)
+  end if
   call mma_allocate(nGCnf,max(1,NPCNF),Label='nGCnf')
   nG = 0
   do k=1,NPCNF
@@ -11980,6 +12070,7 @@ subroutine SG_Explicit_Block(iState,Cnf,NPCNF,IPCNF,ECORE,TU,nTU,TUVX,nTUVX,H)
     iG(nG+1:nG+n) = Cnf%iCSF(Cnf%iOff(IPCNF(k))+1:Cnf%iOff(IPCNF(k)+1))
     nG = nG+n
   end do
+  if (present(RelMap)) iG(1:nG) = RelMap(iG(1:nG))
   call SG_Block_H(Cnf%LSM,NPCNF,nGCnf,nG,iG,TU,nTU,TUVX,nTUVX,H)
   do I=1,nG
     H(I*(I+1)/2) = H(I*(I+1)/2)+ECORE

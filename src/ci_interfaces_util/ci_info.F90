@@ -24,7 +24,7 @@ use Definitions, only: iwp
 implicit none
 private
 
-integer(kind=iwp), parameter :: MxCIState = 3
+integer(kind=iwp), parameter :: MxCIState = 4
 integer(kind=iwp) :: iq
 
 !> nSym, nActEl, iSpin: symmetry, electrons, multiplicity of the CI space;
@@ -40,11 +40,20 @@ type CI_State_Info
   ! (Level and L2Act default to the identity, as in the split graph: the
   ! programs may read them before the setup, e.g. CASPT2's pt2wfn_init)
   integer(kind=iwp) :: Level(MxLev) = [(iq,iq=1,MxLev)], L2Act(MxLev) = [(iq,iq=1,MxLev)], ISm(MxLev) = 0
+  ! GAS: the state holding the relaxed space of this one (0: none), see
+  ! SG_Rel_State
+  integer(kind=iwp) :: iRel = 0
 end type CI_State_Info
 
 type(CI_State_Info) :: CI_St(MxCIState)
 
-public :: CI_St, CI_State_Info, MxCIState
+!> GAS: the state index of the relaxed space of the RASSCF CI space: the
+!> GAS bounds widened by one electron at every partition boundary, so that
+!> it holds every single excitation of a GAS CSF and products of
+!> excitation operators (H, 2-RDM) are exact there for GAS vectors.
+integer(kind=iwp), parameter :: SG_Rel_State = MxCIState
+
+public :: CI_St, CI_State_Info, MxCIState, SG_Rel_State
 
 !> The CI space of RASSCF in the common description of all back ends
 !> (CI_Space_Def: partitions with cumulative bounds, removed HEXS/DEXS

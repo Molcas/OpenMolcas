@@ -4086,17 +4086,12 @@ call mma_deallocate(initial_occ,safe='*')
 
 call Setup_RASSCF()
 
-if (DoSGEx .and. iDoGAS) then
-  write(u6,'(1X,A)') 'SGEX keyword was used, but SGUGA is not available with GAS,'
-  write(u6,'(1X,A)') 'the explicit Hamiltonian is computed by the CI backend.'
-  DoSGEx = .false.
-end if
-! SGCI: SGUGA covers CAS and RAS spaces (also with HEXS/DEXS, applied by
-! the CI interface), not GAS, and is not combined with the other CI back
-! ends or wave function types.
+! SGCI: SGUGA covers CAS, RAS and GAS spaces (GAS through the relaxed space,
+! HEXS/DEXS applied by the CI interface), and is not combined with the
+! other CI back ends or wave function types.
 if (DoSGCI) then
-  if (iDoGAS .or. DoFaro .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
-    write(u6,'(1X,A)') 'SGCI keyword was used, but SGUGA cannot run this CI (GAS, FARO, DMRG, NECI or CASVB);'
+  if (DoFaro .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+    write(u6,'(1X,A)') 'SGCI keyword was used, but SGUGA cannot run this CI (FARO, DMRG, NECI or CASVB);'
     write(u6,'(1X,A)') 'the CI is done by the CI backend.'
     DoSGCI = .false.
   else
