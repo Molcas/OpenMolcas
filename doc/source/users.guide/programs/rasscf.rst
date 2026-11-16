@@ -2671,6 +2671,10 @@ A list of these keywords is given below:
 
 :kword:`PRSP`
   Use this keyword to get the spin density matrix for the active orbitals printed.
+  For states other than singlets it also records two checksums of the spin
+  density of each root for the verification tests (label ``SPINDENS_RASSCF``):
+  the Frobenius norm of the active spin-density matrix and the sum of the
+  absolute spin natural occupation numbers.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PRSP" APPEAR="Print spin density" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: PRSP <basic>

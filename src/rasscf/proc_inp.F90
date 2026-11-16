@@ -739,7 +739,8 @@ else
   !---  Process PRSP command
   if (Key('PRSP')) then
     if (DBG) write(u6,*) ' PRSPIN command was used.'
-    ISPDEN = 1
+    ! print the spin density and record checksums of it (Add_Info)
+    ISPDEN = 2
   end if
   !---  Process IVO command
   if (Key('IVO')) then
