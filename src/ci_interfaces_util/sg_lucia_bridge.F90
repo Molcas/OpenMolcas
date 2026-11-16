@@ -54,7 +54,7 @@ subroutine SG_ReOrd_orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !     University of Lund, Sweden, 1990                                 *
 !***********************************************************************
 
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
 use Constants, only: One
@@ -312,7 +312,7 @@ end subroutine SG_Lucia_Walk
 !> (used for nRsPrt /= 1, where the CDCInfo tables are not built).
 subroutine SG_Lucia_Walk_CFTP(iState,IREFSM,ICSF,IWALK,IP)
 
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
 

@@ -64,7 +64,6 @@ set (sources
      fckpt2.F90
      fmat.F90
      fock.F90
-     gasprwf.F90
      generic_CI.F90
      getddgmat.F90
      getgdmat.F90

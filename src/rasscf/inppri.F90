@@ -58,7 +58,8 @@ use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, N
                         STSYM
 use CI_Info, only: CI_St, Space_Inp
 use CI_Space_Def, only: Space_Removals
-use spinfo, only: DoComb, NCNFTP, NDTFTP
+use spinfo, only: DoComb
+use lucia_data, only: NCNFTP, NDTFTP
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use RASDim, only: MxRef
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE

@@ -17,7 +17,7 @@ use csfbas, only: maxop_lucia, NAEL, NBEL
 use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM, ISPIN, NDET
 use CI_Info, only: CI_St, Space_Inp
 use CI_Space_Def, only: Space_Removals
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
+use lucia_data, only: MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
 use Molcas, only: MxSym
 use Definitions, only: iwp
 
@@ -49,8 +49,8 @@ if (NEL2MN < 0) NEL2MN = 0
 ! TOTAL NO. OF ALPHA AND BETA EL.
 NAEL = (MS2+NACTEL)/2
 NBEL = (NACTEL-MS2)/2
-! MIN. AND MAX. NO. OF PROTOTYPE CSFS (= MIN. AND. MAX. OPEN ORBS.)
-MINOP = abs(MS2)
+! MIN. AND MAX. NO. OF PROTOTYPE CSFS (= MIN. AND. MAX. OPEN ORBS.);
+! MINOP = abs(MS2) is Lucia's own (csfdim_gas)
 
 NTYP = maxop_lucia-MINOP+1
 NCNFTP(1:NTYP,1:MxSym) = NCONF_PER_OPEN(MINOP+1:maxop_lucia+1,1:MxSym)

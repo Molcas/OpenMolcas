@@ -1934,7 +1934,7 @@ end subroutine CI_Close
 subroutine Mk_IHI(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
+use lucia_data, only: MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
 use Constants, only: One
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
@@ -2460,7 +2460,7 @@ end do
 end subroutine Mk_Cnf_Layout_Faroald
 
 subroutine Mk_Cnf_Layout_Lucia(IREFSM,nCSFCnf)
-use spinfo, only: NCNFTP, NCSFTP, NTYP
+use lucia_data, only: NCNFTP, NCSFTP, NTYP
 
 integer(kind=iwp), intent(in) :: IREFSM
 integer(kind=iwp), allocatable, intent(out) :: nCSFCnf(:)
@@ -2507,7 +2507,7 @@ subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
 use Index_Functions, only: nTri_Elem
 use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, Sigma_on_disk
 use csfbas, only: NAEL, NBEL
-use spinfo, only: NCSFTP, NDTFTP, NTYP
+use lucia_data, only: NCSFTP, NDTFTP, NTYP
 use Constants, only: One
 
 integer(kind=iwp), intent(in) :: nPHP, NPCNF, IPCNF(NPCNF), IREFSM, nTU, nTUVX
@@ -2740,7 +2740,7 @@ contains
   ! bit t-1), of the Lucia configuration ICONF of type ITYP (GETCNF form:
   ! the closed orbitals first, then the open ones).
   subroutine Lucia_Occ(ICONF,ITYP,D,S)
-    use spinfo, only: MINOP
+    use lucia_data, only: MINOP
     integer(kind=iwp), intent(in) :: ICONF(*), ITYP
     integer(kind=iwp), intent(out) :: D, S
     integer(kind=iwp) :: IOP, ICL, I

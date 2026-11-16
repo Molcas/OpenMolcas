@@ -27,7 +27,7 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
 
 use sguga, only: CIS, EXS, MkCOT, MkSgNum, SG_NUM, SG_PHASE, SGS, StepVec
 use Lucia_data, only: CFTP, Conf_Occ
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
 use general_data, only: STSYM

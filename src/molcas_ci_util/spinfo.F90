@@ -13,7 +13,8 @@ module Spinfo
 
 ! stuff from spinfo.fh
 !
-! MXTYP, MINOP, NTYP, NDTFTP, NCSFTP, NCNFTP
+! MXTYP, MINOP, NTYP, NDTFTP, NCSFTP, NCNFTP (only MCLR's own Lucia copy now; RASSCF's
+! tables are in lucia_data)
 !
 ! stuff from ciinfo.fh
 !

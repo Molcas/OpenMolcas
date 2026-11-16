@@ -34,6 +34,15 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
+! The configuration types of Lucia's CSF basis (formerly in spinfo), set by
+! lucia2molcas (RASSCF) or copied from MCLR's own tables (sg2symg): NTYP
+! types of MINOP..MINOP+NTYP-1 open shells; per type NCNFTP(type,sym)
+! configurations, NCSFTP(type) CSFs and NDTFTP(type) determinants (or spin
+! combinations) per configuration.
+integer(kind=iwp), parameter :: MXTYP = 30
+integer(kind=iwp) :: NCNFTP(MXTYP,8), NCSFTP(MXTYP), NDTFTP(MXTYP), NTYP
+public :: MXTYP, NCNFTP, NCSFTP, NDTFTP, NTYP
+
 integer(kind=iwp), parameter :: LOFFI = 8**6, MXPCSM = 8, MXPICI = 30, MXPIRR = 8, MXPNSMST = 8, MXPOBS = 8, MXPORB = 500, &
                                 MXPPTSPC = 20, MXPR4T = 10, MXPSTT = 2500, MXPTSOB = 35
 integer(kind=iwp), parameter :: MXPNGAS = MXPR4T+6
