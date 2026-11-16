@@ -58,8 +58,7 @@ use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, N
                         STSYM
 use CI_Info, only: CI_St, Space_Inp
 use CI_Space_Def, only: Space_Removals
-use spinfo, only: DoComb
-use lucia_data, only: NCNFTP, NDTFTP
+use lucia_data, only: IDC, NCNFTP, NDTFTP
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use RASDim, only: MxRef
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
@@ -288,7 +287,7 @@ if (IPRLEV > SILENT) then
         if (Space_Removals(Space_Inp)) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',CI_St(1)%nCSF_Kept
         ! (no determinants without Lucia, SGCI)
         if (.not. CI_Lucia_Active()) then
-        else if (DoComb) then
+        else if (IDC == 2) then
           write(u6,Fmt2//'A,T40,I11)') 'Number of spin combinations',CI_St(1)%nDet(STSYM)
           write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',2*CI_St(1)%nDet(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
         else

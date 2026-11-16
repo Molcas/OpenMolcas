@@ -39,7 +39,6 @@ use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoo
                          KSDFT, kTight, LOWDIN_ON, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NALTER, NewFock, NonEq, &
                          NQUNE, NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXDAMP, SXSel, &
                          ThFact, Thre, ThrEn, ThrSX, ThrTE, Title, TMin, Weight
-use spinfo, only: ISPEED
 use CI_Info, only: Space_Inp
 use rasscf_files, only: STARTORBFILE
 use RASDim, only: MxCIIt, MxIter, MxSXIt
@@ -292,10 +291,6 @@ StartOrbFile = 'INPORB'
 ! Initialize alpha or beta orbitals (none):
 iAlphaBeta = 0
 
-! Initialize speed options (turn everything that's working on)
-iSpeed(1:2) = 1
-! The rest is at the present time just to allow testing
-iSpeed(3:) = 0
 
 TimeTotal = Zero
 TimeInput = Zero

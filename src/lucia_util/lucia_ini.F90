@@ -16,7 +16,6 @@ use lucia_data, only: ECORE, ENVIRO, iDEXS, nDEXS, nHEXS, IADVICE, ICISTR, ICJKA
                       iHEXS, IGSOCCX, IH0INSPC, IH0SPC, ini_h0, IPART, IPRCIX, IPRDEN, IREFSM, IRESTR, ISIMSYM, &
                       LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, nDEXS, nHEXS, NACTEL, NCISPC, NCMBSPC, &
                       NGAS, NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN, Sigma_on_disk, IH1FORM, I12
-use spinfo, only: DoComb, ISPEED
 use CI_Info, only: Space_Inp
 use general_data, only: IGSOCCX_MOLCAS => IGSOCCX, iSpin, NACTEL_MOLCAS => NACTEL, nGAS_MOLCAS => nGAS, NGSSH_MOLCAS => NGSSH, &
                         NSYM, STSYM
@@ -43,8 +42,9 @@ character(len=4) :: ITRACI_CN, ITRACI_CR
 ! =======================
 !  Some initial settings
 ! =======================
-! Combinations don't work for CASVB (at least yet)!
-if (ifvb /= 0) iSpeed(1) = 0
+! M_S combinations (spin combinations) for singlets, but not for CASVB:
+! combinations don't work there (at least yet). (Formerly iSpeed(1) of
+! spinfo, never set by the input.)
 
 INI_H0 = 1
 ! Assign the form in which the one-electron orbitals are stored.
@@ -129,7 +129,7 @@ enviro(1:6) = 'RASSCF'
 ! ====================
 ! 27: Ms combinations
 ! ====================
-if ((MULTS == 1) .and. (ISPEED(1) == 1)) then
+if ((MULTS == 1) .and. (ifvb == 0)) then
   ISETKW(27) = 1
   PSSIGN = One
 else
@@ -299,11 +299,10 @@ end if
 PLSIGN = Zero
 #endif
 
+! IDC = 2: spin combinations (tested as such by RASSCF's inppri)
 if (PSSIGN == Zero) then
-  DoComb = .false.
   IDC = 1
 else
-  DoComb = .true.
   IDC = 2
 end if
 
@@ -312,8 +311,9 @@ end if
 ! ======================================================================
 ! 44 : Use Minimal operation count method for alpha-alpha and beta-beta
 ! ======================================================================
-! TEST OF PERFORMANCE
-MOCAA = ISPEED(3)
+! TEST OF PERFORMANCE (off; formerly iSpeed(3) of spinfo, never set by the
+! input)
+MOCAA = 0
 
 ! 33 : Number of Ci vectors in subspace
 
