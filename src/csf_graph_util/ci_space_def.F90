@@ -24,6 +24,7 @@
 !> is stateless (no program data), so that both sides may use it.
 module CI_Space_Def
 
+use Molcas, only: MxGAS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
@@ -42,7 +43,17 @@ type CI_Space
   integer(kind=iwp), allocatable :: LevPart(:), LevSym(:)
 end type CI_Space
 
-public :: CI_Space, Space_Allowed, Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
+! The removals as requested in the input (RASSCF keywords HEXS and DEXS),
+! numbered by the input spaces (GAS spaces, or RAS1..RAS3 in the GAS form):
+! iHEXS(1:nHEXS) lose their configurations of maximum occupation, iDEXS(1:nDEXS)
+! also those of maximum occupation - 1 (CI_Space_Setup turns them into the
+! removal rules of the CI space).
+type CI_Space_Input
+  integer(kind=iwp) :: nHEXS = 0, nDEXS = 0
+  integer(kind=iwp) :: iHEXS(MxGAS) = 0, iDEXS(MxGAS) = 0
+end type CI_Space_Input
+
+public :: CI_Space, CI_Space_Input, Space_Allowed, Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
 
 contains
 

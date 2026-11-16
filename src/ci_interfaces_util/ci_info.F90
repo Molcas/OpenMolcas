@@ -18,7 +18,7 @@
 module CI_Info
 
 use Molcas, only: MxLev, MxSym
-use CI_Space_Def, only: CI_Space
+use CI_Space_Def, only: CI_Space, CI_Space_Input
 use Definitions, only: iwp
 
 implicit none
@@ -59,6 +59,9 @@ public :: CI_St, CI_State_Info, MxCIState, SG_Rel_State
 !> (CI_Space_Def: partitions with cumulative bounds, removed HEXS/DEXS
 !> configurations), built by the CI interface (CI_Space_Setup).
 type(CI_Space) :: Space_CI
-public :: Space_CI
+!> The HEXS/DEXS requests of the input (set by RASSCF's input processing),
+!> from which CI_Space_Setup builds the removals of Space_CI.
+type(CI_Space_Input) :: Space_Inp
+public :: Space_CI, Space_Inp
 
 end module CI_Info

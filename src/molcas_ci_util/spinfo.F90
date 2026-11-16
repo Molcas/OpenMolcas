@@ -24,11 +24,9 @@ module Spinfo
 ! i = 1, 5: combinations, particle hole(sigma), count_aa, count_ab, a/p_parts
 ! nSpeed, iSpeed
 !
-! ELIMINATED_IN_GAS, 2ELIMINATED_IN_GAS,
-! N_ELIMINATED_GAS, N_2ELIMINATED_GAS,
-! I_ELIMINATE_GAS, nCSF_HEXS
+! nCSF_HEXS (the HEXS/DEXS requests are in CI_Info, Space_Inp)
 
-use Molcas, only: MxGAS, MxSym
+use Molcas, only: MxSym
 use Definitions, only: iwp
 
 implicit none
@@ -36,12 +34,10 @@ private
 
 integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 
-integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN_GAS(MxGAS), iSpeed(nSpeed), MINOP, &
-                     N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
-                     NCSFTP(MXTYP), NDTASM(mxSym), NDTFTP(MXTYP), NTYP
+integer(kind=iwp) :: iSpeed(nSpeed), MINOP, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, NCSFTP(MXTYP), &
+                     NDTASM(mxSym), NDTFTP(MXTYP), NTYP
 logical(kind=iwp) :: DoComb
 
-public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, iSpeed, MINOP, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, &
-          NCNASM, NCNFTP, NCSASM, nCSF_HEXS, NCSFTP, NDTASM, NDTFTP, NTYP
+public :: DoComb, iSpeed, MINOP, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, NCSFTP, NDTASM, NDTFTP, NTYP
 
 end module Spinfo

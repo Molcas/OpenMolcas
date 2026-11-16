@@ -84,7 +84,7 @@ integer(kind=iwp), allocatable :: Faro_L2O(:)
 logical(kind=iwp) :: HPsi_FaroRAS_Verified = .false.
 ! SIGMA: the spin density of the ASTA triplet operator checked, printed once
 logical(kind=iwp) :: SD_ASTA_Verified = .false.
-! HEXS/DEXS (RASSCF keywords, spinfo I_ELIMINATE_GAS): the configurations
+! HEXS/DEXS (RASSCF keywords, CI_Info Space_Inp): the configurations
 ! with the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in
 ! the listed RAS partitions are removed as in Lucia: their CSFs stay in the
 ! vectors, the CI works with P H P (zero sigma, zero diagonal there). The
@@ -1667,7 +1667,7 @@ end subroutine CI_Timer
 !> HEXS/DEXS thresholds used by the CI interface.
 subroutine CI_Space_Setup()
 use general_data, only: IGSOCCX, NGAS, NGSSH, nSym
-use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
+use CI_Info, only: Space_Inp
 integer(kind=iwp) :: g, k, i, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS)
 integer(kind=iwp), allocatable :: NMx(:)
 logical(kind=iwp) :: OK
@@ -1682,21 +1682,17 @@ do g=1,NGAS
   iPart(g) = k
 end do
 ! HEXS (maximum occupation) and DEXS (maximum - 1) removals
-if (I_ELIMINATE_GAS > 0) then
+if ((Space_Inp%nHEXS > 0) .or. (Space_Inp%nDEXS > 0)) then
   call mma_allocate(NMx,max(1,Space_CI%nPart),Label='NMx')
   call Space_Max_Occ(Space_CI,NMx)
-  if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
-    do i=1,N_ELIMINATED_GAS
-      g = IELIMINATED_IN_GAS(i)
-      if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g)))
-    end do
-  end if
-  if (I_ELIMINATE_GAS > 1) then
-    do i=1,N_2ELIMINATED_GAS
-      g = I2ELIMINATED_IN_GAS(i)
-      if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g))-1)
-    end do
-  end if
+  do i=1,Space_Inp%nHEXS
+    g = Space_Inp%iHEXS(i)
+    if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g)))
+  end do
+  do i=1,Space_Inp%nDEXS
+    g = Space_Inp%iDEXS(i)
+    if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g))-1)
+  end do
   call mma_deallocate(NMx)
 end if
 if (.not. CI_Verify('ANY')) return

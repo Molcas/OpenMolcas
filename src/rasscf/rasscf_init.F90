@@ -39,7 +39,8 @@ use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoo
                          KSDFT, kTight, LOWDIN_ON, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NALTER, NewFock, NonEq, &
                          NQUNE, NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXDAMP, SXSel, &
                          ThFact, Thre, ThrEn, ThrSX, ThrTE, Title, TMin, Weight
-use spinfo, only: I_ELIMINATE_GAS, ISPEED
+use spinfo, only: ISPEED
+use CI_Info, only: Space_Inp
 use rasscf_files, only: STARTORBFILE
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half
@@ -195,8 +196,9 @@ ICICH = 0
 
 ISUPSM = 0
 ! make no use of supersymmetry
-I_ELIMINATE_GAS = 0
-! Highly excited states are not default
+! Highly excited states are not default (HEXS/DEXS)
+Space_Inp%nHEXS = 0
+Space_Inp%nDEXS = 0
 hRoots = 0
 ! No hidden roots by default
 n_keep = 0

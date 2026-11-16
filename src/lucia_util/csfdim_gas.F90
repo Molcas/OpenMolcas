@@ -32,9 +32,9 @@ subroutine CSFDIM_GAS(IOCCLS,NOCCLS,ISYM)
 ! G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 
 use Data_Structures, only: Allocate_DT
-use lucia_data, only: CFTP, CONF_OCC, CONF_REO, DFTP, DTOC, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IB_CONF_OCC, IB_CONF_REO, &
-                      IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, IELIMINATED_IN_GAS, IPRCIX, MAXOP, MINOP, MS2, MULTS, MXPORB, &
-                      N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_PER_SYM, NCONF_TOT, NCSF_HEXS, &
+use lucia_data, only: CFTP, CONF_OCC, CONF_REO, DFTP, DTOC, iDEXS, IB_CONF_OCC, IB_CONF_REO, &
+                      IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, iHEXS, IPRCIX, MAXOP, MINOP, MS2, MULTS, MXPORB, &
+                      nDEXS, nHEXS, NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_PER_SYM, NCONF_TOT, NCSF_HEXS, &
                       NCSF_PER_SYM, NGAS, NOBPT, NOCOB, NPCMCNF, NPCSCNF, NPDTCNF, NSD_PER_SYM, PSSIGN, REO_PTDT, SDREO, SDREO_I, &
                       Z_PTDT
 use stdalloc, only: mma_allocate
@@ -46,7 +46,7 @@ integer(kind=iwp), intent(in) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM
 #include "warnings.h"
 integer(kind=iwp) :: HEXS_CNF(MXPORB+1), I, IAEL, IALPHA, IB, IBEL, ICL, IDOREO, IDUM, IDUM_ARR(1), IELIM, IGAS, ILCNF, ILLCNF, &
                      INITIALIZE_CONF_COUNTERS, IOPEN, ITP, ITYP, J, JGAS, JOCCLS, LCONF, LDTOC, LENGTH_LIST, LICS, LIDT, LLCONF, &
-                     LPTDT, LZ, maxingas(N_ELIMINATED_GAS), maxingas2(N_2ELIMINATED_GAS), MXDT, MXPTBL, NCMB, NCONF_OCCLS, NCSF, &
+                     LPTDT, LZ, maxingas(nHEXS), maxingas2(nDEXS), MXDT, MXPTBL, NCMB, NCONF_OCCLS, NCSF, &
                      NELEC, NSD, TMP_CNF(MXPORB+1)
 integer(kind=iwp), external :: IBINOM, IWEYLF
 
@@ -122,12 +122,12 @@ end if
 !  call Quit(_RC_INTERNAL_ERROR_)
 !end if
 !MGD : max occupation in removed GAS spaces
-do i=1,N_ELIMINATED_GAS
-  iGAS = IELIMINATED_IN_GAS(i)
+do i=1,nHEXS
+  iGAS = iHEXS(i)
   maxingas(i) = max(0,maxval(IOCCLS(iGAS,:)))
 end do
-do i=1,N_2ELIMINATED_GAS
-  iGAS = I2ELIMINATED_IN_GAS(i)
+do i=1,nDEXS
+  iGAS = iDEXS(i)
   maxingas2(i) = max(0,maxval(IOCCLS(iGAS,:)))
 end do
 HEXS_CNF(:) = 0
@@ -151,17 +151,17 @@ do JOCCLS=1,NOCCLS
   NCONF_PER_OPEN(:,ISYM) = NCONF_PER_OPEN(:,ISYM)+TMP_CNF(:)
   !MGD add to hexs_cnf only if the configuration does not have max occupation
   ! in the selected GAS space
-  if (I_ELIMINATE_GAS > 0) then
+  if ((nHEXS > 0) .or. (nDEXS > 0)) then
     ielim = 0
-    if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
-      do j=1,N_ELIMINATED_GAS
-        jGAS = IELIMINATED_IN_GAS(j)
+    if (nHEXS > 0) then
+      do j=1,nHEXS
+        jGAS = iHEXS(j)
         if (IOCCLS(jGAS,JOCCLS) == maxingas(j)) ielim = 1
       end do
     end if
-    if (I_ELIMINATE_GAS > 1) then
-      do j=1,N_2ELIMINATED_GAS
-        jGAS = I2ELIMINATED_IN_GAS(j)
+    if (nDEXS > 0) then
+      do j=1,nDEXS
+        jGAS = iDEXS(j)
         if (IOCCLS(jGAS,JOCCLS) >= maxingas2(j)-1) ielim = 1
       end do
     end if
@@ -195,7 +195,7 @@ NCMB = sum(NCONF_PER_OPEN(1:MAXOP+1,ISYM)*NPCMCNF(1:MAXOP+1))
 NSD = NCMB
 if (PSSIGN /= Zero) NSD = NSD+NCMB-NCONF_PER_OPEN(1,ISYM)*NPDTCNF(1)
 !MGD
-if (I_ELIMINATE_GAS > 0) then
+if ((nHEXS > 0) .or. (nDEXS > 0)) then
   NCSF_HEXS = sum(HEXS_CNF(1:MAXOP+1)*NPCSCNF(1:MAXOP+1))
 else
   NCSF_HEXS = 0
