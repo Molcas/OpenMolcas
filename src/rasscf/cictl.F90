@@ -97,7 +97,6 @@ logical(kind=iwp) :: Do_ESPF, do_rotate, Exists, Skip
 character(len=128) :: filename
 real(kind=wp), allocatable :: CIV(:), CIVec(:), DStmp(:), Dtmp(:), P2MO(:), PAtmp(:), PTmp(:), RCT(:), RCT_F(:), RCT_FS(:), &
                               RCT_S(:), RF(:), Temp(:), TmpD1S(:), TmpDS(:)
-integer, allocatable :: kCnf(:)
 #ifdef _HDF5_
 real(kind=wp), allocatable :: density_square(:,:)
 #endif
@@ -597,58 +596,34 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         ! load back one CI vector at the time
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
-        if (.not. iDoGas) then
-          ! to the split-graph order of the files
-          call CI_Basis_To_File(istate,STSYM,nConf,CIVEC,CIV)
-          ! the phase in this common order, the same for all CI back ends
-          call VecPhase(CIV,nConf)
+        ! to the split-graph order of the files
+        call CI_Basis_To_File(istate,STSYM,nConf,CIVEC,CIV)
+        ! the phase in this common order, the same for all CI back ends
+        call VecPhase(CIV,nConf)
 
-          ! save reorder CI vector on disk
-          !if (.not. iDoGas) then
-          call DDafile(JOBIPH,1,CIV,nConf,jDisk)
+        ! save reorder CI vector on disk (also for GAS: the split-graph order
+        ! of the GAS graph)
+        call DDafile(JOBIPH,1,CIV,nConf,jDisk)
 #         ifdef _HDF5_
-          call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
+        call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
 #         endif
-          !else
-          !  call DDafile(JOBIPH,1,CIVEC,nConf,jDisk)
-          !end if
-          ! printout of the wave function
-          if (IPRLEV >= USUAL) then
-            write(u6,*)
-            write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',i
-            write(u6,'(6X,A,F15.6)') 'energy=',ENER(I,ITER)
-            if (Key('PRSD')) then
-              ! Define filename to write GronOR vecdet files (tps/cdg 20210430)
-              write(filename,'(a7,i0)') 'VECDET.',i
-              !filename = 'VECDET.'//merge(str(i),'x',i <= 999)
-              LuVecDet = IsFreeUnit(39)
-              call Molcas_open(LuVecDet,filename)
-              write(LuVecDet,'(8i4)') nish
-            end if
-            call CI_PrWF(iState,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
-            ! Close GronOR vecdet file (tps/cdg 20210430)
-            if (Key('PRSD')) close(LuVecDet)
+        ! printout of the wave function
+        if (IPRLEV >= USUAL) then
+          write(u6,*)
+          write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',i
+          write(u6,'(6X,A,F15.6)') 'energy=',ENER(I,ITER)
+          if (Key('PRSD')) then
+            ! Define filename to write GronOR vecdet files (tps/cdg 20210430)
+            write(filename,'(a7,i0)') 'VECDET.',i
+            !filename = 'VECDET.'//merge(str(i),'x',i <= 999)
+            LuVecDet = IsFreeUnit(39)
+            call Molcas_open(LuVecDet,filename)
+            write(LuVecDet,'(8i4)') nish
           end if
-        else ! for iDoGas
-          write(u6,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
-          !.. save CI vector on disk
-          call DDafile(JOBIPH,1,CIVEC,nconf,jDisk)
-#         ifdef _HDF5_
-          !SVC: store CI as a column array of the on-disk CI (which is for all roots!)
-          call mh5_put_dset(wfn_cicoef,CIVEC(1:nconf),[nconf,1],[0,i-1])
-#         endif
-          !.. printout of the wave function
-          if (IPRLEV >= USUAL) then
-            write(u6,*)
-            write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',prwthr,' for root',i
-            write(u6,'(6X,A,F15.6)') 'energy=',ener(i,iter)
-
-            call mma_allocate(kcnf,nactel,Label='kCnf')
-            call gasprwf(nac,nactel,stsym,CIVEC,kcnf)
-            call mma_deallocate(kcnf)
-          end if
+          call CI_PrWF(iState,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+          ! Close GronOR vecdet file (tps/cdg 20210430)
+          if (Key('PRSD')) close(LuVecDet)
         end if
-        !end if
       end do
 
     end if
