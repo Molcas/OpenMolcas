@@ -1627,10 +1627,13 @@ If (Do_SGUGA) Then
      write(u6,'(1X,A)') 'SGCI/FARO: Lucia is not initialized.'
    end if
    ! Exhaustive verification of the SGUGA coupling-coefficient codes,
-   ! only on request (used by the test/csf_sd groups), see CI_Verify.
-   if (CI_Verify('YES')) then
+   ! only on request (used by the test/csf_sd groups), see CI_Verify. With
+   ! GAS only the single operators (E_pq, T_pq), which are exact in any
+   ! restricted graph: the products and H of SGUGA are not yet set up for
+   ! GAS (SG_Avail).
+   if (CI_Verify('YES') .and. SG_Avail()) then
       call SG_Test_EpqErs_Ref(iState,STSym)
-   else if (CI_Verify('EPQ')) then
+   else if (CI_Verify('YES') .or. CI_Verify('EPQ')) then
       call SG_Test_EpqErs_Ref(iState,STSym,Epq_Only=.true.)
    end if
 End If
