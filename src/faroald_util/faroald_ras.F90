@@ -86,6 +86,12 @@ type(ras_spin) :: sa, sb
 ! (beta x alpha)
 integer(kind=iwp), allocatable :: blk_off(:,:), blk_offT(:,:)
 logical(kind=iwp) :: ras_active = .false., ras_singlet = .false.
+! the beta single excitations Jb -> Ib = a+_v a_x Jb in batches, one per
+! beta group of Jb and (v,x): batch b holds the entries
+! bat_off(b)+1..bat_off(b+1) (Jb and Ib as indices within their groups,
+! sign); bat_cj/bat_ci the groups of Jb/Ib; mxbat the largest batch
+integer(kind=iwp) :: nbat = 0, mxbat = 0
+integer(kind=iwp), allocatable :: bat_cj(:), bat_ci(:), bat_v(:), bat_x(:), bat_off(:), be_j(:), be_i(:), be_sgn(:)
 
 public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_count_dets, ras_from_full, ras_sigma, &
           ras_to_full, ras_traci, ras_trans_one_pdm, ras_trans_two_pdm
@@ -138,6 +144,7 @@ subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3,nsym,osym,lsym,spin_fli
   call mk_singles(sb)
   call mk_doubles(sa)
   call mk_doubles(sb)
+  call mk_batches()
 
   call mma_allocate(blk_off,sa%ncls,sb%ncls,label='blk_off')
   call mma_allocate(blk_offT,sb%ncls,sa%ncls,label='blk_offT')
@@ -169,6 +176,16 @@ end subroutine faroald_ras_init
 subroutine faroald_ras_free()
   call free_spin(sa)
   call free_spin(sb)
+  call mma_deallocate(bat_cj,safe='*')
+  call mma_deallocate(bat_ci,safe='*')
+  call mma_deallocate(bat_v,safe='*')
+  call mma_deallocate(bat_x,safe='*')
+  call mma_deallocate(bat_off,safe='*')
+  call mma_deallocate(be_j,safe='*')
+  call mma_deallocate(be_i,safe='*')
+  call mma_deallocate(be_sgn,safe='*')
+  nbat = 0
+  mxbat = 0
   call mma_deallocate(blk_off,safe='*')
   call mma_deallocate(blk_offT,safe='*')
   n_ras = 0
@@ -435,6 +452,88 @@ subroutine mk_singles(s)
     end if
   end do
 end subroutine mk_singles
+
+!> The batches of the beta single excitations (bat_*, be_*): per beta
+!> group and pair (v,x), in the order of the pair key (x-1)*norb+v.
+subroutine mk_batches()
+  integer(kind=iwp) :: c, gb, e, k, n, b, pass
+  integer(kind=iwp), allocatable :: cnt(:), pos(:)
+
+  call mma_allocate(cnt,ras_norb**2,label='ras_bcnt')
+  call mma_allocate(pos,ras_norb**2,label='ras_bpos')
+  do pass=1,2
+    b = 0
+    n = 0
+    do c=1,sb%ncls
+      cnt(:) = 0
+      do gb=sb%cls_off(c)+1,sb%cls_off(c)+sb%cls_nstr(c)
+        do e=sb%ex_off(gb)+1,sb%ex_off(gb+1)
+          k = (sb%ex_q(e)-1)*ras_norb+sb%ex_p(e)
+          cnt(k) = cnt(k)+1
+        end do
+      end do
+      do k=1,ras_norb**2
+        if (cnt(k) == 0) cycle
+        b = b+1
+        if (pass == 2) then
+          bat_cj(b) = c
+          bat_ci(b) = 0
+          bat_v(b) = mod(k-1,ras_norb)+1
+          bat_x(b) = (k-1)/ras_norb+1
+          bat_off(b) = n
+          mxbat = max(mxbat,cnt(k))
+        end if
+        pos(k) = b
+        n = n+cnt(k)
+      end do
+      if (pass == 1) cycle
+      do gb=sb%cls_off(c)+1,sb%cls_off(c)+sb%cls_nstr(c)
+        do e=sb%ex_off(gb)+1,sb%ex_off(gb+1)
+          k = pos((sb%ex_q(e)-1)*ras_norb+sb%ex_p(e))
+          bat_off(k) = bat_off(k)+1
+          be_j(bat_off(k)) = sb%str_idx(gb)
+          be_i(bat_off(k)) = sb%str_idx(sb%ex_j(e))
+          be_sgn(bat_off(k)) = sb%ex_sgn(e)
+          if (bat_ci(k) == 0) bat_ci(k) = sb%str_cls(sb%ex_j(e))
+          if (bat_ci(k) /= sb%str_cls(sb%ex_j(e))) then
+            write(u6,*) 'faroald_ras: beta excitation batch with two target groups',k
+            call Abend()
+          end if
+        end do
+      end do
+    end do
+    if (pass == 1) then
+      nbat = b
+      mxbat = 0
+      call mma_allocate(bat_cj,max(1,b),label='ras_bat_cj')
+      call mma_allocate(bat_ci,max(1,b),label='ras_bat_ci')
+      call mma_allocate(bat_v,max(1,b),label='ras_bat_v')
+      call mma_allocate(bat_x,max(1,b),label='ras_bat_x')
+      call mma_allocate(bat_off,b+1,label='ras_bat_off')
+      call mma_allocate(be_j,max(1,n),label='ras_be_j')
+      call mma_allocate(be_i,max(1,n),label='ras_be_i')
+      call mma_allocate(be_sgn,max(1,n),label='ras_be_sgn')
+    end if
+  end do
+  ! bat_off(b) was advanced to the end of batch b: shift back
+  do b=nbat,1,-1
+    bat_off(b+1) = bat_off(b)
+  end do
+  bat_off(1) = 0
+  call mma_deallocate(cnt)
+  call mma_deallocate(pos)
+end subroutine mk_batches
+
+!> Number of beta excitations per chunk of a batch for the gathered
+!> work arrays (kc x nstr alpha, two of them, at most a quarter of the
+!> available memory).
+function chunk_size() result(kc)
+  use stdalloc, only: mma_maxDBLE
+  integer(kind=iwp) :: kc
+  integer(kind=iwp) :: mxmem
+  call mma_maxDBLE(mxmem)
+  kc = max(1,min(mxbat,512,mxmem/(8*max(1,sa%nstr))))
+end function chunk_size
 
 !> The same-spin double excitations of each string within the strings of s
 !> (lists, if they fit in a quarter of the available memory).
@@ -749,57 +848,74 @@ contains
 end subroutine same_spin
 
 !> The alpha-beta part: sgm(Ia,Ib) += sum_tuvx g_tuvx <Ia|e^a_tu|Ja>
-!> <Ib|e^b_vx|Jb> vec(Ja,Jb), over the determinants (Ja,Jb) of the RAS
-!> space only: for each beta string Jb and its single excitations
-!> Jb -> Ib (v,x), the alpha strings Ja of the allowed blocks and their
-!> single excitations Ja -> Ia (t,u). Singlets: only the pairs tu >= vx
-!> (pair key (u-1)*norb+t, the order of the excitation lists), tu = vx
-!> with weight 1/2.
+!> <Ib|e^b_vx|Jb> vec(Ja,Jb), over the determinants of the RAS space only.
+!> Per batch of beta excitations Jb_k -> Ib_k (one group, one (v,x)):
+!> Cp(k,Ja) = sgn_k vec(Ja,Jb_k) over the alpha strings allowed with Jb,
+!> Vw(:,Ia) += sgn g_tuvx Cp(:,Ja) over the alpha excitations Ja -> Ia
+!> (vector loops over k), sgm(Ia,Ib_k) += Vw(k,Ia). Singlets: only the
+!> pairs tu >= vx (pair key (u-1)*norb+t, the order of the excitation
+!> lists), tu = vx with weight 1/2.
 subroutine opposite_spin(g,vec,sgm)
   real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
   real(kind=wp), intent(inout) :: sgm(n_ras)
-  integer(kind=iwp) :: gb, cbj, cbi, eb, ib, v, x, caj, cai, ja, ga, ea, ia, oj, oi, sgb, kb, ea1
-  real(kind=wp) :: c, w
+  integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka
+  real(kind=wp) :: w
+  real(kind=wp), allocatable :: Cp(:,:), Vw(:,:)
 
-  kb = 0
-  do gb=1,sb%nstr
-    cbj = sb%str_cls(gb)
-    do eb=sb%ex_off(gb)+1,sb%ex_off(gb+1)
-      ib = sb%ex_j(eb)
-      cbi = sb%str_cls(ib)
-      v = sb%ex_p(eb)
-      x = sb%ex_q(eb)
-      sgb = sb%ex_sgn(eb)
-      if (ras_singlet) kb = (x-1)*ras_norb+v
+  kc = chunk_size()
+  call mma_allocate(Cp,kc,max(1,sa%nstr),label='ras_Cp')
+  call mma_allocate(Vw,kc,max(1,sa%nstr),label='ras_Vw')
+  do b=1,nbat
+    cbj = bat_cj(b)
+    cbi = bat_ci(b)
+    v = bat_v(b)
+    x = bat_x(b)
+    kb = (x-1)*ras_norb+v
+    do k0=bat_off(b),bat_off(b+1)-1,kc
+      nk = min(kc,bat_off(b+1)-k0)
+      ! gather
       do caj=1,sa%ncls
         if (blk_off(caj,cbj) < 0) cycle
-        oj = blk_off(caj,cbj)+(sb%str_idx(gb)-1)*sa%cls_nstr(caj)
-        do ja=1,sa%cls_nstr(caj)
-          c = vec(oj+ja)
-          if (c == Zero) cycle
-          c = sgb*c
-          ga = sa%cls_off(caj)+ja
-          ea1 = sa%ex_off(ga)+1
-          if (ras_singlet) then
-            ! the list is sorted by the pair key: skip the pairs tu < vx
-            do while (ea1 <= sa%ex_off(ga+1))
-              if ((sa%ex_q(ea1)-1)*ras_norb+sa%ex_p(ea1) >= kb) exit
-              ea1 = ea1+1
-            end do
-          end if
-          do ea=ea1,sa%ex_off(ga+1)
+        naj = sa%cls_nstr(caj)
+        do k=1,nk
+          o = blk_off(caj,cbj)+(be_j(k0+k)-1)*naj
+          Cp(k,sa%cls_off(caj)+1:sa%cls_off(caj)+naj) = be_sgn(k0+k)*vec(o+1:o+naj)
+        end do
+      end do
+      do cai=1,sa%ncls
+        if (blk_off(cai,cbi) < 0) cycle
+        Vw(1:nk,sa%cls_off(cai)+1:sa%cls_off(cai)+sa%cls_nstr(cai)) = Zero
+      end do
+      ! alpha excitations
+      do caj=1,sa%ncls
+        if (blk_off(caj,cbj) < 0) cycle
+        do ga=sa%cls_off(caj)+1,sa%cls_off(caj)+sa%cls_nstr(caj)
+          do ea=sa%ex_off(ga+1),sa%ex_off(ga)+1,-1
+            ka = (sa%ex_q(ea)-1)*ras_norb+sa%ex_p(ea)
+            if (ras_singlet .and. (ka < kb)) exit
+            w = g(sa%ex_p(ea),sa%ex_q(ea),v,x)
+            if (w == Zero) cycle
             ia = sa%ex_j(ea)
-            cai = sa%str_cls(ia)
-            if (blk_off(cai,cbi) < 0) cycle
-            oi = blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai)
-            w = sa%ex_sgn(ea)*g(sa%ex_p(ea),sa%ex_q(ea),v,x)*c
-            if (ras_singlet .and. (ea == ea1) .and. (sa%ex_p(ea) == v) .and. (sa%ex_q(ea) == x)) w = Half*w
-            sgm(oi) = sgm(oi)+w
+            if (blk_off(sa%str_cls(ia),cbi) < 0) cycle
+            w = sa%ex_sgn(ea)*w
+            if (ras_singlet .and. (ka == kb)) w = Half*w
+            Vw(1:nk,ia) = Vw(1:nk,ia)+w*Cp(1:nk,ga)
           end do
+        end do
+      end do
+      ! scatter
+      do cai=1,sa%ncls
+        if (blk_off(cai,cbi) < 0) cycle
+        nai = sa%cls_nstr(cai)
+        do k=1,nk
+          o = blk_off(cai,cbi)+(be_i(k0+k)-1)*nai
+          sgm(o+1:o+nai) = sgm(o+1:o+nai)+Vw(k,sa%cls_off(cai)+1:sa%cls_off(cai)+nai)
         end do
       end do
     end do
   end do
+  call mma_deallocate(Cp)
+  call mma_deallocate(Vw)
 
 end subroutine opposite_spin
 
@@ -868,8 +984,6 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
   real(kind=wp), intent(out) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
   real(kind=wp), allocatable :: bT(:), kT(:)
-  integer(kind=iwp) :: ea, eb, ja, ia, jb, ib, caj, cai, cbj, cbi, t, u, v, x
-  real(kind=wp) :: c, val
 
   p2(:,:,:,:) = Zero
   ! same spin
@@ -877,7 +991,7 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   if (ras_singlet) then
     ! alpha-alpha = beta-beta; alpha-beta only for the pairs tu >= vx
     p2(:,:,:,:) = Two*p2(:,:,:,:)
-    call singlet_ab_two_pdm(bra,ket,p2)
+    call ab_two_pdm(bra,ket,p2)
     return
   end if
   call mma_allocate(bT,max(1,n_ras),label='ras_bT')
@@ -887,76 +1001,77 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   call col_two_pdm(sb,sa,blk_offT,bT,kT,p2)
   call mma_deallocate(bT)
   call mma_deallocate(kT)
-  ! opposite spin: <a+_ta a_ua a+_vb a_xb>, also as (v,x,t,u); over the
-  ! ket determinants (Ja,Jb) of the RAS space
-  do jb=1,sb%nstr
-    cbj = sb%str_cls(jb)
-    do eb=sb%ex_off(jb)+1,sb%ex_off(jb+1)
-      ib = sb%ex_j(eb)
-      cbi = sb%str_cls(ib)
-      v = sb%ex_p(eb)
-      x = sb%ex_q(eb)
-      do caj=1,sa%ncls
-        if (blk_off(caj,cbj) < 0) cycle
-        do ja=sa%cls_off(caj)+1,sa%cls_off(caj)+sa%cls_nstr(caj)
-          c = ket(blk_off(caj,cbj)+sa%str_idx(ja)+(sb%str_idx(jb)-1)*sa%cls_nstr(caj))
-          if (c == Zero) cycle
-          c = sb%ex_sgn(eb)*c
-          do ea=sa%ex_off(ja)+1,sa%ex_off(ja+1)
-            ia = sa%ex_j(ea)
-            cai = sa%str_cls(ia)
-            if (blk_off(cai,cbi) < 0) cycle
-            t = sa%ex_p(ea)
-            u = sa%ex_q(ea)
-            val = sa%ex_sgn(ea)*c*bra(blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai))
-            p2(t,u,v,x) = p2(t,u,v,x)+val
-            p2(v,x,t,u) = p2(v,x,t,u)+val
-          end do
-        end do
-      end do
-    end do
-  end do
+  ! opposite spin
+  call ab_two_pdm(bra,ket,p2)
 end subroutine ras_trans_two_pdm
 
-!> Singlets: the alpha-beta part of ras_trans_two_pdm from the pairs
-!> tu >= vx: P_ab(tuvx) = P_ab(vxtu), so 2 val goes to (t,u,v,x) and
-!> (v,x,t,u) (once for tu = vx).
-subroutine singlet_ab_two_pdm(bra,ket,p2)
+!> The alpha-beta part of ras_trans_two_pdm, <bra|a+_ta a_ua a+_vb a_xb|ket>
+!> added to (t,u,v,x) and (v,x,t,u), batched as opposite_spin:
+!> Kp(k,Ja) = sgn_k ket(Ja,Jb_k), Bp(k,Ia) = bra(Ia,Ib_k), val = sgn
+!> Bp(:,Ia).Kp(:,Ja). Singlets: P_ab(tuvx) = P_ab(vxtu), only the pairs
+!> tu >= vx, 2 val to (t,u,v,x) and (v,x,t,u) (once for tu = vx).
+subroutine ab_two_pdm(bra,ket,p2)
   real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
   real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
-  integer(kind=iwp) :: ea, eb, ja, ia, jb, ib, caj, cai, cbj, cbi, t, u, v, x, kb
-  real(kind=wp) :: c, val
+  integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka, t, u
+  real(kind=wp) :: val
+  real(kind=wp), allocatable :: Kp(:,:), Bp(:,:)
 
-  do jb=1,sb%nstr
-    cbj = sb%str_cls(jb)
-    do eb=sb%ex_off(jb)+1,sb%ex_off(jb+1)
-      ib = sb%ex_j(eb)
-      cbi = sb%str_cls(ib)
-      v = sb%ex_p(eb)
-      x = sb%ex_q(eb)
-      kb = (x-1)*ras_norb+v
+  kc = chunk_size()
+  call mma_allocate(Kp,kc,max(1,sa%nstr),label='ras_Kp')
+  call mma_allocate(Bp,kc,max(1,sa%nstr),label='ras_Bp')
+  do b=1,nbat
+    cbj = bat_cj(b)
+    cbi = bat_ci(b)
+    v = bat_v(b)
+    x = bat_x(b)
+    kb = (x-1)*ras_norb+v
+    do k0=bat_off(b),bat_off(b+1)-1,kc
+      nk = min(kc,bat_off(b+1)-k0)
       do caj=1,sa%ncls
         if (blk_off(caj,cbj) < 0) cycle
-        do ja=sa%cls_off(caj)+1,sa%cls_off(caj)+sa%cls_nstr(caj)
-          c = ket(blk_off(caj,cbj)+sa%str_idx(ja)+(sb%str_idx(jb)-1)*sa%cls_nstr(caj))
-          if (c == Zero) cycle
-          c = Two*sb%ex_sgn(eb)*c
-          do ea=sa%ex_off(ja+1),sa%ex_off(ja)+1,-1
+        naj = sa%cls_nstr(caj)
+        do k=1,nk
+          o = blk_off(caj,cbj)+(be_j(k0+k)-1)*naj
+          Kp(k,sa%cls_off(caj)+1:sa%cls_off(caj)+naj) = be_sgn(k0+k)*ket(o+1:o+naj)
+        end do
+      end do
+      do cai=1,sa%ncls
+        if (blk_off(cai,cbi) < 0) cycle
+        nai = sa%cls_nstr(cai)
+        do k=1,nk
+          o = blk_off(cai,cbi)+(be_i(k0+k)-1)*nai
+          Bp(k,sa%cls_off(cai)+1:sa%cls_off(cai)+nai) = bra(o+1:o+nai)
+        end do
+      end do
+      do caj=1,sa%ncls
+        if (blk_off(caj,cbj) < 0) cycle
+        do ga=sa%cls_off(caj)+1,sa%cls_off(caj)+sa%cls_nstr(caj)
+          do ea=sa%ex_off(ga+1),sa%ex_off(ga)+1,-1
             t = sa%ex_p(ea)
             u = sa%ex_q(ea)
-            if ((u-1)*ras_norb+t < kb) exit
+            ka = (u-1)*ras_norb+t
+            if (ras_singlet .and. (ka < kb)) exit
             ia = sa%ex_j(ea)
-            cai = sa%str_cls(ia)
-            if (blk_off(cai,cbi) < 0) cycle
-            val = sa%ex_sgn(ea)*c*bra(blk_off(cai,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(cai))
-            p2(t,u,v,x) = p2(t,u,v,x)+val
-            if ((t /= v) .or. (u /= x)) p2(v,x,t,u) = p2(v,x,t,u)+val
+            if (blk_off(sa%str_cls(ia),cbi) < 0) cycle
+            val = sa%ex_sgn(ea)*dot_product(Bp(1:nk,ia),Kp(1:nk,ga))
+            if (ras_singlet) then
+              val = Two*val
+              p2(t,u,v,x) = p2(t,u,v,x)+val
+              if (ka /= kb) p2(v,x,t,u) = p2(v,x,t,u)+val
+            else
+              p2(t,u,v,x) = p2(t,u,v,x)+val
+              p2(v,x,t,u) = p2(v,x,t,u)+val
+            end if
           end do
         end do
       end do
     end do
   end do
-end subroutine singlet_ab_two_pdm
+  call mma_deallocate(Kp)
+  call mma_deallocate(Bp)
+
+end subroutine ab_two_pdm
 
 !> p2 += <bra|a+_t a+_v a_x a_u|ket> (all index orders) for the column
 !> spin c (row spin r); J = a+_t a+_v a_x a_u I with t > v, u > x.
