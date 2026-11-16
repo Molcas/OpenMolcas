@@ -360,18 +360,18 @@ contains
 
 subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
                    nRas,nRasEl,nRsPrt,                            &
-                   xLevel,xL2Act,xNLEV,xNSM)
+                   xLevel,xL2Act,xNLEV,xNSM,xnRasMx)
 
   integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
-                                             xnLev, xNSM(MxLev)
+                                             xnLev, xNSM(MxLev), xnRasMx(nRsPrt)
 
   type(TRStruct) :: TRS
 
   call SG_Init_Light(iState,nSym,nActEl,iSpin,        &
                       nRas,nRasEl,nRsPrt,             &
-                      xLevel,xL2Act,xnLev,xNSM)
+                      xLevel,xL2Act,xnLev,xNSM,xnRasMx=xnRasMx)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
@@ -430,12 +430,12 @@ end subroutine SG_Mk_SDREO
 
 subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
                           nRas,nRasEl,nRsPrt,                     &
-                          xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
+                          xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA,xnRasMx)
 
   integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt)
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
-                                             xNLEV, xNSM(MxLev)
+                                             xNLEV, xNSM(MxLev), xnRasMx(nRsPrt)
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
   integer(kind=iwp) :: iSym
 
@@ -453,6 +453,9 @@ subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
   SGS(istate)%nRasEL(1:nRsPrt)=nRasEl(1:nRsPrt)
   SGS(istate)%nRas(1:MxSym,1:nRsPrt)=nRas(1:MxSym,1:nRsPrt)
   SGS(istate)%nRsPrt=nRsPrt
+  ! GAS: upper bounds on the electrons in the partitions 1..k
+  SGS(istate)%nRasMx(:)=-1
+  if (present(xnRasMx)) SGS(istate)%nRasMx(1:nRsPrt)=xnRasMx(1:nRsPrt)
 
   ! Make sure that we start from a clean slate.
   call SG_Free(istate)

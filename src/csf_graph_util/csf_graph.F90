@@ -55,6 +55,8 @@ type SG_Graph
   integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: NRAS(MxSym,MxGAS), NRASEL(MxGAS), nRsPrt=0
+  ! GAS: upper bound on the electrons in the partitions 1..k (-1: none)
+  integer(kind=iwp) :: NRASMX(MxGAS) = -1
 end type SG_Graph
 
 type SG_Walks
@@ -481,13 +483,15 @@ subroutine RMVERT(SGS)
   integer(kind=iwp) :: IV, IC, ID
   integer(kind=iwp) :: L, N
   integer(kind=iwp) :: NCHANGES, NV, iRO, iSy, Lev
-  integer(kind=iwp), allocatable :: CONN(:), Lim(:)
+  integer(kind=iwp), allocatable :: CONN(:), Lim(:), LimMx(:)
 
   !-----------------------------------------
   ! Build occupation limits
   !-----------------------------------------
   call mma_allocate(Lim,SGS%nLev,Label='Lim')
+  call mma_allocate(LimMx,SGS%nLev,Label='LimMx')
   Lim(:) = 0
+  LimMx(:) = huge(1_iwp)
 
   Lev = 0
   do iRO = 1, SGS%nRsPrt
@@ -495,6 +499,7 @@ subroutine RMVERT(SGS)
       Lev = Lev + SGS%nRas(iSy,iRO)
     end do
     if (Lev > 0) Lim(Lev) = SGS%nRasEl(iRO)
+    if ((Lev > 0) .and. (SGS%nRasMx(iRO) >= 0)) LimMx(Lev) = SGS%nRasMx(iRO)
   end do
 
   !-----------------------------------------
@@ -512,7 +517,7 @@ subroutine RMVERT(SGS)
     L = SGS%DRT0(IV,LTAB)
     N = SGS%DRT0(IV,NTAB)
 
-    if (N < Lim(L)) SGS%Ver(IV) = 0
+    if ((N < Lim(L)) .or. (N > LimMx(L))) SGS%Ver(IV) = 0
   end do
 
   !-----------------------------------------
@@ -604,6 +609,7 @@ subroutine RMVERT(SGS)
 
   call mma_deallocate(CONN)
   call mma_deallocate(Lim)
+  call mma_deallocate(LimMx)
 
 end subroutine RMVERT
 

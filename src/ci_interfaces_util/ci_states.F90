@@ -39,21 +39,24 @@ contains
 !> symmetries NSM. Mode 'FULL' (graph, walks and coupling tables), 'GRAPH'
 !> (graph and walks), 'NONE' (no graph; with LSM_Single the CI space is
 !> the single function of symmetry LSM_Single). Fills CI_St(iState).
-subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,L2Act,nLev,NSM,Mode,LSM_Single)
+subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,L2Act,nLev,NSM,Mode,LSM_Single,nRasMx)
   integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt), Level(MxLev), &
                                    L2Act(MxLev), nLev, NSM(MxLev)
   character(len=*), intent(in) :: Mode
-  integer(kind=iwp), intent(in), optional :: LSM_Single
+  ! LSM_Single: see above; nRasMx: GAS, upper bounds on the electrons in the
+  ! partitions 1..k (nRasEl the lower ones)
+  integer(kind=iwp), intent(in), optional :: LSM_Single, nRasMx(nRsPrt)
 
   SG_Checks = CI_Verify('ANY')
   select case (Mode)
     case ('FULL')
-      call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=NSM)
+      call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=NSM,xnRasMx=nRasMx)
     case ('GRAPH')
-      call SG_Init_Light(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=NSM)
+      call SG_Init_Light(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=NSM, &
+                         xnRasMx=nRasMx)
     case ('NONE')
       call SG_Init_Light(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=NSM, &
-                         Do_MkSGUGA=.false.)
+                         Do_MkSGUGA=.false.,xnRasMx=nRasMx)
       if (present(LSM_Single)) CIS(iState)%NCSF(LSM_Single) = 1
     case default
       call Abend()

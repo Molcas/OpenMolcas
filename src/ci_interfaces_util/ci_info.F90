@@ -18,6 +18,7 @@
 module CI_Info
 
 use Molcas, only: MxLev, MxSym
+use CI_Space_Def, only: CI_Space
 use Definitions, only: iwp
 
 implicit none
@@ -44,5 +45,11 @@ end type CI_State_Info
 type(CI_State_Info) :: CI_St(MxCIState)
 
 public :: CI_St, CI_State_Info, MxCIState
+
+!> The CI space of RASSCF in the common description of all back ends
+!> (CI_Space_Def: partitions with cumulative bounds, removed HEXS/DEXS
+!> configurations), built by the CI interface (CI_Space_Setup).
+type(CI_Space) :: Space_CI
+public :: Space_CI
 
 end module CI_Info

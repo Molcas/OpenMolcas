@@ -29,7 +29,8 @@ use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
 use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl, NSM
 use CI_Verify_Options, only: CI_Verify
-use CI_Space_Def, only: CI_Space, Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
+use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
+use CI_Info, only: Space_CI
 
 #include "intent.fh"
 
@@ -82,10 +83,6 @@ integer(kind=iwp), allocatable :: Faro_L2O(:)
 logical(kind=iwp) :: HPsi_FaroRAS_Verified = .false.
 ! SIGMA: the spin density of the ASTA triplet operator checked, printed once
 logical(kind=iwp) :: SD_ASTA_Verified = .false.
-! The CI space of RASSCF in the common description of all back ends
-! (CI_Space_Def): partitions with cumulative bounds and the removed
-! configurations (HEXS/DEXS); built by CI_Space_Setup in CI_Initialize.
-type(CI_Space) :: Space_CI
 ! HEXS/DEXS (RASSCF keywords, spinfo I_ELIMINATE_GAS): the configurations
 ! with the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in
 ! the listed RAS partitions are removed as in Lucia: their CSFs stay in the
@@ -1592,6 +1589,8 @@ end if
 if (.not. CI_Verify('ANY')) return
 
 call Space_Print(Space_CI)
+! GAS: no RAS description to compare with
+if (iDoGAS) return
 ! the RAS description, with its empty partitions dropped (their lower
 ! bound merged into the previous one): the same partitions, the same lower
 ! bounds (after tightening to the physical ones), no upper bounds, the same
@@ -1667,7 +1666,7 @@ integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
 Lucia_Active = .not. (((Do_SGUGA .and. SG_CI()) .or. Do_Faroald) .and. (.not. CI_Verify('SIGMA')))
 
 ! the CI space in the common description of the back ends
-if (.not. iDoGAS) call CI_Space_Setup()
+call CI_Space_Setup()
 
 if (Lucia_Active) then
   ! Construct the determinant tables
@@ -1688,6 +1687,17 @@ If (Do_SGUGA) Then
       write(u6,'(1X,A)') '**EXPERIMENTAL**'
    end if
    call SG_Setup_RASSCF()
+   ! GAS: the split graph against Lucia's CSF count of the CI symmetry (the
+   ! CI is Lucia's; with GAS Lucia counts the CI symmetry only)
+   if (iDoGAS .and. Lucia_Active) then
+     if (CIS(iState)%nCSF(STSym) /= ncsasm(STSym)) then
+       write(u6,'(1X,A,2I10)') 'CI_Initialize: GAS split graph and Lucia, CSFs of the CI symmetry',CIS(iState)%nCSF(STSym), &
+                               ncsasm(STSym)
+       call Abend()
+     end if
+     if (CI_Verify('ANY')) write(u6,'(1X,A,I0,A)') 'CI_Initialize: GAS split graph verified against Lucia, ', &
+                                                   CIS(iState)%nCSF(STSym),' CSFs of the CI symmetry'
+   end if
    if (.not. Lucia_Active) then
      ! the CSF counts from SGUGA; no determinants (the Davidson scratch for
      ! the determinant expansion of the other back ends is not needed)

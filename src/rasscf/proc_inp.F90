@@ -4148,7 +4148,7 @@ if (.not. SkipGUGA) then
     end if
   end if
 
-  call CI_Initialize(.NOT. iDoGAS, DOFARO)
+  call CI_Initialize(.true.,DOFARO)
 
 end if
 
