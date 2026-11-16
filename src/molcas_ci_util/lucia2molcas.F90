@@ -9,30 +9,31 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LUCIA2MOLCAS(NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF, &
+subroutine LUCIA2MOLCAS(NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN,NPDTCNF,NPCSCNF, &
                         nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
 use csfbas, only: maxop_lucia, NAEL, NBEL
 use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM, ISPIN, NDET
-use CI_Info, only: Space_Inp
+use CI_Info, only: CI_St, Space_Inp
 use CI_Space_Def, only: Space_Removals
-use spinfo, only: MINOP, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDTASM, NDTFTP, NTYP
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
 use Molcas, only: MxSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), NCNASM_LUCIA(MXPCSM), MXPORB, &
+integer(kind=iwp), intent(in) :: NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), MXPORB, &
                                  NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), NPCSCNF(MXPORB+1), nCSF_HEXS_LUCIA
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: ICL, IOPEN, ISYM, ITYP, LCONF, LDET, LLCONF, NEL2MN, NEL2MX, NORB1, NORB2, MS2
 
-NDTASM(1:MxSym) = NDTASM_LUCIA(1:MxSym)
-NCSASM(1:MxSym) = NCSASM_LUCIA(1:MxSym)
-NCNASM(1:MxSym) = NCNASM_LUCIA(1:MxSym)
-if (NSEL > NCSASM(STSYM)) NSEL = NCSASM(STSYM)
+! the CI dimensions of the RASSCF state (CI_Info)
+CI_St(iState)%nDet(1:MxSym) = NDTASM_LUCIA(1:MxSym)
+CI_St(iState)%nCSF(1:MxSym) = NCSASM_LUCIA(1:MxSym)
+if (NSEL > CI_St(iState)%nCSF(STSYM)) NSEL = CI_St(iState)%nCSF(STSYM)
 ! For small calculations - Lasse/MGD
-nCSF_HEXS = nCSF_HEXS_LUCIA
-if (Space_Removals(Space_Inp) .and. (NSEL > nCSF_HEXS)) NSEL = nCSF_HEXS
+CI_St(iState)%nCSF_Kept = nCSF_HEXS_LUCIA
+if (Space_Removals(Space_Inp) .and. (NSEL > CI_St(iState)%nCSF_Kept)) NSEL = CI_St(iState)%nCSF_Kept
 
 ! SET INITIAL VALUES FOR LOOP COUNTERS AND ARRAY SIZES
 
@@ -67,7 +68,7 @@ do ISYM=1,NSYM
     LLCONF = LLCONF+NCNFTP(ITYP,ISYM)*(IOPEN+ICL)
   end do
   LCONF = max(LCONF,LLCONF)
-  LDET = max(LDET,NDTASM(ISYM))
+  LDET = max(LDET,CI_St(iState)%nDet(ISYM))
 end do
 
 NDET = NDET_LUCIA

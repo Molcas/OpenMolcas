@@ -16,7 +16,8 @@ subroutine CSDTVC(CSFVEC,DETVEC,IWAY,IREFSM,ICOPY)
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
 use lucia_data, only: DTOC, SDREO
-use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDTASM, NDTFTP, NTYP
+use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
+use CI_Info, only: CI_St
 use general_data, only: NDET
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -26,7 +27,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IWAY, IREFSM, ICOPY
-real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
+real(kind=wp), intent(inout) :: CSFVEC(CI_St(1)%nDet(IREFSM)), DETVEC(CI_St(1)%nDet(IREFSM))
 integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF
 
 ! To avoid compiler complaints
@@ -35,8 +36,8 @@ IOFFCS = 0
 IOFFDT = 0
 IOFFCD = 0
 
-NDET = NDTASM(IREFSM)
-NCSF = NCSASM(IREFSM)
+NDET = CI_St(1)%nDet(IREFSM)
+NCSF = CI_St(1)%nCSF(IREFSM)
 #ifdef _DEBUGPRINT_
 write(u6,*) '======================================='
 write(u6,*) '         CSDTVC INFORMATIONS'

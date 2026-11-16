@@ -53,7 +53,7 @@ use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
 use general_data, only: ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSSH, NSYM, &
                         NTOT, NTOT1, NTOT2, STSYM
-use spinfo, only: NCSASM, NDTASM
+use CI_Info, only: CI_St
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use Molcas, only: MxRoot
 use RASDim, only: MxRef
@@ -217,8 +217,8 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
       call CollapseOutput(1,Line)
       write(u6,Fmt2//'A)') '----------------------------'
       write(u6,*)
-      write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-      if (CI_Lucia_Active()) write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
+      write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',CI_St(1)%nCSF(STSYM)
+      if (CI_Lucia_Active()) write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(1)%nDet(STSYM)
     end if
     write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
     if (ICICH == 0) then

@@ -43,6 +43,10 @@ type CI_State_Info
   ! GAS: the state holding the relaxed space of this one (0: none), see
   ! SG_Rel_State
   integer(kind=iwp) :: iRel = 0
+  ! nDet(iSym): dimension of the determinant space of the CI back end per
+  ! symmetry (Lucia: determinants or spin combinations; without Lucia
+  ! nCSF); nCSF_Kept: CSFs of the CI symmetry kept by HEXS/DEXS
+  integer(kind=iwp) :: nDet(MxSym) = 0, nCSF_Kept = 0
 end type CI_State_Info
 
 type(CI_State_Info) :: CI_St(MxCIState)

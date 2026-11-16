@@ -22,7 +22,6 @@ use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ra
                        ras_trans_two_pdm
 use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
-use spinfo, only: NDTASM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
@@ -240,7 +239,7 @@ real(kind=wp), allocatable :: C1(:), C2(:)
 
 select case (Lab)
   case ('Lucia')
-    nD = NDTASM(LSM)
+    nD = CI_St(iState)%nDet(LSM)
     nT = max(n,nD)
     call mma_allocate(C1,nT,Label='C1')
     call mma_allocate(C2,nT,Label='C2')
@@ -553,11 +552,11 @@ end do
 end subroutine HEXS_Mask_Faro
 
 !> HEXS/DEXS: the masks of the kept CSFs (end of CI_Initialize). Without
-!> Lucia the number of kept CSFs (nCSF_HEXS) and the cap of NSEL come from
+!> Lucia the number of kept CSFs (CI_St%nCSF_Kept) and the cap of NSEL come from
 !> here; with Lucia they are compared.
-subroutine HEXS_Setup(Do_SGUGA)
-use spinfo, only: nCSF_HEXS
+subroutine HEXS_Setup(iState,Do_SGUGA)
 use general_data, only: NSEL
+integer(kind=iwp), intent(in) :: iState
 logical(kind=iwp), intent(in) :: Do_SGUGA
 integer(kind=iwp) :: nKeep
 call mma_deallocate(HEXS_Keep,safe='*')
@@ -584,10 +583,10 @@ else
 end if
 write(u6,'(1X,A,I0,A,I0,A)') 'HEXS/DEXS: ',nKeep,' of ',nConf,' CSFs kept'
 if (.not. Lucia_Active) then
-  nCSF_HEXS = nKeep
-  if (NSEL > nCSF_HEXS) NSEL = nCSF_HEXS
-else if (nKeep /= nCSF_HEXS) then
-  write(u6,'(1X,A,I0)') 'HEXS/DEXS: Lucia keeps (nCSF_HEXS) ',nCSF_HEXS
+  CI_St(iState)%nCSF_Kept = nKeep
+  if (NSEL > nKeep) NSEL = nKeep
+else if (nKeep /= CI_St(iState)%nCSF_Kept) then
+  write(u6,'(1X,A,I0)') 'HEXS/DEXS: Lucia keeps (nCSF_HEXS) ',CI_St(iState)%nCSF_Kept
 end if
 end subroutine HEXS_Setup
 
@@ -650,8 +649,8 @@ if (SG_CI()) then
   call SG_HPsi(iState,CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU,nRsPrt /= 1)
   call HEXS_Proj(HEXS_Keep,Sigma_Vec)
   if (CI_Verify('SIGMA')) then
-    call mma_allocate(SG_PSI,max(nCSF,NDTASM(STSYM)),Label='SG_PSI')
-    call mma_allocate(SG_SGM,max(nCSF,NDTASM(STSYM)),Label='SG_SGM')
+    call mma_allocate(SG_PSI,max(nCSF,CI_St(iState)%nDet(STSYM)),Label='SG_PSI')
+    call mma_allocate(SG_SGM,max(nCSF,CI_St(iState)%nDet(STSYM)),Label='SG_SGM')
     call SG_Reord(iState,STSYM,1,nCSF,CI_Vec,SG_PSI)
     call Lucia_Sigma(SG_PSI,SG_SGM)
     call SG_Reord(iState,STSYM,0,nCSF,SG_SGM,SG_PSI)
@@ -693,7 +692,7 @@ else
   ICSM=STSYM
   ISSM=STSYM
 
-  nDET = NDTASM(IREFSM)
+  nDET = CI_St(iState)%nDet(IREFSM)
 
   ! Convert the CI-vector from CSF to Det. basis
   ! sigtemp is scratch, converted vector is stored in ctemp.
@@ -797,7 +796,7 @@ contains
     IREFSM = STSYM
     ICSM = STSYM
     ISSM = STSYM
-    nD = NDTASM(IREFSM)
+    nD = CI_St(iState)%nDet(IREFSM)
     ctemp(1:nCSF) = Cin(1:nCSF)
     sigtemp(:) = Zero
     call csdtvc(ctemp,sigtemp,1,STSym,0)
@@ -1748,16 +1747,16 @@ use faroald, only: nela, nelb
 use second_quantization, only: binom_coef
 use general_data, only: STSym, nSym
 use Molcas, only: MxSym
-use spinfo, only: ncsasm, ndtasm
 
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
-integer(kind=iwp) :: nAct, k, iSym, iLev, nPrt
+integer(kind=iwp) :: nAct, k, iSym, iLev, nPrt, nCSF_Lucia
 integer(kind=iwp), allocatable :: nOrbP(:)
 logical(kind=iwp) :: Full
 integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
 
+nCSF_Lucia = 0
 ! SGCI does not need Lucia; it is set up only as the reference of
 ! MOLCAS_CI_VERIFY=SIGMA.
 Lucia_Active = .not. (((Do_SGUGA .and. SG_CI()) .or. Do_Faroald) .and. (.not. CI_Verify('SIGMA')))
@@ -1771,9 +1770,12 @@ if (Lucia_Active) then
   call Lucia_Util('Ini')
 
   ! to get number of CSFs for GAS
-  ! and number of determinants to store
-  nconf = MaxVal(ncsasm(1:mxsym))
-  nDet = MaxVal(ndtasm(1:mxsym))
+  ! and number of determinants to store (Lucia's dimensions, CI_St set by
+  ! lucia2molcas; Lucia's CSF count of the CI symmetry kept for the check
+  ! against the split graph, which redefines CI_St%nCSF below)
+  nconf = MaxVal(CI_St(iState)%nCSF(1:mxsym))
+  nDet = MaxVal(CI_St(iState)%nDet(1:mxsym))
+  nCSF_Lucia = CI_St(iState)%nCSF(STSym)
 end if
 
 ! Initiate the SGUGA environment conditional to all flags
@@ -1787,9 +1789,9 @@ If (Do_SGUGA) Then
    ! GAS: the split graph against Lucia's CSF count of the CI symmetry (the
    ! CI is Lucia's; with GAS Lucia counts the CI symmetry only)
    if (iDoGAS .and. Lucia_Active) then
-     if (CIS(iState)%nCSF(STSym) /= ncsasm(STSym)) then
+     if (CIS(iState)%nCSF(STSym) /= nCSF_Lucia) then
        write(u6,'(1X,A,2I10)') 'CI_Initialize: GAS split graph and Lucia, CSFs of the CI symmetry',CIS(iState)%nCSF(STSym), &
-                               ncsasm(STSym)
+                               nCSF_Lucia
        call Abend()
      end if
      if (CI_Verify('ANY')) write(u6,'(1X,A,I0,A)') 'CI_Initialize: GAS split graph verified against Lucia, ', &
@@ -1798,9 +1800,10 @@ If (Do_SGUGA) Then
    if (.not. Lucia_Active) then
      ! the CSF counts from SGUGA; no determinants (the Davidson scratch for
      ! the determinant expansion of the other back ends is not needed)
-     ncsasm(:) = 0
-     ncsasm(1:nSym) = CIS(iState)%nCSF(1:nSym)
-     ndtasm(:) = ncsasm(:)
+     ! (CI_St%nCSF from the split graph, CI_Setup_SG)
+     CI_St(iState)%nCSF(:) = 0
+     CI_St(iState)%nCSF(1:nSym) = CIS(iState)%nCSF(1:nSym)
+     CI_St(iState)%nDet(:) = CI_St(iState)%nCSF(:)
      nDet = nConf
      write(u6,'(1X,A)') 'SGCI/FARO: Lucia is not initialized.'
    end if
@@ -1880,7 +1883,7 @@ if (DO_FAROALD) then
 end if
 
 ! HEXS/DEXS: the kept CSFs
-call HEXS_Setup(Do_SGUGA)
+call HEXS_Setup(iState,Do_SGUGA)
 
 End subroutine CI_Initialize
 
