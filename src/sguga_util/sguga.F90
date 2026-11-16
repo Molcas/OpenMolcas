@@ -248,17 +248,38 @@ integer(kind=iwp), parameter :: iSegWUpEnd = nSegBase + 4
 integer(kind=iwp), parameter :: iSegWLoBeg = nSegBase + 5
 integer(kind=iwp), parameter :: iSegWLoEnd = nSegBase + 8
 
+! The segments of the triplet operator T_pq = a+_pa a_qa - a+_pb a_qb (ASTA,
+! paper II), appended to the catalog (35:62). Three further classes of the
+! vertex pairs above the loop head, where the two walks of T_pq may differ:
+!           4: db = 0 (b /= 0), 5: db = -2, 6: db = +2 (db = b(right) -
+!           b(left), the right/ket vertex of a class-5/6 pair is IVR(:,3/4))
+! 35-38: head segments, db = 0 at the top (0u, 0d, u2, d2)
+! 39-42: head segments, db = -2 (u2, 0d) and db = +2 (d2, 0u)
+! 43-58: top segments, db = 0 (00, uu, dd, 22, ud, du), db = -2 (00, uu, dd,
+!        22, ud), db = +2 (00, uu, dd, 22, du)
+! 59-62: weight segments of T_pp (uu, dd; ud with db = -2, du with db = +2)
+! Their values are those of ASTA_Head_T, ASTA_Top_T and ASTA_Weight_T (MKSEG;
+! ISVC unused). The singlet code uses only the segments 1:nSeg.
+integer(kind=iwp), parameter :: nSegTrip = 28, nSegCat = nSegTot+nSegTrip
+integer(kind=iwp), parameter :: iSegTHeadBeg = nSegTot+1, iSegTHeadEnd = nSegTot+8, iSegTTopBeg = nSegTot+9, &
+                                iSegTTopEnd = nSegTot+24, iSegTWBeg = nSegTot+25, iSegTWEnd = nSegCat
+
 integer(kind=iwp), parameter ::                                                                                                    &
-                                ITVPT(nSegTot) =  &
-[ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3],&
-                                IBVPT(nSegTot) =  &
-[ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3],&
-                                IC1(nSegTot)   =  &
-[ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3],&
-                                IC2(nSegTot)   =  &
-[ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3],&
-                                ISVC(nSegTot)  =  &
-[ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1,  0, 1, 1,13,  0, 1, 1,13]
+                                ITVPT(nSegCat) =  &
+[ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3, &
+  4, 4, 4, 4,  5, 5, 6, 6,  4, 4, 4, 4, 4, 4,  5, 5, 5, 5, 5,  6, 6, 6, 6, 6,  4, 4, 5, 6],&
+                                IBVPT(nSegCat) =  &
+[ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3, &
+  1, 2, 2, 1,  1, 1, 2, 2,  4, 4, 4, 4, 6, 5,  5, 5, 5, 5, 4,  6, 6, 6, 6, 4,  3, 3, 3, 3],&
+                                IC1(nSegCat)   =  &
+[ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3, &
+  0, 0, 1, 2,  1, 0, 2, 0,  0, 1, 2, 3, 1, 2,  0, 1, 2, 3, 1,  0, 1, 2, 3, 2,  1, 2, 1, 2],&
+                                IC2(nSegCat)   =  &
+[ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3, &
+  1, 2, 3, 3,  3, 2, 3, 1,  0, 1, 2, 3, 2, 1,  0, 1, 2, 3, 2,  0, 1, 2, 3, 1,  1, 2, 2, 1],&
+                                ISVC(nSegCat)  =  &
+[ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1,  0, 1, 1,13,  0, 1, 1,13, &
+  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,  0, 0, 0, 0, 0,  0, 0, 0, 0]
 
 integer(kind=iwp), parameter :: TR_WALK  = 1
 integer(kind=iwp), parameter :: TR_OPEN  = 2
@@ -2181,12 +2202,12 @@ subroutine MKSEG(SGS,CIS,EXS)
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
-  integer(kind=iwp) :: I_N, IA, IAL, IB, IBL, INL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL
+  integer(kind=iwp) :: I_N, IA, IAL, IB, IBL, IBR, INL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL
 real(kind=wp) :: V
 
-call mma_allocate(CIS%IVR,SGS%nVert,2,Label='CIS%IVR')
-call mma_allocate(CIS%ISGM,SGS%nVert,nSeg,Label='CIS%ISGM')
-call mma_allocate(CIS%VSGM,SGS%nVert,nSeg,Label='CIS%VSGM')
+call mma_allocate(CIS%IVR,SGS%nVert,4,Label='CIS%IVR')
+call mma_allocate(CIS%ISGM,SGS%nVert,nSegCat,Label='CIS%ISGM')
+call mma_allocate(CIS%VSGM,SGS%nVert,nSegCat,Label='CIS%VSGM')
 call mma_allocate(EXS%MVL,CIS%nMidV,2,Label='EXS%MVL')
 call mma_allocate(EXS%MVR,CIS%nMidV,2,Label='EXS%MVR')
 
@@ -2231,6 +2252,24 @@ do LEV=1,SGS%nLev    ! Loop over all levels
         if (IB == (IBL+1)) CIS%IVR(IVL,2) = IV
       end if
 
+    end do
+  end do
+end do
+
+! The partners of the triplet classes 5 and 6 (db = -2, +2): the vertex of
+! the same level with the same number of electrons and b(right) = b(left)
+! -+ 2, to the left or to the right.
+do LEV=1,SGS%nLev
+  IV1 = SGS%LTV(LEV)
+  IV2 = SGS%LTV(LEV-1)-1
+  do IVL=IV1,IV2
+    IAL = SGS%DRT(IVL,ATAB)
+    IBL = SGS%DRT(IVL,BTAB)
+    do IV=IV1,IV2
+      IA = SGS%DRT(IV,ATAB)
+      IB = SGS%DRT(IV,BTAB)
+      if ((IA == IAL+1) .and. (IB == IBL-2)) CIS%IVR(IVL,3) = IV
+      if ((IA == IAL-1) .and. (IB == IBL+2)) CIS%IVR(IVL,4) = IV
     end do
   end do
 end do
@@ -2285,12 +2324,15 @@ CIS%VSGM(:,:) = Zero
 
 ! FOR EACH VERTEX LOOP OVER ALL POSSIBLE SEGMENTS IT CAN BE A PART OF
 do IVLT=1,SGS%nVert     ! Vertex Left Top
-  do ISGT=1,nSeg        ! Setment types
+  do ISGT=1,nSegCat     ! Segment types (the singlet weights nSeg+1:nSegTot are not tabulated)
+    if ((ISGT > nSeg) .and. (ISGT <= nSegTot)) cycle
 
     ! Find all four vertex indices of this segment, branch out if the segment is invalid
-    ITT = ITVPT(ISGT)   ! 0-3, denotes class of the upper nodes of the segment
+    ITT = ITVPT(ISGT)   ! 0-6, denotes class of the upper nodes of the segment
     IVRT = IVLT               ! Vertex Right Top is the same as the Vertex Top Left, default setting
     if (ITT == 1 .or. ITT == 2) IVRT = CIS%IVR(IVLT,ITT)  ! Pick up the associated upper right vertex, depends on delta(b)
+    if (ITT == 5) IVRT = CIS%IVR(IVLT,3)  ! triplet, db = -2
+    if (ITT == 6) IVRT = CIS%IVR(IVLT,4)  ! triplet, db = +2
     if (IVRT == 0) cycle          ! Branch out if there is no vertex that will contruct the top of the segment.
     ! Pick up the vertex index for the Vertex Left Bottom as a function of the segment type
     IVLB = SGS%Down(IVLT,IC1(ISGT))
@@ -2300,9 +2342,25 @@ do IVLT=1,SGS%nVert     ! Vertex Left Top
     if (IVRB == 0) cycle          ! Branch out if there is no such vertex
     ! SEGMENT IS NOW ACCEPTED AS POSSIBLE.
 
+    IB = SGS%DRT(IVLT,BTAB)    ! Pick up the b-value from the DRT
+    if (ISGT >= iSegTHeadBeg) then
+      ! triplet operator: the ASTA values, referred to the b of the right
+      ! (ket) top vertex; zero segments (b = 0 with db = 0) are not valid
+      IBR = SGS%DRT(IVRT,BTAB)
+      if (ISGT <= iSegTHeadEnd) then
+        V = ASTA_Head_T(IC1(ISGT),IC2(ISGT),IBR-IB,IBR)
+      else if (ISGT <= iSegTTopEnd) then
+        V = ASTA_Top_T(IC1(ISGT),IC2(ISGT),IBR-IB,IBR)
+      else
+        V = ASTA_Weight_T(IC1(ISGT),IC2(ISGT),IBR-IB,IBR)
+      end if
+      if (V == Zero) cycle
+      CIS%ISGM(IVLT,ISGT) = IVLB
+      CIS%VSGM(IVLT,ISGT) = V
+      cycle
+    end if
     CIS%ISGM(IVLT,ISGT) = IVLB  ! Mark that the segment is valid by changing the default value, 0,  to the index of
                                 ! lower left vertex being a part of the segment.
-    IB = SGS%DRT(IVLT,BTAB)    ! Pick up the b-value from the DRT
 !   Note that we use the segment values according to the ASTA method.
     select case (ISVC(ISGT))
       case (0)
@@ -7422,7 +7480,7 @@ subroutine Check_MatEl_Tpq(iState,nFail)
   integer(kind=iwp) :: iCSF(8), nOpen, nNZ_T, nNZ_TOff
   integer(kind=iwp), allocatable :: Steps(:,:), DOff(:), DA(:), DB(:), XA(:), XB(:)
   real(kind=wp), allocatable :: DC(:), XC(:)
-  real(kind=wp) :: eW, eR, eD, tW, tD, dER, dED, dTD
+  real(kind=wp) :: eW, eR, eD, tW, tD, tT, dER, dED, dTD, dTT
   logical(kind=iwp) :: Sampled
 
   nFail = 0
@@ -7474,6 +7532,7 @@ subroutine Check_MatEl_Tpq(iState,nFail)
   dER = Zero
   dED = Zero
   dTD = Zero
+  dTT = Zero
   do ISYJ=1,nSym
     do q=1,nLev
       do p=1,nLev
@@ -7500,6 +7559,13 @@ subroutine Check_MatEl_Tpq(iState,nFail)
           tD = Det_MatEl(DOff(iOffI+1)-DOff(iOffI),DA(DOff(iOffI)+1:DOff(iOffI+1)),DB(DOff(iOffI)+1:DOff(iOffI+1)), &
                          DC(DOff(iOffI)+1:DOff(iOffI+1)),DOff(iOffJ+1)-DOff(iOffJ),DA(DOff(iOffJ)+1:DOff(iOffJ+1)), &
                          DB(DOff(iOffJ)+1:DOff(iOffJ+1)),DC(DOff(iOffJ)+1:DOff(iOffJ+1)),p,q,-One)
+          tT = Table_MatEl_T(SGS(iState),CIS(iState),Steps(:,iOffI),Steps(:,iOffJ),p,q)
+          dTT = max(dTT,abs(tT-tW))
+          if (abs(tT-tW) > Tol) then
+            nFail = nFail+1
+            if (nFail <= MxPrt) write(u6,'(A,6I5,2ES20.12)') ' Table_MatEl_T mismatch: ISYI,I,ISYJ,J,p,q, table, walk =', &
+                                                         ISYI,I,ISYJ,J,p,q,tT,tW
+          end if
           nTest = nTest+1
           if (abs(tD) > 1.0e-10_wp) then
             nNZ_T = nNZ_T+1
@@ -7526,6 +7592,7 @@ subroutine Check_MatEl_Tpq(iState,nFail)
   write(u6,'(A,ES10.3)') '   E_pq walk vs MatEl_Epq,     max. abs. difference ',dER
   write(u6,'(A,ES10.3)') '   E_pq walk vs determinants,  max. abs. difference ',dED
   write(u6,'(A,ES10.3)') '   T_pq walk vs determinants,  max. abs. difference ',dTD
+  write(u6,'(A,ES10.3)') '   T_pq segment tables vs walk, max. abs. difference ',dTT
   write(u6,'(A,I0,A,I0,A)') '   nonzero T_pq elements: ',nNZ_T,' (',nNZ_TOff,' with different walks above the loop head)'
   write(u6,'(A,I0)') '   failures: ',nFail
   call Check_Xpq_Psi(iState,nFail)
@@ -10547,6 +10614,105 @@ pure function Det_MatEl(nI,AI,BI,CI,nJ,AJ,BJ,CJ,p,q,sb) result(V)
     end do
   end do
 end function Det_MatEl
+
+!> <I|T_pq|J> from the tabulated segments (catalog ITVPT/IC1/IC2, ISGM,
+!> VSGM, IVR of MKSEG), walking both CSFs down from the graph head: the
+!> left (bra of the raising operator) and right (ket) vertices at the top
+!> of each level give the class of the segment, which with the two steps
+!> identifies its type; the segment must connect the actual vertices. For
+!> the verification of the triplet catalog against ASTA_MatEl.
+function Table_MatEl_T(SGS,CIS,SI,SJ,p,q) result(V)
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  integer(kind=iwp), intent(in) :: SI(SGS%nLev), SJ(SGS%nLev), p, q
+  real(kind=wp) :: V
+  integer(kind=iwp) :: U(SGS%nLev), T(SGS%nLev), i, j, k, vL, vR, db, iCls, iBeg, iEnd, ISGT, kS, vRB
+  if (p <= q) then
+    U(:) = SI(:)
+    T(:) = SJ(:)
+    i = p
+    j = q
+  else
+    U(:) = SJ(:)
+    T(:) = SI(:)
+    i = q
+    j = p
+  end if
+  V = One
+  vL = 1
+  vR = 1
+  do k=SGS%nLev,1,-1
+    db = SGS%DRT(vR,BTAB)-SGS%DRT(vL,BTAB)
+    if (k > j) then
+      ! top segments (triplet classes 4-6)
+      iBeg = iSegTTopBeg
+      iEnd = iSegTTopEnd
+      iCls = 4+merge(1,0,db == -2)+merge(2,0,db == 2)
+      if (abs(db) /= 2 .and. (db /= 0)) iCls = -1
+    else if (k == j) then
+      if (i == j) then
+        iBeg = iSegTWBeg
+        iEnd = iSegTWEnd
+      else
+        iBeg = iSegTHeadBeg
+        iEnd = iSegTHeadEnd
+      end if
+      iCls = 4+merge(1,0,db == -2)+merge(2,0,db == 2)
+      if (abs(db) /= 2 .and. (db /= 0)) iCls = -1
+    else if (k > i) then
+      ! intermediate segments (singlet)
+      iBeg = 9
+      iEnd = 18
+      iCls = merge(1,2,db == -1)
+      if (abs(db) /= 1) iCls = -1
+    else if (k == i) then
+      ! tail segments (singlet)
+      iBeg = 19
+      iEnd = 22
+      iCls = merge(1,2,db == -1)
+      if (abs(db) /= 1) iCls = -1
+    else
+      ! tail walk
+      iBeg = 23
+      iEnd = 26
+      iCls = 3
+      if (db /= 0) iCls = -1
+    end if
+    if (iCls < 0) then
+      V = Zero
+      return
+    end if
+    ISGT = 0
+    do kS=iBeg,iEnd
+      if ((ITVPT(kS) == iCls) .and. (IC1(kS) == U(k)) .and. (IC2(kS) == T(k))) ISGT = kS
+    end do
+    if (ISGT == 0) then
+      V = Zero
+      return
+    end if
+    if (CIS%ISGM(vL,ISGT) == 0) then
+      V = Zero
+      return
+    end if
+    ! the segment must start at the right vertex vR and end at the walks
+    select case (iCls)
+      case (1,2)
+        if (CIS%IVR(vL,iCls) /= vR) call Abend()
+      case (5)
+        if (CIS%IVR(vL,3) /= vR) call Abend()
+      case (6)
+        if (CIS%IVR(vL,4) /= vR) call Abend()
+      case default
+        if (vL /= vR) call Abend()
+    end select
+    vRB = SGS%Down(vR,T(k))
+    if (CIS%ISGM(vL,ISGT) /= SGS%Down(vL,U(k))) call Abend()
+    V = V*CIS%VSGM(vL,ISGT)
+    vL = SGS%Down(vL,U(k))
+    vR = vRB
+    if ((vL == 0) .or. (vR == 0)) call Abend()
+  end do
+end function Table_MatEl_T
 
 !> The step vectors of all CSFs of state iState (all symmetries, CSF k of
 !> symmetry ISY at column ASTA_Off(ISY)+k) and, per symmetry, the packed
