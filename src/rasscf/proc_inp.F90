@@ -41,7 +41,7 @@ use general_data, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL,
                         NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
 use DWSol, only: DWSol_DWRO
-use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
+use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
 use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, CRPROJ, CRVEC, DFTFOCK, DoBLOCKDMRG, DoDMRG, &
@@ -86,6 +86,7 @@ integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2
                      length, mBas, mCof, mConf, mm, mOrb, N, NA, NAO, NASHT, NBAS_L(8), NCHRG, nClean, nCof, NCRPROJ, NDEL_L(8), &
                      nDiff, NFRO_L(8), nGrp, NGSSH_HI, NGSSH_LO, NISH_L(8), NISHT, NISHT_old, nItems, nNUc, NORB_L(8), nOrbRoot, &
                      nOrbs, NRS1_L(8), NRS2_L(8), NRS3_L(8), NSSH_L(8), nSym_l, nT, nU, nW, start, step
+integer(kind=iwp) :: nOrbGAS(MxGAS)
 integer(kind=iwp) :: MaxFaro
 real(kind=wp) :: dSum, Dummy(1), nDetFaro, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
 logical(kind=iwp) :: DBG, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists, SkipGUGA
@@ -4113,27 +4114,31 @@ if (.not. SkipGUGA) then
   ! Faroald only if requested with the FARO keyword.
   if (CI_Verify('FARO') .and. (.not. DoSGCI) .and. (.not. Key('EXPE'))) DoFaro = .true.
   ! FARO: the CI in the configuration basis of Faroald (citrans), for
-  ! CAS and RAS spaces (with symmetry, also with HEXS/DEXS, applied by the
-  ! CI interface), not GAS, and not with the other CI back ends or CASVB
-  ! (which works with the CSF basis of Lucia).
+  ! CAS, RAS and GAS spaces (with symmetry, also with HEXS/DEXS, applied by
+  ! the CI interface), and not with the other CI back ends or CASVB (which
+  ! works with the CSF basis of Lucia).
   if (DoFaro) then
-    if (iDoGas .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+    if (DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
       if (Key('FARO')) then
-        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (GAS, DMRG, NECI'
+        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (DMRG, NECI'
         write(u6,'(1X,A)') 'or CASVB); the CI is done by the CI backend.'
       end if
       DoFaro = .false.
     end if
   end if
-  ! Faroald works in the full (C1) determinant space of CAS, and in the RAS
-  ! determinant space (all symmetries) with RAS partitions (faroald_ras):
-  ! fall back to the CI backend if a few vectors of that size do not fit
-  ! in the available memory.
+  ! Faroald works in the full (C1) determinant space of CAS, and in the
+  ! RAS/GAS determinant space (all symmetries) with several partitions
+  ! (faroald_ras): fall back to the CI backend if a few vectors of that size
+  ! do not fit in the available memory. (The GAS description NGSSH, IGSOCCX
+  ! is set for CAS and RAS as well.)
   if (DoFaro) then
     call mma_maxDBLE(MaxFaro)
-    if (nHole1+nElec3 /= 0) then
-      nDetFaro = CI_Faro_nDet_RAS((NACTEL+ISPIN-1)/2,(NACTEL-ISPIN+1)/2,[sum(NRS1(1:NSYM)),sum(NRS2(1:NSYM)),sum(NRS3(1:NSYM))], &
-                                2*sum(NRS1(1:NSYM))-nHole1,nElec3)
+    if (iDoGAS .or. (nHole1+nElec3 /= 0)) then
+      do iGAS=1,NGAS
+        nOrbGAS(iGAS) = sum(NGSSH(iGAS,1:NSYM))
+      end do
+      nDetFaro = CI_Faro_nDet_RAS((NACTEL+ISPIN-1)/2,(NACTEL-ISPIN+1)/2,NGAS,nOrbGAS(1:NGAS),IGSOCCX(1:NGAS,1), &
+                                  IGSOCCX(1:NGAS,2))
     else
       nDetFaro = Binom_R((NACTEL+ISPIN-1)/2,NAC)*Binom_R((NACTEL-ISPIN+1)/2,NAC)
     end if

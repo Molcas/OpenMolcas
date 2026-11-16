@@ -15,7 +15,7 @@
 !> number of electrons in the partitions 1..k; the orbitals must be the
 !> levels of the split graph (by partition, within each by symmetry). CAS
 !> is nrsprt = 1, oras = 1, nrasel = nel.
-subroutine citrans_init(nel,norb,mult,nsym,osym,lsym,nrsprt,oras,nrasel)
+subroutine citrans_init(nel,norb,mult,nsym,osym,lsym,nrsprt,oras,nrasel,nrasmx)
 
 use second_quantization, only: binom_coef
 use citrans, only: citrans_graph_init, citrans_sym_init, ndet_group, ncsf_group, ndo_max, ndo_min, ndoc_group, nsoc_group, &
@@ -26,7 +26,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nel, norb, mult
-integer(kind=iwp), intent(in) :: nsym, osym(norb), lsym, nrsprt, oras(norb), nrasel(nrsprt)
+integer(kind=iwp), intent(in) :: nsym, osym(norb), lsym, nrsprt, oras(norb), nrasel(nrsprt), nrasmx(nrsprt)
 integer(kind=iwp) :: ido, iso, nela, nelb
 
 ! compute alpha/beta subsets
@@ -63,7 +63,7 @@ do ido=ndo_min,ndo_max
 end do
 
 ! the file order of the CSFs (citrans_sort)
-call citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel)
+call citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel,nrasmx)
 call citrans_graph_init(nel,norb,mult)
 
 end subroutine citrans_init

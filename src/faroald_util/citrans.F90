@@ -68,6 +68,7 @@ module citrans
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
 use CSF_Graph, only: Free_SG_Graph, MkSGUGA, SG_Graph, SG_Walk_Next, SG_Walks
+use Molcas, only: MxGAS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -103,13 +104,14 @@ type(SG_Walks) :: FileW
 ! string conf_doub, the singly occupied string conf_sing (over the orbitals
 ! not doubly occupied) and the key conf_key = nsoc*(rankdo-1)+rankso, at
 ! conf_off(ido)+k, sorted by the key (the order of the full CAS list).
-! RAS: the orbitals are the levels of the split graph (partition by
+! RAS/GAS: the orbitals are the levels of the split graph (partition by
 ! partition, within each by symmetry), orbras their partition; a
 ! configuration is kept if the partitions 1..k hold at least ci_nrasel(k)
-! electrons (k < ci_nrsprt), as the graph of SGUGA. CAS: ci_nrsprt = 1.
-integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1, ci_nrsprt = 1, part_pos(3) = 0, part_n(3) = 0
-integer(kind=iwp), allocatable :: orbsym(:), orbras(:), ci_nrasel(:), conf_off(:), conf_key(:), conf_doub(:), conf_sing(:), &
-                                  nkeep_group(:)
+! and at most ci_nrasmx(k) electrons (k < ci_nrsprt), as the graph of
+! SGUGA. CAS: ci_nrsprt = 1.
+integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1, ci_nrsprt = 1, part_pos(MxGAS) = 0, part_n(MxGAS) = 0
+integer(kind=iwp), allocatable :: orbsym(:), orbras(:), ci_nrasel(:), ci_nrasmx(:), conf_off(:), conf_key(:), conf_doub(:), &
+                                  conf_sing(:), nkeep_group(:)
 
 public :: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, citrans_graph_init, &
           citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort, citrans_sym_free, citrans_sym_init, ncsf_group, ndet_group, &
@@ -145,6 +147,8 @@ subroutine citrans_graph_init(nel,norb,mult)
   FileG%nRas(:,:) = 0
   FileG%nRasEl(:) = 0
   FileG%nRasEl(1:ci_nrsprt) = ci_nrasel(1:ci_nrsprt)
+  FileG%nRasMx(:) = -1
+  FileG%nRasMx(1:ci_nrsprt) = ci_nrasmx(1:ci_nrsprt)
   FileG%IFRAS = 0
   if (ci_nrsprt == 3) FileG%IFRAS = 1
   do isym=1,ci_nsym
@@ -159,14 +163,14 @@ subroutine citrans_graph_init(nel,norb,mult)
 end subroutine citrans_graph_init
 
 !> The CSF space: nsym irreps, the symmetries osym of the norb active
-!> orbitals, the target symmetry lsym, and the RAS restrictions (nrsprt
-!> partitions, oras the partition of each orbital, nrasel the minimum
-!> number of electrons in the partitions 1..k); builds the configuration
-!> maps (after the group sizes of citrans_init). Without the optional
-!> arguments C1 CAS.
-subroutine citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel)
+!> orbitals, the target symmetry lsym, and the RAS/GAS restrictions (nrsprt
+!> partitions, oras the partition of each orbital, nrasel and nrasmx the
+!> minimum and maximum number of electrons in the partitions 1..k); builds
+!> the configuration maps (after the group sizes of citrans_init). Without
+!> the optional arguments C1 CAS.
+subroutine citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel,nrasmx)
   integer(kind=iwp), intent(in) :: nel, norb
-  integer(kind=iwp), intent(in), optional :: nsym, osym(norb), lsym, nrsprt, oras(norb), nrasel(:)
+  integer(kind=iwp), intent(in), optional :: nsym, osym(norb), lsym, nrsprt, oras(norb), nrasel(:), nrasmx(:)
   integer(kind=iwp) :: ido, ntot
 
   call citrans_sym_free()
@@ -181,9 +185,16 @@ subroutine citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel)
   if (present(osym)) orbsym(1:norb) = osym(1:norb)
   if (present(lsym)) ci_lsym = lsym
   if (present(nrsprt)) ci_nrsprt = nrsprt
+  if (ci_nrsprt > MxGAS) then
+    write(u6,*) 'citrans: too many partitions',ci_nrsprt
+    call Abend()
+  end if
   call mma_allocate(ci_nrasel,ci_nrsprt,label='ci_nrasel')
+  call mma_allocate(ci_nrasmx,ci_nrsprt,label='ci_nrasmx')
   ci_nrasel(:) = nel
+  ci_nrasmx(:) = nel
   if (present(nrasel)) ci_nrasel(1:ci_nrsprt) = nrasel(1:ci_nrsprt)
+  if (present(nrasmx)) ci_nrasmx(1:ci_nrsprt) = nrasmx(1:ci_nrsprt)
   if (present(oras)) orbras(1:norb) = oras(1:norb)
 
   call mma_allocate(conf_off,[ndo_min,ndo_max],label='conf_off')
@@ -211,6 +222,7 @@ subroutine citrans_sym_free()
   call mma_deallocate(orbsym,safe='*')
   call mma_deallocate(orbras,safe='*')
   call mma_deallocate(ci_nrasel,safe='*')
+  call mma_deallocate(ci_nrasmx,safe='*')
   call mma_deallocate(conf_off,safe='*')
   call mma_deallocate(conf_key,safe='*')
   call mma_deallocate(conf_doub,safe='*')
@@ -220,7 +232,7 @@ end subroutine citrans_sym_free
 
 !> The partitions of the orbitals (contiguous, as the levels): first
 !> orbital minus one, part_pos, and number of orbitals, part_n, of
-!> partition k = 1..3 (empty partitions beyond ci_nrsprt).
+!> partition k = 1..ci_nrsprt.
 subroutine ras_partitions(norb)
   integer(kind=iwp), intent(in) :: norb
   integer(kind=iwp) :: iorb, k
@@ -239,109 +251,143 @@ subroutine ras_partitions(norb)
     part_n(orbras(iorb)) = part_n(orbras(iorb))+1
   end do
   part_pos(1) = 0
-  do k=2,3
+  do k=2,ci_nrsprt
     part_pos(k) = part_pos(k-1)+part_n(k-1)
   end do
 end subroutine ras_partitions
 
 !> The configurations of group ido (ido doubly, nel-2*ido singly occupied
-!> orbitals) that fulfil the RAS restrictions, generated partition by
-!> partition (never the full CAS list). Returns their number; with store,
+!> orbitals) that fulfil the RAS/GAS restrictions, generated partition by
+!> partition (never the full CAS list): the numbers d(k), sx(k) of doubly
+!> and singly occupied orbitals of each partition run over all
+!> distributions (odometer over the partitions 1..P-1, the last partition
+!> takes the rest), and for each the patterns of the partitions are
+!> combined (odometer over the patterns). Returns their number; with store,
 !> those of symmetry ci_lsym are stored from conf_* (off+1) on, unsorted,
 !> and their number is returned.
 function gen_confs(nel,norb,ido,store,off) result(n)
-  use second_quantization, only: binom_coef, lex_init, lex_next, lexrank
+  use second_quantization, only: binom_coef, lexrank
   integer(kind=iwp), intent(in) :: nel, norb, ido, off
   logical(kind=iwp), intent(in) :: store
   integer(kind=iwp) :: n
-  integer(kind=iwp) :: iso, nsoc, d(3), sx(3), d1, d2, s1, s2, k, ne, i1, i2, i3, doub, socc, sing
+  integer(kind=iwp) :: iso, nsoc, np, k, ne, cnt, doub, socc, sing, ip(MxGAS), d(MxGAS), sx(MxGAS)
   integer(kind=iwp), allocatable :: lst(:,:,:), nl(:)
-  logical(kind=iwp) :: ok
+  logical(kind=iwp) :: ok, more
 
   n = 0
   iso = nel-2*ido
   nsoc = binom_coef(iso,norb-ido)
-  do d1=0,min(ido,part_n(1))
-    do d2=0,min(ido-d1,part_n(2))
-      d = [d1,d2,ido-d1-d2]
-      if (d(3) > part_n(3)) cycle
-      do s1=0,min(iso,part_n(1)-d(1))
-        do s2=0,min(iso-s1,part_n(2)-d(2))
-          sx = [s1,s2,iso-s1-s2]
-          if (sx(3) > part_n(3)-d(3)) cycle
-          ! RAS: at least ci_nrasel(k) electrons in the partitions 1..k
-          ok = .true.
-          ne = 0
-          do k=1,ci_nrsprt-1
-            ne = ne+2*d(k)+sx(k)
-            if (ne < ci_nrasel(k)) ok = .false.
-          end do
-          if (.not. ok) cycle
-          if (.not. store) then
-            k = 1
-            do i1=1,3
-              k = k*binom_coef(d(i1),part_n(i1))*binom_coef(sx(i1),part_n(i1)-d(i1))
-            end do
-            n = n+k
-            cycle
-          end if
-          ! the (doubly, singly) occupied patterns of each partition
-          call part_lists(d,sx,lst,nl)
-          do i3=1,nl(3)
-            do i2=1,nl(2)
-              do i1=1,nl(1)
-                doub = ior(ior(lst(1,i1,1),lst(1,i2,2)),lst(1,i3,3))
-                socc = ior(ior(lst(2,i1,1),lst(2,i2,2)),lst(2,i3,3))
-                sing = pext(socc,ibits(not(doub),0,norb))
-                if (conf_sym(doub,sing,norb) /= ci_lsym) cycle
-                n = n+1
-                conf_doub(off+n) = doub
-                conf_sing(off+n) = sing
-                conf_key(off+n) = nsoc*(lexrank(doub)-1)+lexrank(sing)
-              end do
-            end do
-          end do
-          call mma_deallocate(lst)
-          call mma_deallocate(nl)
-        end do
-      end do
+  np = ci_nrsprt
+  d(:) = 0
+  sx(:) = 0
+  do
+    ! the last partition takes the remaining orbitals
+    d(np) = ido-sum(d(1:np-1))
+    sx(np) = iso-sum(sx(1:np-1))
+    ok = (d(np) >= 0) .and. (d(np) <= part_n(np)) .and. (sx(np) >= 0) .and. (sx(np) <= part_n(np)-d(np))
+    ! RAS/GAS: ci_nrasel(k) to ci_nrasmx(k) electrons in the partitions 1..k
+    ne = 0
+    do k=1,np-1
+      if (.not. ok) exit
+      ne = ne+2*d(k)+sx(k)
+      if ((ne < ci_nrasel(k)) .or. (ne > ci_nrasmx(k))) ok = .false.
     end do
+    if (ok) then
+      if (.not. store) then
+        cnt = 1
+        do k=1,np
+          cnt = cnt*binom_coef(d(k),part_n(k))*binom_coef(sx(k),part_n(k)-d(k))
+        end do
+        n = n+cnt
+      else
+        ! the (doubly, singly) occupied patterns of each partition, all
+        ! their combinations
+        call part_lists(np,d,sx,lst,nl)
+        if (all(nl(1:np) > 0)) then
+          ip(1:np) = 1
+          do
+            doub = 0
+            socc = 0
+            do k=1,np
+              doub = ior(doub,lst(1,ip(k),k))
+              socc = ior(socc,lst(2,ip(k),k))
+            end do
+            sing = pext(socc,ibits(not(doub),0,norb))
+            if (conf_sym(doub,sing,norb) == ci_lsym) then
+              n = n+1
+              conf_doub(off+n) = doub
+              conf_sing(off+n) = sing
+              conf_key(off+n) = nsoc*(lexrank(doub)-1)+lexrank(sing)
+            end if
+            more = .false.
+            do k=1,np
+              if (ip(k) < nl(k)) then
+                ip(k) = ip(k)+1
+                more = .true.
+                exit
+              end if
+              ip(k) = 1
+            end do
+            if (.not. more) exit
+          end do
+        end if
+        call mma_deallocate(lst)
+        call mma_deallocate(nl)
+      end if
+    end if
+    ! next distribution over the partitions 1..np-1
+    more = .false.
+    do k=1,np-1
+      if ((sx(k) < part_n(k)-d(k)) .and. (sum(sx(1:np-1)) < iso)) then
+        sx(k) = sx(k)+1
+        more = .true.
+        exit
+      end if
+      sx(k) = 0
+      if ((d(k) < part_n(k)) .and. (sum(d(1:np-1)) < ido)) then
+        d(k) = d(k)+1
+        more = .true.
+        exit
+      end if
+      d(k) = 0
+    end do
+    if (.not. more) exit
   end do
 
-contains
-
-  ! lst(1:2,i,k): doubly and singly occupied bits (whole orbital range)
-  ! of the i-th pattern of partition k
-  subroutine part_lists(d,sx,lst,nl)
-    integer(kind=iwp), intent(in) :: d(3), sx(3)
-    integer(kind=iwp), allocatable, intent(out) :: lst(:,:,:), nl(:)
-    integer(kind=iwp) :: k, nd, ns, id, is, pd, ps, i, mx
-    call mma_allocate(nl,3,label='nl')
-    mx = 1
-    do k=1,3
-      nl(k) = binom_coef(d(k),part_n(k))*binom_coef(sx(k),part_n(k)-d(k))
-      mx = max(mx,nl(k))
-    end do
-    call mma_allocate(lst,[1,2],[1,mx],[1,3],label='lst')
-    do k=1,3
-      nd = binom_coef(d(k),part_n(k))
-      ns = binom_coef(sx(k),part_n(k)-d(k))
-      i = 0
-      pd = lex_init(d(k),part_n(k))
-      do id=1,nd
-        ps = lex_init(sx(k),part_n(k)-d(k))
-        do is=1,ns
-          i = i+1
-          lst(1,i,k) = ishft(pd,part_pos(k))
-          lst(2,i,k) = ishft(pdep(ps,ibits(not(pd),0,max(part_n(k),1))),part_pos(k))
-          if (is < ns) ps = lex_next(ps)
-        end do
-        if (id < nd) pd = lex_next(pd)
-      end do
-    end do
-  end subroutine part_lists
-
 end function gen_confs
+
+!> lst(1:2,i,k): doubly and singly occupied bits (whole orbital range) of
+!> the i-th pattern of partition k, with d(k) doubly and sx(k) singly
+!> occupied orbitals; nl(k) patterns.
+subroutine part_lists(np,d,sx,lst,nl)
+  use second_quantization, only: binom_coef, lex_init, lex_next
+  integer(kind=iwp), intent(in) :: np, d(np), sx(np)
+  integer(kind=iwp), allocatable, intent(out) :: lst(:,:,:), nl(:)
+  integer(kind=iwp) :: k, nd, ns, id, is, pd, ps, i, mx
+  call mma_allocate(nl,np,label='nl')
+  mx = 1
+  do k=1,np
+    nl(k) = binom_coef(d(k),part_n(k))*binom_coef(sx(k),part_n(k)-d(k))
+    mx = max(mx,nl(k))
+  end do
+  call mma_allocate(lst,[1,2],[1,mx],[1,np],label='lst')
+  do k=1,np
+    nd = binom_coef(d(k),part_n(k))
+    ns = binom_coef(sx(k),part_n(k)-d(k))
+    i = 0
+    pd = lex_init(d(k),part_n(k))
+    do id=1,nd
+      ps = lex_init(sx(k),part_n(k)-d(k))
+      do is=1,ns
+        i = i+1
+        lst(1,i,k) = ishft(pd,part_pos(k))
+        lst(2,i,k) = ishft(pdep(ps,ibits(not(pd),0,max(part_n(k),1))),part_pos(k))
+        if (is < ns) ps = lex_next(ps)
+      end do
+      if (id < nd) pd = lex_next(pd)
+    end do
+  end do
+end subroutine part_lists
 
 !> Sort the n configurations from conf_* (off+1) on by their key (heap sort).
 subroutine sort_confs(off,n)

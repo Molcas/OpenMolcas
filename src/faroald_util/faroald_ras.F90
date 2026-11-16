@@ -12,17 +12,19 @@
 !***********************************************************************
 
 module faroald_ras
-! String-driven RAS for Faroald (Olsen et al., J. Chem. Phys. 89, 2185
+! String-driven RAS/GAS for Faroald (Olsen et al., J. Chem. Phys. 89, 2185
 ! (1988)): the alpha and beta strings are grouped in occupation classes
-! (n1,n2,n3), the numbers of electrons in RAS1, RAS2 and RAS3; the CI
-! vector holds only the blocks (alpha class, beta class) of the RAS space,
-! n1a+n1b >= minr1 and n3a+n3b <= maxr3. No string or determinant outside
-! the RAS space is ever addressed.
+! (n_1,..,n_np), the numbers of electrons in the partitions (RAS1/2/3, or
+! the GAS spaces); the CI vector holds only the blocks (alpha class, beta
+! class) of the space, where the partitions 1..k hold ras_mn(k) to
+! ras_mx(k) electrons. No string or determinant outside the space is ever
+! addressed.
 !
-! The orbitals are those of Faroald, the levels of the split graph: RAS1
-! = 1..o1, RAS2 = o1+1..o1+o2, RAS3 = o1+o2+1..norb (contiguous bit
-! ranges). Within a class a string is addressed by the lexical ranks of
-! its three substrings, r1 fastest. The element of determinant
+! The orbitals are those of Faroald, the levels of the split graph,
+! partition by partition (contiguous bit ranges ras_pos(k)+1..
+! ras_pos(k)+ras_o(k)). Within a class a string is addressed by the
+! lexical ranks of its substrings, the first partition fastest. The
+! element of determinant
 ! |alpha beta> is that of Faroald's determinant matrix psi(ia,ib), same
 ! phase convention; block (ca,cb) is stored column-major, na(ca) x nb(cb).
 !
@@ -33,7 +35,7 @@ module faroald_ras
 !   opposite spin: sum_tuvx g_tuvx a+_ta a_ua a+_vb a_xb
 ! so that no intermediate string outside the RAS space is needed.
 !
-! A CAS space is the special case o1 = o3 = 0 (one class per spin).
+! A CAS space is the special case of one partition (one class per spin).
 !
 ! Singlets (spin_flip, nela = nelb, M_S = S = 0): the vectors are
 ! symmetric under the exchange of the alpha and beta strings,
@@ -46,6 +48,7 @@ module faroald_ras
 
 use second_quantization, only: ann2, binom_coef, cre2, ex1, fase, lex_init, lex_next, lexrank
 use stdalloc, only: mma_allocate, mma_deallocate
+use Molcas, only: MxGAS
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -54,12 +57,12 @@ private
 
 type ras_spin
   integer(kind=iwp) :: nel = 0, nocc = 0, ncls = 0, nstr = 0, nex = 0
-  ! occupation classes: electrons in RAS1/2/3, number of substrings,
-  ! number of strings and offset in the rank order (0-based); occ_of(n1,n3)
-  ! the class of (n1,n3), 0 if not one of this spin
-  integer(kind=iwp), allocatable :: occ_n(:,:), occ_cnt(:,:), occ_nstr(:), occ_off(:), occ_of(:,:)
+  ! occupation classes: electrons in the partitions, numbers of substrings,
+  ! number of strings and offset in the rank order (0-based); occ_skey
+  ! the packed occupations (occ_key) sorted, occ_sidx their classes
+  integer(kind=iwp), allocatable :: occ_n(:,:), occ_cnt(:,:), occ_nstr(:), occ_off(:), occ_skey(:), occ_sidx(:)
   ! the groups (the blocks of the CI layout): occupation class and string
-  ! symmetry; per group: electrons in RAS1/2/3 (cls_n), symmetry (cls_sym),
+  ! symmetry; per group: electrons in the partitions (cls_n), symmetry (cls_sym),
   ! number of strings, offset of its strings in the global string list
   ! (0-based). The strings are numbered group by group.
   integer(kind=iwp), allocatable :: cls_n(:,:), cls_sym(:), cls_nstr(:), cls_off(:)
@@ -78,8 +81,10 @@ type ras_spin
   integer(kind=iwp), allocatable :: dex_off(:), dex_j(:), dex_sgn(:), dex_tuvx(:)
 end type ras_spin
 
-integer(kind=iwp) :: ras_norb = 0, ras_o(3) = 0, ras_pos(3) = 0, ras_minr1 = 0, ras_maxr3 = 0, n_ras = 0, ras_nsym = 1, &
-                     ras_lsym = 1, ras_osym(30) = 1
+! partitions: number, orbitals, first orbital - 1, cumulative bounds on
+! the electrons in the partitions 1..k; ras_rdx the radices of occ_key
+integer(kind=iwp) :: ras_norb = 0, ras_np = 0, ras_o(MxGAS) = 0, ras_pos(MxGAS) = 0, ras_mn(MxGAS) = 0, ras_mx(MxGAS) = 0, &
+                     ras_rdx(MxGAS) = 0, n_ras = 0, ras_nsym = 1, ras_lsym = 1, ras_osym(30) = 1
 type(ras_spin) :: sa, sb
 ! block offsets (0-based) of (alpha group, beta group), -1 outside the
 ! RAS space or of another symmetry; blk_offT: the same blocks transposed
@@ -99,33 +104,42 @@ public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_c
 contains
 
 !> Set up the string groups, the single-excitation lists and the CI layout
-!> for nela/nelb electrons in norb orbitals, o(1:3) of them in RAS1/2/3,
-!> with at least minr1 electrons in RAS1 and at most maxr3 in RAS3; the
-!> orbitals have the symmetries osym (nsym irreps), the CI space the
-!> symmetry lsym (determinants sym(alpha) x sym(beta) = lsym only).
-!> spin_flip: all vectors are singlets (nela = nelb), symmetric under the
-!> exchange of the alpha and beta strings.
-subroutine faroald_ras_init(nela,nelb,norb,o,minr1,maxr3,nsym,osym,lsym,spin_flip)
-  integer(kind=iwp), intent(in) :: nela, nelb, norb, o(3), minr1, maxr3, nsym, osym(norb), lsym
+!> for nela/nelb electrons in norb orbitals, o(k) of them in partition k
+!> (np partitions, RAS: 3), the partitions 1..k holding mn(k) to mx(k)
+!> electrons; the orbitals have the symmetries osym (nsym irreps), the CI
+!> space the symmetry lsym (determinants sym(alpha) x sym(beta) = lsym
+!> only). spin_flip: all vectors are singlets (nela = nelb), symmetric
+!> under the exchange of the alpha and beta strings.
+subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip)
+  integer(kind=iwp), intent(in) :: nela, nelb, norb, np, o(np), mn(np), mx(np), nsym, osym(norb), lsym
   logical(kind=iwp), intent(in) :: spin_flip
-  integer(kind=iwp) :: ca, cb, n
+  integer(kind=iwp) :: ca, cb, n, k
 
   call faroald_ras_free()
   if (sum(o) /= norb) then
-    write(u6,*) 'faroald_ras_init: RAS1+RAS2+RAS3 /= norb',o,norb
+    write(u6,*) 'faroald_ras_init: the orbitals of the partitions /= norb',o,norb
     call Abend()
   end if
   if (norb > 30) then
     write(u6,*) 'faroald_ras_init: at most 30 orbitals',norb
     call Abend()
   end if
+  if ((np < 1) .or. (np > MxGAS)) then
+    write(u6,*) 'faroald_ras_init: illegal number of partitions',np
+    call Abend()
+  end if
   ras_norb = norb
-  ras_o(:) = o(:)
+  ras_np = np
+  ras_o(:) = 0
+  ras_o(1:np) = o(:)
+  ras_mn(1:np) = mn(:)
+  ras_mx(1:np) = mx(:)
   ras_pos(1) = 0
-  ras_pos(2) = o(1)
-  ras_pos(3) = o(1)+o(2)
-  ras_minr1 = minr1
-  ras_maxr3 = maxr3
+  ras_rdx(1) = 1
+  do k=2,np
+    ras_pos(k) = ras_pos(k-1)+o(k-1)
+    ras_rdx(k) = ras_rdx(k-1)*(o(k-1)+1)
+  end do
   ras_nsym = nsym
   ras_lsym = lsym
   ras_osym(:) = 1
@@ -199,7 +213,8 @@ subroutine free_spin(s)
   call mma_deallocate(s%occ_cnt,safe='*')
   call mma_deallocate(s%occ_nstr,safe='*')
   call mma_deallocate(s%occ_off,safe='*')
-  call mma_deallocate(s%occ_of,safe='*')
+  call mma_deallocate(s%occ_skey,safe='*')
+  call mma_deallocate(s%occ_sidx,safe='*')
   call mma_deallocate(s%cls_n,safe='*')
   call mma_deallocate(s%cls_sym,safe='*')
   call mma_deallocate(s%cls_nstr,safe='*')
@@ -226,75 +241,159 @@ subroutine free_spin(s)
   s%nex = 0
 end subroutine free_spin
 
-!> A determinant of the classes with electrons n_a(1:3), n_b(1:3) is in the
-!> RAS space.
+!> A determinant of the classes with electrons n_a, n_b in the partitions
+!> is in the space: the partitions 1..k hold ras_mn(k) to ras_mx(k)
+!> electrons.
 pure function allowed(n_a,n_b) result(ok)
-  integer(kind=iwp), intent(in) :: n_a(3), n_b(3)
+  integer(kind=iwp), intent(in) :: n_a(:), n_b(:)
   logical(kind=iwp) :: ok
-  ok = (n_a(1)+n_b(1) >= ras_minr1) .and. (n_a(3)+n_b(3) <= ras_maxr3)
+  integer(kind=iwp) :: k, ne
+  ok = .false.
+  ne = 0
+  do k=1,ras_np
+    ne = ne+n_a(k)+n_b(k)
+    if ((ne < ras_mn(k)) .or. (ne > ras_mx(k))) return
+  end do
+  ok = .true.
 end function allowed
 
+!> The packed occupation of a class (mixed radix ras_rdx).
+pure function occ_key(n) result(key)
+  integer(kind=iwp), intent(in) :: n(:)
+  integer(kind=iwp) :: key
+  key = sum(n(1:ras_np)*ras_rdx(1:ras_np))
+end function occ_key
+
+!> All distributions V(1:np,i) of nel electrons of one spin over the np
+!> partitions with capacities o (at most o(k) in partition k), nv of them.
+subroutine occ_vectors(np,o,nel,nv,V)
+  integer(kind=iwp), intent(in) :: np, o(np), nel
+  integer(kind=iwp), intent(out) :: nv
+  integer(kind=iwp), allocatable, intent(out) :: V(:,:)
+  integer(kind=iwp) :: pass, j, w(MxGAS)
+  logical(kind=iwp) :: more
+  do pass=1,2
+    nv = 0
+    w(:) = 0
+    do
+      w(np) = nel-sum(w(1:np-1))
+      if ((w(np) >= 0) .and. (w(np) <= o(np))) then
+        nv = nv+1
+        if (pass == 2) V(1:np,nv) = w(1:np)
+      end if
+      more = .false.
+      do j=1,np-1
+        if ((w(j) < o(j)) .and. (sum(w(1:np-1)) < nel)) then
+          w(j) = w(j)+1
+          more = .true.
+          exit
+        end if
+        w(j) = 0
+      end do
+      if (.not. more) exit
+    end do
+    if (pass == 1) call mma_allocate(V,np,max(1,nv),label='ras_occv')
+  end do
+end subroutine occ_vectors
+
 !> The occupation classes of a spin with nel electrons (the other spin has
-!> nelo): all (n1,n2,n3) that occur in at least one determinant of the RAS
-!> space.
+!> nelo): all occupation vectors that occur in at least one determinant of
+!> the space; occ_skey/occ_sidx the sorted packed occupations.
 subroutine mk_classes(s,nel,nelo)
   type(ras_spin), intent(inout) :: s
   integer(kind=iwp), intent(in) :: nel, nelo
-  integer(kind=iwp) :: n1, n3, m1, m3, k, pass
-  integer(kind=iwp) :: n(3), m(3)
-  logical(kind=iwp) :: ok
+  integer(kind=iwp) :: np, nv, nw, iv, iw, k, kk, j, t
+  integer(kind=iwp), allocatable :: V(:,:), W(:,:)
+  logical(kind=iwp), allocatable :: keep(:)
 
   s%nel = nel
-  call mma_allocate(s%occ_of,[0,ras_o(1)],[0,ras_o(3)],label='occ_of')
-  s%occ_of(:,:) = 0
-  do pass=1,2
-    k = 0
-    do n3=0,min(ras_o(3),nel)
-      do n1=0,min(ras_o(1),nel-n3)
-        n = [n1,nel-n1-n3,n3]
-        if (n(2) > ras_o(2)) cycle
-        ok = .false.
-        do m3=0,min(ras_o(3),nelo)
-          do m1=0,min(ras_o(1),nelo-m3)
-            m = [m1,nelo-m1-m3,m3]
-            if (m(2) > ras_o(2)) cycle
-            if (allowed(n,m)) ok = .true.
-          end do
-        end do
-        if (.not. ok) cycle
-        k = k+1
-        if (pass == 2) then
-          s%occ_n(:,k) = n(:)
-          s%occ_cnt(1,k) = binom_coef(n(1),ras_o(1))
-          s%occ_cnt(2,k) = binom_coef(n(2),ras_o(2))
-          s%occ_cnt(3,k) = binom_coef(n(3),ras_o(3))
-          s%occ_nstr(k) = product(s%occ_cnt(:,k))
-          s%occ_of(n1,n3) = k
-        end if
-      end do
+  np = ras_np
+  call occ_vectors(np,ras_o(1:np),nel,nv,V)
+  call occ_vectors(np,ras_o(1:np),nelo,nw,W)
+  call mma_allocate(keep,max(1,nv),label='ras_keep')
+  keep(:) = .false.
+  do iv=1,nv
+    do iw=1,nw
+      if (allowed(V(:,iv),W(:,iw))) then
+        keep(iv) = .true.
+        exit
+      end if
     end do
-    if (pass == 1) then
-      s%nocc = k
-      call mma_allocate(s%occ_n,3,max(1,k),label='occ_n')
-      call mma_allocate(s%occ_cnt,3,max(1,k),label='occ_cnt')
-      call mma_allocate(s%occ_nstr,max(1,k),label='occ_nstr')
-      call mma_allocate(s%occ_off,max(1,k),label='occ_off')
-    end if
+  end do
+  k = count(keep(1:nv))
+  s%nocc = k
+  call mma_allocate(s%occ_n,np,max(1,k),label='occ_n')
+  call mma_allocate(s%occ_cnt,np,max(1,k),label='occ_cnt')
+  call mma_allocate(s%occ_nstr,max(1,k),label='occ_nstr')
+  call mma_allocate(s%occ_off,max(1,k),label='occ_off')
+  call mma_allocate(s%occ_skey,max(1,k),label='occ_skey')
+  call mma_allocate(s%occ_sidx,max(1,k),label='occ_sidx')
+  k = 0
+  do iv=1,nv
+    if (.not. keep(iv)) cycle
+    k = k+1
+    s%occ_n(:,k) = V(:,iv)
+    do j=1,np
+      s%occ_cnt(j,k) = binom_coef(V(j,iv),ras_o(j))
+    end do
+    s%occ_nstr(k) = product(s%occ_cnt(:,k))
+    s%occ_skey(k) = occ_key(V(:,iv))
+    s%occ_sidx(k) = k
+  end do
+  ! sort the keys (insertion sort, few classes)
+  do k=2,s%nocc
+    kk = k
+    do while (kk > 1)
+      if (s%occ_skey(kk-1) <= s%occ_skey(kk)) exit
+      t = s%occ_skey(kk)
+      s%occ_skey(kk) = s%occ_skey(kk-1)
+      s%occ_skey(kk-1) = t
+      t = s%occ_sidx(kk)
+      s%occ_sidx(kk) = s%occ_sidx(kk-1)
+      s%occ_sidx(kk-1) = t
+      kk = kk-1
+    end do
   end do
   s%nstr = 0
   do k=1,s%nocc
     s%occ_off(k) = s%nstr
     s%nstr = s%nstr+s%occ_nstr(k)
   end do
+  call mma_deallocate(keep)
+  call mma_deallocate(V)
+  call mma_deallocate(W)
 end subroutine mk_classes
+
+!> The class with the packed occupation key (0 if none).
+function occ_find(s,key) result(k)
+  type(ras_spin), intent(in) :: s
+  integer(kind=iwp), intent(in) :: key
+  integer(kind=iwp) :: k
+  integer(kind=iwp) :: iLo, iHi, iMid
+  k = 0
+  iLo = 1
+  iHi = s%nocc
+  do while (iLo <= iHi)
+    iMid = (iLo+iHi)/2
+    if (s%occ_skey(iMid) == key) then
+      k = s%occ_sidx(iMid)
+      return
+    else if (s%occ_skey(iMid) < key) then
+      iLo = iMid+1
+    else
+      iHi = iMid-1
+    end if
+  end do
+end function occ_find
 
 !> The strings of all occupation classes, grouped by class and symmetry:
 !> the groups (cls_*), the bit strings in group order and the map perm
 !> from the rank address to the group order.
 subroutine mk_strings(s)
   type(ras_spin), intent(inout) :: s
-  integer(kind=iwp) :: k, g, i1, i2, i3, p1, p2, p3, isym, ng, c, gnew
+  integer(kind=iwp) :: k, g, j, isym, ng, c, gnew, ip(MxGAS), pt(MxGAS)
   integer(kind=iwp), allocatable :: bits(:), sym(:), cnt(:,:), pos(:,:)
+  logical(kind=iwp) :: more
 
   ! the strings in rank order and their symmetries
   call mma_allocate(bits,max(1,s%nstr),label='ras_bits')
@@ -303,28 +402,38 @@ subroutine mk_strings(s)
   cnt(:,:) = 0
   g = 0
   do k=1,s%nocc
-    p3 = lex_init(s%occ_n(3,k),ras_o(3))
-    do i3=1,s%occ_cnt(3,k)
-      p2 = lex_init(s%occ_n(2,k),ras_o(2))
-      do i2=1,s%occ_cnt(2,k)
-        p1 = lex_init(s%occ_n(1,k),ras_o(1))
-        do i1=1,s%occ_cnt(1,k)
-          g = g+1
-          bits(g) = ior(ior(p1,ishft(p2,ras_pos(2))),ishft(p3,ras_pos(3)))
-          sym(g) = str_sym(bits(g))
-          cnt(sym(g),k) = cnt(sym(g),k)+1
-          if (i1 < s%occ_cnt(1,k)) p1 = lex_next(p1)
-        end do
-        if (i2 < s%occ_cnt(2,k)) p2 = lex_next(p2)
+    ! odometer over the substrings of the partitions, the first fastest
+    do j=1,ras_np
+      ip(j) = 1
+      pt(j) = lex_init(s%occ_n(j,k),ras_o(j))
+    end do
+    do
+      g = g+1
+      bits(g) = 0
+      do j=1,ras_np
+        bits(g) = ior(bits(g),ishft(pt(j),ras_pos(j)))
       end do
-      if (i3 < s%occ_cnt(3,k)) p3 = lex_next(p3)
+      sym(g) = str_sym(bits(g))
+      cnt(sym(g),k) = cnt(sym(g),k)+1
+      more = .false.
+      do j=1,ras_np
+        if (ip(j) < s%occ_cnt(j,k)) then
+          ip(j) = ip(j)+1
+          pt(j) = lex_next(pt(j))
+          more = .true.
+          exit
+        end if
+        ip(j) = 1
+        pt(j) = lex_init(s%occ_n(j,k),ras_o(j))
+      end do
+      if (.not. more) exit
     end do
   end do
 
   ! the groups: (class, symmetry) with strings
   ng = count(cnt(:,:) > 0)
   s%ncls = ng
-  call mma_allocate(s%cls_n,3,max(1,ng),label='cls_n')
+  call mma_allocate(s%cls_n,ras_np,max(1,ng),label='cls_n')
   call mma_allocate(s%cls_sym,max(1,ng),label='cls_sym')
   call mma_allocate(s%cls_nstr,max(1,ng),label='cls_nstr')
   call mma_allocate(s%cls_off,max(1,ng),label='cls_off')
@@ -403,16 +512,24 @@ function str_index(s,c) result(g)
   type(ras_spin), intent(in) :: s
   integer(kind=iwp), intent(in) :: c
   integer(kind=iwp) :: g
-  integer(kind=iwp) :: b1, b2, b3, k
+  integer(kind=iwp) :: b(MxGAS), n(MxGAS), j, k, idx, mult
 
   g = 0
-  b1 = sub_bits(c,ras_pos(1),ras_o(1))
-  b2 = sub_bits(c,ras_pos(2),ras_o(2))
-  b3 = sub_bits(c,ras_pos(3),ras_o(3))
-  if (popcnt(b1)+popcnt(b2)+popcnt(b3) /= s%nel) return
-  k = s%occ_of(popcnt(b1),popcnt(b3))
+  do j=1,ras_np
+    b(j) = sub_bits(c,ras_pos(j),ras_o(j))
+    n(j) = popcnt(b(j))
+  end do
+  if (sum(n(1:ras_np)) /= s%nel) return
+  k = occ_find(s,occ_key(n(1:ras_np)))
   if (k == 0) return
-  g = s%perm(s%occ_off(k)+lexrank(b1)+s%occ_cnt(1,k)*((lexrank(b2)-1)+s%occ_cnt(2,k)*(lexrank(b3)-1)))
+  ! the rank address, the first partition fastest
+  idx = 0
+  mult = 1
+  do j=1,ras_np
+    idx = idx+(lexrank(b(j))-1)*mult
+    mult = mult*s%occ_cnt(j,k)
+  end do
+  g = s%perm(s%occ_off(k)+idx+1)
 end function str_index
 
 !> Single excitations a+_p a_q of each string within the strings of s.
@@ -1189,14 +1306,8 @@ subroutine ras_traci(T,nT,vec)
   real(kind=wp) :: tkk, fac(0:2)
   real(kind=wp), parameter :: ThrMix = 1.0e-10_wp
 
-  do p=1,ras_norb
-    if (p <= ras_pos(2)) then
-      prt(p) = 1
-    else if (p <= ras_pos(3)) then
-      prt(p) = 2
-    else
-      prt(p) = 3
-    end if
+  do k=1,ras_np
+    prt(ras_pos(k)+1:ras_pos(k)+ras_o(k)) = k
   end do
   call mma_allocate(Tc,nT,label='ras_Tc')
   Tc(:) = T(:)
@@ -1251,26 +1362,45 @@ subroutine ras_traci(T,nT,vec)
   call mma_deallocate(v2)
 end subroutine ras_traci
 
-!> The number of determinants of the RAS space (all symmetries), without
-!> setting anything up; in floating point (no overflow), for the memory
-!> estimate of RASSCF.
-function ras_count_dets(nela,nelb,o,minr1,maxr3) result(n)
-  integer(kind=iwp), intent(in) :: nela, nelb, o(3), minr1, maxr3
+!> The number of determinants of the RAS/GAS space (all symmetries),
+!> without setting anything up: nela/nelb electrons, o(k) orbitals in
+!> partition k (np partitions), mn(k) to mx(k) electrons in the partitions
+!> 1..k; in floating point (no overflow), for the memory estimate of RASSCF.
+function ras_count_dets(nela,nelb,np,o,mn,mx) result(n)
+  integer(kind=iwp), intent(in) :: nela, nelb, np, o(np), mn(np), mx(np)
   real(kind=wp) :: n
-  integer(kind=iwp) :: a1, a3, b1, b3
+  integer(kind=iwp) :: nva, nvb, ia, ib, k, ne
+  integer(kind=iwp), allocatable :: VA(:,:), VB(:,:)
+  real(kind=wp) :: fa
+  logical(kind=iwp) :: ok
   n = Zero
-  do a3=0,min(o(3),nela)
-    do a1=0,min(o(1),nela-a3)
-      if (nela-a1-a3 > o(2)) cycle
-      do b3=0,min(o(3),nelb)
-        do b1=0,min(o(1),nelb-b3)
-          if (nelb-b1-b3 > o(2)) cycle
-          if ((a1+b1 < minr1) .or. (a3+b3 > maxr3)) cycle
-          n = n+bin_r(a1,o(1))*bin_r(nela-a1-a3,o(2))*bin_r(a3,o(3))*bin_r(b1,o(1))*bin_r(nelb-b1-b3,o(2))*bin_r(b3,o(3))
-        end do
+  call occ_vectors(np,o,nela,nva,VA)
+  call occ_vectors(np,o,nelb,nvb,VB)
+  do ia=1,nva
+    fa = One
+    do k=1,np
+      fa = fa*bin_r(VA(k,ia),o(k))
+    end do
+    do ib=1,nvb
+      ok = .true.
+      ne = 0
+      do k=1,np
+        ne = ne+VA(k,ia)+VB(k,ib)
+        if ((ne < mn(k)) .or. (ne > mx(k))) ok = .false.
+      end do
+      if (.not. ok) cycle
+      do k=1,np
+        fa = fa*bin_r(VB(k,ib),o(k))
+      end do
+      n = n+fa
+      fa = One
+      do k=1,np
+        fa = fa*bin_r(VA(k,ia),o(k))
       end do
     end do
   end do
+  call mma_deallocate(VA)
+  call mma_deallocate(VB)
 
 contains
 

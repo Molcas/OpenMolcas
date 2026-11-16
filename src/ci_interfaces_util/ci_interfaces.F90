@@ -105,15 +105,15 @@ logical(kind=iwp) :: SGMode
 SGMode = DoSGCI .and. SG_Avail()
 end function SG_CI
 
-!> FARO: the number of determinants of the RAS space of Faroald (all
-!> symmetries; nela/nelb electrons, o(1:3) orbitals in RAS1/2/3, at least
-!> minr1 electrons in RAS1, at most maxr3 in RAS3), before any setup, for
+!> FARO: the number of determinants of the RAS/GAS space of Faroald (all
+!> symmetries; nela/nelb electrons, o(k) orbitals in partition k of np,
+!> mn(k) to mx(k) electrons in the partitions 1..k), before any setup, for
 !> the memory estimate of RASSCF.
-function CI_Faro_nDet_RAS(nela,nelb,o,minr1,maxr3) result(n)
+function CI_Faro_nDet_RAS(nela,nelb,np,o,mn,mx) result(n)
 use faroald_ras, only: ras_count_dets
-integer(kind=iwp), intent(in) :: nela, nelb, o(3), minr1, maxr3
+integer(kind=iwp), intent(in) :: nela, nelb, np, o(np), mn(np), mx(np)
 real(kind=wp) :: n
-n = ras_count_dets(nela,nelb,o,minr1,maxr3)
+n = ras_count_dets(nela,nelb,np,o,mn,mx)
 end function CI_Faro_nDet_RAS
 
 !> FARO: the size of the determinant scratch of Faroald_Sigma (ctemp,
@@ -1657,7 +1657,8 @@ use spinfo, only: ncsasm, ndtasm
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
-integer(kind=iwp) :: nAct, k, iSym, iPrt, iLev
+integer(kind=iwp) :: nAct, k, iSym, iLev, nPrt
+integer(kind=iwp), allocatable :: nOrbP(:)
 logical(kind=iwp) :: Full
 integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
 
@@ -1721,25 +1722,21 @@ if (DO_FAROALD) then
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
   write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
-  ! the orbitals of Faroald = the levels of the split graph: by RAS
-  ! partition, within each by symmetry (NSM, Setup_RASSCF); Faro_L2O maps
-  ! them to the symmetry-blocked order of RASSCF (within one symmetry the
-  ! orbitals keep the order of their levels)
+  ! the orbitals of Faroald = the levels of the split graph: by partition
+  ! (RAS/GAS), within each by symmetry (NSM, Setup_RASSCF; Space_CI);
+  ! Faro_L2O maps them to the symmetry-blocked order of RASSCF (within one
+  ! symmetry the orbitals keep the order of their levels)
   nAct = sum(NASH(1:nSym))
   call mma_allocate(OrbSym,max(1,nAct),Label='OrbSym')
   call mma_allocate(OrbRas,max(1,nAct),Label='OrbRas')
   call mma_deallocate(Faro_L2O,safe='*')
   call mma_allocate(Faro_L2O,max(1,nAct),Label='Faro_L2O')
-  iLev = 0
-  do iPrt=1,nRsPrt
-    do iSym=1,nSym
-      do k=1,nRas(iSym,iPrt)
-        iLev = iLev+1
-        OrbSym(iLev) = iSym
-        OrbRas(iLev) = iPrt
-      end do
-    end do
-  end do
+  iLev = Space_CI%nLev
+  if (iLev == nAct) then
+    OrbSym(1:nAct) = Space_CI%LevSym(1:nAct)
+    OrbRas(1:nAct) = Space_CI%LevPart(1:nAct)
+  end if
+  nPrt = Space_CI%nPart
   if ((iLev /= nAct) .or. (NAC /= nAct) .or. any(OrbSym(1:nAct) /= NSM(1:nAct))) then
     write(u6,*) 'CI_Initialize: inconsistent active levels for Faroald',iLev,nAct,NAC
     call Abend()
@@ -1754,18 +1751,24 @@ if (DO_FAROALD) then
     Faro_L2O(iLev) = nOff(OrbSym(iLev))
   end do
   call mma_deallocate(nOff)
-  ! the tables of the full determinant space: for CAS; with RAS only as
-  ! the reference of MOLCAS_CI_VERIFY=SIGMA, for small CAS spaces
-  Full = (nRsPrt /= 3)
+  ! the tables of the full determinant space: for CAS; with RAS/GAS only
+  ! as the reference of MOLCAS_CI_VERIFY=SIGMA, for small CAS spaces
+  Full = (nPrt == 1)
   if ((.not. Full) .and. CI_Verify('SIGMA')) &
     Full = real(binom_coef((NACTEL+ISPIN-1)/2,nAct),kind=wp)*real(binom_coef((NACTEL-ISPIN+1)/2,nAct),kind=wp) <= 1.0e6_wp
   call FAROALD_INIT(NACTEL,nAct,ISPIN,Full)
-  call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym,nRsPrt,OrbRas,nRasEl(1:nRsPrt))
-  ! RAS: the sigma vector in the RAS string classes (faroald_ras)
-  if (nRsPrt == 3) then
-    call faroald_ras_init(nela,nelb,nAct,[count(OrbRas(1:nAct) == 1),count(OrbRas(1:nAct) == 2),count(OrbRas(1:nAct) == 3)], &
-                          nRasEl(1),NACTEL-nRasEl(2),nSym,OrbSym(1:nAct),STSym,ISPIN == 1)
-    write(u6,'(1X,A,I0,A)') 'Faroald: string-driven RAS, ',n_ras,' determinants of the CI symmetry'
+  call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym,nPrt,OrbRas,Space_CI%MinEl(1:nPrt),Space_CI%MaxEl(1:nPrt))
+  ! RAS/GAS: the sigma vector in the string classes (faroald_ras)
+  if (nPrt > 1) then
+    call mma_allocate(nOrbP,nPrt,Label='nOrbP')
+    do k=1,nPrt
+      nOrbP(k) = count(OrbRas(1:nAct) == k)
+    end do
+    call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP,Space_CI%MinEl(1:nPrt),Space_CI%MaxEl(1:nPrt),nSym,OrbSym(1:nAct),STSym, &
+                          ISPIN == 1)
+    call mma_deallocate(nOrbP)
+    write(u6,'(1X,A,I0,A,I0,A)') 'Faroald: string-driven RAS/GAS, ',nPrt,' partitions, ',n_ras, &
+                                 ' determinants of the CI symmetry'
   end if
   call mma_deallocate(OrbSym)
   call mma_deallocate(OrbRas)
