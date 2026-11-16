@@ -83,7 +83,9 @@ do isym=1,nsym
   noc = nio+nao
   neo = nssh(isym)
   nae = nao+neo
-  if ((noc == 0) .or. (nae == 0) .or. (nio+neo == 0)) then
+  ! (no inactive and no secondary orbitals still leaves the active-active
+  ! rotations between RAS/GAS spaces; where none is allowed X is zero)
+  if ((noc == 0) .or. (nae == 0)) then
 
     if (IPRLEV >= VERBOSE) write(u6,*) 'No rotations active for symmetry=',isym
     !No rotations active in this symmetry
