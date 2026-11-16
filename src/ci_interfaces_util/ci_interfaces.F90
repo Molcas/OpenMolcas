@@ -2929,7 +2929,7 @@ contains
   ! selected by the back end has the eigenvalues of the block in use.
   subroutine Verify_SG_Explicit()
     use Constants, only: Two
-    use sguga, only: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Select_Explicit, SG_Explicit_Block, SG_Cnf_Avg_Diag
+    use sguga, only: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Select_Explicit, SG_Cnf_Avg_Diag
     type(SGCnfList) :: Cnf
     integer(kind=iwp) :: I, k, kG, iOffL, MxDim, nGSel, nGCSF, nBoth, nLSel
     integer(kind=iwp), allocatable :: nCSFL(:), LtoG(:), CnfOfG(:), LtoGCnf(:), GSel(:), GCSF(:), GtoL(:)
