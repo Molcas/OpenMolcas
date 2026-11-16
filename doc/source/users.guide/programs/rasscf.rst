@@ -2231,15 +2231,15 @@ A list of these keywords is given below:
   symmetric-group graphical unitary group approach (SGUGA) directly in the
   CSF basis, instead of by the CI back end (Lucia, or Faroald with
   :kword:`FAROALD`) through the determinant expansion of each configuration.
-  For CASSCF and RASSCF; with GAS, :kword:`HEXS` or :kword:`DEXS` the keyword
-  is ignored. Experimental.
+  For CASSCF and RASSCF (also with :kword:`HEXS` or :kword:`DEXS`); with GAS
+  the keyword is ignored. Experimental.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGEX" APPEAR="SGUGA explicit Hamiltonian" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: SGEX <advanced>
               <HELP>
               Compute the explicit Hamiltonian of the Davidson procedure (SDAV)
               with SGUGA in the CSF basis instead of with the CI back end.
-              CASSCF and RASSCF, not with GAS, HEXS or DEXS. Experimental.
+              CASSCF and RASSCF, not with GAS. Experimental.
               </HELP>
               </KEYWORD>
 
@@ -2250,18 +2250,18 @@ A list of these keywords is given below:
   transition density matrices and the CI transformation of the orbital
   optimization, without Lucia. The CI vectors on the JobIph and HDF5 files are
   in the usual (split-graph) order. For CASSCF and RASSCF, with or without
-  symmetry; a RAS space is handled as a restriction of the CAS determinant
-  space, so memory and time grow with the size of the CAS space. With GAS,
-  :kword:`HEXS`, :kword:`DEXS`, DMRG, NECI or CASVB the keyword is ignored;
-  :kword:`SGEX` has no effect with it. Experimental.
+  symmetry; RAS spaces use string-driven sigma vectors over the determinants
+  of the RAS space only, and :kword:`HEXS` and :kword:`DEXS` are supported.
+  With GAS, DMRG, NECI or CASVB the keyword is ignored; :kword:`SGEX` has no
+  effect with it. Experimental.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" APPEAR="Faroald CI" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: FAROald <advanced>
               <HELP>
               Do the whole CI with Faroald (determinant-based) in its own CSF
-              basis, without Lucia. CASSCF and RASSCF with or without symmetry
-              (RAS as a restriction of the CAS determinant space), not with
-              GAS, HEXS, DEXS, DMRG, NECI or CASVB. Experimental.
+              basis, without Lucia. CASSCF and RASSCF with or without symmetry,
+              also with HEXS and DEXS, not with GAS, DMRG, NECI or CASVB.
+              Experimental.
               </HELP>
               </KEYWORD>
 
@@ -2269,17 +2269,16 @@ A list of these keywords is given below:
   Do the whole CI with SGUGA in its own (split-graph) CSF basis: the diagonal,
   the explicit Hamiltonian of the Davidson procedure, the sigma vectors, the
   density matrices (including the spin density) and the CI transformation of
-  the orbital optimization, without Lucia. For CASSCF and RASSCF; with GAS,
-  :kword:`HEXS`, :kword:`DEXS`, :kword:`FAROALD`, DMRG or CASVB the keyword is
-  ignored. Not yet available with :kword:`TDM`.
-  Experimental.
+  the orbital optimization, without Lucia. For CASSCF and RASSCF (also with
+  :kword:`HEXS`, :kword:`DEXS` and :kword:`TDM`); with GAS, :kword:`FAROALD`,
+  DMRG or CASVB the keyword is ignored. Experimental.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGCI" APPEAR="SGUGA CI" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: SGCI <advanced>
               <HELP>
               Do the whole CI with SGUGA in its own CSF basis, without Lucia.
-              CASSCF and RASSCF, not with GAS, HEXS, DEXS, FAROALD, DMRG or CASVB.
-              Experimental.
+              CASSCF and RASSCF (also HEXS, DEXS), not with GAS, FAROALD, DMRG
+              or CASVB. Experimental.
               </HELP>
               </KEYWORD>
 

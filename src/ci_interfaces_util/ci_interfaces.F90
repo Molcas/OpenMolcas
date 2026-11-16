@@ -79,6 +79,17 @@ integer(kind=iwp), allocatable :: Faro_L2O(:)
 ! FARO with RAS: the string-driven sigma (faroald_ras) checked once against
 ! the sigma of the full determinant space (SIGMA)
 logical(kind=iwp) :: HPsi_FaroRAS_Verified = .false.
+! HEXS/DEXS (RASSCF keywords, spinfo I_ELIMINATE_GAS): the configurations
+! with the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in
+! the listed RAS partitions are removed as in Lucia: their CSFs stay in the
+! vectors, the CI works with P H P (zero sigma, zero diagonal there). The
+! maximum occupation of partition g is HEXS_NMx(g) = maxa(g) + maxb(g), the
+! largest numbers of alpha and beta electrons in g in the determinants of
+! the space (Lucia's rule for the determinant blocks, I_AM_SO_EXCITED).
+! HEXS_Keep: the kept CSFs in the CI basis (SGCI, FARO; Lucia does it
+! itself); HEXS_Keep_SG: in the split-graph basis (the SGUGA references).
+integer(kind=iwp) :: HEXS_NMx(3) = 0
+logical(kind=iwp), allocatable :: HEXS_Keep(:), HEXS_Keep_SG(:)
 
 contains
 
@@ -240,11 +251,13 @@ select case (Lab)
     call mma_allocate(C1,n,Label='C1')
     call mma_allocate(C2,n,Label='C2')
     call CI_Basis_To_File(iState,LSM,n,Cin,C1)
+    call HEXS_Proj(HEXS_Keep_SG,C1)
     if (nRsPrt == 1) then
       call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C1,n,LSM,C2,TUVX,nTUVX,TU,nTU)
     else
       call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C1,n,LSM,C2,TUVX,nTUVX,TU,nTU)
     end if
+    call HEXS_Proj(HEXS_Keep_SG,C2)
     call CI_File_To_Basis(iState,LSM,n,C2,Sout)
   case default
     write(u6,*) 'Ref_Sigma: unknown back end ',Lab
@@ -288,15 +301,207 @@ end subroutine CI_File_Index_To_Basis
 !> and not HEXS/DEXS (I_ELIMINATE_GAS), which remove configurations that the
 !> graph keeps.
 function SG_Avail() result(Avail)
-use spinfo, only: I_ELIMINATE_GAS
 logical(kind=iwp) :: Avail
-Avail = (.not. iDoGAS) .and. (I_ELIMINATE_GAS == 0)
+Avail = .not. iDoGAS
 end function SG_Avail
 
+!> HEXS/DEXS: the maximum occupations HEXS_NMx of the RAS partitions,
+!> maxa + maxb over the pairs of alpha and beta partition occupations that
+!> satisfy the RAS restrictions (partitions 1..k hold at least nRasEl(k)
+!> electrons).
+subroutine HEXS_Max_Occ()
+use general_data, only: nSym
+integer(kind=iwp) :: na, nb, o(3), el(3), k, a1, a2, a3, b1, b2, b3, mxa(3), mxb(3)
+na = (NACTEL+ISPIN-1)/2
+nb = NACTEL-na
+o(:) = 0
+el(:) = NACTEL
+do k=1,nRsPrt
+  o(k) = sum(nRas(1:nSym,k))
+  el(k) = nRasEl(k)
+end do
+mxa(:) = -1
+mxb(:) = -1
+do a1=0,min(o(1),na)
+  do a2=0,min(o(2),na-a1)
+    a3 = na-a1-a2
+    if (a3 > o(3)) cycle
+    do b1=0,min(o(1),nb)
+      do b2=0,min(o(2),nb-b1)
+        b3 = nb-b1-b2
+        if (b3 > o(3)) cycle
+        if ((a1+b1 < el(1)) .or. (a1+a2+b1+b2 < el(2)) .or. (na+nb < el(3))) cycle
+        mxa(:) = max(mxa(:),[a1,a2,a3])
+        mxb(:) = max(mxb(:),[b1,b2,b3])
+      end do
+    end do
+  end do
+end do
+HEXS_NMx(:) = mxa(:)+mxb(:)
+end subroutine HEXS_Max_Occ
+
+!> HEXS/DEXS: is a configuration with nOcc(g) electrons in partition g removed?
+function HEXS_Removed(nOcc) result(Rem)
+use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
+integer(kind=iwp), intent(in) :: nOcc(3)
+logical(kind=iwp) :: Rem
+integer(kind=iwp) :: i, g
+Rem = .false.
+if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
+  do i=1,N_ELIMINATED_GAS
+    g = IELIMINATED_IN_GAS(i)
+    if ((g >= 1) .and. (g <= 3)) Rem = Rem .or. (nOcc(g) == HEXS_NMx(g))
+  end do
+end if
+if (I_ELIMINATE_GAS > 1) then
+  do i=1,N_2ELIMINATED_GAS
+    g = I2ELIMINATED_IN_GAS(i)
+    if ((g >= 1) .and. (g <= 3)) Rem = Rem .or. (nOcc(g) >= HEXS_NMx(g)-1)
+  end do
+end if
+end function HEXS_Removed
+
+!> The RAS partition of each level (levels by partition, then symmetry).
+subroutine HEXS_Lev_Prt(LevPrt)
+use general_data, only: nSym
+integer(kind=iwp), intent(out) :: LevPrt(:)
+integer(kind=iwp) :: iPrt, iLev, n
+iLev = 0
+do iPrt=1,nRsPrt
+  do n=1,sum(nRas(1:nSym,iPrt))
+    iLev = iLev+1
+    LevPrt(iLev) = iPrt
+  end do
+end do
+end subroutine HEXS_Lev_Prt
+
+!> HEXS/DEXS: the kept CSFs of symmetry STSYM in the split-graph basis,
+!> from the SGUGA configurations.
+subroutine HEXS_Mask_SG(Keep)
+use sguga, only: SG_Mk_Cnf_List, SG_Cnf_Occ
+logical(kind=iwp), intent(out) :: Keep(:)
+type(SGCnfList) :: Cnf
+integer(kind=iwp) :: k, iLev, nOcc(3)
+integer(kind=iwp), allocatable :: Occ(:), LevPrt(:)
+call SG_Mk_Cnf_List(1,STSYM,Cnf)
+call mma_allocate(Occ,max(1,Cnf%nLev),Label='HEXS_Occ')
+call mma_allocate(LevPrt,max(1,Cnf%nLev),Label='HEXS_LevPrt')
+call HEXS_Lev_Prt(LevPrt)
+Keep(:) = .true.
+do k=1,Cnf%nCnf
+  call SG_Cnf_Occ(Cnf,k,Occ)
+  nOcc(:) = 0
+  do iLev=1,Cnf%nLev
+    nOcc(LevPrt(iLev)) = nOcc(LevPrt(iLev))+Occ(iLev)
+  end do
+  if (HEXS_Removed(nOcc)) Keep(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))) = .false.
+end do
+call mma_deallocate(LevPrt)
+call mma_deallocate(Occ)
+call SG_Free_Cnf_List(Cnf)
+end subroutine HEXS_Mask_SG
+
+!> HEXS/DEXS: the kept CSFs in the basis of Faroald (citrans), from its
+!> configurations (the orbitals of Faroald are the levels).
+subroutine HEXS_Mask_Faro(Keep)
+logical(kind=iwp), intent(out) :: Keep(:)
+integer(kind=iwp) :: k, k1, nc, nd, iLev, nOcc(3)
+integer(kind=iwp), allocatable :: da(:), db(:), LevPrt(:)
+real(kind=wp), allocatable :: cf(:,:)
+call mma_allocate(LevPrt,max(1,NAC),Label='HEXS_LevPrt')
+call HEXS_Lev_Prt(LevPrt)
+Keep(:) = .true.
+k = 1
+do while (k <= nConf)
+  call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
+  nOcc(:) = 0
+  do iLev=1,NAC
+    if (btest(da(1),iLev-1)) nOcc(LevPrt(iLev)) = nOcc(LevPrt(iLev))+1
+    if (btest(db(1),iLev-1)) nOcc(LevPrt(iLev)) = nOcc(LevPrt(iLev))+1
+  end do
+  if (HEXS_Removed(nOcc)) Keep(k1:k1+nc-1) = .false.
+  k = k1+nc
+  call mma_deallocate(da)
+  call mma_deallocate(db)
+  call mma_deallocate(cf)
+end do
+call mma_deallocate(LevPrt)
+end subroutine HEXS_Mask_Faro
+
+!> HEXS/DEXS: the masks of the kept CSFs (end of CI_Initialize). Without
+!> Lucia the number of kept CSFs (nCSF_HEXS) and the cap of NSEL come from
+!> here; with Lucia they are compared.
+subroutine HEXS_Setup(Do_SGUGA)
+use spinfo, only: I_ELIMINATE_GAS, nCSF_HEXS
+use general_data, only: NSEL
+logical(kind=iwp), intent(in) :: Do_SGUGA
+integer(kind=iwp) :: nKeep
+call mma_deallocate(HEXS_Keep,safe='*')
+call mma_deallocate(HEXS_Keep_SG,safe='*')
+if (I_ELIMINATE_GAS <= 0) return
+call HEXS_Max_Occ()
+if (Do_SGUGA .and. SG_Avail()) then
+  call mma_allocate(HEXS_Keep_SG,nConf,Label='HEXS_Keep_SG')
+  call HEXS_Mask_SG(HEXS_Keep_SG)
+end if
+if (SG_CI()) then
+  call mma_allocate(HEXS_Keep,nConf,Label='HEXS_Keep')
+  HEXS_Keep(:) = HEXS_Keep_SG(:)
+else if (DoFaro) then
+  call mma_allocate(HEXS_Keep,nConf,Label='HEXS_Keep')
+  call HEXS_Mask_Faro(HEXS_Keep)
+end if
+if (allocated(HEXS_Keep)) then
+  nKeep = count(HEXS_Keep)
+else if (allocated(HEXS_Keep_SG)) then
+  nKeep = count(HEXS_Keep_SG)
+else
+  return
+end if
+write(u6,'(1X,A,3(1X,I0))') 'HEXS/DEXS: maximum occupations of the RAS partitions',HEXS_NMx(1:nRsPrt)
+write(u6,'(1X,A,I0,A,I0,A)') 'HEXS/DEXS: ',nKeep,' of ',nConf,' CSFs kept'
+if (.not. Lucia_Active) then
+  nCSF_HEXS = nKeep
+  if (NSEL > nCSF_HEXS) NSEL = nCSF_HEXS
+else if (nKeep /= nCSF_HEXS) then
+  write(u6,'(1X,A,I0)') 'HEXS/DEXS: Lucia keeps (nCSF_HEXS) ',nCSF_HEXS
+end if
+end subroutine HEXS_Setup
+
+!> HEXS/DEXS: v := P v (zero on the removed CSFs), if the mask is set and
+!> matches v.
+subroutine HEXS_Proj(Keep,v)
+logical(kind=iwp), allocatable, intent(in) :: Keep(:)
+real(kind=wp), intent(inout) :: v(:)
+if (.not. allocated(Keep)) return
+if (size(Keep) /= size(v)) return
+where (.not. Keep) v = Zero
+end subroutine HEXS_Proj
+
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
+!> Sigma vector Sigma_Vec = H CI_Vec of the CI back end; with HEXS/DEXS
+!> P H P (Mk_H_Psi_P on the projected vector, the result projected).
 Subroutine Mk_H_Psi(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
+integer(kind=iwp), intent(in):: iState, STSYM, nCSF, ntemp, nTU, nTUVX
+real(kind=wp), intent(in) :: CI_Vec(nCSF), TU(nTU), TUVX(nTUVX)
+real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
+real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
+real(kind=wp), allocatable :: CM(:)
+if (.not. allocated(HEXS_Keep)) then
+  call Mk_H_Psi_P(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
+  return
+end if
+call mma_allocate(CM,nCSF,Label='HEXS_CM')
+CM(:) = CI_Vec(:)
+call HEXS_Proj(HEXS_Keep,CM)
+call Mk_H_Psi_P(iState,STSYM,nCSF,CM,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
+call HEXS_Proj(HEXS_Keep,Sigma_Vec)
+call mma_deallocate(CM)
+end subroutine Mk_H_Psi
+
+Subroutine Mk_H_Psi_P(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
 use cands, only: ICSM, ISSM
 Implicit None
@@ -324,6 +529,7 @@ if (SG_CI()) then
   else
     call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU)
   end if
+  call HEXS_Proj(HEXS_Keep,Sigma_Vec)
   if (CI_Verify('SIGMA')) then
     call mma_allocate(SG_PSI,max(nCSF,NDTASM(STSYM)),Label='SG_PSI')
     call mma_allocate(SG_SGM,max(nCSF,NDTASM(STSYM)),Label='SG_SGM')
@@ -349,6 +555,7 @@ if (DOFARO) then
 
   call Faroald_Ints(TU,TUVX)
   call Faroald_Sigma(nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+  call HEXS_Proj(HEXS_Keep,Sigma_Vec)
   ! CI development (MOLCAS_CI_VERIFY=SIGMA): the Faroald sigma vector
   ! against Lucia (and below against SGUGA)
   if (CI_Verify('SIGMA')) then
@@ -401,12 +608,12 @@ end if
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the SGUGA sigma
 ! vector, which is then used. With RAS partitions it comes from
 ! sg_h_psi_ras (no intermediate states outside the RAS space); for CAS from
-! sg_h_psi, checked once per run against sg_h_psi_ras. Not with HEXS/DEXS
-! (I_ELIMINATE_GAS): the configurations they remove are not part of the
-! SGUGA graph.
+! sg_h_psi, checked once per run against sg_h_psi_ras. With HEXS/DEXS
+! projected (P H P, HEXS_Keep_SG).
 If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
    call CI_Basis_To_File(iState,STSYM,nCSF,CI_VEC,SG_PSI)
+   call HEXS_Proj(HEXS_Keep_SG,SG_PSI)
    Check_Href=CheckSum(Sigma_Vec,nCSF)
    Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
    if (nRsPrt == 1) then
@@ -426,6 +633,7 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    else
      Call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
    end if
+   call HEXS_Proj(HEXS_Keep_SG,SG_SGM)
    call CI_File_To_Basis(iState,STSYM,nCSF,SG_SGM,SG_PSI)
    if (nRsPrt /= 1) then
      DMax = maxval(abs(SG_PSI(:)-Sigma_Vec(:)))
@@ -484,7 +692,7 @@ contains
 
   end subroutine Lucia_Sigma
 
-End Subroutine Mk_H_Psi
+End Subroutine Mk_H_Psi_P
 
 !> Unpack the active one- and two-electron integrals (triangular packing)
 !> into the square arrays htu and gtuvx of Faroald.
@@ -1407,6 +1615,9 @@ if (DO_FAROALD) then
   end if
 end if
 
+! HEXS/DEXS: the kept CSFs
+call HEXS_Setup(Do_SGUGA)
+
 End subroutine CI_Initialize
 
 !***********************************************************************************************************************************
@@ -1426,6 +1637,8 @@ call mma_deallocate(Faro_L2O,safe='*')
 
 Call SG_free(iState)
 call SG_Free_Cnf_List(Cnf_SG)
+call mma_deallocate(HEXS_Keep,safe='*')
+call mma_deallocate(HEXS_Keep_SG,safe='*')
 
 end subroutine CI_Close
 
@@ -1524,6 +1737,7 @@ contains
       call mma_deallocate(db)
       call mma_deallocate(cf)
     end do
+    call HEXS_Proj(HEXS_Keep,CSFDIA)
     if (CI_Verify('SIGMA')) then
       call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
       call mma_allocate(DD,NDET,label='DETDIA')
@@ -1568,6 +1782,7 @@ contains
     call SG_Mk_Cnf_List(iState,STSYM,Cnf)
     call mma_allocate(DSG,nConf,Label='DSG')
     call SG_Cnf_Avg_Diag(iState,Cnf,TU,nTU,TUVX,nTUVX,DSG)
+    call HEXS_Proj(HEXS_Keep_SG,DSG)
     call mma_allocate(Idx,nConf,Label='Idx')
     call mma_allocate(Map,nConf,Label='Map')
     do i=1,nConf
@@ -1619,6 +1834,7 @@ contains
     call SG_Cnf_Kept(STSYM)
     call mma_allocate(DAvg,nConf,Label='DAvg')
     call SG_Cnf_Avg_Diag(iState,Cnf_SG,TU,nTU,TUVX,nTUVX,DAvg)
+    call HEXS_Proj(HEXS_Keep_SG,DAvg)
     if (CI_Verify('SIGMA')) then
       ! Lucia's configuration-average diagonal, in the Lucia basis
       call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
@@ -1653,6 +1869,7 @@ contains
     call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DAvg)
     if (CI_Verify('HDIAG')) then
       CSFDIA(:) = DAvg(:)
+      call HEXS_Proj(HEXS_Keep_SG,CSFDIA)
       write(u6,'(1X,A)') 'Mk_IHI (SGCI): exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
     end if
     if (CI_Verify('SIGMA') .and. (nConf <= MxRef)) then
@@ -1722,7 +1939,9 @@ contains
       call mma_deallocate(DRef)
     end if
 
-    ! to the Lucia CSF order
+    ! to the Lucia CSF order (with HEXS/DEXS zero for the removed CSFs, as
+    ! Lucia's)
+    call HEXS_Proj(HEXS_Keep_SG,DSG)
     call mma_allocate(DEx,nConf,Label='DEx')
     call Diag_to_Lucia(DSG,DEx)
     call mma_deallocate(DSG)
@@ -1872,6 +2091,7 @@ contains
 
     call mma_allocate(DSG,nConf,Label='DSG')
     call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nConf,STSYM,TUVX,nTUVX,TU,nTU,DSG)
+    call HEXS_Proj(HEXS_Keep_SG,DSG)
     call Diag_to_Lucia(DSG,DL)
     call mma_deallocate(DSG)
 
@@ -2111,7 +2331,7 @@ end if
 ! set up with GAS, so test iDoGAS first).
 SG_OK = SG_Avail()
 if (DoSGEx .and. (.not. SG_OK) .and. (.not. SGEx_Warned)) then
-  write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA is not available with GAS, HEXS or DEXS; using the CI back end'
+  write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA is not available with GAS; using the CI back end'
   SGEx_Warned = .true.
 end if
 ! FARO: the explicit block is always that of Faroald, in its own basis
@@ -2155,7 +2375,7 @@ if (Verify) then
     if ((.not. UseSG) .and. (.not. DoFaro)) call Ref_Block('SGUGA')
     call Verify_SG_Explicit()
   else
-    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (not available with GAS, HEXS or DEXS)'
+    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (not available with GAS)'
   end if
   call mma_deallocate(PHP_Ref)
   IHJ_Verified = .true.
@@ -2523,6 +2743,7 @@ contains
     MxDim = nint((sqrt(real(8*nPHP+1,kind=wp))-One)/Two)
     call mma_allocate(DSG,nConf,Label='DSG')
     call SG_Cnf_Avg_Diag(iState,Cnf,TU,nTU,TUVX,nTUVX,DSG)
+    call HEXS_Proj(HEXS_Keep_SG,DSG)
     call mma_allocate(GSel,Cnf%nCnf,Label='GSel')
     call mma_allocate(GCSF,max(1,MxDim),Label='GCSF')
     call SG_Select_Explicit(Cnf,DSG,MxDim,nGSel,GSel,nGCSF,GCSF)

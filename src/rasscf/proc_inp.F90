@@ -4089,12 +4089,12 @@ if (DoSGEx .and. iDoGAS) then
   write(u6,'(1X,A)') 'the explicit Hamiltonian is computed by the CI backend.'
   DoSGEx = .false.
 end if
-! SGCI: SGUGA covers CAS and RAS spaces, not GAS, HEXS/DEXS (configurations
-! removed from the graph space), and is not combined with the other CI
-! back ends or wave function types.
+! SGCI: SGUGA covers CAS and RAS spaces (also with HEXS/DEXS, applied by
+! the CI interface), not GAS, and is not combined with the other CI back
+! ends or wave function types.
 if (DoSGCI) then
-  if (iDoGAS .or. Key('HEXS') .or. Key('DEXS') .or. DoFaro .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
-    write(u6,'(1X,A)') 'SGCI keyword was used, but SGUGA cannot run this CI (GAS, HEXS, DEXS, FARO, DMRG, NECI or CASVB);'
+  if (iDoGAS .or. DoFaro .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+    write(u6,'(1X,A)') 'SGCI keyword was used, but SGUGA cannot run this CI (GAS, FARO, DMRG, NECI or CASVB);'
     write(u6,'(1X,A)') 'the CI is done by the CI backend.'
     DoSGCI = .false.
   else
@@ -4112,13 +4112,13 @@ if (.not. SkipGUGA) then
   ! Faroald only if requested with the FARO keyword.
   if (CI_Verify('FARO') .and. (.not. DoSGCI) .and. (.not. Key('EXPE'))) DoFaro = .true.
   ! FARO: the CI in the configuration basis of Faroald (citrans), for
-  ! CAS and RAS spaces (with symmetry), not GAS, HEXS or DEXS, and not with
-  ! the other CI back ends or CASVB (which works with the CSF basis of
-  ! Lucia).
+  ! CAS and RAS spaces (with symmetry, also with HEXS/DEXS, applied by the
+  ! CI interface), not GAS, and not with the other CI back ends or CASVB
+  ! (which works with the CSF basis of Lucia).
   if (DoFaro) then
-    if (iDoGas .or. Key('HEXS') .or. Key('DEXS') .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+    if (iDoGas .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
       if (Key('FARO')) then
-        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (GAS, HEXS, DEXS, DMRG, NECI'
+        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (GAS, DMRG, NECI'
         write(u6,'(1X,A)') 'or CASVB); the CI is done by the CI backend.'
       end if
       DoFaro = .false.
