@@ -53,6 +53,7 @@ use rasscf_global, only: Conv, Emy, Ener, hRoots, IADR15, ICICH, iCIOnly, Iter, 
 use rasscf_files, only: JOBIPH, LUDAVID
 use general_data, only: NCONF, NDET, NSEL
 use CI_Info, only: Space_Inp
+use CI_Space_Def, only: Space_Removals
 use spinfo, only: NCSF_HEXS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
@@ -93,8 +94,9 @@ if (NAC == 0) m_Sel = 0
 call mma_allocate(iSel,m_Sel,label='iSel')
 call mma_allocate(ExplE,m_Sel,label='ExplE')
 call mma_allocate(ExplV,m_Sel,mSel,label='ExplV')
+! with HEXS/DEXS the explicit subspace holds at most the kept CSFs
 nMaxSel = nConf
-if (Space_Inp%nHEXS > 0) nmaxSel = nCSF_HEXS
+if (Space_Removals(Space_Inp)) nMaxSel = nCSF_HEXS
 
 call CStart(CIVEC,FMO,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
 
@@ -128,7 +130,7 @@ ITERCI = 1
 if (NAC == 0) then
   ENER(1,ITER) = EMY
 else
-  if ((nSel == nConf) .or. ((Space_Inp%nHEXS > 0) .and. (nSel == nCSF_HEXS))) then
+  if ((nSel == nConf) .or. (Space_Removals(Space_Inp) .and. (nSel == nCSF_HEXS))) then
     do jRoot=1,lRoots-hRoots
       ENER(jRoot,ITER) = ExplE(jRoot)
     end do

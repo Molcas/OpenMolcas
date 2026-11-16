@@ -57,6 +57,7 @@ use output_ras, only: IPRLOC
 use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSEL, NSSH, NSYM, NTOT1, &
                         STSYM
 use CI_Info, only: Space_Inp
+use CI_Space_Def, only: Space_Removals
 use spinfo, only: DoComb, NCNFTP, NCSASM, NCSF_HEXS, NDTASM, NDTFTP
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use RASDim, only: MxRef
@@ -283,7 +284,7 @@ if (IPRLEV > SILENT) then
 #       endif
       else
         write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-        if ((Space_Inp%nHEXS > 0) .or. (Space_Inp%nDEXS > 0)) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',nCSF_HEXS
+        if (Space_Removals(Space_Inp)) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',nCSF_HEXS
         ! (no determinants without Lucia, SGCI)
         if (.not. CI_Lucia_Active()) then
         else if (DoComb) then

@@ -16,6 +16,7 @@ subroutine LUCIA2MOLCAS(NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,NCNASM_LUCIA,MXPCSM
 use csfbas, only: maxop_lucia, NAEL, NBEL
 use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM, ISPIN, NDET
 use CI_Info, only: Space_Inp
+use CI_Space_Def, only: Space_Removals
 use spinfo, only: MINOP, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDTASM, NDTFTP, NTYP
 use Molcas, only: MxSym
 use Definitions, only: iwp
@@ -31,7 +32,7 @@ NCNASM(1:MxSym) = NCNASM_LUCIA(1:MxSym)
 if (NSEL > NCSASM(STSYM)) NSEL = NCSASM(STSYM)
 ! For small calculations - Lasse/MGD
 nCSF_HEXS = nCSF_HEXS_LUCIA
-if (((Space_Inp%nHEXS > 0) .or. (Space_Inp%nDEXS > 0)) .and. (NSEL > nCSF_HEXS)) NSEL = nCSF_HEXS
+if (Space_Removals(Space_Inp) .and. (NSEL > nCSF_HEXS)) NSEL = nCSF_HEXS
 
 ! SET INITIAL VALUES FOR LOOP COUNTERS AND ARRAY SIZES
 

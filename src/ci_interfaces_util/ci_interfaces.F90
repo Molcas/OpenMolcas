@@ -29,7 +29,7 @@ use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
 use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl, NSM
 use CI_Verify_Options, only: CI_Verify
-use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
+use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
 use CI_Info, only: CI_St, Space_CI
 use Molcas, only: MxGAS
 
@@ -1682,7 +1682,7 @@ do g=1,NGAS
   iPart(g) = k
 end do
 ! HEXS (maximum occupation) and DEXS (maximum - 1) removals
-if ((Space_Inp%nHEXS > 0) .or. (Space_Inp%nDEXS > 0)) then
+if (Space_Removals(Space_Inp)) then
   call mma_allocate(NMx,max(1,Space_CI%nPart),Label='NMx')
   call Space_Max_Occ(Space_CI,NMx)
   do i=1,Space_Inp%nHEXS

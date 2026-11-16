@@ -53,7 +53,8 @@ type CI_Space_Input
   integer(kind=iwp) :: iHEXS(MxGAS) = 0, iDEXS(MxGAS) = 0
 end type CI_Space_Input
 
-public :: CI_Space, CI_Space_Input, Space_Allowed, Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove
+public :: CI_Space, CI_Space_Input, Space_Allowed, Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, &
+          Space_Removals
 
 contains
 
@@ -169,6 +170,13 @@ subroutine Space_Remove(Space,iPart,nOcc)
   call mma_deallocate(P)
   call mma_deallocate(O)
 end subroutine Space_Remove
+
+!> Are configurations removed by HEXS or DEXS requests?
+pure function Space_Removals(Inp) result(Removals)
+  type(CI_Space_Input), intent(in) :: Inp
+  logical(kind=iwp) :: Removals
+  Removals = (Inp%nHEXS > 0) .or. (Inp%nDEXS > 0)
+end function Space_Removals
 
 !> Is a configuration with Occ(k) electrons in partition k in the space?
 pure function Space_Allowed(Space,Occ) result(Allowed)
