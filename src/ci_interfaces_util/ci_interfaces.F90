@@ -21,13 +21,13 @@ use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_n
 use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma, ras_traci, ras_trans_one_pdm, &
                        ras_trans_two_pdm
 use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
-use general_data, only: ISPIN, STSYM, nAsh, nActEl, NAC=>NLEV
-use rasscf_global, only: nDet, nConf
+use general_data, only: ISPIN, STSYM, nAsh, nActEl
+use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl, NSM
+use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl
 use CI_Verify_Options, only: CI_Verify
 use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
 use CI_Info, only: CI_St, Space_CI
@@ -1668,7 +1668,7 @@ end subroutine CI_Timer
 subroutine CI_Space_Setup()
 use general_data, only: IGSOCCX, NGAS, NGSSH, nSym
 use CI_Info, only: Space_Inp
-integer(kind=iwp) :: g, k, i, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS)
+integer(kind=iwp) :: g, k, i, iLev, iSym, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS)
 integer(kind=iwp), allocatable :: NMx(:)
 logical(kind=iwp) :: OK
 
@@ -1733,10 +1733,17 @@ if (OK) then
     end if
     OK = OK .and. (Space_CI%MinEl(k) == MinR) .and. (Space_CI%MaxEl(k) == MaxR)
   end do
-  OK = OK .and. all(Space_CI%LevSym(1:NAC) == NSM(1:NAC))
+  ! the levels: partition by partition, within each by symmetry
+  iLev = 0
+  do i=1,nRsPrt
+    do iSym=1,nSym
+      OK = OK .and. all(Space_CI%LevSym(iLev+1:iLev+nRas(iSym,i)) == iSym)
+      iLev = iLev+nRas(iSym,i)
+    end do
+  end do
 end if
 if (.not. OK) then
-  write(u6,'(1X,A)') 'CI_Space_Setup: the CI space differs from the RAS description (nRsPrt, nRas, nRasEl, NSM)'
+  write(u6,'(1X,A)') 'CI_Space_Setup: the CI space differs from the RAS description (nRsPrt, nRas, nRasEl)'
   call Abend()
 end if
 write(u6,'(1X,A)') 'CI_Space_Setup: CI space verified against the RAS description'
@@ -1842,7 +1849,7 @@ if (DO_FAROALD) then
     OrbRas(1:nAct) = Space_CI%LevPart(1:nAct)
   end if
   nPrt = Space_CI%nPart
-  if ((iLev /= nAct) .or. (NAC /= nAct) .or. any(OrbSym(1:nAct) /= NSM(1:nAct))) then
+  if ((iLev /= nAct) .or. (NAC /= nAct)) then
     write(u6,*) 'CI_Initialize: inconsistent active levels for Faroald',iLev,nAct,NAC
     call Abend()
   end if

@@ -11,7 +11,7 @@
 
 module general_data
 
-use Molcas, only: MxSym, MxGas, MxLev, MxOrb
+use Molcas, only: MxSym, MxGas
 use Definitions, only: iwp
 
 implicit none
@@ -20,12 +20,12 @@ private
 integer(kind=iwp) :: ISPIN, NACTEL, NASH(mxSym), NBAS(mxSym), NDEL(mxSym), NDELT, &
                      NELEC3, NFRO(mxSym), NFROT, NHOLE1, NISH(mxSym), NORB(mxSym), NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T,   &
                      NRS3(mxSym), NRS3T, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, STSYM, NLEV
-integer(kind=iwp) :: nRas(MxSym,MxGAS), nRasEl(MxGAS), nRsPrt, Level(MxLev), NSM(mxOrb)
+integer(kind=iwp) :: nRas(MxSym,MxGAS), nRasEl(MxGAS), nRsPrt
 integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
 logical(kind=iwp) :: iDoGas = .false.
 
 public :: ISPIN, NACTEL, NASH, NBAS, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, &
-          NRS3T, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM, NLEV, NSM, Level, nRas, nRasEl, nRsPrt, iDoGas, IGSOCCX, &
+          NRS3T, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM, NLEV, nRas, nRasEl, nRsPrt, iDoGas, IGSOCCX, &
           NGAS, NGSSH
 
 end module general_data

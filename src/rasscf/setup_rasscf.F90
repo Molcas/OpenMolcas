@@ -11,23 +11,14 @@
 
 subroutine Setup_RASSCF()
 
-use Molcas, only: MxLev
-use general_data, only: Level, nActel, nElec3, NGAS, NGSSH, nHole1, NLEV, nRas, nRasEl, nRs1, nRs2, nRs3, nRsPrt, NSM, nSym
+use general_data, only: nActel, nElec3, nHole1, nRas, nRasEl, nRs1, nRs2, nRs3, nRsPrt, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IGAS, iq, ISYM, nRs1T, NSTA
+integer(kind=iwp) :: nRs1T
 
-NLEV = 0
-do IGAS=1,NGAS
-  do ISYM=1,NSYM
-    NSTA = NLEV+1
-    NLEV = NLEV+NGSSH(IGAS,ISYM)
-    NSM(NSTA:NLEV) = ISYM
-  end do
-end do
-
-Level(1:MxLev) = [(iq,iq=1,MxLev)]
+! (the levels of the active orbitals, their symmetries and the orbital ->
+! level map are those of the CI space, Space_CI, set up by the CI interface)
 
 if (nHole1+nElec3 /= 0) then
   nRsPrt = 3
