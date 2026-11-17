@@ -59,7 +59,7 @@ write(u6,*) ' MULTS, MS2 = ',MULTS,MS2
 #endif
 NELEC = sum(IOCCLS(:,1))
 
-! Define parameters in SPINFO
+! Define the configuration-type parameters
 
 ! Allowed number of open orbitals
 MINOP = abs(MS2)

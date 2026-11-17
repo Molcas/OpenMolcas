@@ -57,7 +57,7 @@ else
   IMSCMB = 0
 end if
 
-! Define parameters in SPINFO
+! Define the configuration-type parameters (MCLR_Data)
 
 MULTSP = MULTP
 MS2P = MS2

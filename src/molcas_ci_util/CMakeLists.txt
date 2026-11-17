@@ -81,7 +81,6 @@ set (sources
      sigmadet_cvb.F90
      simplify.F90
      sort_cdet.F90
-     spinfo.F90
      sxci.F90
      term_david.F90
      timers.F90
@@ -101,7 +100,6 @@ set (modfile_list
      rasscf_files.F90
      rasscf_global.F90
      rassi_data.F90
-     spinfo.F90
      timers.F90
      wadr.F90
 )

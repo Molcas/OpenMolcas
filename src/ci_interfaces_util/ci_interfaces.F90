@@ -2383,7 +2383,7 @@ End subroutine Mk_IHI
 !> nCSFCnf(k) is the number of CSFs of the k-th configuration, the
 !> configurations being in the order of the CSF basis (the CSFs of one
 !> configuration are consecutive). Allocated here, to be freed by the caller
-!> with mma_deallocate. (Lucia back end: configuration types from spinfo.)
+!> with mma_deallocate. (Lucia back end: configuration types from lucia_data.)
 !> Layout of the CSF basis of symmetry IREFSM by configuration: nCSFCnf(k)
 !> CSFs in configuration k, and optionally their indices in the CSF basis,
 !> iCSFCnf(iOff+1:iOff+nCSFCnf(k)) (configuration by configuration). With
