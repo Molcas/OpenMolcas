@@ -11,11 +11,12 @@
 
 subroutine Out_Pt2(iKapDisp,iCIDisp)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO, ESTERR, ipCI, ipCM, ipMat, IRLXROOT, ISNAC, ISTATE, LuJob, LuPT2, LuTEMP, n1Dens, n2Dens, nA, NACSTATES, &
                      nConf1, nDens, nDensC, OVERRIDE
-use general_data, only: nAsh, nIsh, nSym, STSym
+use general_data, only: nAsh, nIsh, nSym
 use input_mclr, only: iRoot, iTOC, nBas, nCSF, nDisp, nRoots, ntAsh, ntBtri, PT2
 use PCM_grad, only: DSCFAO, DSSAO, PCM_grad_D2v, PCMSCFAO, PCMSCFMO
 use rctfld_module, only: lRF
@@ -26,6 +27,7 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState_CI = 1
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
 integer(kind=iwp) :: i, iA, iAA, iBas, iDisk, idum(7,8), ii, iikl, ij, ij1, ij2, ijkl, ijlk, iLen, iMax, iOff, ipCIP, iR, iS, &
                      iSym, j, jA, jAA, jDisk, ji2, jikl, jilk, k, kl, kl1, kl2, klRow, l, lk2, LuDens, LuTmp, nBas_Tot, nBasI, &
@@ -76,7 +78,7 @@ call mma_allocate(Dtmp,nDens,Label='DTmp')
 ! All multipliers are introduced as densities
 
 if (CI) then
-  nconf1 = ncsf(STSym)
+  nconf1 = ncsf(CI_St(iState_CI)%STSym)
   ilen = nconf1*nroots ! nroot = # of roots in SA
   ipcip = ipget(nconf1*nroots)
   iDisk = iCIDisp(1)
@@ -85,7 +87,7 @@ if (CI) then
 
   ! Calculate the densities that correct the nonvariational CI stuff
 
-  call CIDens_sa(.true.,ipCIp,ipCI,STSym,STSym,P_CI,D_CI) ! \bar{d} and \bar{D}
+  call CIDens_sa(.true.,ipCIp,ipCI,CI_St(iState_CI)%STSym,CI_St(iState_CI)%STSym,P_CI,D_CI) ! \bar{d} and \bar{D}
 
   ! ====================================================================
   if (doDMRG) then  ! yma

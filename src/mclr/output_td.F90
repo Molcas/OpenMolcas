@@ -32,18 +32,20 @@ subroutine OutPut_td(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,co
 !         Theoretical Chemistry, University of Lund                    *
 !***********************************************************************
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: Hss, lDisp, LuTEMP, nConf1, nDensC, nHess, XISPSM
-use general_data, only: nSym, STSym
+use general_data, only: nSym
 use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nTPert, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), &
                                  iRHSCiDisp(nDisp)
 logical(kind=iwp), intent(in) :: converged(8)
@@ -90,7 +92,7 @@ do iSym=1,nSym
   ! Output: Commonblocks (Pointers.fh)
 
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(STSym,iSym)
+  PState_SYM = Mul(CI_St(iState)%STSym,iSym)
   nconfM = max(ncsf(PState_Sym),nint(xispsm(Pstate_Sym,1)))
   nconf1 = ncsf(PState_Sym)
   if (TimeDep) nconf1 = nconf1*2

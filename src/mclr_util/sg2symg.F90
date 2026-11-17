@@ -16,7 +16,7 @@ use CI_States, only: CI_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC, MINOP, NCNFTP, NCSFTP, NTYP
 use MCLR_Data, only: MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, NTYP_MCLR => NTYP
-use general_data, only: nSym, STSym
+use general_data, only: nSym
 use input_mclr, only: NCSF, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -43,7 +43,7 @@ NCSF(1:nSym) = CI_St(istate)%nCSF(1:nSym)
 NCONF = CI_St(istate)%nCSF(pState_Sym)
 
 iss = 1
-if (pState_sym /= STSym) iss = 2
+if (pState_sym /= CI_St(iState)%STSym) iss = 2
 
 #ifdef _DEBUGPRINT_
 write(u6,101)

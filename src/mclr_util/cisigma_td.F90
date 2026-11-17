@@ -27,17 +27,19 @@
 
 subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, ist, KAIN1, KINT2, KINT2A, nConf1, nDens, pInt1, Square, XISPSM
 use CandS, only: ICSM, ISSM
-use general_data, only: nSym, STSym
+use general_data, only: nSym
 use input_mclr, only: nBas, nCSF, ntAsh, Page, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
 real(kind=wp), target, intent(in) :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
 character, intent(in) :: NT
@@ -85,13 +87,13 @@ end if
 
 iSSM = iSSym
 kic(2) = 2
-if (issm == STSym) kic(2) = 1
+if (issm == CI_St(iState)%STSym) kic(2) = 1
 
 ! Symmetry of CI vector
 
 iCSM = iCSym
 kic(1) = 2
-if (icsm == STSym) kic(1) = 1
+if (icsm == CI_St(iState)%STSym) kic(1) = 1
 
 ! Symmetry properties of operator
 

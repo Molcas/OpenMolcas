@@ -32,18 +32,20 @@ subroutine RHS(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,rKappa,ipst,iDisp,lOper,CMO,j
 !         Theoretical Chemistry, University of Lund                    *
 !***********************************************************************
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
 use MCLR_Data, only: DspVec, G1t, G2t, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, n2Dens, nA, nCMO, nConf1, nDens, nMBA
 use MCLR_procedures, only: CISigma
-use general_data, only: nAsh, nIsh, nSym, STSym
+use general_data, only: nAsh, nIsh, nSym
 use input_mclr, only: Debug, iMethod, nBas, nOrb, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(out) :: Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp5(nDens), Temp6(nDens), rKappa(nDens)
 integer(kind=iwp), intent(in) :: ipst, iDisp, lOper, jdisp
 real(kind=wp), intent(in) :: CMO(nCMO)
@@ -194,7 +196,7 @@ if ((iMethod == 2) .and. btest(ntpert(idisp),2)) call ABXpY(MOT,MOX,idsym)
 
 if (CI) then
 
-  call CiSigma(0,STSym,Mul(STSym,idsym),FIX,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,.true.)
+  call CiSigma(0,CI_St(iState)%STSym,Mul(CI_St(iState)%STSym,idsym),FIX,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,.true.)
 
   call ipin(ipst)
   if (idsym == 1) then

@@ -13,15 +13,16 @@
 
 subroutine CIDIA_TD(iSym)
 
+use CI_Info, only: CI_St
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use MCLR_Data, only: ICISTR, ipDia, NCSASM, NDPCNT, nexp, nexp_max, NOCSF, XISPSM
 use MCLR_Data, only: NCNFTP, NCSFTP, NTYP
-use general_data, only: STSym
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use Definitions, only: iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iSym
 integer(kind=iwp) :: i, iAMCmp, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), nD, nP1, nP2, nQ, nSD, nSpc
 
@@ -40,7 +41,7 @@ iSM(1) = iSym
 IAMCMP = 0
 ICISTR = 1
 i = 2
-if (isym == STSym) i = 1
+if (isym == CI_St(iState)%STSym) i = 1
 if (NOCSF == 0) then
   nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
   ipdcsfi = ipget(nsd)

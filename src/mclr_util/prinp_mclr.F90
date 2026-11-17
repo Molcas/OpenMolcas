@@ -23,8 +23,9 @@ subroutine PrInp_MCLR(iPL)
 !                                                                      *
 !***********************************************************************
 
+use CI_Info, only: CI_St
 use MCLR_Data, only: ChDisp, DspVec, IRLXROOT, ISNAC, ISTATE, lDisp, NACSTATES, nexp_max, NSSA, SA, SwLbl, XISPSM
-use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, STSym
+use general_data, only: nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym
 use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, iMethod, iPT2, iRoot, mTit, nAtoms, nBas, nCSF, &
                       nDel, nDisp, NewCho, nFro, nIter, nOrb, nRoots, nSkip, ntAsh, ntBas, ntIsh, nTPert, Perturbation, PotNuc, &
                       PT2, SpinPol, StepType, TitleIn, TwoStep, Weight
@@ -33,6 +34,7 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState_CI = 1
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: i, iAT, iDisp, iSym, j, jDisp, Left, lLine, nLine, nTSsh
 logical(kind=iwp) :: RICD
@@ -114,14 +116,14 @@ if (iMethod == 2) then
     write(u6,Fmt1) '-----------------------------'
     write(u6,*)
     write(u6,Fmt2//'A,T47,I6)') 'Number of closed shell electrons',2*ntIsh
-    write(u6,Fmt2//'A,T47,I6)') 'Number of electrons in active shells',nActEl
+    write(u6,Fmt2//'A,T47,I6)') 'Number of electrons in active shells',CI_St(iState_CI)%nActEl
     write(u6,Fmt2//'A,T47,I6)') 'Max number of holes in RAS1 space',nHole1
     write(u6,Fmt2//'A,T47,I6)') 'Max number of electrons in RAS3 space',nElec3
     write(u6,Fmt2//'A,T47,I6)') 'Number of inactive orbitals',ntIsh
     write(u6,Fmt2//'A,T47,I6)') 'Number of active orbitals',ntAsh
     write(u6,Fmt2//'A,T47,I6)') 'Number of secondary orbitals',ntSsh
-    write(u6,Fmt2//'A,T47,F6.1)') 'Spin quantum number',real(iSpin-1,kind=wp)*Half
-    write(u6,Fmt2//'A,T47,I6)') 'State symmetry',STSym
+    write(u6,Fmt2//'A,T47,F6.1)') 'Spin quantum number',real(CI_St(iState_CI)%iSpin-1,kind=wp)*Half
+    write(u6,Fmt2//'A,T47,I6)') 'State symmetry',CI_St(iState_CI)%STSym
     write(u6,Fmt2//'A,T47,I6)') 'Number of CI roots',nroots
     write(u6,Fmt2//'A,(T47,10I6))') 'States considered',(iroot(i),i=1,nroots)
     write(u6,Fmt2//'A,(T47,10F6.3))') 'Weights',(weight(i),i=1,nroots)

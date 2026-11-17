@@ -11,17 +11,18 @@
 
 subroutine coeff(ralpha,rbetaa,rbetas)
 
+use CI_Info, only: CI_St
 use MCLR_Data, only: mS2
-use general_data, only: iSpin
 use wigner_util, only: wcg_real
 use Constants, only: Zero, One, Two, Six, Eight, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(out) :: ralpha, rbetaa, rbetas
 real(kind=wp) :: rcg10, rcg11, rcg20, rcg21, rgamma, RMS, Spin
 
-Spin = real(ispin-1,kind=wp)*Half
+Spin = real(CI_St(iState)%iSpin-1,kind=wp)*Half
 rms = real(ms2,kind=wp)*Half
 
 if ((rms == Zero) .or. (rms /= spin)) then

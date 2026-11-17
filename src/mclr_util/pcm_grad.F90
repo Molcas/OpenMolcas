@@ -33,6 +33,7 @@
 
 module PCM_grad
 
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use DWSol, only: DWSol_init, DWSol_final, DWSol_wgt, DWSolv, W_SOLV
@@ -244,9 +245,10 @@ end subroutine PCM_grad_final
 subroutine PrepPCM()
 
   use MCLR_Data, only: ipCM, isNAC
-  use general_data, only: iSpin, nSym
+  use general_data, only: nSym
   use input_mclr, only: nBas, ntBsqr, ntBtri
 
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp) :: ip1, iSym, leng
   real(kind=wp) :: ExFac, PotNuc
   logical(kind=iwp) :: Do_DFT, Dff, First, lRF, NonEq
@@ -282,7 +284,7 @@ subroutine PrepPCM()
   !! Gtmp: electron-electron contributions
   Htmp(:) = Zero
   Gtmp(:) = Zero
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,iSpin,'1234',Do_DFT)
+  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_St(iState)%iSpin,'1234',Do_DFT)
 
   ip1 = 1
   do iSym=1,nSym
@@ -309,7 +311,7 @@ subroutine PrepPCM()
 
   Htmp(:) = Zero
   Gtmp(:) = Zero
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,iSpin,'1234',Do_DFT)
+  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_St(iState)%iSpin,'1234',Do_DFT)
 
   ip1 = 1
   do iSym=1,nSym
@@ -337,9 +339,10 @@ end subroutine PrepPCM
 
 subroutine PrepPCM2(mode,DMO,DAO,PCMAO,PCMMO)
 
-  use general_data, only: iSpin, nSym
+  use general_data, only: nSym
   use input_mclr, only: nBas, ntAsh, ntBsqr, ntBtri
 
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: mode
   real(kind=wp), intent(in) :: DMO(ntAsh**2)
   real(kind=wp), intent(inout) :: DAO(ntBsqr), PCMAO(ntBsqr,3), PCMMO(ntBsqr,3)
@@ -374,7 +377,7 @@ subroutine PrepPCM2(mode,DMO,DAO,PCMAO,PCMMO)
   !! Gtmp: electron-electron contributions
   Htmp(:) = Zero
   Gtmp(:) = Zero
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,iSpin,'1234',Do_DFT)
+  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_St(iState)%iSpin,'1234',Do_DFT)
 
   ip1 = 1
   do iSym=1,nSym
@@ -402,9 +405,9 @@ subroutine PCM_grad_dens(mode)
 
   use ipPage, only: W
   use MCLR_Data, only: ipCI, iRlxRoot, isNAC, NSSA, xispsm
-  use general_data, only: STSym
   use input_mclr, only: nConf, ncsf, nRoots, ntAsh
 
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: mode
   integer(kind=iwp) :: i, j, jR, kR, nConf1, nConfL, nConfR, ng1, ng2
   real(kind=wp), pointer :: G1q(:,:)
@@ -414,8 +417,8 @@ subroutine PCM_grad_dens(mode)
   ! mode=1: construct density used for PCM in SCF
   ! mode=2: mostly state-specific density
 
-  nconf1 = ncsf(STSym)
-  nConfL = max(nconf1,nint(xispsm(STSym,1)))
+  nconf1 = ncsf(CI_St(iState)%STSym)
+  nConfL = max(nconf1,nint(xispsm(CI_St(iState)%STSym,1)))
   nConfR = nConfL
 
   ng1 = ntash*ntash
@@ -433,8 +436,8 @@ subroutine PCM_grad_dens(mode)
       G1q(:,:) = Zero
       do jR=1,nRoots
         if (W_SOLV(jR) <= 1.0e-10_wp) cycle
-        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,STSym)
-        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIR,STSym)
+        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,CI_St(iState)%STSym)
+        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIR,CI_St(iState)%STSym)
         G1r(:,:) = Zero
         call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
         !! For RDM1
@@ -451,8 +454,8 @@ subroutine PCM_grad_dens(mode)
         jR = iRlxRoot
         kR = iRlxRoot
       end if
-      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,STSym)
-      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,STSym)
+      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,CI_St(iState)%STSym)
+      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,CI_St(iState)%STSym)
       call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
       !! For RDM1
       G1q(:,:) = G1q(:,:)+G1r(:,:)
@@ -472,7 +475,7 @@ subroutine PCM_grad_dens(mode)
   call mma_deallocate(G1r)
   call mma_deallocate(G2r)
 
-  nConf = ncsf(STSym)
+  nConf = ncsf(CI_St(iState)%STSym)
   !! use weights
   !if (mode == 1) G1q(:,:) = G1q(:,:)/real(nRoots,kind=wp)
 
@@ -530,10 +533,11 @@ end subroutine PCM_grad_dens2
 
 subroutine PCM_grad_D2V(dens,vintMO,vintAO,first_,Dff_,NonEq_,Do_DFT_)
 
-  use general_data, only: iSpin, nSym
+  use general_data, only: nSym
   use input_mclr, only: nBas, ntBsqr, ntBtri
   use MCLR_Data, only: ipCM
 
+  integer(kind=iwp), parameter :: iState = 1
   real(kind=wp), intent(in) :: dens(ntBsqr)
   real(kind=wp), intent(out) :: vintMO(ntBsqr,3), vintAO(ntBsqr,3)
   logical(kind=iwp), intent(in) :: first_, Dff_, NonEq_, Do_DFT_
@@ -566,7 +570,7 @@ subroutine PCM_grad_D2V(dens,vintMO,vintAO,first_,Dff_,NonEq_,Do_DFT_)
 
   ! h1, vint, and dens is triangular in the AO basis
   !call DrvRF(Htmp,Gtmp,D1ao,RepNuc,nh1,First,Dff,NonEq,iCharge)
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,iSpin,'1234',Do_DFT)
+  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_St(iState)%iSpin,'1234',Do_DFT)
 
   ip1 = 1
   do iSym=1,nSym
@@ -592,12 +596,13 @@ end subroutine PCM_grad_D2V
 
 subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
 
-  use general_data, only: nAsh, nIsh, nSym, STSym
+  use general_data, only: nAsh, nIsh, nSym
   use input_mclr, only: nBas, nOrb, nRoots, ntBsqr, weight
   use ISRotation, only: ISR
   use MCLR_Data, only: ipCI, ipCM, ipMat, nA
   use MCLR_procedures, only: CISigma_sa
 
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: idSym, ipCIOut
   real(kind=wp), intent(in) :: rKappa(*)
   real(kind=wp), intent(inout) :: FockOut(*)
@@ -714,7 +719,7 @@ subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
   ! Note that ipCIOUT will be weighted with (2)W_SOLV
   call dswap_(nRoots,weight,1,W_SOLV,1)
   Weight(:) = Two*Weight(:)
-  call CISigma_sa(0,STSym,STSym,DZMO,size(DZMO),rdum,1,rdum,1,ipCI,ipCIOUT,.false.)
+  call CISigma_sa(0,CI_St(iState)%STSym,CI_St(iState)%STSym,DZMO,size(DZMO),rdum,1,rdum,1,ipCI,ipCIOUT,.false.)
   Weight(:) = Half*Weight(:)
   call dswap_(nRoots,weight,1,W_SOLV,1)
 
@@ -729,11 +734,12 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
 
   use MCLR_Data, only: ipMat, isNAC, nDens
   use MCLR_procedures, only: CISigma_sa
-  use general_data, only: nAsh, nIsh, nSym, STSym
+  use general_data, only: nAsh, nIsh, nSym
   use input_mclr, only: nBas, ncsf, nRoots, weight
   use ipPage, only: W
   use ISRotation, only: ISR
 
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: mode, ipCI, ipCID
   integer(kind=iwp) :: nconf1, idsym, ip1, is, ja, js
   real(kind=wp) :: rtmp(1)
@@ -743,7 +749,7 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   ! mode = 1: evaluate derivatives of the state-specific energy
   ! mode = 2: evaluate derivatives of the rotated state
 
-  nconf1 = ncsf(STSym)
+  nconf1 = ncsf(CI_St(iState)%STSym)
   rtmp(1) = Zero
 
   call mma_allocate(SCFcont,nDens,Label='SCFcont')
@@ -760,7 +766,7 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   ! For NAC, we just need the implicit part of D^SS*V(e,SCF) in the eigenenergy
   do iS=1,nSym
     if (nAsh(iS) > 0) then
-      jS = Mul(iS,STSym)
+      jS = Mul(iS,CI_St(iState)%STSym)
       do jA=1,nAsh(js)
         !ip1 = nIsh(iS)+1+nBas(jS)*(nIsh(js)+jA-1)!+ipCM(is)
         ip1 = nIsh(iS)+1+nBas(iS)*(nIsh(js)+jA-1)+ipMat(iS,jS)-1 !+ipCM(is)
@@ -783,11 +789,11 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   !! state averaged quantities (ipCID is overwritten)
   !! it is not actually state-averaged; it is solvent density, so use W_SOLV
   call dswap_(nRoots,weight,1,W_SOLV,1)
-  call CISigma_sa(0,STSym,STSym,SCFcont,nDens,rtmp,1,rtmp,1,ipCI,ipCID,.false.)
+  call CISigma_sa(0,CI_St(iState)%STSym,CI_St(iState)%STSym,SCFcont,nDens,rtmp,1,rtmp,1,ipCI,ipCID,.false.)
   call dswap_(nRoots,weight,1,W_SOLV,1)
 
   !! consider the weight of the derivative
-  idsym = STSym !?
+  idsym = CI_St(iState)%STSym !?
   if (DWSolv%DWZeta /= Zero) call DWder_MCLR(2,idsym,SCFcont,nDens,SCFcont,nDens,ISR%RVec)
 
   !! State rotations are not needed, because CI vectors are obtained by diagonalization (?)

@@ -13,16 +13,17 @@
 
 subroutine CIDIA_sa(iSym,ralp,S)
 
+use CI_Info, only: CI_St
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: FANCY_PRECONDITIONER, ICISTR, ipCI, ipDia, NDPCNT, NOCSF, XISPSM
 use MCLR_Data, only: NCNFTP, NCSFTP, NTYP
-use general_data, only: STSym
 use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, Weight
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iSym
 real(kind=wp), intent(inout) :: ralp(nRoots), S(*)
 integer(kind=iwp) :: i, iAMCmp, iP2, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), J, nSD, nSpc
@@ -42,7 +43,7 @@ iSM(1) = iSym
 IAMCMP = 0
 ICISTR = 1
 i = 2
-if (isym == STSym) i = 1
+if (isym == CI_St(iState)%STSym) i = 1
 if (NOCSF == 0) then
   nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
   ipdcsfi = ipget(nsd)
@@ -78,8 +79,9 @@ else
   call ipin(ipCI)
   ip2 = 0
   do j=1,nroots
-    ralp(j) = sum(One/(W(ipdiai)%A(1:ncsf(STSym))-ERASSCF(j))*Weight(j)*W(ipCI)%A(ip2+1:ip2+ncsf(STSym))**2)
-    ip2 = ip2+ncsf(STSym)
+    ralp(j) = sum(One/(W(ipdiai)%A(1:ncsf(CI_St(iState)%STSym))-ERASSCF(j))*Weight(j)* &
+                  W(ipCI)%A(ip2+1:ip2+ncsf(CI_St(iState)%STSym))**2)
+    ip2 = ip2+ncsf(CI_St(iState)%STSym)
   end do
 end if
 
