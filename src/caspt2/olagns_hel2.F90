@@ -28,12 +28,13 @@ subroutine OLagNS_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,iSymI,iSymJ,nMaxOrb,ER
 !          (V*|V*) is split into (A*|A*), (A*|V*), (V*|V*)
 !          (*O|V*) is split into (*A|A*), (*A|V*)
 
+use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ, KTGEU, KTGTU, KTU, KTUV
 use EQSOLV, only: IVECC2
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: OLag
-use general_data, only: NACTEL, NASH
+use general_data, only: NASH
 use caspt2_module, only: HZERO, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NBAS, NBAST, NFRO, NIES, NIGEJES, NIGTJES, NISH, &
                          NISUP, NSES, NSSH, NSYM, NTGEUES, NTGTUES, NTU, NTUES, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -356,6 +357,7 @@ end subroutine OLagNS_B
 
 subroutine OLagNS_C(AmpL1)
 
+  integer(kind=iwp), parameter :: iState = 1
   real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
   integer(kind=iwp) :: iA, iB, iI, iJ, iXabs
 
@@ -448,7 +450,7 @@ subroutine OLagNS_C(AmpL1)
               iAS = kTUV(iTabs,iXabs,iXabs)-nTUVes(iSym)
               ONEADD = ONEADD+GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))
             end do
-            ONEADD = Two*ONEADD/real(max(1,NACTEL),kind=wp)
+            ONEADD = Two*ONEADD/real(max(1,CI_St(iState)%nActEl),kind=wp)
             AmpL1(iAtot-nCorA,iBtot-nCorA) = AmpL1(iAtot-nCorA,iBtot-nCorA)-ONEADD
           end if
           AmpL1(iAtot-nCorA,iBtot-nCorB) = AmpL1(iAtot-nCorA,iBtot-nCorB)+ValC1

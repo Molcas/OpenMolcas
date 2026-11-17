@@ -63,6 +63,7 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(inout) :: CMO(*), OCCN(*)
 real(kind=wp), intent(in) :: SMAT(*)
 logical(kind=iwp), intent(in) :: lOPTO
@@ -218,8 +219,8 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
       call CollapseOutput(1,Line)
       write(u6,Fmt2//'A)') '----------------------------'
       write(u6,*)
-      write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',CI_St(1)%nCSF(STSYM)
-      if (CI_Lucia_Active()) write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(1)%nDet(STSYM)
+      write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',CI_St(iState)%nCSF(STSYM)
+      if (CI_Lucia_Active()) write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(iState)%nDet(STSYM)
     end if
     write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
     if (ICICH == 0) then

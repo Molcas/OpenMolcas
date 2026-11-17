@@ -13,6 +13,7 @@
 
 subroutine RHSOD_A(IVEC)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: MTREL, MTUV
@@ -24,12 +25,13 @@ use GA_Wrapper, only: DBL_MB
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_global, only: FIMO, iPrGlb
-use general_data, only: NACTEL, NASH
+use general_data, only: NASH
 use caspt2_module, only: NISH, NORB, NSYM, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: IVEC
 integer(kind=iwp) :: IAEND, IASTA, ICASE, IDX, IIEND, IISTA, IJ, IOBRA(8,8), IOFFTJ, IOFFVX, IOKET(8,8), ISYJ, ISYM, ISYT, ISYV, &
                      ISYX, IT, ITABS, ITJ, ITTOT, ITVX, ITVXTOT, IV, IVABS, IVX, IX, IXABS, lg_W, MW, NAS, NBRA, NFIMOES, NIS, &
@@ -103,7 +105,7 @@ do ISYM=1,NSYM
       if ((ISYT == ISYJ) .and. (IVABS == IXABS)) then
         ITTOT = IT+NISH(ISYT)
         FTJ = FIMO(NFIMOES+iTri(ITTOT,IJ))
-        ATVXJ = TJVX+FTJ/real(max(1,NACTEL),kind=wp)
+        ATVXJ = TJVX+FTJ/real(max(1,CI_St(iState)%nActEl),kind=wp)
       else
         ATVXJ = TJVX
       end if

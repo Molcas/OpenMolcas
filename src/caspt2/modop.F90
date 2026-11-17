@@ -15,19 +15,20 @@ subroutine MODOP(OP1,NOP2,OP2,NOP3,OP3)
 ! calculated using products of elementary excitation
 ! operators rather than normal-ordered products.
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem, nTri3_Elem
-use general_data, only: NACTEL
 use caspt2_module, only: NASHT
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: NOP2, NOP3
 real(kind=wp), intent(inout) :: OP1(NASHT,NASHT), OP2(NOP2)
 real(kind=wp), intent(in) :: OP3(NOP3)
 integer(kind=iwp) :: I, I_N, IJ, IJKL, IJKLMN, IL, IND, J, K, KL, KN, L, M, MN, N
 real(kind=wp) :: X
 
-if (NACTEL > 2) then
+if (CI_St(iState)%nActEl > 2) then
 
   do I=1,NASHT
     do J=1,NASHT
@@ -74,7 +75,7 @@ if (NACTEL > 2) then
 
 end if
 
-if (NACTEL > 1) then
+if (CI_St(iState)%nActEl > 1) then
 
   do I=1,NASHT
     do J=1,NASHT

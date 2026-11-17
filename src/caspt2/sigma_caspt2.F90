@@ -23,13 +23,14 @@ subroutine SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
 ! where the vectors are represented in transformed basis and
 ! are  stored at positions IVEC and JVEC on the LUSOLV unit.
 
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
 use EQSOLV, only: IFCoup
 use Sigma_data, only: IFTEST, NFDXP, NFMV, NFR1, NFSCA
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: FIFA, LISTS
-use general_data, only: nActel, nAsh
+use general_data, only: nAsh
 use caspt2_module, only: CPUSGM, FockType, G1SecIn, MaxIt, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, ThrShn, ThrShS, &
                          TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -37,6 +38,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(in) :: ALPHA, BETA
 integer(kind=iwp), intent(in) :: IVEC, JVEC
 integer(kind=iwp) :: iCASE1, iCase2, IfC, IFIFA, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, lg_SgmX, lSgm2_Sta, &
@@ -241,7 +243,7 @@ do ICASE1=1,11
     ! If there are 1-electron contributions, add them into the 2-el
     ! part (This requires a non-empty active space.)
     if (NSGM1 > 0) then
-      FACT = One/real(max(1,NACTEL),kind=wp)
+      FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
       if (ICASE1 == 1) then
         call SPEC1A(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
       else if (ICASE1 == 4) then
@@ -341,7 +343,7 @@ do ICASE1=1,11
 
     ND1 = 0
     IMLTOP = 1
-    FACT = One/real(max(1,NACTEL),kind=wp)
+    FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
     if (ICASE1 == 1) then
       ND1 = NASH(ISYM1)*NISH(ISYM1)
       if (ND1 > 0) then

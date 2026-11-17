@@ -20,7 +20,6 @@ subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
 
 use Symmetry_Info, only: Mul
 use CI_Info, only: CI_St
-use general_data, only: nActel
 use caspt2_module, only: EPSA, jState, mState
 use InputData, only: Input
 use Constants, only: Zero
@@ -34,10 +33,10 @@ integer(kind=byte), intent(in) :: idxG3(6,nG3)
 integer(kind=iwp) :: IW, IXYSYM, IY, IYSYM, IZ, NAC4
 integer(kind=iwp), parameter :: istate = 1
 
-if (NACTEL > 1) then
+if (CI_St(iState)%nActEl > 1) then
   NAC4 = NLEV*NLEV*NLEV*NLEV
   call chemps2_load2pdm(nlev,G2,MSTATE(JSTATE),Input%DoTranRDM)
-  call two2onerdm(nlev,NACTEL,G2,G1)
+  call two2onerdm(nlev,CI_St(iState)%nActEl,G2,G1)
 else
   write(u6,*) 'FATAL ERROR: DMRG-CASPT2 with CHEMPS2 does not work with NACTEL=1'
 end if
@@ -56,7 +55,7 @@ do iz=1,nlev
   end do
 end do
 
-if (NACTEL >= 3) then
+if (CI_St(iState)%nActEl >= 3) then
 
   if (Input%DoApproRDM) then
     write(u6,*) 'CHEMPS2> Cumulant approximation for F.4-RDM'

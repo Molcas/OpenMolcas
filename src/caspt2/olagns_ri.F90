@@ -69,6 +69,7 @@
 
 subroutine OLagNS_RI(iSym0,NBSQT,MaxVec_PT2,DPT2C,DPT2Canti,A_PT2)
 
+use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use PrintLevel, only: VERBOSE
@@ -80,7 +81,7 @@ use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array
 use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: do_csf, iPrGlb, iStpGrd
-use general_data, only: NACTEL, NASH
+use general_data, only: NASH
 use caspt2_module, only: HZERO, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, NIGEJES, NIGTJ, &
                          NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, &
                          NTUES, NTUV, NTUVES
@@ -91,6 +92,7 @@ use Definitions, only: wp, iwp, u6
 #include "macros.fh"
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iSym0, NBSQT, MaxVec_PT2
 real(kind=wp), intent(inout) :: DPT2C(NBSQT), DPT2Canti(NBSQT), A_PT2(MaxVec_PT2,MaxVec_PT2)
 integer(kind=iwp) :: IAABS, IAEND, IAGEC, IAGTC, IAJ, IAJSTA, iAtot, IB, IB1, IB2, IBEND, IBGRP, IBSTA, ICABS, ICASE, ICEND, ICL, &
@@ -118,7 +120,7 @@ if (IPRGLB >= VERBOSE) write(u6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
 
 !iVec = iVecX
 iSym = iSym0
-SCLNEL = One/real(max(1,NACTEL),kind=wp)
+SCLNEL = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

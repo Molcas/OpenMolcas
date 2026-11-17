@@ -27,7 +27,7 @@ use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
 use CI_Info, only: CI_St
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
-use general_data, only: ISPIN, NACTEL, NASH, nElec3, NHOLE1, STSYM
+use general_data, only: NASH, nElec3, NHOLE1
 use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, LROOTS, &
                          MSTATE, MSTATE, MXCI, NBAS, NBSQT, NCONF, NDEL, NFRO, NISH, NRAS1, NRAS2, NRAS3, NROOTS, NSYM, POTNUC, &
                          TITLE
@@ -109,8 +109,9 @@ end if
 call mma_allocate(Weight_,MxRoot,Label='Weight_')
 WEIGHT_(1:NROOTS) = WEIGHT(1:NROOTS)
 WEIGHT_(NROOTS+1:) = Zero
-call WR_RASSCF_INFO(JOBMIX,1,iAd15,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,8,BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144, &
-                    TITLE,4*18*MXTIT,POTNUC,LROOTS,MROOTS,JROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,nElec3,IFQCAN,Weight_)
+call WR_RASSCF_INFO(JOBMIX,1,iAd15,CI_St(jState)%nActEl,CI_St(jState)%iSpin,NSYM,CI_St(jState)%STSym,NFRO,NISH,NASH,NDEL,NBAS,8, &
+                    BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144,TITLE,4*18*MXTIT,POTNUC,LROOTS,MROOTS,JROOT,MXROOT,NRAS1,NRAS2,NRAS3, &
+                    NHOLE1,nElec3,IFQCAN,Weight_)
 call mma_deallocate(Weight_)
 call mma_deallocate(JROOT)
 ! Copy MO coefficients from JOBIPH to JOBMIX
@@ -220,7 +221,7 @@ if (IFMSCOUP) then
     if (ISCF == 0) then
       if (IPRGLB >= USUAL) then
         write(u6,'(1x,a,i3)') ' The CI coefficients for the MIXED state nr. ',ISTATE
-        call PRWF_CP2(STSYM,NCONF,CI2,CITHR)
+        call PRWF_CP2(CI_St(jState)%STSym,NCONF,CI2,CITHR)
       end if
     end if
     IDISK = IDIST(ISTATE)

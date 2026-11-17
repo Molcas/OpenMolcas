@@ -25,10 +25,10 @@ subroutine MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
 ! It will be recomputed later.
 ! The transformation matrices are returned in TORB.
 
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use caspt2_qmc_interface, only: DoFCIQMC, NonDiagonal
 use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX
-use general_data, only: STSym
 use caspt2_module, only: EPS, EPSA, EPSE, EPSI, iSCF, nBas, nConf, nDel, nFro, nIsh, nOMx, nOrb, nRas1, nRas2, nRas3, nSsh, &
                          nState, nSym
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
@@ -51,6 +51,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: NFIFA, NTORB, NCMO
 real(kind=wp), intent(in) :: FIFA(NFIFA)
 real(kind=wp), intent(out) :: TORB(NTORB)
@@ -255,7 +256,7 @@ if (ISCF == 0) then
         IDR = IDCIEX(IST)
         call DDAFILE(LUCIEX,2,CI,NCONF,IDR)
 
-        call mkTraCI(nTORB,TORB,STSYM,nConf,CI)
+        call mkTraCI(nTORB,TORB,CI_St(iState)%STSym,nConf,CI)
 
         IDW = IDTCEX(IST)
         call DDAFILE(LUCIEX,1,CI,NCONF,IDW)

@@ -15,7 +15,6 @@ subroutine CLagX(IFF,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 
 use PrintLevel, only: VERBOSE
 use CI_Info, only: CI_St
-use general_data, only: nLev
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: EPSA, HZERO, JSTATE, NG1, NG2, NG3, NG3TOT
 use BDerNEV, only: BDerNEV_E4
@@ -115,9 +114,9 @@ call CLagSym(nAshT,DG1,DG2,DF1,DF2,0)
 !! Do for the derivative of EASUM
 !! EASUM=EASUM+EPSA(IT)*DREF(IT,IT)
 if (IFF == 1) then
-  do ILEV=1,nLev
-    DG1(ILEV+nLev*(ILEV-1)) = DG1(ILEV+nLev*(ILEV-1))+DEASUM*EPSA(CI_St(istate)%L2Act(ILEV))
-    DEPSA(:,ILEV) = DEPSA(:,ILEV)+DEASUM*G1(nLev*(ILEV-1)+1:nLev*ILEV)
+  do ILEV=1,CI_St(iState)%nLev
+    DG1(ILEV+CI_St(iState)%nLev*(ILEV-1)) = DG1(ILEV+CI_St(iState)%nLev*(ILEV-1))+DEASUM*EPSA(CI_St(istate)%L2Act(ILEV))
+    DEPSA(:,ILEV) = DEPSA(:,ILEV)+DEASUM*G1(CI_St(iState)%nLev*(ILEV-1)+1:CI_St(iState)%nLev*ILEV)
   end do
 end if
 
@@ -134,7 +133,7 @@ if (is_real_par()) then
 end if
 #endif
 
-call CnstCLag(IFF,nLev,NG3,NCONF,CLag(1,jState),DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
+call CnstCLag(IFF,CI_St(iState)%nLev,NG3,NCONF,CLag(1,jState),DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
 call mma_deallocate(G1)
 call mma_deallocate(G2)
@@ -152,7 +151,7 @@ call mma_deallocate(DF3_H)
 
 if (HZERO == 'DYALL') then
   if (IPRGLB >= VERBOSE) call TIMING(CPTF0,CPE,TIOTF0,TIOE)
-  call BDerNEV_E4(nConf,nLev,CLag(1,jState))
+  call BDerNEV_E4(nConf,CI_St(iState)%nLev,CLag(1,jState))
   if (IPRGLB >= VERBOSE) then
     call TIMING(CPTF10,CPE,TIOTF10,TIOE)
     CPUT = CPTF10-CPTF0

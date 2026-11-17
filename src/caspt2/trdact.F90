@@ -28,7 +28,7 @@ subroutine TRDACT(IVEC,JVEC,DTU)
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use CI_Info, only: CI_St
 use caspt2_global, only: IDTCEX, LUCIEX
-use general_data, only: nAsh, nLev, STSym
+use general_data, only: nAsh
 use caspt2_module, only: iASym, iSCF, jState, MxCI, nAes, nAshT, nAshT, nConf, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -65,7 +65,7 @@ else
   TRDCI(1) = One
 end if
 TRDTMP(:) = Zero
-call HAM3(OP0,TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3,STSYM,TRDCI,TRDTMP,nCONF)
+call HAM3(OP0,TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3,CI_St(iState)%STSym,TRDCI,TRDTMP,nCONF)
 ! No more need for the operators:
 call MMA_DEALLOCATE(TRDOP1)
 call MMA_DEALLOCATE(TRDOP2)
@@ -76,10 +76,10 @@ call MMA_DEALLOCATE(TRDOP3)
 if (ISCF == 0) then
   ! Create reorder table giving the GUGA level, i.e. CI-coupling
   ! ordinal number of each active orbital.
-  call mma_allocate(IATOG,NLEV,Label='IATOG')
+  call mma_allocate(IATOG,CI_St(iState)%nLev,Label='IATOG')
   ITABS = 0
   do ISYM=1,NSYM
-    do I=1,NLEV
+    do I=1,CI_St(iState)%nLev
       if (CI_St(istate)%ISm(I) == ISYM) then
         ITABS = ITABS+1
         IATOG(ITABS) = I
@@ -93,7 +93,7 @@ if (ISCF == 0) then
     do IU=1,NASH(ISYMT)
       IUABS = NAES(ISYMT)+IU
       IULEV = IATOG(IUABS)
-      call GETSGM2(IULEV,ITLEV,STSYM,TRDCI,NCONF,TRDSGM,NCONF)
+      call GETSGM2(IULEV,ITLEV,CI_St(iState)%STSym,TRDCI,NCONF,TRDSGM,NCONF)
       SCP = DDOT_(NCONF,TRDSGM,1,TRDTMP,1)
       DTU(ITABS,IUABS) = DTU(ITABS,IUABS)+SCP
     end do

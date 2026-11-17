@@ -59,6 +59,7 @@ use Constants, only: Quart
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: nFMO, nTUVX
 real(kind=wp), intent(in) :: FMO(nFMO), TUVX(nTUVX)
 integer(kind=iwp), intent(in) :: IFINAL
@@ -95,7 +96,7 @@ call mma_allocate(ExplE,m_Sel,label='ExplE')
 call mma_allocate(ExplV,m_Sel,mSel,label='ExplV')
 ! with HEXS/DEXS the explicit subspace holds at most the kept CSFs
 nMaxSel = nConf
-if (Space_Removals(Space_Inp)) nMaxSel = CI_St(1)%nCSF_Kept
+if (Space_Removals(Space_Inp)) nMaxSel = CI_St(iState)%nCSF_Kept
 
 call CStart(CIVEC,FMO,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
 
@@ -129,7 +130,7 @@ ITERCI = 1
 if (NAC == 0) then
   ENER(1,ITER) = EMY
 else
-  if ((nSel == nConf) .or. (Space_Removals(Space_Inp) .and. (nSel == CI_St(1)%nCSF_Kept))) then
+  if ((nSel == nConf) .or. (Space_Removals(Space_Inp) .and. (nSel == CI_St(iState)%nCSF_Kept))) then
     do jRoot=1,lRoots-hRoots
       ENER(jRoot,ITER) = ExplE(jRoot)
     end do

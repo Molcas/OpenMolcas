@@ -66,6 +66,7 @@ use Constants, only: Zero, Two, Six, Half, OneHalf
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp), intent(in) :: lOPTO
 integer(kind=iwp) :: i, iCharge, iComp, iDoRI, iEnd, iGAS, iOpt, iPrLev, iRC, iRef, iStart, iSyLbl, iSym, iTemp, j, left, lLine, &
                      lPaper, MaxRem, n_paired_elec, n_unpaired_elec, nLine
@@ -283,21 +284,21 @@ if (IPRLEV > SILENT) then
         call print_dmrg_info(u6,fmt2,1,dmrg_start_guess,nroots,thre)
 #       endif
       else
-        write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',CI_St(1)%nCSF(STSYM)
-        if (Space_Removals(Space_Inp)) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',CI_St(1)%nCSF_Kept
+        write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',CI_St(iState)%nCSF(STSYM)
+        if (Space_Removals(Space_Inp)) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',CI_St(iState)%nCSF_Kept
         ! (no determinants without Lucia, SGCI)
         if (.not. CI_Lucia_Active()) then
         else if (IDC == 2) then
-          write(u6,Fmt2//'A,T40,I11)') 'Number of spin combinations',CI_St(1)%nDet(STSYM)
-          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',2*CI_St(1)%nDet(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
+          write(u6,Fmt2//'A,T40,I11)') 'Number of spin combinations',CI_St(iState)%nDet(STSYM)
+          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',2*CI_St(iState)%nDet(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
         else
-          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(1)%nDet(STSYM)
+          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(iState)%nDet(STSYM)
         end if
       end if
       n_Det = 2
       n_unpaired_elec = (iSpin-1)
       n_paired_elec = nActEl-n_unpaired_elec
-      if ((n_unpaired_elec+n_paired_elec/2 == nac) .or. (CI_St(1)%nDet(STSYM) == 1)) n_Det = 1
+      if ((n_unpaired_elec+n_paired_elec/2 == nac) .or. (CI_St(iState)%nDet(STSYM) == 1)) n_Det = 1
       if (KSDFT == 'DIFF') n_Det = 1
       if (KSDFT == 'ROKS') n_Det = 1
 
@@ -370,7 +371,7 @@ if (IPRLEV > SILENT) then
   ! NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
   !              since Block DMRG code will check this internally
   !if (NROOTS > CI_St(1)%nCSF(STSYM)) then
-  if ((.not. any([DoNECI,Do_CC_CI,DumpOnly,doDMRG,doBlockDMRG])) .and. (NROOTS > CI_St(1)%nCSF(STSYM))) then
+  if ((.not. any([DoNECI,Do_CC_CI,DumpOnly,doDMRG,doBlockDMRG])) .and. (NROOTS > CI_St(iState)%nCSF(STSYM))) then
     write(u6,*) '************ ERROR ***********'
     write(u6,*) ' You can''t ask for more roots'
     write(u6,*) ' than there are configurations '
@@ -380,14 +381,14 @@ if (IPRLEV > SILENT) then
   end if
   ! If the calculation will be too big:
   call mma_MaxDBLE(MaxRem)
-  WillNeedMB = OneHalf*Six*CI_St(1)%nDet(STSYM)*RtoB/Two**20
+  WillNeedMB = OneHalf*Six*CI_St(iState)%nDet(STSYM)*RtoB/Two**20
   AvailMB = MaxRem*RtoB/Two**20
   if (WillNeedMB > AvailMB) then
     write(u6,*)
     write(u6,*) ' *************************************************'
     write(u6,*) ' Sorry, but your calculation will probably be too'
     write(u6,*) ' large for the available memory.'
-    write(u6,*) ' The number of determinants is ',CI_St(1)%nDet(STSYM)
+    write(u6,*) ' The number of determinants is ',CI_St(iState)%nDet(STSYM)
     write(u6,*) ' During CI equation solution, there will be'
     write(u6,*) ' up to six vectors of this size in memory.'
     write(u6,*) ' We estimate an additional 50% for other stuff.'

@@ -114,6 +114,10 @@ subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,LSym,nRas,nRasEl,nRsPrt,Level,L2
       call Abend()
   end select
   call Fill_Info(iState)
+  ! the CI state itself, also without a graph (Mode 'NONE' marks the graph
+  ! with SGS%nActEl = SGS%iSpin = 0)
+  CI_St(iState)%nActEl = nActEl
+  CI_St(iState)%iSpin = iSpin
   CI_St(iState)%STSym = LSym
 end subroutine CI_Setup_SG
 

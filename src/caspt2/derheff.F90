@@ -13,16 +13,17 @@
 
 subroutine DerHEff(nConf,nRoots,nState,CLag,VECROT)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri3_Elem
 use caspt2_global, only: IDTCEX, LUCIEX
 use EQSOLV, only: IVECC, IVECW
-use general_data, only: STSYM
 use caspt2_module, only: ISCF, JSTATE, MXCI, NASHT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: nConf, nRoots, nState
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots)
 real(kind=wp), intent(in) :: VECROT(nState)
@@ -75,7 +76,7 @@ if (ISCF == 0) then
   end do
 
   CI3(1:NCONF) = Zero
-  call DERTG3(.true.,STSYM,STSYM,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,CI3,CLag(1,JST))
+  call DERTG3(.true.,CI_St(iState)%STSym,CI_St(iState)%STSym,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,CI3,CLag(1,JST))
 
   do I=1,NSTATE
     IST = I

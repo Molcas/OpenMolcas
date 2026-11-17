@@ -22,7 +22,6 @@ subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,DRDM,nLev)
 
 use Symmetry_Info, only: Mul
 use CI_Info, only: CI_St
-use general_data, only: STSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 use Para_Info, only: Is_Real_Par, King, nProcs
@@ -76,11 +75,11 @@ do while (Rsv_Tsk(ID,iTask))
   ISU = CI_St(istate)%ISm(LU)
   IU = CI_St(istate)%L2Act(LU)
   ISTU = Mul(IST,ISU)
-  ISSG = Mul(ISTU,STSYM)
+  ISSG = Mul(ISTU,CI_St(iState)%STSym)
   NSGM = CI_St(istate)%nCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
-  call GETSGM2(LU,LT,STSYM,CI,NCI,SGM1,NSGM)
+  call GETSGM2(LU,LT,CI_St(iState)%STSym,CI,NCI,SGM1,NSGM)
   ! Symmetry not yet
   if (ISTU == 1) CLag(1:NSGM) = CLag(1:NSGM)+DRDM(IT,IU)*SGM1(1:NSGM)
 

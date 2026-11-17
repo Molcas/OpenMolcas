@@ -28,17 +28,19 @@ subroutine TRDNS1(IVEC,DPT1,NDPT1)
 
 ! Only cases A, C and D(Symm 1) contributes.
 
+use CI_Info, only: CI_St
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 #endif
 use fake_GA, only: GA_Arrays
-use general_data, only: nActel, nAsh
+use general_data, only: nAsh
 use caspt2_module, only: nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: IVEC, NDPT1
 real(kind=wp), intent(inout) :: DPT1(NDPT1)
 integer(kind=iwp) :: IA, ICASE, ID, IDOFF, II, IMLTOP, ISYM, IT, ITTOT, IW, IWAI, IWAT, IWOFF, IWTI, lVec, NA, NAS, NI, NIS, NO, &
@@ -70,7 +72,7 @@ if (NWTI /= 0) then
     if (NVEC == 0) cycle
     call RHS_ALLO(NAS,NIS,LVEC)
     call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-    FACT = One/real(max(1,NACTEL),kind=wp)
+    FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
 #   ifdef _MOLCAS_MPP_
     if (IS_REAL_PAR()) then
       if (KING()) then
@@ -104,7 +106,7 @@ if (NWAT /= 0) then
     if (NSSH(ISYM)*NASH(ISYM) == 0) cycle
     call RHS_ALLO(NAS,NIS,LVEC)
     call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-    FACT = One/real(max(1,NACTEL),kind=wp)
+    FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
 #   ifdef _MOLCAS_MPP_
     if (IS_REAL_PAR()) then
       if (KING()) then
@@ -136,7 +138,7 @@ if (NWAI /= 0) then
     if (NVEC == 0) cycle
     call RHS_ALLO(NAS,NIS,LVEC)
     call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-    FACT = One/real(max(1,NACTEL),kind=wp)
+    FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
 #   ifdef _MOLCAS_MPP_
     if (IS_REAL_PAR()) then
       if (KING()) then

@@ -65,11 +65,12 @@ end subroutine BDerNEV_initial
 
 subroutine BDerNEV_final1(NDPT2C,DPT2C)
 
-  use General_data, only: NACTEL
+  use CI_Info, only: CI_St
 # ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 # endif
 
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: NDPT2C
   real(kind=wp), intent(inout) :: DPT2C(NDPT2C)
   integer(kind=iwp) :: kk
@@ -84,7 +85,7 @@ subroutine BDerNEV_final1(NDPT2C,DPT2C)
   end do
   Hder(:,:) = Hder(:,:)+Hbder(:,:)+Htder(:,:)
   !! Compensate the division by the number of electrons in OLagNS2 or OLagNS_RI
-  Hder(:,:) = Hder(:,:)*real(max(1,nactel),kind=wp)
+  Hder(:,:) = Hder(:,:)*real(max(1,CI_St(iState)%nActEl),kind=wp)
 
 # ifdef _MOLCAS_MPP_
   if (Is_Real_Par()) then

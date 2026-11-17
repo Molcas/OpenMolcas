@@ -25,8 +25,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: IWAY, IREFSM, ICOPY
-real(kind=wp), intent(inout) :: CSFVEC(CI_St(1)%nDet(IREFSM)), DETVEC(CI_St(1)%nDet(IREFSM))
+real(kind=wp), intent(inout) :: CSFVEC(CI_St(iState)%nDet(IREFSM)), DETVEC(CI_St(iState)%nDet(IREFSM))
 integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NDET
 
 ! To avoid compiler complaints
@@ -35,8 +36,8 @@ IOFFCS = 0
 IOFFDT = 0
 IOFFCD = 0
 
-NDET = CI_St(1)%nDet(IREFSM)
-NCSF = CI_St(1)%nCSF(IREFSM)
+NDET = CI_St(iState)%nDet(IREFSM)
+NCSF = CI_St(iState)%nCSF(IREFSM)
 #ifdef _DEBUGPRINT_
 write(u6,*) '======================================='
 write(u6,*) '         CSDTVC INFORMATIONS'

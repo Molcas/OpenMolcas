@@ -61,7 +61,6 @@ module NEVPT2_E4
 ! ... at the moment, no
 
 use Index_Functions, only: iTri, nTri_Elem
-use general_data, only: STSYM
 use caspt2_module, only: MXCI, NTUVES
 use CI_Info, only: CI_St
 use CI_States, only: CI_Epq_Psi
@@ -146,7 +145,7 @@ subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,Gact,CI,ZVEC,WRK)
       end do
     end if
     WRK(:,ibuf) = Zero
-    call CI_Epq_Psi(istate,IVLEV,IXLEV,One,STSYM,CI,WRK(:,ibuf))
+    call CI_Epq_Psi(istate,IVLEV,IXLEV,One,CI_St(istate)%STSym,CI,WRK(:,ibuf))
     if (ibuf == NZVEC) then
       !! Finalize the contribution
       call dgemm_('N','T',MXCI,nxy,ibuf,One,WRK,MXCI,Gact_sort,nxy,Scal,ZVEC,MXCI)
@@ -202,7 +201,7 @@ subroutine NEVPT2_E4_XYVEC(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,ZVEC,XYV
     ivlev = idx2ij(1,ip2)
     ixlev = idx2ij(2,ip2)
     isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
-    issg2 = Mul(isvx,stsym)
+    issg2 = Mul(isvx,CI_St(istate)%STSym)
     !iv = CI_St(istate)%L2Act(ivlev)
     ix = CI_St(istate)%L2Act(ixlev)
     if ((NXY_work /= NLEV) .and. ((ivlev < ixyzsta) .or. (ivlev > ixyzend))) cycle
@@ -282,13 +281,13 @@ subroutine NEVPT2_E4_contract1(iSym0,iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XY
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
     istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
-    issg1 = Mul(istu,stsym)
+    issg1 = Mul(istu,CI_St(istate)%STSym)
     if (issg1 /= iSym) cycle
     nsgm1 = CI_St(istate)%nCSF(issg1)
     it = CI_St(istate)%L2Act(itlev)
     iu = CI_St(istate)%L2Act(iulev)
     BUFT(1:nsgm1) = Zero
-    call CI_Epq_Psi(istate,IULEV,ITLEV,One,STSYM,CI,BUFT(:))
+    call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(istate)%STSym,CI,BUFT(:))
     if (do_xvec .and. do_yvec) then
       call dgemv_('T',nsgm1,nxy,One,XYvec(:,:,1),mxci,BUFT(:),1,Zero,XYcont(:,1,ip1),1)
       call dgemv_('T',nsgm1,nxy,One,XYvec(:,:,2),mxci,BUFT(:),1,Zero,XYcont(:,2,ip1),1)
@@ -413,12 +412,12 @@ subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUF
     iylev = idx2ij(1,ip1)
     izlev = idx2ij(2,ip1)
     isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
-    issg1 = Mul(isyz,stsym)
+    issg1 = Mul(isyz,CI_St(istate)%STSym)
     nsgm1 = CI_St(istate)%nCSF(issg1)
     iy = CI_St(istate)%L2Act(iylev)
     iz = CI_St(istate)%L2Act(izlev)
     BUFT(1:nsgm1) = Zero
-    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,STSYM,CI,BUFT(:))
+    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(istate)%STSym,CI,BUFT(:))
 
     if (NXY_work == NLEV) then
       Zvec(1:MXCI,1:nlev2-ip1+1) = Zero
@@ -558,12 +557,12 @@ subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUF
       if (ip2 /= ip1) then
         ! EyzEvx = EvxEyz + Eyx del(vz) - Evz del(yx)
         ! Note that the index of ipxy for XYcont is reversed
-        if ((iv == iz) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(ixlev)),STSYM))) then
+        if ((iv == iz) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(ixlev)),CI_St(istate)%STSym))) then
           ipxy = ij2idx(ixlev,iylev)
           if (do_xvec) XYtmp(1:nxy,ip2-ip1+1,1) = XYtmp(1:nxy,ip2-ip1+1,1)+XYcont(1:nxy,1,ipxy)
           if (do_yvec) XYtmp(1:nxy,ip2-ip1+1,2) = XYtmp(1:nxy,ip2-ip1+1,2)+XYcont(1:nxy,2,ipxy)
         end if
-        if ((iy == ix) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(izlev)),STSYM))) then
+        if ((iy == ix) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(izlev)),CI_St(istate)%STSym))) then
           ipxy = ij2idx(izlev,ivlev)
           if (do_xvec) XYtmp(1:nxy,ip2-ip1+1,1) = XYtmp(1:nxy,ip2-ip1+1,1)-XYcont(1:nxy,1,ipxy)
           if (do_yvec) XYtmp(1:nxy,ip2-ip1+1,2) = XYtmp(1:nxy,ip2-ip1+1,2)-XYcont(1:nxy,2,ipxy)
@@ -713,7 +712,7 @@ subroutine NEVPT2_E4_derivative1(iSym0,iSym,NLEV,idx2ij,ipxysta,ipxyend,BDERA,BD
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
     istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
-    issg1 = Mul(istu,stsym)
+    issg1 = Mul(istu,CI_St(istate)%STSym)
     if (issg1 /= iSym) cycle
     it = CI_St(istate)%L2Act(itlev)
     iu = CI_St(istate)%L2Act(iulev)
@@ -807,7 +806,7 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
     isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
-    issg3 = Mul(isyz,stsym)
+    issg3 = Mul(isyz,CI_St(istate)%STSym)
     nsgm3 = CI_St(istate)%nCSF(issg3)
     iy = CI_St(istate)%L2Act(iylev)
     iz = CI_St(istate)%L2Act(izlev)
@@ -876,7 +875,7 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
               XYtmp(itlev-ixyzsta+1+nxyzdim*(iulev-1),ip2-ip3+1,2) = XYtmp(itlev-ixyzsta+1+nxyzdim*(iulev-1),ip2-ip3+1,2)+tmp2
             end if
           end if
-          if ((iv == iz) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(ixlev)),STSYM))) then
+          if ((iv == iz) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(ixlev)),CI_St(istate)%STSym))) then
             ip1 = ij2idx(ixlev,iylev)
             if (NXY_work == NLEV) then
               if (do_xvec) XYcont(ipxy-ipxysta+1,1,ip1) = XYcont(ipxy-ipxysta+1,1,ip1)+tmp1
@@ -886,7 +885,7 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
               if (do_yvec) XYcont(itlev-ixyzsta+1+nxyzdim*(iulev-1),2,ip1) = XYcont(itlev-ixyzsta+1+nxyzdim*(iulev-1),2,ip1)+tmp2
             end if
           end if
-          if ((iy == ix) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(izlev)),STSYM))) then
+          if ((iy == ix) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(izlev)),CI_St(istate)%STSym))) then
             ip1 = ij2idx(izlev,ivlev)
             if (NXY_work == NLEV) then
               if (do_xvec) XYcont(ipxy-ipxysta+1,1,ip1) = XYcont(ipxy-ipxysta+1,1,ip1)-tmp1
@@ -901,7 +900,7 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
     end do
 
     BUFT(1:nsgm3) = Zero
-    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,STSYM,CI,BUFT(:))
+    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(istate)%STSym,CI,BUFT(:))
 
     if (NXY_work == NLEV) then
       Zvec(1:MXCI,1:nlev2-ip3+1) = Zero
@@ -1059,14 +1058,14 @@ subroutine NEVPT2_E4_derivative3(iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XYcont
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
     istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
-    issg1 = Mul(istu,stsym)
+    issg1 = Mul(istu,CI_St(istate)%STSym)
     nbufxy = nbufxy+1
     if (issg1 /= iSym) cycle
     nsgm1 = CI_St(istate)%nCSF(issg1)
     !it = CI_St(istate)%L2Act(itlev)
     !iu = CI_St(istate)%L2Act(iulev)
     BUFT(1:nsgm1) = Zero
-    call CI_Epq_Psi(istate,IULEV,ITLEV,One,STSYM,CI,BUFT(:))
+    call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(istate)%STSym,CI,BUFT(:))
     do ipxy=1,nxy
       ! ----- E*X and E*Y terms
       if (do_xvec .and. do_yvec) then
@@ -1126,7 +1125,7 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
       isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
-      issg2 = Mul(isvx,stsym)
+      issg2 = Mul(isvx,CI_St(istate)%STSym)
       nsgm2 = CI_St(istate)%nCSF(issg2)
       iv = CI_St(istate)%L2Act(ivlev)
       ix = CI_St(istate)%L2Act(ixlev)
@@ -1183,12 +1182,12 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
       isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
-      issg2 = Mul(isvx,stsym)
+      issg2 = Mul(isvx,CI_St(istate)%STSym)
       nsgm2 = CI_St(istate)%nCSF(issg2)
       iv = CI_St(istate)%L2Act(ivlev)
       ix = CI_St(istate)%L2Act(ixlev)
       buf1(1:nsgm2) = Zero
-      call CI_Epq_Psi(istate,IVLEV,IXLEV,One,STSYM,CI,buf1(:))
+      call CI_Epq_Psi(istate,IVLEV,IXLEV,One,CI_St(istate)%STSym,CI,buf1(:))
       !! electron repulsion terms
       do ip1=ip2,nlev2
         itlev = idx2ij(1,ip1)
@@ -1225,10 +1224,10 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
         if (ip1 /= ip2) then
           ! EvxEtu = EtuEvx + Evu del(tx) - Etx del(vu)
           buft(1:nsgm1) = buf2(1:nsgm1)
-          if ((itlev == ixlev) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(iulev),CI_St(istate)%ISm(ivlev)),STSYM))) &
-            call CI_Epq_Psi(istate,IVLEV,IULEV,+One,STSYM,CI,BUFT(1:nsgm1))
-          if ((iulev == ivlev) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(ixlev)),STSYM))) &
-            call CI_Epq_Psi(istate,ITLEV,IXLEV,-One,STSYM,CI,BUFT(1:nsgm1))
+          if ((itlev == ixlev) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(iulev),CI_St(istate)%ISm(ivlev)),CI_St(istate)%STSym))) &
+            call CI_Epq_Psi(istate,IVLEV,IULEV,+One,CI_St(istate)%STSym,CI,BUFT(1:nsgm1))
+          if ((iulev == ivlev) .and. (iSym == Mul(Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(ixlev)),CI_St(istate)%STSym))) &
+            call CI_Epq_Psi(istate,ITLEV,IXLEV,-One,CI_St(istate)%STSym,CI,BUFT(1:nsgm1))
           do iylev=1,nlev
             iy = CI_St(istate)%L2Act(iylev)
             ! Evx Etu * (av|tu) -> Xat
@@ -1310,13 +1309,13 @@ subroutine NEVPT2_E4_XYder2(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,Gact
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
       isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
-      issg2 = Mul(isvx,stsym)
+      issg2 = Mul(isvx,CI_St(istate)%STSym)
       nsgm2 = CI_St(istate)%nCSF(issg2)
       iv = CI_St(istate)%L2Act(ivlev)
       ix = CI_St(istate)%L2Act(ixlev)
       !ibuf = ibuf + 1
       BUFT(1:MXCI) = Zero
-      call CI_Epq_Psi(istate,IVLEV,IXLEV,One,STSYM,CI,BUFT(:))
+      call CI_Epq_Psi(istate,IVLEV,IXLEV,One,CI_St(istate)%STSym,CI,BUFT(:))
       if (NXY_work == NLEV) then
         !call dgemv_('T',nsgm1,nxy,One,XYvec(:,:,1),mxci,BUFT(:),1,Zero,XYcont(:,1,ip1),1)
         call dgemv_('T',nsgm2,nxy,One,Zder,MXCI,BUFT,1,Zero,Gder_sort,1)

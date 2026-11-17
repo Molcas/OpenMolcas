@@ -18,7 +18,7 @@ use PrintLevel, only: VERBOSE
 use CI_Info, only: CI_St
 use CI_States, only: CI_Walk_Next
 use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
-use general_data, only: NASH, STSYM
+use general_data, only: NASH
 use caspt2_module, only: IFRMS, IFXMS, ISCF, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -489,6 +489,7 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
   use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
   use Constants, only: Two
 
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: Mode, nConf, nState, nAshT
   real(kind=wp), intent(in) :: CIin(nConf,nState), INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
   real(kind=wp), intent(out) :: CIout(nConf,nState)
@@ -534,11 +535,11 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
       ISU = CI_St(jstate)%ISm(LU)
       IU = CI_St(jstate)%L2Act(LU)
       ISTU = Mul(IST,ISU)
-      ISSG = Mul(ISTU,STSYM)
+      ISSG = Mul(ISTU,CI_St(iState)%STSym)
       NSGM = CI_St(jstate)%nCSF(ISSG)
       if (NSGM == 0) cycle
       !! <CIin|Etu
-      call GETSGM2(LU,LT,STSYM,CIin(1,kState),nConf,SGM1,NSGM)
+      call GETSGM2(LU,LT,CI_St(iState)%STSym,CIin(1,kState),nConf,SGM1,NSGM)
       !! <CIin|Etu|CIout>*I1tu
       if (ISTU == 1) CIout(1:NSGM,kState) = CIout(1:NSGM,kState)+INT1(IT,IU)*SGM1(1:NSGM)
       LVX = 0

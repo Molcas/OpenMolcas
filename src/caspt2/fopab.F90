@@ -15,7 +15,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use CI_Info, only: CI_St
 use CI_States, only: CI_Epq_Psi
 use caspt2_global, only: IDCIEX, LUCIEX
-use general_data, only: NASH, nLEV, STSYM
+use general_data, only: NASH
 use caspt2_module, only: ISCF, NAES, NCONF, NISH, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -115,7 +115,7 @@ end if
 ! Compute (lowering part of) FIFA operator acting on
 ! the ket wave function.
 SGM(:) = Zero
-do LEVU=1,NLEV
+do LEVU=1,CI_St(iState)%nLev
   IUABS = CI_St(istate)%L2Act(LEVU)
   ISU = CI_St(istate)%ISm(LEVU)
   IU = IUABS-NAES(ISU)
@@ -130,7 +130,7 @@ do LEVU=1,NLEV
     ITUTOT = iTri(IUTOT,ITTOT)
     FTU = FIFA(IOFF(ISU)+ITUTOT)
     if (abs(FTU) < 1.0e-16_wp) cycle
-    call CI_Epq_Psi(istate,LEVT,LEVU,FTU,STSYM,KET,SGM)
+    call CI_Epq_Psi(istate,LEVT,LEVU,FTU,CI_St(iState)%STSym,KET,SGM)
   end do
 end do
 ! Add contribution from inactive part:
@@ -158,7 +158,7 @@ end if
 ! using them as <BRA|Eut|KET>
 ! Note that I already have BRA in memory
 SGM(:) = Zero
-do LEVU=2,NLEV
+do LEVU=2,CI_St(iState)%nLev
   IUABS = CI_St(istate)%L2Act(LEVU)
   ISU = CI_St(istate)%ISm(LEVU)
   IU = IUABS-NAES(ISU)
@@ -173,7 +173,7 @@ do LEVU=2,NLEV
     ITUTOT = iTri(IUTOT,ITTOT)
     FTU = FIFA(IOFF(ISU)+ITUTOT)
     if (abs(FTU) < 1.0e-16_wp) cycle
-    call CI_Epq_Psi(istate,LEVT,LEVU,FTU,STSYM,BRA,SGM)
+    call CI_Epq_Psi(istate,LEVT,LEVU,FTU,CI_St(iState)%STSym,BRA,SGM)
   end do
 end do
 

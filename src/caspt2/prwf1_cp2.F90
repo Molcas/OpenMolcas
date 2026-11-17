@@ -21,7 +21,6 @@ subroutine PRWF1_CP2(ISYCI,CI,mCI,THR)
 
 use CI_Info, only: CI_St
 use CI_States, only: CI_Walk_Next
-use general_data, only: ISPIN, nLev
 use caspt2_module, only: PRSD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -40,13 +39,13 @@ integer(kind=iwp), parameter :: istate = 1
 ! their split-graph position (midvertex, upper symmetry, upper and lower
 ! walk) and step vector.
 
-call mma_allocate(ICS,NLEV,Label='ICS')
+call mma_allocate(ICS,CI_St(iState)%nLev,Label='ICS')
 
 ! SVC: set up a CSF string length as LENCSF
 LINE = ' '
 LENCSF = 0
 ISY = 0
-do LEV=1,NLEV
+do LEV=1,CI_St(iState)%nLev
   if (ISY /= CI_St(istate)%ISm(LEV)) then
     ISY = CI_St(istate)%ISm(LEV)
     LENCSF = LENCSF+1
@@ -65,7 +64,7 @@ write(u6,'(2X,A10,2X,A16,2X,A,2(2X,A13))') 'Conf','SGUGA info      ',LINE(1:LENC
 
 ! SVC2010:
 ! allocate scratch memory for determinant expansion
-if (PRSD) call mma_allocate(LEX,NLEV,LABEL='LEX')
+if (PRSD) call mma_allocate(LEX,CI_St(iState)%nLev,LABEL='LEX')
 
 LINE = ''
 
@@ -80,7 +79,7 @@ do ICONF=1,mCI
   ! PRINT IT!
   K = 0
   ISY = 0
-  do LEV=1,NLEV
+  do LEV=1,CI_St(iState)%nLev
     if (ISY /= CI_St(istate)%ISm(LEV)) then
       ISY = CI_St(istate)%ISm(LEV)
       K = K+1
@@ -95,9 +94,9 @@ do ICONF=1,mCI
   if (PRSD) then
     ! Specify projected spin in half integer units
     ! Default: use maximum spin projection
-    IMS = ISPIN-1
+    IMS = CI_St(iState)%iSpin-1
     write(u6,*)
-    call EXPCSF(ICS,NLEV,IMS,LEX,coef,0)
+    call EXPCSF(ICS,CI_St(iState)%nLev,IMS,LEX,coef,0)
     write(u6,*)
   end if
 end do

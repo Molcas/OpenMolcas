@@ -13,6 +13,7 @@
 
 subroutine RHSOD_D(IVEC)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTU, MAREL, MIA, MIREL, MTREL, MTU
@@ -24,13 +25,14 @@ use GA_Wrapper, only: DBL_MB
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_global, only: FIMO, iPrGlb
-use general_data, only: nActel, nAsh
+use general_data, only: nAsh
 use caspt2_module, only: NASHT, NASUP, NIAES, NISH, NISUP, NORB, NSSH, NSYM, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: IVEC
 integer(kind=iwp) :: IA, IAABS, IAEND, IAEND1, IAEND2, IAJ, IAJTOT, IASTA, IASTA1, IASTA2, IATOT, iCASE, IDX, IFIMOES, IIEND, &
                      IISTA, IJ, IJABS, IOAJ, IOAV, IOBRA1(8,8), IOBRA2(8,8), IOFFAJ, IOFFAV, IOFFTJ, IOFFTV, IOKET1(8,8), &
@@ -74,7 +76,7 @@ iCASE = 5
 ! outer loop over symmetry blocks in the RHS
 !***********************************************************************
 ! set up FIMO access
-ACTINV = One/real(max(1,NACTEL),kind=wp)
+ACTINV = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
 IFIMOES = 0
 do ISYM=1,NSYM
   NFIMOES(ISYM) = IFIMOES

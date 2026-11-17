@@ -15,7 +15,6 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
 use Index_Functions, only: nTri_Elem
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX
-use general_data, only: NACTEL, STSYM
 use caspt2_module, only: JSTATE, MXCI, NCONF, NSYM
 use PrintLevel, only: verbose
 use CI_Info, only: CI_St
@@ -53,9 +52,9 @@ integer(kind=iwp), parameter :: istate = 1
 ! only lowering operation is permitted
 
 if (nlev == 0) return
-if (NACTEL == 0) return
+if (CI_St(iState)%nActEl == 0) return
 
-NCI = CI_St(istate)%nCSF(STSYM)
+NCI = CI_St(istate)%nCSF(CI_St(iState)%STSym)
 ! This should not happen, but...
 if (NCI == 0) return
 
@@ -278,12 +277,12 @@ else
     ialev = idx2ij(1,ip4)
     iblev = idx2ij(2,ip4)
     isab = Mul(CI_St(istate)%ISm(ialev),CI_St(istate)%ISm(iblev))
-    issg4 = Mul(isab,stsym)
+    issg4 = Mul(isab,CI_St(iState)%STSym)
     nsgm4 = CI_St(istate)%nCSF(issg4)
     !ia = CI_St(istate)%L2Act(ialev)
     !ib = CI_St(istate)%L2Act(iblev)
     BUF2(1:nsgm4,4) = Zero
-    call CI_Epq_Psi(istate,IALEV,IBLEV,One,STSYM,CI,BUF2(:,4))
+    call CI_Epq_Psi(istate,IALEV,IBLEV,One,CI_St(iState)%STSym,CI,BUF2(:,4))
     do ip3=ip4,nlev2
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)

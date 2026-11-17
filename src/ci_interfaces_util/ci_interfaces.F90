@@ -492,8 +492,9 @@ end subroutine SG_HDiag_G
 !> SGUGA covers the CI space of RASSCF: CAS and RAS directly, GAS through
 !> the relaxed space (set up by SG_Setup_RASSCF; HEXS/DEXS are masks).
 function SG_Avail() result(Avail)
+integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp) :: Avail
-Avail = (.not. iDoGAS) .or. (CI_St(1)%iRel > 0)
+Avail = (.not. iDoGAS) .or. (CI_St(iState)%iRel > 0)
 end function SG_Avail
 
 !> HEXS/DEXS: is a configuration with nOcc(k) electrons in partition k of
