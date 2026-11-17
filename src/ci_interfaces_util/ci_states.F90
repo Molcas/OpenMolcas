@@ -63,8 +63,8 @@ end subroutine RAS_Partitions
 !> CI_Setup_SG for a RAS space (see RAS_Partitions): Level(1:nLev) and
 !> L2Act(1:nLev) the orbital <-> level maps, NSM(1:nLev) the symmetries of
 !> the levels; Mode and LSM_Single as in CI_Setup_SG.
-subroutine CI_Setup_RAS(iState,nSym,nActEl,iSpin,nRs1,nRs2,nRs3,nHole1,nElec3,All_Parts,nLev,Level,L2Act,NSM,Mode,LSM_Single)
-  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, nRs1(nSym), nRs2(nSym), nRs3(nSym), nHole1, nElec3, nLev, &
+subroutine CI_Setup_RAS(iState,nSym,nActEl,iSpin,LSym,nRs1,nRs2,nRs3,nHole1,nElec3,All_Parts,nLev,Level,L2Act,NSM,Mode,LSM_Single)
+  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, LSym, nRs1(nSym), nRs2(nSym), nRs3(nSym), nHole1, nElec3, nLev, &
                                    Level(nLev), L2Act(nLev), NSM(nLev)
   logical(kind=iwp), intent(in) :: All_Parts
   character(len=*), intent(in) :: Mode
@@ -78,21 +78,21 @@ subroutine CI_Setup_RAS(iState,nSym,nActEl,iSpin,nRs1,nRs2,nRs3,nHole1,nElec3,Al
   L2ActX(1:nLev) = L2Act(1:nLev)
   NSMX(1:nLev) = NSM(1:nLev)
   if (present(LSM_Single)) then
-    call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas(:,1:nPrt),nRasEl(1:nPrt),nPrt,LevelX,L2ActX,nLev,NSMX,Mode, &
+    call CI_Setup_SG(iState,nSym,nActEl,iSpin,LSym,nRas(:,1:nPrt),nRasEl(1:nPrt),nPrt,LevelX,L2ActX,nLev,NSMX,Mode, &
                      LSM_Single=LSM_Single)
   else
-    call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas(:,1:nPrt),nRasEl(1:nPrt),nPrt,LevelX,L2ActX,nLev,NSMX,Mode)
+    call CI_Setup_SG(iState,nSym,nActEl,iSpin,LSym,nRas(:,1:nPrt),nRasEl(1:nPrt),nPrt,LevelX,L2ActX,nLev,NSMX,Mode)
   end if
 end subroutine CI_Setup_RAS
 
 !> Set up the split-graph CI space of state iState (SGUGA): nSym, nActEl,
-!> iSpin; the RAS partitions nRas(iSym,iPrt) with the electron limits
+!> iSpin, LSym the symmetry of the CI state; the RAS partitions nRas(iSym,iPrt) with the electron limits
 !> nRasEl(iPrt); Level/L2Act (orbital <-> level), nLev levels with
 !> symmetries NSM. Mode 'FULL' (graph, walks and coupling tables), 'GRAPH'
 !> (graph and walks), 'NONE' (no graph; with LSM_Single the CI space is
 !> the single function of symmetry LSM_Single). Fills CI_St(iState).
-subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,L2Act,nLev,NSM,Mode,LSM_Single,nRasMx)
-  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt), Level(MxLev), &
+subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,LSym,nRas,nRasEl,nRsPrt,Level,L2Act,nLev,NSM,Mode,LSM_Single,nRasMx)
+  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, LSym, nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt), Level(MxLev), &
                                    L2Act(MxLev), nLev, NSM(MxLev)
   character(len=*), intent(in) :: Mode
   ! LSM_Single: see above; nRasMx: GAS, upper bounds on the electrons in the
@@ -114,6 +114,7 @@ subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,L2Act,n
       call Abend()
   end select
   call Fill_Info(iState)
+  CI_St(iState)%STSym = LSym
 end subroutine CI_Setup_SG
 
 !> The copy of the state information for the programs.
@@ -145,6 +146,7 @@ subroutine CI_Free_State(iState)
   call SG_Free(iState)
   CI_St(iState)%Active = .false.
   CI_St(iState)%nCSF(:) = 0
+  CI_St(iState)%STSym = 0
 end subroutine CI_Free_State
 
 !> SGM = SGM + CPQ E_pq CI for state iState (CI of symmetry ISYCI).

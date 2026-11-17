@@ -13,7 +13,7 @@ subroutine SG_Setup_MCLR()
 
 use molcas, only: MxLev
 use CI_States, only: CI_Setup_RAS
-use general_data, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
+use general_data, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, STSym
 use Definitions, only: iwp
 
 implicit none
@@ -42,7 +42,7 @@ end do
 
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-call CI_Setup_RAS(istate,nSym,nActEl,iSpin,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nLev,Level(1:nLev), &
+call CI_Setup_RAS(istate,nSym,nActEl,iSpin,STSym,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nLev,Level(1:nLev), &
                   Level(1:nLev),ISM(1:nLev),'GRAPH')
 
 end subroutine SG_Setup_MCLR

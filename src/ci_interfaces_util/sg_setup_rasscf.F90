@@ -47,7 +47,7 @@ if (iDoGAS) then
   call mma_allocate(nRasG,MxSym,Space_CI%nPart,Label='nRasG')
   nRasG(:,:) = 0
   nRasG(1:nSym,:) = Space_CI%nOrb(1:nSym,1:Space_CI%nPart)
-  call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRasG,Space_CI%MinEl,Space_CI%nPart,Level,Level,nLev,NSM,'FULL', &
+  call CI_Setup_SG(iState,nSym,nActEl,iSpin,STSYM,nRasG,Space_CI%MinEl,Space_CI%nPart,Level,Level,nLev,NSM,'FULL', &
                    nRasMx=Space_CI%MaxEl)
   ! the relaxed space: bounds widened by one electron at every boundary
   ! (a single excitation changes the cumulative counts by at most one)
@@ -63,14 +63,14 @@ if (iDoGAS) then
       MaxR(k) = Space_CI%MaxEl(k)
     end if
   end do
-  call CI_Setup_SG(SG_Rel_State,nSym,nActEl,iSpin,nRasG,MinR,nP,Level,Level,nLev,NSM,'FULL',nRasMx=MaxR)
+  call CI_Setup_SG(SG_Rel_State,nSym,nActEl,iSpin,STSYM,nRasG,MinR,nP,Level,Level,nLev,NSM,'FULL',nRasMx=MaxR)
   CI_St(iState)%iRel = SG_Rel_State
   call mma_deallocate(MaxR)
   call mma_deallocate(MinR)
   call mma_deallocate(nRasG)
 else
-  call CI_Setup_RAS(iState,nSym,nActEl,iSpin,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nLev,Level(1:nLev), &
-                    Level(1:nLev),NSM(1:nLev),'FULL')
+  call CI_Setup_RAS(iState,nSym,nActEl,iSpin,STSYM,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nLev, &
+                    Level(1:nLev),Level(1:nLev),NSM(1:nLev),'FULL')
 end if
 
 call SETSXCI()

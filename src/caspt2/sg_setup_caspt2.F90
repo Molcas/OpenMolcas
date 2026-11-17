@@ -38,12 +38,12 @@ end do
 if ((.not. DoCumulant) .and. (nactel > 0) .and. ((iscf == 0) .or. (HZERO == 'DYALL')) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) &
   then
 
-  call CI_Setup_RAS(iState,nSym,nActEl,iSpin,nRas1(1:nSym),nRas2(1:nSym),nRas3(1:nSym),nHole1,nElec3,.false.,nLev, &
+  call CI_Setup_RAS(iState,nSym,nActEl,iSpin,STSym,nRas1(1:nSym),nRas2(1:nSym),nRas3(1:nSym),nHole1,nElec3,.false.,nLev, &
                     Level(1:nLev),L2Act(1:nLev),ISM(1:nLev),'FULL')
 
 else
 
-  call CI_Setup_RAS(iState,nSym,nActEl,iSpin,nRas1(1:nSym),nRas2(1:nSym),nRas3(1:nSym),nHole1,nElec3,.false.,nLev, &
+  call CI_Setup_RAS(iState,nSym,nActEl,iSpin,STSym,nRas1(1:nSym),nRas2(1:nSym),nRas3(1:nSym),nHole1,nElec3,.false.,nLev, &
                     Level(1:nLev),L2Act(1:nLev),ISM(1:nLev),'NONE',LSM_Single=STSYM)
 end if
 

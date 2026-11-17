@@ -30,7 +30,7 @@ use Lucia_data, only: CFTP, Conf_Occ
 use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
-use general_data, only: STSYM
+use CI_Info, only: CI_St
 use Constants, only: One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -52,7 +52,7 @@ integer(kind=iwp) :: I, LPRINT
 #endif
 
 if (.not. allocated(CIS(iState)%ICASE)) call MkCOT(SGS(istate),CIS(istate))
-if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(STSYM,SGS(istate),CIS(istate),EXS(istate))
+if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(CI_St(iState)%STSym,SGS(istate),CIS(istate),EXS(istate))
 
 call mma_allocate(IORD,NCONF,Label='IORD')
 

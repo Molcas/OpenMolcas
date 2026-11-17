@@ -47,6 +47,9 @@ type CI_State_Info
   ! symmetry (Lucia: determinants or spin combinations; without Lucia
   ! nCSF); nCSF_Kept: CSFs of the CI symmetry kept by HEXS/DEXS
   integer(kind=iwp) :: nDet(MxSym) = 0, nCSF_Kept = 0
+  ! STSym: the symmetry of the CI state (CI_Setup_SG; one graph covers all
+  ! symmetries)
+  integer(kind=iwp) :: STSym = 0
 end type CI_State_Info
 
 type(CI_State_Info) :: CI_St(MxCIState)

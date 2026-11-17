@@ -380,7 +380,7 @@ end do
 
 if (WFTP1 == 'GENERAL') then
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,iState1,NRS1(1:nIrrep),NRS2(1:nIrrep),NRS3(1:nIrrep),NHOL11,NELE31)
+    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,LSYM1,iState1,NRS1(1:nIrrep),NRS2(1:nIrrep),NRS3(1:nIrrep),NHOL11,NELE31)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call CI_Print_Graph(iState1)
@@ -491,7 +491,7 @@ end if
 
 if (WFTP2 == 'GENERAL') then
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,iState2,NRS1(1:nIrrep),NRS2(1:nIrrep),NRS3(1:nIrrep),NHOL12,NELE32)
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,LSYM2,iState2,NRS1(1:nIrrep),NRS2(1:nIrrep),NRS3(1:nIrrep),NHOL12,NELE32)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call CI_Print_Graph(iState2)
