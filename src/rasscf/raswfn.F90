@@ -45,6 +45,7 @@ subroutine cre_raswfn()
                           STSYM
   use rasscf_global, only: NCONF, NDET
   use CI_Info, only: CI_St
+  use CI_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
 # ifdef _DMRG_
@@ -53,7 +54,8 @@ subroutine cre_raswfn()
   use stdalloc, only: mma_allocate, mma_deallocate
 
   implicit none
-  integer(kind=iwp) :: dsetid, NTMP1(mxsym), NTMP2(mxsym), NTMP3(mxsym)
+  integer(kind=iwp) :: dsetid, NTMP1(mxsym), NTMP2(mxsym), NTMP3(mxsym), SpaceRec(CI_Space_Rec_Len)
+  logical(kind=iwp) :: HaveSpace
   character, allocatable :: typestring(:)
   integer(kind=iwp), parameter :: istate = 1
 
@@ -90,6 +92,9 @@ subroutine cre_raswfn()
   call mh5_init_attr(wfn_fileid,'NDET',nDet)
 
   call mh5_init_attr(wfn_fileid,'L2ACT',1,[mxAct],IDXSX)
+  ! the CI space (partitions, electron bounds, HEXS/DEXS, GAS flag)
+  call CI_Space_To_Rec(iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
+  if (HaveSpace) call mh5_init_attr(wfn_fileid,'CI_SPACE',1,[CI_Space_Rec_Len],SpaceRec)
   call mh5_init_attr(wfn_fileid,'A2LEV',1,[mxAct],IDXCI)
 
   ! iteration(s)

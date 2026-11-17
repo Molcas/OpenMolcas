@@ -34,6 +34,7 @@ use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iTOC, iTocIph, lRoots, nBa
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
+use CI_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -44,6 +45,7 @@ integer(kind=iwp) :: i, iB, iDij, iDij2, iDisk, iDkl, iDkl2, iIJKL, iIJKL2, iS, 
 real(kind=wp) :: Fact, Fact2, Factij, Factkl, PotNuc0, rdum(1), Temp
 real(kind=wp), allocatable :: G2tta(:), G2tts(:), Tmp2(:)
 character, allocatable :: TempTxt(:)
+logical(kind=iwp) :: FoundSpace, GAS
 
 !----------------------------------------------------------------------*
 !     Save the ROOT input parameter                                    *
@@ -55,6 +57,10 @@ kRoots = lRoots
 call DaName(LuJob,FnJob)
 iDisk = 0
 call iDaFile(LuJob,2,iToc,iTOCIPH,iDisk)
+! the CI space of the wave function (record of RASSCF)
+call CI_Space_Rd_JobIph(LuJob,iToc(19),FoundSpace,GAS)
+if (GAS) call CI_No_GAS('MCLR')
+call CI_Space_Free()
 !----------------------------------------------------------------------*
 !     Read the the system description                                  *
 !----------------------------------------------------------------------*

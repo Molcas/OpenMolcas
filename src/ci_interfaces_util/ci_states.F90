@@ -15,11 +15,14 @@
 !> CI states (split-graph walks, SGUGA): setup with explicit arguments,
 !> operations by state index. The programs use only this module and CI_Info
 !> (the copy of the state information); they never use the environments.
+#include "macros.fh"
+
 module CI_States
 
 use sguga, only: CIS, EXS, SG_Checks, SG_Epq_Psi, SG_Free, SG_Init, SG_Init_Light, SGS, StepVec
 use SG_Lucia_Bridge, only: SG_ReOrd, SG_ReOrd_Orig
-use CI_Info, only: CI_St
+use CI_Info, only: CI_St, Space_CI
+use CI_Space_Def, only: Space_Free, Space_Pack, Space_Rec_Len, Space_Unpack
 use CI_Verify_Options, only: CI_Verify
 use CSF_Graph, only: SG_Walk_Next
 use Molcas, only: MxLev, MxSym
@@ -30,6 +33,10 @@ private
 
 public :: CI_CITRA, CI_Epq_Psi, CI_Free_State, CI_Occ_Diag, CI_Print_Graph, CI_PrWF, CI_ReOrd, CI_ReOrd_Orig, CI_Setup_RAS, &
           CI_Setup_SG, CI_StepVec, CI_SYG2SGU, CI_Walk_Next, RAS_Partitions
+public :: CI_No_GAS, CI_Space_Free, CI_Space_From_Rec, CI_Space_Rd_H5, CI_Space_Rd_JobIph, CI_Space_Rec_Len, CI_Space_To_Rec
+
+! length of the CI-space record of JobIph (IADR15(19)) and HDF5 (CI_SPACE)
+integer(kind=iwp), parameter :: CI_Space_Rec_Len = Space_Rec_Len
 
 contains
 
@@ -238,5 +245,94 @@ subroutine CI_SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,iPrint)
   real(kind=wp), intent(out) :: CINEW(*)
   call SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,iPrint)
 end subroutine CI_SYG2SGU
+
+!> The CI space of the wave function (CI_Info's Space_CI) as the record of
+!> JobIph/HDF5; GAS tells whether it came from a GAS input. Have is false
+!> if there is no space (e.g. DMRG, NECI: no CI of the CI interface).
+subroutine CI_Space_To_Rec(GAS,n,Rec,Have)
+  logical(kind=iwp), intent(in) :: GAS
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp), intent(out) :: Rec(n)
+  logical(kind=iwp), intent(out) :: Have
+  Have = (Space_CI%nPart > 0)
+  Rec(:) = 0
+  if (Have) call Space_Pack(Space_CI,GAS,n,Rec)
+end subroutine CI_Space_To_Rec
+
+!> CI_Info's Space_CI from the record of JobIph/HDF5; GAS tells whether the
+!> wave function came from a GAS input.
+subroutine CI_Space_From_Rec(n,Rec,GAS)
+  integer(kind=iwp), intent(in) :: n, Rec(n)
+  logical(kind=iwp), intent(out) :: GAS
+  call Space_Unpack(n,Rec,Space_CI,GAS)
+end subroutine CI_Space_From_Rec
+
+!> The CI-space record of a JobIph at the disk address iAdr (IADR15(19));
+!> iAdr <= 0 (files without the record): Found = .false. and no space, the
+!> reader keeps the RAS description of the header.
+subroutine CI_Space_Rd_JobIph(Lu,iAdr,Found,GAS)
+  integer(kind=iwp), intent(in) :: Lu, iAdr
+  logical(kind=iwp), intent(out) :: Found, GAS
+  integer(kind=iwp) :: iDisk, Rec(CI_Space_Rec_Len)
+  GAS = .false.
+  Found = (iAdr > 0)
+  if (.not. Found) then
+    call Space_Free(Space_CI)
+    return
+  end if
+  iDisk = iAdr
+  call iDaFile(Lu,2,Rec,CI_Space_Rec_Len,iDisk)
+  call CI_Space_From_Rec(CI_Space_Rec_Len,Rec,GAS)
+end subroutine CI_Space_Rd_JobIph
+
+!> The CI-space record of an HDF5 wave-function file (attribute CI_SPACE);
+!> files without it (older files, DMRG, NECI) give Found = .false.; their
+!> GAS flag is then taken from CI_TYPE.
+subroutine CI_Space_Rd_H5(id,Found,GAS)
+# ifdef _HDF5_
+  use mh5, only: mh5_exists_attr, mh5_fetch_attr
+# endif
+  integer(kind=iwp), intent(in) :: id
+  logical(kind=iwp), intent(out) :: Found, GAS
+# ifdef _HDF5_
+  integer(kind=iwp) :: Rec(CI_Space_Rec_Len)
+  character(len=3) :: CIType
+# endif
+  Found = .false.
+  GAS = .false.
+# ifdef _HDF5_
+  if (mh5_exists_attr(id,'CI_SPACE')) then
+    call mh5_fetch_attr(id,'CI_SPACE',Rec)
+    call CI_Space_From_Rec(CI_Space_Rec_Len,Rec,GAS)
+    Found = .true.
+  else
+    call Space_Free(Space_CI)
+    if (mh5_exists_attr(id,'CI_TYPE')) then
+      call mh5_fetch_attr(id,'CI_TYPE',CIType)
+      GAS = (CIType == 'GAS')
+    end if
+  end if
+# else
+  unused_var(id)
+# endif
+end subroutine CI_Space_Rd_H5
+
+!> Free CI_Info's Space_CI (read by CI_Space_Rd_*).
+subroutine CI_Space_Free()
+  call Space_Free(Space_CI)
+end subroutine CI_Space_Free
+
+!> Stop a program that cannot yet treat a GAS reference wave function.
+subroutine CI_No_GAS(ProgName)
+  use Definitions, only: u6
+  character(len=*), intent(in) :: ProgName
+  character(len=len(ProgName)) :: Name
+  Name = ProgName
+  call UpCase(Name)
+  call WarningMessage(2,trim(Name)//': GAS reference wave functions are not supported yet.')
+  write(u6,'(1X,A)') 'The reference wave function was optimized with GASSCF (CI space with general'
+  write(u6,'(1X,A)') 'active-space partitions), which '//trim(Name)//' cannot yet use.'
+  call Quit_OnUserError()
+end subroutine CI_No_GAS
 
 end module CI_States

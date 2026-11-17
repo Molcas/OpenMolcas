@@ -69,7 +69,9 @@ subroutine CREIPH()
 !             LROOTS**2 elements, Fortran standard layout.
 ! IADR15(18): Table that translates between levels and absolute
 !             orbital indices, setup by setsxci.
-! IADR15(19)--IADR15(30): Presently unused.
+! IADR15(19): The CI space (CI_Space_To_Rec: partitions, cumulative
+!             electron bounds, HEXS/DEXS removals, GAS flag), 0 if none.
+! IADR15(20)--IADR15(30): Presently unused.
 ! ********** IBM 3090 MOLCAS Release 90 02 22 **********
 
 use sxci, only: IDXCI, IDXSX
@@ -77,13 +79,16 @@ use rasscf_global, only: BName, header, IADR15, IPT2, iRoot, lRoots, NACPAR, NAC
 use rasscf_files, only: JOBIPH
 use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT2, STSYM
 use rasscf_global, only: NCONF
+use general_data, only: iDoGAS
+use CI_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: I, IAD15, NFOCK
+integer(kind=iwp) :: I, IAD15, NFOCK, SpaceRec(CI_Space_Rec_Len)
+logical(kind=iwp) :: HaveSpace
 real(kind=wp) :: Dum(1)
 real(kind=wp), allocatable :: HEFF(:,:)
 
@@ -153,6 +158,11 @@ call IDAFILE(JOBIPH,1,IDXSX,mxAct,IAD15)
 !SVC: translates orbital index to levels (LEVEL in caspt2)
 call IDAFILE(JOBIPH,1,IDXCI,mxAct,IAD15)
 IADR15(19:30) = 0
+call CI_Space_To_Rec(iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
+if (HaveSpace) then
+  IADR15(19) = IAD15
+  call IDAFILE(JOBIPH,1,SpaceRec,CI_Space_Rec_Len,IAD15)
+end if
 ! First unused disk address at IADR(16):
 IADR15(16) = IAD15
 

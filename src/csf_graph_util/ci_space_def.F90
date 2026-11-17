@@ -24,7 +24,7 @@
 !> is stateless (no program data), so that both sides may use it.
 module CI_Space_Def
 
-use Molcas, only: MxGAS
+use Molcas, only: MxGAS, MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
@@ -55,6 +55,15 @@ end type CI_Space_Input
 
 public :: CI_Space, CI_Space_Input, Space_Allowed, Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, &
           Space_Removals
+public :: Space_Pack, Space_Rec_Len, Space_Unpack
+
+! The CI space as a fixed-length integer record, as stored on JobIph
+! (IADR15(19)) and HDF5 (attribute CI_SPACE):
+!   1 version (1), 2 GAS flag (1: GAS input, 0: CAS/RAS), 3 nSym, 4 nActEl,
+!   5 iSpin, 6 nPart, 7 nRem, 8 nLev,
+!   nOrb(MxSym,MxGAS), MinEl(MxGAS), MaxEl(MxGAS), RemPart(2*MxGAS),
+!   RemOcc(2*MxGAS)
+integer(kind=iwp), parameter :: Space_Rec_Len = 8+MxSym*MxGAS+6*MxGAS
 
 contains
 
@@ -310,5 +319,92 @@ subroutine Space_Free(Space)
   Space%nLev = 0
   Space%nRem = 0
 end subroutine Space_Free
+
+!> The CI space as the record of the files (see Space_Rec_Len); GAS tells
+!> whether it came from a GAS input.
+subroutine Space_Pack(Space,GAS,n,Rec)
+  type(CI_Space), intent(in) :: Space
+  logical(kind=iwp), intent(in) :: GAS
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp), intent(out) :: Rec(n)
+  integer(kind=iwp) :: k, off
+  if ((n < Space_Rec_Len) .or. (Space%nPart > MxGAS) .or. (Space%nRem > 2*MxGAS) .or. (Space%nSym > MxSym)) then
+    write(u6,*) 'Space_Pack: record too small or space too large',n,Space%nPart,Space%nRem
+    call Abend()
+  end if
+  Rec(:) = 0
+  Rec(1) = 1
+  if (GAS) Rec(2) = 1
+  Rec(3) = Space%nSym
+  Rec(4) = Space%nActEl
+  Rec(5) = Space%iSpin
+  Rec(6) = Space%nPart
+  Rec(7) = Space%nRem
+  Rec(8) = Space%nLev
+  off = 8
+  do k=1,Space%nPart
+    Rec(off+(k-1)*MxSym+1:off+(k-1)*MxSym+Space%nSym) = Space%nOrb(1:Space%nSym,k)
+  end do
+  off = off+MxSym*MxGAS
+  Rec(off+1:off+Space%nPart) = Space%MinEl(1:Space%nPart)
+  off = off+MxGAS
+  Rec(off+1:off+Space%nPart) = Space%MaxEl(1:Space%nPart)
+  off = off+MxGAS
+  if (Space%nRem > 0) Rec(off+1:off+Space%nRem) = Space%RemPart(1:Space%nRem)
+  off = off+2*MxGAS
+  if (Space%nRem > 0) Rec(off+1:off+Space%nRem) = Space%RemOcc(1:Space%nRem)
+end subroutine Space_Pack
+
+!> The CI space from the record of the files (Space_Pack); the levels run
+!> over the partitions and within each over the symmetries.
+subroutine Space_Unpack(n,Rec,Space,GAS)
+  integer(kind=iwp), intent(in) :: n, Rec(n)
+  type(CI_Space), intent(inout) :: Space
+  logical(kind=iwp), intent(out) :: GAS
+  integer(kind=iwp) :: k, s, off, iLev, nP, nR
+  if ((n < Space_Rec_Len) .or. (Rec(1) /= 1)) then
+    write(u6,*) 'Space_Unpack: unknown CI space record, version',Rec(1)
+    call Abend()
+  end if
+  call Space_Free(Space)
+  GAS = (Rec(2) == 1)
+  Space%nSym = Rec(3)
+  Space%nActEl = Rec(4)
+  Space%iSpin = Rec(5)
+  nP = Rec(6)
+  nR = Rec(7)
+  Space%nPart = nP
+  Space%nLev = Rec(8)
+  call mma_allocate(Space%nOrb,Space%nSym,max(1,nP),Label='Space%nOrb')
+  call mma_allocate(Space%MinEl,max(1,nP),Label='Space%MinEl')
+  call mma_allocate(Space%MaxEl,max(1,nP),Label='Space%MaxEl')
+  off = 8
+  do k=1,nP
+    Space%nOrb(1:Space%nSym,k) = Rec(off+(k-1)*MxSym+1:off+(k-1)*MxSym+Space%nSym)
+  end do
+  off = off+MxSym*MxGAS
+  Space%MinEl(1:nP) = Rec(off+1:off+nP)
+  off = off+MxGAS
+  Space%MaxEl(1:nP) = Rec(off+1:off+nP)
+  off = off+MxGAS
+  Space%nRem = 0
+  if (nR > 0) then
+    call mma_allocate(Space%RemPart,nR,Label='Space%RemPart')
+    call mma_allocate(Space%RemOcc,nR,Label='Space%RemOcc')
+    Space%RemPart(:) = Rec(off+1:off+nR)
+    Space%RemOcc(:) = Rec(off+2*MxGAS+1:off+2*MxGAS+nR)
+    Space%nRem = nR
+  end if
+  call mma_allocate(Space%LevPart,max(1,Space%nLev),Label='Space%LevPart')
+  call mma_allocate(Space%LevSym,max(1,Space%nLev),Label='Space%LevSym')
+  iLev = 0
+  do k=1,nP
+    do s=1,Space%nSym
+      Space%LevPart(iLev+1:iLev+Space%nOrb(s,k)) = k
+      Space%LevSym(iLev+1:iLev+Space%nOrb(s,k)) = s
+      iLev = iLev+Space%nOrb(s,k)
+    end do
+  end do
+end subroutine Space_Unpack
 
 end module CI_Space_Def
