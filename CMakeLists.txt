@@ -114,6 +114,7 @@ set (EXTERNAL_LIBXC "" CACHE STRING "Location for an external Libxc build")
 
 option (FDE "Enable Frozen-density-embedding (FDE) interface." OFF)
 option (GROMACS "Compile Gromacs interface." OFF)
+option (TINKER "Download, patch and compile Tinker for the QM/MM interface." OFF)
 option (BLOCK "Activate BLOCK-DMRG support." OFF)
 option (CHEMPS2 "Activate CheMPS2-DMRG support." OFF)
 option (DICE "Activate Dice-SHCI support." OFF)
@@ -1585,6 +1586,94 @@ else ()
   message ("Gromacs interface DISABLED")
 endif ()
 
+# Tinker
+#=======
+
+# Tinker is not linked, it is a separate program run by ESPF/Gateway
+# through $TINKER (default $MOLCAS/tinker/bin). With TINKER=ON it is
+# downloaded, patched for QM/MM and compiled into ${PROJECT_BINARY_DIR}/tinker
+# with the same script users can run by hand (Tools/patch2tinker/get_tinker).
+
+set (TINKER_SOURCE "" CACHE STRING "Local Tinker tarball (or directory containing it) or URL (empty: default upstream URL).")
+set (TINKER_MAXATM "" CACHE STRING "Maximum number of atoms in Tinker (empty: Tinker default, 100000).")
+set (TINKER_MAKE_JOBS "4" CACHE STRING "Parallel make jobs when compiling Tinker.")
+set (TINKER_MAKE_RETRIES "1" CACHE STRING "Attempts at compiling Tinker (works around intermittent compiler crashes).")
+set (TINKER_Fortran_COMPILER "" CACHE FILEPATH "GNU-compatible Fortran compiler for Tinker (empty: autodetect).")
+set (tinker_vars TINKER_SOURCE TINKER_MAXATM TINKER_MAKE_JOBS TINKER_MAKE_RETRIES TINKER_Fortran_COMPILER)
+if (TINKER)
+  mark_as_advanced (CLEAR ${tinker_vars})
+  message ("Configuring Tinker:")
+
+  set (tinker_script ${OPENMOLCAS_DIR}/Tools/patch2tinker/get_tinker)
+  file (STRINGS ${tinker_script} tinker_version_line REGEX "^TINKERVERSION=")
+  string (REGEX REPLACE "^TINKERVERSION='(.*)'.*" "\\1" tinker_version "${tinker_version_line}")
+  set (tinker_patch ${OPENMOLCAS_DIR}/Tools/patch2tinker/patch_${tinker_version}.diff)
+  if (NOT EXISTS ${tinker_patch})
+    message (FATAL_ERROR "Tinker patch not found: ${tinker_patch}")
+  endif ()
+
+  # The Tinker Makefile only supports GNU Fortran flags
+  set (tinker_fc "${TINKER_Fortran_COMPILER}")
+  if (NOT tinker_fc)
+    if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+      set (tinker_fc "${CMAKE_Fortran_COMPILER}")
+    else ()
+      find_program (tinker_gfortran gfortran)
+      mark_as_advanced (tinker_gfortran)
+      if (NOT tinker_gfortran)
+        message (FATAL_ERROR "Tinker needs GNU Fortran, set TINKER_Fortran_COMPILER.")
+      endif ()
+      set (tinker_fc "${tinker_gfortran}")
+    endif ()
+  endif ()
+
+  set (tinker_args -y -p ${PROJECT_BINARY_DIR} -P ${tinker_patch} -c ${tinker_fc}
+                   -j ${TINKER_MAKE_JOBS} -r ${TINKER_MAKE_RETRIES})
+  if (TINKER_MAXATM)
+    list (APPEND tinker_args -a ${TINKER_MAXATM})
+  endif ()
+  if (TINKER_SOURCE MATCHES "^[a-zA-Z]+://")
+    list (APPEND tinker_args -u ${TINKER_SOURCE})
+  elseif (TINKER_SOURCE)
+    get_filename_component (tinker_tarball "${TINKER_SOURCE}" ABSOLUTE)
+    if (NOT EXISTS ${tinker_tarball})
+      message (FATAL_ERROR "TINKER_SOURCE not found: ${tinker_tarball}")
+    endif ()
+    list (APPEND tinker_args -t ${tinker_tarball})
+  endif ()
+  message ("-- Tinker version: ${tinker_version}")
+  message ("-- Tinker compiler: ${tinker_fc}")
+
+  # Rebuild when the script, the patch or the options change
+  set (tinker_stamp ${PROJECT_BINARY_DIR}/External/tinker/tinker_args.txt)
+  file (WRITE ${tinker_stamp}.tmp "${tinker_args}\n")
+  configure_file (${tinker_stamp}.tmp ${tinker_stamp} COPYONLY)
+
+  include (ExternalProject)
+  set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
+  ExternalProject_Add (tinker
+                       PREFIX ${PROJECT_BINARY_DIR}/External/tinker
+                       DOWNLOAD_COMMAND ""
+                       CONFIGURE_COMMAND ""
+                       BUILD_COMMAND sh ${tinker_script} ${tinker_args}
+                       BUILD_IN_SOURCE ON
+                       INSTALL_COMMAND ""
+                       BUILD_BYPRODUCTS ${PROJECT_BINARY_DIR}/tinker/bin/tkr2qm_s
+  )
+  ExternalProject_Add_StepDependencies (tinker build ${tinker_script} ${tinker_patch} ${tinker_stamp})
+  set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+  install (DIRECTORY
+    ${PROJECT_BINARY_DIR}/tinker/bin
+    ${PROJECT_BINARY_DIR}/tinker/params
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/tinker
+    USE_SOURCE_PERMISSIONS
+  )
+else ()
+  mark_as_advanced (FORCE ${tinker_vars})
+  message ("Tinker DISABLED")
+endif ()
+
 # G. Chan group's DMRG (Block code) support
 #==========================================
 
@@ -2870,6 +2959,11 @@ file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
 foreach (f setup verify version find_sources have_feature help_basis help_func help_doc)
   file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
 endforeach ()
+# "molcas get_tinker" (the script finds the patch in ../data/tinker)
+file (COPY ${OPENMOLCAS_DIR}/Tools/patch2tinker/get_tinker DESTINATION ${PROJECT_BINARY_DIR}/sbin)
+file (STRINGS ${OPENMOLCAS_DIR}/Tools/patch2tinker/get_tinker tinker_patch_line REGEX "^TINKERVERSION=")
+string (REGEX REPLACE "^TINKERVERSION='(.*)'.*" "patch_\\1.diff" tinker_patch_name "${tinker_patch_line}")
+configure_file (${OPENMOLCAS_DIR}/Tools/patch2tinker/${tinker_patch_name} data/tinker/${tinker_patch_name} COPYONLY)
 if (DEFINED EXTRA_DIR)
   file (COPY ${EXTRA_DIR}/sbin DESTINATION ${PROJECT_BINARY_DIR})
 endif ()
@@ -3163,6 +3257,7 @@ install (PROGRAMS
   ${PROJECT_BINARY_DIR}/sbin/help_basis
   ${PROJECT_BINARY_DIR}/sbin/help_func
   ${PROJECT_BINARY_DIR}/sbin/help_doc
+  ${PROJECT_BINARY_DIR}/sbin/get_tinker
   ${PROJECT_BINARY_DIR}/sbin/setup
   ${PROJECT_BINARY_DIR}/sbin/version
   DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
