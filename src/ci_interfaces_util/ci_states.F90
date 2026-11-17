@@ -21,6 +21,9 @@ module CI_States
 
 use sguga, only: CIS, EXS, SG_Checks, SG_Epq_Psi, SG_Free, SG_Init, SG_Init_Light, SGS, StepVec
 use SG_Lucia_Bridge, only: SG_ReOrd, SG_ReOrd_Orig
+use SGUGA_Sigma, only: SG_Occ_Diag
+use SGUGA_Print, only: SG_Print, SG_PRWF
+use SGUGA_Transform, only: SG_CITRA, SYG2SGU
 use CI_Info, only: CI_St, Space_CI
 use CI_Space_Def, only: Space_Free, Space_Pack, Space_Rec_Len, Space_Unpack
 use CI_Verify_Options, only: CI_Verify

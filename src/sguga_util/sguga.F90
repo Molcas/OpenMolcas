@@ -292,7 +292,7 @@ integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, MkCOT, MkSgNum, SG_NUM, SG_PHASE
 public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, StepVec, SG_TRACI
-public :: SG_Test_EpqErs_Ref
+public :: SG_HPsi_Proc, SG_Test_EpqErs_Ref
 public :: SG_Mk_SDREO
 !#define _TEST_CSFDET_
 #ifdef _TEST_CSFDET_
@@ -357,6 +357,20 @@ real(kind=wp), allocatable :: TRP_V(:)
 integer(kind=iwp) :: ASTA_iState = 0, ASTA_Off(8) = 0
 integer(kind=iwp), allocatable :: ASTA_Steps(:,:), ASTA_Key(:), ASTA_Idx(:)
 
+! A sigma routine H|Psi> of a split graph (module SGUGA_Sigma: sg_h_psi,
+! sg_h_psi_ras), passed to SG_Test_EpqErs_Ref as the reference of its
+! <I|H|J> check (SGUGA_Sigma uses this module, so SGUGA cannot use it).
+abstract interface
+  subroutine SG_HPsi_Proc(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+    import :: SGStruct, CIStruct, EXStruct, iwp, wp
+    type(SGStruct), intent(in) :: SGS
+    type(CIStruct), intent(in) :: CIS
+    type(EXStruct), intent(inout) :: EXS
+    integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+    real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+    real(kind=wp), intent(out) :: Sigma(nCSFs)
+  end subroutine SG_HPsi_Proc
+end interface
 
 contains
 
@@ -5810,7 +5824,7 @@ enddo
 
 end subroutine STEPVEC
 
-subroutine SG_Test_EpqErs_Ref(iState,LSM,Epq_Only)
+subroutine SG_Test_EpqErs_Ref(iState,LSM,HPsi,HPsi_RAS,Epq_Only)
 
 use Constants,   only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -5825,6 +5839,9 @@ logical(kind=iwp), intent(in), optional :: Epq_Only
 
 integer(kind=iwp), intent(in) :: iState
 integer(kind=iwp), intent(in) :: LSM
+! the sigma routines of CAS and RAS graphs (sg_h_psi, sg_h_psi_ras of
+! SGUGA_Sigma), the reference of the <I|H|J> check (Check_MatEl_H)
+procedure(SG_HPsi_Proc) :: HPsi, HPsi_RAS
 
 !
 ! Operator-product topologies.
@@ -7111,23 +7128,6 @@ subroutine Check_MatEl_H()
   integer(kind=iwp) :: p, q, r, s, pq, rs
   integer(kind=iwp), allocatable :: L2Orb(:)
 
-  ! sg_h_psi uses this module, so it is called through a wrapper with
-  ! intrinsic arguments only (an interface block with the derived types of
-  ! the host module conflicts with the external procedure, Intel #8000)
-  interface
-    subroutine sg_h_psi_state(iState,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
-      import :: iwp, wp
-      integer(kind=iwp), intent(in) :: iState, nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
-      real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-      real(kind=wp), intent(out) :: Sigma(nCSFs)
-    end subroutine sg_h_psi_state
-    subroutine sg_h_psi_ras_state(iState,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
-      import :: iwp, wp
-      integer(kind=iwp), intent(in) :: iState, nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
-      real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-      real(kind=wp), intent(out) :: Sigma(nCSFs)
-    end subroutine sg_h_psi_ras_state
-  end interface
 
   nL = SGS(iState)%nLev
   nTU = nL*(nL+1)/2
@@ -7193,9 +7193,9 @@ subroutine Check_MatEl_H()
     Psi(:) = Zero
     Psi(J) = One
     if (RAS) then
-      call sg_h_psi_ras_state(iState,Psi,nC,LSM,Sgm,TUVX_O,nTUVX,TU_O,nTU)
+      call HPsi_RAS(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX_O,nTUVX,TU_O,nTU)
     else
-      call sg_h_psi_state(iState,Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
+      call HPsi(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
     end if
     do I = 1, nC
       call CWTime(T0,W)

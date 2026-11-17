@@ -27,6 +27,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
+use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
+use SGUGA_Densities, only: sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
 use general_data, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
 use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
@@ -441,33 +443,12 @@ end subroutine SG_Trans_PDM_G
 !> Exact SGUGA diagonal <I|H|I> of state iState (Mode 'FAST': sg_hdiag_fast,
 !> 'REF': sg_hdiag_ref); for GAS in the relaxed space.
 subroutine SG_HDiag_G(Mode,iState,n,LSM,TUVX,nTUVX,TU,nTU,Diag)
-use sguga, only: SGStruct, CIStruct, EXStruct
 character(len=*), intent(in) :: Mode
 integer(kind=iwp), intent(in) :: iState, n, LSM, nTUVX, nTU
 real(kind=wp), intent(in) :: TUVX(nTUVX), TU(nTU)
 real(kind=wp), intent(out) :: Diag(n)
 integer(kind=iwp) :: iR, iS, nR
 real(kind=wp), allocatable :: DR(:)
-interface
-  subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
-    import :: SGStruct, CIStruct, EXStruct, iwp, wp
-    type(SGStruct), intent(in) :: SGS
-    type(CIStruct), intent(in) :: CIS
-    type(EXStruct), intent(inout) :: EXS
-    integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
-    real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-    real(kind=wp), intent(out) :: Diag(nCSFs)
-  end subroutine sg_hdiag_fast
-  subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri,Diag)
-    import :: SGStruct, CIStruct, EXStruct, iwp, wp
-    type(SGStruct), intent(in) :: SGS
-    type(CIStruct), intent(in) :: CIS
-    type(EXStruct), intent(inout) :: EXS
-    integer(kind=iwp), intent(in) :: nCSFs, CSFSym, nTUVX_Tri, nTU_Tri
-    real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-    real(kind=wp), intent(out) :: Diag(nCSFs)
-  end subroutine sg_hdiag_ref
-end interface
 iR = CI_St(iState)%iRel
 iS = iState
 nR = n
@@ -856,6 +837,9 @@ end subroutine Faroald_Ints
 !> integrals set by Faroald_Ints. ctemp and sigtemp are scratch of at least
 !> nDetA*nDetB elements (Faroald determinant basis).
 subroutine Faroald_Sigma(nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+#ifdef _Compute_Full_CI_Matrix
+use SGUGA_Sigma, only: sg_ci_full
+#endif
 integer(kind=iwp), intent(in) :: nCSF, ntemp, ndeta, ndetb
 real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
@@ -1453,10 +1437,6 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           Check_P=CheckSum(P,NACPR2)
           Check_PA=CheckSum(PA,NACPR2)
 
-!         Call mma_allocate(P_sguga,NAC**4,Label='P')
-!         Call sg_two_pdm_full(SGS(istate),CIS(istate),EX(istate)S,CIV,SIZE(CIV),STSYM,P_sguga,NAC)
-!         Call mma_deallocate(P_sguga)
-
           Call mma_allocate(P_sguga,NACPR2,Label='P')
           Call mma_allocate(PA_sguga,NACPR2,Label='PA')
 
@@ -1832,9 +1812,9 @@ If (Do_SGUGA) Then
    ! (the CI interface evaluates them for GAS in the relaxed space, checked
    ! under SIGMA against Lucia and Faroald).
    if (CI_Verify('YES') .and. (.not. iDoGAS)) then
-      call SG_Test_EpqErs_Ref(iState,STSym)
+      call SG_Test_EpqErs_Ref(iState,STSym,sg_h_psi,sg_h_psi_ras)
    else if (CI_Verify('YES') .or. CI_Verify('EPQ')) then
-      call SG_Test_EpqErs_Ref(iState,STSym,Epq_Only=.true.)
+      call SG_Test_EpqErs_Ref(iState,STSym,sg_h_psi,sg_h_psi_ras,Epq_Only=.true.)
    end if
 End If
 
