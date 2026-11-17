@@ -24,7 +24,7 @@ use Str_Info, only: DTOC
 use ipPage, only: ipget, ipin, ipout, ipopen, W
 use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
-use general_data, only: STSym
+use general_data, only: iSpin, nActEl, STSym
 use input_mclr, only: iMCPD, iMethod, iRoot, nConf, nDisp, nRoots, Page, PT2, TimeDep
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -171,6 +171,12 @@ if (iMethod == 2) then
     LuPT2 = isFreeUnit(LuPT2)
     call Molcas_Open(LuPT2,'PT2_Lag')
   end if
+else
+  ! SCF reference: a CI state without active electrons, so that the
+  ! state's values (CI_St) are defined for the whole run as well
+  nActEl = 0
+  iSpin = 1
+  call SG_Setup_MCLR('NONE')
 end if
 !                                                                      *
 !***********************************************************************

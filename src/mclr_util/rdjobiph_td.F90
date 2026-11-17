@@ -63,6 +63,8 @@ iDisk = iToc(1)
 call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,STSym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,(LenIn+8)*mxorb,nConf,HeaderJP, &
                     144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
 call mma_deallocate(TempTxt)
+! the CI state of MCLR for the whole run (CI_Info)
+call SG_Setup_MCLR('GRAPH')
 !----------------------------------------------------------------------*
 !     Overwrite the variable lroots if approriate                      *
 !----------------------------------------------------------------------*

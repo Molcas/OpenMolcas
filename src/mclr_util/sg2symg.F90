@@ -12,7 +12,7 @@
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
 use CI_Info, only: CI_St
-use CI_States, only: CI_Free_State, CI_ReOrd_Orig
+use CI_States, only: CI_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC, MINOP, NCNFTP, NCSFTP, NTYP
 use MCLR_Data, only: MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, NTYP_MCLR => NTYP
@@ -37,7 +37,7 @@ real(kind=wp), parameter :: PRWTHR = 0.05_wp
 
 ! Transformation of CI vector to symmetric group from GUGA pepresentation, or the reverse
 
-call SG_Setup_MCLR()
+! (the CI state of the run, SG_Setup_MCLR in RdJobIph)
 
 NCSF(1:nSym) = CI_St(istate)%nCSF(1:nSym)
 NCONF = CI_St(istate)%nCSF(pState_Sym)
@@ -79,7 +79,5 @@ call mma_deallocate(CINEW)
 #ifdef _DEBUGPRINT_
 call CI_PrWF(iState,pState_sym,PRWTHR,CI_St(istate)%iSpin,CI,nConf,.false.,-99)
 #endif
-
-call CI_Free_State(iState)
 
 end subroutine sg2symg

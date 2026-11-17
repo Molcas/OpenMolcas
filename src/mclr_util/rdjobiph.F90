@@ -84,6 +84,8 @@ if (doDMRG) then ! yma
   nash(:) = LRras2(:)
   nrs2(:) = LRras2(:)
 end if
+! the CI state of MCLR for the whole run (CI_Info)
+call SG_Setup_MCLR('GRAPH')
 !do i=1,8
 !  write(u6,*) i,'-irrep',nIsh(i),nAsh(i),nRs1(i),nRs2(i),nRs3(i)
 !  call xflush(u6)

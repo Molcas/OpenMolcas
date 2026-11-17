@@ -49,6 +49,7 @@ use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FAMO_SpinM, FAMO_Spi
 use PCM_grad, only: PCM_grad_final
 use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
 use general_data, only: nAsh, nRS2, nSym
+use CI_States, only: CI_Free_State
 use input_mclr, only: double, Fail, iMCPD, iMethod, iMSPD, LuAChoVec, LuChoInt, LuIChoVec, McKinley, nDisp, NewCho, ntAsh, ntASqr, &
                       ntAtri, PT2, RASSI, SpinPol, StepType, TimeDep, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -56,6 +57,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
+! the CI state of MCLR (SG_Setup_MCLR; MCLR_Data's istate is the root)
+integer(kind=iwp), parameter :: iState_CI = 1
 integer(kind=iwp), intent(out) :: iReturn
 #include "warnings.h"
 integer(kind=iwp) :: CMSNACStates(2), I, iPL, iRC, istatus, iSym, LuInput, LuSpool2, nISP, nSymX
@@ -378,8 +381,9 @@ call mma_deallocate(ifpS)
 call mma_deallocate(ifpK)
 call mma_deallocate(SS,safe='*')
 
-! Close files
+! The CI state of the run (SG_Setup_MCLR) and the files
 
+call CI_Free_State(iState_CI)
 call ClsFls_MCLR()
 if (RF_On() .and. (SA .or. PT2)) then
   call Free_RctFld()
