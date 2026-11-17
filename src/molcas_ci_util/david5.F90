@@ -15,7 +15,8 @@ use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use ci_interfaces, only: Faro_nTmp, Mk_H_Psi
 use rasscf_files, only: ITERFILE, LUDAVID
-use general_data, only: NCONF, NSEL, STSYM
+use general_data, only: STSYM
+use rasscf_global, only: NCONF, NSEL
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use output_ras, only: IPRLOC, RC_CI
 use PrintLevel, only: DEBUG, USUAL

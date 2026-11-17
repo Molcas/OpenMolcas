@@ -11,7 +11,8 @@
 
 subroutine SG_Setup_RASSCF()
 
-use general_data, only: iDoGAS, iSpin, Level, nActel, nConf, NLEV, nRas, nRasEl, nRsPrt, NSM, nSym, STSYM
+use general_data, only: iDoGAS, iSpin, Level, nActel, NLEV, nRas, nRasEl, nRsPrt, NSM, nSym, STSYM
+use rasscf_global, only: nConf
 use CI_States, only: CI_Setup_SG
 use CI_Info, only: CI_St, SG_Rel_State, Space_CI
 use Molcas, only: MxSym

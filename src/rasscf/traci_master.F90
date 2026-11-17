@@ -14,7 +14,8 @@ subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
 use ci_interfaces, only: Mk_Tra_Psi
 use rasscf_global, only: NROOTS
-use general_data, only: nCSF=>nConf, nLev, nSym, NASH
+use general_data, only: nLev, nSym, NASH
+use rasscf_global, only: nCSF=>nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

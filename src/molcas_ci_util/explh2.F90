@@ -51,7 +51,8 @@ use Index_Functions, only: nTri_Elem
 use timers, only: TimeHSel
 use rasscf_global, only: NAC, NACPR2
 use rasscf_files, only: LUDAVID
-use general_data, only: NCONF, NSEL, STSYM
+use general_data, only: STSYM
+use rasscf_global, only: NCONF, NSEL
 use output_ras, only: IPRLOC
 use PrintLevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate

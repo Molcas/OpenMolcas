@@ -32,7 +32,8 @@ use Para_Info, only: MyRank
 use filesystem, only: basename, get_errno_, getcwd_, real_path, strerror_
 use linalg_mod, only: abort_
 use rasscf_global, only: EMY, Ener, iter, KSDFT, lRoots, Nac, nAcPar, nAcpr2, nroots, rotmax, S
-use general_data, only: iSpin, nAsh, nConf, nSym, ntot, ntot1, ntot2
+use general_data, only: iSpin, nAsh, nSym, ntot, ntot1, ntot2
+use rasscf_global, only: nConf
 use CI_solver_util, only: wait_and_read
 use generic_CI, only: CI_solver_t
 use fciqmc_read_RDM, only: MCM7, read_neci_RDM

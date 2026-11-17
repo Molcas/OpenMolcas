@@ -82,7 +82,8 @@ use rasscf_global, only: CBLBM, CMAX, Conv, DE, DoDMRG, DoFCIDump, ECAS, EMY, En
 use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use rasscf_files, only: ITERFILE, JOBIPH
-use general_data, only: iDOGAS, ISPIN, NASH, NBAS, NCONF, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
+use general_data, only: iDOGAS, ISPIN, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
+use rasscf_global, only: NCONF
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
 use rasscf_global, only: DOBLOCKDMRG

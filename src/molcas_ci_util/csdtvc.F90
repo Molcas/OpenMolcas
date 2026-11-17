@@ -18,7 +18,6 @@ subroutine CSDTVC(CSFVEC,DETVEC,IWAY,IREFSM,ICOPY)
 use lucia_data, only: DTOC, SDREO
 use lucia_data, only: NCNFTP, NCSFTP, NDTFTP, NTYP
 use CI_Info, only: CI_St
-use general_data, only: NDET
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -28,7 +27,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: IWAY, IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(CI_St(1)%nDet(IREFSM)), DETVEC(CI_St(1)%nDet(IREFSM))
-integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF
+integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NDET
 
 ! To avoid compiler complaints
 

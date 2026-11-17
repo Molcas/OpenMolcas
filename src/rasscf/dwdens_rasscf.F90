@@ -20,7 +20,8 @@ use rasscf_global, only: DoDMRG, Ener, IADR15, ITER, NAC, NACPAR, NACPR2, nRoots
 use DWSol, only: DWSol_wgt, W_SOLV
 use general_data, only: iDoGAS
 use rasscf_files, only: JOBIPH
-use general_data, only: NACTEL, NCONF
+use general_data, only: NACTEL
+use rasscf_global, only: NCONF
 use CI_Info, only: CI_St
 use sxci, only: IDXSX
 #ifdef _DMRG_

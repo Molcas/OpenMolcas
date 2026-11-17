@@ -54,8 +54,8 @@ use rasscf_global, only: ChemPS2_blb, ChemPS2_lreStart, ChemPS2_No4RDM, ChemPS2_
 #endif
 use PrintLevel, only: SILENT, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSEL, NSSH, NSYM, NTOT1, &
-                        STSYM
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT1, STSYM
+use rasscf_global, only: NSEL
 use CI_Info, only: CI_St, Space_Inp
 use CI_Space_Def, only: Space_Removals
 use lucia_data, only: IDC, NCNFTP, NDTFTP

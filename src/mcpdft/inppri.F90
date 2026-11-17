@@ -21,7 +21,8 @@ use mcpdft_output, only: iPrLoc
 use Fock_util_global, only: docholesky
 use mcpdft_input, only: mcpdft_options
 use rasscf_global, only: header, NAC, NFR, NIN, NROOTS, NSEC
-use general_data, only: ispin, nactel, nash, nbas, nconf, ndel, nelec3, nfro, nhole1, nish, nrs1, nrs2, nrs3, nssh, nsym, stsym
+use general_data, only: ispin, nactel, nash, nbas, ndel, nelec3, nfro, nhole1, nish, nrs1, nrs2, nrs3, nssh, nsym, stsym
+use rasscf_global, only: nconf
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 

@@ -41,8 +41,9 @@ subroutine cre_raswfn()
   use sxci, only: IDXCI, IDXSX
   use general_data, only: iDoGAS, NGAS, NGSSH
   use input_ras, only: Key
-  use general_data, only: ISPIN, NACTEL, NBAS, NCONF, NDEL, NDET, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, &
-                          NTOT, NTOT2, STSYM
+  use general_data, only: ISPIN, NACTEL, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, NTOT, NTOT2, &
+                          STSYM
+  use rasscf_global, only: NCONF, NDET
   use CI_Info, only: CI_St
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT

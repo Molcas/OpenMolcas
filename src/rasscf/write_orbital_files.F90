@@ -11,8 +11,8 @@
 
 module write_orbital_files
 
-use general_data, only: iSpin, nActel, nAsh, nBas, nConf, nDel, nElec3, nFro, nHole1, nIsh, nRs1, nRs2, nRs3, nSym, nTot, nTot2, &
-                        stSym
+use general_data, only: iSpin, nActel, nAsh, nBas, nDel, nElec3, nFro, nHole1, nIsh, nRs1, nRs2, nRs3, nSym, nTot, nTot2, stSym
+use rasscf_global, only: nConf
 use general_data, only: iDoGas, nGAS, nGssh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

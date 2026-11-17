@@ -21,7 +21,8 @@ use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_n
 use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma, ras_traci, ras_trans_one_pdm, &
                        ras_trans_two_pdm
 use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
-use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
+use general_data, only: ISPIN, STSYM, nAsh, nActEl, NAC=>NLEV
+use rasscf_global, only: nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
@@ -555,7 +556,7 @@ end subroutine HEXS_Mask_Faro
 !> Lucia the number of kept CSFs (CI_St%nCSF_Kept) and the cap of NSEL come from
 !> here; with Lucia they are compared.
 subroutine HEXS_Setup(iState,Do_SGUGA)
-use general_data, only: NSEL
+use rasscf_global, only: NSEL
 integer(kind=iwp), intent(in) :: iState
 logical(kind=iwp), intent(in) :: Do_SGUGA
 integer(kind=iwp) :: nKeep
@@ -2143,7 +2144,7 @@ contains
   end subroutine SGCI_Diag
 
   subroutine Verify_IHI()
-    use general_data, only: NSEL
+    use rasscf_global, only: NSEL
     integer(kind=iwp), parameter :: MxRef = 500, MxPrt = 10
     integer(kind=iwp) :: i, iTyp, iCnf, k, nCnf, nC, iC, nSD, nSDErr, nSelL, nSelMin, nSelMean, nBoth, nPrt, iRk(3), iRkMin, &
                          iRkMax
@@ -2335,7 +2336,7 @@ contains
   ! order of the configurations), until the next one does not fit into NSEL
   ! CSFs.
   subroutine Sel_PHP(Key,Sel)
-    use general_data, only: NSEL
+    use rasscf_global, only: NSEL
     real(kind=wp), intent(in) :: Key(:)
     logical(kind=iwp), intent(out) :: Sel(size(Key))
     integer(kind=iwp) :: k, kMin, nP, nPCnf, nCMin

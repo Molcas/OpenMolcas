@@ -37,8 +37,9 @@ use Symmetry_info, only: Mul
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
-use general_data, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NDELT, NELEC3, NFRO, NFROT, NGAS, NGSSH, NHOLE1, &
-                        NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM
+use general_data, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NASH, NBAS, NDEL, NDELT, NELEC3, NFRO, NFROT, NGAS, NGSSH, NHOLE1, NISH, &
+                        NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM
+use rasscf_global, only: NCONF, NSEL
 use DWSol, only: DWSol_DWRO
 use CI_Info, only: Space_Inp
 use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym

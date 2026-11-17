@@ -32,7 +32,8 @@ use UnixInfo, only: SuperName
 use general_data, only: IGSOCCX, NGAS, NGSSH
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, NSEL, NSSH, STSYM
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, NSSH, STSYM
+use rasscf_global, only: NSEL
 use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, ICIRST, &
                          ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot, &
                          iPhName, iPT2, iRLXRoot, IROOT, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, iXMSP, ixSym, &

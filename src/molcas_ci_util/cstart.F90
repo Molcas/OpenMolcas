@@ -46,7 +46,8 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use rasscf_files, only: JOBIPH, JOBOLD, LUDAVID
-use general_data, only: NCONF, NSEL, STSYM
+use general_data, only: STSYM
+use rasscf_global, only: NCONF, NSEL
 use ci_interfaces, only: CI_File_To_Basis
 #ifdef _HDF5_
 use rasscf_files, only: STARTORBFILE

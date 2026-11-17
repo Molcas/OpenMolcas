@@ -51,8 +51,9 @@ use rasscf_global, only: ChemPS2_blb, ChemPS2_lrestart, ChemPS2_No4RDM, ChemPS2_
 use PrintLevel, only: DEBUG, TERSE, USUAL, VERBOSE
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSSH, NSYM, &
-                        NTOT, NTOT1, NTOT2, STSYM
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSSH, NSYM, NTOT, &
+                        NTOT1, NTOT2, STSYM
+use rasscf_global, only: NCONF
 use CI_Info, only: CI_St
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use Molcas, only: MxRoot
