@@ -14,6 +14,7 @@
 
 subroutine InpPri_m()
 
+use CI_Info, only: CI_St
 use Functionals, only: Print_Info
 use KSDFT_Info, only: CoefR, CoefX
 use PrintLevel, only: SILENT, TERSE, USUAL, VERBOSE
@@ -21,12 +22,13 @@ use mcpdft_output, only: iPrLoc
 use Fock_util_global, only: docholesky
 use mcpdft_input, only: mcpdft_options
 use rasscf_global, only: header, NAC, NFR, NIN, NROOTS, NSEC
-use general_data, only: ispin, nactel, nash, nbas, ndel, nelec3, nfro, nhole1, nish, nrs1, nrs2, nrs3, nssh, nsym, stsym
+use general_data, only: nash, nbas, ndel, nelec3, nfro, nhole1, nish, nrs1, nrs2, nrs3, nssh, nsym
 use rasscf_global, only: nconf
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: i, iPrLev, iSym, left, lPaper
 character(len=120) :: Line
 character(len=8) :: Fmt1, Fmt2
@@ -75,7 +77,7 @@ if (iPrLev >= USUAL) then
   write(u6,*)
   if (NFR > 0) write(u6,Fmt2//'A,T45,I6)') 'Number of frozen shell electrons',2*NFR
   write(u6,Fmt2//'A,T45,I6)') 'Number of closed shell electrons',2*NIN
-  write(u6,Fmt2//'A,T45,I6)') 'Number of electrons in active shells',NACTEL
+  write(u6,Fmt2//'A,T45,I6)') 'Number of electrons in active shells',CI_St(iState)%nActEl
   write(u6,Fmt2//'A,T45,I6)') 'Max number of holes in RAS1 space',NHOLE1
   write(u6,Fmt2//'A,T45,I6)') 'Max nr of electrons in RAS3 space',NELEC3
 
@@ -83,8 +85,8 @@ if (iPrLev >= USUAL) then
   write(u6,Fmt2//'A,T45,I6)') 'Number of inactive orbitals',NIN
   write(u6,Fmt2//'A,T45,I6)') 'Number of active orbitals',NAC
   write(u6,Fmt2//'A,T45,I6)') 'Number of secondary orbitals',NSEC
-  write(u6,Fmt2//'A,T45,F6.1)') 'Spin quantum number',Half*real(ISPIN-1,kind=wp)
-  write(u6,Fmt2//'A,T45,I6)') 'State symmetry',STSYM
+  write(u6,Fmt2//'A,T45,F6.1)') 'Spin quantum number',Half*real(CI_St(iState)%iSpin-1,kind=wp)
+  write(u6,Fmt2//'A,T45,I6)') 'State symmetry',CI_St(iState)%STSym
   write(u6,fmt2//'A,T40,I11)') 'Number of CSFs',NCONF
   write(u6,Fmt2//'A,T45,I6)') 'Number of RASSCF root(s) available',nroots
   call CollapseOutput(0,'Wave function specifications:')

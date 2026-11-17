@@ -19,12 +19,14 @@
 
 function get_charge()
 
+use CI_Info, only: CI_St
 use onedat, only: snoori
-use general_data, only: nactel, nfro, nish, ntot1
+use general_data, only: nfro, nish, ntot1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u0
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: get_charge
 #include "warnings.h"
 integer(kind=iwp) :: comp, el_charge, nuc_charge, opt, rc, sylbl
@@ -37,7 +39,7 @@ comp = 1
 sylbl = 1
 label = 'Mltpl  0'
 
-el_charge = -2*sum(nfro+nish)-nactel
+el_charge = -2*sum(nfro+nish)-CI_St(iState)%nActEl
 
 call mma_allocate(int1e_ovlp,ntot1+4,label='int1e_ovlp')
 call rdone(rc,opt,label,comp,int1e_ovlp,sylbl)

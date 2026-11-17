@@ -20,6 +20,7 @@
 subroutine mcpdft(ireturn)
 
 use ci_interfaces, only: CI_Timer
+use CI_States, only: CI_Free_State
 use Fock_util_global, only: DoCholesky
 use timers, only: TimeInput, TimeOutput, TimeTotal, TimeTrans
 use write_pdft_job, only: writejob
@@ -38,6 +39,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
+! the CI state of the reference (SG_Setup_MCPDFT)
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(out) :: iReturn
 #include "warnings.h"
 integer(kind=iwp) :: iPrLev, iRC, state
@@ -94,6 +97,9 @@ end if
 
 ! Local print level may have changed:
 IPRLEV = IPRLOC(1)
+
+! The CI state of the reference for the whole run (CI_Info)
+call SG_Setup_MCPDFT()
 
 if (mcpdft_options%mspdft) call mspdft_init()
 
@@ -231,6 +237,7 @@ if (IPRLEV >= 3) then
   call FastIO('STATUS')
 end if
 
+call CI_Free_State(iState)
 call close_files_mcpdft()
 
 end subroutine mcpdft

@@ -16,17 +16,19 @@
 
 subroutine compute_mcpdft_energy(cmo,e_mcscf,e_states)
 
+use CI_Info, only: CI_St
 use mcpdft_input, only: mcpdft_options
 use KSDFT_Info, only: do_pdftpot
 use mspdftgrad, only: D1aoMS, D1SaoMS, DIDA, P2MOT
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2, PotNuc
 use rasscf_files, only: jobiph, jobold
-use general_data, only: ispin, nash, nbas, nish, norb, nsym, ntot1, ntot2
+use general_data, only: nash, nbas, nish, norb, nsym, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(in) :: cmo(ntot2), e_mcscf(lroots)
 real(kind=wp), intent(out) :: e_states(lroots)
 integer(kind=iwp) :: charge, dmDisk, IAD19, IADR19(30), iJOB, iSA, isym, jroot, niaia, NQ
@@ -140,7 +142,7 @@ do jroot=1,lroots
     call fold2(nsym,nbas,dm1_cas,DIDA(:,jroot))
     d1aoms(:,jroot) = folded_dm1(:)
     call P2_contraction(casdm1,P2MOt(:,jroot))
-    if (ispin /= 1) d1saoms(:,jroot) = folded_dm1s(:)
+    if (CI_St(iState)%iSpin /= 1) d1saoms(:,jroot) = folded_dm1s(:)
   end if
 
   do_pdftpot = (mcpdft_options%grad .and. (mcpdft_options%mspdft .or. (jroot == mcpdft_options%rlxroot)))

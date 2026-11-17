@@ -14,8 +14,9 @@
 
 module lpdft
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
-use general_data, only: ispin, nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
+use general_data, only: nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
 use mcpdft_input, only: mcpdft_options
 use rasscf_files, only: jobiph, jobold
 use rasscf_global, only: dftfock, exfac, iadr15, istord, istorp, lroots, nac, nacpar, nacpr2, nfint, noneq, nroots, potnuc, weight
@@ -131,6 +132,7 @@ subroutine compute_Eot_and_potentials(CMO)
 
   use KSDFT_Info, only: do_pdftpot
 
+  integer(kind=iwp), parameter :: iState = 1
   real(kind=wp), intent(in) :: CMO(ntot2)
   integer(kind=iwp) :: charge
   real(kind=wp) :: casd1AO_0(ntot2), casD1AO_folded_0(ntot1), casd1sAO_0(ntot2), d1ao_0(ntot1), d1sao_0(ntot1), gtmp(ntot1), &
@@ -173,7 +175,8 @@ subroutine compute_Eot_and_potentials(CMO)
 
   htmp(:) = Zero
   gtmp(:) = Zero
-  call DrvXV(htmp,gtmp,d1ao_0,potnuc,nTot1,First,Dff,NonEq,lRF,mcpdft_options%otfnal%otxc,ExFac,charge,ispin,dftfock,Do_DFT)
+  call DrvXV(htmp,gtmp,d1ao_0,potnuc,nTot1,First,Dff,NonEq,lRF,mcpdft_options%otfnal%otxc,ExFac,charge,CI_St(iState)%iSpin, &
+             dftfock,Do_DFT)
 
   ! Load in the on-top potentials.
   call get_dArray('ONTOPO',veff1,ntot1)
