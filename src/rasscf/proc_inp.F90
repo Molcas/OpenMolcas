@@ -38,7 +38,7 @@ use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
 use general_data, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NDELT, NELEC3, NFRO, NFROT, NGAS, NGSSH, NHOLE1, &
-                        NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM
+                        NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM
 use DWSol, only: DWSol_DWRO
 use CI_Info, only: Space_Inp
 use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
@@ -2160,7 +2160,6 @@ else
   NSEC = sum(NSSH(1:NSYM))
   NORBT = sum(NORB(1:NSYM))
   NTOT3 = sum(nTri_Elem(NORB(1:NSYM)))
-  NTOTSP = sum(nTri_Elem(NASH(1:NSYM)))
   NTOT4 = sum(NORB(1:NSYM)**2)
   NRS1T = sum(NRS1(1:NSYM)) ! for RASSCF
   NRS2T = sum(NRS2(1:NSYM))

@@ -20,7 +20,7 @@ use mcpdft_output, only: iPrLoc
 use rasscf_global, only: IPT2, iRoot, lRoots, NAC, NACPAR, NACPR2, NFR, NIN, NO2M, NORBT, NROOTS, NSEC, nTot3, nTot4, Weight, INVEC
 use rasscf_files, only: jobiph, jobold
 use general_data, only: ispin, nactel, nash, nbas, nconf, ndel, ndelt, nelec3, nfro, nhole1, nish, norb, nrs1, nrs1t, nrs2, nrs2t, &
-                        nrs3, nrs3t, nssh, nsym, ntot, ntot1, ntot2, ntotsp, stsym
+                        nrs3, nrs3t, nssh, nsym, ntot, ntot1, ntot2, stsym
 use rctfld_module, only: lrf
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
@@ -276,7 +276,6 @@ NTOT1 = 0
 NTOT2 = 0
 NO2M = 0
 NTOT3 = 0
-NTOTSP = 0
 NTOT4 = 0
 ntot = sum(nbas(1:nsym))
 nrs1t = sum(nrs1(1:nsym)) ! for RAS
@@ -293,7 +292,6 @@ do ISYM=1,NSYM
   NTOT2 = NTOT2+NBAS(ISYM)**2
   NO2M = max(NO2M,NBAS(ISYM)**2)
   ntot3 = ntot3+nTri_Elem(norb(isym))
-  NTOTSP = NTOTSP+nTri_Elem(NASH(ISYM))
   NTOT4 = NTOT4+NORB(ISYM)**2
 end do
 NACPAR = nTri_Elem(nac)
