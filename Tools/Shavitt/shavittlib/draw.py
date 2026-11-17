@@ -59,6 +59,15 @@ class LoopOverlay:
 
 
 @dataclass
+class SegmentOverlay:
+    """Segments to draw (shavittlib.segments.Segment) and the vertex they belong to."""
+    segments: list = field(default_factory=list)
+    vertex: int = None
+    detail: bool = True
+    note: str = ''
+
+
+@dataclass
 class DrawOptions:
     vertex_numbers: bool = False  # number the vertices (1-based, as in the DRT)
     paldus_labels: bool = False  # (a,b,c) at each vertex
@@ -97,7 +106,7 @@ def figure_size(g):
     return max(6.0, 0.32 * (x.max() + 1) + 4.5), max(4.5, 0.62 * g.nlev + 2.2)
 
 
-def draw(g, ax, walks=(), opts=None, loops=None):
+def draw(g, ax, walks=(), opts=None, loops=None, segments=None):
     """Draw the graph g on the matplotlib Axes ax. Returns the vertex coordinates (x, y).
 
     loops: a LoopOverlay of coupling-coefficient loops, or None.
@@ -143,6 +152,8 @@ def draw(g, ax, walks=(), opts=None, loops=None):
 
     if loops is not None:
         _draw_loops(g, ax, x, y, loops)
+    if segments is not None:
+        _draw_segments(g, ax, x, y, segments)
 
     # vertices with a surface ring; midvertices as squares
     mid = set(g.midvertices()) if opts.mark_midvertices else set()
@@ -190,7 +201,7 @@ def draw(g, ax, walks=(), opts=None, loops=None):
 
     if opts.title:
         ax.set_title(opts.title, color=INK, fontsize=10, loc='left', pad=30)
-    if nw or mid or (loops is not None and loops.loops):
+    if nw or mid or (loops is not None and loops.loops) or (segments is not None and segments.segments):
         ax.legend(loc='upper left', bbox_to_anchor=(1.0, 1.0), frameon=False, fontsize=8, labelcolor=INK,
                   title='CSF  step vector  coeff' if nw else None, title_fontsize=8)
     return x, y
@@ -238,6 +249,38 @@ def _draw_loops(g, ax, x, y, ov):
         ax.text(0.0, -0.02, ov.note, transform=ax.transAxes, fontsize=8, color=INK, va='top', ha='left')
 
 
+def _draw_segments(g, ax, x, y, ov):
+    """The segment overlay: bra arcs solid violet, ket arcs dashed orange, the vertex ringed."""
+    lw, alpha = (2.8, 1.0) if ov.detail else (1.6, 0.6)
+    seen_b, seen_k = set(), set()
+    for s in ov.segments:
+        same = s.vlt == s.vrt and s.vlb == s.vrb
+        dx = 0.0 if same else 0.07
+        if (s.vlt, s.vlb) not in seen_b:
+            seen_b.add((s.vlt, s.vlb))
+            ax.plot([x[s.vlt] - dx, x[s.vlb] - dx], [y[s.vlt], y[s.vlb]], color=BRA, lw=lw, alpha=alpha, zorder=12,
+                    solid_capstyle='round', label='bra (L) step' if len(seen_b) == 1 else None)
+        if (s.vrt, s.vrb) not in seen_k:
+            seen_k.add((s.vrt, s.vrb))
+            ax.plot([x[s.vrt] + dx, x[s.vrb] + dx], [y[s.vrt], y[s.vrb]], color=KET, lw=lw, alpha=alpha, zorder=13,
+                    ls=(0, (3, 1.6)), label='ket (R) step' if len(seen_k) == 1 else None)
+        if ov.detail:
+            # the four corners of the segment
+            pts = sorted({s.vlt, s.vrt, s.vlb, s.vrb})
+            ax.scatter(x[pts], y[pts], s=70, facecolors='none', edgecolors=INK, linewidths=1.2, zorder=22)
+            xm = (x[s.vlt] + x[s.vlb] + x[s.vrt] + x[s.vrb]) / 4
+            ym = (y[s.vlt] + y[s.vlb]) / 2
+            ax.annotate(f'#{s.number}  {s.value:+.4f}', (xm, ym), xytext=(10, 0), textcoords='offset points',
+                        fontsize=8, color=INK, zorder=23, fontweight='bold', va='center',
+                        bbox=dict(boxstyle='round,pad=0.2', fc=SURFACE, ec='none', alpha=0.85))
+    if ov.vertex is not None:
+        v = ov.vertex
+        ax.scatter([x[v]], [y[v]], s=260, facecolors='none', edgecolors=INK, linewidths=1.8, zorder=24,
+                   label='segment vertex')
+    if ov.note:
+        ax.text(0.0, -0.02, ov.note, transform=ax.transAxes, fontsize=8, color=INK, va='top', ha='left')
+
+
 LOGO = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'openmolcas_logo.png')
 
 
@@ -261,7 +304,7 @@ def add_logo(ax, height=0.11, margin=4):
     ax.add_artist(ab)
 
 
-def save(g, filename, walks=(), opts=None, dpi=300, limits=None, loops=None):
+def save(g, filename, walks=(), opts=None, dpi=300, limits=None, loops=None, segments=None):
     """Draw the graph into a new figure and write it to filename (format from the extension).
 
     limits: ((xmin, xmax), (ymin, ymax)) to save a zoomed view.
@@ -269,7 +312,7 @@ def save(g, filename, walks=(), opts=None, dpi=300, limits=None, loops=None):
     from matplotlib.figure import Figure
     fig = Figure(figsize=figure_size(g), facecolor=SURFACE)
     ax = fig.add_subplot(111)
-    draw(g, ax, walks, opts, loops)
+    draw(g, ax, walks, opts, loops, segments)
     if limits is not None:
         ax.set_xlim(limits[0])
         ax.set_ylim(limits[1])

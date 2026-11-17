@@ -22,7 +22,8 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolb
 from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 from matplotlib.figure import Figure
 
-from .draw import MAX_WALKS, SERIES, SURFACE, DrawOptions, LoopOverlay, Walk, draw
+from .draw import MAX_WALKS, SERIES, SURFACE, DrawOptions, LoopOverlay, SegmentOverlay, Walk, draw
+from . import segments as sgm
 from . import loops as lps
 from .orbitals import ActiveOrbitals
 from . import __version__
@@ -159,7 +160,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
         # three tabs, each scrollable: wave function and walks, loops, view
         tabs = QtWidgets.QTabWidget()
         pages = []
-        for name in ('Wave function', 'Loops', 'View'):
+        for name in ('Wave function', 'Loops', 'Segments', 'View'):
             page = QtWidgets.QWidget()
             pl = QtWidgets.QVBoxLayout(page)
             sc = QtWidgets.QScrollArea()
@@ -326,8 +327,69 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.loop_mvs = []
         self.loop_mv = None
 
-        # display options
+        # segments of a vertex
         lay = pages[2]
+        box = QtWidgets.QGroupBox('Segments of a vertex')
+        box.setToolTip('The one-level pieces of the loops (SGUGA MKSEG): a pair of top vertices (bra L, ket R),\n'
+                       'the bra and ket steps, the pair of bottom vertices, and the segment value.')
+        f = QtWidgets.QFormLayout(box)
+        h = QtWidgets.QHBoxLayout()
+        self.seg_spin = QtWidgets.QSpinBox()
+        self.seg_spin.setRange(0, 0)
+        self.seg_spin.setSpecialValueText('none')
+        self.seg_spin.setToolTip('Vertex number (1-based, as in the DRT); or click a vertex in the graph')
+        self.seg_spin.valueChanged.connect(lambda n: self.set_segment_vertex(n - 1 if n > 0 else None))
+        h.addWidget(self.seg_spin)
+        h.addWidget(QtWidgets.QLabel('(click a vertex in the graph)'))
+        h.addStretch(1)
+        f.addRow('Vertex', h)
+        self.seg_vinfo = QtWidgets.QLabel('')
+        self.seg_vinfo.setTextFormat(Qt.RichText)
+        self.seg_vinfo.setWordWrap(True)
+        f.addRow(self.seg_vinfo)
+        h = QtWidgets.QHBoxLayout()
+        self.seg_kind = {}
+        for key, text, tip in [('walk', 'walk', 'walk segments above/below a loop (1-4, 23-26)'),
+                               ('head', 'head', 'loop heads (5-8)'), ('mid', 'mid', 'intermediate segments (9-18)'),
+                               ('tail', 'tail', 'loop tails (19-22)'), ('weight', 'weight', 'E_ii weights (27-34)')]:
+            c = QtWidgets.QCheckBox(text)
+            c.setToolTip(tip)
+            c.setChecked(key != 'walk')
+            c.toggled.connect(self.recompute_segments)
+            h.addWidget(c)
+            self.seg_kind[key] = c
+        f.addRow('Types', h)
+        h = QtWidgets.QHBoxLayout()
+        self.seg_left = QtWidgets.QCheckBox('as bra (L) vertex')
+        self.seg_right = QtWidgets.QCheckBox('as ket (R) vertex')
+        self.seg_left.setToolTip('Segments whose top-left (bra) vertex is the vertex: the SGUGA tables ISGM/VSGM')
+        self.seg_right.setToolTip('Segments whose top-right (ket) vertex is the vertex, with a partner as bra')
+        for c in (self.seg_left, self.seg_right):
+            c.setChecked(True)
+            c.toggled.connect(self.recompute_segments)
+            h.addWidget(c)
+        f.addRow('Role', h)
+        self.seg_info = QtWidgets.QLabel('no vertex selected')
+        self.seg_info.setWordWrap(True)
+        f.addRow(self.seg_info)
+        self.seg_list = QtWidgets.QListWidget()
+        self.seg_list.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
+        self.seg_list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.seg_list.setMinimumHeight(380)
+        self.seg_list.setToolTip(
+            '<qt><b>Segment list</b> (hover a row for its explanation)<br>'
+            'Columns: SGUGA segment number, type, role of the vertex (L: bra / R: ket top vertex), '
+            'bra and ket step (0 u d 2), value, and the vertices top L,R &rarr; bottom L,R.<br>'
+            'Nothing selected: all listed segments are drawn. Select segments to see them in detail.</qt>')
+        self.seg_list.itemSelectionChanged.connect(self.on_segment_selection)
+        f.addRow(self.seg_list)
+        lay.addWidget(box)
+        self.seg_vertex = None
+        self.seg_items = []
+        self.seg_note = ''
+
+        # display options
+        lay = pages[3]
         box = QtWidgets.QGroupBox('Display')
         v = QtWidgets.QVBoxLayout(box)
         self.checks = {}
@@ -413,6 +475,11 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.root_spin.blockSignals(False)
         self.vertex_label.setText('none selected')
         self.fill_loop_controls()
+        self.seg_spin.blockSignals(True)
+        self.seg_spin.setRange(0, g.nvert)
+        self.seg_spin.setValue(0)
+        self.seg_spin.blockSignals(False)
+        self.set_segment_vertex(None)
         self.fill_table()
         self.select_top()
         self.statusBar().showMessage(f'Read {filename}', 5000)
@@ -700,6 +767,9 @@ class ShavittWindow(QtWidgets.QMainWindow):
         if self.toolbar.mode:  # zoom or pan active
             return
         v = self._vertex_at(ev, tol=12.0)
+        if self.segments_mode():
+            self.seg_spin.setValue(0 if v is None else v + 1)  # sets the segment vertex
+            return
         if self.pick_check.isChecked() and v is not None and v in self.g.midvertices():
             self.pick_midvertex(v)
             return
@@ -890,6 +960,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.refresh()
 
     def overlay(self):
+        if self.segments_mode():
+            return None
         if not self.loop_items:
             if self.loop_mvs:
                 return LoopOverlay(midvertices=self.loop_mvs)
@@ -918,13 +990,97 @@ class ShavittWindow(QtWidgets.QMainWindow):
                 f'root {self.root_spin.value()}')
 
     LOOPS_TAB = 1
+    SEGMENTS_TAB = 2
 
     def loops_mode(self):
         """True while the Loops tab is shown: the CSF walks are then hidden (kept for the other tabs)."""
         return getattr(self, 'tabs', None) is not None and self.tabs.currentIndex() == self.LOOPS_TAB
 
+    def segments_mode(self):
+        """True while the Segments tab is shown: only the segments are drawn, a click selects their vertex."""
+        return getattr(self, 'tabs', None) is not None and self.tabs.currentIndex() == self.SEGMENTS_TAB
+
+    # ------------------------------------------------------------------ segments
+    def set_segment_vertex(self, v):
+        self.seg_vertex = v
+        g = self.g
+        if v is None or g is None:
+            self.seg_vinfo.setText('')
+        else:
+            L, N, a, b, c = (int(t) for t in g.drt[v])
+            irr = g.irrep_name(g.level_sym[L - 1]) if L > 0 else '-'
+            self.seg_vinfo.setText(f'vertex {v + 1}: level {L} (irrep {irr}), N = {N}, (a,b,c) = ({a},{b},{c}); '
+                                   f'the segments span level {L} &rarr; {L - 1}' if L > 0 else
+                                   f'vertex {v + 1}: the tail of the graph (level 0), no segments below it')
+        self.recompute_segments()
+
+    def _segment_text(self, s):
+        g = self.g
+        bl, kt = s.steps
+        return (f'#{s.number:<2d} {s.category:12s} {s.role}  {bl}/{kt}  {s.value:+.5f}  '
+                f'{s.vlt + 1},{s.vrt + 1}->{s.vlb + 1},{s.vrb + 1}')
+
+    def _segment_tip(self, s):
+        g = self.g
+        bl, kt = s.steps
+        L = int(g.drt[s.vlt, 0])
+        t, bt = sgm.ITVPT[s.k], sgm.IBVPT[s.k]
+        role = ('the vertex is the top-left (bra) vertex, as SGUGA tabulates it (ISGM/VSGM)' if s.role == 'L'
+                else 'the vertex is the top-right (ket) vertex; the bra vertex is its partner')
+        abc = {u: tuple(int(q) for q in g.drt[u, 2:5]) for u in (s.vlt, s.vrt, s.vlb, s.vrb)}
+        return (f'<qt><b>Segment {s.number}: {s.category}</b> &mdash; {sgm.DESCRIPTION[s.category]}.<br>'
+                f'Level {L} &rarr; {L - 1}; {role}.<br>'
+                f'Top: L = vertex {s.vlt + 1} {abc[s.vlt]}, R = vertex {s.vrt + 1} {abc[s.vrt]} '
+                f'(class {t}: {sgm.CLASS[t]}).<br>'
+                f'Steps: bra d = {sgm.IC1[s.k]} ({bl}), ket d = {sgm.IC2[s.k]} ({kt}).<br>'
+                f'Bottom: L = vertex {s.vlb + 1} {abc[s.vlb]}, R = vertex {s.vrb + 1} {abc[s.vrb]} '
+                f'(class {bt}: {sgm.CLASS[bt]}).<br>'
+                f'Value: {s.formula} with b = {s.b} (b of the top-left vertex) = <b>{s.value:+.6f}</b> '
+                f'(SGUGA formula ISVC = {sgm.ISVC[s.k]}).</qt>')
+
+    def recompute_segments(self):
+        self.seg_list.blockSignals(True)
+        self.seg_list.clear()
+        self.seg_items = []
+        self.seg_note = ''
+        v = self.seg_vertex
+        if self.g is None or v is None:
+            self.seg_info.setText('no vertex selected')
+        else:
+            kinds = {k for k, c in self.seg_kind.items() if c.isChecked()}
+            items = sgm.segments_at(self.g, v, self.seg_left.isChecked(), self.seg_right.isChecked(), kinds)
+            self.seg_items = items
+            nl = sum(s.role == 'L' for s in items)
+            self.seg_info.setText(f'{len(items)} segments at vertex {v + 1}: {nl} as bra (L), '
+                                  f'{len(items) - nl} as ket (R) vertex')
+            for k, s in enumerate(items):
+                it = QtWidgets.QListWidgetItem(self._segment_text(s))
+                it.setToolTip(self._segment_tip(s))
+                it.setData(Qt.UserRole, k)
+                self.seg_list.addItem(it)
+        self.seg_list.blockSignals(False)
+        self.refresh()
+
+    def on_segment_selection(self):
+        sel = [self.seg_items[it.data(Qt.UserRole)] for it in self.seg_list.selectedItems()]
+        self.seg_note = ''
+        if len(sel) == 1:
+            s = sel[0]
+            self.seg_note = (f'segment {s.number} ({s.category}): bra {s.steps[0]}, ket {s.steps[1]}, '
+                             f'value {s.formula} = {s.value:+.6f} (b = {s.b})')
+            self.statusBar().showMessage(self.seg_note)
+        self.refresh()
+
+    def seg_overlay(self):
+        if not self.segments_mode() or self.seg_vertex is None:
+            return None
+        sel = [self.seg_items[it.data(Qt.UserRole)] for it in self.seg_list.selectedItems()]
+        if sel:
+            return SegmentOverlay(segments=sel, vertex=self.seg_vertex, detail=True, note=self.seg_note)
+        return SegmentOverlay(segments=self.seg_items, vertex=self.seg_vertex, detail=False)
+
     def _walk_list(self):
-        if self.loops_mode():
+        if self.loops_mode() or self.segments_mode():
             return []
         return sorted(self.walks.values(), key=lambda w: w.slot)
 
@@ -939,7 +1095,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
             self.walk_list.addItem(it)
         keep = None if self._reset_view else (self.ax.get_xlim(), self.ax.get_ylim())
         self.opts.title = self._title()
-        self._x, self._y = draw(g, self.ax, self._walk_list(), self.opts, self.overlay())
+        self._x, self._y = draw(g, self.ax, self._walk_list(), self.opts, self.overlay(), self.seg_overlay())
         self._new_hover()
         if keep:
             self.ax.set_xlim(keep[0])
@@ -968,7 +1124,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
         g = self.g
         self.opts.title = self._title()
         lim = (self.ax.get_xlim(), self.ax.get_ylim())
-        save_figure(g, fn, self._walk_list(), self.opts, dpi=self.dpi_spin.value(), limits=lim, loops=self.overlay())
+        save_figure(g, fn, self._walk_list(), self.opts, dpi=self.dpi_spin.value(), limits=lim, loops=self.overlay(),
+                    segments=self.seg_overlay())
         self.statusBar().showMessage(f'Saved {fn}', 6000)
 
 

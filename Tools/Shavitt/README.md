@@ -62,6 +62,17 @@ Pegamoid 2.13 with NumPy 2 (2.9 uses `np.math`, which NumPy 2 no longer has).
   product). Bra (L) is solid violet, ket (R) dashed orange. The segment values
   are those of SGUGA (MKSEG, ASTA); `tests/check_loops.py` verifies them
   against DENSITY_MATRIX and the enumeration against all pairs of walks.
+* **Segments** (tab): click a vertex (or give its number) for all the
+  segments of the singlet generators that start at it, as SGUGA tabulates
+  them (MKSEG, ISGM/VSGM): the vertex as top-left (bra) vertex, and
+  optionally as top-right (ket) vertex of a partner pair. Each row: SGUGA
+  segment number (1-34), type (walk, head, mid db=-1/+1, tail, E_ii weight),
+  role L/R, bra/ket step, value, and the vertices top L,R -> bottom L,R; the
+  tooltip gives the classes of the vertex pairs and the value formula in b of
+  the top-left vertex. Nothing selected: all listed segments are drawn;
+  selected segments are drawn in detail (bra solid violet, ket dashed orange,
+  corners ringed, number and value). CSF walks and loops are hidden on this
+  tab.
 * **Export**: PDF, PNG or SVG of the graph as shown (zoom included), with the
   dpi for PNG. The toolbar above the graph zooms and pans.
 
