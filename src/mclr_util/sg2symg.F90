@@ -15,7 +15,7 @@ use CI_Info, only: CI_St
 use CI_States, only: CI_Free_State, CI_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC, MINOP, NCNFTP, NCSFTP, NTYP
-use spinfo, only: MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, NTYP_MCLR => NTYP
+use MCLR_Data, only: MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, NTYP_MCLR => NTYP
 use general_data, only: nSym, STSym
 use input_mclr, only: NCSF, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate

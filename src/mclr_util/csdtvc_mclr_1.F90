@@ -17,7 +17,7 @@ subroutine CSDTVC_MCLR_1(CSFVEC,DETVEC,DTOCMT,ICTSDT,IREFSM,ICOPY)
 !              output remains output
 
 use MCLR_Data, only: NDPCNT, NDTASM
-use spinfo, only: NCNFTP, NCSFTP, NTYP
+use MCLR_Data, only: NCNFTP, NCSFTP, NTYP
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

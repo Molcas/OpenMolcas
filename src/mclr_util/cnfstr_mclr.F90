@@ -25,7 +25,7 @@ subroutine CNFSTR_MCLR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,IAGRP,I
 
 use Str_Info, only: NELEC, Str
 use MCLR_Data, only: NACOB, NDPCNT
-use Spinfo, only: MINOP
+use MCLR_Data, only: MINOP
 use Definitions, only: wp, iwp
 
 implicit none

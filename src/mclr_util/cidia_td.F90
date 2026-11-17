@@ -16,7 +16,7 @@ subroutine CIDIA_TD(iSym)
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use MCLR_Data, only: ICISTR, ipDia, NCSASM, NDPCNT, nexp, nexp_max, NOCSF, XISPSM
-use spinfo, only: NCNFTP, NCSFTP, NTYP
+use MCLR_Data, only: NCNFTP, NCSFTP, NTYP
 use general_data, only: STSym
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use Definitions, only: iwp

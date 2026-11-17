@@ -25,7 +25,7 @@ subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISG
 ! September 1993 > Sign and address stored together
 
 use MCLR_Data, only: NDPCNT
-use spinfo, only: MINOP, NCNFTP, NTYP
+use MCLR_Data, only: MINOP, NCNFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

@@ -16,7 +16,7 @@ subroutine CIDIA_sa(iSym,ralp,S)
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: FANCY_PRECONDITIONER, ICISTR, ipCI, ipDia, NDPCNT, NOCSF, XISPSM
-use spinfo, only: NCNFTP, NCSFTP, NTYP
+use MCLR_Data, only: NCNFTP, NCSFTP, NTYP
 use general_data, only: STSym
 use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, Weight
 use Constants, only: One
