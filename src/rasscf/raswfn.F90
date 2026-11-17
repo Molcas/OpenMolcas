@@ -92,6 +92,9 @@ subroutine cre_raswfn()
   call mh5_init_attr(wfn_fileid,'L2ACT',1,[mxAct],IDXSX)
   call mh5_init_attr(wfn_fileid,'A2LEV',1,[mxAct],IDXCI)
 
+  ! the split graph of the CSF space (Tools/Shavitt)
+  call Shavitt2h5(wfn_fileid,istate)
+
   ! iteration(s)
   wfn_iter = mh5_create_attr_int(wfn_fileid,'RASSCF_ITERATIONS')
 
