@@ -17,7 +17,7 @@
 !> CI interface (the gateway), not to either environment.
 module SG_Lucia_Bridge
 
-use sguga, only: CIS, EXS, MkCOT, MkSgNum, SG_NUM, SG_PHASE, SGS, StepVec
+use sguga, only: CIS, EXS, MkCOT, MkSgNum, SG_NUM, SG_Num_Setup, SG_PHASE, SGS, StepVec
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -76,8 +76,7 @@ real(kind=wp) :: Fact
 integer(kind=iwp) :: i
 #endif
 
-If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
-If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
+call SG_Num_Setup(iState,IREFSM)
 
 
 ICSFJP = 0

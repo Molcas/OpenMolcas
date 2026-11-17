@@ -141,6 +141,8 @@ type EXStruct
   logical(kind=iwp) :: Reuse_SGTMP
   logical(kind=iwp) :: Save_Valid = .false., Save_Swap = .false.
   integer(kind=iwp) :: Save_Owner = 0, Save_U = 0, Save_LSym = 0, Save_CISym = 0, Save_nCSF = 0
+  ! the symmetry for which USGN and LSGN (MkSgNum) were built (0: none)
+  integer(kind=iwp) :: Num_Sym = 0
   real(kind=wp) :: Save_ID(2) = 0.0_wp
   integer(kind=iwp), allocatable:: I1list(:), I2list(:)
   real(kind=wp), allocatable:: XList(:)
@@ -336,7 +338,7 @@ real(kind=wp) :: ME_HD = Zero, ME_HW = Zero
 integer(kind=iwp), parameter :: nCoup_Lin = 16
 
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
-public :: SG_Map_CSFs
+public :: SG_Map_CSFs, SG_Num_Setup
 public :: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Cnf_Occ, SG_Select_Explicit, SG_Block_H, SG_Explicit_Block
 public :: SG_Cnf_Avg_Diag
 public :: SG_CSF_StepVec, SG_MatEl_Tpq, SG_Tpq_Psi, SG_Tpq_Psi_Ref, SG_Xpq_Psi
@@ -605,6 +607,7 @@ call mma_deallocate(CIS%ISGM,safe='*')
  call mma_deallocate(EXS%MVR,safe='*')
  call mma_deallocate(EXS%USGN,safe='*')
  call mma_deallocate(EXS%LSGN,safe='*')
+ EXS%Num_Sym = 0
  call mma_deallocate(EXS%I1list,safe='*')
  call mma_deallocate(EXS%I2list,safe='*')
  call mma_deallocate(EXS%Xlist,safe='*')
@@ -3225,6 +3228,7 @@ integer(kind=iwp) :: IC, ICODE, ICONF, IDAWSUM, ILOFF, ILW, IPOS, IRAWSUM, ISTEP
                      NLW, NUW
 integer(kind=iwp), allocatable :: ISTEPVEC(:)
 
+EXS%Num_Sym = STSYM
 call mma_allocate(EXS%USGN,SGS%MxUp,CIS%nMidV,Label='EXS%USGN',safe='*')
 call mma_allocate(EXS%LSGN,SGS%MxDwn,CIS%nMidV,Label='EXS%LSGN',safe='*')
 call mma_allocate(ISTEPVEC,SGS%nLev,Label='ISTEPVEC')
@@ -11525,6 +11529,17 @@ recursive subroutine ASTA_Gen(SGS,k,iVert,V,nLev,F,BF,P,BP,i,j,FixedIsKet,Triple
   end do
 end subroutine ASTA_Gen
 
+!> The walk tables of state iState for the CSFs of symmetry LSM: ICase
+!> (MkCOT) and the walk numbering USGN/LSGN (MkSgNum), which depends on the
+!> symmetry and is rebuilt when another symmetry is asked for (a state can
+!> serve several symmetries, e.g. MCLR's state for the whole run).
+subroutine SG_Num_Setup(iState,LSM)
+  integer(kind=iwp), intent(in) :: iState, LSM
+  if (.not. allocated(CIS(iState)%ICase)) call MkCOT(SGS(iState),CIS(iState))
+  if ((.not. allocated(EXS(iState)%USGN)) .or. (EXS(iState)%Num_Sym /= LSM)) &
+    call MkSgNum(LSM,SGS(iState),CIS(iState),EXS(iState))
+end subroutine SG_Num_Setup
+
 !> Set up the single-CSF matrix elements for the CSFs of symmetry LSM of
 !> state iState (SG_CSF_Occ, SG_MatEl_H).
 subroutine SG_MatEl_Init(iState,LSM)
@@ -11532,8 +11547,7 @@ subroutine SG_MatEl_Init(iState,LSM)
   ME_iState = iState
   ME_LSM = LSM
   call Reset_Decode_ME()
-  if (.not. allocated(CIS(iState)%ICase)) call MkCOT(SGS(iState),CIS(iState))
-  if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(LSM,SGS(iState),CIS(iState),EXS(iState))
+  call SG_Num_Setup(iState,LSM)
   if (.not. allocated(EXS(iState)%IOrd)) call Mk_Coup_Index(EXS(iState))
 end subroutine SG_MatEl_Init
 
