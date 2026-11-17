@@ -21,6 +21,7 @@ module faroald
 ! The implementation follows the minimum operation count algorithm
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
+use second_quantization, only: binom_coef
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -34,6 +35,8 @@ private
 
 ! wavefunction info
 integer(kind=iwp) :: my_nel, my_norb, mult, nela, nelb, nhoa, nhob, ndeta, ndetb, my_ndet
+! the tables of the full string/determinant spaces are set up (faroald_init)
+logical(kind=iwp) :: faroald_full = .false.
 
 ! excitation tables
 type ex1_struct
@@ -55,9 +58,6 @@ integer(kind=iwp) :: npat
 integer(kind=iwp), allocatable :: occpat(:,:),  &    ! (my_norb,npat)
                                   ipat_of_det(:)
 integer(kind=iwp), allocatable :: ndoub(:), nsing(:)
-integer(kind=iwp), allocatable :: conf_by_nopen(:)
-integer(kind=iwp), allocatable :: icnf_out(:)
-integer(kind=iwp), allocatable :: conf_reo(:)
 !
 ! nspin_comb : raw alpha/beta assignments among open shells
 ! ncomb      : Lucia-compatible counting of diagonal states
@@ -66,17 +66,16 @@ integer(kind=iwp), allocatable :: nspin_comb(:), nComb(:)
 integer(kind=iwp), allocatable :: ibcomb(:)
 integer(kind=iwp) :: ncomb_tot
 integer(kind=iwp), allocatable :: ictsdt(:)
-integer(kind=iwp), allocatable :: conf_arcw(:,:,:)
 
-public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
-          my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
-          two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, build_pattern_diagonal, &
-          build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot, pattern_combinations
-public :: npat, occpat, ipat_of_det, conf_arcw
+public :: ex1_a, ex1_b, ex1_init, faroald_full, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, &
+          my_ndet, my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, &
+          transition_two_pdm, two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, &
+          build_pattern_diagonal, build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot, pattern_combinations
+public :: npat, occpat, ipat_of_det
 public :: combination_occupations
 public :: combination_diagonal
-!public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo, build_conf_arcw
-public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo
+public :: build_ictsdt, ictsdt
+public :: faroald_epq_psi, traci_faroald
 
 ! Extensions to mma interfaces
 
@@ -866,7 +865,7 @@ end subroutine fold_two_pdm
 
 subroutine ex1_init(k,n,ex1_table)
 
-  use second_quantization, only: binom_coef, ex1, fase, lex_init, lex_next, lexrank
+  use second_quantization, only: ex1, fase, lex_init, lex_next, lexrank
 
   integer(kind=iwp), intent(in) :: k, n
   type(ex1_struct), intent(out) :: ex1_table(:,:)
@@ -898,19 +897,29 @@ subroutine ex1_init(k,n,ex1_table)
 
 end subroutine ex1_init
 
-subroutine hdiag(h,g,diag)
+subroutine hdiag(h,g,diag,CSFDIA,nConf)
 
   use Constants, only: Zero
 
+  integer(kind=iwp), intent(in):: nConf
+  real(kind=wp) :: CSFDIA(nConf)
   real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
 
-  real(kind=wp), intent(out) :: diag(my_ndet)
+  ! one element per spin combination (ib <= ia for singlets, see below)
+  real(kind=wp), intent(out) :: diag(ncomb_tot)
 
   real(kind=wp), allocatable :: Da(:), Db(:)
 
   integer(kind=iwp), allocatable :: occa(:,:), occb(:,:)
 
   integer(kind=iwp) :: ia, ib, i, j, k, iaLow
+! ToDo cleanup this!
+! integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl, nBEl, iDet, jDet, iCSF, iCNF, jCNF, iCSFOff
+  integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl,       iDet, jDet, iCSF, iCNF, jCNF, iCSFOff
+  integer(kind=iwp) :: SumDet, SumCSF, ipat, ipat_match
+  real(kind=wp) :: EAver, EDet
+
+  integer(kind=iwp) :: occ(my_norb)
 
   call mma_allocate(Da,ndeta,label='Da')
   call mma_allocate(Db,ndetb,label='Db')
@@ -920,82 +929,136 @@ subroutine hdiag(h,g,diag)
 
   call build_occ_alpha(occa)
   call build_occ_beta (occb)
-
   !
   ! Alpha-string energies
   !
-
   do ia=1,ndeta
-
      Da(ia) = Zero
-
      do i=1,nela
         Da(ia) = Da(ia) + h(occa(i,ia),occa(i,ia))
      end do
-
      do i=1,nela
         do j=i+1,nela
-
-           Da(ia) = Da(ia)                                      &
+           Da(ia) = Da(ia)                                     &
               + g(occa(i,ia),occa(i,ia),occa(j,ia),occa(j,ia)) &
               - g(occa(i,ia),occa(j,ia),occa(j,ia),occa(i,ia))
-
         end do
      end do
-
   end do
-
   !
   ! Beta-string energies
   !
-
   do ib=1,ndetb
-
      Db(ib) = Zero
-
      do i=1,nelb
         Db(ib) = Db(ib) + h(occb(i,ib),occb(i,ib))
      end do
-
      do i=1,nelb
         do j=i+1,nelb
-
-           Db(ib) = Db(ib)                                      &
+           Db(ib) = Db(ib)                                     &
               + g(occb(i,ib),occb(i,ib),occb(j,ib),occb(j,ib)) &
               - g(occb(i,ib),occb(j,ib),occb(j,ib),occb(i,ib))
-
         end do
      end do
-
   end do
-
+! Todo: Remove the computation of diag!(?)
   !
   ! Full determinant-product diagonal
   !
-
   k = 0
-
   do ib=1,ndetb
      iaLow = 1
      if (Mult==1) iaLow=ib
      do ia=iaLow,ndetA
-
         k = k + 1
-
+!       Write (6,*) 'k=',k,' -> ib, ia:',ib,ia
         diag(k) = Da(ia) + Db(ib)
-
         do i=1,nela
            do j=1,nelb
-
               diag(k) = diag(k)                                   &
                  + g(occa(i,ia),occa(i,ia),                       &
                      occb(j,ib),occb(j,ib))
-
            end do
         end do
-
      end do
   end do
+
+! Call RecPrt('Diag',' ',Diag,1,k)
+
+! Construct the averaged determinant contribution of a configurtion and distribute it
+! to all the CSFs of the same configuration.
+
+  MinOpen=Mult-1
+  MaxOpen=Min(my_nEl,my_norb)
+  If (mod(MaxOpen-my_nEl,2) /= 0) MaxOpen=MaxOpen-1
+
+! nOpen = Index of open-shell class. Equal the actual number of open shells.
+  CSFDIA(:)=Zero
+  iCSFOff=0
+  sumDet = 0
+  sumCSF = 0
+  Do nOpen = MinOpen, MaxOpen, 2
+     nAEl=(nOpen+(Mult-1))/2
+!    nBEl=(nOpen-(Mult-1))/2
+!    IDET = number of prototype determinants per configuration in this open-shell class.
+!    ICSF = number of CSFs per configuration in this open-shell class.
+!    ICNF = number of configurations in this open-shell class.
+
+!
+! Number of prototype determinants associated with this
+! configuration (occupation pattern).  For singlets this is
+! smaller than the full determinant count because spin-reversed
+! determinant pairs are merged into a single prototype
+! determinant.  Therefore use
+!
+!    iDet = nComb(ipat_match)
+!
+! rather than the full determinant multiplicity
+!
+!    binom(nOpen,nAEl)
+!
+! when constructing the configuration average.
+!
+     iDet = binom_coef(nAEl,nOpen)
+     iCSF=ncsf_open_shells(nOpen,Mult-1)
+     iCNF=nconf_open_shells(my_norb,my_nel,nOpen)
+!    Write(6,'(A,5I6)') 'nOpen, nAEl, nBEl, nDet, nCSF=', nOpen, nAEl, nBEl, iDet, iCSF
+     sumDet = sumDet + iDet*iCNF
+     sumCSF = sumCSF + iCSF*iCNF
+     Do jCNF=1, iCNF
+
+        call configuration_from_index(nOpen,jCNF,occ)
+
+        ipat_match = 0
+
+        do ipat=1,npat
+           if (all(occ(:) == occpat(:,ipat))) then
+              ipat_match = ipat
+              exit
+           end if
+        end do
+!       write(u6,'(A,3I6,A,20I2)') 'nOpen,jCNF,ipat=',nOpen,jCNF,ipat_match,' occ=',occ(:)
+
+        EAver = Zero
+
+        iDet = nComb(ipat_match)
+        do jDet=1,iDet
+          call prototype_diagonal(ipat_match,jDet,eDet)
+!         write(u6,*) jDet, eDet
+          EAver = EAver + eDet
+        end do
+        EAver = EAver / real(iDet,wp)
+!       write(u6,'(A,2I6,F20.10)') 'jCNF, ipat =', jCNF, ipat_match, EAver
+
+!       write(u6,'(A,4I6)') 'nOpen,jCNF,ipat,nCSF=',  nOpen,jCNF,ipat_match,iCSF
+
+        CSFDIA(iCSFOff+1:iCSFOff+iCSF) = EAver
+        iCSFOff = iCSFOff + iCSF
+     End Do
+  End Do
+! Write(6,'(A,2I6)') 'SumDet, SumCSF=', SumDet, SumCSF
+
+! Call RecPrt('CSFDIA(Farolad)',' ',CSFDIA,1,nConf)
 
   call mma_deallocate(occb)
   call mma_deallocate(occa)
@@ -1003,6 +1066,37 @@ subroutine hdiag(h,g,diag)
   call mma_deallocate(Da)
 
 contains
+
+subroutine prototype_diagonal(ipat,jDet,e)
+
+   integer(kind=iwp), intent(in) :: ipat
+   integer(kind=iwp), intent(in) :: jDet
+   real(kind=wp), intent(out)    :: e
+
+   integer(kind=iwp) :: nOpen
+   integer(kind=iwp) :: nCombPat
+   integer(kind=iwp), allocatable :: comb(:,:)
+
+   nOpen = nsing(ipat)
+
+   if (nOpen == 0) then
+
+      call combination_diagonal(ipat,htu,gtuvx,e)
+
+   else
+
+      call mma_allocate(comb,nOpen,ncomb(ipat),label='Comb')
+
+      call pattern_combinations(ipat,nOpen,nCombPat,comb)
+
+      call combination_diagonal(ipat,htu,gtuvx,e,comb(:,jDet))
+
+      call mma_deallocate(comb)
+
+   end if
+
+end subroutine
+
 
   subroutine build_occ_alpha(occ)
 
@@ -1065,6 +1159,7 @@ contains
     end do
 
   end subroutine build_occ_beta
+
 
 end subroutine hdiag
 
@@ -1379,27 +1474,21 @@ end do
 
 end subroutine build_patterns
 
+!#define _Print_Combinations_
 subroutine analyse_patterns()
 
   integer(kind=iwp) :: ipat, p
 
-#ifdef _NOT_IN_USE_
-  integer(kind=iwp) :: nopen, ncomb_pat, icomb
-  integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
-  integer(kind=iwp) :: i
+#ifdef _Print_Combinations_
+integer(kind=iwp) :: nopen, ncomb_pat, icomb
+integer(kind=iwp), allocatable :: Comb(:,:)
+integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
 #endif
-  integer(kind=iwp) :: iopen, k
-! integer(kind=iwp), allocatable :: vertex(:,:)
 
   call mma_allocate(ndoub,npat,label='NDoub')
   call mma_allocate(nsing,npat,label='NSing')
   call mma_allocate(nspin_comb,npat,label='NSpinComb')
   call mma_allocate(ncomb,npat,label='NComb')
-  call mma_allocate(conf_by_nopen,npat,label='conf_by_nopen')
-  call mma_allocate(icnf_out,npat,label='ICNF_OUT')
-
-
-! call mma_allocate(vertex,my_norb+1,my_nel+1,label='Vertex')
 
   do ipat=1,npat
 
@@ -1452,16 +1541,7 @@ subroutine analyse_patterns()
        end if
      end if
 
-#ifdef _NOT_IN_USE_
-if (nsing(ipat) > 0 .and. mult==1) then
-   call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
-   call spncom_faroald(nsing(ipat),0,nspin_comb(ipat),comb)
-   call mma_deallocate(comb)
-end if
-#endif
-
-#ifdef _NOT_IN_USE_
-if (nsing(ipat) == 4 .and. mult == 1) then
+#ifdef _Print_Combinations_
    call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
    call pattern_combinations(ipat,nopen,ncomb_pat,comb)
 
@@ -1476,21 +1556,24 @@ if (nsing(ipat) == 4 .and. mult == 1) then
    end do
 
    call mma_deallocate(comb)
-end if
 #endif
 
   end do
 
-!write(u6,*)
-!write(u6,*) 'IPAT -> NSING'
+#ifdef _DEGUGPRINT_
+write(u6,*)
+write(u6,*) 'IPAT  NOPEN  NDETALL  NDETPROTO  NCSF'
 
-!do ipat=1,npat
-!   write(u6,'(2I6)') ipat, nsing(ipat)
-!end do
+do ipat=1,npat
 
-#ifdef _DEBUGPRINT_
-  write(u6,'(A,I10)') ' NSpin_Comb = ', sum(nSpin_comb(:))
-  write(u6,'(A,I10)') ' NComb = ', sum(nComb(:))
+   write(u6,'(5I8)') &
+        ipat, &
+        nsing(ipat), &
+        count(ipat_of_det == ipat), &
+        ncomb(ipat), &
+        ncsf_open_shells(nsing(ipat),mult-1)
+
+end do
 #endif
 
 call mma_allocate(ibcomb,npat,label='IBComb')
@@ -1509,52 +1592,10 @@ end if
 
 call build_ictsdt()
 
-k = 0
-do iopen=minval(nsing),maxval(nsing),2
-   do ipat=1,npat
-      if (nsing(ipat) /= iopen) cycle
-      k = k + 1
-      conf_by_nopen(ipat) = k
-   end do
-end do
-
-!!write(u6,*)
-!write(u6,*) 'IPAT -> CONF_BY_NOPEN'
-
-!do ipat=1,npat
-!   write(u6,'(2I6)') ipat, conf_by_nopen(ipat)
-!end do
-
-!write(u6,*)
-!write(u6,*) 'CONF_BY_NOPEN -> IPAT'
-
-!do i=1,npat
-!   do ipat=1,npat
-!      if (conf_by_nopen(ipat) == i) then
-!         write(u6,'(2I6)') i, ipat
-!         exit
-!      end if
-!   end do
-!end do
-
-icnf_out(:)=0
-do ipat=1,npat
-   icnf_out(conf_by_nopen(ipat)) = ipat
-end do
-
-call mma_allocate(conf_reo,npat,label='CONF_REO')
-
-do ipat=1,npat
-   conf_reo(conf_by_nopen(ipat)) = ipat
-end do
-
-!call build_vertex_weights(vertex)
-!call mma_deallocate(vertex)
 
 end subroutine analyse_patterns
 
 integer(kind=iwp) function spin_comb_count(iopen,ms2)
-use second_quantization, only: binom_coef
 
   integer(kind=iwp), intent(in) :: iopen, ms2
   integer(kind=iwp) :: iael, ibel
@@ -1826,130 +1867,240 @@ subroutine build_ictsdt()
 
 end subroutine build_ictsdt
 
-#ifdef _NOT_YET_
-subroutine pattern_lex_order()
 
-  integer(kind=iwp) :: ipat
-  integer(kind=iwp) :: ilex
+integer(kind=iwp) function nconf_open_shells(norb,nel,nopen)
 
-  write(u6,*)
-  write(u6,*) 'PATTERN LEXICAL ORDER'
-  write(u6,*)
+  integer(kind=iwp), intent(in) :: norb
+  integer(kind=iwp), intent(in) :: nel
+  integer(kind=iwp), intent(in) :: nopen
 
-  do ipat=1,npat
+  integer(kind=iwp) :: ndoub
 
-     ilex = lexical_conf(occpat(:,ipat))
+  if (mod(nel-nopen,2) /= 0) then
+     nconf_open_shells = 0
+     return
+  end if
 
-     write(u6,'(2I6,2X,20I2)') ipat,ilex,occpat(:,ipat)
+  ndoub = (nel-nopen)/2
 
-  end do
+  nconf_open_shells = &
+       binom_coef(nopen,norb) * &
+       binom_coef(ndoub,norb-nopen)
 
-end subroutine pattern_lex_order
-#endif
+end function nconf_open_shells
 
-#ifdef _DISABLED_
-!
-! Experimental support for reproducing Lucia configuration
-! ordering. Currently not used in production code.
-!
-subroutine build_conf_arcw()
+integer(kind=iwp) function ncsf_open_shells(nopen,ms2)
 
-  integer(kind=iwp) :: vertex(my_norb+1,my_nel+1)
-  integer(kind=iwp) :: iorb, iel
+  integer(kind=iwp), intent(in) :: nopen
+  integer(kind=iwp), intent(in) :: ms2
 
-  call mma_allocate(conf_arcw,my_norb,my_nel,2,label='ConfArcW')
+  integer(kind=iwp) :: k
 
-  vertex(:,:) = 0
-  vertex(1,1) = 1
+  ! parity check
+  if (mod(nopen-ms2,2) /= 0) then
+     ncsf_open_shells = 0
+     return
+  end if
 
-  do iorb=1,my_norb
-     do iel=0,my_nel
-        if (iel == 0) then
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1)
-        else if (iel == 1) then
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
-                                + vertex(iorb,iel)
-        else
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
-                                + vertex(iorb,iel) &
-                                + vertex(iorb,iel-1)
-        end if
+  k = (nopen-ms2)/2
+
+  ncsf_open_shells = binom_coef(k,nopen)
+
+  if (k > 0) then
+     ncsf_open_shells = ncsf_open_shells - &
+                        binom_coef(k-1,nopen)
+  end if
+
+end function ncsf_open_shells
+
+
+subroutine configuration_from_index(nOpen,jCNF,occ)
+
+  integer(kind=iwp), intent(in)  :: nOpen
+  integer(kind=iwp), intent(in)  :: jCNF
+  integer(kind=iwp), intent(out) :: occ(my_norb)
+
+  integer(kind=iwp) :: iconf_exp(my_nel)
+  integer(kind=iwp) :: occ_local(my_norb)
+
+  integer(kind=iwp) :: i
+  integer(kind=iwp) :: nopen_local
+  integer(kind=iwp) :: count_conf
+  integer(kind=iwp) :: nonew
+
+  occ(:) = 0
+
+  !
+  ! Initial configuration
+  !
+  call nxt_conf_faroald(iconf_exp,my_nel,my_norb,1,nonew)
+
+  count_conf = 0
+
+  do while (nonew == 0)
+
+     !
+     ! Expanded occupation list -> occupation pattern
+     !
+     occ_local(:) = 0
+
+     do i=1,my_nel
+        occ_local(iconf_exp(i)) = occ_local(iconf_exp(i)) + 1
      end do
-  end do
 
-  conf_arcw(:,:,:) = 0
-  do iorb=1,my_norb
-     do iel=1,my_nel
-        conf_arcw(iorb,iel,1) = vertex(iorb,iel+1)
-        if (iel >= 2) then
-           conf_arcw(iorb,iel,2) = vertex(iorb,iel+1) &
-                                 + vertex(iorb,iel-1)
+     !
+     ! Lucia only allows occupations 0,1,2
+     !
+     if (maxval(occ_local) <= 2) then
+
+        nopen_local = count(occ_local(:) == 1)
+
+        if (nopen_local == nOpen) then
+
+           count_conf = count_conf + 1
+
+           if (count_conf == jCNF) then
+
+              occ(:) = occ_local(:)
+
+              return
+
+           end if
+
         end if
-     end do
-  end do
 
-end subroutine build_conf_arcw
-
-
-!subroutine build_vertex_weights(iocc_min,iocc_max,vertex)
-subroutine build_vertex_weights(vertex)
-
-! integer(kind=iwp), intent(in) :: iocc_min(my_norb), iocc_max(my_norb)
-
-  integer(kind=iwp), intent(out) :: vertex(my_norb+1,my_nel+1)
-
-  integer(kind=iwp) :: iorb, iel
-  integer(kind=iwp) :: iocc_min(4), iocc_max(4)
-
-iocc_min = [0,0,2,4]
-iocc_max = [2,4,4,4]
-
-  vertex(:,:) = 0
-  vertex(1,1) = 1
-
-  do iorb=1,my_norb
-     do iel=iocc_min(iorb),iocc_max(iorb)
-        if (iel == 0) then
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1)
-        else if (iel == 1) then
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
-                                + vertex(iorb,iel)
-        else
-
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
-                                + vertex(iorb,iel) &
-                                + vertex(iorb,iel-1)
-        end if
-     end do
-  end do
-
-end subroutine build_vertex_weights
-
-
-integer(kind=iwp) function lexconf_from_packed(iconf,nocob)
-
-  integer(kind=iwp), intent(in) :: nocob
-  integer(kind=iwp), intent(in) :: iconf(nocob)
-
-  integer(kind=iwp) :: iocc
-  integer(kind=iwp) :: iel
-
-  iel = 0
-  lexconf_from_packed = 1
-  do iocc=1,nocob
-     if (iconf(iocc) > 0) then
-        iel = iel + 1
-        lexconf_from_packed = lexconf_from_packed &
-                            + conf_arcw(iconf(iocc),iel,1)
-     else
-        iel = iel + 2
-        lexconf_from_packed = lexconf_from_packed &
-                            + conf_arcw(-iconf(iocc),iel,2)
      end if
+
+     !
+     ! Next configuration in Lucia order
+     !
+     call nxt_conf_faroald(iconf_exp,my_nel,my_norb,0,nonew)
+
   end do
 
-end function lexconf_from_packed
-#endif
+  write(u6,*) 'configuration_from_index: jCNF out of range'
+  write(u6,*) 'nOpen=',nOpen,' jCNF=',jCNF
+  call Abend()
+
+end subroutine configuration_from_index
+
+subroutine nxt_conf_faroald(iconf, nel, norb, ini, nonew)
+
+  integer(kind=iwp), intent(in)    :: nel
+  integer(kind=iwp), intent(in)    :: norb
+  integer(kind=iwp), intent(in)    :: ini
+
+  integer(kind=iwp), intent(inout) :: iconf(nel)
+
+  integer(kind=iwp), intent(out)   :: nonew
+
+  integer(kind=iwp) :: i
+  integer(kind=iwp) :: iadd
+  integer(kind=iwp) :: iel
+  integer(kind=iwp) :: increase
+  integer(kind=iwp) :: jorb
+  integer(kind=iwp) :: ndouble
+
+  if (ini == 1) then
+
+     if (nel <= 2*norb) then
+
+        nonew = 0
+
+        ndouble = nel/2
+
+        do i=1,ndouble
+           iconf(2*i-1) = i
+           iconf(2*i  ) = i
+        end do
+
+        if (2*ndouble /= nel) then
+           iconf(2*ndouble+1) = ndouble+1
+        end if
+
+     else
+
+        nonew = 1
+
+     end if
+
+  else
+
+     iadd = 1
+     iel  = 0
+
+     do while (iadd == 1)
+
+        iel = iel + 1
+
+        increase = 0
+
+        if (iel < nel) then
+
+           if (iconf(iel) < iconf(iel+1)-1) then
+
+              increase = 1
+
+           else if (iconf(iel) == iconf(iel+1)-1) then
+
+              if (iel == nel-1) then
+
+                 increase = 1
+
+              else if (iconf(iel+1) /= iconf(iel+2)) then
+
+                 increase = 1
+
+              end if
+
+           end if
+
+        else if (iel == nel) then
+
+           if (iconf(iel) < norb) then
+
+              increase = 1
+
+           else
+
+              nonew = 1
+              exit
+
+           end if
+
+        else
+
+           nonew = 1
+           exit
+
+        end if
+
+        if (increase == 1) then
+
+           nonew = 0
+
+           iconf(iel) = iconf(iel) + 1
+
+           ndouble = (iel-1)/2
+
+           do jorb=1,ndouble
+              iconf(2*jorb-1) = jorb
+              iconf(2*jorb  ) = jorb
+           end do
+
+           if (2*ndouble < iel-1) then
+              iconf(iel-1) = ndouble + 1
+           end if
+
+           iadd = 0
+
+        end if
+
+     end do
+
+  end if
+
+end subroutine nxt_conf_faroald
 
 subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 ! for a pair of orbitals p and q, and determinants
@@ -1960,7 +2111,7 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 ! where i is a counter from 1 to n_det. The sign of
 ! jdet is stored in the sgn array.
 
-  use second_quantization, only: binom_coef, ex1, fase, lex_init, lex_next, lexrank
+  use second_quantization, only: ex1, fase, lex_init, lex_next, lexrank
 
   integer(kind=iwp), intent(in) :: p, q, my_nel, my_norb
   integer(kind=iwp), intent(out) :: L(:), R(:), sgn(:), counter
@@ -1981,6 +2132,202 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
   end do
 
 end subroutine LRs_init
+
+subroutine Faroald_epq_psi(p,q,psi,sgm)
+
+  integer(kind=iwp), intent(in) :: p,q
+  real(kind=wp), intent(in)  :: psi(ndeta,ndetb)
+  real(kind=wp), intent(out) :: sgm(ndeta,ndetb)
+
+  integer(kind=iwp) :: ja,jb
+  integer(kind=iwp) :: ia,ib
+  integer(kind=iwp) :: k
+
+  sgm = Zero
+
+  !
+  ! alpha excitation part
+  !
+  do ja=1,ndeta
+    do k=1,max_ex1a
+
+      if (ex1_a(k,ja)%p /= p) cycle
+      if (ex1_a(k,ja)%q /= q) cycle
+
+      ia = ex1_a(k,ja)%rank
+
+      sgm(ia,:) = sgm(ia,:) +         &
+           real(ex1_a(k,ja)%sgn,wp) * &
+           psi(ja,:)
+
+    end do
+  end do
+
+  !
+  ! beta excitation part
+  !
+  do jb=1,ndetb
+    do k=1,max_ex1b
+
+      if (ex1_b(k,jb)%p /= p) cycle
+      if (ex1_b(k,jb)%q /= q) cycle
+
+      ib = ex1_b(k,jb)%rank
+
+      sgm(:,ib) = sgm(:,ib) +         &
+           real(ex1_b(k,jb)%sgn,wp) * &
+           psi(:,jb)
+
+    end do
+  end do
+
+end subroutine Faroald_epq_psi
+
+subroutine sigma_update_1e(h1,psi,sigma)
+
+  real(kind=wp), intent(in)  :: h1(:,:)
+  real(kind=wp), intent(in)  :: psi(ndeta,ndetb)
+  real(kind=wp), intent(out) :: sigma(ndeta,ndetb)
+
+  integer(kind=iwp) :: p,q
+  real(kind=wp) :: hpq
+  real(kind=wp), allocatable :: work(:,:)
+  real(kind=wp), parameter :: thr=1.0e-12_wp
+
+  Call mma_allocate(Work,nDetA,nDetB,Label='Work')
+  sigma(:,:) = Zero
+
+  do p=1,my_norb
+    do q=1,my_norb
+
+      hpq = h1(p,q)
+
+      if (abs(hpq) < thr) cycle
+
+      call Faroald_Epq_Psi(p,q,psi,work)
+
+      sigma(:,:) = sigma(:,:) + hpq*work(:,:)
+
+    end do
+  end do
+  Call mma_deallocate(Work)
+
+end subroutine sigma_update_1e
+
+subroutine traci_faroald(T,nT,psi)
+
+   integer(iwp), intent(in) :: nT
+   real(wp), intent(in)    :: T(nT)
+   real(wp), intent(inout) :: psi(ndeta,ndetb)
+
+   real(wp), allocatable :: h1(:,:)
+   real(wp), allocatable :: psi0(:,:), psi1(:,:), psi2(:,:)
+
+   integer(iwp) :: k
+   real(wp) :: tkk
+
+   call mma_allocate(h1,my_norb,my_norb,Label='h1')
+   call mma_allocate(psi0,ndeta,ndetb,Label='Psi0')
+   call mma_allocate(psi1,ndeta,ndetb,Label='Psi1')
+   call mma_allocate(psi2,ndeta,ndetb,Label='Psi2')
+
+   do k=1,my_norb
+      call build_trow_operator(T,k,h1,tkk)
+
+      psi0(:,:) = psi(:,:)
+
+      call multiply_by_nk(tkk,k,psi0)
+      call sigma_update_1e(h1,psi0,psi1)
+
+      call sigma_update_1e(h1,psi1,psi2)
+
+      psi (:,:)= psi0(:,:)+ psi1(:,:)+ Half*psi2(:,:)
+
+   end do
+
+   call mma_deallocate(psi2)
+   call mma_deallocate(psi1)
+   call mma_deallocate(psi0)
+   call mma_deallocate(h1)
+
+end subroutine traci_faroald
+
+subroutine build_trow_operator(T,k,h1,tkk)
+
+   real(wp), intent(in)  :: T(:)
+   integer(iwp), intent(in) :: k
+   real(wp), intent(out) :: h1(my_norb,my_norb)
+   real(wp), intent(out) :: tkk
+
+   integer(iwp) :: p
+
+   h1(:,:) = Zero
+
+   tkk = T((k-1)*my_norb + k)
+
+   do p=1,my_norb
+      if (p == k) cycle
+      h1(p,k) = T((k-1)*my_norb + p) / tkk
+   end do
+
+end subroutine
+
+subroutine multiply_by_nk(tkk,k,psi)
+
+   use Constants,   only: One
+   use Definitions, only: wp, iwp
+
+   real(kind=wp), intent(in)    :: tkk
+   integer(kind=iwp), intent(in) :: k
+   real(kind=wp), intent(inout) :: psi(ndeta,ndetb)
+
+   integer(kind=iwp) :: ia, ib, pq
+   integer(kind=iwp), allocatable :: occa(:), occb(:)
+
+   real(kind=wp) :: fac(0:2)
+
+   fac(0)=One
+   fac(1)=tkk
+   fac(2)=tkk*tkk
+
+   call mma_allocate(occa,ndeta,label='OccA')
+   call mma_allocate(occb,ndetb,label='OccB')
+
+   occa(:)=0
+   occb(:)=0
+
+   do ia=1,ndeta
+      do pq=1,max_ex1a
+         if (ex1_a(pq,ia)%p == k .and. &
+             ex1_a(pq,ia)%q == k .and. &
+             ex1_a(pq,ia)%rank == ia) then
+            occa(ia)=1
+            exit
+         end if
+      end do
+   end do
+
+   do ib=1,ndetb
+      do pq=1,max_ex1b
+         if (ex1_b(pq,ib)%p == k .and. &
+             ex1_b(pq,ib)%q == k .and. &
+             ex1_b(pq,ib)%rank == ib) then
+            occb(ib)=1
+            exit
+         end if
+      end do
+   end do
+
+   do ib=1,ndetb
+      do ia=1,ndeta
+         psi(ia,ib)=fac(occa(ia)+occb(ib))*psi(ia,ib)
+      end do
+   end do
+
+   call mma_deallocate(occb)
+   call mma_deallocate(occa)
+
+end subroutine multiply_by_nk
 
 ! Extensions to mma_interfaces, using preprocessor templates
 ! (see mma_util/stdalloc.F90)

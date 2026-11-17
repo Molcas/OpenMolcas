@@ -35,7 +35,7 @@ integer(kind=iwp) :: refwfn_id
 real(kind=wp) :: aemax, e
 real(kind=wp), allocatable :: elist(:,:)
 
-if (mcpdft_options%mspdft) then
+if (mcpdft_options%mspdft .and. (.not. mcpdft_options%lpdft)) then
   if (iprglb >= USUAL) then
     write(u6,*) 'Reference MC-SCF energies taken from diagonal elements of'
     write(u6,*) 'effective Hamiltonian'

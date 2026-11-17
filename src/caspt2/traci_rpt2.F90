@@ -11,8 +11,8 @@
 
 subroutine TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
 
-use sguga, only: sg_epq_psi
-use sguga, only: CIS, EXS, SGS
+use CI_Info, only: CI_St
+use CI_States, only: CI_Epq_Psi
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, MyRank, nProcs
 #endif
@@ -62,7 +62,7 @@ do J=1,NDIM
   ! CI:=( 1 + Sum(U(I)E(IJ)) + (1/2)Sum(U(I)U(M)E(IJ,MJ)) ) CI,
   ! where U(I) = T(I)-Kronecker(I,J).
   JORB = ISTART-1+J
-  LJ = SGS(istate)%LEVEL(JORB)
+  LJ = CI_St(istate)%Level(JORB)
 
 # ifdef _MOLCAS_MPP_
   ITASK = 0
@@ -72,7 +72,7 @@ do J=1,NDIM
 # endif
   do I=1,NDIM
     IORB = ISTART-1+I
-    LI = SGS(istate)%LEVEL(IORB)
+    LI = CI_St(istate)%Level(IORB)
     SCL = Half*TVEC(I)
     if (I == J) SCL = SCL-Half
     if (abs(SCL) < THRSCL) cycle
@@ -80,10 +80,10 @@ do J=1,NDIM
     if (Is_Real_Par()) then
       ITASK = ITASK+1
       if (mod(ITASK-1,nProcs) /= MyRank) cycle
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,CI,SGM)
+      call CI_Epq_Psi(istate,LI,LJ,SCL,STSYM,CI,SGM)
     else
 #   endif
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,CI,SGM)
+      call CI_Epq_Psi(istate,LI,LJ,SCL,STSYM,CI,SGM)
 #   ifdef _MOLCAS_MPP_
     end if
 #   endif
@@ -102,7 +102,7 @@ do J=1,NDIM
 # endif
   do I=1,NDIM
     IORB = ISTART-1+I
-    LI = SGS(istate)%LEVEL(IORB)
+    LI = CI_St(istate)%Level(IORB)
     SCL = TVEC(I)
     if (I == J) SCL = SCL-One
     if (abs(SCL) < THRSCL) cycle
@@ -110,10 +110,10 @@ do J=1,NDIM
     if (Is_Real_Par()) then
       ITASK = ITASK+1
       if (mod(ITASK-1,nProcs) /= MyRank) cycle
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,SGM,CIACC)
+      call CI_Epq_Psi(istate,LI,LJ,SCL,STSYM,SGM,CIACC)
     else
 #   endif
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,SGM,CI)
+      call CI_Epq_Psi(istate,LI,LJ,SCL,STSYM,SGM,CI)
 #   ifdef _MOLCAS_MPP_
     end if
 #   endif

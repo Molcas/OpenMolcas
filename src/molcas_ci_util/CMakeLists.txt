@@ -42,10 +42,8 @@ set (sources
      gatvcs.F90
      get_d1a_rasscf.F90
      get_d1i_rasscf.F90
-     get_umn.F90
      getcnf.F90
      geth2a.F90
-     getstepvector.F90
      hcsce.F90
      ini_david.F90
      init_lex.F90

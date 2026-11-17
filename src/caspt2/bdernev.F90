@@ -61,8 +61,6 @@ subroutine BDerNEV_initial()
     BDERC_save(:) = Zero
   end if
 
-  return
-
 end subroutine BDerNEV_initial
 
 subroutine BDerNEV_final1(NDPT2C,DPT2C)
@@ -104,15 +102,11 @@ subroutine BDerNEV_final1(NDPT2C,DPT2C)
   call mma_deallocate(BDERA_save,safe='*')
   call mma_deallocate(BDERC_save,safe='*')
 
-  return
-
 end subroutine BDerNEV_final1
 
 subroutine BDerNEV_final2()
 
   call mma_deallocate(Gder,safe='*')
-
-  return
 
 end subroutine BDerNEV_final2
 
@@ -546,8 +540,6 @@ subroutine BDNB(iSym,iCase,NAS,NG3,BDER0,SDER0,G1,G2,G3,DG1,DG2,DG3)
 
   call mma_deallocate(BDER)
 
-  return
-
   contains
 
   subroutine Add_MKBNEVB(ITABS_,IXABS_,IUABS_,IYABS_,IVABS_,IZABS_,g3val_,dg3val_)
@@ -933,8 +925,6 @@ subroutine BDND(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
   call mma_deallocate(BDER1)
   call mma_deallocate(BDER2)
 
-  return
-
   contains
 
   subroutine Add_MKBNEVD(ITABS_,IUABS_,IVABS_,IXABS_,IYABS_,IZABS_,iG3_)
@@ -1075,8 +1065,6 @@ subroutine BDNE(iSym,NAS,BDER,SDER,G1,G2,DG1,DG2)
   end do
 
   call Free_Tsk(ID)
-
-  return
 
 end subroutine BDNE
 
@@ -1281,8 +1269,6 @@ subroutine BDNF(iSym,iCase,NAS,NG3,BDER0,SDER0,G2,G3,DG2,DG3)
 
   call mma_deallocate(BDER)
 
-  return
-
   contains
 
   subroutine Add_MKBNEVF(ITABS_,IXABS_,IUABS_,IYABS_,IVABS_,IZABS_,g3val_,dg3val_)
@@ -1352,8 +1338,6 @@ subroutine BDNG(iSym,NAS,BDER,SDER,G1,G2,DG1,DG2)
 
   call Free_Tsk(ID)
 
-  return
-
 end subroutine BDNG
 
 subroutine BDN_G3(DG1,DG2,DG3)
@@ -1397,8 +1381,6 @@ subroutine BDN_G3(DG1,DG2,DG3)
   end do
 
   call mma_deallocate(idxG3)
-
-  return
 
 end subroutine BDN_G3
 

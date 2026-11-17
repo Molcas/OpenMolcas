@@ -15,6 +15,7 @@
 subroutine applyth_cvb(civbh,orbs)
 ! Apply T(O) H T(O) to CIVBH:
 
+use constants, only: Zero
 use casvb_global, only: gjorb, gjorb2, ndet, norb
 use Definitions, only: wp
 
@@ -22,13 +23,13 @@ implicit none
 real(kind=wp), intent(inout) :: civbh(0:ndet)
 real(kind=wp), intent(in) :: orbs(norb,norb)
 
+real(kind=wp), parameter:: c_daxpy=Zero
+
 call makegjorbs_cvb(orbs)
 
 call applyt_cvb(civbh,gjorb)
 call proj_cvb(civbh)
-call applyh_cvb(civbh)
+call applyh_cvb(civbh,c_daxpy)
 call applyt_cvb(civbh,gjorb2)
-
-return
 
 end subroutine applyth_cvb

@@ -9,12 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine QUNE(NCALLS,ENOW,BK,XSX,VL,VM,XQN,XOLD,V1,V2,NDIM,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
+subroutine QUNE(NCALLS,ENOW,BK,XSX,NDIM,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
 ! RASSCF PROGRAM VERSION IBM-3090: SX SECTION
 !
 ! PURPOSE: THIS SUBROUTINE MAKES A QUASI NEWTON UPDATE
 !          OF THE ROTATION MATRIX X, OR A LINE SEARCH.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use RASDim, only: MxIter
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp
@@ -27,7 +28,7 @@ real(kind=wp), intent(in) :: ENOW
 integer(kind=iwp), intent(in) :: NDIM, LUQUNE
 real(kind=wp), intent(_IN_) :: BK(NDIM)
 real(kind=wp), intent(inout) :: XSX(NDIM)
-real(kind=wp), intent(out) :: VL(NDIM), VM(NDIM), XQN(NDIM), XOLD(NDIM), V1(NDIM), V2(NDIM), TMIn
+real(kind=wp), intent(out) :: TMIn
 character(len=2), intent(out) :: QNSTEP
 character(len=3), intent(out) :: QNUPDT
 character(len=80), intent(in) :: KSDFT
@@ -37,6 +38,14 @@ real(kind=wp) :: C0, C1, C2, C3, E0, E1, ELM, EMIN, EPRED_LS, EPRED_QN, EPRED_SX
 integer(kind=iwp), save :: NLS, NVEC
 real(kind=wp), save :: ALPHA(mxiter+2), BETA(mxiter+2), ELAST, FPLAST
 real(kind=wp), external :: DDot_, DNrm2_
+real(kind=wp), allocatable :: VL(:), VM(:), XQN(:), XOLD(:), V1(:), V2(:)
+
+call mma_allocate(VL,NDIM,Label='VT')
+call mma_allocate(VM,NDIM,Label='VM')
+call mma_allocate(XQN,NDIM,Label='XQN')
+call mma_allocate(XOLD,NDIM,Label='SCR')
+call mma_allocate(V1,NDIM,Label='V1')
+call mma_allocate(V2,NDIM,Label='V2')
 
 NCALLS = NCALLS+1
 
@@ -55,6 +64,9 @@ if (NCALLS == 1) then
   TMIN = Zero
   QNSTEP = 'SX'
   QNUPDT = ' NO'
+
+  Call QUNE_Free()
+
   return
 end if
 ! -- 1. CALC L AND M ARRAYS
@@ -315,5 +327,18 @@ call DDAFILE(LUQUNE,1,XQN,NDIM,IAD)
 call DDAFILE(LUQUNE,1,XSX,NDIM,IAD)
 NLS = NLS+1
 if (QNSTEP /= 'LS') NLS = 0
+
+Call QUNE_Free()
+
+contains
+
+Subroutine QUNE_Free()
+call mma_deallocate(VL)
+call mma_deallocate(VM)
+call mma_deallocate(XQN)
+call mma_deallocate(XOLD)
+call mma_deallocate(V1)
+call mma_deallocate(V2)
+End Subroutine QUNE_Free
 
 end subroutine QUNE

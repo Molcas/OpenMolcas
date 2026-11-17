@@ -1235,6 +1235,8 @@ def test_custom(lines, keyword):
       try:
         parts = fortran_split(lines[l])
         n1, n2 = to_int(parts[0:2])
+        if (name == 'CIROOT'):
+          gv.lookup['CIROOT_NROOTS'] = n1
         if (len(parts) > 2):
           n3 = fortran_int(parts[2])
         else:
@@ -1245,6 +1247,22 @@ def test_custom(lines, keyword):
           if (n1 > 1):
             ll += test_standard(lines[l+ll-1:], 'REALS', n1) - 1
         l += ll
+      except:
+        return None
+    elif (name == 'CISELECT'):
+      # three lines per root (NROOTS of CIROOT, default 1): the number of
+      # reference CSFs, their indices and their coefficients
+      try:
+        nroots = gv.lookup.get('CIROOT_NROOTS')
+        if (nroots is None):
+          nroots = 1
+        k = 0
+        for i in range(nroots):
+          n = first_int(lines[l+k])
+          k += 1
+          k += test_standard(lines[l+k-1:], 'INTS', n) - 1
+          k += test_standard(lines[l+k-1:], 'REALS', n) - 1
+        l += k
       except:
         return None
     elif (name == 'GASSCF'):

@@ -17,7 +17,7 @@ subroutine evb2cas2_cvb(orbs,cvb,ioptc,iter,fx,dxnrm,dx_amx,civec,civb,civbh,res
 !Note: this was using "sorbs" and "owrk2" instead of "cvbdet" and "gjorb", probably a bug
 use casvb_global, only: corenrg, cvbdet, dx, evb, formAD, formAF, gjorb, grd, icnt_ci, ipr, memplenty, ndet, norb, nvb, ovraa, &
                         projcas
-use Constants, only: One, Two
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -32,6 +32,7 @@ integer(kind=iwp) :: icivec
 real(kind=wp) :: cnrm, eig(2), h(2,2), orbinv(norb,norb), ovr, rescas_ovr, resnrm
 logical(kind=iwp) :: dx_ok, grad_ok
 logical(kind=iwp), external :: tstfile_cvb ! ... Files/Hamiltonian available ...
+real(kind=wp), parameter:: c_daxpy=Zero
 
 if (ipr(3) >= 0) then
   write(u6,'(/,a)') ' Starting VB2CAS optimization.'
@@ -65,7 +66,7 @@ call cinorm_cvb(civb,cnrm)
 call ciscale_cvb(civb,One/sqrt(cnrm))
 
 call cicopy_cvb(civb,civbh)
-call applyh_cvb(civbh)
+call applyh_cvb(civbh,c_daxpy)
 
 call cidot_cvb(civb,civbh,evb)
 if (ipr(3) >= 2) write(u6,formAF) ' Residual calculation based on Evb :',evb+corenrg
@@ -102,7 +103,7 @@ call cidot_cvb(civbh,civb,h(1,1))
 call cidot_cvb(civbh,res,h(1,2))
 
 call cicopy_cvb(res,resh)
-call applyh_cvb(resh)
+call applyh_cvb(resh,c_daxpy)
 
 call cidot_cvb(resh,civb,h(2,1))
 call cidot_cvb(resh,res,h(2,2))
@@ -155,7 +156,5 @@ ioptc = 0
 if (.not. (dx_ok .and. grad_ok)) iter = 2
 icivec = nint(civec(0))
 icnt_ci(icivec) = 1
-
-return
 
 end subroutine evb2cas2_cvb

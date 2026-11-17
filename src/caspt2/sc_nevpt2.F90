@@ -37,6 +37,7 @@ private
 !! SC_prop      :: Do property (energy and gradients) calculations using SC-NEVPT2 wavefunction
 !! SC_amplitude :: Compute the T-amplitude for SC-NEVPT2 wavefunction
 !! SC_thres     :: Threshold for avoiding vanishing denominators: the main purpose is to avoid numerical blow up, not for efficiency
+!! SC_merge     :: Choose perturber functions (.true. -> SCPF = MERGE, .false. -> SCPF = SPLIT)
 
 !----- SC-NEVPT2
 ! ECORR_SC                         :: Correlation energy
@@ -52,11 +53,12 @@ private
 
 integer(kind=iwp) :: IDBMAT_NEVPT2(8,13,2)
 real(kind=wp) :: DVALUE_SC, ECORR_SC(0:8,0:MXCASE), OVLAPS_SC(0:8,0:MXCASE), SC_thres = 1.0e-9_wp
-logical(kind=iwp) :: Do_FIC, Do_SC, SC_amplitude = .false., SC_prop = .false.
+logical(kind=iwp) :: Do_FIC, Do_SC, SC_amplitude = .false., SC_merge = .false., SC_prop = .false.
 real(kind=wp), allocatable :: ENERGY_SC(:), HEFF_SC(:,:), UEFF_SC(:,:)
 
-public :: Do_FIC, Do_SC, DVALUE_SC, ECORR_SC, ENERGY_SC, HEFF_SC, IDBMAT_NEVPT2, OVLAPS_SC, SC_amplitude, SC_NEVPT2_amplitude, &
-          SC_NEVPT2_CLagD, SC_NEVPT2_final, SC_NEVPT2_initial, SC_NEVPT2_Print, SC_NEVPT2_res, SC_prop, SC_thres, UEFF_SC
+public :: Do_FIC, Do_SC, DVALUE_SC, ECORR_SC, ENERGY_SC, HEFF_SC, IDBMAT_NEVPT2, OVLAPS_SC, SC_amplitude, SC_merge, &
+          SC_NEVPT2_amplitude, SC_NEVPT2_CLagD, SC_NEVPT2_final, SC_NEVPT2_initial, SC_NEVPT2_Print, SC_NEVPT2_res, SC_prop, &
+          SC_thres, UEFF_SC
 
 contains
 
@@ -86,6 +88,100 @@ end subroutine SC_NEVPT2_final
 
 !-----------------------------------------------------------------------
 
+function SC_NEVPT2_Coupling(iCase)
+
+  integer(kind=iwp), intent(in) :: iCase
+  integer(kind=iwp) :: SC_NEVPT2_Coupling
+
+  SC_NEVPT2_Coupling = 0
+  if (.not. SC_merge) return
+
+  select case (iCase)
+    case (2,6,8,10)
+      SC_NEVPT2_Coupling = +1
+    case (1,4,5,12,13)
+      SC_NEVPT2_Coupling = 0
+    case (3,7,9,11)
+      SC_NEVPT2_Coupling = -1
+    case default
+      write(u6,*) 'SC_NEVPT2_Coupling: illegal case number',iCase
+      call abend()
+  end select
+
+end function SC_NEVPT2_Coupling
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_Map(iCase,iSym,NIS,Map)
+
+  use Symmetry_Info, only: Mul
+  use SUPERINDEX, only: KAGEB, KIGEJ, MAGTB, MIGTJ
+  use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NISH, NSSH
+
+  integer(kind=iwp), intent(in) :: iCase, iSym, NIS
+  integer(kind=iwp), intent(out) :: Map(NIS)
+  integer(kind=iwp) :: ia, iab, iaq, ibq, ii, iij, iiq, ijq, ioff, isp, iSym1, iSym2, jab, jij
+
+  ! Construct the map array for converting inactive/virtual superindex of minus to plus
+
+  select case (iCase)
+    case (3)
+      ! VJTIM -> VJTIP: i>j --> i>=j
+      do isp=1,NIGTJ(iSym)
+        iiq = MIGTJ(1,isp+NIGTJES(iSym))
+        ijq = MIGTJ(2,isp+NIGTJES(iSym))
+        Map(isp) = KIGEJ(iiq,ijq)-NIGEJES(iSym)
+      end do
+    case (7)
+      ! VJAIM --> VJAIP: a*(i>j) --> a*(i>=j)
+      isp = 0
+      ioff = 0
+      do iSym1=1,nSym
+        iSym2 = Mul(iSym1,iSym)
+        do iij=1,NIGTJ(iSym2)
+          iiq = MIGTJ(1,iij+NIGTJES(iSym2))
+          ijq = MIGTJ(2,iij+NIGTJES(iSym2))
+          jij = KIGEJ(iiq,ijq)-NIGEJES(iSym2)
+          do ia=1,NSSH(iSym1)
+            isp = isp+1
+            Map(isp) = ioff+ia+NSSH(iSym1)*(jij-1)
+          end do
+        end do
+        ioff = ioff+NSSH(iSym1)*NIGEJ(iSym2)
+      end do
+    case (9)
+      ! BVATM --> BVATP: a>b --> a>=b
+      do isp=1,NAGTB(iSym)
+        iaq = MAGTB(1,isp+NAGTBES(iSym))
+        ibq = MAGTB(2,isp+NAGTBES(iSym))
+        Map(isp) = KAGEB(iaq,ibq)-NAGEBES(iSym)
+      end do
+    case (11)
+      ! BJATM -> BJATP: i*(a>b) --> i*(a>=b)
+      isp = 0
+      ioff = 0
+      do iSym1=1,nSym
+        iSym2 = Mul(iSym1,iSym)
+        do iab=1,NAGTB(iSym2)
+          iaq = MAGTB(1,iab+NAGTBES(iSym2))
+          ibq = MAGTB(2,iab+NAGTBES(iSym2))
+          jab = KAGEB(iaq,ibq)-NAGEBES(iSym2)
+          do ii=1,NISH(iSym1)
+            isp = isp+1
+            Map(isp) = ioff+ii+NISH(iSym1)*(jab-1)
+          end do
+        end do
+        ioff = ioff+NISH(iSym1)*NAGEB(iSym2)
+      end do
+    case default
+      write(u6,*) 'SC_NEVPT2_Map: illegal case number',iCase
+      call abend()
+  end select
+
+end subroutine SC_NEVPT2_Map
+
+!-----------------------------------------------------------------------
+
 subroutine SC_NEVPT2_Print()
 
   use PrintLevel, only: TERSE, USUAL
@@ -93,6 +189,7 @@ subroutine SC_NEVPT2_Print()
   integer(kind=iwp) :: IC, iCase, IS, iSym, LAXITY
   real(kind=wp) :: DENORM_SC, E2CORR_SC, E2NONV_SC, E2TOT_SC, EAIVX_SC, EATVX_SC, EBJAI_SC, EBJAT_SC, EBVAT_SC, EVJAI_SC, &
                    EVJTI_SC, EVJTU_SC, REFWGT_SC, RNORM_SC
+  character(len=8) :: LABEL
   integer(kind=iwp), external :: Cho_X_GetTol
 
   if (.not. Do_SC) return
@@ -132,7 +229,15 @@ subroutine SC_NEVPT2_Print()
     write(u6,*)
     write(u6,*) ' Correlation energy /case, /Symm, and sums (SC-NEVPT2):'
     do IC=1,13
-      write(u6,'(1X,A8,9F12.8)') CASES(IC),(ECORR_SC(IS,IC),IS=1,NSYM),ECORR_SC(0,IC)
+      select case (SC_NEVPT2_Coupling(IC))
+        case (+1)
+          LABEL = CASES(IC)(1:len_trim(CASES(IC))-1)
+        case (0)
+          LABEL = CASES(IC)
+        case (-1)
+          cycle
+      end select
+      write(u6,'(1X,A8,9F12.8)') LABEL,(ECORR_SC(IS,IC),IS=1,NSYM),ECORR_SC(0,IC)
     end do
     write(u6,'(1X,A8,9F12.8)') 'Summed: ',(ECORR_SC(IS,0),IS=1,NSYM),ECORR_SC(0,0)
   end if
@@ -169,14 +274,14 @@ end subroutine SC_NEVPT2_Print
 
 subroutine SC_NEVPT2_Energy()
 
-  integer(kind=iwp) :: ias, iCase, idisk, IHI1, ILO1, isp, iSym, jas, JHI1, JLO1, lg_V, NAS, NIS
-  real(kind=wp) :: etmp, otmp, vale, valh, valn
-  logical(kind=iwp) :: do_H
-  real(kind=wp), allocatable :: BMAT(:), E_value(:), LBD(:), LID(:), SMAT(:)
+  integer(kind=iwp) :: ias, iCase, iCoupling, idisk, IHI1, ILO1, isp, iSym, jCase, JHI1, JLO1, lg_V, NAS, NAS2, NIS, NIS2
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: ii, jj, LDV, lg_S, MV, myRank
-  real(kind=wp), allocatable :: WRK(:,:)
+  integer(kind=iwp) :: LDV, MV, myRank
 # endif
+  real(kind=wp) :: Dummy(1), etmp, otmp, vale
+  logical(kind=iwp) :: do_H
+  integer(kind=iwp), allocatable :: Map(:)
+  real(kind=wp), allocatable :: E_value(:), LBD(:), LID(:), ValHN(:,:), ValHN2(:,:)
 
   ECORR_SC(:,0:11) = Zero
   OVLAPS_SC(:,0:11) = Zero
@@ -211,7 +316,8 @@ subroutine SC_NEVPT2_Energy()
       if (NAS*NIS == 0) cycle
 
       if ((iCase == 12) .or. (iCase == 13)) then
-        !! Compute the H subspace only when real/imaginary shift has been used
+        ! Compute the H subspace only when real/imaginary shift has been used
+        ! The H subspace energy is not vulnerable to inactive/virtual rotations
         if (do_H) then
           call RHS_ALLO(NAS,NIS,lg_V)
           call RHS_READ(NAS,NIS,lg_V,iCase,iSym,IVECW)
@@ -238,7 +344,7 @@ subroutine SC_NEVPT2_Energy()
                 write(u6,'(1x,A)') 'Something is wrong in SC_NEVPT2_Energy'
                 call abend()
               end if
-              call SC_NEVPT2_Energy_H_MPP(DBL_MB(MV),LDV,JLO1,JHI1,NAS,LBD,LID,etmp,otmp)
+              call SC_NEVPT2_Energy_H_MPP(DBL_MB(MV),LDV,JLO1,JHI1,NAS,NIS,LBD,LID,etmp,otmp)
               call GA_RELEASE(lg_V,ILO1,IHI1,JLO1,JHI1)
             end if
           else
@@ -261,127 +367,105 @@ subroutine SC_NEVPT2_Energy()
         cycle
       end if
 
-      ! Read the original B matrix
-      call mma_allocate(BMAT,nTri_Elem(NAS),Label='BMAT')
-      idisk = IDBMAT_NEVPT2(iSym,iCase,1)
-      call dDaFile(LUSBT,2,BMAT,nTri_Elem(NAS),idisk)
+      iCoupling = SC_NEVPT2_Coupling(iCase)
 
-      ! Read the S matrix
-      call mma_allocate(SMAT,nTri_Elem(NAS),Label='SMAT')
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par() .and. ((iCase == 1) .or. (iCase == 4))) then
-        call mma_allocate(WRK,NAS,NAS,Label='WRK')
-        call PSBMAT_GETMEM('S',lg_S,NAS)
-        call PSBMAT_READ('S',iCase,iSYM,lg_S,NAS)
-        call RHS_GET(NAS,NAS,lg_S,WRK)
-        do ii=1,NAS
-          do jj=ii,NAS
-            SMAT(iTri(jj,ii)) = WRK(jj,ii)
-          end do
-        end do
-        call PSBMAT_FREEMEM(lg_S)
-        call mma_deallocate(WRK)
+      if (iCoupling == -1) cycle ! minus coupling has been computed already (SC_Merge)
+      if (SC_merge) then
+        jCase = iCase+iCoupling
       else
-#     endif
-        idisk = IDSMAT(iSym,iCase)
-        call dDaFile(LUSBT,2,SMAT,nTri_Elem(NAS),idisk)
-#     ifdef _MOLCAS_MPP_
+        jCase = 0
       end if
-#     endif
 
-      call RHS_ALLO(NAS,NIS,lg_V)
-      call RHS_READ(NAS,NIS,lg_V,iCase,iSym,IVECW)
+      ! 1. compute VALH (= ValHN(:,1)) and VALN (= ValHN(:,2))
+      ! If SC_merge is true, VALN and VALH, and thus E_value, are calculated using both plus and minus couplings
 
-      call mma_allocate(LBD,NAS,Label='LBD')
+      call mma_allocate(ValHN,NIS,2,Label='ValHN')
+      call SC_NEVPT2_ValHN(iCase,iSym,NAS,NIS,ValHN,2)
+
+      NAS2 = 0
+      NIS2 = 0
+      if (iCoupling == +1) then
+        ! minus coupling for SC_merge
+        NAS2 = NASUP(iSym,jCase)
+        NIS2 = NISUP(iSym,jCase)
+        if (NAS2*NIS2 > 0) then
+          call mma_allocate(ValHN2,NIS2,2,Label='ValHN2')
+          call SC_NEVPT2_ValHN(jCase,iSym,NAS2,NIS2,ValHN2,2)
+
+          call mma_allocate(Map,NIS2,Label='Map')
+          call SC_NEVPT2_Map(jCase,iSym,NIS2,Map)
+          do isp=1,NIS2
+            ValHN(Map(isp),:) = ValHN(Map(isp),:)+ValHN2(isp,:)
+          end do
+          call mma_deallocate(ValHN2)
+        end if
+      end if
+
+      ! 2. compute E_value using VALN and VALH
+      ! For SC_merge, the minus coupling is included in VALN
+
       call mma_allocate(LID,NIS,Label='LID')
       idisk = IDBMAT(iSym,iCase)
-      call dDaFile(LUSBT,2,LBD,NAS,idisk)
+      call dDaFile(LUSBT,0,Dummy,NAS,idisk)
       call dDaFile(LUSBT,2,LID,NIS,idisk)
 
       call mma_allocate(E_value,NIS,Label='E_value')
-      E_value(1:NIS) = Zero
-
-      ILO1 = 1
-      IHI1 = NAS
-      JLO1 = 1
-      JHI1 = NIS
 
       etmp = Zero
       otmp = Zero
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par()) then
-        myRank = GA_NodeID()
-        call GA_DISTRIBUTION(lg_V,myRank,ILO1,IHI1,JLO1,JHI1)
-        if ((ILO1 > 0) .and. (JLO1 > 0)) then
-          call GA_Access(lg_V,ILO1,IHI1,JLO1,JHI1,MV,LDV)
-          if (IHI1-ILO1+1 /= NAS) then
-            write(u6,'(1x,A)') 'Something is wrong in SC_NEVPT2_Energy'
-            call abend()
-          end if
-          !! The local patch is passed by argument association on purpose:
-          !! DBL_MB is declared with size 2 (mafdecls.fh), so indexing it directly in loops is out-of-bounds and formally undefined;
-          !! aggressive loop optimizers may derive wrong trip counts from it (e.g., GCC13)
-          call SC_NEVPT2_Energy_MPP(DBL_MB(MV),LDV,JLO1,JHI1,NAS,BMAT,SMAT,LID,SC_thres,E_value,etmp,otmp)
-          call GA_RELEASE(lg_V,ILO1,IHI1,JLO1,JHI1)
+      do isp=1,NIS
+        !! compute epsilon (the equation after Eq. (28))
+        if (abs(ValHN(isp,2)) <= SC_thres) then
+          vale = Zero
+        else
+          vale = ValHN(isp,1)/ValHN(isp,2)
         end if
-        call GADGOP(E_value,NIS,'+')
-      else
-#     endif
-        do isp=JLO1,JHI1
-          valh = Zero !! <Psi|V[H,V]|Psi> (Eq. (A2), (A6), ...)
-          valn = Zero !! N: norm (Eq. (11)--(18))
-          do ias=ILO1,IHI1
-            do jas=ias+1,IHI1
-              valh = valh+Two*GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V)%A(jas+NAS*(isp-1))*BMAT(iTri(jas,ias))
-              valn = valn+Two*GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V)%A(jas+NAS*(isp-1))*SMAT(iTri(jas,ias))
-            end do
-            valh = valh+GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*BMAT(nTri_Elem(ias))
-            valn = valn+GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*SMAT(nTri_Elem(ias))
-          end do
-          !! compute epsilon (the equation after Eq. (28))
-          if (abs(valn) <= SC_thres) then
-            vale = Zero
-          else
-            vale = valh/valn
-          end if
-          if (abs(lid(isp)+vale) > SC_thres) then
-            etmp = etmp-valn/(lid(isp)+vale)
-            otmp = otmp+valn/(lid(isp)+vale)**2
-          end if
-          E_value(isp) = vale
-        end do
-#     ifdef _MOLCAS_MPP_
-      end if
-#     endif
+        if (abs(lid(isp)+vale) > SC_thres) then
+          etmp = etmp-ValHN(isp,2)/(lid(isp)+vale)
+          otmp = otmp+ValHN(isp,2)/(lid(isp)+vale)**2
+        end if
+        E_value(isp) = vale
+      end do
       ECORR_SC(iSym,iCase) = etmp
       OVLAPS_SC(iSym,iCase) = otmp
 
-      call mma_deallocate(BMAT)
-      call mma_deallocate(SMAT)
+      call mma_deallocate(ValHN)
 
-      !! Save the denominator of the T-amplitude for future use
-      !! LID gets the epsilon term
+      ! 3. Save the denominator of the T-amplitude for future use
+
+      ! Add the epsilon term to LID
       LID(1:NIS) = LID(1:NIS)+E_value(1:NIS)
       idisk = IDBMAT_NEVPT2(iSym,iCase,2)
       call dDaFile(LUSBT,1,LID,NIS,idisk)
 
-      call mma_deallocate(LBD)
       call mma_deallocate(LID)
-      call mma_deallocate(E_value)
 
-      call RHS_FREE(lg_V)
+      if ((iCoupling == +1) .and. (NAS2*NIS2 > 0)) then
+        ! minus coupling for SC_merge
+        call mma_allocate(LID,NIS2,Label='LID')
+        idisk = IDBMAT(iSym,jCase)
+        call dDaFile(LUSBT,0,Dummy,NAS2,idisk)
+        call dDaFile(LUSBT,2,LID,NIS2,idisk)
+
+        do isp=1,NIS2
+          LID(isp) = LID(isp)+E_value(Map(isp))
+        end do
+        idisk = IDBMAT_NEVPT2(iSym,jCase,2)
+        call dDaFile(LUSBT,1,LID,NIS2,idisk)
+
+        call mma_deallocate(LID)
+        call mma_deallocate(Map)
+      end if
+      call mma_deallocate(E_value)
     end do
   end do
 
 # ifdef _MOLCAS_MPP_
-  !! Gather the contributions A~G (not H)
+  !! Gather the contributions for H if needed
   if (is_real_par()) then
     if (do_H) then
-      call GADGOP(ECORR_SC(:,0:13),9*14,'+')
-      call GADGOP(OVLAPS_SC(:,0:13),9*14,'+')
-    else
-      call GADGOP(ECORR_SC(:,0:11),9*12,'+')
-      call GADGOP(OVLAPS_SC(:,0:11),9*12,'+')
+      call GADGOP(ECORR_SC(:,12:13),9*2,'+')
+      call GADGOP(OVLAPS_SC(:,12:13),9*2,'+')
     end if
   end if
 # endif
@@ -392,11 +476,133 @@ end subroutine SC_NEVPT2_Energy
 
 !-----------------------------------------------------------------------
 
-# ifdef _MOLCAS_MPP_
-subroutine SC_NEVPT2_Energy_H_MPP(V,LDV,JLO,JHI,NAS,LBD,LID,etmp,otmp)
+subroutine SC_NEVPT2_ReadSB(iCase,iSym,NAS,SMAT,BMAT)
 
-  integer(kind=iwp), intent(in) :: LDV, JLO, JHI, NAS
-  real(kind=wp), intent(in) :: V(LDV,*), LBD(*), LID(*)
+  integer(kind=iwp), intent(in) :: iCase, iSym, NAS
+  real(kind=wp), intent(out) :: SMAT(nTri_Elem(NAS)), BMAT(nTri_Elem(NAS))
+  integer(kind=iwp) :: idisk
+# ifdef _MOLCAS_MPP_
+  integer(kind=iwp) :: ii, jj, lg_S
+  real(kind=wp), allocatable :: WRK(:,:)
+# endif
+
+  ! Read the original B matrix
+  idisk = IDBMAT_NEVPT2(iSym,iCase,1)
+  call dDaFile(LUSBT,2,BMAT,nTri_Elem(NAS),idisk)
+
+  ! Read the S matrix
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par() .and. ((iCase == 1) .or. (iCase == 4))) then
+    call mma_allocate(WRK,NAS,NAS,Label='WRK')
+    call PSBMAT_GETMEM('S',lg_S,NAS)
+    call PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
+    call RHS_GET(NAS,NAS,lg_S,WRK)
+    do ii=1,NAS
+      do jj=1,ii
+        SMAT(iTri(jj,ii)) = WRK(jj,ii)
+      end do
+    end do
+    call PSBMAT_FREEMEM(lg_S)
+    call mma_deallocate(WRK)
+  else
+# endif
+    idisk = IDSMAT(iSym,iCase)
+    call dDaFile(LUSBT,2,SMAT,nTri_Elem(NAS),idisk)
+# ifdef _MOLCAS_MPP_
+  end if
+# endif
+
+end subroutine SC_NEVPT2_ReadSB
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_ValHN(iCase,iSym,NAS,NIS,ValHN,nVal)
+
+  integer(kind=iwp), intent(in) :: iCase, iSym, NAS, NIS, nVal
+  real(kind=wp), intent(out) :: ValHN(NIS,nVal)
+  integer(kind=iwp) :: ias, IHI1, ILO1, isp, jas, JHI1, JLO1, lg_C, lg_V
+# ifdef _MOLCAS_MPP_
+  integer(kind=iwp) :: LDC, LDV, MC, MV, myRank
+# endif
+  real(kind=wp), allocatable :: BMAT(:), SMAT(:)
+  real(kind=wp), external :: ddot_
+
+  ! Compute H and N
+  ! ValHN(:,1): <Psi|V[H,V]|Psi> (Eq. (A2), (A6), ...)
+  ! ValHN(:,2): norm (Eq. (11)--(18))
+  ! ValHN(:,3): overlap of the RHS with IVECC (only for the gradient)
+
+  ! Read the S matrix and the original B matrix
+  call mma_allocate(SMAT,nTri_Elem(NAS),Label='SMAT')
+  call mma_allocate(BMAT,nTri_Elem(NAS),Label='BMAT')
+  call SC_NEVPT2_ReadSB(iCase,iSym,NAS,SMAT,BMAT)
+
+  call RHS_ALLO(NAS,NIS,lg_V)
+  call RHS_READ(NAS,NIS,lg_V,iCase,iSym,IVECW)
+  if (nVal == 3) then
+    call RHS_ALLO(NAS,NIS,lg_C)
+    call RHS_READ(NAS,NIS,lg_C,iCase,iSym,IVECC)
+  end if
+
+  ILO1 = 1
+  IHI1 = NAS
+  JLO1 = 1
+  JHI1 = NIS
+
+  ValHN(:,:) = Zero
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) then
+    myRank = GA_NodeID()
+    call GA_DISTRIBUTION(lg_V,myRank,ILO1,IHI1,JLO1,JHI1)
+    if ((ILO1 > 0) .and. (JLO1 > 0)) then
+      call GA_Access(lg_V,ILO1,IHI1,JLO1,JHI1,MV,LDV)
+      if (IHI1-ILO1+1 /= NAS) then
+        write(u6,'(1x,A)') 'Something is wrong in SC_NEVPT2_ValHN'
+        call abend()
+      end if
+      !! The local patch is passed by argument association on purpose:
+      !! DBL_MB is declared with size 2 (mafdecls.fh), so indexing it directly in loops is out-of-bounds and formally undefined;
+      !! aggressive loop optimizers may derive wrong trip counts from it (e.g., GCC13)
+      call SC_NEVPT2_ValHN_MPP(DBL_MB(MV),LDV,JLO1,JHI1,NAS,NIS,BMAT,SMAT,ValHN,nVal)
+      if (nVal == 3) then
+        call GA_Access(lg_C,ILO1,IHI1,JLO1,JHI1,MC,LDC)
+        call SC_NEVPT2_ValHN_MPP2(DBL_MB(MV),DBL_MB(MC),JLO1,JHI1,LDV,LDC,NAS,NIS,ValHN(1,3))
+        call GA_Release(lg_C,ILO1,IHI1,JLO1,JHI1)
+      end if
+      call GA_RELEASE(lg_V,ILO1,IHI1,JLO1,JHI1)
+    end if
+    call GADGOP(ValHN,NIS*nVal,'+')
+  else
+# endif
+    do isp=JLO1,JHI1
+      do ias=ILO1,IHI1
+        do jas=ias+1,IHI1
+          ValHN(isp,1) = ValHN(isp,1)+Two*GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V)%A(jas+NAS*(isp-1))*BMAT(iTri(jas,ias))
+          ValHN(isp,2) = ValHN(isp,2)+Two*GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V)%A(jas+NAS*(isp-1))*SMAT(iTri(jas,ias))
+        end do
+        ValHN(isp,1) = ValHN(isp,1)+GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*BMAT(nTri_Elem(ias))
+        ValHN(isp,2) = ValHN(isp,2)+GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V)%A(ias+NAS*(isp-1))*SMAT(nTri_Elem(ias))
+      end do
+      if (nVal == 3) ValHN(isp,3) = DDot_(NAS,GA_Arrays(lg_V)%A(1+NAS*(isp-1)),1,GA_Arrays(lg_C)%A(1+NAS*(isp-1)),1)
+    end do
+# ifdef _MOLCAS_MPP_
+  end if
+# endif
+
+  call mma_deallocate(BMAT)
+  call mma_deallocate(SMAT)
+  call RHS_FREE(lg_V)
+  if (nVal == 3) call RHS_FREE(lg_C)
+
+end subroutine SC_NEVPT2_ValHN
+
+!-----------------------------------------------------------------------
+
+# ifdef _MOLCAS_MPP_
+subroutine SC_NEVPT2_Energy_H_MPP(V,LDV,JLO,JHI,NAS,NIS,LBD,LID,etmp,otmp)
+
+  integer(kind=iwp), intent(in) :: LDV, JLO, JHI, NAS, NIS
+  real(kind=wp), intent(in) :: V(LDV,JHI-JLO+1), LBD(NAS), LID(NIS)
   real(kind=wp), intent(inout) :: etmp, otmp
   integer(kind=iwp) :: ias, isp
 
@@ -411,39 +617,41 @@ end subroutine SC_NEVPT2_Energy_H_MPP
 
 !-----------------------------------------------------------------------
 
-subroutine SC_NEVPT2_Energy_MPP(V,LDV,JLO,JHI,NAS,BMAT,SMAT,LID,thres,E_value,etmp,otmp)
+subroutine SC_NEVPT2_ValHN_MPP(V,LDV,JLO,JHI,NAS,NIS,BMAT,SMAT,ValHN,nVal)
 
-  integer(kind=iwp), intent(in) :: LDV, JLO, JHI, NAS
-  real(kind=wp), intent(in) :: V(LDV,*), BMAT(*), SMAT(*), LID(*), thres
-  real(kind=wp), intent(inout) :: E_value(*), etmp, otmp
+  integer(kind=iwp), intent(in) :: LDV, JLO, JHI, NAS, NIS, nVal
+  real(kind=wp), intent(in) :: V(LDV,JHI-JLO+1), BMAT(nTri_Elem(NAS)), SMAT(nTri_Elem(NAS))
+  real(kind=wp), intent(inout) :: ValHN(NIS,nVal)
   integer(kind=iwp) :: ias, isp, jas
-  real(kind=wp) :: vale, valh, valn
 
   do isp=JLO,JHI
-    valh = Zero !! <Psi|V[H,V]|Psi> (Eq. (A2), (A6), ...)
-    valn = Zero !! N: norm (Eq. (11)--(18))
     do ias=1,NAS
       do jas=1,ias-1
-        valh = valh+Two*V(ias,isp-JLO+1)*V(jas,isp-JLO+1)*BMAT(iTri(ias,jas))
-        valn = valn+Two*V(ias,isp-JLO+1)*V(jas,isp-JLO+1)*SMAT(iTri(ias,jas))
+        ValHN(isp,1) = ValHN(isp,1)+Two*V(ias,isp-JLO+1)*V(jas,isp-JLO+1)*BMAT(iTri(ias,jas))
+        ValHN(isp,2) = ValHN(isp,2)+Two*V(ias,isp-JLO+1)*V(jas,isp-JLO+1)*SMAT(iTri(ias,jas))
       end do
-      valh = valh+V(ias,isp-JLO+1)*V(ias,isp-JLO+1)*BMAT(nTri_Elem(ias))
-      valn = valn+V(ias,isp-JLO+1)*V(ias,isp-JLO+1)*SMAT(nTri_Elem(ias))
+      ValHN(isp,1) = ValHN(isp,1)+V(ias,isp-JLO+1)*V(ias,isp-JLO+1)*BMAT(nTri_Elem(ias))
+      ValHN(isp,2) = ValHN(isp,2)+V(ias,isp-JLO+1)*V(ias,isp-JLO+1)*SMAT(nTri_Elem(ias))
     end do
-    !! compute epsilon (the equation after Eq. (28))
-    if (abs(valn) <= thres) then
-      vale = Zero
-    else
-      vale = valh/valn
-    end if
-    if (abs(LID(isp)+vale) > thres) then
-      etmp = etmp-valn/(LID(isp)+vale)
-      otmp = otmp+valn/(LID(isp)+vale)**2
-    end if
-    E_value(isp) = vale
   end do
 
-end subroutine SC_NEVPT2_Energy_MPP
+end subroutine SC_NEVPT2_ValHN_MPP
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_ValHN_MPP2(V1,V2,JLO,JHI,LDV,LDC,NAS,NIS,ValHN)
+
+  integer(kind=iwp), intent(in) :: JLO, JHI, LDV, LDC, NAS, NIS
+  real(kind=wp), intent(in) :: V1(LDV,JHI-JLO+1), V2(LDC,JHI-JLO+1)
+  real(kind=wp), intent(inout) :: ValHN(NIS)
+  integer(kind=iwp) :: isp
+  real(kind=wp), external :: ddot_
+
+  do isp=JLO,JHI
+    ValHN(isp) = ddot_(NAS,V1(1,isp-JLO+1),1,V2(1,isp-JLO+1),1)
+  end do
+
+end subroutine SC_NEVPT2_ValHN_MPP2
 #endif
 
 !-----------------------------------------------------------------------
@@ -452,10 +660,10 @@ subroutine SC_NEVPT2_Amplitude(NAS,NIS,iCase,iSym,lg_V)
 
   integer(kind=iwp), intent(in) :: NAS, NIS, iCase, iSym, lg_V
   integer(kind=iwp) :: ias, idisk, IHI, ILO, isp, JHI, JLO
-  real(kind=wp) :: scal
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: LDV, MV, myRank
 # endif
+  real(kind=wp) :: scal
   real(kind=wp), allocatable :: LBD(:), LID(:)
 
   ! Compute the T-amplitude from the right hand side (lg_V = <Phi|H|Psi>)
@@ -534,8 +742,8 @@ end subroutine SC_NEVPT2_Amplitude
 subroutine SC_NEVPT2_Amplitude_MPP(V,LDV,ILO,IHI,JLO,JHI,LBD,LID,use_bd)
 
   integer(kind=iwp), intent(in) :: LDV, ILO, IHI, JLO, JHI
-  real(kind=wp), intent(inout) :: V(LDV,*)
-  real(kind=wp), intent(in) :: LBD(*), LID(*)
+  real(kind=wp), intent(inout) :: V(LDV,JHI-JLO+1)
+  real(kind=wp), intent(in) :: LBD(IHI), LID(JHI)
   logical(kind=iwp), intent(in) :: use_bd
   integer(kind=iwp) :: ias, isp
   real(kind=wp) :: scal
@@ -576,13 +784,15 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
   integer(kind=iwp), intent(in) :: NASHT, NG3, NSTATE
   real(kind=wp), intent(in) :: G1(NASHT,NASHT), G2(NASHT,NASHT,NASHT,NASHT), G3(NG3), VECROT(NSTATE)
   real(kind=wp), intent(inout) :: DG1(NASHT,NASHT), DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3)
-  integer(kind=iwp) :: ias, iCase, idisk, isp, iSym, jas, JHI1, JLO1, lg_V1, lg_V2, lg_V3, NAS, NIS, NVEC
-  real(kind=wp) :: vale, valh, valn
-  real(kind=wp), allocatable :: BDER(:,:), BMAT(:), derHNS(:,:), LID(:), SDER(:,:), SMAT(:)
+  integer(kind=iwp) :: ias, iCase, iCoupling, idisk, isp, iSym, jas, jCase, JHI1, JLO1, lg_V1, lg_V2, lg_V3, NAS, NAS2, NIS, NIS2, &
+                       NVEC
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: IHI1, IHI2, IHI3, ii, ILO1, ILO2, ILO3, JHI2, JHI3, jj, JLO2, JLO3, LDV, LDV1, LDV2, lg_S, MV1, MV2, MV3, &
-                       myRank
+  integer(kind=iwp) :: IHI1, IHI2, IHI3, ILO1, ILO2, ILO3, JHI2, JHI3, JLO2, JLO3, LDV, LDV1, LDV2, MV1, MV2, MV3, myRank
+# endif
+  integer(kind=iwp), allocatable :: Map(:)
+  real(kind=wp), allocatable :: BDER(:,:), BMAT(:), derHNS(:,:), LID(:), SDER(:,:), SMAT(:), ValHN(:,:), ValHN2(:,:)
 
+# ifdef _MOLCAS_MPP_
   if (Is_Real_Par()) call RHS_ZERO(iVecC2)
 # endif
 
@@ -611,33 +821,18 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
         cycle
       end if
 
-      ! Read the original B matrix
-      call mma_allocate(BMAT,nTri_Elem(NAS),Label='BMAT')
-      idisk = IDBMAT_NEVPT2(iSym,iCase,1)
-      call DDAFILE(LUSBT,2,BMAT,nTri_Elem(NAS),idisk)
-
-      ! Read the S matrix
+      ! Read the S matrix and the original B matrix
       call mma_allocate(SMAT,nTri_Elem(NAS),Label='SMAT')
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par() .and. ((iCase == 1) .or. (iCase == 4))) then
-        call mma_allocate(SDER,NAS,NAS,Label='SDER')
-        call PSBMAT_GETMEM('S',lg_S,NAS)
-        call PSBMAT_READ('S',iCase,iSYM,lg_S,NAS)
-        call RHS_GET(NAS,NAS,lg_S,SDER)
-        do ii=1,NAS
-          do jj=1,ii
-            SMAT(iTri(ii,jj)) = SDER(jj,ii)
-          end do
-        end do
-        call PSBMAT_FREEMEM(lg_S)
-        call mma_deallocate(SDER)
+      call mma_allocate(BMAT,nTri_Elem(NAS),Label='BMAT')
+      call SC_NEVPT2_ReadSB(iCase,iSym,NAS,SMAT,BMAT)
+
+      iCoupling = SC_NEVPT2_Coupling(iCase)
+
+      if (SC_merge) then
+        jCase = iCase+iCoupling
       else
-#     endif
-        idisk = IDSMAT(iSym,iCase)
-        call DDAFILE(LUSBT,2,SMAT,nTri_Elem(NAS),idisk)
-#     ifdef _MOLCAS_MPP_
+        jCase = 0
       end if
-#     endif
 
       !! Construct the T-amplitude in lg_V1
       call RHS_ALLO(NAS,NIS,lg_V1)
@@ -655,59 +850,55 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
       call mma_allocate(derHNS,NIS,3,Label='derHNS')
       derHNS(:,:) = Zero
 
-#     ifdef _MOLCAS_MPP_
-      ILO1 = 1
-      IHI1 = NAS
-#     endif
+      !! Derivative factors of H and N from the norm, the Dyall expectation value, and the overlap with T+lambda.
+      !! The quantities of the amplitudes are those of the RHS divided by the squared denominator, which cancels in the factors.
+      !! The two cases of a merged pair share the factors made from the sums over the pair.
+      call mma_allocate(ValHN,NIS,3,Label='ValHN')
+      call SC_NEVPT2_ValHN(iCase,iSym,NAS,NIS,ValHN,3)
+
+      NAS2 = 0
+      NIS2 = 0
+      if (iCoupling /= 0) then
+        ! the other coupling for SC_merge
+        NAS2 = NASUP(iSym,jCase)
+        NIS2 = NISUP(iSym,jCase)
+        if (NAS2*NIS2 /= 0) then
+          call mma_allocate(ValHN2,NIS2,3,Label='ValHN2')
+          call SC_NEVPT2_ValHN(jCase,iSym,NAS2,NIS2,ValHN2,3)
+
+          if (iCoupling == +1) then
+            ! add the minus coupling to the plus coupling
+            call mma_allocate(Map,NIS2,Label='Map')
+            call SC_NEVPT2_Map(jCase,iSym,NIS2,Map)
+            do isp=1,NIS2
+              ValHN(Map(isp),:) = ValHN(Map(isp),:)+ValHN2(isp,:)
+            end do
+          else if (iCoupling == -1) then
+            ! add the plus coupling to the minus coupling
+            call mma_allocate(Map,NIS,Label='Map')
+            call SC_NEVPT2_Map(iCase,iSym,NIS,Map)
+            do isp=1,NIS
+              ValHN(isp,:) = ValHN(isp,:)+ValHN2(Map(isp),:)
+            end do
+          end if
+          call mma_deallocate(ValHN2)
+          call mma_deallocate(Map)
+        end if
+      end if
+      do isp=1,NIS
+        if (abs(ValHN(isp,2)) <= SC_thres) cycle
+        ! derivative of H (through vale)
+        derHNS(isp,1) = ValHN(isp,3)/ValHN(isp,2)
+        ! derivative of N (through vale)
+        derHNS(isp,2) = -ValHN(isp,3)*ValHN(isp,1)/ValHN(isp,2)**2
+        ! derivative of N: the explicit derivative (numerator)
+        ! Compensate the division by lid
+        derHNS(isp,3) = -lid(isp)
+      end do
+      call mma_deallocate(ValHN)
+
       JLO1 = 1
       JHI1 = NIS
-
-      !! Compute derivative of H and N
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par()) then
-        myRank = GA_NodeID()
-        call GA_DISTRIBUTION(lg_V1,myRank,ILO1,IHI1,JLO1,JHI1)
-        call GA_DISTRIBUTION(lg_V2,myRank,ILO2,IHI2,JLO2,JHI2)
-        if ((ILO1 > 0) .and. (JLO1 > 0) .and. (ILO2 > 0) .and. (JLO2 > 0)) then
-          call GA_Access(lg_V1,ILO1,IHI1,JLO1,JHI1,MV1,LDV1)
-          call GA_Access(lg_V2,ILO2,IHI2,JLO2,JHI2,MV2,LDV2)
-          if ((IHI1-ILO1+1 /= NAS) .or. (ILO1 /= ILO2) .or. (IHI1 /= IHI2) .or. (JLO1 /= JLO2) .or. (JHI1 /= JHI2) .or. &
-              (LDV1 /= LDV2)) then
-            write(u6,'(1x,A)') 'Something is wrong in SC_NEVPT2_CLagD'
-            call abend()
-          end if
-          !! The local patches are passed by argument association on purpose
-          !! The access is kept until BDER/SDER below have been built.
-          call SC_NEVPT2_CLagD1_MPP(DBL_MB(MV1),LDV1,DBL_MB(MV2),LDV2,JLO1,JHI1,NAS,NIS,BMAT,SMAT,LID,derHNS)
-        end if
-        call GADGOP(derHNS,NIS*3,'+')
-      else
-#     endif
-        do isp=1,NIS
-          vale = Zero ! derivative contributions of e
-          valh = Zero
-          valn = Zero
-          do ias=1,NAS
-            vale = vale+GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V2)%A(ias+NAS*(isp-1))
-            do jas=1,ias-1
-              valh = valh+Two*GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V1)%A(jas+NAS*(isp-1))*BMAT(iTri(ias,jas))
-              valn = valn+Two*GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V1)%A(jas+NAS*(isp-1))*SMAT(iTri(ias,jas))
-            end do
-            valh = valh+GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*BMAT(nTri_Elem(ias))
-            valn = valn+GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*SMAT(nTri_Elem(ias))
-          end do
-          if (abs(valn) <= SC_thres) cycle
-          ! derivative of H (through vale)
-          derHNS(isp,1) = vale/valn
-          ! derivative of N (through vale)
-          derHNS(isp,2) = -vale*valh/(valn*valn)
-          ! derivative of N: the explicit derivative (numerator)
-          ! Compensate the division by lid
-          derHNS(isp,3) = -One*lid(isp)
-        end do
-#     ifdef _MOLCAS_MPP_
-      end if
-#     endif
 
       call mma_allocate(BDER,NAS,NAS,Label='BDER')
       call mma_allocate(SDER,NAS,NAS,Label='SDER')
@@ -717,10 +908,16 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
       !! Construct BDER and SDER
 #     ifdef _MOLCAS_MPP_
       if (is_real_par()) then
+        myRank = GA_NodeID()
+        call GA_DISTRIBUTION(lg_V1,myRank,ILO1,IHI1,JLO1,JHI1)
         if ((ILO1 > 0) .and. (JLO1 > 0)) then
-          call SC_NEVPT2_CLagD2_MPP(DBL_MB(MV1),LDV1,JLO1,JHI1,NAS,NIS,derHNS,VECROT(jStLag),BDER,SDER)
+          call GA_Access(lg_V1,ILO1,IHI1,JLO1,JHI1,MV1,LDV1)
+          if (IHI1-ILO1+1 /= NAS) then
+            write(u6,'(1x,A)') 'Something is wrong in SC_NEVPT2_CLagD'
+            call abend()
+          end if
+          call SC_NEVPT2_CLagD1_MPP(DBL_MB(MV1),LDV1,JLO1,JHI1,NAS,NIS,derHNS,VECROT(jStLag),BDER,SDER)
           call GA_RELEASE(lg_V1,ILO1,IHI1,JLO1,JHI1)
-          call GA_RELEASE(lg_V2,ILO2,IHI2,JLO2,JHI2)
         end if
       else
 #     endif
@@ -772,7 +969,7 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
           call GA_Access(lg_V2,ILO2,IHI2,JLO2,JHI2,MV2,LDV2)
           call GA_Access(lg_V3,ILO3,IHI3,JLO3,JHI3,MV3,LDV)
           !! The local patches are passed by argument association on purpose
-          call SC_NEVPT2_CLagD3_MPP(DBL_MB(MV1),LDV1,DBL_MB(MV2),LDV2,DBL_MB(MV3),LDV,JLO1,JHI1,NAS,NIS,BMAT,SMAT,LID,derHNS)
+          call SC_NEVPT2_CLagD2_MPP(DBL_MB(MV1),LDV1,DBL_MB(MV2),LDV2,DBL_MB(MV3),LDV,JLO1,JHI1,NAS,NIS,BMAT,SMAT,LID,derHNS)
           call GA_Release(lg_V1,ILO1,IHI1,JLO1,JHI1)
           call GA_Release(lg_V2,ILO2,IHI2,JLO2,JHI2)
           call GA_Release_Update(lg_V3,ILO3,IHI3,JLO3,JHI3)
@@ -881,54 +1078,10 @@ end subroutine SC_NEVPT2_res
 !-----------------------------------------------------------------------
 
 # ifdef _MOLCAS_MPP_
-subroutine SC_NEVPT2_CLagD1_MPP(V1,LDV1,V2,LDV2,JLO,JHI,NAS,NIS,BMAT,SMAT,LID,derHNS)
-
-  integer(kind=iwp), intent(in) :: LDV1, LDV2, JLO, JHI, NAS, NIS
-  real(kind=wp), intent(in) :: V1(LDV1,*), V2(LDV2,*), BMAT(*), SMAT(*), LID(*)
-  real(kind=wp), intent(inout) :: derHNS(NIS,3)
-  integer(kind=iwp) :: ias, icol, idx_bs, isp, jas
-  real(kind=wp) :: tmph, tmpn, vale, valh, valn
-
-  ! Compute the derivative of H and N (derHNS) for the local columns
-
-  do isp=JLO,JHI
-    icol = isp-JLO+1
-    vale = Zero
-    valh = Zero
-    valn = Zero
-    do ias=1,NAS
-      vale = vale+V1(ias,icol)*V2(ias,icol)
-    end do
-    do ias=1,NAS
-      idx_bs = nTri_Elem(ias-1)
-      tmph = Zero
-      tmpn = Zero
-      do jas=1,ias-1
-        tmph = tmph+V1(jas,icol)*BMAT(idx_bs+jas)
-        tmpn = tmpn+V1(jas,icol)*SMAT(idx_bs+jas)
-      end do
-      valh = valh+V1(ias,icol)*(Two*tmph+V1(ias,icol)*BMAT(idx_bs+ias))
-      valn = valn+V1(ias,icol)*(Two*tmpn+V1(ias,icol)*SMAT(idx_bs+ias))
-    end do
-    if (abs(valn) <= SC_thres) then
-      derHNS(isp,1) = Zero
-      derHNS(isp,2) = Zero
-      derHNS(isp,3) = Zero
-    else
-      derHNS(isp,1) = vale/valn
-      derHNS(isp,2) = -vale*valh/(valn*valn)
-      derHNS(isp,3) = -One*LID(isp)
-    end if
-  end do
-
-end subroutine SC_NEVPT2_CLagD1_MPP
-
-!-----------------------------------------------------------------------
-
-subroutine SC_NEVPT2_CLagD2_MPP(V1,LDV1,JLO,JHI,NAS,NIS,derHNS,scal,BDER,SDER)
+subroutine SC_NEVPT2_CLagD1_MPP(V1,LDV1,JLO,JHI,NAS,NIS,derHNS,scal,BDER,SDER)
 
   integer(kind=iwp), intent(in) :: LDV1, JLO, JHI, NAS, NIS
-  real(kind=wp), intent(in) :: V1(LDV1,*), derHNS(NIS,3), scal
+  real(kind=wp), intent(in) :: V1(LDV1,JHI-JLO+1), derHNS(NIS,3), scal
   real(kind=wp), intent(inout) :: BDER(NAS,NAS), SDER(NAS,NAS)
   integer(kind=iwp) :: ias, icol, isp, jas
 
@@ -945,15 +1098,15 @@ subroutine SC_NEVPT2_CLagD2_MPP(V1,LDV1,JLO,JHI,NAS,NIS,derHNS,scal,BDER,SDER)
     end do
   end do
 
-end subroutine SC_NEVPT2_CLagD2_MPP
+end subroutine SC_NEVPT2_CLagD1_MPP
 
 !-----------------------------------------------------------------------
 
-subroutine SC_NEVPT2_CLagD3_MPP(V1,LDV1,V2,LDV2,V3,LDV3,JLO,JHI,NAS,NIS,BMAT,SMAT,LID,derHNS)
+subroutine SC_NEVPT2_CLagD2_MPP(V1,LDV1,V2,LDV2,V3,LDV3,JLO,JHI,NAS,NIS,BMAT,SMAT,LID,derHNS)
 
   integer(kind=iwp), intent(in) :: LDV1, LDV2, LDV3, JLO, JHI, NAS, NIS
-  real(kind=wp), intent(in) :: V1(LDV1,*), V2(LDV2,*), BMAT(*), SMAT(*), LID(*)
-  real(kind=wp), intent(inout) :: V3(LDV3,*), derHNS(NIS,3)
+  real(kind=wp), intent(in) :: V1(LDV1,JHI-JLO+1), V2(LDV2,JHI-JLO+1), BMAT(nTri_Elem(NAS)), SMAT(nTri_Elem(NAS)), LID(NIS)
+  real(kind=wp), intent(inout) :: V3(LDV3,JHI-JLO+1), derHNS(NIS,3)
   integer(kind=iwp) :: ias, icol, isp, jas
 
   ! Construct the integral derivative vector V3 from V1, V2, and derHNS
@@ -980,7 +1133,7 @@ subroutine SC_NEVPT2_CLagD3_MPP(V1,LDV1,V2,LDV2,V3,LDV3,JLO,JHI,NAS,NIS,BMAT,SMA
     end do
   end do
 
-end subroutine SC_NEVPT2_CLagD3_MPP
+end subroutine SC_NEVPT2_CLagD2_MPP
 #endif
 
 end module SC_NEVPT2

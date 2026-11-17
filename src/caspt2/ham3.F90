@@ -25,7 +25,8 @@ subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 
 use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, sg_epq_psi, SGS
+use CI_Info, only: CI_St
+use CI_States, only: CI_Epq_Psi
 use Molcas, only: MxLev
 use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, MxCI, NASHT, NCONF, NSYM
@@ -63,7 +64,7 @@ if (ISCF == 2) OCCNO = One
 ITABS = 0
 do ISYM=1,NSYM
   do I=1,NLEV
-    if (SGS(istate)%ISM(I) == ISYM) then
+    if (CI_St(istate)%ISm(I) == ISYM) then
       ITABS = ITABS+1
       IATOG(ITABS) = I
     end if
@@ -75,7 +76,7 @@ do IZ=1,NASHT
     IYZ = IY+(IZ-1)*NASHT
     ISYZ = Mul(IASYM(IY),IASYM(IZ))
     ISYM1 = Mul(ISYZ,ISYCI)
-    NSGM1 = CIS(istate)%NCSF(ISYM1)
+    NSGM1 = CI_St(istate)%nCSF(ISYM1)
     if (NSGM1 == 0) cycle
     if (ISCF == 0) then
       ! The general case:
@@ -83,7 +84,7 @@ do IZ=1,NASHT
       SGM1(1:nSGM1) = Zero
       LEVY = IATOG(IY)
       LEVZ = IATOG(IZ)
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVY,LEVZ,One,ISYCI,CI,SGM1)
+      call CI_Epq_Psi(istate,LEVY,LEVZ,One,ISYCI,CI,SGM1)
       ! Add non-zero 1-el contribution to SGM:
       if (ISYZ == 1) then
         X = OP1(IY,IZ)
@@ -105,7 +106,7 @@ do IZ=1,NASHT
         ISVXYZ = Mul(ISVX,ISYZ)
         IVXYZ = iTri(IVX,IYZ)
         ISYM2 = Mul(ISVX,ISYM1)
-        NSGM2 = CIS(istate)%NCSF(ISYM2)
+        NSGM2 = CI_St(istate)%nCSF(ISYM2)
         if (NSGM2 == 0) cycle
         if (ISCF == 0) then
           ! The general case:
@@ -113,7 +114,7 @@ do IZ=1,NASHT
           SGM2(1:nSGM2) = Zero
           LEVV = IATOG(IV)
           LEVX = IATOG(IX)
-          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVV,LEVX,One,ISYM1,SGM1,SGM2)
+          call CI_Epq_Psi(istate,LEVV,LEVX,One,ISYM1,SGM1,SGM2)
           ! Add non-zero 2-el contribution to SGM:
           if (ISVXYZ == 1) then
             X = OP2(IVXYZ)
@@ -141,7 +142,7 @@ do IZ=1,NASHT
             if (ISCF == 0) then
               LEVT = IATOG(IT)
               LEVU = IATOG(IU)
-              call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVT,LEVU,X,ISYM2,SGM2,SGM)
+              call CI_Epq_Psi(istate,LEVT,LEVU,X,ISYM2,SGM2,SGM)
             else
               ! Closed-shell or hi-spin case:
               if (IT /= IU) cycle

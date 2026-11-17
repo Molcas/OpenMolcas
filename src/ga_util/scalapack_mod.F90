@@ -29,7 +29,7 @@ module scalapack_mod
 #include "compiler_features.h"
 #if defined (_SCALAPACK_) && defined (_MOLCAS_MPP_)
 
-use Definitions, only: wp, iwp, BLASInt
+use Definitions, only: wp, iwp, BLASInt, RtoB
 
 implicit none
 private
@@ -210,7 +210,7 @@ subroutine ga_pdsyevx_(g_a,g_b,eval,nb8)
 
   call ga_sync()
   ! broadcast evals
-  if ((maxproc < nnodes) .or. (dima1 <= nb)) call GA_Brdcst(MT_DBL,eval,dima18,0)
+  if ((maxproc < nnodes) .or. (dima1 <= nb)) call GA_Brdcst(MT_DBL,eval,dima18*RtoB,0)
 
 end subroutine ga_pdsyevx_
 
@@ -349,7 +349,7 @@ subroutine ga_pdsyevd_(g_a,g_b,eval,nb8)
 
   call ga_sync()
   ! broadcast evals
-  if ((maxproc < nnodes) .or. (dima1 <= nb)) call GA_Brdcst(MT_DBL,eval,dima18,0)
+  if ((maxproc < nnodes) .or. (dima1 <= nb)) call GA_Brdcst(MT_DBL,eval,dima18*RtoB,0)
 
 end subroutine ga_pdsyevd_
 

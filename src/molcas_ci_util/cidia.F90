@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CIDIA(NCONF,CSFDIA,LUDAVID)
 ! PURPOSE: - COMPUTE DIAGONAL ELEMENTS OF THE CI-MATRIX
 !            THE DETERMINANT BASIS
@@ -18,31 +19,25 @@ subroutine CIDIA(NCONF,CSFDIA,LUDAVID)
 ! NCONF :  NO. OF CSF
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
-use CI_Interfaces, only: Mk_CI_Diag
+use CI_Interfaces, only: Mk_IHI
 use wadr, only: FMO, TUVX
 use timers, only: TimeHDiag
-use output_ras, only: IPRLOC
-use PrintLevel, only: DEBUG, INSANE
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
-integer(kind=iwp) :: IPRL, IPRLEV
 real(kind=wp) :: dum1, dum2, dum3, Time(2)
 
 call Timing(Time(1),dum1,dum2,dum3)
-IPRLEV = IPRLOC(3)
 
-Call Mk_CI_Diag(CSFDIA,nConf,FMO,size(FMO),TUVX,size(TUVX))
+Call Mk_IHI(CSFDIA,nConf,FMO,size(FMO),TUVX,size(TUVX))
 
 ! PRINT CI-DIAGONAL
 
-if (IPRLEV >= DEBUG) then
-  IPRL = NCONF
-  if (IPRLEV < INSANE) IPRL = min(IPRL,200)
-  call dVcPrt('CI-DIAGONAL (max.200 elemwnts)',' ',CSFDIA,NCONF)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('CI-DIAGONAL (max.200 elements)',' ',CSFDIA,1,nConf)
+#endif
 
 ! SAVE THE CI_DIAGONAL ON TAPE
 
@@ -50,7 +45,5 @@ call Save_H_diag(nConf,CSFDIA,LUDAVID)
 
 call Timing(Time(2),dum1,dum2,dum3)
 TimeHDiag = TimeHDiag+Time(2)-Time(1)
-
-return
 
 end subroutine CIDIA

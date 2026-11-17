@@ -70,32 +70,29 @@ private
 
 integer(kind=iwp), parameter :: iVecL = 7
 
-integer(kind=iwp) :: idBoriMat(8,13) = 0, IDSAVGRD = 0, idSDMat(8,13) = 0, iParRHS, iPrGlb, iRoot1 = 0, iRoot2 = 0, iStpGrd = 1, &
-                     jStLag = 0, LuAPT2 = 0, LUCIEX, LuCMOPT2 = 0, LUDMAT, LUDRA, LUDRATOT, LuGAMMA = 0, LUGRAD = 0, LUH0T(4), &
-                     LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2 = 0, LURHS(8), LUSBT, LUSOLV, LuSTD = 0, &
+integer(kind=iwp) :: CompressMPS = 0, idBoriMat(8,13) = 0, IDSAVGRD = 0, idSDMat(8,13) = 0, iParRHS, iPrGlb, iRoot1 = 0, &
+                     iRoot2 = 0, iStpGrd = 1, jStLag = 0, LuAPT2 = 0, LUCIEX, LuCMOPT2 = 0, LUDMAT, LUDRA, LUDRATOT, LuGAMMA = 0, &
+                     LUGRAD = 0, LUH0T(4), LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2 = 0, LURHS(8), LUSBT, LUSOLV, LuSTD = 0, &
                      nbuf1_grad = 0, nCLag = 0, NCMO = 0, NDREF = 0, nOLag = 0, NPREF = 0, nStpGrd = 1, nTasks_grad = 0, NTAT = 0, &
-                     NTORB = 0, nWLag = 0, sigma_p_exponent = 2, CompressMPS = 0
+                     NTORB = 0, nWLag = 0, sigma_p_exponent = 2
 real(kind=wp) :: cmpThr, cntThr, ConvInvar = Zero, dnmThr, EMP2, imag_shift = Zero, ipea_shift = Zero, real_shift = Zero, &
                  sigma_p_epsilon = Zero
-logical(kind=iwp) :: do_csf = .false., do_grad = .false., do_lindep = .false., do_nac = .false., if_invar = .true., &
-                     if_invaria = .true., if_equalW = .true., if_SSDM = .false.
-integer(kind=iwp), allocatable :: IDCIEX(:), IDSCT(:), IDTCEX(:), iTasks_grad(:), LISTS(:)
-real(kind=wp), allocatable :: CLag(:,:), CLagFull(:,:), CMOPT2(:), DMIX(:,:), DPT2_AO_tot(:), DPT2_tot(:), DPT2C_AO_tot(:), &
-                              DPT2C_tot(:), DPT2Canti_tot(:), DREF(:), DWGT(:,:), FIFA(:), FIFA_all(:), FIFASA_all(:), FIMO(:), &
-                              FIMO_all(:), OLag(:), OLagFull(:), OMGDER(:,:), PREF(:), SLag(:,:), TAT(:), TORB(:), TraFro(:), &
-                              Weight(:), WLag(:)
+logical(kind=iwp) :: do_csf = .false., do_grad = .false., do_lindep = .false., do_nac = .false., if_equalW = .true., &
+                     if_invar = .true., if_invaria = .true., if_SSDM = .false.
+integer(kind=iwp), allocatable :: IDCIEX(:), IDSCT(:), IDTCEX(:), IDXB(:), iTasks_grad(:), LISTS(:)
+real(kind=wp), allocatable :: Buff(:), CLag(:,:), CLagFull(:,:), CMOPT2(:), DMIX(:,:), DPT2_AO_tot(:), DPT2_tot(:), &
+                              DPT2C_AO_tot(:), DPT2C_tot(:), DPT2Canti_tot(:), DREF(:), DWGT(:,:), FIFA(:), FIFA_all(:), &
+                              FIFASA_all(:), FIMO(:), FIMO_all(:), OLag(:), OLagFull(:), OMGDER(:,:), PIQK(:), PREF(:), SLag(:,:), &
+                              TAT(:), TORB(:), TraFro(:), Weight(:), WLag(:)
 real(kind=wp), allocatable, target :: CMO_Internal(:)
 real(kind=wp), pointer :: CMO(:)
-real(kind=wp), allocatable:: PIQK(:), Buff(:)
-integer(kind=iwp), allocatable :: IDXB(:)
 
-public :: CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, ConvInvar, DMIX, dnmThr, do_csf, do_grad, do_lindep, do_nac, &
-          DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, DREF, DWGT, EMP2, FIFA, FIFA_all, FIFASA_all, FIMO, &
-          FIMO_all, idBoriMat, IDCIEX, IDSAVGRD, IDSCT, idSDMat, IDTCEX, if_invar, if_invaria, if_equalW, if_SSDM, imag_shift, &
-          iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iTasks_grad, iVecL, jStLag, LISTS, LuAPT2, LUCIEX, LuCMOPT2, &
-          LUDMAT, LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, LURHS, LUSBT, LUSOLV, &
-          LUSTD, nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nStpGrd, NTAT, nTasks_grad, NTORB, nWLag, OLag, OLagFull, &
-          OMGDER, PREF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, Weight, WLag, CompressMPS, PIQK, &
-          Buff, IDXB
+public :: Buff, CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, CompressMPS, ConvInvar, DMIX, dnmThr, do_csf, do_grad, &
+          do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, DREF, DWGT, EMP2, FIFA, FIFA_all, &
+          FIFASA_all, FIMO, FIMO_all, idBoriMat, IDCIEX, IDSAVGRD, IDSCT, idSDMat, IDTCEX, IDXB, if_equalW, if_invar, if_invaria, &
+          if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iTasks_grad, iVecL, jStLag, LISTS, LuAPT2, &
+          LUCIEX, LuCMOPT2, LUDMAT, LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, LURHS, &
+          LUSBT, LUSOLV, LUSTD, nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nStpGrd, nTasks_grad, NTAT, NTORB, nWLag, OLag, &
+          OLagFull, OMGDER, PIQK, PREF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, Weight, WLag
 
 end module caspt2_global

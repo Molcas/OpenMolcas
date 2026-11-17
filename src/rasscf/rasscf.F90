@@ -78,7 +78,7 @@ use rasscf_global, only: CBLBM, CMAX, Conv, DE, DoDMRG, DoFCIDump, ECAS, EMY, En
                          ICICH, iCIOnly, iCIRST, iExpand, IfCrPr, InOCalc, IPCMROOT, iPr, iPT2, iRLXRoot, iRoot, iSave_Exp, &
                          iSymBB, ITER, ITERCI, ITERSX, JBLBM, KSDFT, KSDFT_Temp, l_casdft, lSquare, MaxIt, NAC, NACPAR, NACPR2, &
                          NewFock, nFint, no2m, NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax, Start_Vectors, SXShft, Thre, ThrSX, &
-                         THRTE, TMin, Tot_Charge, VIA_DFT, Weight,  NALTER, CRPROJ, CRVec, NCRVEC, INVEC, CleanMask
+                         THRTE, TMin, Tot_Charge, VIA_DFT, Weight, NALTER, CRPROJ, CRVec, NCRVEC, INVEC, CleanMask
 use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use rasscf_files, only: ITERFILE, JOBIPH
@@ -99,8 +99,7 @@ use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, emb
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_attr, mh5_put_dset
-use ci_interfaces, only: Mk_T1DM
-use sguga, only: sg_reord
+use ci_interfaces, only: CI_File_To_Basis, Mk_T1DM
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
 use general_data, only: STSYM
@@ -695,7 +694,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
                        F_IN=FI(:), &
                        orbital_E=orbital_E, &
                        folded_Fock=folded_Fock)
-        call make_fcidumps('FCIDUMP','H5FCIDUMP',orbital_E,folded_Fock,TUVX=tuvx(:),core_energy=EMY,fort55_path='fort.55')
+        call make_fcidumps('FCIDUMP','H5FCIDUMP',orbital_E,folded_Fock,TUVX=tuvx(:),core_energy=EMY,fort55_path='FORT55')
         call mma_deallocate(orbital_E)
         call mma_deallocate(folded_Fock)
         write(u6,*) 'FCIDMP file generated. Here for serving you!'
@@ -1505,12 +1504,12 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       call DMRGCTL(CMO,DMAT,DSPN,PMAT,PA,FI,D1I,D1A,TUVX,IFINAL,1)
 #   endif
 #   ifdef _DMRG_
-    ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
-    ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
-    ! (to exclude potential side effects)
-    ! but consider extending it to other cases!
     else if (doDMRG .and. (ICIONLY /= 0)) then
-      !continue
+      ! Leon 27/11/2017: Skip the final CI iteration if we're using DMRGCI
+      ! and CIOnly. It's enabled only for DMRGCI with QCMaquis now
+      ! (to exclude potential side effects)
+      ! but consider extending it to other cases!
+      continue
 #   endif
     else
       call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,size(TUVX),TUVX,IFINAL)
@@ -1585,20 +1584,21 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       do jRoot=2,lRoots
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
-        call SG_Reord(iState,STSYM,1,nConf,Tmp,VecL)
+        ! (JOBIPH holds the split-graph order)
+        call CI_File_To_Basis(iState,STSYM,nConf,Tmp,VecL)
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          call SG_Reord(iState,STSYM,1,nConf,Tmp,VecR)
+          call CI_File_To_Basis(iState,STSYM,nConf,Tmp,VecR)
           ! Compute TDM and store in h5 file
           call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
           call mma_allocate(XTmp,NAC**2,Label='XTmp')
           XTmp(:) = abs(DTMP(:))
           call add_info('TDM',XTMP,NAC**2,6)
           if (iSpin > 1) then
-             XTmp(:) = abs(DSTMP(:))
-             call add_info('TSDM',XTMP,NAC**2,6)
+            XTmp(:) = abs(DSTMP(:))
+            call add_info('TSDM',XTMP,NAC**2,6)
           end if
           call mma_deallocate(XTmp)
           idx = (jRoot-2)*(jRoot-1)/2+kRoot

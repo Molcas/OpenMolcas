@@ -33,7 +33,8 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, sg_epq_psi, SGS
+use CI_Info, only: CI_St
+use CI_States, only: CI_Epq_Psi
 use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, NASHT, MxCI
 #ifdef _MOLCAS_MPP_
@@ -98,7 +99,7 @@ if (ISCF == 0) then
   ! But we also need the 'usual' pair index in order to use the
   ! packed addressing.
 
-  NCI1 = CIS(istate)%NCSF(LSYM1)
+  NCI1 = CI_St(istate)%nCSF(LSYM1)
   ! Overlap:
   if (LSYM1 == LSYM2) OVL = DDOT_(NCI1,CI1,1,CI2,1)
   ! Allocate as many vectors as possible:
@@ -139,14 +140,14 @@ if (ISCF == 0) then
       ! Translate to levels in the SGUGA coupling order:
       IL = P2LEV(1,IP3)
       JL = P2LEV(2,IP3)
-      IY = SGS(istate)%L2ACT(IL)
-      IZ = SGS(istate)%L2ACT(JL)
+      IY = CI_St(istate)%L2Act(IL)
+      IZ = CI_St(istate)%L2Act(JL)
       IYS = IASYM(IY)
       IZS = IASYM(IZ)
       ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
       TG3WRK(LTO:LTO+MXCI-1) = Zero
       ! LTO is first element of Sigma2 = E(YZ) Psi2
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
+      call CI_Epq_Psi(istate,IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
       if (ISSG2 == LSYM1) TG1(IY,IZ) = DDOT_(NCI1,CI1,1,TG3WRK(LTO),1)
       LTO = LTO+MXCI
     end do
@@ -159,13 +160,13 @@ if (ISCF == 0) then
         ! Translate to levels:
         JL = P2LEV(1,IP1)
         IL = P2LEV(2,IP1)
-        IT = SGS(istate)%L2ACT(IL)
-        IU = SGS(istate)%L2ACT(JL)
+        IT = CI_St(istate)%L2Act(IL)
+        IU = CI_St(istate)%L2Act(JL)
         ITS = IASYM(IT)
         IUS = IASYM(IU)
         ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
         TG3WRK(LTO:LTO+MXCI-1) = Zero
-        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
+        call CI_Epq_Psi(istate,IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
         LTO = LTO+MXCI
       end do
       ! Now compute as many elements as possible:
@@ -177,8 +178,8 @@ if (ISCF == 0) then
           cycle
         end if
 #       endif
-        IY = SGS(istate)%L2ACT(P2LEV(1,IP3))
-        IZ = SGS(istate)%L2ACT(P2LEV(2,IP3))
+        IY = CI_St(istate)%L2Act(P2LEV(1,IP3))
+        IZ = CI_St(istate)%L2Act(P2LEV(2,IP3))
         ! LFROM will be start element of Sigma2=E(YZ) Psi2
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
@@ -186,15 +187,15 @@ if (ISCF == 0) then
         do IP2=IP3,IP1END
           IL = P2LEV(1,IP2)
           JL = P2LEV(2,IP2)
-          IV = SGS(istate)%L2ACT(IL)
-          IX = SGS(istate)%L2ACT(JL)
+          IV = CI_St(istate)%L2Act(IL)
+          IX = CI_St(istate)%L2Act(JL)
           IVS = IASYM(IV)
           IXS = IASYM(IX)
           ISTAU = Mul(Mul(IVS,IXS),ISSG2)
-          NTAU = CIS(istate)%NCSF(ISTAU)
+          NTAU = CI_St(istate)%nCSF(ISTAU)
           TG3WRK(LTAU:LTAU+MXCI-1) = Zero
           ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
-          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
+          call CI_Epq_Psi(istate,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           if (ISTAU == LSYM1) TG2(IV,IX,IY,IZ) = DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           IP1STAU = max(IP2,IP1STA)
           NB = IP1END-IP1STAU+1
@@ -202,8 +203,8 @@ if (ISCF == 0) then
             L = LSGM1+MXCI*(IP1STAU-IP1STA)
             call DGEMV_('T',NTAU,NB,One,TG3WRK(L),MXCI,TG3WRK(LTAU),1,Zero,TG3BUF,1)
             do IP1=IP1STAU,IP1END
-              IT = SGS(istate)%L2ACT(P2LEV(1,IP1))
-              IU = SGS(istate)%L2ACT(P2LEV(2,IP1))
+              IT = CI_St(istate)%L2Act(P2LEV(1,IP1))
+              IU = CI_St(istate)%L2Act(P2LEV(2,IP1))
               ITS = IASYM(IT)
               IUS = IASYM(IU)
               ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -243,11 +244,11 @@ if (ISCF == 0) then
   ! First, the 2-particle density matrix:
   ! <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
   do IP1=1,NASHT**2
-    IT = SGS(istate)%L2ACT(P2LEV(1,IP1))
-    IU = SGS(istate)%L2ACT(P2LEV(2,IP1))
+    IT = CI_St(istate)%L2Act(P2LEV(1,IP1))
+    IU = CI_St(istate)%L2Act(P2LEV(2,IP1))
     do IP2=1,IP1
-      IV = SGS(istate)%L2ACT(P2LEV(1,IP2))
-      IX = SGS(istate)%L2ACT(P2LEV(2,IP2))
+      IV = CI_St(istate)%L2Act(P2LEV(1,IP2))
+      IX = CI_St(istate)%L2Act(P2LEV(2,IP2))
       if (IV == IU) TG2(IT,IU,IV,IX) = TG2(IT,IU,IV,IX)-TG1(IT,IX)
       TG2(IV,IX,IT,IU) = TG2(IT,IU,IV,IX)
     end do
@@ -257,20 +258,20 @@ if (ISCF == 0) then
   ! -D(Y,X)*(TG2(T,U,V,Z)+D(V,U)*TG1(T,Z))
   ! -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
   do IP1=1,NASHT**2
-    IT = SGS(istate)%L2ACT(P2LEV(1,IP1))
-    IU = SGS(istate)%L2ACT(P2LEV(2,IP1))
+    IT = CI_St(istate)%L2Act(P2LEV(1,IP1))
+    IU = CI_St(istate)%L2Act(P2LEV(2,IP1))
     ITS = IASYM(IT)
     IUS = IASYM(IU)
     IS1 = Mul(Mul(ITS,IUS),LSYM1)
     do IP2=1,IP1
-      IV = SGS(istate)%L2ACT(P2LEV(1,IP2))
-      IX = SGS(istate)%L2ACT(P2LEV(2,IP2))
+      IV = CI_St(istate)%L2Act(P2LEV(1,IP2))
+      IX = CI_St(istate)%L2Act(P2LEV(2,IP2))
       IVS = IASYM(IV)
       IXS = IASYM(IX)
       IS2 = Mul(Mul(IVS,IXS),IS1)
       do IP3=1,IP2
-        IY = SGS(istate)%L2ACT(P2LEV(1,IP3))
-        IZ = SGS(istate)%L2ACT(P2LEV(2,IP3))
+        IY = CI_St(istate)%L2Act(P2LEV(1,IP3))
+        IZ = CI_St(istate)%L2Act(P2LEV(2,IP3))
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
         IS3 = Mul(Mul(IYS,IZS),IS2)

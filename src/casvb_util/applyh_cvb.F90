@@ -12,7 +12,7 @@
 !               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine applyh_cvb(civec)
+subroutine applyh_cvb(civec,c_daxpy)
 
 use casvb_global, only: icnt_ci, iform_ci, n_applyh, ncivb, ndet, nirrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -21,13 +21,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(inout) :: civec(0:ndet)
+real(kind=wp), intent(in) :: c_daxpy
 integer(kind=iwp) :: icivec, isyml, isymmx, nci
-real(kind=wp) :: c_daxpy, cnrm
+real(kind=wp) :: cnrm
 real(kind=wp), allocatable :: cim(:), cim2(:)
 real(kind=wp), parameter :: thr2 = 1.0e-20_wp
 real(kind=wp), external :: ddot_
-
-c_daxpy = Zero
 
 n_applyh = n_applyh+1
 icivec = nint(civec(0))
@@ -41,6 +40,7 @@ end if
 isymmx = nirrep
 do isyml=1,isymmx
   nci = ncivb(isyml)
+  if (nci==0) Cycle
   call mma_allocate(cim,nci,label='cim')
   cim(:) = Zero
   call vb2mol_cvb(civec(1:),cim,isyml)
@@ -66,7 +66,5 @@ do isyml=1,isymmx
   end if
   call mma_deallocate(cim)
 end do
-
-return
 
 end subroutine applyh_cvb

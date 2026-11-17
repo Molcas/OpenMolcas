@@ -9,14 +9,14 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
-# Shared grid utilities: evaluate MOs/densities on a set of grid points.
-# Used by grid_it and by embedding_util (FDE), so they live in their own
-# *_util library rather than being referenced across directories.
 set (sources
      moeval.F90
      outmo.F90
      power.F90
      soadpt.F90
 )
+
+# Source files defining modules that should be available to other *_util directories
+set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

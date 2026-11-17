@@ -29,6 +29,7 @@ logical(kind=iwp) :: make_sstruc
 real(kind=wp), allocatable :: dmat(:,:), occ(:)
 real(kind=wp), external :: ddot_
 logical(kind=iwp), external :: valid_cvb, ifcasci_cvb ! ... Files available ...
+real(kind=wp), parameter:: c_daxpy=Zero
 
 if (ipr(5) >= 1) then
   call report_cvb(orbs,norb)
@@ -67,7 +68,7 @@ if (lcalcsvb) then
 end if
 if (lcalcevb) then
   call cicopy_cvb(civb2,civb4)
-  call applyh_cvb(civb4)
+  call applyh_cvb(civb4,c_daxpy)
   call cidot_cvb(civb2,civb4,evb)
   evb = evb+corenrg
   call untouch_cvb('EVB')
@@ -253,7 +254,7 @@ if ((.not. variat) .or. endvar) then
         call vb2cif_cvb(dvbdet,civb2)
         call applyt_cvb(civb2,gjorb)
         call proj_cvb(civb2)
-        call applyh_cvb(civb2)
+        call applyh_cvb(civb2,c_daxpy)
         call proj_cvb(civb2)
         call applyt_cvb(civb2,gjorb2)
         call ci2vbg_cvb(civb2,dvbdet)

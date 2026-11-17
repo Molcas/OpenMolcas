@@ -3694,8 +3694,6 @@ if (Run_Mode /= S_Mode) call Put_iScalar('DNG',iDNG)
 
 call mma_deallocate(STDINP)
 
-return
-
 contains
 
 subroutine Error(code)

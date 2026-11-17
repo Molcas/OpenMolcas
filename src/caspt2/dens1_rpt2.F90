@@ -24,7 +24,7 @@ use Symmetry_Info, only: Mul
 use caspt2_qmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use sguga, only: CIS, SGS
+use CI_Info, only: CI_St
 use caspt2_global, only: iPrGlb
 use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, jState, mState, nAshT, nG1
@@ -95,7 +95,7 @@ end if
 ! have to take account of orbital order.
 ! We will use level indices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
-! Translation tables L2ACT and LEVEL, in SGS
+! Translation tables L2ACT and LEVEL, in CI_St (CI_Info)
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -119,15 +119,15 @@ do while (Rsv_Tsk(ID,iTask))
   ! Compute SGM1 = E_UT acting on CI, with T >= U,
   ! i.e., lowering operations. These are allowed in RAS.
   LT = TASK(iTask,1)
-  IST = SGS(istate)%ISM(LT)
-  IT = SGS(istate)%L2ACT(LT)
+  IST = CI_St(istate)%ISm(LT)
+  IT = CI_St(istate)%L2Act(LT)
   LU = Task(iTask,2)
-  ISU = SGS(istate)%ISM(LU)
-  IU = SGS(istate)%L2ACT(LU)
+  ISU = CI_St(istate)%ISm(LU)
+  IU = CI_St(istate)%L2Act(LU)
   ISTU = Mul(IST,ISU)
   if (ISTU /= 1) cycle
   ISSG = Mul(ISTU,STSYM)
-  NSGM = CIS(istate)%NCSF(ISSG)
+  NSGM = CI_St(istate)%nCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
   call GETSGM2(LU,LT,STSYM,CI,nCI,SGM1,NSGM)
@@ -157,7 +157,7 @@ subroutine End_Stuff()
   if (DoCumulant) then
     if (NACTEL > 1) then
       !QP: At this point, only load 2RDM of one state, JSTATE=1
-      call chemps2_load2pdm(nlev,G2,MSTATE(1))
+      call chemps2_load2pdm(nlev,G2,MSTATE(1),.false.)
       call two2onerdm(nlev,NACTEL,G2,G1)
     else
       write(u6,*) 'FATAL ERROR: DMRG-CASPT2 with CHEMPS2 does not work with NACTEL=1'

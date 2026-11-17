@@ -15,11 +15,11 @@ subroutine PutRlx(D,DS,P,DAO,C)
 
 use spin_correlation, only: tRootGrad
 use rasscf_global, only: CBLBM, ENER, ExFac, iAdr15, iBLBM, IPCMROOT, iPr, iRLXRoot, ISTORP, iSymBB, ITER, JBLBM, lRoots, lSquare, &
-                         NACPAR, NACPR2, NewFock, nFint, nRoots, NSXS, NTOT4, RlxGrd
+                         NACPAR, NACPR2, NewFock, nFint, nRoots, NTOT4, RlxGrd
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
-use general_data, only: NBAS, NSYM, NTOT1, NTOT2
+use general_data, only: NBAS, NSYM, NTOT1, NTOT2, NISH, NASH, NSSH
 use DWSol, only: DWSol_wgt, DWSolv, W_SOLV
 use rctfld_module, only: lRF
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -31,7 +31,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(_OUT_) :: D(*), DS(*), P(*), DAO(*)
 real(kind=wp), intent(in) :: C(*)
-integer(kind=iwp) :: i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk, left, NFSize, NZ
+integer(kind=iwp) :: i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk, left, NFSize, NZ, NSXS
 real(kind=wp) :: rdum(1), rTmp, wgt
 character(len=8) :: Fmt2
 real(kind=wp), allocatable :: B(:), DA(:), DA_ave(:), DI(:), DS_ave(:), DSX(:), DX(:), F(:), FA(:), FI(:), PUVX(:), PX(:), Q(:), &
@@ -42,6 +42,8 @@ logical(kind=iwp), external :: PCM_On
 IPRLEV = IPRLOC(3)
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering PUTRLX'
 
+
+NSXS = sum((NISH(1:NSYM)+NASH(1:NSYM))*(NASH(1:NSYM)+NSSH(1:NSYM)))
 ! Read in corresponding density matrixes
 
 ! empty line before root resolved orbital gradient

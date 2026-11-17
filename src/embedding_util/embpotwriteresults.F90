@@ -23,39 +23,37 @@ subroutine embPotWriteResults(resultPath,eCASSCF,eEmb,nElec)
 !                                                                      *
 !***********************************************************************
 
-  use stdalloc,    only: mma_allocate, mma_deallocate
-  use Definitions, only: wp, iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-  implicit none
+implicit none
+character(len=*), intent(in) :: resultPath
+real(kind=wp), intent(in) :: eCASSCF, eEmb, nElec
+integer(kind=iwp) :: iatom, iunit, nAtoms
+real(kind=wp) :: potNuc
+real(kind=wp), allocatable :: chargeA(:), coordA(:,:)
+integer(kind=iwp), external :: isFreeUnit
 
-  character(len=*), intent(in) :: resultPath
-  real(kind=wp), intent(in)    :: eCASSCF, eEmb, nElec
+call Get_dScalar('PotNuc',potNuc)
+call Get_iScalar('Unique atoms',nAtoms)
+call mma_allocate(coordA,3,nAtoms,label='coordA')
+call mma_allocate(chargeA,nAtoms,label='chargeA')
+call Get_dArray('Unique Coordinates',coordA,3*nAtoms)
+call Get_dArray('Effective nuclear Charge',chargeA,nAtoms)
 
-  integer(kind=iwp)           :: iunit, iatom, nAtoms
-  integer(kind=iwp), external :: isFreeUnit
-  real(kind=wp)               :: potNuc
-  real(kind=wp), allocatable  :: coordA(:,:), chargeA(:)
+iunit = isFreeUnit(11)
+call molcas_open(iunit,resultPath)
+write(iunit,'(ES24.14)') eCASSCF
+write(iunit,'(ES24.14)') eEmb
+write(iunit,'(ES24.14)') potNuc
+write(iunit,'(ES24.14)') nElec
+write(iunit,'(I10)') nAtoms
+do iatom=1,nAtoms
+  write(iunit,'(4ES24.14)') chargeA(iatom),coordA(1,iatom),coordA(2,iatom),coordA(3,iatom)
+end do
+close(iunit)
 
-  call Get_dScalar('PotNuc',potNuc)
-  call Get_iScalar('Unique atoms',nAtoms)
-  call mma_allocate(coordA,3,nAtoms,label='coordA')
-  call mma_allocate(chargeA,nAtoms,label='chargeA')
-  call Get_dArray('Unique Coordinates',coordA,3*nAtoms)
-  call Get_dArray('Effective nuclear Charge',chargeA,nAtoms)
-
-  iunit = isFreeUnit(11)
-  call molcas_open(iunit,resultPath)
-  write(iunit,'(ES24.14)') eCASSCF
-  write(iunit,'(ES24.14)') eEmb
-  write(iunit,'(ES24.14)') potNuc
-  write(iunit,'(ES24.14)') nElec
-  write(iunit,'(I10)') nAtoms
-  do iatom=1,nAtoms
-    write(iunit,'(4ES24.14)') chargeA(iatom),coordA(1,iatom),coordA(2,iatom),coordA(3,iatom)
-  end do
-  close(iunit)
-
-  call mma_deallocate(coordA)
-  call mma_deallocate(chargeA)
+call mma_deallocate(coordA)
+call mma_deallocate(chargeA)
 
 end subroutine embPotWriteResults

@@ -155,7 +155,6 @@ set (sources
      spind.F90
      spin_phase_rassi.F90
      srtdm2.F90
-     syg2sgu.F90
      sygtosd.F90
      tmomint.F90
      track_state.F90
@@ -167,7 +166,6 @@ set (sources
      trint.F90
      trnsfrm.F90
      usotrans.F90
-     w2sgord.F90
      wfnsizes_rassi.F90
      writedys.F90
      wrmat1.F90

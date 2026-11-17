@@ -52,14 +52,8 @@ do iSym=1,nSym
   call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
   call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
   call Square(d_ao(iOff1),Tmp1,1,iBas,iBas)
-  call DGEMM_('N','N',iBas,iOrb,iBas, &
-              One,Tmp1,iBas, &
-              CMO(iOff2+(iFro*iBas)),iBas, &
-              Zero,Tmp2,iBas)
-  call DGEMM_Tri('T','N',iOrb,iOrb,iBas, &
-                 One,Tmp2,iBas, &
-                 CMO(iOff2+(iFro*iBas)),iBas, &
-                 Zero,d_mo(iOff3),iOrb)
+  call DGEMM_('N','N',iBas,iOrb,iBas,One,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,Tmp2,iBas)
+  call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,d_mo(iOff3),iOrb)
   call mma_deallocate(Tmp2)
   call mma_deallocate(Tmp1)
   iOff1 = iOff1+nTri_Elem(iBas)

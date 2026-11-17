@@ -356,10 +356,10 @@ subroutine Print_Truff()
     return
   end if
 
+  if ((HZERO == 'DYALL') .and. SC_prop) ENERGY(1:NSTATE) = ENERGY_SC(1:NSTATE)
   if (IPRGLB >= TERSE) then
-    if ((HZERO == 'DYALL') .and. SC_prop) ENERGY(1:NSTATE) = ENERGY_SC(1:NSTATE)
     write(u6,*) ' Total '//trim(CPT2Method)//' energies:'
-    if (IFXMS .or. IFRMS .and. (HZERO /= 'DYALL')) then
+    if ((IFXMS .or. IFRMS) .and. (HZERO /= 'DYALL')) then
       write(u6,*)
       write(u6,*) ' State-specific CASPT2 energies obtained using'
       write(u6,*) ' rotated states do not have a well-defined physical'
@@ -547,7 +547,7 @@ subroutine HEFF_INI()
   ! coupling Hamiltonian effective matrix, just copy the energies.
   if (INPUT%JMS) then
     ! in case of XMS, XDW, RMS, we need to rotate the states
-    if (IFXMS .or. IFRMS .and. (HZERO /= 'DYALL')) call xdwinit(Heff,H0,U0,nState)
+    if ((IFXMS .or. IFRMS) .and. (HZERO /= 'DYALL')) call xdwinit(Heff,H0,U0,nState)
     do I=1,NSTATE
       ENERGY(I) = INPUT%HEFF(I,I)
     end do

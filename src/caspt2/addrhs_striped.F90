@@ -55,7 +55,7 @@ integer(kind=iwp), parameter :: IRHSGRP(2,NRHSGRP) = reshape([ 1, 0, &  ! A
                                                                8, 9, &  ! F+ F-
                                                                4, 0, &  ! C
                                                                5, 0], & ! D2, the lower half of D
-                                                             [ 2,NRHSGRP])
+                                                             [2,NRHSGRP])
 
 ! a-block width of ADDRHSF/G_STRIPED_D, 32 measured best
 integer(kind=iwp), parameter :: NAMXCAP = 32
@@ -634,7 +634,7 @@ subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYX, NA, NU, NV, NX, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV*NX,NCHO)
-  integer(kind=iwp) :: IA, IP, IR, IROFF, ISYM, ISYV, IU, JHI, JLO, MOFF, NAS, NIS
+  integer(kind=iwp) :: IA, IR, IROFF, ISYM, ISYV, JHI, JLO, MOFF, NAS, NIS
   real(kind=wp), allocatable :: CHOBA(:)
   real(kind=wp), pointer, contiguous :: WBLK(:,:)
   !WBLK : the local stripe of the block, as (row,column)
@@ -660,15 +660,12 @@ subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
     WBLK(1:NAS,JLO:JHI) => RHSLoc(MOFF:MOFF+nRHSLocSz(ISYM,4)-1)
     call mma_allocate(CHOBA,NU*NCHO,Label='CHOBA')
     do IA=JLO,JHI
-      do IP=1,NCHO
-        do IU=1,NU
-          CHOBA(IU+NU*(IP-1)) = Cho_Bra(IA,IU,IP) ! the (u,P) slice of this a
-        end do
-      end do
+      ! the (u,P) slice of this a
+      call DCOPY_(NCHO*NU,Cho_Bra(IA,1,1),NA,CHOBA,1)
       ! SCR(u,(v,x)) = sum_P CHOBA(u)^P Cho_Ket(v,x)^P = (au,vx)
       call DGEMM_('N','T',NU,NV*NX,NCHO,One,CHOBA,NU,Cho_Ket,NV*NX,Zero,SCR,NU)
       do IR=1,NV*NX
-        call DAXPY_(NU,One,SCR(1+NU*(IR-1)),1,WBLK(IROFF+NU*(IR-1)+1,IA),1)
+        call DAXPY_(NU,One,SCR(1+NU*(IR-1)),1,WBLK(IROFF+NU*(IR-1)+1:,IA),1)
       end do
     end do
     call mma_deallocate(CHOBA)
@@ -759,8 +756,8 @@ subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYL, NA, NU, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV*NL,NCHO)
-  integer(kind=iwp) :: IA, ICOL, IL, ILHI, ILLO, IOFF, IOFFD, IP, IROFF, IROFFU, ISA, ISI, ISYA, ISYM, ISYV, IU, JHI, JLO, MOFF, &
-                       NAS, NAS1, NIS, NLSZ
+  integer(kind=iwp) :: IA, ICOL, IL, ILHI, ILLO, IOFF, IOFFD, IROFF, IROFFU, ISA, ISI, ISYA, ISYM, ISYV, IU, JHI, JLO, MOFF, NAS, &
+                       NAS1, NIS, NLSZ
   real(kind=wp), allocatable :: CHOBA(:)
   real(kind=wp), pointer, contiguous :: WBLK(:,:)
   !WBLK : the local stripe of the block, as (row,column)
@@ -801,11 +798,8 @@ subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,
       ILHI = min(NL,JHI-IOFFD-NL*(IA-1))
       if (ILLO > ILHI) cycle
       NLSZ = ILHI-ILLO+1
-      do IP=1,NCHO
-        do IU=1,NU
-          CHOBA(IU+NU*(IP-1)) = Cho_Bra(IA,IU,IP) ! the (u,P) slice of this a
-        end do
-      end do
+      ! the (u,P) slice of this a
+      call DCOPY_(NCHO*NU,Cho_Bra(IA,1,1),NA,CHOBA,1)
       ! SCR((v,l),u)
       call DGEMM_('N','T',NV*NLSZ,NU,NCHO,One,Cho_Ket(1+NV*(ILLO-1),1),NV*NL,CHOBA,NU,Zero,SCR,NV*NLSZ)
       do IL=ILLO,ILHI
@@ -827,17 +821,23 @@ end subroutine ADDRHSD2_STRIPED
 
 subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
-  use caspt2_module, only: NISUP
+  use SUPERINDEX, only: KIGEJ, KIGTJ
+  use caspt2_module, only: NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NISUP, NSSH, NSYM
   use general_data, only: NASH
 
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYL, NA, NJ, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NL,NCHO)
-  integer(kind=iwp) :: ISYA, ISYJL, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NAMX, NAS, NISM, NISP
+  integer(kind=iwp) :: IA, IAEND, IAHI, IALO, IASTA, IJ, IJABS, IL, ILABS, IOFFM, IOFFP, ISA, ISIJ, ISYA, ISYJL, ISYM, JHIM, JHIP, &
+                       JLOM, JLOP, LDY, MOFFM, MOFFP, NAMX, NAS, NASZ, NISM, NISP
+  real(kind=wp) :: SCLM, SCLP
+  integer(kind=iwp), allocatable :: JBASM(:), JBASP(:)
 
   ! Case E: both combinations of (aj,vl)
-  !   rows    the active index alone
-  !   columns a secondary index within an inactive pair
+  !   WP(v,a,j>=l) = ((aj,vl)+(al,vj))/SQRT(2+2*Kron(jl))
+  !   WM(v,a,j>l)  = ((aj,vl)-(al,vj))*SQRT(OneHalf)
+  ! each (j,l) adds its own (aj,vl); (al,vj) comes with (l,j)
+  ! JBASP(l), JBASM(l): column before a = 1 of the pair (j,l)
 
   ISYA = Mul(JSYM,ISYJ)
   ISYM = Mul(JSYM,ISYL)
@@ -848,49 +848,18 @@ subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
   NISM = NISUP(ISYM,7)
   if (NAS*NISP == 0) return
 
-  NAMX = NSCR/max(2*NV,NV*NL)
+  LDY = NV*NL
+  NAMX = NSCR/LDY
   if (NAMX < 1) then
     write(u6,*) 'Not enough memory in ADDRHSE_STRIPED, I give up'
     call Abend()
   end if
-  NAMX = min(NAMX,NA)
 
   call RHSLOC_BOUNDS(ISYM,6,NAS*NISP > 0,MOFFP,JLOP,JHIP)
   call RHSLOC_BOUNDS(ISYM,7,NAS*NISM > 0,MOFFM,JLOM,JHIM)
 
-  ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
-  if (ISYJ == ISYL) then
-    call ADDRHSE_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV,SCR,NSCR,NAMX, &
-                           Cho_Bra,Cho_Ket,NCHO)
-  else
-    call ADDRHSE_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYM,ISYJL,NA,NJ,NV,NL,SCR,NSCR, &
-                           NAMX,Cho_Bra,Cho_Ket,NCHO)
-  end if
-
-end subroutine ADDRHSE_STRIPED
-
-!-----------------------------------------------------------------------
-
-subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV,SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
-
-  use SUPERINDEX, only: KIGEJ, KIGTJ
-  use caspt2_module, only: NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NSSH, NSYM
-
-  integer(kind=iwp), intent(in) :: NAS, JLOP, JHIP, JLOM, JHIM, ISYJ, ISYA, ISYM, ISYJL, NA, NJ, NV, NSCR, NAMX, NCHO
-  real(kind=wp), intent(inout) :: WEP(NAS,JLOP:JHIP), WEM(NAS,JLOM:JHIM)
-  real(kind=wp), intent(out), target :: SCR(NSCR)
-  real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NJ,NCHO)
-  integer(kind=iwp) :: IA, IAEND, IAHI, IAL, IALO, IASTA, ICOL, IJ, IJABS, IL, ILHI, ILHIM, ILHIP, ILLO, ILLOM, ILLOP, IOFFM, &
-                       IOFFP, ISA, ISIJ, IY1, IY2, JBASM, JBASP, JCOLHI, JCOLLO, NASZ
-  real(kind=wp), pointer, contiguous :: YBLK1(:,:), YBLK2(:,:)
-  !YBLK1, YBLK2 : the two integral blocks of this batch, as (v,a)
-
-  ! Case E, diagonal block.
-  !   WP(v,a,j>=l) = ((aj,vl)+(al,vj))/SQRT(2+2*Kron(jl))
-  !   WM(v,a,j>l)  = ((aj,vl)-(al,vj))*SQRT(OneHalf)
-  ! a column is one array assignment
-  ! columns run a fastest within an inactive pair, the pairs of one j are consecutive
-  ! the stripe is a range of (l,a) per j, both operands are contiguous as they stand
+  call mma_allocate(JBASP,max(NL,1),Label='JBASP')
+  call mma_allocate(JBASM,max(NL,1),Label='JBASM')
 
   IOFFP = 0
   IOFFM = 0
@@ -903,188 +872,49 @@ subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJ
 
   do IJ=1,NJ
     IJABS = IJ+NIES(ISYJ)
-    ! the columns of this j are (a, pair JBASP+l-1), l = 1..j, a fastest
-    ! JCOLLO:JCOLHI: that flat column range clipped to the local stripe
-    ! ILLOP:ILHIP (ILLOM:ILHIM): the same range converted to l bounds
-    JBASP = KIGEJ(IJABS,1+NIES(ISYJ))-NIGEJES(ISYJL)
-    JCOLLO = max(IOFFP+NA*(JBASP-1)+1,JLOP)
-    JCOLHI = min(IOFFP+NA*(JBASP+IJ-1),JHIP)
-    if (JCOLLO <= JCOLHI) then
-      ILLOP = (JCOLLO-IOFFP-NA*(JBASP-1)-1)/NA+1
-      ILHIP = (JCOLHI-IOFFP-NA*(JBASP-1)-1)/NA+1
-    else
-      ILLOP = 1
-      ILHIP = 0
-    end if
-    JBASM = 0
-    ILLOM = 1
-    ILHIM = 0
-    if ((IJ >= 2) .and. (JHIM >= JLOM)) then
-      JBASM = KIGTJ(IJABS,1+NIES(ISYJ))-NIGTJES(ISYJL)
-      JCOLLO = max(IOFFM+NA*(JBASM-1)+1,JLOM)
-      JCOLHI = min(IOFFM+NA*(JBASM+IJ-2),JHIM)
-      if (JCOLLO <= JCOLHI) then
-        ILLOM = (JCOLLO-IOFFM-NA*(JBASM-1)-1)/NA+1
-        ILHIM = (JCOLHI-IOFFM-NA*(JBASM-1)-1)/NA+1
-      end if
-    end if
-
-    ! ILLO:ILHI: union of the l ranges the two combinations need
-    if ((ILHIP < ILLOP) .and. (ILHIM < ILLOM)) cycle
-    if (ILHIP < ILLOP) then
-      ILLO = ILLOM
-      ILHI = ILHIM
-    else if (ILHIM < ILLOM) then
-      ILLO = ILLOP
-      ILHI = ILHIP
-    else
-      ILLO = min(ILLOP,ILLOM)
-      ILHI = max(ILHIP,ILHIM)
-    end if
-
-    do IL=ILLO,ILHI
-      ! IALO:IAHI: the a range needed for this (j,l), as the union of the two stripes
-      IALO = NA+1
-      IAHI = 0
-      if ((IL >= ILLOP) .and. (IL <= ILHIP)) then
-        IALO = max(1,JLOP-IOFFP-NA*(JBASP+IL-2))
-        IAHI = min(NA,JHIP-IOFFP-NA*(JBASP+IL-2))
-      end if
-      if ((IL >= ILLOM) .and. (IL <= ILHIM)) then
-        IALO = min(IALO,max(1,JLOM-IOFFM-NA*(JBASM+IL-2)))
-        IAHI = max(IAHI,min(NA,JHIM-IOFFM-NA*(JBASM+IL-2)))
-      end if
-      if (IAHI < IALO) cycle
-
-      do IASTA=IALO,IAHI,NAMX
-        IAEND = min(IASTA+NAMX-1,IAHI)
-        NASZ = IAEND-IASTA+1
-        IY1 = 1
-        IY2 = 1+NV*NASZ
-        ! YBLK1(v,a) = (aj,vl), YBLK2(v,a) = (al,vj)
-        call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IL-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IJ-1),1),NA*NJ,Zero,SCR(IY1),NV)
-        if (IL /= IJ) call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IJ-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IL-1),1),NA*NJ, &
-                                  Zero,SCR(IY2),NV)
-        YBLK1(1:NV,1:NASZ) => SCR(IY1:IY1+NV*NASZ-1)
-        YBLK2(1:NV,1:NASZ) => SCR(IY2:IY2+NV*NASZ-1) ! it is used only when IL /= IJ, but a compiler complains...
-        do IA=IASTA,IAEND
-          IAL = IA-IASTA+1
-          ! plus combination
-          if ((IL >= ILLOP) .and. (IL <= ILHIP)) then
-            ICOL = IOFFP+NA*(JBASP+IL-2)+IA
-            if ((ICOL >= JLOP) .and. (ICOL <= JHIP)) then
-              if (IL == IJ) then
-                WEP(1:NV,ICOL) = WEP(1:NV,ICOL)+YBLK1(:,IAL)
-              else
-                WEP(1:NV,ICOL) = WEP(1:NV,ICOL)+SQH*(YBLK1(:,IAL)+YBLK2(:,IAL))
-              end if
-            end if
-          end if
-          ! minus combination
-          if ((IL /= IJ) .and. (IL >= ILLOM) .and. (IL <= ILHIM)) then
-            ICOL = IOFFM+NA*(JBASM+IL-2)+IA
-            if ((ICOL >= JLOM) .and. (ICOL <= JHIM)) WEM(1:NV,ICOL) = WEM(1:NV,ICOL)+SQ32*(YBLK1(:,IAL)-YBLK2(:,IAL))
-          end if
-        end do
-      end do
-    end do
-  end do
-  nullify(YBLK1,YBLK2)
-
-end subroutine ADDRHSE_STRIPED_D
-
-!-----------------------------------------------------------------------
-
-subroutine ADDRHSE_STRIPED_O(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYM,ISYJL,NA,NJ,NV,NL,SCR,NSCR,NAMX,Cho_Bra,Cho_Ket, &
-                             NCHO)
-
-  use SUPERINDEX, only: KIGEJ, KIGTJ
-  use caspt2_module, only: NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NSSH, NSYM
-
-  integer(kind=iwp), intent(in) :: NAS, JLOP, JHIP, JLOM, JHIM, ISYJ, ISYL, ISYA, ISYM, ISYJL, NA, NJ, NV, NL, NSCR, NAMX, NCHO
-  real(kind=wp), intent(inout) :: WEP(NAS,JLOP:JHIP), WEM(NAS,JLOM:JHIM)
-  real(kind=wp), intent(out) :: SCR(NSCR)
-  real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NL,NCHO)
-  integer(kind=iwp) :: IA, IAEND, IAHI, IALO, IASTA, IJ, IJABS, IL, ILABS, IOFFM, IOFFP, ISA, ISIJ, JBASM, JBASP, JGEL, JGTL, LDY, &
-                       NASZ
-  real(kind=wp) :: SGN
-
-  ! Case E, off-diagonal block (ISYJ /= ISYL): one term, uniform weight.
-  ! all l of a given j in one contraction, the GEMM is NV*NL wide instead of NV
-  ! a is batched on the n side
-
-  LDY = NV*NL
-
-  ! j is q when ISYJ > ISYL; that affects only the columns, no range of q is selected as in F and G
-  SGN = One
-  if (ISYJ <= ISYL) SGN = -One
-
-  IOFFP = 0
-  IOFFM = 0
-  do ISA=1,NSYM
-    if (ISA == ISYA) exit
-    ISIJ = Mul(ISA,ISYM)
-    IOFFP = IOFFP+NSSH(ISA)*NIGEJ(ISIJ)
-    IOFFM = IOFFM+NSSH(ISA)*NIGTJ(ISIJ)
-  end do
-
-  do IJ=1,NJ
-    IJABS = IJ+NIES(ISYJ)
-    ! IALO:IAHI: union of the a ranges this j needs, over all its l
     IALO = NA+1
     IAHI = 0
     do IL=1,NL
       ILABS = IL+NIES(ISYL)
-      if (ISYJ > ISYL) then
-        JGEL = KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-        JGTL = KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
-      else
-        JGEL = KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
-        JGTL = KIGTJ(ILABS,IJABS)-NIGTJES(ISYJL)
+      JBASP(IL) = IOFFP+NA*(KIGEJ(max(IJABS,ILABS),min(IJABS,ILABS))-NIGEJES(ISYJL)-1)
+      JBASM(IL) = JHIM ! no minus column for j = l
+      if (IJABS /= ILABS) JBASM(IL) = IOFFM+NA*(KIGTJ(max(IJABS,ILABS),min(IJABS,ILABS))-NIGTJES(ISYJL)-1)
+      if (max(1,JLOP-JBASP(IL)) <= min(NA,JHIP-JBASP(IL))) then
+        IALO = min(IALO,max(1,JLOP-JBASP(IL)))
+        IAHI = max(IAHI,min(NA,JHIP-JBASP(IL)))
       end if
-      JBASP = IOFFP+NA*(JGEL-1)
-      JBASM = IOFFM+NA*(JGTL-1)
-      if (max(1,JLOP-JBASP) <= min(NA,JHIP-JBASP)) then
-        IALO = min(IALO,max(1,JLOP-JBASP))
-        IAHI = max(IAHI,min(NA,JHIP-JBASP))
-      end if
-      if (max(1,JLOM-JBASM) <= min(NA,JHIM-JBASM)) then
-        IALO = min(IALO,max(1,JLOM-JBASM))
-        IAHI = max(IAHI,min(NA,JHIM-JBASM))
+      if (max(1,JLOM-JBASM(IL)) <= min(NA,JHIM-JBASM(IL))) then
+        IALO = min(IALO,max(1,JLOM-JBASM(IL)))
+        IAHI = max(IAHI,min(NA,JHIM-JBASM(IL)))
       end if
     end do
-    if (IAHI < IALO) cycle
 
     do IASTA=IALO,IAHI,NAMX
       IAEND = min(IASTA+NAMX-1,IAHI)
       NASZ = IAEND-IASTA+1
-      ! SCR((v,l),a) = sum_P Cho_Ket(v,l)^P Cho_Bra(a,j)^P = (aj,vl)
+      ! SCR((v,l),a) = (aj,vl)
       call DGEMM_('N','T',LDY,NASZ,NCHO,One,Cho_Ket,LDY,Cho_Bra(IASTA+NA*(IJ-1),1),NA*NJ,Zero,SCR,LDY)
 
       do IL=1,NL
         ILABS = IL+NIES(ISYL)
-        if (ISYJ > ISYL) then
-          JGEL = KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-          JGTL = KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
-        else
-          JGEL = KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
-          JGTL = KIGTJ(ILABS,IJABS)-NIGTJES(ISYJL)
-        end if
-        JBASP = IOFFP+NA*(JGEL-1)
-        JBASM = IOFFM+NA*(JGTL-1)
+        SCLP = SQH
+        if (IJABS == ILABS) SCLP = One
+        SCLM = SQ32
+        if (IJABS < ILABS) SCLM = -SQ32
         do IA=IASTA,IAEND
-          ! plus combination
-          if ((JBASP+IA >= JLOP) .and. (JBASP+IA <= JHIP)) &
-            call DAXPY_(NV,SQH,SCR(1+NV*(IL-1)+LDY*(IA-IASTA)),1,WEP(1,JBASP+IA),1)
-          ! minus combination
-          if ((JBASM+IA >= JLOM) .and. (JBASM+IA <= JHIM)) &
-            call DAXPY_(NV,SGN*SQ32,SCR(1+NV*(IL-1)+LDY*(IA-IASTA)),1,WEM(1,JBASM+IA),1)
+          if ((JBASP(IL)+IA >= JLOP) .and. (JBASP(IL)+IA <= JHIP)) &
+            call DAXPY_(NV,SCLP,SCR(1+NV*(IL-1)+LDY*(IA-IASTA)),1,RHSLoc(MOFFP+NAS*(JBASP(IL)+IA-JLOP)),1)
+          if ((JBASM(IL)+IA >= JLOM) .and. (JBASM(IL)+IA <= JHIM)) &
+            call DAXPY_(NV,SCLM,SCR(1+NV*(IL-1)+LDY*(IA-IASTA)),1,RHSLoc(MOFFM+NAS*(JBASM(IL)+IA-JLOM)),1)
         end do
       end do
     end do
   end do
 
-end subroutine ADDRHSE_STRIPED_O
+  call mma_deallocate(JBASP)
+  call mma_deallocate(JBASM)
+
+end subroutine ADDRHSE_STRIPED
 
 !-----------------------------------------------------------------------
 
@@ -1096,7 +926,7 @@ subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYX, NA, NU, NC, NX, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
-  integer(kind=iwp) :: IA, IP, ISYA, ISYC, ISYM, IT, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NASM, NASP, NISM, NISP
+  integer(kind=iwp) :: IP, ISYA, ISYC, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NASM, NASP, NISM, NISP
   real(kind=wp), allocatable :: CHOBT(:)
 
   ! Case F: both combinations of (au,cx)
@@ -1131,11 +961,7 @@ subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
   ! it is the ket operand as well, at ISYM == 1 the caller passes the same block as both
   call mma_allocate(CHOBT,NU*NA*NCHO,Label='CHOBT')
   do IP=1,NCHO
-    do IA=1,NA
-      do IT=1,NU
-        CHOBT(IT+NU*(IA-1)+NU*NA*(IP-1)) = Cho_Bra(IA,IT,IP)
-      end do
-    end do
+    call DTRANS(NA,NU,Cho_Bra(1,1,IP),NA,CHOBT(1+NU*NA*(IP-1)),NU)
   end do
 
   call RHSLOC_BOUNDS(ISYM,8,NASP*NISP > 0,MOFFP,JLOP,JHIP)
@@ -1463,7 +1289,7 @@ subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYL, NA, NU, NC, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
-  integer(kind=iwp) :: IA, IP, ISYA, ISYAC, ISYC, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NAS, NISM, NISP
+  integer(kind=iwp) :: IP, ISYA, ISYAC, ISYC, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NAS, NISM, NISP
   real(kind=wp), allocatable :: CHOBT(:)
 
   ! Case G: both combinations of (au,cl)
@@ -1491,9 +1317,7 @@ subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
   ! CHOBT puts a on the n side of the contraction; without it the GEMM is only NU wide.
   call mma_allocate(CHOBT,NU*NA*NCHO,Label='CHOBT')
   do IP=1,NCHO
-    do IA=1,NA
-      CHOBT(1+NU*(IA-1)+NU*NA*(IP-1):NU+NU*(IA-1)+NU*NA*(IP-1)) = Cho_Bra(IA,1:NU,IP)
-    end do
+    call DTRANS(NA,NU,Cho_Bra(1,1,IP),NA,CHOBT(1+NU*NA*(IP-1)),NU)
   end do
 
   call RHSLOC_BOUNDS(ISYM,10,NAS*NISP > 0,MOFFP,JLOP,JHIP)

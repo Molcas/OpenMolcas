@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2024, Matthew R. Hennefarth                            *
+!               2026, Bhavnesh Jangid                                  *
 !***********************************************************************
 !  get_coulomb
 !

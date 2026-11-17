@@ -42,7 +42,7 @@ use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga, only: CIS, SGS
+use CI_Info, only: CI_St
 use Molcas, only: MxLev
 use general_data, only: nActEl, STSym
 use caspt2_module, only: MxCI, nG1, nG2, nG3, nSym
@@ -88,7 +88,7 @@ end if
 
 if (NACTEL == 0) return
 
-NCI = CIS(istate)%NCSF(STSYM)
+NCI = CI_St(istate)%nCSF(STSYM)
 ! This should not happen, but...
 if (NCI == 0) return
 
@@ -159,8 +159,8 @@ iG3OFF = 0
 
 do issg1=1,nsym
   isp1 = Mul(issg1,stsym)
-  !nsgm1 = CIS(istate)%ncsf(issg1)
-  !call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,NOW1,IOW1,NMIDV)
+  !nsgm1 = CI_St(istate)%nCSF(issg1)
+  !call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1)
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
   !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
@@ -169,7 +169,7 @@ do issg1=1,nsym
   do ip1=1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
+    istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
     if (istu == isp1) then
       ibuf1 = ibuf1+1
       ip1_buf(ibuf1) = ip1
@@ -250,9 +250,9 @@ do issg1=1,nsym
       do ip1i=ip1sta,ip1end
         itlev = idx2ij(1,ip1i)
         iulev = idx2ij(2,ip1i)
-        istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
-        it = SGS(istate)%L2ACT(itlev)
-        iu = SGS(istate)%L2ACT(iulev)
+        istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
+        it = CI_St(istate)%L2Act(itlev)
+        iu = CI_St(istate)%L2Act(iulev)
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
@@ -274,8 +274,8 @@ do issg1=1,nsym
     !    idx = ip1_buf(ib)
     !    itlev = idx2ij(1,idx)
     !    iulev = idx2ij(2,idx)
-    !    it = SGS(istate)%L2ACT(itlev)
-    !    iu = SGS(istate)%L2ACT(iulev)
+    !    it = CI_St(istate)%L2Act(itlev)
+    !    iu = CI_St(istate)%L2Act(iulev)
     !    G1(it,iu) = DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
     !    if (mkF) then
     !      F1sum = Zero
@@ -308,11 +308,11 @@ do issg1=1,nsym
     ! The indices corresponding to pair index p3:
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    isyz = Mul(SGS(istate)%ism(iylev),SGS(istate)%ism(izlev))
+    isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
     issg2 = Mul(isyz,stsym)
-    !nsgm2 = CIS(istate)%ncsf(issg2)
-    iy = SGS(istate)%L2ACT(iylev)
-    iz = SGS(istate)%L2ACT(izlev)
+    !nsgm2 = CI_St(istate)%nCSF(issg2)
+    iy = CI_St(istate)%L2Act(iylev)
+    iz = CI_St(istate)%L2Act(izlev)
     !BUF2(1:nsgm2) = Zero
     !call SG_Epq_Psi(IYLEV,IZLEV,One,STSYM,CI,BUF2)
     !if (issg2 == issg1) then
@@ -320,8 +320,8 @@ do issg1=1,nsym
     !    idx = ip1_buf(ib)
     !    itlev = idx2ij(1,idx)
     !    iulev = idx2ij(2,idx)
-    !    it = SGS(istate)%L2ACT(itlev)
-    !    iu = SGS(istate)%L2ACT(iulev)
+    !    it = CI_St(istate)%L2Act(itlev)
+    !    iu = CI_St(istate)%L2Act(iulev)
     !    G2(it,iu,iy,iz) = DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
     !    if (mkF) then
     !      F2sum = Zero
@@ -336,9 +336,9 @@ do issg1=1,nsym
     do ip2=ip3,ntri2
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
-      isvx = Mul(SGS(istate)%ism(ivlev),SGS(istate)%ism(ixlev))
-      iv = SGS(istate)%L2ACT(ivlev)
-      ix = SGS(istate)%L2ACT(ixlev)
+      isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
+      iv = CI_St(istate)%L2Act(ivlev)
+      ix = CI_St(istate)%L2Act(ixlev)
       if (isvx == Mul(issg1,issg2)) then
         !BUFT(1:nsgm1) = Zero
         !call SG_Epq_Psi(IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
@@ -376,8 +376,8 @@ do issg1=1,nsym
             idx = ip1_buf(ibmn-1+ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            iT = SGS(istate)%l2act(itlev)
-            iU = SGS(istate)%l2act(iulev)
+            iT = CI_St(istate)%L2Act(itlev)
+            iU = CI_St(istate)%L2Act(iulev)
             idxG3(1,iG3) = int(iT,kind=byte)
             idxG3(2,iG3) = int(iU,kind=byte)
             idxG3(3,iG3) = int(iV,kind=byte)

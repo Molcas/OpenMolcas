@@ -11,17 +11,17 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,RDMEIG,nLev)
+subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,DRDM,nLev)
 ! Purpose: Compute the 1-electron density matrix array G1.
 
 ! For the general cases, we use actual CI routine calls, and
 ! have to take account of orbital order.
 ! We will use level inices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
-! Translation tables L2ACT and LEVEL, in SGS
+! Translation tables L2ACT and LEVEL, in CI_St (CI_Info)
 
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, SGS
+use CI_Info, only: CI_St
 use general_data, only: STSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
@@ -32,7 +32,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NCI, NSGM1, nConf, nLev
-real(kind=wp), intent(in) :: CI(NCI), RDMEIG(NLEV,NLEV)
+real(kind=wp), intent(in) :: CI(NCI), DRDM(NLEV,NLEV)
 real(kind=wp), intent(inout) :: SGM1(NSGM1), CLag(nConf)
 integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
 integer(kind=iwp), allocatable :: TASK(:,:)
@@ -70,19 +70,19 @@ do while (Rsv_Tsk(ID,iTask))
   ! Compute SGM1 = E_UT acting on CI, with T >= U,
   ! i.e., lowering operations. These are allowed in RAS.
   LT = TASK(iTask,1)
-  IST = SGS(istate)%ISM(LT)
-  IT = SGS(istate)%L2ACT(LT)
+  IST = CI_St(istate)%ISm(LT)
+  IT = CI_St(istate)%L2Act(LT)
   LU = Task(iTask,2)
-  ISU = SGS(istate)%ISM(LU)
-  IU = SGS(istate)%L2ACT(LU)
+  ISU = CI_St(istate)%ISm(LU)
+  IU = CI_St(istate)%L2Act(LU)
   ISTU = Mul(IST,ISU)
   ISSG = Mul(ISTU,STSYM)
-  NSGM = CIS(istate)%NCSF(ISSG)
+  NSGM = CI_St(istate)%nCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
   call GETSGM2(LU,LT,STSYM,CI,NCI,SGM1,NSGM)
   ! Symmetry not yet
-  if (ISTU == 1) CLag(1:NSGM) = CLag(1:NSGM)+RDMEIG(IT,IU)*SGM1(1:NSGM)
+  if (ISTU == 1) CLag(1:NSGM) = CLag(1:NSGM)+DRDM(IT,IU)*SGM1(1:NSGM)
 
   ! SVC: The master node now continues to only handle task scheduling,
   !     needed to achieve better load balancing. So it exits from the task

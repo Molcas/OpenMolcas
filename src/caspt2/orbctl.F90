@@ -35,9 +35,10 @@ integer(kind=iwp), intent(in) :: NCMO, NTORB, nFIFA, nFIMO
 real(kind=wp), intent(inout) :: CMO(NCMO)
 real(kind=wp), intent(out) :: TORB(NTORB)
 real(kind=wp), intent(inout) :: FIFA(nFIFA), FIMO(nFIMO)
-integer(kind=iwp) :: I1, I2, ISYM
+integer(kind=iwp) :: I1, I2, iCMO, ISYM, nData
 real(kind=wp) :: OCC_DUM(1)
-real(kind=wp), allocatable :: OrbE(:)
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: CMOSCF(:), EPSSCF(:), OrbE(:)
 
 ! Determine PT2 orbitals, and transform CI coeffs.
 if (IPRGLB >= DEBUG) write(u6,*) ' ORBCTL calling MKRPTORB...'
@@ -68,12 +69,30 @@ end if
 
 if (IPRGLB >= VERBOSE) then
   ! Print new orbitals. First, form array of orbital energies.
+  ! The frozen orbitals taken from the runfile are copied from the RASSCF reference.
   call mma_allocate(ORBE,NBAST,Label='ORBE')
+  call Qpg_dArray('RASSCF OrbE',Found,nData)
+  Found = Found .and. (nData == NBAST)
+  if (Found) then
+    call Qpg_dArray('RASSCF orbitals',Found,nData)
+    Found = Found .and. (nData == NCMO)
+  end if
+  if (Found) then
+    call mma_allocate(EpsSCF,NBAST,Label='EpsSCF')
+    call mma_allocate(CMOSCF,NCMO,Label='CMOSCF')
+    call Get_dArray('RASSCF OrbE',EpsSCF,NBAST)
+    call Get_dArray('RASSCF orbitals',CMOSCF,NCMO)
+  end if
   I1 = 1
   I2 = 1
+  iCMO = 0
   do ISYM=1,NSYM
     if (NFRO(ISYM) > 0) then
       ORBE(I2:I2+NFRO(ISYM)-1) = Zero
+      if (Found) then
+        if (maxval(abs(CMOSCF(iCMO+1:iCMO+NBAS(ISYM)*NFRO(ISYM))-CMO(iCMO+1:iCMO+NBAS(ISYM)*NFRO(ISYM)))) < 1.0e-10_wp) &
+          ORBE(I2:I2+NFRO(ISYM)-1) = EpsSCF(I2:I2+NFRO(ISYM)-1)
+      end if
       I2 = I2+NFRO(ISYM)
     end if
     if (NORB(ISYM) > 0) then
@@ -85,7 +104,12 @@ if (IPRGLB >= VERBOSE) then
       ORBE(I2:I2+NDEL(ISYM)-1) = Zero
       I2 = I2+NDEL(ISYM)
     end if
+    iCMO = iCMO+NBAS(ISYM)**2
   end do
+  if (Found) then
+    call mma_deallocate(EpsSCF)
+    call mma_deallocate(CMOSCF)
+  end if
   ! Then call utility routine PRIMO.
   write(u6,*) ' The internal wave function representation has been changed to use quasi-canonical orbitals:'
   write(u6,*) ' those which diagonalize the Fock matrix within inactive-inactive,'
