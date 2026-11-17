@@ -1594,7 +1594,7 @@ endif ()
 # downloaded, patched for QM/MM and compiled into ${PROJECT_BINARY_DIR}/tinker
 # with the same script users can run by hand (Tools/patch2tinker/get_tinker).
 
-set (TINKER_SOURCE "" CACHE STRING "Local Tinker tarball (or directory containing it) or URL (empty: default upstream URL).")
+set (TINKER_SOURCE "" CACHE STRING "Local Tinker tarball (or directory containing it, relative to the build directory) or URL (empty: default upstream URL).")
 set (TINKER_MAXATM "" CACHE STRING "Maximum number of atoms in Tinker (empty: Tinker default, 100000).")
 set (TINKER_MAKE_JOBS "4" CACHE STRING "Parallel make jobs when compiling Tinker.")
 set (TINKER_MAKE_RETRIES "1" CACHE STRING "Attempts at compiling Tinker (works around intermittent compiler crashes).")
@@ -1635,7 +1635,8 @@ if (TINKER)
   if (TINKER_SOURCE MATCHES "^[a-zA-Z]+://")
     list (APPEND tinker_args -u ${TINKER_SOURCE})
   elseif (TINKER_SOURCE)
-    get_filename_component (tinker_tarball "${TINKER_SOURCE}" ABSOLUTE)
+    # relative paths are relative to the build directory
+    get_filename_component (tinker_tarball "${TINKER_SOURCE}" ABSOLUTE BASE_DIR ${PROJECT_BINARY_DIR})
     if (NOT EXISTS ${tinker_tarball})
       message (FATAL_ERROR "TINKER_SOURCE not found: ${tinker_tarball}")
     endif ()

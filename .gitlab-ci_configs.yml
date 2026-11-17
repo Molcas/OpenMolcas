@@ -43,13 +43,14 @@
       set (WFA "ON" CACHE BOOL "enable libwfa (needs submodule)")
       set (GEN1INT "ON" CACHE BOOL "enable Gen1Int")
       set (TINKER "ON" CACHE BOOL "compile Tinker for QM/MM")
-      set (TINKER_SOURCE "$ENV{CI_PROJECT_DIR}/tinker_mirror" CACHE STRING "Tinker tarball location")
+      set (TINKER_SOURCE "../tinker_mirror" CACHE STRING "Tinker tarball location (relative to build)")
       set (TINKER_MAXATM "1000" CACHE STRING "low-memory Tinker")
       set (TINKER_MAKE_RETRIES "10" CACHE STRING "work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318")
-    # Tinker tarball from the Molcas mirror (the checksum is verified by get_tinker)
+    # Tinker tarball from the Molcas mirror (the checksum is verified by get_tinker),
+    # cloned next to the build directory (no "$" in cache_file, it goes through echo)
     pre_compile_script: |
       if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
-      git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ${CI_PROJECT_DIR}/tinker_mirror
+      git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ${CI_PROJECT_DIR}/${CLONED_DIR}/tinker_mirror
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
