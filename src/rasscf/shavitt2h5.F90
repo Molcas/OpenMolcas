@@ -44,6 +44,11 @@ nVert = SGS(iState)%nVert
 nMidV = CIS(iState)%nMidV
 nRsPrt = SGS(iState)%nRsPrt
 
+! No active orbitals: no graph to show, and the case list does not match
+! the walk counts (nWalk = 2 empty half walks, ICase of size 0)
+if (nLev < 1) return
+if (size(CIS(iState)%ICase) /= CIS(iState)%nWalk*CIS(iState)%nIpWlk) return
+
 grpid = mh5_create_group(fileid,'SHAVITT')
 
 call mh5_init_attr(grpid,'DESCRIPTION','Split graph (Shavitt graph) of the CSF space and the CSF order of CI_VECTORS')
