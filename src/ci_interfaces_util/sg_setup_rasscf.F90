@@ -11,9 +11,9 @@
 
 subroutine SG_Setup_RASSCF()
 
-use general_data, only: iDoGAS, iSpin, nActel, nRas, nRasEl, nRsPrt, nSym, STSYM
+use general_data, only: iDoGAS, iSpin, nActel, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
 use rasscf_global, only: nConf
-use CI_States, only: CI_Setup_SG
+use CI_States, only: CI_Setup_RAS, CI_Setup_SG
 use CI_Info, only: CI_St, SG_Rel_State, Space_CI
 use Molcas, only: MxLev, MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -69,7 +69,8 @@ if (iDoGAS) then
   call mma_deallocate(MinR)
   call mma_deallocate(nRasG)
 else
-  call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,Level,nLev,NSM,'FULL')
+  call CI_Setup_RAS(iState,nSym,nActEl,iSpin,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nLev,Level(1:nLev), &
+                    Level(1:nLev),NSM(1:nLev),'FULL')
 end if
 
 call SETSXCI()

@@ -4082,7 +4082,6 @@ SkipGUGA = DoBlockDMRG .or. Key('DMRG') .or. doDMRG .or. DoNECI .or. Do_CC_CI .o
 call mma_deallocate(initial_occ,safe='*')
 ! ======================================================================
 
-call Setup_RASSCF()
 
 ! SGCI: SGUGA covers CAS, RAS and GAS spaces (GAS through the relaxed space,
 ! HEXS/DEXS applied by the CI interface), and is not combined with the

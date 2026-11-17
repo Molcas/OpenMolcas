@@ -118,7 +118,6 @@ set (sources
      scan_inp.F90
      setpos.F90
      setprlev.F90
-     setup_rasscf.F90
      sgfcin.F90
      sigvec.F90
      socc_dmrg_rdinp.F90

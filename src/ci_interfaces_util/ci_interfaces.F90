@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use general_data, only: iDoGAS, nRsPrt, nRas, nRasEl
+use general_data, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
 use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
 use CI_Info, only: CI_St, Space_CI
@@ -266,7 +266,7 @@ select case (Lab)
     call mma_allocate(C2,n,Label='C2')
     call CI_Basis_To_File(iState,LSM,n,Cin,C1)
     call HEXS_Proj(HEXS_Keep_SG,C1)
-    call SG_HPsi(iState,C1,n,LSM,C2,TUVX,nTUVX,TU,nTU,nRsPrt /= 1)
+    call SG_HPsi(iState,C1,n,LSM,C2,TUVX,nTUVX,TU,nTU,CI_St(iState)%nRsPrt /= 1)
     call HEXS_Proj(HEXS_Keep_SG,C2)
     call CI_File_To_Basis(iState,LSM,n,C2,Sout)
   case default
@@ -647,7 +647,7 @@ real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:), SG_RAS(:)
 ! MOLCAS_CI_VERIFY=SIGMA the sigma vector is compared with that of Lucia
 ! (vector reordered to the Lucia basis and the result back).
 if (SG_CI()) then
-  call SG_HPsi(iState,CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU,nRsPrt /= 1)
+  call SG_HPsi(iState,CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU,CI_St(iState)%nRsPrt /= 1)
   call HEXS_Proj(HEXS_Keep,Sigma_Vec)
   if (CI_Verify('SIGMA')) then
     call mma_allocate(SG_PSI,max(nCSF,CI_St(iState)%nDet(STSYM)),Label='SG_PSI')
@@ -735,7 +735,7 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    call HEXS_Proj(HEXS_Keep_SG,SG_PSI)
    Check_Href=CheckSum(Sigma_Vec,nCSF)
    Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
-   if ((nRsPrt == 1) .and. (.not. iDoGAS)) then
+   if ((CI_St(iState)%nRsPrt == 1) .and. (.not. iDoGAS)) then
      Call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
      if (.not. HPsi_RAS_Verified) then
        call mma_allocate(SG_RAS,nCSF,Label='SG_RAS')
@@ -754,7 +754,7 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
    end if
    call HEXS_Proj(HEXS_Keep_SG,SG_SGM)
    call CI_File_To_Basis(iState,STSYM,nCSF,SG_SGM,SG_PSI)
-   if ((nRsPrt /= 1) .or. iDoGAS) then
+   if ((CI_St(iState)%nRsPrt /= 1) .or. iDoGAS) then
      DMax = maxval(abs(SG_PSI(:)-Sigma_Vec(:)))
      if (.not. HPsi_RAS_Verified) &
        write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs CI back end (RAS), max. abs. difference',DMax
@@ -1049,7 +1049,7 @@ If (CI_Verify('SIGMA')) Then
   !     iMode=1 --> from split graph GUGA to SGA order                   *
   call SG_Reord(iState,STSYM,0,nCSF,temp1,temp2)
 
-  call SG_HPsi(iState,temp2,nCSF,STSYM,temp1,TUVX,nTUVX,TU,nTU,nRsPrt /= 1)
+  call SG_HPsi(iState,temp2,nCSF,STSYM,temp1,TUVX,nTUVX,TU,nTU,CI_St(iState)%nRsPrt /= 1)
 
   ! Convert from SGUGA CSF basis to Lucia CSF basis
   call SG_Reord(iState,STSYM,1,nCSF,temp1,temp2)
@@ -1666,9 +1666,12 @@ end subroutine CI_Timer
 !> checked against the RAS description (nRsPrt, nRas, nRasEl, NSM) and the
 !> HEXS/DEXS thresholds used by the CI interface.
 subroutine CI_Space_Setup()
-use general_data, only: IGSOCCX, NGAS, NGSSH, nSym
+use general_data, only: IGSOCCX, NGAS, NGSSH, nElec3, nHole1, nRs1, nRs2, nRs3, nSym
 use CI_Info, only: Space_Inp
-integer(kind=iwp) :: g, k, i, iLev, iSym, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS)
+use CI_States, only: RAS_Partitions
+use Molcas, only: MxSym
+integer(kind=iwp) :: g, k, i, iLev, iSym, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS), nRsPrt, nRas(MxSym,3), &
+                     nRasEl(3)
 integer(kind=iwp), allocatable :: NMx(:)
 logical(kind=iwp) :: OK
 
@@ -1700,10 +1703,12 @@ if (.not. CI_Verify('ANY')) return
 call Space_Print(Space_CI)
 ! GAS: no RAS description to compare with
 if (iDoGAS) return
-! the RAS description, with its empty partitions dropped (their lower
+! the RAS description (as CI_Setup_RAS builds it), with its empty
+! partitions dropped (their lower
 ! bound merged into the previous one): the same partitions, the same lower
 ! bounds (after tightening to the physical ones), no upper bounds, the same
 ! levels
+call RAS_Partitions(nSym,NACTEL,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nRsPrt,nRas,nRasEl)
 OK = (Space_CI%nLev == NAC)
 k = 0
 nBelow = 0
@@ -1835,7 +1840,7 @@ if (DO_FAROALD) then
   write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
   ! the orbitals of Faroald = the levels of the split graph: by partition
-  ! (RAS/GAS), within each by symmetry (NSM, Setup_RASSCF; Space_CI);
+  ! (RAS/GAS), within each by symmetry (Space_CI%LevSym);
   ! Faro_L2O maps them to the symmetry-blocked order of RASSCF (within one
   ! symmetry the orbitals keep the order of their levels)
   nAct = sum(NASH(1:nSym))

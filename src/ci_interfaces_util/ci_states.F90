@@ -28,10 +28,62 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-public :: CI_CITRA, CI_Epq_Psi, CI_Free_State, CI_Occ_Diag, CI_Print_Graph, CI_PrWF, CI_ReOrd, CI_ReOrd_Orig, CI_Setup_SG, &
-          CI_StepVec, CI_SYG2SGU, CI_Walk_Next
+public :: CI_CITRA, CI_Epq_Psi, CI_Free_State, CI_Occ_Diag, CI_Print_Graph, CI_PrWF, CI_ReOrd, CI_ReOrd_Orig, CI_Setup_RAS, &
+          CI_Setup_SG, CI_StepVec, CI_SYG2SGU, CI_Walk_Next, RAS_Partitions
 
 contains
+
+!> The partitions of a RAS space (RAS1, RAS2, RAS3 with nRs1, nRs2, nRs3
+!> orbitals per symmetry, at most nHole1 holes in RAS1 and nElec3 electrons
+!> in RAS3) in the form of CI_Setup_SG: nPrt partitions with nRas(iSym,k)
+!> orbitals and at least nRasEl(k) electrons in the partitions 1..k. With
+!> holes or electrons restricted, or All_Parts, the three partitions;
+!> otherwise (CAS) RAS2 as the only partition.
+subroutine RAS_Partitions(nSym,nActEl,nRs1,nRs2,nRs3,nHole1,nElec3,All_Parts,nPrt,nRas,nRasEl)
+  integer(kind=iwp), intent(in) :: nSym, nActEl, nRs1(nSym), nRs2(nSym), nRs3(nSym), nHole1, nElec3
+  logical(kind=iwp), intent(in) :: All_Parts
+  integer(kind=iwp), intent(out) :: nPrt, nRas(MxSym,3), nRasEl(3)
+  nRas(:,:) = 0
+  nRasEl(:) = 0
+  if (All_Parts .or. (nHole1+nElec3 /= 0)) then
+    nPrt = 3
+    nRas(1:nSym,1) = nRs1(1:nSym)
+    nRas(1:nSym,2) = nRs2(1:nSym)
+    nRas(1:nSym,3) = nRs3(1:nSym)
+    nRasEl(1) = 2*sum(nRs1(1:nSym))-nHole1
+    nRasEl(2) = nActEl-nElec3
+    nRasEl(3) = nActEl
+  else
+    nPrt = 1
+    nRas(1:nSym,1) = nRs2(1:nSym)
+    nRasEl(1) = nActEl
+  end if
+end subroutine RAS_Partitions
+
+!> CI_Setup_SG for a RAS space (see RAS_Partitions): Level(1:nLev) and
+!> L2Act(1:nLev) the orbital <-> level maps, NSM(1:nLev) the symmetries of
+!> the levels; Mode and LSM_Single as in CI_Setup_SG.
+subroutine CI_Setup_RAS(iState,nSym,nActEl,iSpin,nRs1,nRs2,nRs3,nHole1,nElec3,All_Parts,nLev,Level,L2Act,NSM,Mode,LSM_Single)
+  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, nRs1(nSym), nRs2(nSym), nRs3(nSym), nHole1, nElec3, nLev, &
+                                   Level(nLev), L2Act(nLev), NSM(nLev)
+  logical(kind=iwp), intent(in) :: All_Parts
+  character(len=*), intent(in) :: Mode
+  integer(kind=iwp), intent(in), optional :: LSM_Single
+  integer(kind=iwp) :: nPrt, nRas(MxSym,3), nRasEl(3), LevelX(MxLev), L2ActX(MxLev), NSMX(MxLev), iq
+  call RAS_Partitions(nSym,nActEl,nRs1,nRs2,nRs3,nHole1,nElec3,All_Parts,nPrt,nRas,nRasEl)
+  LevelX(:) = [(iq,iq=1,MxLev)]
+  L2ActX(:) = [(iq,iq=1,MxLev)]
+  NSMX(:) = 0
+  LevelX(1:nLev) = Level(1:nLev)
+  L2ActX(1:nLev) = L2Act(1:nLev)
+  NSMX(1:nLev) = NSM(1:nLev)
+  if (present(LSM_Single)) then
+    call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas(:,1:nPrt),nRasEl(1:nPrt),nPrt,LevelX,L2ActX,nLev,NSMX,Mode, &
+                     LSM_Single=LSM_Single)
+  else
+    call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas(:,1:nPrt),nRasEl(1:nPrt),nPrt,LevelX,L2ActX,nLev,NSMX,Mode)
+  end if
+end subroutine CI_Setup_RAS
 
 !> Set up the split-graph CI space of state iState (SGUGA): nSym, nActEl,
 !> iSpin; the RAS partitions nRas(iSym,iPrt) with the electron limits
