@@ -11,10 +11,11 @@
 
 program ASC2JOB
 
-use rasscf_global, only: BName, Header, IADR15, iPT2, iRoot, lRoots, NACPAR, NACPR2, NORBT, nRoots, NTOT3, PotNuc, Title, Weight
+use rasscf_global, only: BName, Header, IADR15, iPT2, iRoot, lRoots, NACPAR, NACPR2, nConf, NORBT, nRoots, NTOT3, PotNuc, Title, &
+                         Weight
 use rasscf_files, only: jobiph
-use general_data, only: ispin, nactel, nash, nbas, nconf, ndel, ndel, nelec3, nfro, nhole1, nish, norb, nrs1, nrs2, nrs3, nsym, &
-                        ntot, ntot2
+use Orbital_Spaces, only: nash, nbas, ndel, nfro, nish, norb, nsym, ntot, ntot2
+use CI_Input, only: ispin, nactel, nelec3, nhole1, nrs1, nrs2, nrs3
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
