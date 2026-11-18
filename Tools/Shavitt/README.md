@@ -92,7 +92,8 @@ Pegamoid 2.13 with NumPy 2 (2.9 uses `np.math`, which NumPy 2 no longer has).
 
 Display flags (also the initial settings of the interface): `--numbers`,
 `--paldus`, `--midvertices`, `--no-midlevel`, `--steps`, `--orbitals`,
-`--width-by-weight`, `--no-dim`, `--no-logo`, `--vertex V`; `--dpi` for bitmaps.
+`--width-by-weight`, `--no-dim`, `--no-logo`, `--logo-color COLOR` (default
+black; also *Logo color...* on the View tab), `--vertex V`; `--dpi` for bitmaps.
 Loops: `--loops V` (midvertex V) or `--loops V W` (partner pair), with
 `--loop-head J`, `--loop-tail I`; the loops are listed and drawn, without the
 leading CSFs unless `--csf`/`--walk` is given.

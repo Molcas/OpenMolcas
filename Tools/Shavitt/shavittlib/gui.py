@@ -422,6 +422,11 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.orb_check.setToolTip('Hover a level label for a picture of its active orbital; click the label to\n'
                                   'open the orbital in Pegamoid (pip install pegamoid)')
         v.addWidget(self.orb_check)
+        self.logo_button = QtWidgets.QPushButton('Logo color...')
+        self.logo_button.setToolTip('Color of the OpenMolcas logo (default black)')
+        self.logo_button.clicked.connect(self.choose_logo_color)
+        self.logo_button.setIcon(_swatch(self.opts.logo_color))
+        v.addWidget(self.logo_button)
         b = QtWidgets.QPushButton('Reset view')
         b.clicked.connect(self.reset_view)
         v.addWidget(b)
@@ -1055,6 +1060,16 @@ class ShavittWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------ drawing
     def set_option(self, name, on):
         setattr(self.opts, name, on)
+        self.refresh()
+
+    def choose_logo_color(self):
+        c = QtWidgets.QColorDialog.getColor(QtGui.QColor(self.opts.logo_color), self, 'Logo color')
+        if c.isValid():
+            self.set_logo_color(c.name())
+
+    def set_logo_color(self, color):
+        self.opts.logo_color = color
+        self.logo_button.setIcon(_swatch(color))
         self.refresh()
 
     def reset_view(self):

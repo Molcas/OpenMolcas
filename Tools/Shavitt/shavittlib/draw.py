@@ -80,6 +80,7 @@ class DrawOptions:
     selected_vertex: int = None  # 0-based; ringed, with its subgraph if show_subgraph
     show_subgraph: bool = True
     show_logo: bool = True  # OpenMolcas logo in the lower right corner
+    logo_color: str = 'black'  # any matplotlib color; the logo is drawn in it (one color, transparent background)
     title: str = ''
     extra: dict = field(default_factory=dict)
 
@@ -197,7 +198,7 @@ def draw(g, ax, walks=(), opts=None, loops=None, segments=None):
     ax.set_facecolor(SURFACE)
 
     if opts.show_logo:
-        add_logo(ax)
+        add_logo(ax, color=opts.logo_color)
 
     if opts.title:
         ax.set_title(opts.title, color=INK, fontsize=10, loc='left', pad=30)
@@ -284,10 +285,11 @@ def _draw_segments(g, ax, x, y, ov):
 LOGO = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'openmolcas_logo.png')
 
 
-def add_logo(ax, height=0.11, margin=4):
+def add_logo(ax, height=0.11, margin=4, color='black'):
     """The OpenMolcas logo in the lower right corner of the figure.
 
-    height: fraction of the figure height; margin: distance from the edges in points.
+    height: fraction of the figure height; margin: distance from the edges in points;
+    color: any matplotlib color (the logo is one color on a transparent background).
     The logo belongs to ax (removed by ax.clear) but is placed in figure coordinates
     and kept out of the layout computation.
     """
@@ -295,7 +297,9 @@ def add_logo(ax, height=0.11, margin=4):
         return
     import matplotlib.image as mpimg
     from matplotlib.offsetbox import AnnotationBbox, OffsetImage
-    img = mpimg.imread(LOGO)
+    from matplotlib.colors import to_rgb
+    img = mpimg.imread(LOGO).copy()  # RGBA, values 0..1
+    img[..., :3] = to_rgb(color)
     zoom = height * ax.figure.get_figheight() * 72.0 / img.shape[0]
     ab = AnnotationBbox(OffsetImage(img, zoom=zoom), (1.0, 0.0), xycoords='figure fraction',
                         xybox=(-margin, margin), boxcoords='offset points', box_alignment=(1.0, 0.0),

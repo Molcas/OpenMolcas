@@ -39,7 +39,7 @@ from shavittlib.graph import ShavittGraph  # noqa: E402
 def options(a):
     return DrawOptions(vertex_numbers=a.numbers, paldus_labels=a.paldus, midlevel_line=not a.no_midlevel,
                        mark_midvertices=a.midvertices, step_labels=a.steps, level_orbitals=a.orbitals,
-                       width_by_weight=a.width_by_weight, dim_graph=not a.no_dim, show_logo=not a.no_logo,
+                       width_by_weight=a.width_by_weight, dim_graph=not a.no_dim, show_logo=not a.no_logo, logo_color=a.logo_color,
                        selected_vertex=None if a.vertex is None else a.vertex - 1)
 
 
@@ -66,6 +66,8 @@ def main(argv=None):
     g_.add_argument('--width-by-weight', action='store_true', help='line width of a walk ~ |c|')
     g_.add_argument('--no-dim', action='store_true', help='do not fade the graph behind the walks')
     g_.add_argument('--no-logo', action='store_true', help='leave out the OpenMolcas logo')
+    g_.add_argument('--logo-color', default='black', metavar='COLOR',
+                    help='color of the OpenMolcas logo (a name or #rrggbb; default black)')
     g_.add_argument('--loops', type=int, nargs='+', metavar='V',
                     help='the coupling-coefficient loops at midvertex V (1-based vertex number), or at the '
                          'partner pair V W (crossing loops); with --loop-head J / --loop-tail I to filter')
