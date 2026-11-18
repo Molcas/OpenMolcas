@@ -222,9 +222,10 @@ The :kword:`FUNC` is the only required keyword.
   Analytical gradients are available for translated type-1 meta-GGA on-top
   functionals (e.g. ``T:M06L``), including functionals with external parameters
   (:kword:`EXPM`), for single-state, state-averaged and CMS-PDFT calculations.
-  Hybrid on-top functionals (:kword:`LAMBda`) and Cholesky decomposition (RICD)
-  are supported for single-state and state-averaged MC-PDFT gradients, but not
-  for MS-PDFT.
+  Hybrid GGA and hybrid meta-GGA (hybrid-mGGA) on-top functionals are requested
+  with :kword:`LAMBda`. These functionals and Cholesky decomposition (RICD)
+  are supported for single-state and state-averaged MC-PDFT gradients.
+  MS-PDFT gradients do not support these options.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>
