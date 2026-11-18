@@ -107,6 +107,15 @@ type Rel_Map_Type
 end type Rel_Map_Type
 type(Rel_Map_Type) :: Rel_Map(8)
 
+! CPU and wall time and number of calls of the operations of the CI
+! interface, for every back end (CI_Timer: 'Init' resets, 'Print' prints)
+integer(kind=iwp), parameter :: Tim_HPsi = 1, Tim_IHI = 2, Tim_IHJ = 3, Tim_PDM = 4, Tim_T1DM = 5, Tim_TraPsi = 6, nTimOp = 6
+character(len=*), parameter :: Tim_Label(nTimOp) = ['H|Psi> (Mk_H_Psi)        ','diagonal (Mk_IHI)        ', &
+                                                   'explicit block (Mk_IHJ)  ','densities (Mk_pdms)      ', &
+                                                   'transition (Mk_T1DM)     ','CI transform (Mk_Tra_Psi)']
+real(kind=wp) :: Tim_CPU(nTimOp) = Zero, Tim_Wall(nTimOp) = Zero
+integer(kind=iwp) :: Tim_Calls(nTimOp) = 0
+
 contains
 
 !> SGCI: the whole CI (diagonal, explicit subspace, sigma vectors, density
@@ -595,8 +604,11 @@ real(kind=wp), intent(in) :: CI_Vec(nCSF), TU(nTU), TUVX(nTUVX)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
 real(kind=wp), allocatable :: CM(:)
+real(kind=wp) :: TimT(2)
+call Tim_On(TimT)
 if (.not. allocated(HEXS_Keep)) then
   call Mk_H_Psi_P(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
+  call Tim_Off(Tim_HPsi,TimT)
   return
 end if
 call mma_allocate(CM,nCSF,Label='HEXS_CM')
@@ -605,6 +617,7 @@ call HEXS_Proj(HEXS_Keep,CM)
 call Mk_H_Psi_P(iState,STSYM,nCSF,CM,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
 call HEXS_Proj(HEXS_Keep,Sigma_Vec)
 call mma_deallocate(CM)
+call Tim_Off(Tim_HPsi,TimT)
 end subroutine Mk_H_Psi
 
 Subroutine Mk_H_Psi_P(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
@@ -1131,8 +1144,11 @@ logical(kind=iwp) :: free_D, free_DS
 
 ! SGCI: transition densities from SGUGA in its basis; under SIGMA compared
 ! with Lucia (both vectors reordered to the Lucia basis).
+real(kind=wp) :: TimT(2)
+call Tim_On(TimT)
 if (SG_CI()) then
   call SGCI_T1DM()
+  call Tim_Off(Tim_T1DM,TimT)
   return
 end if
 
@@ -1187,6 +1203,7 @@ Else
    If (Free_DS) Call mma_deallocate(DSTMP)
 End If
 
+call Tim_Off(Tim_T1DM,TimT)
 contains
 
   ! FARO (CI development, SIGMA): the Faroald transition densities against
@@ -1341,8 +1358,11 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
  ! SGCI: the densities from SGUGA in its basis (D, SD in the triangular
  ! packing of the levels, P and PA as sg_two_pdm); under SIGMA compared
  ! with those of Lucia for the vector reordered to the Lucia basis.
+ real(kind=wp) :: TimT(2)
+ call Tim_On(TimT)
  if (SG_CI()) then
    call SGCI_Densities()
+   call Tim_Off(Tim_PDM,TimT)
    return
  end if
 
@@ -1461,6 +1481,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
         END IF
 
+call Tim_Off(Tim_PDM,TimT)
 contains
 
   ! FARO (CI development, SIGMA): the Faroald densities D, SD, P, PA against
@@ -1617,6 +1638,23 @@ contains
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
+!> Start the timer of an operation (T: CPU and wall time at the start).
+subroutine Tim_On(T)
+real(kind=wp), intent(out) :: T(2)
+call CWTime(T(1),T(2))
+end subroutine Tim_On
+
+!> Stop the timer of operation k started at T.
+subroutine Tim_Off(k,T)
+integer(kind=iwp), intent(in) :: k
+real(kind=wp), intent(in) :: T(2)
+real(kind=wp) :: C, W
+call CWTime(C,W)
+Tim_CPU(k) = Tim_CPU(k)+C-T(1)
+Tim_Wall(k) = Tim_Wall(k)+W-T(2)
+Tim_Calls(k) = Tim_Calls(k)+1
+end subroutine Tim_Off
+
 subroutine CI_Timer(Opt)
 use lucia_data, only: TDENSI, TSIGMA
 
@@ -1627,9 +1665,13 @@ Case ('Ini')
    !SVC: lucia timers
    tsigma(:) = Zero
    tdensi(:) = Zero
+   Tim_CPU(:) = Zero
+   Tim_Wall(:) = Zero
+   Tim_Calls(:) = 0
 Case ('Pri')
+  call Tim_Print()
   If (DoFaro) Then
-  Else
+  Else If (Lucia_Active) Then
     call PrtTim()
   End If
 Case Default
@@ -1638,6 +1680,26 @@ Case Default
 End Select
 
 end subroutine CI_Timer
+
+!> The timings of the CI interface (CPU, wall, calls per operation).
+subroutine Tim_Print()
+integer(kind=iwp) :: k
+character(len=8) :: BackEnd
+if (SG_CI()) then
+  BackEnd = 'SGUGA'
+else if (DoFaro) then
+  BackEnd = 'Faroald'
+else
+  BackEnd = 'Lucia'
+end if
+write(u6,*)
+write(u6,'(1X,A,A)') 'CI interface timings, back end ',trim(BackEnd)
+write(u6,'(1X,A25,3X,A12,A12,A10)') 'operation','CPU (s)','wall (s)','calls'
+do k=1,nTimOp
+  if (Tim_Calls(k) > 0) write(u6,'(1X,A25,3X,2F12.3,I10)') Tim_Label(k),Tim_CPU(k),Tim_Wall(k),Tim_Calls(k)
+end do
+write(u6,'(1X,A25,3X,2F12.3)') 'total',sum(Tim_CPU),sum(Tim_Wall)
+end subroutine Tim_Print
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
@@ -1948,13 +2010,17 @@ real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
 integer(kind=iwp), parameter :: iState = 1
 
 ! SGCI: the exact diagonal in the SGUGA basis, no Lucia
+real(kind=wp) :: TimT(2)
+call Tim_On(TimT)
 if (SG_CI()) then
   call SGCI_Diag()
+  call Tim_Off(Tim_IHI,TimT)
   return
 end if
 ! Faroald (FARO): the configuration average in its own basis
 if (DoFaro) then
   call Faroald_Diag()
+  call Tim_Off(Tim_IHI,TimT)
   return
 end if
 
@@ -1982,6 +2048,7 @@ if (CI_Verify('HDIAG') .and. SG_Avail()) then
   write(u6,'(1X,A)') 'Mk_IHI: exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
 end if
 
+call Tim_Off(Tim_IHI,TimT)
 contains
 
   ! Faroald (FARO): the CI-solver diagonal in its own basis (citrans), the
@@ -2524,6 +2591,8 @@ logical(kind=iwp) :: SG_OK, UseSG, Verify
 character(len=8) :: Lab
 
 ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection.
+real(kind=wp) :: TimT(2)
+call Tim_On(TimT)
 call Sel_CSFs()
 NPCSF = size(IPCSF)
 if (nTri_Elem(NPCSF) > nPHP) then
@@ -2543,6 +2612,7 @@ if (SG_CI()) then
   end if
   call mma_deallocate(IPCSF)
   call mma_deallocate(nSelCnf)
+  call Tim_Off(Tim_IHJ,TimT)
   return
 end if
 
@@ -2604,6 +2674,7 @@ end if
 call mma_deallocate(IPCSF)
 call mma_deallocate(nSelCnf)
 
+call Tim_Off(Tim_IHJ,TimT)
 contains
 
   ! SGUGA explicit block over the configurations IPC(1:NPC) of Cnf; for GAS
@@ -3338,6 +3409,8 @@ logical(kind=iwp) :: Verify_SG
 
 ! SGCI: the vector is in the SGUGA basis, transformed by SGUGA; under SIGMA
 ! compared with Lucia (vector reordered to the Lucia basis and back).
+real(kind=wp) :: TimT(2)
+call Tim_On(TimT)
 if (SG_CI()) then
   if (CI_Verify('SIGMA')) then
     call mma_allocate(CI_Faroald,nCSF,Label='CI_Lucia')
@@ -3360,6 +3433,7 @@ if (SG_CI()) then
     call mma_deallocate(CI_SGUGA)
     call mma_deallocate(CI_Faroald)
   end if
+  call Tim_Off(Tim_TraPsi,TimT)
   return
 end if
 
@@ -3454,6 +3528,7 @@ If (Verify_SG) Then
    End Do
    Call mma_deallocate(CI_SGUGA)
 End If
+call Tim_Off(Tim_TraPsi,TimT)
 
 End subroutine Mk_Tra_Psi
 
