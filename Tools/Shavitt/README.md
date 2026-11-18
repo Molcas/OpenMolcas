@@ -19,6 +19,10 @@ program (GPL v3); Shavitt only loads it when it is installed. It is looked for
 in `$PEGAMOID`, next to the Python that runs Shavitt, then on the `PATH`. Use
 Pegamoid 2.13 with NumPy 2 (2.9 uses `np.math`, which NumPy 2 no longer has).
 
+With `-DTOOLS=ON` CMake copies the tool to the build directory and installs it
+under `$MOLCAS/Tools/Shavitt` (`shavitt.py`, the package `shavittlib`, the
+checks); it can also be run from the source tree.
+
 ## Graphical interface
 
     shavitt.py h2o.rasscf.h5        # or just shavitt.py, then File > Open
@@ -170,4 +174,12 @@ each once and with the loop value.
     python tests/check_log.py rasscf.log rasscf.h5
 
 decodes every CSF printed by RASSCF (`PRWF`) and compares occupation string
-and coefficient, and checks that the walks counted on the graph equal `NCSF`.
+and coefficient, and checks that the walks counted on the graph equal the CSF
+counts of the file.
+
+The regression test `test/hdf5/660.input` (CAS, RAS, GAS and no active
+orbitals) checks the `SHAVITT` group: names, shapes and descriptions, its
+consistency with the rest of the file, the number of vertices and of CSFs per
+irrep from an independent count, and, when the tool is installed, the
+density matrix from the loops of the rebuilt graph against `DENSITY_MATRIX`
+(the CSF order). It needs `h5py` and `numpy` in `python3`.

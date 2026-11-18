@@ -1,0 +1,414 @@
+*-------------------------------------------------------------------------------
+* Molecule: water H2O
+* Basis: STO-3G
+* Symmetry: C2v
+* Features tested: SHAVITT group of rasscf.h5 (split graph of CAS, RAS and GAS
+*                  CSF spaces), Tools/Shavitt
+* Responsible person: Roland Lindh
+*-------------------------------------------------------------------------------
+* RASSCF writes to the group SHAVITT of rasscf.h5 the definition of the split
+* graph (Shavitt graph) of its CSF space: the irrep of each level, the orbitals
+* of each irrep in the partitions with their cumulative electron bounds, the
+* midlevel, and as checks the number of vertices and the CSFs per irrep.
+* Together with NSYM, NACTEL, SPINMULT, LSYM and L2ACT of the file this gives
+* the graph and the CSF order of CI_VECTORS (Tools/Shavitt rebuilds them).
+*
+* The check below asserts what the checkfile cannot see: the names, shapes and
+* descriptions of the attributes and datasets of the group; that the group is
+* consistent with the rest of the file; and, from an independent count of the
+* Paldus vertices and walks under the electron bounds, the stored number of
+* vertices and of CSFs per irrep. Without active orbitals there is no group.
+* When Tools/Shavitt is installed (TOOLS=ON) the graph is also rebuilt with it
+* and the one-body density matrix computed from the loops of the graph and the
+* CI vector is compared with DENSITY_MATRIX, which checks the CSF order.
+*
+* Runs: CAS(8,6) singlet A1; RAS triplet B1 (2 holes, 2 particles) and GAS
+* with bounds that restrict the space from above, both CI only in the CAS
+* orbitals; no active orbitals.
+*-------------------------------------------------------------------------------
+
+* Test HDF5 support
+> RM -FORCE TEST_HDF5
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+> IF ( -FILE TEST_HDF5 )
+>   EXIT 36
+> ENDIF
+
+* Test h5py and numpy support (the check below needs them)
+> RM -FORCE TEST_H5PY
+> SHELL python3 -c "import h5py, numpy" || touch TEST_H5PY
+> IF ( -FILE TEST_H5PY )
+>   EXIT 36
+> ENDIF
+
+>FILE check_shavitt_h5.py
+#
+# Structure and consistency check of the SHAVITT group of rasscf.h5.
+#
+# Usage: python3 check_shavitt_h5.py expect=CAS|RAS|GAS|none [tool=<dir>] [dir=<path>]
+#   expect  the CI type of the run (none: no active orbitals, no SHAVITT group)
+#   tool    the directory of Tools/Shavitt; if it holds shavittlib, the graph is
+#           rebuilt with it and DENSITY_MATRIX is recomputed from its loops
+#   dir     the directory holding the file (default: the current one)
+#
+# Exits 0 on success, 1 on any failure. A nonzero exit trips MOLCAS_TRAP and is
+# reported by the verify script as a test failure.
+#
+import glob
+import os
+import sys
+
+import h5py
+import numpy as np
+
+failures = []
+
+
+def fail(tag, msg):
+    failures.append('%s: %s' % (tag, msg))
+
+
+def finish():
+    if failures:
+        sys.stderr.write('\nSHAVITT group check FAILED\n')
+        for item in failures:
+            sys.stderr.write('  %s\n' % item)
+        sys.exit(1)
+
+
+def fatal(tag, msg):
+    fail(tag, msg)
+    finish()
+
+
+def text(value):
+    if isinstance(value, (bytes, np.bytes_)):
+        value = value.decode('ascii')
+    return str(value)
+
+
+args = dict(a.split('=', 1) for a in sys.argv[1:])
+expect = args.get('expect', '')
+if expect not in ('CAS', 'RAS', 'GAS', 'none'):
+    fatal('A0', 'expect=CAS|RAS|GAS|none is required')
+found = sorted(glob.glob(os.path.join(args.get('dir', '.'), '*.rasscf.h5')))
+if len(found) != 1:
+    fatal('A1', 'expected exactly one rasscf.h5 file, found %s' % found)
+fn = found[0]
+
+with h5py.File(fn, 'r') as f:
+    # A: presence
+    if expect == 'none':
+        if 'SHAVITT' in f:
+            fatal('A2', 'a SHAVITT group was written for a run without active orbitals')
+        print('SHAVITT group check passed (no group without active orbitals)')
+        sys.exit(0)
+    if 'SHAVITT' not in f:
+        fatal('A2', 'no SHAVITT group')
+    g = f['SHAVITT']
+    ci_type = text(f.attrs['CI_TYPE']).strip()
+    if ci_type != expect:
+        fail('A3', 'CI_TYPE is %s, expected %s' % (ci_type, expect))
+
+    # B: names, types, shapes and descriptions
+    attrs = {'DESCRIPTION', 'MIDLEVEL', 'NUM_VERTICES'}
+    dsets = {'LEVEL_IRREPS', 'PARTITION_ORBITALS', 'PARTITION_MIN_ELECTRONS', 'PARTITION_MAX_ELECTRONS',
+             'CSFS_PER_IRREP'}
+    if set(g.attrs) != attrs:
+        fail('B1', 'attributes %s, expected %s' % (sorted(g.attrs), sorted(attrs)))
+    if set(g) != dsets:
+        fatal('B2', 'datasets %s, expected %s' % (sorted(g), sorted(dsets)))
+    if not text(g.attrs.get('DESCRIPTION', '')).strip():
+        fail('B3', 'the group has no DESCRIPTION')
+    for name in sorted(dsets):
+        if g[name].dtype.kind not in 'iu':
+            fail('B4', '%s has type %s, expected integers' % (name, g[name].dtype))
+        if not text(g[name].attrs.get('DESCRIPTION', '')).strip():
+            fail('B5', '%s has no DESCRIPTION' % name)
+    nsym = int(f.attrs['NSYM'])
+    nactel = int(f.attrs['NACTEL'])
+    ispin = int(f.attrs['SPINMULT'])
+    lsym = int(f.attrs['LSYM'])
+    level_irreps = np.asarray(g['LEVEL_IRREPS'][()], dtype=int)
+    orbs = np.asarray(g['PARTITION_ORBITALS'][()], dtype=int)  # [partition][irrep] as seen by h5py
+    minel = np.atleast_1d(np.asarray(g['PARTITION_MIN_ELECTRONS'][()], dtype=int))
+    maxel = np.atleast_1d(np.asarray(g['PARTITION_MAX_ELECTRONS'][()], dtype=int))
+    csfs = np.atleast_1d(np.asarray(g['CSFS_PER_IRREP'][()], dtype=int))
+    nlev = len(level_irreps)
+    npart = orbs.shape[0] if orbs.ndim == 2 else 0
+    if orbs.ndim != 2 or orbs.shape[1] != nsym:
+        fatal('B6', 'PARTITION_ORBITALS has shape %s, expected (partitions, %d)' % (orbs.shape, nsym))
+    if minel.shape != (npart,) or maxel.shape != (npart,):
+        fail('B7', 'electron bounds of shapes %s, %s for %d partitions' % (minel.shape, maxel.shape, npart))
+    if csfs.shape != (nsym,):
+        fail('B8', 'CSFS_PER_IRREP has shape %s, expected (%d,)' % (csfs.shape, nsym))
+    finish()
+
+    # C: consistency with the rest of the file
+    if expect == 'CAS' and npart != 1:
+        fail('C1', 'a CAS with %d partitions' % npart)
+    if expect != 'CAS' and npart < 2:
+        fail('C1', 'a %s with %d partition(s)' % (expect, npart))
+    if nlev < 1 or orbs.sum() != nlev:
+        fail('C2', '%d levels but %d orbitals in the partitions' % (nlev, orbs.sum()))
+    types = [text(t).strip() for t in f['MO_TYPEINDICES'][()]]
+    nact = sum(t in ('1', '2', '3') for t in types)
+    if nact != nlev:
+        fail('C3', '%d levels but %d active orbitals in MO_TYPEINDICES' % (nlev, nact))
+    # levels partition by partition, irrep by irrep; active orbitals irrep by irrep, partition by partition
+    seq = [s + 1 for p in range(npart) for s in range(nsym) for _ in range(orbs[p, s])]
+    if level_irreps.tolist() != seq:
+        fail('C4', 'LEVEL_IRREPS %s, expected %s' % (level_irreps.tolist(), seq))
+    act, n = {}, 0
+    for s in range(nsym):
+        for p in range(npart):
+            for k in range(orbs[p, s]):
+                n += 1
+                act[(p, s, k)] = n
+    l2act = [act[(p, s, k)] for p in range(npart) for s in range(nsym) for k in range(orbs[p, s])]
+    if np.asarray(f.attrs['L2ACT'][:nlev]).tolist() != l2act:
+        fail('C5', 'L2ACT %s, expected %s' % (np.asarray(f.attrs['L2ACT'][:nlev]).tolist(), l2act))
+    if minel[-1] != nactel or np.any(np.diff(minel) < 0):
+        fail('C6', 'PARTITION_MIN_ELECTRONS %s for %d electrons' % (minel.tolist(), nactel))
+    if np.any((maxel >= 0) & (maxel < minel)) or (maxel[-1] >= 0 and maxel[-1] != nactel):
+        fail('C7', 'PARTITION_MAX_ELECTRONS %s' % maxel.tolist())
+    if expect == 'GAS' and not np.any(maxel >= 0):
+        fail('C7', 'a GAS run without upper bounds')
+    midlev = int(g.attrs['MIDLEVEL'])
+    if not 1 <= midlev <= max(1, nlev - 1):
+        fail('C8', 'MIDLEVEL %d for %d levels' % (midlev, nlev))
+    nconf = int(f.attrs['NCONF'])
+    ci = np.atleast_2d(np.asarray(f['CI_VECTORS'][()]))
+    if csfs[lsym - 1] != nconf or ci.shape[1] != nconf:
+        fail('C9', 'CSFS_PER_IRREP[LSYM] = %d, NCONF = %d, CI_VECTORS of length %d'
+             % (csfs[lsym - 1], nconf, ci.shape[1]))
+    finish()
+
+    # D: independent count of the vertices and walks of the graph under the electron bounds
+    b0 = ispin - 1
+    a0 = (nactel - b0) // 2
+    if 2 * a0 + b0 != nactel or nlev - a0 - b0 < 0:
+        fatal('D1', 'no graph for %d electrons, %d levels, 2S+1 = %d' % (nactel, nlev, ispin))
+    lo = np.zeros(nlev + 1, dtype=int)
+    hi = np.full(nlev + 1, nactel, dtype=int)
+    L = 0
+    for p in range(npart):
+        L += orbs[p].sum()
+        lo[L] = minel[p]
+        if maxel[p] >= 0:
+            hi[L] = maxel[p]
+    # vertices (a, b) by level, from the head; N = 2a + b electrons below the vertex
+    steps = ((0, 0), (0, 1), (1, -1), (1, 0))  # decrease of (a, b) for the steps d = 0..3
+    levels = {nlev: {(a0, b0)}}
+    for L in range(nlev, 0, -1):
+        nxt = set()
+        for a, b in levels[L]:
+            for d, (da, db) in enumerate(steps):
+                t = (a - da, b - db)
+                if min(t) >= 0 and L - 1 - t[0] - t[1] >= 0 and lo[L - 1] <= 2 * t[0] + t[1] <= hi[L - 1]:
+                    nxt.add(t)
+        levels[L - 1] = nxt
+    # walk counts by irrep from the tail up, and back down from the head: keep the vertices on walks
+    below = {(0, 0, 0): np.eye(1, nsym, 0, dtype=np.int64)[0]} if (0, 0) in levels[0] else {}
+    for L in range(1, nlev + 1):
+        sym = level_irreps[L - 1] - 1
+        for a, b in levels[L]:
+            w = np.zeros(nsym, dtype=np.int64)
+            for d, (da, db) in enumerate(steps):
+                c = below.get((L - 1, a - da, b - db))
+                if c is not None:
+                    w += c[[s ^ sym for s in range(nsym)]] if d in (1, 2) else c
+            if w.any():
+                below[(L, a, b)] = w
+    above = {(nlev, a0, b0)} if (nlev, a0, b0) in below else set()
+    for L in range(nlev, 0, -1):
+        for a, b in [(a, b) for (l, a, b) in above if l == L]:
+            for da, db in steps:
+                if (L - 1, a - da, b - db) in below:
+                    above.add((L - 1, a - da, b - db))
+    nvert = len(above)
+    count = below.get((nlev, a0, b0), np.zeros(nsym, dtype=np.int64))
+    if nvert != int(g.attrs['NUM_VERTICES']):
+        fail('D2', 'NUM_VERTICES = %d, counted %d' % (int(g.attrs['NUM_VERTICES']), nvert))
+    if count.tolist() != csfs.tolist():
+        fail('D3', 'CSFS_PER_IRREP = %s, counted %s' % (csfs.tolist(), count.tolist()))
+    finish()
+
+    dm = np.asarray(f['DENSITY_MATRIX'][()]) if 'DENSITY_MATRIX' in f else None
+    a2lev = np.asarray(f.attrs['A2LEV'][:nlev], dtype=int) - 1
+
+# E: with Tools/Shavitt: the rebuilt graph and the density matrix from its loops
+tool = args.get('tool', '')
+if tool and os.path.isfile(os.path.join(tool, 'shavittlib', 'build.py')):
+    sys.path.insert(0, tool)
+    from shavittlib.graph import ShavittGraph
+    from shavittlib.loops import density_matrix
+    try:
+        sg = ShavittGraph.from_h5(fn)
+    except ValueError as e:
+        fatal('E1', str(e))
+    if sg.ci_type != expect or sg.nvert != nvert or sg.ncsf.tolist() != csfs.tolist():
+        fail('E2', 'Shavitt: %s graph with %d vertices, CSFs %s' % (sg.ci_type, sg.nvert, sg.ncsf.tolist()))
+    for root in range(ci.shape[0]):
+        if dm is None:
+            fail('E3', 'no DENSITY_MATRIX')
+            break
+        err = np.abs(density_matrix(sg, root)[np.ix_(a2lev, a2lev)] - dm[root]).max()
+        if err > 1.0e-8:
+            fail('E3', 'root %d: density matrix from the loops differs from DENSITY_MATRIX by %.2e'
+                 % (root + 1, err))
+    finish()
+    print('SHAVITT group check passed (%s, %d levels, %d vertices, CSFs %s; checked with Tools/Shavitt)'
+          % (expect, nlev, nvert, csfs.tolist()))
+else:
+    finish()
+    print('SHAVITT group check passed (%s, %d levels, %d vertices, CSFs %s; Tools/Shavitt not installed)'
+          % (expect, nlev, nvert, csfs.tolist()))
+sys.exit(0)
+>EOF
+
+ &GATEWAY
+Title = H2O, STO-3G
+Coord = 3
+
+O   0.000000  0.000000  0.117300
+H   0.000000  0.757200 -0.469200
+H   0.000000 -0.757200 -0.469200
+Basis = STO-3G
+Group = X Y
+NoCD
+
+ &SEWARD
+
+ &SCF
+
+* CAS(8,6), singlet A1, one partition
+ &RASSCF
+Spin = 1
+Symmetry = 1
+nActEl = 8 0 0
+Inactive = 1 0 0 0
+Ras2 = 3 1 2 0
+
+> SHELL python3 check_shavitt_h5.py expect=CAS tool=$MOLCAS/Tools/Shavitt
+
+* RAS triplet B1: at most 2 holes in RAS1, at most 2 electrons in RAS3 (CI only)
+ &RASSCF
+Spin = 3
+Symmetry = 2
+nActEl = 8 2 2
+Inactive = 1 0 0 0
+Ras1 = 1 0 1 0
+Ras2 = 1 1 0 0
+Ras3 = 1 0 1 0
+CIOnly
+
+> SHELL python3 check_shavitt_h5.py expect=RAS tool=$MOLCAS/Tools/Shavitt
+
+* GAS singlet A1: 2 or 3 electrons in GAS1, 5 to 7 in GAS1+GAS2 (CI only)
+ &RASSCF
+Spin = 1
+Symmetry = 1
+nActEl = 8
+Inactive = 1 0 0 0
+GASScf
+3
+1 0 1 0
+2 3
+1 1 0 0
+5 7
+1 0 1 0
+8 8
+CIOnly
+
+> SHELL python3 check_shavitt_h5.py expect=GAS tool=$MOLCAS/Tools/Shavitt
+
+* No active orbitals: no SHAVITT group
+ &RASSCF
+Spin = 1
+Symmetry = 1
+nActEl = 0 0 0
+Inactive = 3 1 1 0
+Ras2 = 0 0 0 0
+
+> SHELL python3 check_shavitt_h5.py expect=none
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 26.06-1362-g143b7472d
+* Linux lucia 7.0.0-43-generic #43~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Sat Oct 31 06:52:47 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+* Wed Nov 18 16:14:02 2026
+*
+#>>   1
+#> POTNUC="9.189533756405"/12
+#>>   2
+#> POTNUC="9.189533756405"/12
+#> SEWARD_MLTPL1X="0.050791928312"/5
+#> SEWARD_KINETIC="29.003204064678"/5
+#> SEWARD_ATTRACT="-61.723472120299"/5
+#>>   3
+#> SCF_ITER="7"/8
+#> E_SCF="-74.963023162913"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.678787301921"/5
+#> MLTPL__2[0]="-0.972544890509"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.963822415986"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.008722474523"/5
+#>>   4
+#> RASSCF_ITER="4"/8
+#> E_RASSCF="-75.012529605873"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.635768975233"/5
+#> MLTPL__2[0]="-0.907024418131"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.892033469996"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.014990948135"/5
+#>>   5
+#> E_RASSCF="-74.592846472151"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.021811495748"/5
+#> MLTPL__2[0]="0.653617469468"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.271653814315"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-0.381963655154"/5
+#>>   6
+#> E_RASSCF="-73.966933424562"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.383626885987"/5
+#> MLTPL__2[0]="-0.424129400416"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.698854834850"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-0.274725434435"/5
+#>>   7
+#> RASSCF_ITER="7"/8
+#> E_RASSCF="-74.963023162959"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.678787114229"/5
+#> MLTPL__2[0]="-0.972544684194"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.963822190831"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.008722493363"/5
+>>EOF
