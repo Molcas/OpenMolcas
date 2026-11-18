@@ -1916,15 +1916,21 @@ if (DO_FAROALD) then
     Faro_L2O(iLev) = nOff(OrbSym(iLev))
   end do
   call mma_deallocate(nOff)
-  ! the tables of the full determinant space: for CAS; with RAS/GAS only
-  ! as the reference of MOLCAS_CI_VERIFY=SIGMA, for small CAS spaces
-  Full = (nPrt == 1)
-  if ((.not. Full) .and. CI_Verify('SIGMA')) &
-    Full = real(binom_coef((NACTEL+ISPIN-1)/2,nAct),kind=wp)*real(binom_coef((NACTEL-ISPIN+1)/2,nAct),kind=wp) <= 1.0e6_wp
+  ! the tables of the full (C1) determinant space: only as the reference of
+  ! MOLCAS_CI_VERIFY=SIGMA (Faroald_Sigma compares the string-driven sigma
+  ! with it), for CAS always, for RAS/GAS for small CAS spaces
+  Full = .false.
+  if (CI_Verify('SIGMA')) then
+    Full = (nPrt == 1)
+    if (.not. Full) &
+      Full = real(binom_coef((NACTEL+ISPIN-1)/2,nAct),kind=wp)*real(binom_coef((NACTEL-ISPIN+1)/2,nAct),kind=wp) <= 1.0e6_wp
+  end if
   call FAROALD_INIT(NACTEL,nAct,ISPIN,Full)
   call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym,nPrt,OrbRas,Space_CI%MinEl(1:nPrt),Space_CI%MaxEl(1:nPrt))
-  ! RAS/GAS: the sigma vector in the string classes (faroald_ras)
-  if (nPrt > 1) then
+  ! CAS, RAS and GAS: the string-driven CI (faroald_ras): only the
+  ! determinant blocks of the CI symmetry, and for singlets the spin-flip
+  ! symmetry C(Ib,Ia) = C(Ia,Ib) (CAS is one partition)
+  if ((nPrt >= 1) .and. (nAct > 0)) then
     call mma_allocate(nOrbP,nPrt,Label='nOrbP')
     do k=1,nPrt
       nOrbP(k) = count(OrbRas(1:nAct) == k)
@@ -1932,8 +1938,9 @@ if (DO_FAROALD) then
     call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP,Space_CI%MinEl(1:nPrt),Space_CI%MaxEl(1:nPrt),nSym,OrbSym(1:nAct),STSym, &
                           ISPIN == 1)
     call mma_deallocate(nOrbP)
-    write(u6,'(1X,A,I0,A,I0,A)') 'Faroald: string-driven RAS/GAS, ',nPrt,' partitions, ',n_ras, &
+    write(u6,'(1X,A,I0,A,I0,A)') 'Faroald: string-driven CI, ',nPrt,' partition(s), ',n_ras, &
                                  ' determinants of the CI symmetry'
+    if (ISPIN == 1) write(u6,'(1X,A)') 'Faroald: singlet, spin-flip symmetry C(Ib,Ia) = C(Ia,Ib) used'
   end if
   call mma_deallocate(OrbSym)
   call mma_deallocate(OrbRas)
