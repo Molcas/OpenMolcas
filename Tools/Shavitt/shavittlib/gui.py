@@ -276,7 +276,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
         f.addRow('Partner', self.mv2_combo)
         self.pick_check = QtWidgets.QCheckBox('Pick midvertices with the mouse')
         self.pick_check.setToolTip('Click a midvertex to select it; click a partner of it for the crossing loops;\n'
-                                   'click the selected midvertex again to clear')
+                                   'click the selected midvertex again to clear (on this tab only)')
+        self.pick_check.setChecked(True)
         f.addRow(self.pick_check)
         h = QtWidgets.QHBoxLayout()
         self.head_combo = QtWidgets.QComboBox()
@@ -299,7 +300,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
             c.toggled.connect(self.recompute_loops)
             h.addWidget(c)
         f.addRow('Show', h)
-        self.loop_info = QtWidgets.QLabel('select a midvertex')
+        self.loop_info = QtWidgets.QLabel('click a midvertex in the graph (or choose one above)')
         self.loop_info.setWordWrap(True)
         f.addRow(self.loop_info)
         self.loop_list = QtWidgets.QListWidget()
@@ -770,7 +771,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
         if self.segments_mode():
             self.seg_spin.setValue(0 if v is None else v + 1)  # sets the segment vertex
             return
-        if self.pick_check.isChecked() and v is not None and v in self.g.midvertices():
+        if (self.loops_mode() and self.pick_check.isChecked() and v is not None
+                and v in self.g.midvertices()):
             self.pick_midvertex(v)
             return
         self.select_vertex(v)
@@ -904,7 +906,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
         limit = 2000
         mv1 = self.mv1_combo.currentData() if g is not None else None
         if mv1 is None:
-            self.loop_info.setText('select a midvertex')
+            self.loop_info.setText('click a midvertex in the graph (or choose one above)')
         else:
             mv2 = self.mv2_combo.currentData()
             head, tail = self.head_combo.currentData(), self.tail_combo.currentData()

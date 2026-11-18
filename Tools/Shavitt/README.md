@@ -45,8 +45,9 @@ Pegamoid 2.13 with NumPy 2 (2.9 uses `np.math`, which NumPy 2 no longer has).
   are darkened.
 * **Loops** (tab): while this tab is shown the CSF walks are hidden (they
   return on the other tabs). The loops of the one-body coupling coefficients
-  <L|E_ij|R> in the split graph. Choose a midvertex (or click one with *Pick
-  midvertices with the mouse*):
+  <L|E_ij|R> in the split graph. Click a midvertex in the graph (*Pick
+  midvertices with the mouse*, on by default; click a partner of it for the
+  crossing loops, the selected one again to clear) or choose it in the list:
   * one midvertex: its **upper loops** (both walks between the graph head and
     the midvertex, levels i > midlevel) and **lower loops** (between the
     midvertex and the tail, j <= midlevel);
