@@ -24,6 +24,13 @@ examples:
   shavitt.py h2o.rasscf.h5 -r 2 -t 0.1 -n 8 -o g.png --numbers --midvertices
   shavitt.py h2o.rasscf.h5 --csf 18 27 -o g.pdf    # highlight given CSFs
   shavitt.py h2o.rasscf.h5 --walk 2ud2ud0 -o g.pdf # highlight a step vector
+
+a graph from scratch (no file; orbitals per irrep, D2h subgroups):
+  shavitt.py --electrons 8 --cas 3 1 2 1           # CAS(8,7), 4 irreps, singlet A1
+  shavitt.py --electrons 8 --spin 3 --irrep 2 --ras1 1 0 1 0 --ras2 1 1 0 1 \
+             --ras3 2 0 1 1 --holes 2 --particles 2 --text
+  shavitt.py --electrons 6 --gas 2:2:4 --gas 2:4:6 --gas 2:6:6 -o gas.pdf
+             # GAS: ORBITALS:MIN:MAX per space, the electrons of the spaces 1..k together
 """
 
 import argparse
@@ -43,6 +50,43 @@ def options(a):
                        selected_vertex=None if a.vertex is None else a.vertex - 1)
 
 
+def graph_from_args(a):
+    """The graph defined on the command line (--cas, --ras1..3 or --gas)."""
+    if a.electrons is None:
+        raise ValueError('--electrons is needed for a graph from scratch')
+    n = a.electrons
+    if a.gas:
+        if a.cas or a.ras1 or a.ras2 or a.ras3:
+            raise ValueError('give either --gas, --ras1..3 or --cas')
+        nras, minel, maxel = [], [], []
+        for t in a.gas:
+            try:
+                orbs, lo, hi = t.split(':')
+                nras.append([int(x) for x in orbs.replace(',', ' ').split()])
+                minel.append(int(lo))
+                maxel.append(int(hi))
+            except ValueError:
+                raise ValueError(f'--gas {t}: expected ORBITALS:MIN:MAX, e.g. 2,0,1,0:2:4') from None
+        if maxel[-1] != n or minel[-1] != n:
+            raise ValueError(f'--gas: the last space must hold all {n} electrons together (MIN = MAX = {n})')
+    elif a.ras1 or a.ras2 or a.ras3:
+        if a.cas:
+            raise ValueError('give either --ras1..3 or --cas')
+        width = max(len(x or []) for x in (a.ras1, a.ras2, a.ras3))
+        nras = [list(x or []) + [0] * (width - len(x or [])) for x in (a.ras1, a.ras2, a.ras3)]
+        # as RASSCF: at least 2*RAS1 - holes electrons in RAS1, at most particles in RAS3
+        minel, maxel = [2 * sum(nras[0]) - a.holes, n - a.particles, n], None
+    else:
+        nras, minel, maxel = [a.cas], None, None
+    lens = {len(r) for r in nras}
+    if len(lens) != 1 or lens.pop() not in (1, 2, 4, 8):
+        raise ValueError('give the orbitals of 1, 2, 4 or 8 irreps, the same number for every space')
+    nsym = len(nras[0])
+    if not 1 <= a.irrep <= nsym:
+        raise ValueError(f'--irrep must be 1..{nsym}')
+    return ShavittGraph.build(nsym, n, a.spin, a.irrep - 1, nras, minel, maxel, irrep_labels=a.irrep_labels)
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog='shavitt', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('h5', nargs='?', help='rasscf.h5 file')
@@ -56,6 +100,19 @@ def main(argv=None):
     p.add_argument('--dpi', type=int, default=300, help='resolution of bitmap output (default 300)')
     p.add_argument('--text', action='store_true', help='print the summary and the CSFs only')
     p.add_argument('--vertices', action='store_true', help='print the distinct-row table')
+    b_ = p.add_argument_group('graph from scratch (instead of a file)')
+    b_.add_argument('--electrons', type=int, metavar='N', help='number of active electrons')
+    b_.add_argument('--spin', type=int, default=1, metavar='2S+1', help='spin multiplicity (default 1)')
+    b_.add_argument('--irrep', type=int, default=1, metavar='I', help='target irrep, 1-based (default 1)')
+    b_.add_argument('--cas', type=int, nargs='+', metavar='N', help='CAS: active orbitals of each irrep')
+    for k in (1, 2, 3):
+        b_.add_argument(f'--ras{k}', type=int, nargs='+', metavar='N', help=f'RAS{k} orbitals of each irrep')
+    b_.add_argument('--holes', type=int, default=0, help='RAS: maximum holes in RAS1')
+    b_.add_argument('--particles', type=int, default=0, help='RAS: maximum electrons in RAS3')
+    b_.add_argument('--gas', action='append', metavar='ORBS:MIN:MAX',
+                    help='GAS space: orbitals of each irrep (comma separated), minimum and maximum number of '
+                         'electrons in the spaces 1..k together; repeat for each space')
+    b_.add_argument('--irrep-labels', nargs='+', metavar='LABEL', help='names of the irreps')
     g_ = p.add_argument_group('display')
     g_.add_argument('--numbers', action='store_true', help='number the vertices')
     g_.add_argument('--paldus', action='store_true', help='(a,b,c) at each vertex')
@@ -76,13 +133,23 @@ def main(argv=None):
     g_.add_argument('--vertex', type=int, metavar='V', help='select vertex V (1-based) and show its subgraph')
     a = p.parse_args(argv)
 
+    g = None
+    if a.cas or a.ras1 or a.ras2 or a.ras3 or a.gas:
+        if a.h5:
+            p.error('give either a rasscf.h5 file or the definition of a graph, not both')
+        try:
+            g = graph_from_args(a)
+        except ValueError as e:
+            p.error(str(e))
+
     if not (a.output or a.text or a.vertices):
         from shavittlib.gui import run
-        return run(a.h5, a.root, a.threshold, options(a))
+        return run(a.h5, a.root, a.threshold, options(a), graph=g)
 
-    if not a.h5:
-        p.error('a rasscf.h5 file is needed with -o, --text or --vertices')
-    g = ShavittGraph.from_h5(a.h5)
+    if g is None:
+        if not a.h5:
+            p.error('a rasscf.h5 file (or the definition of a graph) is needed with -o, --text or --vertices')
+        g = ShavittGraph.from_h5(a.h5)
     print(g.summary())
 
     if a.vertices:

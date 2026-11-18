@@ -93,7 +93,7 @@ class OrbitalPopup(QtWidgets.QFrame):
 
 class ShavittWindow(QtWidgets.QMainWindow):
 
-    def __init__(self, filename=None, root=1, threshold=0.05, opts=None):
+    def __init__(self, filename=None, root=1, threshold=0.05, opts=None, graph=None):
         super().__init__()
         self.setWindowTitle(f'Shavitt {__version__}')
         self.g = None
@@ -142,8 +142,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.statusBar().showMessage('Open a rasscf.h5 file (File > Open)')
         self.resize(1500, 900)
 
-        if filename:
-            self.load(filename)
+        if filename or graph is not None:
+            self.load(filename, graph)
 
     # ------------------------------------------------------------------ widgets
     def _build_menu(self):
@@ -467,26 +467,33 @@ class ShavittWindow(QtWidgets.QMainWindow):
         if fn:
             self.load(fn)
 
-    def load(self, filename):
-        try:
-            g = ShavittGraph.from_h5(filename)
-        except Exception as e:  # show any reading problem to the user
-            QtWidgets.QMessageBox.critical(self, 'Shavitt', f'Could not read {filename}:\n{e}')
-            return
+    def load(self, filename, graph=None):
+        """Show the graph of a rasscf.h5 file, or a graph built from scratch (filename None)."""
+        if graph is None:
+            try:
+                g = ShavittGraph.from_h5(filename)
+            except Exception as e:  # show any reading problem to the user
+                QtWidgets.QMessageBox.critical(self, 'Shavitt', f'Could not read {filename}:\n{e}')
+                return
+        else:
+            g = graph
         self.g = g
         self.filename = filename
         self.orb_popup.hide()
         self._orb_level = None
-        try:
-            self.orbs = ActiveOrbitals(filename, g)
-        except Exception:  # no MO data in the file
-            self.orbs = None
+        self.orbs = None
+        if filename is not None:
+            try:
+                self.orbs = ActiveOrbitals(filename, g)
+            except Exception:  # no MO data in the file
+                self.orbs = None
+        name = os.path.basename(filename) if filename else 'graph built from its definition (no wave function)'
         self.walks.clear()
         self.from_table.clear()
         self.opts.selected_vertex = None
         self._reset_view = True
-        self.setWindowTitle(f'Shavitt {__version__} - {os.path.basename(filename)}')
-        self.file_label.setText(os.path.basename(filename))
+        self.setWindowTitle(f'Shavitt {__version__} - {name}')
+        self.file_label.setText(name)
         self.info_label.setText(
             f'{g.ci_type} {g.nactel} electrons in {g.nlev} orbitals, 2S+1 = {g.ispin}, irrep {g.irrep_name(g.lsym)}\n'
             f'{g.nvert} vertices, {len(g.arcs())} arcs, midlevel {g.midlev} ({g.nmidv} midvertices), '
@@ -504,7 +511,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.set_segment_vertex(None)
         self.fill_table()
         self.select_top()
-        self.statusBar().showMessage(f'Read {filename}', 5000)
+        self.statusBar().showMessage(f'Read {filename}' if filename else 'Graph built from its definition', 5000)
 
     # ------------------------------------------------------------------ CSFs
     def fill_table(self):
@@ -1078,8 +1085,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
 
     def _title(self):
         g = self.g
-        return (f'{g.ci_type} {g.nactel}e/{g.nlev}o, 2S+1={g.ispin}, irrep {g.irrep_name(g.lsym)}, '
-                f'root {self.root_spin.value()}')
+        return (f'{g.ci_type} {g.nactel}e/{g.nlev}o, 2S+1={g.ispin}, irrep {g.irrep_name(g.lsym)}'
+                + (f', root {self.root_spin.value()}' if g.ci_vectors is not None else ''))
 
     LOOPS_TAB = 1
     SEGMENTS_TAB = 2
@@ -1221,8 +1228,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.statusBar().showMessage(f'Saved {fn}', 6000)
 
 
-def run(filename=None, root=1, threshold=0.05, opts=None):
+def run(filename=None, root=1, threshold=0.05, opts=None, graph=None):
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
-    win = ShavittWindow(filename, root, threshold, opts)
+    win = ShavittWindow(filename, root, threshold, opts, graph)
     win.show()
     return app.exec()

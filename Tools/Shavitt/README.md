@@ -3,9 +3,11 @@
 Draws the Shavitt graph (the split-GUGA distinct-row table) of a RASSCF/CASSCF
 wave function, with the walks of its leading CSFs.
 
-RASSCF writes the graph to the group `SHAVITT` of `$Project.rasscf.h5`
-(`src/rasscf/shavitt2h5.F90`); this tool reads that group and the
-`CI_VECTORS` of the same file.
+RASSCF writes the definition of the graph to the group `SHAVITT` of
+`$Project.rasscf.h5` (`src/rasscf/shavitt2h5.F90`); this tool rebuilds the
+graph and the CSF order from it as SGUGA does (`shavittlib/build.py`) and
+reads the `CI_VECTORS` of the same file. It can also build a graph from
+scratch, from the orbitals, electrons and RAS/GAS restrictions.
 
 ## Requirements
 
@@ -89,6 +91,20 @@ Pegamoid 2.13 with NumPy 2 (2.9 uses `np.math`, which NumPy 2 no longer has).
     shavitt.py h2o.rasscf.h5 --csf 18 27 -o g.pdf    # given CSFs (1-based)
     shavitt.py h2o.rasscf.h5 --walk 2ud2ud0 -o g.pdf # given step vectors
     shavitt.py h2o.rasscf.h5 --vertices              # the distinct-row table
+
+A graph from scratch, without a file (orbitals per irrep; the GUI opens on it
+unless `-o`/`--text`/`--vertices` is given):
+
+    shavitt.py --electrons 8 --cas 3 1 2 1           # CAS(8,7), C2v, singlet A1
+    shavitt.py --electrons 8 --spin 3 --irrep 2 --ras1 1 0 1 0 --ras2 1 1 0 1 \
+               --ras3 2 0 1 1 --holes 2 --particles 2 --text
+    shavitt.py --electrons 6 --gas 2:2:4 --gas 2:4:6 --gas 2:6:6 -o gas.pdf
+
+`--gas ORBITALS:MIN:MAX` gives a GAS space (orbitals of each irrep, comma
+separated) and the minimum and maximum number of electrons in the spaces
+1..k together, as in the RASSCF input; `--irrep-labels a1 b1 b2 a2` names the
+irreps. The levels are numbered as RASSCF numbers them (space by space, irrep
+by irrep), so the CSF numbers are those of a RASSCF run with the same space.
 
 Display flags (also the initial settings of the interface): `--numbers`,
 `--paldus`, `--midvertices`, `--no-midlevel`, `--steps`, `--orbitals`,
