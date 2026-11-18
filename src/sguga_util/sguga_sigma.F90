@@ -17,10 +17,16 @@
 !> full CI matrix, and the diagonal of a one-electron occupation operator.
 module SGUGA_Sigma
 
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-public :: sg_ci_full, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref, SG_Occ_Diag
+! work arrays of the routines below, kept between the calls (no new memory
+! pages in every call for large CI spaces); freed by SG_Sigma_Free
+real(kind=wp), allocatable, target :: Wrk_S1(:), Wrk_S2(:)
+
+public :: SG_Sigma_Free, sg_ci_full, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref, SG_Occ_Diag
 
 contains
 
@@ -52,7 +58,8 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
   integer(kind=iwp) :: nOrb, iOrb, jOrb, kOrb, ijSym, SigmaSym, mCSFs, nP, p, q, q0, nB, MaxMem
   integer(kind=iwp), allocatable :: PI(:), PJ(:)
   real(kind=wp) :: TwoInt
-  real(kind=wp), allocatable :: D(:,:), W(:,:), G(:,:)
+  real(kind=wp), allocatable :: G(:,:)
+  real(kind=wp), pointer :: D(:,:), W(:,:)
   logical(kind=iwp), save :: Warned = .false.
 
   Sigma(:) = Zero
@@ -74,6 +81,7 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
     mCSFs = CIS%nCSF(SigmaSym)
     if ((nP == 0) .or. (mCSFs == 0)) cycle
     call mma_maxDBLE(MaxMem)
+    MaxMem = MaxMem+Wrk_Held(1)
     if (real(mCSFs,kind=wp)*real(nP+1,kind=wp)+real(nP,kind=wp)**2 > 0.8_wp*real(MaxMem,kind=wp)) then
       if (.not. Warned) write(u6,'(1X,A,I0,A,I0,A,ES10.3,A,ES10.3,A)') 'sg_h_psi: the block of ',nP,' pairs x ',mCSFs, &
         ' CSFs does not fit (',real(mCSFs,kind=wp)*real(nP+1,kind=wp),' words needed, ',real(MaxMem,kind=wp), &
@@ -83,7 +91,8 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
       cycle
     end if
     ! D(:,p) = S_p|Psi>, and the one-electron part (totally symmetric pairs)
-    call mma_allocate(D,mCSFs,nP,Label='D_HPsi')
+    call Get_Wrk(Wrk_S1,mCSFs*nP,'SG_Wrk_S1')
+    D(1:mCSFs,1:nP) => Wrk_S1(1:mCSFs*nP)
     D(:,:) = Zero
     do p=1,nP
       call SG_Epq_Psi(SGS,CIS,EXS,PI(p),PJ(p),One,PsiSym,Psi,D(:,p))
@@ -105,8 +114,11 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
     end do
     ! W = D G in batches of columns, then H|Psi> += S_q W(:,q)
     call mma_maxDBLE(MaxMem)
+    ! (D is in use: only the W buffer can be reused)
+    MaxMem = MaxMem+Wrk_Held(2)
     nB = int(min(real(nP,kind=wp),max(One,0.8_wp*real(MaxMem,kind=wp)/real(mCSFs,kind=wp))),kind=iwp)
-    call mma_allocate(W,mCSFs,nB,Label='W_HPsi')
+    call Get_Wrk(Wrk_S2,mCSFs*nB,'SG_Wrk_S2')
+    W(1:mCSFs,1:nB) => Wrk_S2(1:mCSFs*nB)
     do q0=1,nP,nB
       nB = min(nB,nP-q0+1)
       call DGEMM_('N','T',mCSFs,nB,nP,One,D,mCSFs,G(q0,1),nP,Zero,W,mCSFs)
@@ -115,9 +127,9 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
         if (PI(q) /= PJ(q)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(q),PI(q),One,SigmaSym,W(:,q-q0+1),Sigma)
       end do
     end do
-    call mma_deallocate(W)
+    nullify(W)
     call mma_deallocate(G)
-    call mma_deallocate(D)
+    nullify(D)
   end do
   call mma_deallocate(PJ)
   call mma_deallocate(PI)
@@ -199,7 +211,8 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
                        MaxMem, MaxNeed
   real(kind=wp) :: Fact, OneInt
   integer(kind=iwp), allocatable :: L2Orb(:), PI(:), PJ(:)
-  real(kind=wp), allocatable :: D(:,:), W(:,:), G(:,:)
+  real(kind=wp), allocatable :: G(:,:)
+  real(kind=wp), pointer :: D(:,:), W(:,:)
   logical(kind=iwp), allocatable :: Used(:)
 
   nLev = SGS%nLev
@@ -215,6 +228,7 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
     MaxNeed = max(MaxNeed,(CIS%nCSF(MUL(PsiSym,ijSym))+1)*nP+nP**2)
   end do
   call mma_maxDBLE(MaxMem)
+  MaxMem = MaxMem+Wrk_Held(1)
   if (real(MaxNeed,kind=wp) > 0.8_wp*real(MaxMem,kind=wp)) then
     call sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
     return
@@ -241,7 +255,8 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
     mCSFs = CIS%nCSF(SigmaSym)
     if ((nP == 0) .or. (mCSFs == 0)) cycle
     ! D(:,p) = E_ij|Psi> (restricted to the CSF space), and the one-electron part h'_ij E_ij
-    call mma_allocate(D,mCSFs,nP,Label='D_HPsi')
+    call Get_Wrk(Wrk_S1,mCSFs*nP,'SG_Wrk_S1')
+    D(1:mCSFs,1:nP) => Wrk_S1(1:mCSFs*nP)
     D(:,:) = Zero
     do ip=1,nP
       iLev = PI(ip)
@@ -283,8 +298,11 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
     end do
     ! W = D G^T in batches of columns, then H|Psi> += E_kl W(:,kl)
     call mma_maxDBLE(MaxMem)
+    ! (D is in use: only the W buffer can be reused)
+    MaxMem = MaxMem+Wrk_Held(2)
     nB = int(min(real(nP,kind=wp),max(One,0.8_wp*real(MaxMem,kind=wp)/real(mCSFs,kind=wp))),kind=iwp)
-    call mma_allocate(W,mCSFs,nB,Label='W_HPsi')
+    call Get_Wrk(Wrk_S2,mCSFs*nB,'SG_Wrk_S2')
+    W(1:mCSFs,1:nB) => Wrk_S2(1:mCSFs*nB)
     do q0=1,nP,nB
       nB = min(nB,nP-q0+1)
       call DGEMM_('N','T',mCSFs,nB,nP,One,D,mCSFs,G(q0,1),nP,Zero,W,mCSFs)
@@ -292,10 +310,10 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
         if (Used(iq)) call SG_Epq_Psi(SGS,CIS,EXS,PI(iq),PJ(iq),One,SigmaSym,W(:,iq-q0+1),Sigma)
       end do
     end do
-    call mma_deallocate(W)
+    nullify(W)
     call mma_deallocate(Used)
     call mma_deallocate(G)
-    call mma_deallocate(D)
+    nullify(D)
   end do
   call mma_deallocate(PJ)
   call mma_deallocate(PI)
@@ -845,5 +863,39 @@ subroutine SG_Occ_Diag(iState,ISYCI,ETA,DIAG,nDiag)
     end subroutine Block_Diag
 
 end subroutine SG_Occ_Diag
+
+
+!> Free the work arrays kept between the calls.
+subroutine SG_Sigma_Free()
+  use stdalloc, only: mma_deallocate
+  call mma_deallocate(Wrk_S1,safe='*')
+  call mma_deallocate(Wrk_S2,safe='*')
+end subroutine SG_Sigma_Free
+
+!> Wrk has at least n elements (grown if needed, contents not kept).
+subroutine Get_Wrk(Wrk,n,Label)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  real(kind=wp), allocatable, intent(inout) :: Wrk(:)
+  integer(kind=iwp), intent(in) :: n
+  character(len=*), intent(in) :: Label
+  if (allocated(Wrk)) then
+    if (size(Wrk) >= n) return
+    call mma_deallocate(Wrk)
+  end if
+  call mma_allocate(Wrk,max(1,n),Label=Label)
+end subroutine Get_Wrk
+
+!> The memory held by work array i (in words); the D blocks of the sigma
+!> routines use Wrk_S1, W uses Wrk_S2 (W is sized while D is in use).
+function Wrk_Held(i) result(n)
+  integer(kind=iwp), intent(in) :: i
+  integer(kind=iwp) :: n
+  n = 0
+  if (i == 1) then
+    if (allocated(Wrk_S1)) n = size(Wrk_S1)
+  else
+    if (allocated(Wrk_S2)) n = size(Wrk_S2)
+  end if
+end function Wrk_Held
 
 end module SGUGA_Sigma

@@ -27,8 +27,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
-use SGUGA_Densities, only: sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
+use SGUGA_Sigma, only: SG_Sigma_Free, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
+use SGUGA_Densities, only: SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
 use CI_Input, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
 use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
@@ -1976,6 +1976,8 @@ if (CI_St(iState)%iRel > 0) then
 end if
 call SG_Rel_Free()
 Call SG_free(iState)
+call SG_Sigma_Free()
+call SG_Densities_Free()
 call SG_Free_Cnf_List(Cnf_SG)
 call mma_deallocate(HEXS_Keep,safe='*')
 call mma_deallocate(HEXS_Keep_SG,safe='*')

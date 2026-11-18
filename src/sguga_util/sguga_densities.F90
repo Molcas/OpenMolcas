@@ -15,10 +15,16 @@
 !> two-particle, spin and transition densities).
 module SGUGA_Densities
 
+use Definitions, only: wp, iwp
+
 implicit none
 private
 
-public :: sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
+! work arrays of the routines below, kept between the calls (no new memory
+! pages in every call for large CI spaces); freed by SG_Densities_Free
+real(kind=wp), allocatable, target :: Wrk_D1(:), Wrk_D2(:)
+
+public :: SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
 
 contains
 
@@ -90,15 +96,18 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
   real(kind=wp), intent(out) :: SDMAT(lD1MAT)
   integer(kind=iwp) :: nL, p, q, r, MaxDim, iSymA
   real(kind=wp) :: S, X, Fact
-  real(kind=wp), allocatable :: A(:,:), B(:,:), G(:)
+  real(kind=wp), allocatable :: G(:)
+  real(kind=wp), pointer :: A(:,:), B(:,:)
 
   SDMAT(:) = Zero
   if (SGS%iSpin == 1) return
   nL = SGS%nLev
   S = Half*real(SGS%iSpin-1,kind=wp)
   MaxDim = maxval(CIS%nCSF(:))
-  call mma_allocate(A,MaxDim,nL,Label='SD_A')
-  call mma_allocate(B,MaxDim,nL,Label='SD_B')
+  call Get_Wrk(Wrk_D1,MaxDim*nL,'SG_Wrk_D1')
+  call Get_Wrk(Wrk_D2,MaxDim*nL,'SG_Wrk_D2')
+  A(1:MaxDim,1:nL) => Wrk_D1(1:MaxDim*nL)
+  B(1:MaxDim,1:nL) => Wrk_D2(1:MaxDim*nL)
   ! G = Sum_r <E_pr E_rq>, triangular
   call mma_allocate(G,lD1MAT,Label='SD_G')
   G(:) = Zero
@@ -134,8 +143,8 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
     end do
   end do
   call mma_deallocate(G)
-  call mma_deallocate(B)
-  call mma_deallocate(A)
+  nullify(B)
+  nullify(A)
 
 end subroutine sg_spin_pdm
 
@@ -257,7 +266,8 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
                        MaxMem, MaxNeed
   integer(kind=iwp), allocatable :: PI(:), PJ(:), Loc(:,:)
   real(kind=wp) :: D_ij, P_klij
-  real(kind=wp), allocatable :: A(:,:), B(:,:), AA(:,:), AB(:,:), BA(:,:), BB(:,:)
+  real(kind=wp), allocatable :: AA(:,:), AB(:,:), BA(:,:), BB(:,:)
+  real(kind=wp), pointer :: A(:,:), B(:,:)
 
   nL = SGS%nLev
   ! memory: the vectors of the largest block
@@ -272,6 +282,7 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
     MaxNeed = max(MaxNeed,2*CIS%nCSF(Mul(PsiSym,ijSym))*nPr+4*nPr**2)
   end do
   call mma_maxDBLE(MaxMem)
+  MaxMem = MaxMem+Wrk_Held()
   if (real(MaxNeed,kind=wp) > 0.8_wp*real(MaxMem,kind=wp)) then
     call sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
     return
@@ -297,8 +308,10 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
     mCSFs = CIS%nCSF(Mul(PsiSym,ijSym))
     if ((nPr == 0) .or. (mCSFs == 0)) cycle
     ! A(:,p) = E_ij|Psi>, B(:,p) = E_ji|Psi> (zero for i = j)
-    call mma_allocate(A,mCSFs,nPr,Label='A_2PDM')
-    call mma_allocate(B,mCSFs,nPr,Label='B_2PDM')
+    call Get_Wrk(Wrk_D1,mCSFs*nPr,'SG_Wrk_D1')
+    call Get_Wrk(Wrk_D2,mCSFs*nPr,'SG_Wrk_D2')
+    A(1:mCSFs,1:nPr) => Wrk_D1(1:mCSFs*nPr)
+    B(1:mCSFs,1:nPr) => Wrk_D2(1:mCSFs*nPr)
     A(:,:) = Zero
     B(:,:) = Zero
     do ip=1,nPr
@@ -361,8 +374,8 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
     call mma_deallocate(BA)
     call mma_deallocate(AB)
     call mma_deallocate(AA)
-    call mma_deallocate(B)
-    call mma_deallocate(A)
+    nullify(B)
+    nullify(A)
   end do
   call mma_deallocate(Loc)
   call mma_deallocate(PJ)
@@ -504,5 +517,34 @@ subroutine sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
   PA = Half*PA
 
 end subroutine sg_two_pdm_direct
+
+
+!> Free the work arrays kept between the calls.
+subroutine SG_Densities_Free()
+  use stdalloc, only: mma_deallocate
+  call mma_deallocate(Wrk_D1,safe='*')
+  call mma_deallocate(Wrk_D2,safe='*')
+end subroutine SG_Densities_Free
+
+!> Wrk has at least n elements (grown if needed, contents not kept).
+subroutine Get_Wrk(Wrk,n,Label)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  real(kind=wp), allocatable, intent(inout) :: Wrk(:)
+  integer(kind=iwp), intent(in) :: n
+  character(len=*), intent(in) :: Label
+  if (allocated(Wrk)) then
+    if (size(Wrk) >= n) return
+    call mma_deallocate(Wrk)
+  end if
+  call mma_allocate(Wrk,max(1,n),Label=Label)
+end subroutine Get_Wrk
+
+!> The memory held by the work arrays (in words).
+function Wrk_Held() result(n)
+  integer(kind=iwp) :: n
+  n = 0
+  if (allocated(Wrk_D1)) n = n+size(Wrk_D1)
+  if (allocated(Wrk_D2)) n = n+size(Wrk_D2)
+end function Wrk_Held
 
 end module SGUGA_Densities
