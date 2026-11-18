@@ -234,6 +234,144 @@ end subroutine sg_trans_pdm
 
 !#define _DEBUGPRINT_
 subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
+  ! The symmetric and antisymmetric 2-RDM (P, PA) of Psi, as in
+  ! sg_two_pdm_direct (see there for the formulas), with the vectors
+  ! E_ij|Psi> and E_ji|Psi> (i >= j) of a symmetry block of pairs computed
+  ! once (A, B) and all their overlaps from four DGEMMs, instead of E_lk|Psi>
+  ! again for every pair ij. Falls back to sg_two_pdm_direct if the vectors
+  ! of a block do not fit in memory.
+  use Index_functions, only: iTri
+  use Symmetry_Info, only: Mul
+  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SGStruct
+  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+  use Constants, only: Zero, One, Half
+  use Definitions, only: wp, iwp
+  implicit none
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nP
+  real(kind=wp), intent(in) :: Psi(nCSFs)
+  real(kind=wp), intent(inout) :: P(nP), PA(nP)
+  integer(kind=iwp) :: nL, ijSym, iOrb, jOrb, kOrb, lOrb, lOrb_Min, mCSFs, nPr, ip, iq, ijOrb, klOrb, klijOrb, ikljOrb, &
+                       MaxMem, MaxNeed
+  integer(kind=iwp), allocatable :: PI(:), PJ(:), Loc(:,:)
+  real(kind=wp) :: D_ij, P_klij
+  real(kind=wp), allocatable :: A(:,:), B(:,:), AA(:,:), AB(:,:), BA(:,:), BB(:,:)
+
+  nL = SGS%nLev
+  ! memory: the vectors of the largest block
+  MaxNeed = 0
+  do ijSym=1,SGS%nSym
+    nPr = 0
+    do iOrb=1,nL
+      do jOrb=1,iOrb
+        if (Mul(SGS%ISM(iOrb),SGS%ISM(jOrb)) == ijSym) nPr = nPr+1
+      end do
+    end do
+    MaxNeed = max(MaxNeed,2*CIS%nCSF(Mul(PsiSym,ijSym))*nPr+4*nPr**2)
+  end do
+  call mma_maxDBLE(MaxMem)
+  if (real(MaxNeed,kind=wp) > 0.8_wp*real(MaxMem,kind=wp)) then
+    call sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
+    return
+  end if
+
+  P(:) = Zero
+  PA(:) = Zero
+  call mma_allocate(PI,max(1,nL*(nL+1)/2),Label='PI')
+  call mma_allocate(PJ,max(1,nL*(nL+1)/2),Label='PJ')
+  call mma_allocate(Loc,nL,nL,Label='Loc')
+  do ijSym=1,SGS%nSym
+    nPr = 0
+    Loc(:,:) = 0
+    do iOrb=1,nL
+      do jOrb=1,iOrb
+        if (Mul(SGS%ISM(iOrb),SGS%ISM(jOrb)) /= ijSym) cycle
+        nPr = nPr+1
+        PI(nPr) = iOrb
+        PJ(nPr) = jOrb
+        Loc(iOrb,jOrb) = nPr
+      end do
+    end do
+    mCSFs = CIS%nCSF(Mul(PsiSym,ijSym))
+    if ((nPr == 0) .or. (mCSFs == 0)) cycle
+    ! A(:,p) = E_ij|Psi>, B(:,p) = E_ji|Psi> (zero for i = j)
+    call mma_allocate(A,mCSFs,nPr,Label='A_2PDM')
+    call mma_allocate(B,mCSFs,nPr,Label='B_2PDM')
+    A(:,:) = Zero
+    B(:,:) = Zero
+    do ip=1,nPr
+      call SG_Epq_Psi(SGS,CIS,EXS,PI(ip),PJ(ip),One,PsiSym,Psi,A(:,ip))
+      if (PI(ip) /= PJ(ip)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ip),PI(ip),One,PsiSym,Psi,B(:,ip))
+    end do
+    call mma_allocate(AA,nPr,nPr,Label='AA')
+    call mma_allocate(AB,nPr,nPr,Label='AB')
+    call mma_allocate(BA,nPr,nPr,Label='BA')
+    call mma_allocate(BB,nPr,nPr,Label='BB')
+    call DGEMM_('T','N',nPr,nPr,mCSFs,One,A,mCSFs,A,mCSFs,Zero,AA,nPr)
+    call DGEMM_('T','N',nPr,nPr,mCSFs,One,A,mCSFs,B,mCSFs,Zero,AB,nPr)
+    call DGEMM_('T','N',nPr,nPr,mCSFs,One,B,mCSFs,A,mCSFs,Zero,BA,nPr)
+    call DGEMM_('T','N',nPr,nPr,mCSFs,One,B,mCSFs,B,mCSFs,Zero,BB,nPr)
+    do ip=1,nPr
+      iOrb = PI(ip)
+      jOrb = PJ(ip)
+      ijOrb = iTri(iOrb,jOrb)
+      D_ij = Zero
+      if (ijSym == 1) D_ij = dot_product(Psi,A(:,ip))
+      ! the -d_il E_jk term, as a -d_kl E_ij term of P_iklj
+      if (ijSym == 1) then
+        do kOrb=1,iOrb
+          lOrb = kOrb
+          ikljOrb = iTri(iTri(iOrb,kOrb),iTri(lOrb,jOrb))
+          P(ikljOrb) = P(ikljOrb)-D_ij
+          if ((iOrb /= kOrb) .and. (lOrb > jOrb)) PA(ikljOrb) = PA(ikljOrb)-D_ij
+          if ((iOrb /= kOrb) .and. (lOrb < jOrb)) PA(ikljOrb) = PA(ikljOrb)+D_ij
+        end do
+      end if
+      ! k >= l, (k,l) >= (i,j): <Psi|E_kl = (E_lk|Psi>)^T, E_lk|Psi> = B(:,q) (k /= l) or A(:,q) (k = l)
+      do kOrb=iOrb,nL
+        lOrb_Min = 1
+        if (kOrb == iOrb) lOrb_Min = jOrb
+        do lOrb=lOrb_Min,kOrb
+          iq = Loc(kOrb,lOrb)
+          if (iq == 0) cycle
+          klOrb = iTri(kOrb,lOrb)
+          klijOrb = iTri(klOrb,ijOrb)
+          if (kOrb /= lOrb) then
+            P_klij = BA(iq,ip)
+          else
+            P_klij = AA(iq,ip)
+          end if
+          P(klijOrb) = P(klijOrb)+P_klij
+          if ((iOrb /= jOrb) .and. (kOrb /= lOrb)) PA(klijOrb) = PA(klijOrb)+P_klij
+          if (iOrb /= jOrb) then
+            if (kOrb /= lOrb) then
+              P_klij = BB(iq,ip)
+            else
+              P_klij = AB(iq,ip)
+            end if
+            P(klijOrb) = P(klijOrb)+P_klij
+            if (kOrb /= lOrb) PA(klijOrb) = PA(klijOrb)-P_klij
+          end if
+        end do
+      end do
+    end do
+    call mma_deallocate(BB)
+    call mma_deallocate(BA)
+    call mma_deallocate(AB)
+    call mma_deallocate(AA)
+    call mma_deallocate(B)
+    call mma_deallocate(A)
+  end do
+  call mma_deallocate(Loc)
+  call mma_deallocate(PJ)
+  call mma_deallocate(PI)
+  P(:) = Half*P(:)
+  PA(:) = Half*PA(:)
+end subroutine sg_two_pdm
+
+subroutine sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
 
   use Index_functions, only: iTri
   use Symmetry_Info, only: Mul
@@ -365,6 +503,6 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
   P = Half*P
   PA = Half*PA
 
-end subroutine sg_two_pdm
+end subroutine sg_two_pdm_direct
 
 end module SGUGA_Densities

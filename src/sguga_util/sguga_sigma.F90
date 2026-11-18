@@ -24,146 +24,128 @@ public :: sg_ci_full, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref, SG_Oc
 
 contains
 
-Subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+  ! H|Psi> in the CSF space of a split graph (CAS; intermediate states in the
+  ! graph), with S_ij = E_ij + E_ji (i > j), S_ii = E_ii:
+  !   H|Psi> = sum_{i>=j} h'_ij S_ij|Psi> + 1/2 sum_{i>=j,k>=l} (kl|ij) S_kl S_ij|Psi>,
+  !   h'_ij = h_ij - 1/2 sum_k (ik|kj).
+  ! The two-electron part is resolved per symmetry block of the orbital
+  ! pairs: D(:,p) = S_p|Psi>, W = D G with G(q,p) = 1/2 (q|p), and
+  ! H|Psi> += sum_q S_q W(:,q): 2 n_pair applications of S per block (and one
+  ! DGEMM) instead of n_pair**2. A block whose D does not fit in memory is
+  ! done directly (S_kl S_ij|Psi> for every pair of pairs).
 
   use Index_functions, only: iTri
   use symmetry_info, only: MUL
   use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi
-  use stdalloc, only: mma_allocate, mma_deallocate
+  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
   use Constants, only: Zero, One, Half
   use Definitions, only: iwp, wp
 
-  Implicit none
-  type (SGStruct), intent(in)    :: SGS
-  type (CIStruct), intent(in)    :: CIS
-  type (EXStruct), intent(inout) :: EXS
-  integer(kind=iwp), intent(in) ::nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+  implicit none
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
   real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
   real(kind=wp), intent(out) :: Sigma(nCSFs)
+  integer(kind=iwp) :: nOrb, iOrb, jOrb, kOrb, ijSym, SigmaSym, mCSFs, nP, p, q, q0, nB, MaxMem
+  integer(kind=iwp), allocatable :: PI(:), PJ(:)
+  real(kind=wp) :: TwoInt
+  real(kind=wp), allocatable :: D(:,:), W(:,:), G(:,:), X(:)
 
-  real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Ekl_Eij_Psi(:,:)
-  real(kind=wp), Pointer :: Eij_Psi(:)=>Null()
-  integer(kind=iwp) :: iOrb, jOrb, kOrb, lOrb, nOrb
-  integer(kind=iwp) :: ijOrb, klOrb, klijOrb
-  integer(kind=iwp) :: ikOrb, ljOrb, ikljOrb, MaxDim, mCSFs
-  integer(kind=iwp) :: iSym, jSym, kSym, lSym, ijSym, klSym
-  real(kind=wp) :: OneInt, TwoInt
-  integer(kind=iwp) :: SigmaSym
-
-  integer(kind=iwp), Parameter:: nBuff=10
-  real(kind=wp) :: TUVX(nBUff)
-  integer(kind=iwp) :: iBuff=0
-  real(kind=wp), parameter :: Alpha=One, Beta=One
-  integer(kind=iwp), parameter :: incx=1, incy=1
-  real(kind=wp) :: CPQ
-
-  ! SGUGA driven algorithm for H|Psi>, DGEMV version
-  ! i>=j Symmetrize: E_ij + E_ji, k>=l Symmetrize E_kl + E_lj.
-  !Write (u6,*) 'SGUGA driven algorithm for H|Psi>, DGEMV version'
-  !Write (u6,*) 'i>=j Symmetrize: E_ij + E_ji, k>=l Symmetrize E_kl + E_lj.'
-
-  Sigma(:)=Zero
-
-  MaxDim = maxval(CIS%nCSF(:))
-  call mma_allocate(Eij_Psi_X,MaxDim,Label='Eij_Psi_X')
-  call mma_allocate(Ekl_Eij_Psi,nCSFs,nBuff,Label='Ekl_Eij_Psi')
-
-  OneInt=Zero  ! Cardholder variable
-  TwoInt=Zero  ! Cardholder variable
-
-  !   The E_kl E_ij part
-
-  CPQ=One
-  nOrb=SGS%nLev
-
-  do iOrb=1,nOrb
-     iSym=SGS%ISM(iOrb)
-    do jOrb=1,iOrb
-     ijOrb=iTri(iOrb,jOrb)
-
-     jSym=SGS%ISM(jOrb)
-     ijSym=MUL(iSym,jSym)
-
-     SigmaSym=MUL(PsiSym,ijSym)
-     mCSFs = CIS%nCSF(SigmaSym)
-
-     Eij_Psi(1:mCSFs)=>Eij_Psi_X
-
-  !  Operate with E_ij on |Psi> and produce E_ij|Psi>
-     Eij_Psi(:)=Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
-      if (iOrb /= jOrb) call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eij_Psi)
-
-     if (ijSym==1) then
-
-        TwoInt=Zero
-        do kOrb=1,nOrb
-           lOrb=kOrb
-           ikOrb=iTri(iOrb,kOrb)
-           ljOrb=iTri(lOrb,jOrb)
-           ikljOrb=iTri(ikOrb,ljOrb)
-           TwoInt = TwoInt +  TUVX_Tri(ikljOrb)
-        end do
-        OneInt=TU_Tri(ijOrb) - Half * TwoInt
-
-  !     Operate with E_ij on |Psi> and produce E_ij|Psi>
-        !call DaXpY_(nCSFs,OneInt,Eij_Psi(:),1,Sigma(:),1)
-        Sigma(:)=Sigma(:)+OneInt*Eij_Psi(:)
-      end if
-
-     iBuff=0
-     do kOrb=1,nOrb
-        kSym=SGS%ISM(kOrb)
-     do lOrb=1,kOrb
-        klOrb=iTri(kOrb,lOrb)
-
-        lSym=SGS%ISM(lOrb)
-        klSym=MUL(kSym,lSym)
-
-        if (ijSym /= klSym) cycle
-        iBuff=iBuff+1
-
-  !     Operate with E_kl on E_ij_|Psi> and produce E_kl_E_ij_|Psi>
-        Ekl_Eij_Psi(1:nCSFs,iBuff)=Zero
-
-        call SG_Epq_Psi(SGS,CIS,EXS,kOrb,lOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi(1:nCSFs,iBuff))
-        if (kOrb /= lOrb) Call SG_Epq_Psi(SGS,CIS,EXS,lOrb,kOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi(1:nCSFs,iBuff))
-
-        klijOrb=iTri(klOrb,ijOrb)
-        TUVX(iBuff) = Half*TUVX_Tri(klijOrb)
-
-        if (iBuff == nBuff) then
-            Call DGEMV_('N',nCSFs,nBuff,Alpha,Ekl_Eij_Psi(1:nCSFs,1:nBuff),nCSFs, &
-                        TUVX(1:nBuff),incx,Beta,Sigma,incy)
-  !         Sigma(:)=Sigma(:) + Mat_Mul(Ekl_Eij_Psi(1:nCSFs,1:nBuff),TUVX(1:nBuff))
-  !         Do i = 1, nBuff
-  !            Sigma(:)=Sigma(:) + Ekl_Eij_Psi(:,i)*TUVX(i)
-  !         End Do
-            iBuff=0
-  !         Ekl_Eij_Psi(:,:)=Zero
-        End If
-
-        end do
+  Sigma(:) = Zero
+  nOrb = SGS%nLev
+  call mma_allocate(PI,max(1,nOrb*(nOrb+1)/2),Label='PI')
+  call mma_allocate(PJ,max(1,nOrb*(nOrb+1)/2),Label='PJ')
+  do ijSym=1,SGS%nSym
+    ! the orbital pairs i >= j of symmetry ijSym
+    nP = 0
+    do iOrb=1,nOrb
+      do jOrb=1,iOrb
+        if (MUL(SGS%ISM(iOrb),SGS%ISM(jOrb)) /= ijSym) cycle
+        nP = nP+1
+        PI(nP) = iOrb
+        PJ(nP) = jOrb
       end do
-
-     if (iBuff /= 0) Then
-        Call DGEMV_('N',nCSFs,iBuff,Alpha,Ekl_Eij_Psi(1:nCSFs,1:iBuff),nCSFs,TUVX(1:iBuff),incx,Beta,Sigma,incy)
-  !     Sigma(:)=Sigma(:) + Mat_Mul(Ekl_Eij_Psi(1:nCSFs,1:nBuff),TUVX(1:nBuff))
-  !     do i = 1,iBuff
-  !        Sigma(:)=Sigma(:) + Ekl_Eij_Psi(:,i)*TUVX(i)
-  !     end do
-        iBuff=0
-     end if
-
-      nullify(Eij_Psi)
-
     end do
+    SigmaSym = MUL(PsiSym,ijSym)
+    mCSFs = CIS%nCSF(SigmaSym)
+    if ((nP == 0) .or. (mCSFs == 0)) cycle
+    call mma_maxDBLE(MaxMem)
+    if (real(mCSFs,kind=wp)*real(nP+1,kind=wp)+real(nP,kind=wp)**2 > 0.8_wp*real(MaxMem,kind=wp)) then
+      call Block_Direct()
+      cycle
+    end if
+    ! D(:,p) = S_p|Psi>, and the one-electron part (totally symmetric pairs)
+    call mma_allocate(D,mCSFs,nP,Label='D_HPsi')
+    D(:,:) = Zero
+    do p=1,nP
+      call SG_Epq_Psi(SGS,CIS,EXS,PI(p),PJ(p),One,PsiSym,Psi,D(:,p))
+      if (PI(p) /= PJ(p)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(p),PI(p),One,PsiSym,Psi,D(:,p))
+      if (ijSym == 1) then
+        TwoInt = Zero
+        do kOrb=1,nOrb
+          TwoInt = TwoInt+TUVX_Tri(iTri(iTri(PI(p),kOrb),iTri(kOrb,PJ(p))))
+        end do
+        Sigma(:) = Sigma(:)+(TU_Tri(iTri(PI(p),PJ(p)))-Half*TwoInt)*D(:,p)
+      end if
+    end do
+    ! G(q,p) = 1/2 (q|p)
+    call mma_allocate(G,nP,nP,Label='G_HPsi')
+    do p=1,nP
+      do q=1,nP
+        G(q,p) = Half*TUVX_Tri(iTri(iTri(PI(q),PJ(q)),iTri(PI(p),PJ(p))))
+      end do
+    end do
+    ! W = D G in batches of columns, then H|Psi> += S_q W(:,q)
+    call mma_maxDBLE(MaxMem)
+    nB = int(min(real(nP,kind=wp),max(One,0.8_wp*real(MaxMem,kind=wp)/real(mCSFs,kind=wp))),kind=iwp)
+    call mma_allocate(W,mCSFs,nB,Label='W_HPsi')
+    do q0=1,nP,nB
+      nB = min(nB,nP-q0+1)
+      call DGEMM_('N','T',mCSFs,nB,nP,One,D,mCSFs,G(q0,1),nP,Zero,W,mCSFs)
+      do q=q0,q0+nB-1
+        call SG_Epq_Psi(SGS,CIS,EXS,PI(q),PJ(q),One,SigmaSym,W(:,q-q0+1),Sigma)
+        if (PI(q) /= PJ(q)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(q),PI(q),One,SigmaSym,W(:,q-q0+1),Sigma)
+      end do
+    end do
+    call mma_deallocate(W)
+    call mma_deallocate(G)
+    call mma_deallocate(D)
   end do
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  call mma_deallocate(PJ)
+  call mma_deallocate(PI)
 
-  call mma_deallocate(Ekl_Eij_Psi)
-  call mma_deallocate(Eij_Psi_X)
+contains
+
+  ! the block ijSym directly: S_kl S_ij|Psi> for every pair of pairs
+  subroutine Block_Direct()
+    integer(kind=iwp) :: r
+    real(kind=wp), allocatable :: Y(:)
+    call mma_allocate(X,mCSFs,Label='X_HPsi')
+    call mma_allocate(Y,nCSFs,Label='Y_HPsi')
+    do p=1,nP
+      X(:) = Zero
+      call SG_Epq_Psi(SGS,CIS,EXS,PI(p),PJ(p),One,PsiSym,Psi,X)
+      if (PI(p) /= PJ(p)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(p),PI(p),One,PsiSym,Psi,X)
+      if (ijSym == 1) then
+        TwoInt = Zero
+        do kOrb=1,nOrb
+          TwoInt = TwoInt+TUVX_Tri(iTri(iTri(PI(p),kOrb),iTri(kOrb,PJ(p))))
+        end do
+        Sigma(:) = Sigma(:)+(TU_Tri(iTri(PI(p),PJ(p)))-Half*TwoInt)*X(:)
+      end if
+      do r=1,nP
+        Y(:) = Zero
+        call SG_Epq_Psi(SGS,CIS,EXS,PI(r),PJ(r),One,SigmaSym,X,Y)
+        if (PI(r) /= PJ(r)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(r),PI(r),One,SigmaSym,X,Y)
+        Sigma(:) = Sigma(:)+Half*TUVX_Tri(iTri(iTri(PI(r),PJ(r)),iTri(PI(p),PJ(p))))*Y(:)
+      end do
+    end do
+    call mma_deallocate(Y)
+    call mma_deallocate(X)
+  end subroutine Block_Direct
 
 end subroutine sg_h_psi
 
@@ -185,6 +167,135 @@ end subroutine sg_h_psi
 !> by the active orbitals in symmetry-blocked order (L2Orb). For CAS both
 !> orders coincide and the result equals that of sg_h_psi.
 subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+  ! The same H|Psi> as sg_h_psi_ras_direct (operator order of Olsen et al.:
+  ! f (kl|ij) E_kl E_ij|Psi> for kl >= ij, k >= i, so that the intermediate
+  ! states E_ij|Psi> need no CSFs outside the space), resolved per symmetry
+  ! block of the ordered level pairs: D(:,p) = E_ij|Psi> (restricted to the
+  ! space, as there), W = D G^T with G(kl,ij) = f (kl|ij) for the allowed
+  ! pairs and zero otherwise, H|Psi> += E_kl W(:,kl): 2 n_pair applications
+  ! of E per block instead of n_pair**2/2. Falls back to
+  ! sg_h_psi_ras_direct if the vectors of a block do not fit in memory.
+  use Index_functions, only: iTri
+  use symmetry_info, only: MUL
+  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_Level_Map
+  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+  use Constants, only: Zero, One, Half
+  use Definitions, only: iwp, wp
+  implicit none
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+  real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+  real(kind=wp), intent(out) :: Sigma(nCSFs)
+  integer(kind=iwp) :: iA, iLev, iOrb, ijSym, jLev, jOrb, kLev, lLev, mCSFs, mLev, nLev, SigmaSym, nP, ip, iq, q0, nB, &
+                       MaxMem, MaxNeed
+  real(kind=wp) :: Fact, OneInt
+  integer(kind=iwp), allocatable :: L2Orb(:), PI(:), PJ(:)
+  real(kind=wp), allocatable :: D(:,:), W(:,:), G(:,:)
+  logical(kind=iwp), allocatable :: Used(:)
+
+  nLev = SGS%nLev
+  ! memory: the vectors of the largest block
+  MaxNeed = 0
+  do ijSym=1,SGS%nSym
+    nP = 0
+    do iLev=1,nLev
+      do jLev=1,nLev
+        if (MUL(SGS%ISM(iLev),SGS%ISM(jLev)) == ijSym) nP = nP+1
+      end do
+    end do
+    MaxNeed = max(MaxNeed,(CIS%nCSF(MUL(PsiSym,ijSym))+1)*nP+nP**2)
+  end do
+  call mma_maxDBLE(MaxMem)
+  if (real(MaxNeed,kind=wp) > 0.8_wp*real(MaxMem,kind=wp)) then
+    call sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+    return
+  end if
+
+  ! level -> active orbital (symmetry-blocked order of TU/TUVX)
+  call mma_allocate(L2Orb,nLev,Label='L2Orb')
+  call SG_Level_Map(SGS,L2Orb)
+  call mma_allocate(PI,nLev**2,Label='PI')
+  call mma_allocate(PJ,nLev**2,Label='PJ')
+  Sigma(:) = Zero
+  do ijSym=1,SGS%nSym
+    ! the ordered level pairs (i,j) of symmetry ijSym, in the order of ij = (i-1)*nLev+j
+    nP = 0
+    do iLev=1,nLev
+      do jLev=1,nLev
+        if (MUL(SGS%ISM(iLev),SGS%ISM(jLev)) /= ijSym) cycle
+        nP = nP+1
+        PI(nP) = iLev
+        PJ(nP) = jLev
+      end do
+    end do
+    SigmaSym = MUL(PsiSym,ijSym)
+    mCSFs = CIS%nCSF(SigmaSym)
+    if ((nP == 0) .or. (mCSFs == 0)) cycle
+    ! D(:,p) = E_ij|Psi> (restricted to the CSF space), and the one-electron part h'_ij E_ij
+    call mma_allocate(D,mCSFs,nP,Label='D_HPsi')
+    D(:,:) = Zero
+    do ip=1,nP
+      iLev = PI(ip)
+      jLev = PJ(ip)
+      call SG_Epq_Psi(SGS,CIS,EXS,iLev,jLev,One,PsiSym,Psi,D(:,ip))
+      if (ijSym == 1) then
+        iOrb = L2Orb(iLev)
+        jOrb = L2Orb(jLev)
+        OneInt = TU_Tri(iTri(iOrb,jOrb))
+        do mLev=1,iLev-1
+          iA = L2Orb(mLev)
+          OneInt = OneInt-TUVX_Tri(iTri(iTri(iOrb,iA),iTri(iA,jOrb)))
+        end do
+        if (iLev > jLev) then
+          OneInt = OneInt-TUVX_Tri(iTri(iTri(iOrb,iOrb),iTri(iOrb,jOrb)))
+        else if (iLev == jLev) then
+          OneInt = OneInt-Half*TUVX_Tri(iTri(iTri(iOrb,iOrb),iTri(iOrb,iOrb)))
+        end if
+        Sigma(:) = Sigma(:)+OneInt*D(:,ip)
+      end if
+    end do
+    ! G(kl,ij) = f (kl|ij) for kl >= ij and k >= i (f = 1/2 for kl = ij)
+    call mma_allocate(G,nP,nP,Label='G_HPsi')
+    call mma_allocate(Used,nP,Label='Used')
+    G(:,:) = Zero
+    Used(:) = .false.
+    do ip=1,nP
+      iLev = PI(ip)
+      jLev = PJ(ip)
+      do iq=ip,nP
+        kLev = PI(iq)
+        lLev = PJ(iq)
+        if (kLev < iLev) cycle
+        Fact = One
+        if (iq == ip) Fact = Half
+        G(iq,ip) = Fact*TUVX_Tri(iTri(iTri(L2Orb(kLev),L2Orb(lLev)),iTri(L2Orb(iLev),L2Orb(jLev))))
+        Used(iq) = .true.
+      end do
+    end do
+    ! W = D G^T in batches of columns, then H|Psi> += E_kl W(:,kl)
+    call mma_maxDBLE(MaxMem)
+    nB = int(min(real(nP,kind=wp),max(One,0.8_wp*real(MaxMem,kind=wp)/real(mCSFs,kind=wp))),kind=iwp)
+    call mma_allocate(W,mCSFs,nB,Label='W_HPsi')
+    do q0=1,nP,nB
+      nB = min(nB,nP-q0+1)
+      call DGEMM_('N','T',mCSFs,nB,nP,One,D,mCSFs,G(q0,1),nP,Zero,W,mCSFs)
+      do iq=q0,q0+nB-1
+        if (Used(iq)) call SG_Epq_Psi(SGS,CIS,EXS,PI(iq),PJ(iq),One,SigmaSym,W(:,iq-q0+1),Sigma)
+      end do
+    end do
+    call mma_deallocate(W)
+    call mma_deallocate(Used)
+    call mma_deallocate(G)
+    call mma_deallocate(D)
+  end do
+  call mma_deallocate(PJ)
+  call mma_deallocate(PI)
+  call mma_deallocate(L2Orb)
+end subroutine sg_h_psi_ras
+
+subroutine sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
 
   use Index_functions, only: iTri
   use symmetry_info, only: MUL
@@ -280,7 +391,7 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
   call mma_deallocate(Eij_Psi)
   call mma_deallocate(L2Orb)
 
-end subroutine sg_h_psi_ras
+end subroutine sg_h_psi_ras_direct
 
 subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
                         TUVX_Tri,nTUVX_Tri, &
