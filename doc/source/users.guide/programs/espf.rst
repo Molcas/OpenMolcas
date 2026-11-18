@@ -52,7 +52,10 @@ Using |molcas| together with :program:`Tinker`
 
 |molcas| needs a modified version of :program:`TINKER`. The current patched version of :program:`TINKER`\ [#fn1]_ is **6.3.3**. There are two ways to obtain it:
 
-* At configuration time, with the CMake option ``-DTINKER=ON``. :program:`TINKER` is then downloaded, patched and compiled together with |molcas|, and installed in :file:`$MOLCAS/tinker`. The following CMake variables can be used to adapt the build:
+* At configuration time, with the CMake option ``-DTINKER=ON`` (independent of ``-DTOOLS=ON``, which does not build :program:`TINKER`). :program:`TINKER` is then downloaded, patched and compiled together with |molcas|, and installed in :file:`$MOLCAS/tinker`; :command:`make install` checks that the installed |molcas| can run it. :program:`TINKER` does not depend on |molcas|, so a single patched :program:`TINKER` can be shared by several |molcas| installations. The following CMake variables can be used to adapt the build:
+
+  ``TINKER_DIR``
+    An existing patched :program:`TINKER` (the directory containing :file:`bin/tkr2qm_s`, e.g. :file:`$MOLCAS/tinker` of another installation). Nothing is downloaded or compiled, :file:`$MOLCAS/tinker` becomes a link to this directory.
 
   ``TINKER_SOURCE``
     Local :program:`TINKER` tarball (or a directory containing it) or URL to use instead of the default download location.
