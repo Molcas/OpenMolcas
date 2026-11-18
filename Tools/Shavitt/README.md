@@ -60,7 +60,11 @@ Pegamoid 2.13 with NumPy 2 (2.9 uses `np.math`, which NumPy 2 no longer has).
   nothing selected in the list all its loops are drawn (their bra and ket
   arcs); select loops to see them in detail, with the walk parts common to bra
   and ket darkened and the value of <L|E_ij|R> (for one U\* and one L\*: the
-  product). Bra (L) is solid violet, ket (R) dashed orange. The segment values
+  product). *Common walk* steps through the walks bra and ket share outside
+  the loop (*all*: draw them together): each one embeds the loop in another
+  pair of complete walks, with the same coupling coefficient; the note under
+  the graph gives the two step vectors and their CSF numbers (if of the target
+  irrep). Bra (L) is solid violet, ket (R) dashed orange. The segment values
   are those of SGUGA (MKSEG, ASTA); `tests/check_loops.py` verifies them
   against DENSITY_MATRIX and the enumeration against all pairs of walks.
 * **Segments** (tab): click a vertex (or give its number) for all the
@@ -131,8 +135,10 @@ upper-walk irrep inside), within a block the upper half walk runs fastest.
     python tests/check_loops.py rasscf.h5 [--no-pairs]
 
 rebuilds the active density matrix from the loop values and compares it with
-`DENSITY_MATRIX`, and checks that the loops enumerated at the midvertices are
-exactly those between all pairs of walks of the graph.
+`DENSITY_MATRIX`, checks that the loops enumerated at the midvertices are
+exactly those between all pairs of walks of the graph, and that the common
+walks of all the loops give exactly the pairs of walks connected by an E_ij,
+each once and with the loop value.
 
     python tests/check_log.py rasscf.log rasscf.h5
 

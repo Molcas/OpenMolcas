@@ -396,20 +396,107 @@ def arcs_between(g, top, bottom):
     return [(u, c) for u, c, d in g.arcs() if u in dn and u in up and c in up and c in dn]
 
 
-def common_parts(g, lp, mv=None, upper=True, lower=True):
-    """The arcs of the walk parts that bra and ket of the loop lp share (above and below the loop).
+def common_segments(g, lp, mv=None, upper=True, lower=True):
+    """The pieces (top vertex, bottom vertex) of the walk that bra and ket of the loop lp share.
 
     upper/lower False: leave out the spectator half walk above/below the midvertex mv.
     """
     head, tail = 0, g.nvert - 1
     if lp.kind == 'upper':
-        return (arcs_between(g, head, lp.bra[0]) + arcs_between(g, lp.bra[-1], mv)
-                + (arcs_between(g, mv, tail) if lower else []))
-    if lp.kind == 'lower':
-        return ((arcs_between(g, head, mv) if upper else []) + arcs_between(g, mv, lp.bra[0])
-                + arcs_between(g, lp.bra[-1], tail))
-    if lp.kind == 'upper-partial':
-        return arcs_between(g, head, lp.bra[0])
-    if lp.kind == 'lower-partial':
-        return arcs_between(g, lp.bra[-1], tail)
-    return []
+        segs = [(head, lp.bra[0]), (lp.bra[-1], mv)] + ([(mv, tail)] if lower else [])
+    elif lp.kind == 'lower':
+        segs = ([(head, mv)] if upper else []) + [(mv, lp.bra[0]), (lp.bra[-1], tail)]
+    elif lp.kind == 'upper-partial':
+        segs = [(head, lp.bra[0])]
+    elif lp.kind == 'lower-partial':
+        segs = [(lp.bra[-1], tail)]
+    else:
+        segs = []
+    return [(int(t), int(b)) for t, b in segs if t != b]
+
+
+def common_parts(g, lp, mv=None, upper=True, lower=True):
+    """The arcs of all the walk parts that bra and ket of the loop lp share (above and below the loop).
+
+    upper/lower False: leave out the spectator half walk above/below the midvertex mv.
+    """
+    return [a for t, b in common_segments(g, lp, mv, upper, lower) for a in arcs_between(g, t, b)]
+
+
+def walk_counts_to(g, bottom):
+    """For every vertex v the number of walk pieces from v down to the vertex bottom."""
+    n = np.zeros(g.nvert, dtype=object)  # exact integers, the counts can be large
+    n[bottom] = 1
+    lb = int(g.drt[bottom, 0])
+    for L in range(lb + 1, g.nlev + 1):
+        for v in g.vertices_at_level(L):
+            n[v] = sum(n[int(c)] for c in g.down[v] if c >= 0)
+    return n
+
+
+class CommonWalks:
+    """The walks that bra and ket share outside a selection of loops, numbered 0..count-1.
+
+    The selection is one complete loop, or one upper and one lower partial loop
+    of a crossing loop. Each choice of the common parts embeds the loop in one
+    pair of complete walks (bra L, ket R), i.e. one pair of CSFs with the same
+    coupling coefficient. The walks are numbered in mixed radix over the
+    pieces (the piece nearest the graph head slowest), each piece depth-first
+    with the steps d = 0..3 in order.
+    """
+
+    def __init__(self, g, loops, mv=None, upper=True, lower=True):
+        self.g = g
+        self.loops = list(loops)
+        segs = []
+        for lp in self.loops:
+            for sg in common_segments(g, lp, mv, upper, lower):
+                if sg not in segs:
+                    segs.append(sg)
+        self.segments = sorted(segs, key=lambda sg: -int(g.drt[sg[0], 0]))
+        self.counts = [walk_counts_to(g, b) for _, b in self.segments]
+        self.sizes = [int(n[t]) for (t, _), n in zip(self.segments, self.counts)]
+        self.count = 1
+        for k in self.sizes:
+            self.count *= k
+
+    def arcs(self, k):
+        """The arcs (upper vertex, lower vertex, step) of the common walk k (0-based)."""
+        if not 0 <= k < self.count:
+            raise IndexError(f'common walk {k} out of range [0,{self.count})')
+        digits = []
+        for size in reversed(self.sizes):
+            k, r = divmod(k, size)
+            digits.append(r)
+        digits.reverse()
+        out = []
+        for (top, bottom), n, r in zip(self.segments, self.counts, digits):
+            v = top
+            while v != bottom:
+                for d in range(4):
+                    c = int(self.g.down[v, d])
+                    if c < 0 or n[c] == 0:
+                        continue
+                    if r < n[c]:
+                        out.append((v, c, d))
+                        v = c
+                        break
+                    r -= n[c]
+        return out
+
+    def step_vectors(self, k):
+        """The complete step vectors (index L-1 for level L) of bra and ket for the common walk k.
+
+        Levels not covered (a half switched off) are -1.
+        """
+        g = self.g
+        bra = np.full(g.nlev, -1, dtype=int)
+        ket = np.full(g.nlev, -1, dtype=int)
+        for u, _, d in self.arcs(k):
+            L = int(g.drt[u, 0])
+            bra[L - 1] = ket[L - 1] = d
+        for lp in self.loops:
+            for n, (db, dk) in enumerate(zip(lp.bra_steps, lp.ket_steps)):
+                L = lp.top - n
+                bra[L - 1], ket[L - 1] = db, dk
+        return bra, ket

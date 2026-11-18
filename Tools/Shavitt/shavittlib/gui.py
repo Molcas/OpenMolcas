@@ -319,6 +319,21 @@ class ShavittWindow(QtWidgets.QMainWindow):
             'Nothing selected: all listed loops are drawn. Select loops to see them in detail.</qt>')
         self.loop_list.itemSelectionChanged.connect(self.on_loop_selection)
         f.addRow(self.loop_list)
+        h = QtWidgets.QHBoxLayout()
+        self.cw_spin = QtWidgets.QSpinBox()
+        self.cw_spin.setRange(0, 0)
+        self.cw_spin.setSpecialValueText('all')
+        self.cw_spin.setEnabled(False)
+        self.cw_spin.setToolTip(
+            '<qt>Outside the loop bra and ket share their walk (dark grey). Usually several such common walks '
+            'exist: each one embeds the loop in another pair of CSFs, all with the same coupling coefficient.<br>'
+            'Step through them here (<b>all</b>: draw them all at once). Available for one selected loop, or '
+            'one U* together with one L*.</qt>')
+        self.cw_spin.valueChanged.connect(self.on_common_walk)
+        h.addWidget(self.cw_spin)
+        self.cw_label = QtWidgets.QLabel('')
+        h.addWidget(self.cw_label, 1)
+        f.addRow('Common walk', h)
         b = QtWidgets.QPushButton('Clear loops')
         b.clicked.connect(lambda: self.mv1_combo.setCurrentIndex(0))
         f.addRow(b)
@@ -327,6 +342,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.loop_note = ''
         self.loop_mvs = []
         self.loop_mv = None
+        self.common = None  # CommonWalks of the selected loop(s), when they can be stepped through
 
         # segments of a vertex
         lay = pages[2]
@@ -902,7 +918,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.loop_items = []
         self.loop_mvs = []
         self.loop_mv = None
-        self.loop_note = ''
+        self.loop_note = self.loop_value_note = ''
+        self._set_common([])
         limit = 2000
         mv1 = self.mv1_combo.currentData() if g is not None else None
         if mv1 is None:
@@ -957,9 +974,63 @@ class ShavittWindow(QtWidgets.QMainWindow):
         elif len(sel) == 1 and sel[0].kind in ('upper', 'lower'):
             lp = sel[0]
             self.loop_note = f'<L|{lp.operator()}|R> = {lp.value:+.5f}  ({lp.kind} loop)'
-        if self.loop_note:
-            self.statusBar().showMessage(self.loop_note)
+        self.loop_value_note = self.loop_note
+        self._set_common(sel if (len(sel) == 1 or (len(ups) == 1 and len(lows) == 1 and len(sel) == 2)) else [])
         self.refresh()
+
+    def _set_common(self, sel):
+        """The common walks of the selected loop(s); the spin box steps through them."""
+        self.common = None
+        if sel and self.g is not None:
+            self.common = lps.CommonWalks(self.g, sel, self.loop_mv, upper=self.upper_check.isChecked(),
+                                          lower=self.lower_check.isChecked())
+        n = self.common.count if self.common is not None else 0
+        self.cw_spin.blockSignals(True)
+        self.cw_spin.setRange(0, min(n, 2**31 - 1))
+        self.cw_spin.setValue(1 if n >= 1 else 0)
+        self.cw_spin.setEnabled(n > 1)
+        self.cw_spin.blockSignals(False)
+        self._common_note()
+
+    def on_common_walk(self):
+        self._common_note()
+        self.refresh()
+
+    def _common_note(self):
+        """Label and note for the chosen common walk: the pair of CSFs it makes of the loop."""
+        cw, k = self.common, self.cw_spin.value()
+        if cw is None:
+            self.cw_label.setText('')
+            self.loop_note = getattr(self, 'loop_value_note', '')
+            return
+        n = cw.count
+        if not cw.segments:
+            text = 'none (bra and ket share no walk outside the loop)'
+        elif n == 1:
+            text = '1 of 1'
+        elif k == 0:
+            text = f'all {n} drawn'
+        else:
+            text = f'{k} of {n}' + (' (first 2^31-1 reachable)' if n > 2**31 - 1 else '')
+        self.cw_label.setText(text)
+        note = self.loop_value_note
+        if n == 1 or k > 0:
+            g = self.g
+            bra, ket = cw.step_vectors(max(k, 1) - 1)
+            if (bra >= 0).all():
+                def csf(steps):
+                    i = g.csf_index(steps)
+                    return (f'CSF {i + 1}' if i is not None
+                            else f'irrep {g.irrep_name(g.walk_irrep(steps))}, not the target irrep')
+                walks = (f'L = {g.csf_string(bra)} ({csf(bra)}), R = {g.csf_string(ket)} ({csf(ket)})')
+            elif any(lp.kind.endswith('partial') for lp in cw.loops) and len(cw.loops) == 1:
+                walks = 'select a partner partial loop too for the complete walks'
+            else:
+                walks = 'switch on upper and lower for the complete walks'
+            note = (note + '\n' if note else '') + (f'common walk {text}: ' if cw.segments else '') + walks
+        self.loop_note = note
+        if note:
+            self.statusBar().showMessage(note.replace('\n', ';  '))
 
     def overlay(self):
         if self.segments_mode():
@@ -971,10 +1042,14 @@ class ShavittWindow(QtWidgets.QMainWindow):
         sel = self._selected_loops()
         if not sel:
             return LoopOverlay(loops=self.loop_items, midvertices=self.loop_mvs, detail=False)
-        ctx = set()
-        for lp in sel:
-            ctx.update(lps.common_parts(self.g, lp, self.loop_mv, upper=self.upper_check.isChecked(),
-                                        lower=self.lower_check.isChecked()))
+        k = self.cw_spin.value()
+        if self.common is not None and (self.common.count == 1 or k > 0):
+            ctx = {(u, c) for u, c, _ in self.common.arcs(max(k, 1) - 1)}
+        else:
+            ctx = set()
+            for lp in sel:
+                ctx.update(lps.common_parts(self.g, lp, self.loop_mv, upper=self.upper_check.isChecked(),
+                                            lower=self.lower_check.isChecked()))
         return LoopOverlay(loops=sel, context=sorted(ctx), midvertices=self.loop_mvs, detail=True, note=self.loop_note)
 
     # ------------------------------------------------------------------ drawing

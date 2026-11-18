@@ -20,6 +20,11 @@ usage: check_loops.py rasscf.h5 [--no-pairs]
    at one midvertex, upper and lower partial loops at a pair) are exactly the
    loops found between all pairs of walks of the graph, with the same values
    (skipped with --no-pairs; the cost grows with the square of the walks).
+3. The common walks of every loop (CommonWalks: one complete loop, or one
+   upper and one lower partial loop) are distinct pairs of complete walks
+   whose coupling coefficient is the loop value, and together they cover the
+   common parts drawn by the GUI. With pairs: all the embeddings together are
+   exactly the pairs of walks connected by an E_ij.
 """
 
 import os
@@ -29,8 +34,8 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from shavittlib.graph import ShavittGraph  # noqa: E402
-from shavittlib.loops import (_walk_pair_value, crossing_loops, density_matrix, midvertex_loops,  # noqa: E402
-                              midvertex_partners)
+from shavittlib.loops import (CommonWalks, _walk_pair_value, common_parts, coupling,  # noqa: E402
+                              crossing_loops, density_matrix, midvertex_loops, midvertex_partners)
 
 
 def all_walks(g):
@@ -62,6 +67,41 @@ def main(fn, pairs=True):
         print(f'root {root + 1}: max |D(loops) - DENSITY_MATRIX| = {err:.2e}')
         if err > 1e-8:
             nbad += 1
+
+    # 3. common walks: each embedding of a loop is a pair of walks with the loop value
+    embedded = set()
+
+    def check_common(sel, mv, i, j, value):
+        bad = 0
+        cw = CommonWalks(g, sel, mv)
+        union = set()
+        for lp in sel:
+            union |= set(common_parts(g, lp, mv))
+        seen = set()
+        for k in range(cw.count):
+            seen |= {(u, c) for u, c, _ in cw.arcs(k)}
+            bra, ket = cw.step_vectors(k)
+            key = (tuple(bra), tuple(ket))
+            r = coupling(g, bra, ket)
+            if key in embedded or r is None or r[3] or (r[0], r[1]) != (i, j) or abs(r[2] - value) > 1e-10:
+                bad += 1
+            embedded.add(key)
+        return bad + (seen != union)
+
+    nloop = 0
+    for mv in g.midvertices():
+        for lp in midvertex_loops(g, mv, limit=10**9):
+            nbad += check_common([lp], mv, lp.i, lp.j, lp.value)
+            nloop += 1
+        for w in midvertex_partners(g, mv):
+            if w < mv:
+                continue
+            _, _, ups, lows = crossing_loops(g, mv, w, limit=10**9)
+            for u in ups:
+                for lo in lows:
+                    nbad += check_common([u, lo], None, lo.i, u.j, u.value * lo.value)
+                    nloop += 1
+    print(f'common walks: {nloop} loops embedded in {len(embedded)} pairs of walks')
 
     if pairs:
         m = g.midlev
@@ -118,6 +158,11 @@ def main(fn, pairs=True):
                 if key not in prods or abs(prods[key] - v) > 1e-10:
                     nbad += 1
                     print('crossing loop value mismatch', key, v, prods.get(key))
+        connected = {(tuple(walks[a]), tuple(walks[b])) for a in range(len(walks)) for b in range(len(walks))
+                     if a != b and _walk_pair_value(g, walks[a], walks[b]) is not None}
+        if connected != embedded:
+            nbad += 1
+            print(f'embeddings {len(embedded)} differ from the connected pairs of walks {len(connected)}')
         missing, extra = expect - found, found - expect
         print(f'{len(walks)} walks; loops by pairs of walks {len(expect)}, enumerated {len(found)}; '
               f'missing {len(missing)}, extra {len(extra)}')
