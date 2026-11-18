@@ -46,7 +46,7 @@ module faroald_ras
 ! g_tuvx a+_ta a_ua a+_vb a_xb, tu = vx with weight 1/2); the alpha-alpha
 ! density equals the beta-beta one and the spin density is zero.
 
-use second_quantization, only: ann2, binom_coef, cre2, ex1, fase, lex_init, lex_next, lexrank
+use second_quantization, only: ann, ann2, binom_coef, cre, cre2, ex1, fase, lex_init, lex_next, lexrank
 use stdalloc, only: mma_allocate, mma_deallocate
 use Molcas, only: MxGAS
 use Constants, only: Zero, One, Two, Half
@@ -96,6 +96,31 @@ logical(kind=iwp) :: ras_active = .false., ras_singlet = .false.
 ! bat_off(b)+1..bat_off(b+1) (Jb and Ib as indices within their groups,
 ! sign); bat_cj/bat_ci the groups of Jb/Ib; mxbat the largest batch
 integer(kind=iwp) :: nbat = 0, mxbat = 0
+! (N-1)-string resolution of the alpha-beta sigma (Olsen; Lucia's rsbb2bn):
+! <Ia|a+_t a_u|Ja> = sum_K <Ia|a+_t|K> <K|a_u|Ja> over the alpha strings K
+! with one electron less that occur (nres_k), grouped in blocks of equal
+! occupation of the partitions and symmetry (res_nblk; block B: K
+! res_boff(B)+1..res_boff(B+1), symmetry res_bsym(B), occupations res_bocc(:,B)).
+! res_cre(t,K) = +-(global alpha string a+_t K), 0 if t is occupied in K or
+! a+_t K is not an alpha string. The orbitals sorted by symmetry: res_ord
+! (sorted -> orbital), res_soff/res_ns (offset and number per symmetry).
+! Coarse blocks (res_ncb): the fine blocks of one symmetry together.
+! res_okb(B,cb) / res_cokb: the K of (fine/coarse) block B couple with the beta
+! strings of group cb. res_mode: 0 the direct loops (opposite_spin), 1 the
+! resolution with the fine blocks, 2 with the coarse blocks, -1 not yet
+! chosen: the candidates res_try (res_choose: those not much more expensive
+! than the cheapest by an estimate of the cost) are timed in the first
+! sigma calls and the fastest is used from then on.
+integer(kind=iwp) :: nres_k = 0, res_nblk = 0, res_ncb = 0, res_mode = 0, res_ntry = 0, res_itry = 0, res_try(3) = 0
+real(kind=wp) :: res_tim(0:2) = Zero
+integer(kind=iwp), allocatable :: res_cre(:,:), res_boff(:), res_bsym(:), res_bocc(:,:), res_ord(:), res_soff(:), res_ns(:), &
+                                  res_cboff(:), res_cbsym(:)
+logical(kind=iwp), allocatable :: res_okb(:,:), res_cokb(:,:)
+! the work arrays of the resolution, kept between the calls (no new pages
+! per sigma); used with the current block size as leading dimension
+real(kind=wp), allocatable :: res_Xw(:), res_Sw(:)
+! the speed of DGEMM relative to the scalar loops, for res_choose
+real(kind=wp), parameter :: ResGemmSpeed = 8.0_wp
 integer(kind=iwp), allocatable :: bat_cj(:), bat_ci(:), bat_v(:), bat_x(:), bat_off(:), be_j(:), be_i(:), be_sgn(:)
 
 public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_count_dets, ras_from_full, ras_sigma, &
@@ -159,6 +184,7 @@ subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip)
   call mk_doubles(sa)
   call mk_doubles(sb)
   call mk_batches()
+  call mk_resolution()
 
   call mma_allocate(blk_off,sa%ncls,sb%ncls,label='blk_off')
   call mma_allocate(blk_offT,sb%ncls,sa%ncls,label='blk_offT')
@@ -183,6 +209,7 @@ subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip)
       end if
     end do
   end do
+  call res_choose()
   ras_active = .true.
 
 end subroutine faroald_ras_init
@@ -200,6 +227,25 @@ subroutine faroald_ras_free()
   call mma_deallocate(be_sgn,safe='*')
   nbat = 0
   mxbat = 0
+  call mma_deallocate(res_cre,safe='*')
+  call mma_deallocate(res_boff,safe='*')
+  call mma_deallocate(res_bsym,safe='*')
+  call mma_deallocate(res_bocc,safe='*')
+  call mma_deallocate(res_cboff,safe='*')
+  call mma_deallocate(res_cbsym,safe='*')
+  call mma_deallocate(res_okb,safe='*')
+  call mma_deallocate(res_cokb,safe='*')
+  call mma_deallocate(res_Xw,safe='*')
+  call mma_deallocate(res_Sw,safe='*')
+  res_nblk = 0
+  res_ncb = 0
+  res_mode = 0
+  res_ntry = 0
+  res_itry = 0
+  call mma_deallocate(res_ord,safe='*')
+  call mma_deallocate(res_soff,safe='*')
+  call mma_deallocate(res_ns,safe='*')
+  nres_k = 0
   call mma_deallocate(blk_off,safe='*')
   call mma_deallocate(blk_offT,safe='*')
   n_ras = 0
@@ -644,6 +690,233 @@ end subroutine mk_batches
 !> Number of beta excitations per chunk of a batch for the gathered
 !> work arrays (kc x nstr alpha, two of them, at most a quarter of the
 !> available memory).
+!> The (N-1)-string resolution tables of the alpha strings: the K strings
+!> that occur (a_u Ja for some alpha string Ja), grouped by symmetry, and
+!> res_cre. Not set up (nres_k = 0) if the full K space is too large for
+!> the rank table.
+subroutine mk_resolution()
+  use sorting, only: argsort
+  use sorting_funcs, only: leq_i
+  integer(kind=iwp), parameter :: MaxRank = 50000000
+  integer(kind=iwp) :: ga, u, t, d, k, nfull, nk, sym, kc, kbits, i, j, nb, km, cb
+  integer(kind=iwp), allocatable :: na(:)
+  integer(kind=iwp), allocatable :: r2c(:), kb(:), ksym(:), kocc(:,:), key(:), ordk(:)
+  nres_k = 0
+  if (sa%nel < 1) return
+  nfull = binom_coef(sa%nel-1,ras_norb)
+  if (nfull > MaxRank) return
+  ! the K that occur, in order of first appearance
+  call mma_allocate(r2c,nfull,label='res_r2c')
+  call mma_allocate(kb,nfull,label='res_kb')
+  r2c(:) = 0
+  nk = 0
+  do ga=1,sa%nstr
+    do u=1,ras_norb
+      d = ann(u,sa%str(ga))
+      if (d == -1) cycle
+      kbits = ibclr(d,31)
+      k = lexrank(kbits)
+      if (r2c(k) /= 0) cycle
+      nk = nk+1
+      r2c(k) = nk
+      kb(nk) = kbits
+    end do
+  end do
+  call mma_deallocate(r2c)
+  ! occupations and symmetry of each K, and the order by block (occupation, symmetry)
+  call mma_allocate(ksym,nk,label='res_ksym')
+  call mma_allocate(kocc,ras_np,nk,label='res_kocc')
+  call mma_allocate(key,nk,label='res_key')
+  do kc=1,nk
+    sym = 1
+    do u=1,ras_norb
+      if (btest(kb(kc),u-1)) sym = ieor(sym-1,ras_osym(u)-1)+1
+    end do
+    ksym(kc) = sym
+    do j=1,ras_np
+      kocc(j,kc) = popcnt(sub_bits(kb(kc),ras_pos(j),ras_o(j)))
+    end do
+  end do
+  km = 0
+  do kc=1,nk
+    km = max(km,occ_key(kocc(:,kc)))
+  end do
+  do kc=1,nk
+    key(kc) = (ksym(kc)-1)*(km+1)+occ_key(kocc(:,kc))
+  end do
+  call mma_allocate(ordk,nk,label='res_ordk')
+  ordk(:) = argsort(key,leq_i)
+  nb = 0
+  do i=1,nk
+    if (i == 1) then
+      nb = 1
+    else if (key(ordk(i)) /= key(ordk(i-1))) then
+      nb = nb+1
+    end if
+  end do
+  call mma_allocate(res_boff,nb+1,label='res_boff')
+  call mma_allocate(res_bsym,nb,label='res_bsym')
+  call mma_allocate(res_bocc,ras_np,nb,label='res_bocc')
+  nb = 0
+  do i=1,nk
+    if ((i == 1) .or. (key(ordk(max(1,i-1))) /= key(ordk(i)))) then
+      nb = nb+1
+      res_boff(nb) = i-1
+      res_bsym(nb) = ksym(ordk(i))
+      res_bocc(:,nb) = kocc(:,ordk(i))
+    end if
+  end do
+  res_boff(nb+1) = nk
+  res_nblk = nb
+  ! the coarse blocks: the fine blocks of one symmetry
+  call mma_allocate(res_cboff,ras_nsym+1,label='res_cboff')
+  call mma_allocate(res_cbsym,ras_nsym,label='res_cbsym')
+  res_ncb = 0
+  do i=1,nb
+    if ((i == 1) .or. (res_bsym(max(1,i-1)) /= res_bsym(i))) then
+      res_ncb = res_ncb+1
+      res_cboff(res_ncb) = res_boff(i)
+      res_cbsym(res_ncb) = res_bsym(i)
+    end if
+  end do
+  res_cboff(res_ncb+1) = nk
+  ! okb: the K of block B couple with beta group cb if an alpha class
+  ! a+_u K (u in some partition) is allowed with cb
+  call mma_allocate(res_okb,nb,sb%ncls,label='res_okb')
+  call mma_allocate(res_cokb,res_ncb,sb%ncls,label='res_cokb')
+  call mma_allocate(na,ras_np,label='res_na')
+  res_okb(:,:) = .false.
+  do i=1,nb
+    do j=1,ras_np
+      if (res_bocc(j,i) >= ras_o(j)) cycle
+      na(:) = res_bocc(:,i)
+      na(j) = na(j)+1
+      if (occ_find(sa,occ_key(na)) == 0) cycle
+      do cb=1,sb%ncls
+        if (allowed(na,sb%cls_n(:,cb))) res_okb(i,cb) = .true.
+      end do
+    end do
+  end do
+  call mma_deallocate(na)
+  res_cokb(:,:) = .false.
+  j = 0
+  do i=1,nb
+    if ((i == 1) .or. (res_bsym(max(1,i-1)) /= res_bsym(i))) j = j+1
+    res_cokb(j,:) = res_cokb(j,:) .or. res_okb(i,:)
+  end do
+  ! res_cre in the symmetry order of K
+  call mma_allocate(res_cre,ras_norb,max(1,nk),label='res_cre')
+  res_cre(:,:) = 0
+  do i=1,nk
+    kbits = kb(ordk(i))
+    do t=1,ras_norb
+      d = cre(t,kbits)
+      if (d == -1) cycle
+      res_cre(t,i) = fase(d)*str_index(sa,ibclr(d,31))
+    end do
+  end do
+  call mma_deallocate(ordk)
+  call mma_deallocate(key)
+  call mma_deallocate(kocc)
+  call mma_deallocate(ksym)
+  call mma_deallocate(kb)
+  ! the orbitals sorted by symmetry
+  call mma_allocate(res_ord,ras_norb,label='res_ord')
+  call mma_allocate(res_soff,ras_nsym,label='res_soff')
+  call mma_allocate(res_ns,ras_nsym,label='res_ns')
+  i = 0
+  do sym=1,ras_nsym
+    res_soff(sym) = i
+    do u=1,ras_norb
+      if (ras_osym(u) /= sym) cycle
+      i = i+1
+      res_ord(i) = u
+    end do
+    res_ns(sym) = i-res_soff(sym)
+  end do
+  nres_k = nk
+end subroutine mk_resolution
+
+!> The candidates of the alpha-beta sigma (res_try; res_mode = -1 if there
+!> are several, timed in the first sigma calls): the direct loops, and the
+!> resolution with fine or coarse blocks unless it costs more than 8 times
+!> the cheapest by an estimate (direct: one scalar update per beta and alpha
+!> excitation; resolution: gathers and scatters, and the DGEMM work divided
+!> by ResGemmSpeed). The estimate only screens; the timings decide (the
+!> efficiency of the small DGEMMs varies too much to be estimated).
+subroutine res_choose()
+  real(kind=wp) :: c_dir, c_fine, c_coarse, cmin
+  integer(kind=iwp) :: b, ca, cb
+  real(kind=wp), allocatable :: na(:)
+  res_mode = 0
+  if (nres_k == 0) return
+  ! direct: per beta excitation of group cb, the alpha excitations of the
+  ! alpha strings allowed with cb
+  call mma_allocate(na,sb%ncls,label='res_cost')
+  na(:) = Zero
+  do cb=1,sb%ncls
+    do ca=1,sa%ncls
+      if (blk_off(ca,cb) < 0) cycle
+      na(cb) = na(cb)+real(sa%ex_off(sa%cls_off(ca)+sa%cls_nstr(ca)+1)-sa%ex_off(sa%cls_off(ca)+1),kind=wp)
+    end do
+  end do
+  c_dir = Zero
+  do b=1,nbat
+    c_dir = c_dir+real(bat_off(b+1)-bat_off(b),kind=wp)*na(bat_cj(b))
+  end do
+  call mma_deallocate(na)
+  c_fine = res_cost(res_nblk,res_boff,res_bsym,res_okb)
+  c_coarse = res_cost(res_ncb,res_cboff,res_cbsym,res_cokb)
+  ! candidates: the direct loops, and each resolution within a factor 8 of
+  ! the cheapest estimate; timed in the first sigma calls
+  res_ntry = 1
+  res_try(1) = 0
+  cmin = min(c_dir,c_fine,c_coarse)
+  if (c_fine <= 8.0_wp*cmin) then
+    res_ntry = res_ntry+1
+    res_try(res_ntry) = 1
+  end if
+  ! (CAS: the coarse blocks are the fine ones)
+  if ((c_coarse <= 8.0_wp*cmin) .and. (res_ncb /= res_nblk)) then
+    res_ntry = res_ntry+1
+    res_try(res_ntry) = 2
+  end if
+  res_itry = 0
+  res_tim(:) = Zero
+  res_mode = merge(-1,0,res_ntry > 1)
+end subroutine res_choose
+
+!> The estimated cost of the resolution with the blocks boff/bsym/okb.
+function res_cost(nb,boff,bsym,okb) result(c)
+  integer(kind=iwp), intent(in) :: nb, boff(nb+1), bsym(nb)
+  logical(kind=iwp), intent(in) :: okb(nb,sb%ncls)
+  real(kind=wp) :: c
+  integer(kind=iwp) :: iblk, nk, jb, ib, e, cbj, usym, nu, tsym, nt
+  real(kind=wp) :: gs, mm
+  gs = Zero
+  mm = Zero
+  do iblk=1,nb
+    nk = boff(iblk+1)-boff(iblk)
+    do jb=1,sb%nstr
+      cbj = sb%str_cls(jb)
+      if (.not. okb(iblk,cbj)) cycle
+      usym = ieor(ieor(ras_lsym-1,sb%cls_sym(cbj)-1),bsym(iblk)-1)+1
+      nu = res_ns(usym)
+      if (nu == 0) cycle
+      ! gather and scatter (the scatter of Ib = jb's share: n per K)
+      gs = gs+real(nk,kind=wp)*real(nu+2*ras_norb,kind=wp)
+      do e=sb%ex_off(jb)+1,sb%ex_off(jb+1)
+        ib = sb%ex_j(e)
+        if (.not. okb(iblk,sb%str_cls(ib))) cycle
+        tsym = ieor(ieor(usym-1,ras_osym(sb%ex_p(e))-1),ras_osym(sb%ex_q(e))-1)+1
+        nt = res_ns(tsym)
+        mm = mm+real(nk,kind=wp)*real(nu,kind=wp)*real(nt,kind=wp)
+      end do
+    end do
+  end do
+  c = gs+mm/ResGemmSpeed
+end function res_cost
+
 function chunk_size() result(kc)
   use stdalloc, only: mma_maxDBLE
   integer(kind=iwp) :: kc
@@ -972,7 +1245,202 @@ end subroutine same_spin
 !> (vector loops over k), sgm(Ia,Ib_k) += Vw(k,Ia). Singlets: only the
 !> pairs tu >= vx (pair key (u-1)*norb+t, the order of the excitation
 !> lists), tu = vx with weight 1/2.
+!> The alpha-beta part of sigma (as opposite_spin) through the (N-1)-string
+!> resolution, in Lucia's loop order: for each batch of K strings (of one
+!> symmetry), gather X(K,u) = <K|a_u|Ja> C(Ja,Jb) once per beta string Jb,
+!> S(K,t,Ib) += sgn(Ib<-Jb) X G(vx) for every beta excitation Ib = a+_v a_x Jb
+!> (one DGEMM over the orbitals u and t of the allowed symmetries), then
+!> sigma(a+_t K,Ib) += <Ia|a+_t|K> S(K,t,Ib). done = .false. if not even one
+!> K per batch fits in memory (then opposite_spin does it directly).
+subroutine opposite_spin_res(mode,g,vec,sgm,done)
+  use stdalloc, only: mma_maxDBLE
+  integer(kind=iwp), intent(in) :: mode
+  real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
+  real(kind=wp), intent(inout) :: sgm(n_ras)
+  logical(kind=iwp), intent(out) :: done
+  integer(kind=iwp) :: n, ul, tl, u, t, v, x, ka, kb, mxmem, maxkb, nsb
+  real(kind=wp) :: w
+  real(kind=wp), allocatable :: Gp(:,:,:,:)
+
+  done = .false.
+  n = ras_norb
+  nsb = sb%nstr
+  call mma_maxDBLE(mxmem)
+  maxkb = int((real(mxmem,kind=wp)/3.0_wp-real(n,kind=wp)**4)/(real(n,kind=wp)*real(nsb+1,kind=wp)),kind=iwp)
+  if (maxkb < 1) return
+  done = .true.
+  ! Gp(u',t',v,x): the weight of a+_t a_u a+_v a_x (u', t' in the symmetry order)
+  call mma_allocate(Gp,n,n,n,n,label='res_Gp')
+  Gp(:,:,:,:) = Zero
+  do x=1,n
+    do v=1,n
+      kb = (x-1)*n+v
+      do tl=1,n
+        t = res_ord(tl)
+        do ul=1,n
+          u = res_ord(ul)
+          ka = (u-1)*n+t
+          if (ras_singlet .and. (ka < kb)) cycle
+          w = g(t,u,v,x)
+          if (ras_singlet .and. (ka == kb)) w = Half*w
+          Gp(ul,tl,v,x) = w
+        end do
+      end do
+    end do
+  end do
+  if (mode == 1) then
+    maxkb = min(maxkb,maxval(res_boff(2:res_nblk+1)-res_boff(1:res_nblk)))
+  else
+    maxkb = min(maxkb,maxval(res_cboff(2:res_ncb+1)-res_cboff(1:res_ncb)))
+  end if
+  if (allocated(res_Sw)) then
+    if (size(res_Sw) < maxkb*n*nsb) call mma_deallocate(res_Sw)
+  end if
+  if (.not. allocated(res_Sw)) call mma_allocate(res_Sw,maxkb*n*nsb,label='res_Sw')
+  if (allocated(res_Xw)) then
+    if (size(res_Xw) < maxkb*n) call mma_deallocate(res_Xw)
+  end if
+  if (.not. allocated(res_Xw)) call mma_allocate(res_Xw,maxkb*n,label='res_Xw')
+  if (mode == 1) then
+    call res_blocks(res_nblk,res_boff,res_bsym,res_okb,Gp,size(res_Xw),res_Xw,size(res_Sw),res_Sw,maxkb,vec,sgm)
+  else
+    call res_blocks(res_ncb,res_cboff,res_cbsym,res_cokb,Gp,size(res_Xw),res_Xw,size(res_Sw),res_Sw,maxkb,vec,sgm)
+  end if
+  call mma_deallocate(Gp)
+end subroutine opposite_spin_res
+
+!> The blocks of K of opposite_spin_res (fine or coarse, see res_mode).
+subroutine res_blocks(nb,boff,bsym,okb,Gp,nX,Xs,nS,S,maxkb,vec,sgm)
+  integer(kind=iwp), intent(in) :: nb, boff(nb+1), bsym(nb), nX, nS, maxkb
+  logical(kind=iwp), intent(in) :: okb(nb,sb%ncls)
+  real(kind=wp), intent(in) :: Gp(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
+  ! X(kk,ul) at kk+(ul-1)*nkb, S(kk,t',ib) at kk+(t'-1)*nkb+(ib-1)*nkb*norb
+  real(kind=wp), intent(inout) :: Xs(nX), S(nS), sgm(n_ras)
+  integer(kind=iwp) :: n, nsb, iblk, ks, k0, k1, nkb, ib, jb, cbj, cbi, sja, usym, nu, u0, ul, u, kk, kc, r, ia, ca, o, e, v, x, &
+                       tsym, nt, t0, tl, t
+  logical(kind=iwp) :: any_x
+  n = ras_norb
+  nsb = sb%nstr
+  do iblk=1,nb
+    ks = bsym(iblk)
+    do k0=boff(iblk)+1,boff(iblk+1),maxkb
+      k1 = min(k0+maxkb-1,boff(iblk+1))
+      nkb = k1-k0+1
+      do ib=1,nsb
+        if (okb(iblk,sb%str_cls(ib))) S((ib-1)*nkb*n+1:ib*nkb*n) = Zero
+      end do
+      do jb=1,nsb
+        cbj = sb%str_cls(jb)
+        if (.not. okb(iblk,cbj)) cycle
+        sja = ieor(ras_lsym-1,sb%cls_sym(cbj)-1)+1
+        usym = ieor(sja-1,ks-1)+1
+        nu = res_ns(usym)
+        if (nu == 0) cycle
+        u0 = res_soff(usym)
+        ! X(K,u) = <K|a_u|Ja> C(Ja,Jb), Ja = a+_u K
+        any_x = .false.
+        do ul=1,nu
+          u = res_ord(u0+ul)
+          do kk=1,nkb
+            kc = k0+kk-1
+            r = res_cre(u,kc)
+            Xs(kk+(ul-1)*nkb) = Zero
+            if (r == 0) cycle
+            ia = abs(r)
+            ca = sa%str_cls(ia)
+            if (blk_off(ca,cbj) < 0) cycle
+            o = blk_off(ca,cbj)+sa%str_idx(ia)+(sb%str_idx(jb)-1)*sa%cls_nstr(ca)
+            if (r > 0) then
+              Xs(kk+(ul-1)*nkb) = vec(o)
+            else
+              Xs(kk+(ul-1)*nkb) = -vec(o)
+            end if
+            any_x = .true.
+          end do
+        end do
+        if (.not. any_x) cycle
+        ! S(:,t,Ib) += sgn X G(u,t;vx) for each beta excitation Ib = a+_v a_x Jb
+        do e=sb%ex_off(jb)+1,sb%ex_off(jb+1)
+          ib = sb%ex_j(e)
+          v = sb%ex_p(e)
+          x = sb%ex_q(e)
+          tsym = ieor(ieor(usym-1,ras_osym(v)-1),ras_osym(x)-1)+1
+          nt = res_ns(tsym)
+          if (nt == 0) cycle
+          t0 = res_soff(tsym)
+          if (.not. okb(iblk,sb%str_cls(ib))) cycle
+          call DGEMM_('N','N',nkb,nt,nu,real(sb%ex_sgn(e),kind=wp),Xs,nkb,Gp(u0+1,t0+1,v,x),n,One,S(1+t0*nkb+(ib-1)*nkb*n),nkb)
+        end do
+      end do
+      ! sigma(Ia,Ib) += <Ia|a+_t|K> S(K,t,Ib)
+      do ib=1,nsb
+        cbi = sb%str_cls(ib)
+        if (.not. okb(iblk,cbi)) cycle
+        do tl=1,n
+          t = res_ord(tl)
+          do kk=1,nkb
+            r = res_cre(t,k0+kk-1)
+            if (r == 0) cycle
+            ia = abs(r)
+            ca = sa%str_cls(ia)
+            if (blk_off(ca,cbi) < 0) cycle
+            o = blk_off(ca,cbi)+sa%str_idx(ia)+(sb%str_idx(ib)-1)*sa%cls_nstr(ca)
+            if (r > 0) then
+              sgm(o) = sgm(o)+S(kk+(tl-1)*nkb+(ib-1)*nkb*n)
+            else
+              sgm(o) = sgm(o)-S(kk+(tl-1)*nkb+(ib-1)*nkb*n)
+            end if
+          end do
+        end do
+      end do
+    end do
+  end do
+end subroutine res_blocks
+
+
 subroutine opposite_spin(g,vec,sgm)
+  real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
+  real(kind=wp), intent(inout) :: sgm(n_ras)
+  integer(kind=iwp) :: m, k
+  real(kind=wp) :: c0, w0, c1, w1
+  logical(kind=iwp) :: done
+
+  ! the method: chosen (res_mode >= 0), or the next candidate to be timed
+  if (res_mode < 0) then
+    res_itry = res_itry+1
+    m = res_try(res_itry)
+    call CWTime(c0,w0)
+  else
+    m = res_mode
+  end if
+  done = .false.
+  if (m > 0) call opposite_spin_res(m,g,vec,sgm,done)
+  if (.not. done) call opposite_spin_dir(g,vec,sgm)
+  if (res_mode < 0) then
+    call CWTime(c1,w1)
+    res_tim(m) = c1-c0
+    if (res_itry == res_ntry) then
+      res_mode = res_try(1)
+      do k=2,res_ntry
+        if (res_tim(res_try(k)) < res_tim(res_mode)) res_mode = res_try(k)
+      end do
+      write(u6,'(1X,A,3F10.3)') 'Faroald alpha-beta sigma, s per call (direct, resolution fine, coarse; 0 = not tried):', &
+                                res_tim(0:2)
+      if (res_mode == 0) then
+        write(u6,'(1X,A)') 'Faroald alpha-beta sigma uses: direct loops'
+      else if (res_mode == 1) then
+        write(u6,'(1X,A)') 'Faroald alpha-beta sigma uses: resolution, fine blocks'
+      else
+        write(u6,'(1X,A)') 'Faroald alpha-beta sigma uses: resolution, coarse blocks'
+      end if
+    end if
+  end if
+
+end subroutine opposite_spin
+
+!> The alpha-beta part of sigma by the direct loops over the beta and alpha
+!> excitations (batched over beta excitations).
+subroutine opposite_spin_dir(g,vec,sgm)
   real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
   real(kind=wp), intent(inout) :: sgm(n_ras)
   integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka
@@ -1034,7 +1502,7 @@ subroutine opposite_spin(g,vec,sgm)
   call mma_deallocate(Cp)
   call mma_deallocate(Vw)
 
-end subroutine opposite_spin
+end subroutine opposite_spin_dir
 
 !> Transition one-particle densities between RAS vectors:
 !> da(p,q) = <bra|a+_pa a_qa|ket>, db(p,q) = <bra|a+_pb a_qb|ket>,
