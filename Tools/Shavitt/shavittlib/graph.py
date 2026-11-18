@@ -10,9 +10,9 @@
 #                                                                      *
 # Copyright (C) 2026, Roland Lindh                                     *
 #***********************************************************************
-"""The split graph (Shavitt graph) of a RASSCF CSF space, read from the
-SHAVITT group of a rasscf.h5 file, and the decoding of the CSF indices of
-CI_VECTORS into step vectors and walks.
+"""The split graph (Shavitt graph) of a RASSCF CSF space, rebuilt from the
+definition in the SHAVITT group of a rasscf.h5 file (or from scratch), and
+the decoding of the CSF indices of CI_VECTORS into step vectors and walks.
 
 Conventions (as in src/csf_graph_util/csf_graph.F90):
   * levels 1..nlev; level 0 is the tail; vertex 1 (the head) is at level nlev
@@ -77,6 +77,36 @@ class ShavittGraph:
 
     # ------------------------------------------------------------------
     @classmethod
+    def build(cls, nsym, nactel, ispin, lsym, nras, minel=None, maxel=None, level_sym=None, level_to_act=None,
+              midlev=None, ci_type=None, irrep_labels=None):
+        """The graph of a CSF space from its definition, as SGUGA builds it (see build.py).
+
+        nras[partition][irrep]: orbitals per partition and irrep; minel/maxel:
+        cumulative electron bounds of the partitions 1..k (default: CAS);
+        lsym: 0-based target irrep. level_sym/level_to_act default to RASSCF's
+        numbering (levels partition by partition, irrep by irrep).
+        """
+        from .build import build_tables, levels_from_partitions
+        nras = np.atleast_2d(np.asarray(nras, dtype=int))
+        if minel is None:
+            if nras.shape[0] != 1:
+                raise ValueError('electron bounds needed for more than one partition')
+            minel, maxel = [nactel], [-1]
+        if level_sym is None or level_to_act is None:
+            ls, la = levels_from_partitions(nras)
+            level_sym = ls if level_sym is None else level_sym
+            level_to_act = la if level_to_act is None else level_to_act
+        t = build_tables(nactel, ispin, level_sym, nsym, nras, minel, maxel, midlev)
+        self = cls(nsym=nsym, nactel=nactel, ispin=ispin, lsym=lsym, level_sym=np.asarray(level_sym, dtype=int),
+                   level_to_act=np.asarray(level_to_act, dtype=int), **t)
+        if ci_type is None:
+            ci_type = ('CAS' if nras.shape[0] == 1 else
+                       'GAS' if maxel is not None and any(int(m) >= 0 for m in maxel) else 'RAS')
+        self.ci_type = ci_type
+        self.irrep_labels = list(irrep_labels or [])
+        return self
+
+    @classmethod
     def from_h5(cls, filename):
         import h5py
         with h5py.File(filename, 'r') as f:
@@ -89,29 +119,48 @@ class ShavittGraph:
             def F(name):
                 return np.asarray(g[name][()]).T
 
-            nsym = int(at['NSYM'])
-            down = F('DOWN').astype(int) - 1
-            self = cls(
-                nsym=nsym, nactel=int(at['NACTEL']), ispin=int(at['ISPIN']), nlev=int(at['NLEV']),
-                midlev=int(at['MIDLEV']), mvsta=int(at['MVSTA']) - 1, nmidv=int(at['NMIDV']),
-                lsym=int(f.attrs['LSYM']) - 1,
-                level_sym=F('LEVEL_SYM').astype(int) - 1, level_to_act=F('LEVEL_TO_ACT').astype(int),
-                drt=F('DRT').astype(int), down=down,
-                now=F('NOW').astype(int), iow=F('IOW').astype(int),
-                nocsf=F('NOCSF').astype(int), iocsf=F('IOCSF').astype(int), ncsf=F('NCSF').astype(int),
-                icase=F('ICASE').astype(np.int64), npack=int(at['NPACK']), nipwlk=int(at['NIPWLK']),
-                nras=F('NRAS').astype(int), nrasel=F('NRASEL').astype(int), nrasmx=F('NRASMX').astype(int),
-            )
             ct = f.attrs.get('CI_TYPE', b'')
             ct = ct.decode() if isinstance(ct, bytes) else str(ct)
-            # CI_TYPE says RAS for any CAS with symmetry (IFRAS also counts the irreps): use the partitions
-            nrsprt = int(at['NRSPRT'])
-            self.ci_type = 'GAS' if ct.strip() == 'GAS' else ('CAS' if nrsprt == 1 else 'RAS')
-            if 'L2ACT' in f.attrs:  # level -> active orbital (files written before LEVEL_TO_ACT was IDXSX)
-                self.level_to_act = np.asarray(f.attrs['L2ACT'][:self.nlev]).astype(int)
-            if 'IRREP_LABELS' in f.attrs:
-                self.irrep_labels = [x.decode().strip() if isinstance(x, bytes) else str(x).strip()
-                                     for x in f.attrs['IRREP_LABELS']]
+            labels = [x.decode().strip() if isinstance(x, bytes) else str(x).strip()
+                      for x in f.attrs.get('IRREP_LABELS', [])]
+            nsym = int(f.attrs['NSYM'])
+            lsym = int(f.attrs['LSYM']) - 1
+            if 'DRT' not in g:
+                # the definition of the graph: rebuild it as SGUGA does, check it against RASSCF's counts
+                nras = F('PARTITION_ORBITALS').astype(int).T  # [partition][irrep]
+                level_sym = np.atleast_1d(F('LEVEL_IRREPS')).astype(int) - 1
+                nlev = len(level_sym)
+                self = cls.build(nsym, int(f.attrs['NACTEL']), int(f.attrs['SPINMULT']), lsym, nras,
+                                 np.atleast_1d(F('PARTITION_MIN_ELECTRONS')).astype(int),
+                                 np.atleast_1d(F('PARTITION_MAX_ELECTRONS')).astype(int), level_sym=level_sym,
+                                 level_to_act=np.asarray(f.attrs['L2ACT'][:nlev]).astype(int),
+                                 midlev=int(at['MIDLEVEL']), irrep_labels=labels)
+                ncsf = np.atleast_1d(F('CSFS_PER_IRREP')).astype(int)
+                if self.nvert != int(at['NUM_VERTICES']) or not np.array_equal(self.ncsf, ncsf):
+                    raise ValueError(f'{filename}: the rebuilt graph ({self.nvert} vertices, '
+                                     f'CSFs {self.ncsf.tolist()}) '
+                                     f'differs from RASSCF\'s ({int(at["NUM_VERTICES"])} vertices, CSFs '
+                                     f'{ncsf.tolist()}): the CSF order of SGUGA may have changed')
+            else:
+                # files written by Shavitt 0.9 (before 2026-11-18): the tables as stored by RASSCF
+                down = F('DOWN').astype(int) - 1
+                self = cls(
+                    nsym=nsym, nactel=int(at['NACTEL']), ispin=int(at['ISPIN']), nlev=int(at['NLEV']),
+                    midlev=int(at['MIDLEV']), mvsta=int(at['MVSTA']) - 1, nmidv=int(at['NMIDV']), lsym=lsym,
+                    level_sym=F('LEVEL_SYM').astype(int) - 1, level_to_act=F('LEVEL_TO_ACT').astype(int),
+                    drt=F('DRT').astype(int), down=down,
+                    now=F('NOW').astype(int), iow=F('IOW').astype(int),
+                    nocsf=F('NOCSF').astype(int), iocsf=F('IOCSF').astype(int), ncsf=F('NCSF').astype(int),
+                    icase=F('ICASE').astype(np.int64), npack=int(at['NPACK']), nipwlk=int(at['NIPWLK']),
+                    nras=F('NRAS').astype(int), nrasel=F('NRASEL').astype(int), nrasmx=F('NRASMX').astype(int),
+                )
+                # CI_TYPE says RAS for any CAS with symmetry in files before that fix: use the partitions
+                self.ci_type = 'CAS' if int(at['NRSPRT']) == 1 else 'RAS'
+                if 'L2ACT' in f.attrs:  # level -> active orbital (files written before LEVEL_TO_ACT was IDXSX)
+                    self.level_to_act = np.asarray(f.attrs['L2ACT'][:self.nlev]).astype(int)
+                self.irrep_labels = labels
+            if ct.strip() == 'GAS':
+                self.ci_type = 'GAS'
             if 'CI_VECTORS' in f:
                 self.ci_vectors = np.atleast_2d(np.asarray(f['CI_VECTORS'][()]))
             if 'ROOT_ENERGIES' in f:

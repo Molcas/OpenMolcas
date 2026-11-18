@@ -110,26 +110,36 @@ graph; the OpenMolcas logo sits in the lower right corner of the figure.
 
 ## The SHAVITT group of rasscf.h5
 
-All integers; arrays are written in Fortran order (h5py shows the dimensions
-reversed). Indices in the file are 1-based.
+The definition of the graph; with the file attributes `NSYM`, `NACTEL`,
+`SPINMULT`, `LSYM` and `L2ACT` (level -> active orbital) it determines the
+graph and the CSF order of `CI_VECTORS`. Integers, written in Fortran order
+(h5py shows the dimensions reversed), 1-based.
 
 | Name | Dimensions (Fortran) | Content |
 |---|---|---|
-| `DRT` | `[NVERT,5]` | L, N, a, b, c of each vertex; vertex 1 is the head |
-| `DOWN` | `[NVERT,4]` | vertex below for the steps d=0..3 (0: no arc) |
-| `LEVEL_SYM` | `[NLEV]` | irrep of each level |
-| `LEVEL_TO_ACT` | `[NLEV]` | active orbital of each level |
-| `NRAS`, `NRASEL`, `NRASMX` | `[NSYM,NRSPRT]`, `[NRSPRT]` | RAS/GAS partitions and cumulative electron bounds |
-| `NCSF` | `[NSYM]` | CSFs per total irrep |
-| `NOW`, `IOW` | `[2,NSYM,NMIDV]` | upper(1)/lower(2) half walks per irrep and midvertex, offsets in `ICASE` |
-| `NOCSF`, `IOCSF` | `[NSYM,NMIDV,NSYM]` | CSFs and offsets per (upper irrep, midvertex, total irrep) |
-| `ICASE` | `[NWALK*NIPWLK]` | packed half-walk step vectors, `NPACK` 2-bit steps per integer, lowest level in the lowest bits |
+| `LEVEL_IRREPS` | `[nLev]` | irrep of the orbital of each level (level 1 at the bottom) |
+| `PARTITION_ORBITALS` | `[NSYM,nPart]` | orbitals of each irrep in each partition (RAS/GAS space) |
+| `PARTITION_MIN_ELECTRONS` | `[nPart]` | minimum number of electrons in the partitions 1..k together |
+| `PARTITION_MAX_ELECTRONS` | `[nPart]` | maximum number of electrons in the partitions 1..k together (-1: no bound) |
+| `CSFS_PER_IRREP` | `[NSYM]` | CSFs of each total irrep (check) |
 
-Attributes: `NSYM NACTEL ISPIN NLEV NVERT MIDLEV MVSTA MVEND NMIDV IFRAS NRSPRT NPACK NIPWLK NWALK NUW`.
+Attributes: `MIDLEVEL` (the midlevel of the split graph), `NUM_VERTICES`
+(check), `DESCRIPTION`; each dataset has a `DESCRIPTION` too. The tool uses
+the stored midlevel and stops if its graph has another number of vertices or
+CSFs than RASSCF's.
 
-CSF order of `CI_VECTORS` (symmetry `LSYM`): blocks (midvertex outermost,
-upper-walk irrep inside), within a block the upper half walk runs fastest.
+The graph (`shavittlib/build.py`, after `MKSGUGA` of
+`src/csf_graph_util/csf_graph.F90`): the Paldus table is built from the head
+level by level, new vertices numbered as they are met (upper vertex, then step
+d = 0..3); RAS/GAS removes the vertices that violate the bounds at the
+partition boundaries and those no longer on a walk; the half walks are
+enumerated depth first with the steps 0..3 in order. CSF order of
+`CI_VECTORS` (symmetry `LSYM`): blocks (midvertex outermost, upper-walk irrep
+inside), within a block the upper half walk runs fastest.
 `shavittlib.graph.ShavittGraph.step_vector` implements this.
+
+Files written by version 0.9 before 2026-11-18 stored the tables themselves
+(`DRT`, `DOWN`, `NOW`, `IOW`, `NOCSF`, `IOCSF`, `ICASE`, ...); they are still read.
 
 ## Checking
 
