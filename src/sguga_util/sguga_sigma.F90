@@ -40,7 +40,7 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
   use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi
   use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
   use Constants, only: Zero, One, Half
-  use Definitions, only: iwp, wp
+  use Definitions, only: iwp, wp, u6
 
   implicit none
   type(SGStruct), intent(in) :: SGS
@@ -52,7 +52,8 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
   integer(kind=iwp) :: nOrb, iOrb, jOrb, kOrb, ijSym, SigmaSym, mCSFs, nP, p, q, q0, nB, MaxMem
   integer(kind=iwp), allocatable :: PI(:), PJ(:)
   real(kind=wp) :: TwoInt
-  real(kind=wp), allocatable :: D(:,:), W(:,:), G(:,:), X(:)
+  real(kind=wp), allocatable :: D(:,:), W(:,:), G(:,:)
+  logical(kind=iwp), save :: Warned = .false.
 
   Sigma(:) = Zero
   nOrb = SGS%nLev
@@ -74,6 +75,10 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
     if ((nP == 0) .or. (mCSFs == 0)) cycle
     call mma_maxDBLE(MaxMem)
     if (real(mCSFs,kind=wp)*real(nP+1,kind=wp)+real(nP,kind=wp)**2 > 0.8_wp*real(MaxMem,kind=wp)) then
+      if (.not. Warned) write(u6,'(1X,A,I0,A,I0,A,ES10.3,A,ES10.3,A)') 'sg_h_psi: the block of ',nP,' pairs x ',mCSFs, &
+        ' CSFs does not fit (',real(mCSFs,kind=wp)*real(nP+1,kind=wp),' words needed, ',real(MaxMem,kind=wp), &
+        ' available); evaluated directly'
+      Warned = .true.
       call Block_Direct()
       cycle
     end if
@@ -121,26 +126,28 @@ contains
 
   ! the block ijSym directly: S_kl S_ij|Psi> for every pair of pairs
   subroutine Block_Direct()
-    integer(kind=iwp) :: r
-    real(kind=wp), allocatable :: Y(:)
+    ! (local loop indices and work arrays; the host's are not touched)
+    integer(kind=iwp) :: ip, ir, kk
+    real(kind=wp) :: T2
+    real(kind=wp), allocatable :: X(:), Y(:)
     call mma_allocate(X,mCSFs,Label='X_HPsi')
     call mma_allocate(Y,nCSFs,Label='Y_HPsi')
-    do p=1,nP
+    do ip=1,nP
       X(:) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,PI(p),PJ(p),One,PsiSym,Psi,X)
-      if (PI(p) /= PJ(p)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(p),PI(p),One,PsiSym,Psi,X)
+      call SG_Epq_Psi(SGS,CIS,EXS,PI(ip),PJ(ip),One,PsiSym,Psi,X)
+      if (PI(ip) /= PJ(ip)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ip),PI(ip),One,PsiSym,Psi,X)
       if (ijSym == 1) then
-        TwoInt = Zero
-        do kOrb=1,nOrb
-          TwoInt = TwoInt+TUVX_Tri(iTri(iTri(PI(p),kOrb),iTri(kOrb,PJ(p))))
+        T2 = Zero
+        do kk=1,nOrb
+          T2 = T2+TUVX_Tri(iTri(iTri(PI(ip),kk),iTri(kk,PJ(ip))))
         end do
-        Sigma(:) = Sigma(:)+(TU_Tri(iTri(PI(p),PJ(p)))-Half*TwoInt)*X(:)
+        Sigma(:) = Sigma(:)+(TU_Tri(iTri(PI(ip),PJ(ip)))-Half*T2)*X(:)
       end if
-      do r=1,nP
+      do ir=1,nP
         Y(:) = Zero
-        call SG_Epq_Psi(SGS,CIS,EXS,PI(r),PJ(r),One,SigmaSym,X,Y)
-        if (PI(r) /= PJ(r)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(r),PI(r),One,SigmaSym,X,Y)
-        Sigma(:) = Sigma(:)+Half*TUVX_Tri(iTri(iTri(PI(r),PJ(r)),iTri(PI(p),PJ(p))))*Y(:)
+        call SG_Epq_Psi(SGS,CIS,EXS,PI(ir),PJ(ir),One,SigmaSym,X,Y)
+        if (PI(ir) /= PJ(ir)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ir),PI(ir),One,SigmaSym,X,Y)
+        Sigma(:) = Sigma(:)+Half*TUVX_Tri(iTri(iTri(PI(ir),PJ(ir)),iTri(PI(ip),PJ(ip))))*Y(:)
       end do
     end do
     call mma_deallocate(Y)
