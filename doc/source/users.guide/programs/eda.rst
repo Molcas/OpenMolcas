@@ -20,7 +20,7 @@ Description
 
 The :program:`EDA` module performs the closed-shell canonical molecular
 orbital energy decomposition analysis (CMOEDA), following the
-energy-decomposition scheme of Su and Li [:cite:`Su2009`].
+energy-decomposition scheme of Su and Li :cite:`Su2009`.
 
 The current implementation supports closed-shell fragments and the
 reference methods AUTO, RHF, and MBPT2.
@@ -28,11 +28,16 @@ reference methods AUTO, RHF, and MBPT2.
 Input
 -----
 
-The input for the module begins with
+The input for the :program:`EDA` module begins with
 
 ::
 
   &EDA
+
+The molecular system is divided into fragments by specifying the number
+of fragments, the number of atoms in each fragment, their charges and
+spin multiplicities, and the electronic-structure reference used for
+the decomposition.
 
 Keywords
 --------
@@ -47,6 +52,9 @@ NFRAG
             </HELP>
             </KEYWORD>
 
+Specifies the number of molecular fragments participating in the
+decomposition. The value must be a positive integer.
+
 NATOM
 .....
 
@@ -57,6 +65,10 @@ NATOM
             supplied for every fragment.
             </HELP>
             </KEYWORD>
+
+Specifies the number of atoms belonging to each fragment. One integer
+must be supplied for every fragment, so the number of values must equal
+the value specified by ``NFRAG``.
 
 CHARGE
 ......
@@ -69,6 +81,10 @@ CHARGE
             </HELP>
             </KEYWORD>
 
+Specifies the charge of each molecular fragment. One integer must be
+supplied for every fragment, in the same fragment order used for
+``NATOM``.
+
 MULT
 ....
 
@@ -79,6 +95,11 @@ MULT
             requires closed-shell singlet fragments with MULT=1.
             </HELP>
             </KEYWORD>
+
+Specifies the spin multiplicity of each molecular fragment. One value
+must be supplied for every fragment. The current implementation supports
+only closed-shell singlet fragments, and therefore every multiplicity
+must be ``1``.
 
 REFERENCE
 .........
@@ -91,6 +112,18 @@ REFERENCE
             </HELP>
             </KEYWORD>
 
+Selects the electronic-structure reference used for the energy
+decomposition. The accepted values are:
+
+``AUTO``
+  Select the reference method automatically.
+
+``RHF``
+  Use a closed-shell restricted Hartree--Fock reference.
+
+``MBPT2``
+  Use a closed-shell second-order Moller--Plesset reference.
+
 FBASIS
 ......
 
@@ -102,6 +135,16 @@ FBASIS
             </HELP>
             </KEYWORD>
 
+Selects the basis convention used for the fragment calculations. The
+accepted values are:
+
+``OWN``
+  Use the basis functions belonging to each individual fragment. This
+  is the currently validated mode and the default.
+
+``SUPER``
+  Use the full supermolecule basis for each fragment.
+
 DEBUG
 .....
 
@@ -112,5 +155,35 @@ DEBUG
             </HELP>
             </KEYWORD>
 
-.. xmldoc:: </MODULE>
+Requests additional diagnostic information from the :program:`EDA`
+module. This keyword is intended primarily for debugging and
+development.
 
+Example
+-------
+
+For a system divided into two closed-shell fragments, an
+:program:`EDA` input can, e.g., contain
+
+::
+
+  &EDA
+  NFRAG
+    2
+  NATOM
+    2 1
+  CHARGE
+    0 0
+  MULT
+    1 1
+  REFERENCE
+    RHF
+  FBASIS
+    OWN
+
+In this example the system is divided into two neutral singlet
+fragments containing two and one atoms, respectively. The
+decomposition uses an RHF reference with each fragment represented in
+its own basis.
+
+.. xmldoc:: </MODULE>
