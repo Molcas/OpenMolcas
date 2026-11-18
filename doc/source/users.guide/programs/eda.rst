@@ -20,8 +20,7 @@ Description
 
 The :program:`EDA` module performs the closed-shell canonical molecular
 orbital energy decomposition analysis (CMOEDA), following the
-energy-decomposition scheme of Su and Li [J. Chem. Phys. 131, 014102
-(2009), DOI: 10.1063/1.3159673].
+energy-decomposition scheme of Su and Li [:cite:`Su2009`].
 
 The current implementation supports closed-shell fragments and the
 reference methods AUTO, RHF, and MBPT2.
