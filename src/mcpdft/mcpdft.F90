@@ -31,7 +31,8 @@ use lpdft, only: lpdft_kernel
 use mspdft_util, only: replace_diag
 use mspdft, only: heff, mspdft_init, mspdft_finalize
 use wadr, only: FockOcc
-use general_data, only: nelec3, nhole1, ntot1, ntot2
+use Orbital_Spaces, only: ntot1, ntot2
+use CI_Input, only: nelec3, nhole1
 use libxc_parameters, only: FuncExtParams
 use rasscf_global, only: ExFac, IPR, lRoots, lSquare, NACPR2, nFint
 use stdalloc, only: mma_allocate, mma_deallocate

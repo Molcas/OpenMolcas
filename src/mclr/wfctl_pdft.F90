@@ -25,7 +25,8 @@ use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, ipCI, ipDia, ipMat, IRLXROOT, ISNAC, LuTemp, nAcPar, nAcPr2, NACSTATES, nConf1, nDens, nDensC, &
                      nNA, PDFT_Ratio, WF_Ratio, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use general_data, only: nAsh, nRs2, nSym
+use Orbital_Spaces, only: nAsh, nSym
+use CI_Input, only: nRs2
 use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nBas, nCSF, nDisp, nIter, nRoots, ntAsh, Weight
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate

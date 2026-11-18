@@ -16,7 +16,7 @@ module lpdft
 
 use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
-use general_data, only: nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
+use Orbital_Spaces, only: nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
 use mcpdft_input, only: mcpdft_options
 use rasscf_files, only: jobiph, jobold
 use rasscf_global, only: dftfock, exfac, iadr15, istord, istorp, lroots, nac, nacpar, nacpr2, nfint, noneq, nroots, potnuc, weight

@@ -14,7 +14,7 @@
 subroutine GrdIni()
 
 use Index_Functions, only: nTri_Elem
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_global, only: CLag, CLagFull, do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, &
                          FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, iStpGrd, LuAPT2, LuCMOPT2, LuGAMMA, LUGRAD, LuPT2, &
                          LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, SLag, TraFro, WLag

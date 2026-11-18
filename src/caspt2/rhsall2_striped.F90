@@ -31,7 +31,7 @@ use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NPQ_CHOTYPE, NVLOC_CHOBATCH
 use PrintLevel, only: USUAL, VERBOSE
 use caspt2_global, only: Buff, FIMO, idxb, iParRHS, iPrGlb, PIQK
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAES, NASHT, NBTCH, NBTCHES, NISH, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One

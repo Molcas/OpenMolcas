@@ -16,7 +16,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: ipCI, ipMat, n1Dens, n2Dens, nConf1, nDens, NSSA, XISPSM
 use CandS, only: ICSM, ISSM
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, nConf, nCSF, nRoots, ntAsh, PT2
 use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
 use ISRotation, only: InvEne, InvSCF

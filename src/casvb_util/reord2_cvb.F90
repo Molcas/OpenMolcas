@@ -17,7 +17,7 @@ subroutine reord2_cvb(cfrom,cto,imode)
 ! from SGA CSFs to split-graph-GUGA CSFs.
 
 use CI_States, only: CI_ReOrd
-use general_data, only: STSYM
+use CI_Input, only: STSYM
 use rasscf_global, only: nConf
 use Definitions, only: wp, iwp
 

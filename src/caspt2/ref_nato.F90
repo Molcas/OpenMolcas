@@ -19,7 +19,7 @@ subroutine REF_NATO(DREF,nDREF,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
 ! orbitals are copied unchanged.
 
 use Index_Functions, only: iTri, nTri_Elem
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two

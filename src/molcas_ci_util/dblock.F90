@@ -18,7 +18,7 @@ subroutine DBLOCK(D)
 ! ********** IBM-3090 release 88 10 10 **********
 
 use Index_Functions, only: iTri, nTri_Elem
-use general_data, only: NASH, NSYM
+use Orbital_Spaces, only: NASH, NSYM
 use Definitions, only: wp, iwp
 
 implicit none

@@ -16,7 +16,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO, ESTERR, ipCI, ipCM, ipMat, IRLXROOT, ISNAC, ISTATE, LuJob, LuPT2, LuTEMP, n1Dens, n2Dens, nA, NACSTATES, &
                      nConf1, nDens, nDensC, OVERRIDE
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: iRoot, iTOC, nBas, nCSF, nDisp, nRoots, ntAsh, ntBtri, PT2
 use PCM_grad, only: DSCFAO, DSSAO, PCM_grad_D2v, PCMSCFAO, PCMSCFMO
 use rctfld_module, only: lRF

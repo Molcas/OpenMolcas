@@ -24,7 +24,7 @@ subroutine MKRHSG(IVEC,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KAGEB, KAGTB
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NINDEP, NISH, NISUP, NISUP, NORB, NSES, NSSH, NSYM
 use Constants, only: Half, OneHalf
 use Definitions, only: wp, iwp

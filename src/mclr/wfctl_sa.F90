@@ -22,7 +22,8 @@ use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
-use general_data, only: nAsh, nRS2
+use Orbital_Spaces, only: nAsh
+use CI_Input, only: nRS2
 use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, NROOTS, PT2, STEPTYPE, &
                       TWOSTEP
 use PCM_grad, only: def_solv, do_RF, iStpPCM, PCM_grad_CLag, PCM_grad_PT2

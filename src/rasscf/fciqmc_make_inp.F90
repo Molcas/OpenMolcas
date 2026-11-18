@@ -16,7 +16,7 @@
 module fciqmc_make_inp
 
 use linalg_mod, only: verify_
-use general_data, only: iSpin, nActEl
+use CI_Input, only: iSpin, nActEl
 use fortran_strings, only: str
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero, Five, Ten

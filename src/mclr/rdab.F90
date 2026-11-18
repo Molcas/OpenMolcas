@@ -13,7 +13,7 @@ subroutine RdAB()
 
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: ChDisp, CMO, lDisp
-use general_data, only: nIsh, nSym
+use Orbital_Spaces, only: nIsh, nSym
 use input_mclr, only: ESCF, iMethod, McKinley, nBas, nDel, nDisp, nOrb, ntBSqr, ntIsh, ntISqr, ntITri, ntPert, Perturbation, PT2
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6

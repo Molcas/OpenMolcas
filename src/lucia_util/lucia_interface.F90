@@ -388,7 +388,7 @@ subroutine cpsivc(ifile,mxrec,vec,lrec)
   ! Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
 
   use lucia_data, only: IDISK
-  use general_data, only: STSYM
+  use CI_Input, only: STSYM
 
   implicit none
   integer(kind=iwp), intent(in) :: ifile, mxrec

@@ -30,7 +30,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use PrintLevel, only: DEBUG
 use mcpdft_output, only: iPrLoc
 use rasscf_global, only: ISTORD, ISTORP, nacpar, nFint, nTot3, nTot4
-use general_data, only: nash, nbas, nish, norb, nsym, nTot1, nTot2
+use Orbital_Spaces, only: nash, nbas, nish, norb, nsym, nTot1, nTot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6

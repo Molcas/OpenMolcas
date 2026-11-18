@@ -28,7 +28,7 @@ use CI_Info, only: CI_St
 use Index_Functions, only: iTri
 use PrintLevel, only: VERBOSE
 use caspt2_global, only: DREF, iPrGlb
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: nAES, nAshT, nInDep, nIsh, nISup, nOrb, nSym
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6

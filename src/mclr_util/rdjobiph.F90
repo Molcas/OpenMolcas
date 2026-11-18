@@ -30,7 +30,8 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sNew
 use MCLR_Data, only: CMO, FnJob, FnMck, G1t, G2t, IRLXROOT, ISNAC, ISTATE, LuJob, LuMck, nA, NACSTATES, nNA, NSSA, OVERRIDE, SA
-use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, STSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
+use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
 use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iTOC, iTocIph, lRoots, McKinley, nBas, nCOnf, nDel, &
                       nFro, nOrb, nRoots, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2

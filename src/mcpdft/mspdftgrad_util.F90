@@ -22,7 +22,7 @@ subroutine MSPDFTGrad_Misc(si_pdft,states)
 use CI_Info, only: CI_St
 use mspdftgrad, only: D1aoMS, D1SAOMS, DIDA, F1MS, F2MS, FocMS, FxyMS, P2MOT
 use rasscf_global, only: lroots, NACPR2, nTot4
-use general_data, only: ntot1
+use Orbital_Spaces, only: ntot1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

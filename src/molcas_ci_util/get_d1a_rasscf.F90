@@ -41,7 +41,7 @@ subroutine Get_D1A_RASSCF(CMO,D1A_MO,D1A_AO)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use general_data, only: nAsh, nBas, nFro, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nBas, nFro, nIsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

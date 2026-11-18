@@ -17,8 +17,8 @@ use lucia_data, only: ECORE, ENVIRO, iDEXS, nDEXS, nHEXS, IADVICE, ICISTR, ICJKA
                       LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, nDEXS, nHEXS, NACTEL, NCISPC, NCMBSPC, &
                       NGAS, NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN, Sigma_on_disk, IH1FORM, I12
 use CI_Info, only: Space_Inp
-use general_data, only: IGSOCCX_MOLCAS => IGSOCCX, iSpin, NACTEL_MOLCAS => NACTEL, nGAS_MOLCAS => nGAS, NGSSH_MOLCAS => NGSSH, &
-                        NSYM, STSYM
+use Orbital_Spaces, only: NSYM
+use CI_Input, only: IGSOCCX_MOLCAS => IGSOCCX, iSpin, NACTEL_MOLCAS => NACTEL, nGAS_MOLCAS => nGAS, NGSSH_MOLCAS => NGSSH, STSYM
 use rasscf_global, only: ITMAX, lROOTS, nROOTS, POTNUC
 use output_ras, only: iPrLoc
 use casvb_global, only: ifvb

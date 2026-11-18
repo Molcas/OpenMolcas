@@ -25,7 +25,8 @@ use RASWFn, only: wfn_dens, wfn_spindens
 use fortran_strings, only: str
 use para_info, only: myRank
 use rasscf_global, only: iAdr15, NAc, NACPAR, NACPR2, NRoots
-use general_data, only: ispin, nActEl, NASH, NSYM
+use Orbital_Spaces, only: NASH, NSYM
+use CI_Input, only: ispin, nActEl
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG
 use Index_Functions, only: iTri, nTri_Elem

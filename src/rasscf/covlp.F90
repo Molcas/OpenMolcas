@@ -24,7 +24,7 @@ use Index_Functions, only: iTri
 use rasscf_global, only: NROOT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NASH, NISH, NSSH, NSYM
+use Orbital_Spaces, only: NASH, NISH, NSSH, NSYM
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 

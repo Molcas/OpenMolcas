@@ -30,7 +30,7 @@ subroutine Rd2Int(iPL)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: CasInt, nBas, nSkip, TimeDep
 use Molcas, only: MxSym
 use Definitions, only: iwp, u6

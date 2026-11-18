@@ -14,7 +14,7 @@ subroutine rhs_sa(Fock,SLag,ipS2)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: Int1, ipCI, ipCM, ipMat, ISTATE, LuJob, n1Dens, n2Dens, nA, nConf1, nDens, nNA, XISPSM
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: Debug, iRoot, iTOC, nBas, nConf, nCSF, nOrb, nRoots, ntAsh, PT2
 use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
 use ISRotation, only: InvEne, InvSCF

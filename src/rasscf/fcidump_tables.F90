@@ -94,7 +94,7 @@ end subroutine OrbitalTable_deallocate
 !>  @param[in] orbital_energies
 subroutine fill_orbitals(table,orbital_energies)
 
-  use general_data, only: nAsh, nBas, nFro, nIsh, nSym
+  use Orbital_Spaces, only: nAsh, nBas, nFro, nIsh, nSym
 
   type(OrbitalTable), intent(inout) :: table
   real(kind=wp), intent(in) :: orbital_energies(:)

@@ -20,7 +20,7 @@ use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use PrintLevel, only: VERBOSE
 use caspt2_global, only: Buff, FIMO, idxb, iPrGlb, PIQK
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAES, NASHT, NBTCH, NBTCHES, NISH, NSSH, NSYM
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: NASUP, NISUP

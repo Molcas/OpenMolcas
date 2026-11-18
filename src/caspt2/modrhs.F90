@@ -14,7 +14,7 @@ subroutine MODRHS(IVEC,FIMO,NFIMO)
 use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: KTU, KTUV
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAES, NASHT, NASUP, NINDEP, NISH, NISUP, NORB, NSSH, NSYM, NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

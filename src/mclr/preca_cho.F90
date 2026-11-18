@@ -27,7 +27,7 @@ subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,Sgn,
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t, nA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: LuChoInt, nBas, nOrb
 use Constants, only: One, Two, Four, Eight
 use Definitions, only: wp, iwp

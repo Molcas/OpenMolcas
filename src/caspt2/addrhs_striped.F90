@@ -823,7 +823,7 @@ subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
 
   use SUPERINDEX, only: KIGEJ, KIGTJ
   use caspt2_module, only: NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NISUP, NSSH, NSYM
-  use general_data, only: NASH
+  use Orbital_Spaces, only: NASH
 
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYL, NA, NJ, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
@@ -1284,7 +1284,7 @@ end subroutine ADDRHSF_STRIPED_O
 subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
   use caspt2_module, only: NISUP
-  use general_data, only: NASH
+  use Orbital_Spaces, only: NASH
 
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYL, NA, NU, NC, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)

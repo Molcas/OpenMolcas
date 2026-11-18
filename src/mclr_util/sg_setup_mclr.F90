@@ -17,7 +17,8 @@ subroutine SG_Setup_MCLR(Mode)
 
 use molcas, only: MxLev
 use CI_States, only: CI_Setup_RAS
-use general_data, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, STSym
+use Orbital_Spaces, only: nSym
+use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
 use Definitions, only: iwp
 
 implicit none

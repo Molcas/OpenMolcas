@@ -18,7 +18,7 @@ use PrintLevel, only: VERBOSE
 use CI_Info, only: CI_St
 use CI_States, only: CI_Walk_Next
 use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: IFRMS, IFXMS, ISCF, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par

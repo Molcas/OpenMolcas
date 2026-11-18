@@ -20,7 +20,8 @@ subroutine Compress(ArrayIn,ArrayOut,dsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nDens, nDensC
-use general_data, only: nIsh, nRs1, nRs2, nRs3, nSym
+use Orbital_Spaces, only: nIsh, nSym
+use CI_Input, only: nRs1, nRs2, nRs3
 use input_mclr, only: nOrb, TimeDep
 use Constants, only: Zero
 use Definitions, only: wp, iwp

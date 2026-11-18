@@ -21,7 +21,7 @@ use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_n
 use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma, ras_traci, ras_trans_one_pdm, &
                        ras_trans_two_pdm
 use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -29,7 +29,7 @@ use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
 use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
 use SGUGA_Densities, only: sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
-use general_data, only: iDoGAS
+use CI_Input, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
 use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
 use CI_Info, only: CI_St, Space_CI
@@ -1648,7 +1648,8 @@ end subroutine CI_Timer
 !> checked against the RAS description (nRsPrt, nRas, nRasEl, NSM) and the
 !> HEXS/DEXS thresholds used by the CI interface.
 subroutine CI_Space_Setup()
-use general_data, only: IGSOCCX, ISPIN, NACTEL, NGAS, NGSSH, nElec3, nHole1, nRs1, nRs2, nRs3, nSym
+use Orbital_Spaces, only: nSym
+use CI_Input, only: IGSOCCX, ISPIN, NACTEL, NGAS, NGSSH, nElec3, nHole1, nRs1, nRs2, nRs3
 use CI_Info, only: Space_Inp
 use CI_States, only: RAS_Partitions
 use Molcas, only: MxSym
@@ -1738,11 +1739,12 @@ end subroutine CI_Space_Setup
 
 subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
 ! (the input values: the CI state is set up here)
-use general_data, only: ISPIN, NACTEL, STSYM
+use CI_Input, only: ISPIN, NACTEL, STSYM
 use sguga, only: SG_Test_EpqErs_Ref
 use faroald, only: nela, nelb
 use second_quantization, only: binom_coef
-use general_data, only: STSym, nSym
+use Orbital_Spaces, only: nSym
+use CI_Input, only: STSym
 use Molcas, only: MxSym
 
 implicit none
@@ -3319,7 +3321,7 @@ end function Faroald_HDet
 subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
 
 use sguga, only: sg_traci
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 
 integer(kind=iwp), intent(in) ::  iState,nTU, nCSF
 real(kind=wp), intent(in) :: TU(nTU)

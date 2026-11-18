@@ -21,7 +21,7 @@ use Definitions, only: MPIInt
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_close_group, mh5_fetch_dset, mh5_get_dset_dims, mh5_open_dset, mh5_open_file_r, mh5_open_group
 use Para_Info, only: MyRank
-use general_data, only: nActel
+use CI_Input, only: nActel
 use caspt2_module, only: jstate, mstate
 use linalg_mod, only: verify_
 use fortran_strings, only: str

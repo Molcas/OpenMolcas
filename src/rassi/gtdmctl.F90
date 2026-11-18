@@ -17,7 +17,7 @@ use frenkel_global_vars, only: DoCoul
 use CI_Info, only: CI_St
 use CI_States, only: CI_CITRA, CI_Free_State, CI_Print_Graph
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
-use general_data, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
+use CI_Input, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
 use rasscf_global, only: DoDMRG
 use rassi_aux, only: AO_Mode, iDisk_TDM, ipglob, jDisk_TDM
 use rassi_data, only: ENUC, NASH, NASHT, NCMO, NDEL, NFRO, NISH, NISHT, NOSH, NSSH, NTDMAB, NTDMZZ, NTRA

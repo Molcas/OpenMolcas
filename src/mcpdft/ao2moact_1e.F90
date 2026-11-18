@@ -28,7 +28,7 @@
 subroutine ao2moact_1e(cmo,d_ao,d_act,nSym,nBas,nAsh,nFro,nIsh)
 
 use Index_Functions, only: nTri_Elem
-use general_data, only: ntot1, ntot2
+use Orbital_Spaces, only: ntot1, ntot2
 use rasscf_global, only: nacpar
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Zero

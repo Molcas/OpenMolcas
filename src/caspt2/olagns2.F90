@@ -15,7 +15,7 @@ subroutine OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
 
 use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NBAS, NDEL, NFRO, NISH, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

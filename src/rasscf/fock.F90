@@ -42,7 +42,7 @@ use rasscf_global, only: CBLB, CBLBM, E2act, ECAS, HalfQ1, IBLB, IBLBM, ISTORD, 
                          NTOT3, via_DFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
+use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 

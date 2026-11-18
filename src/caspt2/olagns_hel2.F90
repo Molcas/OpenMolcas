@@ -34,7 +34,7 @@ use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ, KTGEU, KTGTU, KTU, KTUV
 use EQSOLV, only: IVECC2
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: OLag
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: HZERO, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NBAS, NBAST, NFRO, NIES, NIGEJES, NIGTJES, NISH, &
                          NISUP, NSES, NSSH, NSYM, NTGEUES, NTGTUES, NTU, NTUES, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate

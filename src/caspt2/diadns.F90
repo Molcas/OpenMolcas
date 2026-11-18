@@ -30,7 +30,7 @@ use Symmetry_Info, only: Mul
 use caspt2_global, only: do_grad
 use EQSOLV, only: LLIST, NLIST
 use Sigma_data, only: IFTEST, INCX1, INCX2, INCX3, INCY1, INCY2, LEN1, NLST1, VAL1
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAGEB, NAGTB, NASUP, NIGEJ, NIGTJ, NIMX, NINDEP, NISH, NISUP, NORB, NORB, NSMX, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

@@ -39,10 +39,10 @@ subroutine cre_raswfn()
   use mh5, only: mh5_close_dset, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, &
                  mh5_create_file, mh5_init_attr, mh5_put_dset
   use sxci, only: IDXCI, IDXSX
-  use general_data, only: iDoGAS, NGAS, NGSSH
+  use CI_Input, only: iDoGAS, NGAS, NGSSH
   use input_ras, only: Key
-  use general_data, only: ISPIN, NACTEL, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, NTOT, NTOT2, &
-                          STSYM
+  use Orbital_Spaces, only: NBAS, NDEL, NFRO, NISH, NSSH, NSYM, NSYM, NTOT, NTOT2
+  use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
   use rasscf_global, only: NCONF, NDET
   use CI_Info, only: CI_St
   use CI_States, only: CI_Space_Rec_Len, CI_Space_To_Rec

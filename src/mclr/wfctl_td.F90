@@ -23,7 +23,7 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
 use MCLR_procedures, only: CISigma_td
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lCalc, lSave, nCSF, nDisp, nIter, nTPert, Omega, PotNuc, &
                       PT2, rIn_Ene
 use stdalloc, only: mma_allocate, mma_deallocate

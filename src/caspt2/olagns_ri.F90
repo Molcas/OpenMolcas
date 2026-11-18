@@ -81,7 +81,7 @@ use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array
 use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: do_csf, iPrGlb, iStpGrd
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: HZERO, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, NIGEJES, NIGTJ, &
                          NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, &
                          NTUES, NTUV, NTUVES

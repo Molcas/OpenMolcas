@@ -18,7 +18,8 @@ use caspt2_qmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
 use CI_Info, only: CI_St
 use CI_States, only: CI_Setup_RAS
-use general_data, only: iSpin, nActel, nAsh, nElec3, nHole1, nLev, STSym
+use Orbital_Spaces, only: nAsh
+use CI_Input, only: iSpin, nActel, nElec3, nHole1, nLev, STSym
 use caspt2_module, only: DMRG, DoCumulant, HZERO, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use Definitions, only: iwp
 

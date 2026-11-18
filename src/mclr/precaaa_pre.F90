@@ -14,7 +14,7 @@
 subroutine Precaaa_Pre(ActInt,A_J,Scr)
 
 use MCLR_Data, only: nA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nBas, ntAsh
 use Definitions, only: wp, iwp
 

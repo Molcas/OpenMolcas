@@ -245,7 +245,7 @@ end subroutine PCM_grad_final
 subroutine PrepPCM()
 
   use MCLR_Data, only: ipCM, isNAC
-  use general_data, only: nSym
+  use Orbital_Spaces, only: nSym
   use input_mclr, only: nBas, ntBsqr, ntBtri
 
   integer(kind=iwp), parameter :: iState = 1
@@ -339,7 +339,7 @@ end subroutine PrepPCM
 
 subroutine PrepPCM2(mode,DMO,DAO,PCMAO,PCMMO)
 
-  use general_data, only: nSym
+  use Orbital_Spaces, only: nSym
   use input_mclr, only: nBas, ntAsh, ntBsqr, ntBtri
 
   integer(kind=iwp), parameter :: iState = 1
@@ -485,7 +485,7 @@ end subroutine PCM_grad_dens
 
 subroutine PCM_grad_dens2(mode,DMO,DAO)
 
-  use general_data, only: nAsh, nIsh, nSym
+  use Orbital_Spaces, only: nAsh, nIsh, nSym
   use input_mclr, only: nFro, nOrb, ntAsh, ntBsqr
   use MCLR_Data, only: ipMat, nA
 
@@ -533,7 +533,7 @@ end subroutine PCM_grad_dens2
 
 subroutine PCM_grad_D2V(dens,vintMO,vintAO,first_,Dff_,NonEq_,Do_DFT_)
 
-  use general_data, only: nSym
+  use Orbital_Spaces, only: nSym
   use input_mclr, only: nBas, ntBsqr, ntBtri
   use MCLR_Data, only: ipCM
 
@@ -596,7 +596,7 @@ end subroutine PCM_grad_D2V
 
 subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
 
-  use general_data, only: nAsh, nIsh, nSym
+  use Orbital_Spaces, only: nAsh, nIsh, nSym
   use input_mclr, only: nBas, nOrb, nRoots, ntBsqr, weight
   use ISRotation, only: ISR
   use MCLR_Data, only: ipCI, ipCM, ipMat, nA
@@ -734,7 +734,7 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
 
   use MCLR_Data, only: ipMat, isNAC, nDens
   use MCLR_procedures, only: CISigma_sa
-  use general_data, only: nAsh, nIsh, nSym
+  use Orbital_Spaces, only: nAsh, nIsh, nSym
   use input_mclr, only: nBas, ncsf, nRoots, weight
   use ipPage, only: W
   use ISRotation, only: ISR
@@ -807,7 +807,7 @@ end subroutine PCM_grad_CLag
 
 subroutine PCM_mod_ERASSCF(ERASSCF_)
 
-  use general_data, only: nAsh, nIsh, nSym
+  use Orbital_Spaces, only: nAsh, nIsh, nSym
   use input_mclr, only: nOrb, nRoots
   use MCLR_Data, only: ipMat, nA
 
@@ -860,7 +860,7 @@ end subroutine PCM_mod_ERASSCF
 
 subroutine PCM_grad_PT2()
 
-  use general_data, only: nSym
+  use Orbital_Spaces, only: nSym
   use input_mclr, only: nBas, ntBsqr, ntBtri
 
   integer(kind=iwp) :: mData

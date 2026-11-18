@@ -13,7 +13,8 @@ subroutine DetCtl()
 
 use CI_Info, only: CI_St
 use MCLR_Data, only: FnCSF2SD, i12, ICISTR, idc, IDIAG, iST, LuCSF2SD, MS2, NOCSF, NOPART, pINT1, pINT2, PSSIGN
-use general_data, only: nElec3, nHole1, nRs1, nRs2, nRs3, nSym
+use Orbital_Spaces, only: nSym
+use CI_Input, only: nElec3, nHole1, nRs1, nRs2, nRs3
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One

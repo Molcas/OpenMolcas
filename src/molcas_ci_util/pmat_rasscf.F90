@@ -23,7 +23,7 @@ subroutine PMAT_RASSCF(P,X)
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri, nTri_Elem
 use rasscf_global, only: ISTORP
-use general_data, only: NASH, NSYM
+use Orbital_Spaces, only: NASH, NSYM
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

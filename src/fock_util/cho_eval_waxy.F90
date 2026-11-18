@@ -14,7 +14,7 @@ subroutine CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,W_PWXY,nAorb,JSYM,NUMV,DoTraInt,CMO
 use Symmetry_Info, only: Mul
 use Data_structures, only: DSBA_Type, SBA_Type, twxy_Type
 use wadr, only: nPWXY
-use general_data, only: NBAS, NFRO, NORB, NSYM
+use Orbital_Spaces, only: NBAS, NFRO, NORB, NSYM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

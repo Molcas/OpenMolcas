@@ -28,7 +28,7 @@ use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NBAS, NSYM
+use Orbital_Spaces, only: NBAS, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

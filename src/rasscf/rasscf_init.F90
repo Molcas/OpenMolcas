@@ -29,10 +29,11 @@ use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings
 use CMS, only: CMSGiveOpt, iCMSOpt
 use UnixInfo, only: SuperName
-use general_data, only: IGSOCCX, NGAS, NGSSH
+use CI_Input, only: IGSOCCX, NGAS, NGSSH
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, NSSH, STSYM
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSSH
+use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, NRS3, STSYM
 use rasscf_global, only: NSEL
 use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, ICIRST, &
                          ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot, &

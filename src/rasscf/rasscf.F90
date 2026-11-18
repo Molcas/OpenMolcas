@@ -82,7 +82,8 @@ use rasscf_global, only: CBLBM, CMAX, Conv, DE, DoDMRG, DoFCIDump, ECAS, EMY, En
 use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use rasscf_files, only: ITERFILE, JOBIPH
-use general_data, only: iDOGAS, ISPIN, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM, NTOT, NTOT1, NTOT2
+use CI_Input, only: iDOGAS, ISPIN, NRS1, NRS2, NRS3
 use rasscf_global, only: NCONF
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
@@ -93,7 +94,7 @@ use qcmaquis_interface, only: dmrg_energy, qcmaquis_interface_deinit, qcmaquis_i
                               qcmaquis_interface_prepare_hirdm_template, qcmaquis_param, TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM
 use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 use rasscf_global, only: DoDelChk, DoMCPDFTDMRG, DoNEVPT2Prep, RF1, RF2, Twordm_qcm
-use general_data, only: NACTEL
+use CI_Input, only: NACTEL
 #endif
 #ifdef _FDE_
 use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, embWriteDens, embWriteEsp
@@ -103,7 +104,7 @@ use mh5, only: mh5_put_attr, mh5_put_dset
 use ci_interfaces, only: CI_File_To_Basis, Mk_T1DM
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
-use general_data, only: STSYM
+use CI_Input, only: STSYM
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

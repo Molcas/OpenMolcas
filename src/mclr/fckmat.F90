@@ -18,7 +18,7 @@ subroutine FckMat()
 
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: F0SQMO, FAMO, FIMO, INT2, nDens, nrec
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: iMethod, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

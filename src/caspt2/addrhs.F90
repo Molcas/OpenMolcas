@@ -789,7 +789,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
   ! Case E:
 
   use SUPERINDEX, only: KIGEJ, KIGTJ
-  use general_data, only: NASH
+  use Orbital_Spaces, only: NASH
   use caspt2_module, only: NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NINABX, NISUP, NSECBX, NSSH, NSYM
 
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYJ, ISYL, NA, NJ, NV, NL, nBuff, NCHO
@@ -1338,7 +1338,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
   !   WM(u,l,ac)=  ((aucl)-cual))*SQRT(OneHalf)
 
   use SUPERINDEX, only: KAGEB, KAGTB
-  use general_data, only: NASH
+  use Orbital_Spaces, only: NASH
   use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NISH, NISUP, NSECBX, NSES, NSYM
 
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYU, ISYL, NA, NU, NC, NL, NAUCL, nBuff, NCHO

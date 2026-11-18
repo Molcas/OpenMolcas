@@ -37,7 +37,7 @@ use Fock_util_global, only: DoLocK
 use Functionals, only: Init_Funcs, Print_Info
 use KSDFT_Info, only: CoefR, CoefX
 use rctfld_module, only: lRF
-use general_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
+use CI_Input, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use rasscf_global, only: cCI, DoBlockDMRG, DoDMRG, Header, iCI, ICICH, ICIRST, iPCMRoot, iRLXRoot, iRoot, iSupSM, ITMAX, ixSym, &
                          KSDFT, l_casdft, lRoots, lSquare, LvShft, MAXIT, n_Det, NAC, NFR, NIN, NONEQ, NQUNE, NROOTS, NSEC, nTit, &
                          RFPert, ThrE, ThrSX, ThrTE, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, Weight
@@ -54,7 +54,8 @@ use rasscf_global, only: ChemPS2_blb, ChemPS2_lreStart, ChemPS2_No4RDM, ChemPS2_
 #endif
 use PrintLevel, only: SILENT, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT1, STSYM
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSSH, NSYM, NTOT1
+use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
 use rasscf_global, only: NSEL
 use CI_Info, only: CI_St, Space_Inp
 use CI_Space_Def, only: Space_Removals

@@ -25,7 +25,7 @@ use GA_Wrapper, only: DBL_MB
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_global, only: FIMO, iPrGlb
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: NASHT, NASUP, NIAES, NISH, NISH, NISUP, NORB, NSSH, NSYM, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One

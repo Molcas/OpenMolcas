@@ -21,7 +21,7 @@ use CI_Info, only: CI_St
 use ipPage, only: ipget, W
 use MCLR_Data, only: ipCI, ipMat, nAcPr2, nConf1, nDens, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

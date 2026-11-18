@@ -23,7 +23,8 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISMECIMSPD, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, OVERRIDE, &
                      ResQaaLag2, XISPSM
-use general_data, only: nAsh, nRS2
+use Orbital_Spaces, only: nAsh
+use CI_Input, only: nRS2
 use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, nRoots, StepType, TwoStep
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate

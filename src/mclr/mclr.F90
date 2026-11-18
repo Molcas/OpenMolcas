@@ -48,7 +48,8 @@ use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FAMO_SpinM, FAMO_Spi
                      SA, SFock, SS, WF_Ratio
 use PCM_grad, only: PCM_grad_final
 use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
-use general_data, only: nAsh, nRS2, nSym
+use Orbital_Spaces, only: nAsh, nSym
+use CI_Input, only: nRS2
 use CI_States, only: CI_Free_State
 use input_mclr, only: double, Fail, iMCPD, iMethod, iMSPD, LuAChoVec, LuChoInt, LuIChoVec, McKinley, nDisp, NewCho, ntAsh, ntASqr, &
                       ntAtri, PT2, RASSI, SpinPol, StepType, TimeDep, TwoStep

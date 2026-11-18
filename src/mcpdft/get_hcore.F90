@@ -25,7 +25,7 @@
 subroutine get_hcore(hcore)
 
 use onedat, only: snoori, snonuc
-use general_data, only: ntot1
+use Orbital_Spaces, only: ntot1
 use Definitions, only: wp, iwp, u0
 
 implicit none

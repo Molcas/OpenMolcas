@@ -26,7 +26,7 @@
 subroutine mo2act_1e(d_mo,d_act,nSym,nOrb,nAsh,nIsh)
 
 use Index_Functions, only: iTri, nTri_Elem
-use general_data, only: ntot1
+use Orbital_Spaces, only: ntot1
 use rasscf_global, only: nacpar
 use Constants, only: Zero
 use Definitions, only: wp, iwp

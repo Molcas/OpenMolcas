@@ -30,7 +30,7 @@ subroutine mspdftgrad_init()
 
   use rasscf_global, only: nacpr2, nroots, nTot4
   use mcpdft_input, only: mcpdft_options
-  use general_data, only: ntot1
+  use Orbital_Spaces, only: ntot1
   use Constants, only: Zero
   use Definitions, only: iwp
   integer(kind=iwp), parameter :: iState = 1

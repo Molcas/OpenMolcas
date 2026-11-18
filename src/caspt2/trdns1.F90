@@ -33,7 +33,7 @@ use CI_Info, only: CI_St
 use Para_Info, only: Is_Real_Par, King
 #endif
 use fake_GA, only: GA_Arrays
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

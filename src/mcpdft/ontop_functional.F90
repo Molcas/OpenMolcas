@@ -188,7 +188,7 @@ function energy_ot(self,folded_dm1,folded_dm1s,casdm2,charge)
 
   use rctfld_module, only: lrf
   use rasscf_global, only: dftfock, exfac, nacpr2, noneq, potnuc
-  use general_data, only: nash, nfro, nish, nsym, ntot1
+  use Orbital_Spaces, only: nash, nfro, nish, nsym, ntot1
   use stdalloc, only: mma_allocate, mma_deallocate
 
   integer(kind=iwp), parameter :: iState = 1

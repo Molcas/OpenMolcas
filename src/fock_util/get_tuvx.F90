@@ -37,7 +37,7 @@ subroutine Get_TUVX(PUVX,TUVX)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use general_data, only: NASH, NISH, NORB, NSYM
+use Orbital_Spaces, only: NASH, NISH, NORB, NSYM
 use Molcas, only: MxSym
 use Definitions, only: wp, iwp
 

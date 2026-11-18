@@ -28,7 +28,8 @@ use RASDim, only: MxIter, MxTit
 use CI_Info, only: CI_St
 use CI_States, only: CI_Space_Rec_Len
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
-use general_data, only: NASH, nElec3, NHOLE1
+use Orbital_Spaces, only: NASH
+use CI_Input, only: nElec3, NHOLE1
 use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, LROOTS, &
                          MSTATE, MSTATE, MXCI, NBAS, NBSQT, NCONF, NDEL, NFRO, NISH, NRAS1, NRAS2, NRAS3, NROOTS, NSYM, POTNUC, &
                          TITLE

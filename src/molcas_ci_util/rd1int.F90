@@ -29,7 +29,7 @@ subroutine Rd1Int()
 !***********************************************************************
 
 use rasscf_global, only: BName, header, PotNuc
-use general_data, only: NBAS, NSYM
+use Orbital_Spaces, only: NBAS, NSYM
 use Molcas, only: LenIn
 use Definitions, only: iwp
 

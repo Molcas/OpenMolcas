@@ -13,7 +13,7 @@ subroutine ReLoad(A,idsym,NBAS1,NBAS2)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nDens
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

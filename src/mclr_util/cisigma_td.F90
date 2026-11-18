@@ -33,7 +33,7 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, ist, KAIN1, KINT2, KINT2A, nConf1, nDens, pInt1, Square, XISPSM
 use CandS, only: ICSM, ISSM
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, nCSF, ntAsh, Page, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6

@@ -16,7 +16,7 @@ subroutine molel_write(CMO)
 use CI_Info, only: CI_St
 use onedat, only: snoori
 use rasscf_global, only: lRoots
-use general_data, only: nash, nbas, nfro, nish, nsym, ntot, ntot1, ntot2
+use Orbital_Spaces, only: nash, nbas, nfro, nish, nsym, ntot, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

@@ -15,7 +15,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use CI_Info, only: CI_St
 use CI_States, only: CI_Epq_Psi
 use caspt2_global, only: IDCIEX, LUCIEX
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: ISCF, NAES, NCONF, NISH, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

@@ -15,7 +15,7 @@ subroutine savefock_pdft(cmo,h1e,d1act,nq,p2d)
 
 use wadr, only: fockocc
 use rasscf_global, only: istorp, nacpar, nacpr2, nfint, ntot4
-use general_data, only: nbas, nfro, norb, nsym, ntot1, ntot2
+use Orbital_Spaces, only: nbas, nfro, norb, nsym, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

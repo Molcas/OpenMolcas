@@ -38,7 +38,7 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
 use MCLR_Data, only: DspVec, G1t, G2t, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, n2Dens, nA, nCMO, nConf1, nDens, nMBA
 use MCLR_procedures, only: CISigma
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: Debug, iMethod, nBas, nOrb, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two

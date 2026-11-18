@@ -11,7 +11,8 @@
 
 subroutine SG_Setup_RASSCF()
 
-use general_data, only: iDoGAS, iSpin, nActel, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
+use Orbital_Spaces, only: nSym
+use CI_Input, only: iDoGAS, iSpin, nActel, nElec3, nHole1, nRs1, nRs2, nRs3, STSYM
 use rasscf_global, only: nConf
 use CI_States, only: CI_Setup_RAS, CI_Setup_SG
 use CI_Info, only: CI_St, SG_Rel_State, Space_CI

@@ -21,9 +21,10 @@ use Para_Info, only: MyRank
 use filesystem, only: get_errno_, getcwd_, real_path, strerror_
 use linalg_mod, only: abort_, verify_
 use rasscf_global, only: EMY, Ener, iter, KSDFT, lRoots, nAc, nAcPar, nAcPr2, nroots, S
-use general_data, only: iSpin, nActEl, nAsh, nSym, ntot, ntot1, ntot2
+use Orbital_Spaces, only: nAsh, nSym, ntot, ntot1, ntot2
+use CI_Input, only: iSpin, nActEl
 use rasscf_global, only: nConf
-use general_data, only: iDoGas, ngssh
+use CI_Input, only: iDoGas, ngssh
 use generic_CI, only: CI_solver_t
 use index_symmetry, only: one_el_idx, two_el_idx_flatten
 use rctfld_module, only: lRF

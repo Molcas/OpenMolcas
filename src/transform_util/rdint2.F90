@@ -44,7 +44,7 @@ subroutine RDINT2(IPRX,DoTCVA)
 
 use Symmetry_Info, only: Mul
 use caspt2_global, only: LUINTM
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: nBas, nDel, nFro, nISh, nOrb, nOSh, nSsh, nSym
 use trafo, only: IAD13, ISR
 use stdalloc, only: mma_allocate, mma_deallocate

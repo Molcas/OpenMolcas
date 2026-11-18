@@ -111,7 +111,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipget, W
 use MCLR_Data, only: ipCI, nConf1, nDens, nNA, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use general_data, only: nAsh, nSym
+use Orbital_Spaces, only: nAsh, nSym
 use input_mclr, only: nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four

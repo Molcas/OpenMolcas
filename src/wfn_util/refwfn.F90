@@ -117,7 +117,8 @@ subroutine refwfn_info()
   use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
   use RASDim, only: MxTit
   use caspt2_global, only: Weight
-  use general_data, only: iSpin,  nActel, nAsh, nElec3, nHole1, STSym
+  use Orbital_Spaces, only: nAsh
+  use CI_Input, only: iSpin, nActel, nElec3, nHole1, STSym
   use caspt2_module, only: bName, header, IFQCAN, iRoot, lRoots, nBas, nConf, nDel, nFro, nIsh, nRas1, nRas2, nRas3, nRoots, nSsh, &
                            nSym, PotNuc, Title
 # ifdef _DMRG_

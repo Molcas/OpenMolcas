@@ -25,7 +25,7 @@ subroutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,iDSym,Sgn,Fact,jspin,D,FA)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, FIMO, ipCM, ipMat, nA, nCMO, nDens, nMBA, nNA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: iMethod, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

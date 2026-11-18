@@ -20,7 +20,8 @@ subroutine SG_Setup_MCPDFT()
 
 use Molcas, only: MxLev
 use CI_States, only: CI_Setup_RAS
-use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSym
+use Orbital_Spaces, only: nAsh, nSym
+use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRs1, nRs2, nRs3, STSym
 use Definitions, only: iwp
 
 implicit none

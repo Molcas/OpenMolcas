@@ -29,7 +29,7 @@ use GA_Wrapper, only: GA_Destroy
 #endif
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: FIFA, idSDMat, LISTS, LUSTD
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: CPUSGM, FockType, G1SecIn, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

@@ -15,7 +15,7 @@ subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 
 use CI_Info, only: CI_St
 use caspt2_global, only: iRoot1, iRoot2, OLagFull
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: ENERGY, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NORB, NSTATE, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half

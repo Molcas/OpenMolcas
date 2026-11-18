@@ -21,7 +21,7 @@ function get_charge()
 
 use CI_Info, only: CI_St
 use onedat, only: snoori
-use general_data, only: nfro, nish, ntot1
+use Orbital_Spaces, only: nfro, nish, ntot1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u0
 

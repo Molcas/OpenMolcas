@@ -35,7 +35,8 @@ subroutine prinp_caspt2()
 use PrintLevel, only: TERSE, USUAL, VERBOSE
 use caspt2_global, only: do_csf, do_grad, do_nac, imag_shift, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, sigma_p_epsilon, &
                          sigma_p_exponent
-use general_data, only: ISPIN, NACTEL, NASH, nElec3, nHole1, STSym
+use Orbital_Spaces, only: NASH
+use CI_Input, only: ISPIN, NACTEL, nElec3, nHole1, STSym
 use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, mState, &
                          nAshT, nBas, nConf, nDel, nFro, nIsh, nIshT, nRoots, nSsh, nSshT, nState, nSym, Orbin, PT2Method, RFPert, &
                          Zeta

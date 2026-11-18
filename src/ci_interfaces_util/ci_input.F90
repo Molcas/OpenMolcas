@@ -9,7 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module general_data
+!> The CI space as read from the input or the wave-function file (spin,
+!> active electrons, state symmetry, RAS and GAS description). Only the
+!> input readers and the CI setups use it; after the setup the programs
+!> read the state from CI_Info (CI_St(iState)).
+module CI_Input
 
 use Molcas, only: MxSym, MxGas
 use Definitions, only: iwp
@@ -17,14 +21,10 @@ use Definitions, only: iwp
 implicit none
 private
 
-integer(kind=iwp) :: ISPIN, NACTEL, NASH(mxSym), NBAS(mxSym), NDEL(mxSym), NDELT, &
-                     NELEC3, NFRO(mxSym), NFROT, NHOLE1, NISH(mxSym), NORB(mxSym), NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T,   &
-                     NRS3(mxSym), NRS3T, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, STSYM, NLEV
+integer(kind=iwp) :: ISPIN, NACTEL, NELEC3, NHOLE1, NLEV, NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T, NRS3(mxSym), NRS3T, STSYM
 integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
 logical(kind=iwp) :: iDoGas = .false.
 
-public :: ISPIN, NACTEL, NASH, NBAS, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, &
-          NRS3T, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM, NLEV, iDoGas, IGSOCCX, &
-          NGAS, NGSSH
+public :: iDoGas, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NLEV, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM
 
-end module general_data
+end module CI_Input
