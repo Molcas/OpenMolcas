@@ -2063,26 +2063,88 @@ contains
   ! the diagonal elements of its determinants (M_S = S), Faroald_HDet. Under
   ! SIGMA compared with Lucia (the diagonal reordered to the Lucia basis).
   subroutine Faroald_Diag()
-    use citrans, only: citrans_conf_dets
-    integer(kind=iwp) :: k, k1, nc, nd, i
-    integer(kind=iwp), allocatable :: da(:), db(:)
-    real(kind=wp) :: E, MaxDev
+    ! The configuration average of the determinant energies (M_S = S) from
+    ! the occupations alone: sum n_i h_ii + sum_{i<j} n_i n_j (ii|jj) +
+    ! sum_{doubly i} (ii|ii) - sum_{i<j} N_eq(i,j) (ij|ji), N_eq the number of
+    ! equal-spin electron pairs (2 for two doubly occupied orbitals, 1 for a
+    ! doubly and a singly occupied one, P = [na(na-1)+nb(nb-1)]/[no(no-1)]
+    ! for two singly occupied ones, na/nb the alpha/beta open-shell
+    ! electrons of no). Under SIGMA checked once against the average of
+    ! Faroald_HDet over the determinants of each configuration.
+    use citrans, only: citrans_conf_dets, citrans_conf_occ
+    use faroald, only: nela, nelb
+    use Constants, only: Two
+    integer(kind=iwp) :: k, k1, nc, nd, i, j, ic, ncf, nd2, no, na, nb
+    integer(kind=iwp), allocatable :: da(:), db(:), kf(:), ncs(:), dco(:), sco(:)
+    real(kind=wp) :: E, MaxDev, P, ni, nj
     real(kind=wp), allocatable :: cf(:,:), DD(:), DL(:), Idx(:), Map(:)
 
     call Faroald_Ints(TU,TUVX)
-    k = 1
-    do while (k <= nConf)
-      call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
+    call citrans_conf_occ(ncf,kf,ncs,dco,sco)
+    do ic=1,ncf
+      nd2 = popcnt(dco(ic))
+      no = popcnt(sco(ic))
+      na = nela-nd2
+      nb = nelb-nd2
+      P = Zero
+      if (no > 1) P = real(na*(na-1)+nb*(nb-1),kind=wp)/real(no*(no-1),kind=wp)
       E = Zero
-      do i=1,nd
-        E = E+Faroald_HDet(da(i),db(i),da(i),db(i))
+      do i=1,my_norb
+        ni = Zero
+        if (btest(dco(ic),i-1)) then
+          ni = Two
+          E = E+gtuvx(i,i,i,i)
+        else if (btest(sco(ic),i-1)) then
+          ni = One
+        end if
+        if (ni == Zero) cycle
+        E = E+ni*htu(i,i)
+        do j=i+1,my_norb
+          nj = Zero
+          if (btest(dco(ic),j-1)) then
+            nj = Two
+          else if (btest(sco(ic),j-1)) then
+            nj = One
+          end if
+          if (nj == Zero) cycle
+          E = E+ni*nj*gtuvx(i,i,j,j)
+          if ((ni == Two) .and. (nj == Two)) then
+            E = E-Two*gtuvx(i,j,j,i)
+          else if ((ni == Two) .or. (nj == Two)) then
+            E = E-gtuvx(i,j,j,i)
+          else
+            E = E-P*gtuvx(i,j,j,i)
+          end if
+        end do
       end do
-      CSFDIA(k1:k1+nc-1) = E/real(max(nd,1),kind=wp)
-      k = k1+nc
-      call mma_deallocate(da)
-      call mma_deallocate(db)
-      call mma_deallocate(cf)
+      CSFDIA(kf(ic):kf(ic)+ncs(ic)-1) = E
     end do
+    if (CI_Verify('SIGMA') .and. (.not. IHI_Avg_Verified)) then
+      ! the average of the determinant energies, as reference
+      MaxDev = Zero
+      k = 1
+      do while (k <= nConf)
+        call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
+        E = Zero
+        do i=1,nd
+          E = E+Faroald_HDet(da(i),db(i),da(i),db(i))
+        end do
+        MaxDev = max(MaxDev,abs(CSFDIA(k1)-E/real(max(nd,1),kind=wp)))
+        k = k1+nc
+        call mma_deallocate(da)
+        call mma_deallocate(db)
+        call mma_deallocate(cf)
+      end do
+      write(u6,'(1X,A,ES10.3)') 'Mk_IHI (Faroald): occupation formula vs determinant average, max. difference ',MaxDev
+      if (MaxDev > ThrDia*max(One,maxval(abs(CSFDIA(1:nConf))))) then
+        write(u6,*) 'Mk_IHI: the Faroald occupation formula differs from the determinant average'
+        call Abend()
+      end if
+    end if
+    call mma_deallocate(kf)
+    call mma_deallocate(ncs)
+    call mma_deallocate(dco)
+    call mma_deallocate(sco)
     call HEXS_Proj(HEXS_Keep,CSFDIA)
     if (CI_Verify('SIGMA')) then
       call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
@@ -2511,25 +2573,18 @@ end subroutine SG_Cnf_Kept
 
 !> The configurations of Faroald (citrans order) and their numbers of CSFs.
 subroutine Mk_Cnf_Layout_Faroald(nCSFCnf)
-use citrans, only: citrans_conf_dets
+! the number of CSFs of each configuration of citrans, in its CSF order
+use citrans, only: citrans_conf_occ
 integer(kind=iwp), allocatable, intent(out) :: nCSFCnf(:)
-integer(kind=iwp) :: iPass, k, k1, nc, nd, nCnf
-integer(kind=iwp), allocatable :: da(:), db(:)
-real(kind=wp), allocatable :: cf(:,:)
-do iPass=1,2
-  nCnf = 0
-  k = 1
-  do while (k <= nConf)
-    call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
-    nCnf = nCnf+1
-    if (iPass == 2) nCSFCnf(nCnf) = nc
-    k = k1+nc
-    call mma_deallocate(da)
-    call mma_deallocate(db)
-    call mma_deallocate(cf)
-  end do
-  if (iPass == 1) call mma_allocate(nCSFCnf,nCnf,Label='nCSFCnf')
-end do
+integer(kind=iwp) :: nCnf
+integer(kind=iwp), allocatable :: k1(:), nc(:), docc(:), socc(:)
+call citrans_conf_occ(nCnf,k1,nc,docc,socc)
+call mma_allocate(nCSFCnf,nCnf,Label='nCSFCnf')
+nCSFCnf(:) = nc(1:nCnf)
+call mma_deallocate(k1)
+call mma_deallocate(nc)
+call mma_deallocate(docc)
+call mma_deallocate(socc)
 end subroutine Mk_Cnf_Layout_Faroald
 
 subroutine Mk_Cnf_Layout_Lucia(IREFSM,nCSFCnf)
