@@ -9,100 +9,224 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
+# Download, patch and compile Tinker for the OpenMolcas QM/MM interface.
+# This script is used directly by users ("molcas get_tinker"), by the
+# CMake option TINKER=ON and by the CI, so keep it POSIX sh.
+
 # Tinker version to which the QM/MM patch can be applied
 TINKERVERSION='tinker-6.3.3'
+TINKERSHA256='380a920d363c6e1a96976e60a3373d1fd344406be179f30caf170c8dc85fb64c'
+TINKERURL="https://dasher.wustl.edu/tinker/downloads/$TINKERVERSION.tar.gz"
 PATCH=patch_$TINKERVERSION.diff
 
 usage() {
- echo "Usage:" get_tinker [OPTIONS]
- echo "Download, patch and compile $TINKERVERSION for QM/MM calculations"
- echo "Available options:"
- echo "  -h      this help"
- echo "  -d      download tinker and exit"
+  cat <<EOF
+Usage: get_tinker [OPTIONS]
+Download, patch and compile $TINKERVERSION for QM/MM calculations.
+
+Options:
+  -h          this help
+  -d          download (and unpack) Tinker only, do not patch or compile
+  -y          do not ask for confirmation
+  -p DIR      install into DIR (default: the OpenMolcas directory, found
+              through .molcashome); Tinker ends up in DIR/tinker
+  -t FILE     use the local tarball FILE instead of downloading
+              (if FILE is a directory, FILE/$TINKERVERSION.tar.gz)
+  -u URL      download from URL (default: $TINKERURL)
+  -P FILE     use the QM/MM patch FILE (default: $PATCH next to this script)
+  -c FC       Fortran compiler (default: gfortran; only GNU-compatible
+              compilers are supported by the Tinker Makefile)
+  -a N        set the maximum number of atoms (maxatm) to N
+              (default 100000; a smaller value reduces the memory needed)
+  -j N        number of parallel make jobs (default: 1)
+  -r N        try "make all" up to N times (default: 1), to work around
+              intermittent compiler crashes
+
+The tarball checksum is always verified (SHA-256: $TINKERSHA256).
+When done, set the environment variable TINKER to DIR/tinker/bin
+(not needed if DIR is the OpenMolcas directory).
+EOF
+}
+
+die() {
+  echo "get_tinker: $*" >&2
+  exit 2
 }
 
 do_skip=0
-#manif [ $# -eq 0 ]; then usage; exit 2; fi
-while getopts ":hd" opt ; do
+assume_yes=0
+PREFIX=''
+TARBALL=''
+PATCHFILE=''
+TKFC='gfortran'
+MAXATM=''
+JOBS=1
+RETRIES=1
+while getopts ":hdyp:t:u:P:c:a:j:r:" opt ; do
   case $opt in
-    d)
-      do_skip=1
-      ;;
-    h)
-      usage
-      exit 0
-      ;;
-    \?)
-      echo "Invalid option: -$OPTARG"
-      exit 2
-      ;;
-    :)
-      echo "Option -$OPTARG requires an argument."
-      exit 2
-      ;;
+    d) do_skip=1 ;;
+    y) assume_yes=1 ;;
+    p) PREFIX=$OPTARG ;;
+    t) TARBALL=$OPTARG ;;
+    u) TINKERURL=$OPTARG ;;
+    P) PATCHFILE=$OPTARG ;;
+    c) TKFC=$OPTARG ;;
+    a) MAXATM=$OPTARG ;;
+    j) JOBS=$OPTARG ;;
+    r) RETRIES=$OPTARG ;;
+    h) usage ; exit 0 ;;
+    \?) echo "Invalid option: -$OPTARG" ; usage ; exit 2 ;;
+    :) echo "Option -$OPTARG requires an argument." ; exit 2 ;;
   esac
 done
 
-# Check the MOLCAS env
-if [ -f .molcashome ] ; then
-MOLCAS=`pwd`
-elif [ -f ../.molcashome ] ; then
-MOLCAS=`cd ..; pwd`
-elif [ -f ../../.molcashome ] ; then
-MOLCAS=`cd ../..; pwd`
-elif [ -f ../../../.molcashome ] ; then
-MOLCAS=`cd ../../..; pwd`
-fi
-if [ -z "$MOLCAS" ]; then
-  echo "MOLCAS is not set."
-  exit 2
-fi
-echo "Tinker will be downloaded to $MOLCAS"
-echo "Is this OK? [Y/n]"
-while true; do
-  read answer
-  case "${answer}_" in
-    [Yy]*|_ )
-      break ;;
-    [Nn]* )
-      exit 0
-      break ;;
-    * ) echo "Please answer yes or no"
+for n in "$JOBS" "$RETRIES" $MAXATM ; do
+  case "$n" in
+    ''|*[!0-9]*) die "numeric argument expected, got '$n'" ;;
   esac
 done
 
-DIR=`( cd \`dirname -- "$0"\` ; pwd )`
-cd $MOLCAS
+DIR=`cd "\`dirname -- "$0"\`" && pwd`
 
-# Download Tinker
-if [ -d $TINKERVERSION ]; then
-  echo "Original $TINKERVERSION already installed."
-else
-  if [ -h tinker ]; then
-    rm -f tinker
-  elif [ -d tinker ]; then
-    echo "Existing tinker directory."
-    echo "Please rename it before running get_tinker again."
-    exit 2
-  elif [ -e tinker ]; then
-    echo "Existing tinker."
-    echo "Cannot determine what kind of file it is."
-    echo "Please correct it manually before running get_tinker again."
-    exit 2
+# Make relative paths absolute before changing directory
+abspath() {
+  case "$1" in
+    /*) echo "$1" ;;
+    *) echo "`pwd`/$1" ;;
+  esac
+}
+[ -n "$TARBALL" ] && TARBALL=`abspath "$TARBALL"`
+[ -d "$TARBALL" ] && TARBALL="$TARBALL/$TINKERVERSION.tar.gz"
+[ -n "$PATCHFILE" ] && PATCHFILE=`abspath "$PATCHFILE"`
+
+# Where to install
+if [ -z "$PREFIX" ] ; then
+  # current directory and its parents, then the location of this script
+  # (sbin in a build/installation, Tools/patch2tinker in the sources), then $MOLCAS
+  for d in . .. ../.. ../../.. "$DIR/.." "$DIR/../.." "$MOLCAS" ; do
+    if [ -n "$d" ] && [ -f "$d/.molcashome" ] ; then
+      PREFIX=`cd "$d" && pwd`
+      break
+    fi
+  done
+  [ -z "$PREFIX" ] && die "cannot find the OpenMolcas directory, run from it or use -p DIR."
+fi
+PREFIX=`abspath "$PREFIX"`
+
+# Find the QM/MM patch (next to this script in the source tree,
+# or in data/tinker in a build/installation)
+if [ $do_skip -eq 0 ] && [ -z "$PATCHFILE" ] ; then
+  for f in "$DIR/$PATCH" "$DIR/../data/tinker/$PATCH" "$DIR/../Tools/patch2tinker/$PATCH" ; do
+    if [ -f "$f" ] ; then
+      PATCHFILE=$f
+      break
+    fi
+  done
+  [ -z "$PATCHFILE" ] && die "$PATCH not found."
+fi
+if [ $do_skip -eq 0 ] ; then
+  [ -f "$PATCHFILE" ] || die "$PATCHFILE not found."
+  which patch > /dev/null 2>&1 || die "the 'patch' program is required."
+  which make > /dev/null 2>&1 || die "the 'make' program is required."
+  which "$TKFC" > /dev/null 2>&1 || die "Fortran compiler '$TKFC' not found (use -c FC)."
+fi
+
+echo "$TINKERVERSION will be installed in $PREFIX/tinker"
+if [ $assume_yes -eq 0 ] ; then
+  echo "Is this OK? [Y/n]"
+  while true; do
+    read answer || exit 0
+    case "${answer}_" in
+      [Yy]*|_ ) break ;;
+      [Nn]* ) exit 0 ;;
+      * ) echo "Please answer yes or no" ;;
+    esac
+  done
+fi
+
+mkdir -p "$PREFIX" || die "cannot create $PREFIX"
+cd "$PREFIX" || exit 2
+PREFIX=`pwd`
+
+# Checksum helper
+sha256() {
+  if which sha256sum > /dev/null 2>&1 ; then
+    sha256sum "$1" | cut -d ' ' -f 1
+  elif which shasum > /dev/null 2>&1 ; then
+    shasum -a 256 "$1" | cut -d ' ' -f 1
+  elif which openssl > /dev/null 2>&1 ; then
+    openssl dgst -sha256 "$1" | sed 's/.*= *//'
   else
-    echo "Downloading $TINKERVERSION"
+    echo unknown
   fi
-  wget http://dasher.wustl.edu/tinker/downloads/$TINKERVERSION.tar.gz
-  gzip -d $TINKERVERSION.tar.gz
-  tar -xf $TINKERVERSION.tar
-  if [ $? != 0 ]; then
-    echo "Unpacking Tinker failed."
-    exit 2
+}
+
+# Make sure a verified tarball is available, sets TARBALL
+get_tarball() {
+  if [ -z "$TARBALL" ] ; then
+    TARBALL="$PREFIX/$TINKERVERSION.tar.gz"
+    if [ -f "$TARBALL" ] && [ "`sha256 "$TARBALL"`" = "$TINKERSHA256" ] ; then
+      echo "Using previously downloaded $TARBALL"
+      return
+    fi
+    echo "Downloading $TINKERURL"
+    rm -f "$TARBALL"
+    if which curl > /dev/null 2>&1 ; then
+      curl -fL -o "$TARBALL" "$TINKERURL"
+    elif which wget > /dev/null 2>&1 ; then
+      wget -O "$TARBALL" "$TINKERURL"
+    else
+      die "neither curl nor wget found, download $TINKERURL manually and use -t FILE."
+    fi
+    if [ $? -ne 0 ] ; then
+      rm -f "$TARBALL"
+      die "download failed. Download $TINKERVERSION.tar.gz manually and use -t FILE."
+    fi
   fi
-  mv -f tinker $TINKERVERSION
-  ln -fs $TINKERVERSION tinker
-  echo "The tinker symbolic link has been set to $TINKERVERSION"
+  [ -f "$TARBALL" ] || die "$TARBALL not found."
+  sum=`sha256 "$TARBALL"`
+  if [ "$sum" = "unknown" ] ; then
+    echo "WARNING: no SHA-256 tool found, the tarball cannot be verified."
+  elif [ "$sum" != "$TINKERSHA256" ] ; then
+    die "checksum mismatch for $TARBALL (got $sum, expected $TINKERSHA256)."
+  fi
+}
+
+# Check the "tinker" link does not clash with something else
+if [ -h tinker ] ; then
+  :
+elif [ -d tinker ] ; then
+  die "existing tinker directory in $PREFIX, please rename it before running get_tinker again."
+elif [ -e tinker ] ; then
+  die "existing tinker file in $PREFIX, please remove it before running get_tinker again."
 fi
+
+# A previously patched tree is replaced by a fresh copy
+# (only trees marked by this script are removed)
+if [ -f $TINKERVERSION/source/QMMM_patched ] ; then
+  echo "$TINKERVERSION already patched:"
+  cat $TINKERVERSION/source/QMMM_patched
+  echo "Replacing it with a fresh copy."
+  get_tarball
+  rm -rf $TINKERVERSION
+fi
+
+# Unpack Tinker
+if [ -d $TINKERVERSION ] ; then
+  echo "Original $TINKERVERSION already unpacked."
+else
+  get_tarball
+  tmpdir=$TINKERVERSION.tmp.$$
+  rm -rf $tmpdir
+  mkdir $tmpdir || exit 2
+  ( cd $tmpdir && gzip -dc "$TARBALL" | tar -xf - ) || { rm -rf $tmpdir ; die "unpacking Tinker failed." ; }
+  [ -d $tmpdir/tinker/source ] || { rm -rf $tmpdir ; die "unexpected tarball contents." ; }
+  mv $tmpdir/tinker $TINKERVERSION
+  rm -rf $tmpdir
+fi
+rm -f tinker
+ln -s $TINKERVERSION tinker
+echo "The tinker symbolic link has been set to $TINKERVERSION"
 
 # Exit here if the QM/MM patch does not interest you
 if [ $do_skip -eq 1 ]; then
@@ -111,47 +235,41 @@ if [ $do_skip -eq 1 ]; then
   exit 0
 fi
 
-# Test if tinker has been already patched. If so, revert the patch.
-cd $MOLCAS/tinker/source
-if [ -f QMMM_patched ]; then
-  echo "$TINKERVERSION already patched. Version:"
-  cat QMMM_patched
-  echo "Reverting this old patch."
-  if [ -f $PATCH ]; then
-    mv Makefile.orig Makefile
-    patch -R <$PATCH
-  else
-    echo "Cannot revert. Please proceed with a fresh install."
-    exit 2
-  fi
-fi
+# Apply the QM/MM patch
+cd "$PREFIX/tinker/source" || exit 2
+echo "Applying $PATCHFILE"
+patch -p2 -N -s < "$PATCHFILE" || die "patching failed."
+cp -f "$PATCHFILE" .
+{
+  echo "$PATCH"
+  date "+%D"
+} > QMMM_patched
 
-# Apply the last available patch, found in Tools/patch2tinker.
-if [ -f "$DIR/$PATCH" ]; then
-  cp -f "$DIR/$PATCH" .
-  patch <$PATCH
-  if [ $? != 0 ]; then
-    echo "Patching failed. Check that you have patch installed."
-    exit 2
-  else
-    date "+%D" > $MOLCAS/tinker/source/QMMM_patched
-  fi
-else
-  echo "$DIR/$PATCH not found."
-  exit 2
-fi
-
-# Adaptation of the Makefile is required
-echo "Modifying Tinker Makefile."
-mv Makefile Makefile.orig
-sed -e "/^TINKERDIR/s#.*#TINKERDIR = $MOLCAS\/tinker#" Makefile.orig > Makefile
-if [ ! -d ../bin ]; then
-   mkdir  ../bin
+# Optionally reduce the memory requirements
+if [ -n "$MAXATM" ] ; then
+  echo "Setting maxatm=$MAXATM"
+  sed -e "s/parameter (maxatm=[0-9]*)/parameter (maxatm=$MAXATM)/" sizes.i > sizes.i.new && mv -f sizes.i.new sizes.i
+  grep -q "parameter (maxatm=$MAXATM)" sizes.i || die "could not set maxatm."
+  echo "maxatm=$MAXATM" >> QMMM_patched
 fi
 
 # Tinker compilation
+# (the variables given in the command line override the Makefile)
+mkdir -p ../bin
+MAKEVARS="TINKERDIR=$PREFIX/tinker BINDIR=$PREFIX/tinker/bin F77=$TKFC"
 echo "Now relax during the compilation."
-make clean || exit 3
-make all || exit 3
-make rename || exit 3
+make clean > /dev/null || exit 3
+i=1
+while true ; do
+  make -j "$JOBS" $MAKEVARS all && break
+  [ $i -ge $RETRIES ] && die "Tinker compilation failed."
+  i=`expr $i + 1`
+  echo "Compilation failed, attempt $i of $RETRIES"
+done
+make $MAKEVARS rename || exit 3
+
+if [ ! -x "$PREFIX/tinker/bin/tkr2qm_s" ] ; then
+  die "tkr2qm_s was not produced."
+fi
 echo "Tinker compilation completed."
+echo "Set TINKER=$PREFIX/tinker/bin to use it with OpenMolcas."

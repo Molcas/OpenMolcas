@@ -125,6 +125,7 @@ Gunnar Karlström
 Benjamin W. Kaufold  
 Stefan Knecht  
 Vladislav Kochetov  
+Okan Köksal  
 Jesper Wisborg Krogh  
 Teodoro Laino  
 Dong Q. Le  

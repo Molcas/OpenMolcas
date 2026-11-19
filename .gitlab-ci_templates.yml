@@ -134,7 +134,21 @@
     - mv install_dir ${install_path}
     - cd ${install_path}
     - export PROJECT_DIR=${CI_PROJECT_DIR}/${CLONED_DIR}
-    - export TINKER=${CI_PROJECT_DIR}/build/tinker/bin
+    # Tinker from the "tinker" job, or built with CMake (TINKER=ON) and installed
+    - |
+      if [ -x "${CI_PROJECT_DIR}/build/tinker/bin/tkr2qm_s" ] ; then
+        export TINKER=${CI_PROJECT_DIR}/build/tinker/bin
+      elif [ -x "${install_path}/tinker/bin/tkr2qm_s" ] ; then
+        export TINKER=${install_path}/tinker/bin
+      fi
+    # fail early if a required feature is missing (instead of skipping tests)
+    - |
+      if [ -n "${require_features}" ] ; then
+        if ( ! MOLCAS_HAVE_FEATURE_VERBOSE=1 ./pymolcas have_feature ${require_features} ) ; then
+          echo "Required features not available: ${require_features}"
+          exit 1
+        fi
+      fi
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
