@@ -1576,7 +1576,7 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   if (ras_singlet) then
     ! alpha-alpha = beta-beta; alpha-beta only for the pairs tu >= vx
     p2(:,:,:,:) = Two*p2(:,:,:,:)
-    call ab_two_pdm(bra,ket,p2)
+    call ab_two_pdm_any(bra,ket,p2)
     return
   end if
   call mma_allocate(bT,max(1,n_ras),label='ras_bT')
@@ -1587,8 +1587,153 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   call mma_deallocate(bT)
   call mma_deallocate(kT)
   ! opposite spin
-  call ab_two_pdm(bra,ket,p2)
+  call ab_two_pdm_any(bra,ket,p2)
 end subroutine ras_trans_two_pdm
+
+!> The alpha-beta part of the 2-RDM: through the (N-1)-string resolution
+!> with the blocks the sigma uses (res_mode 1/2), else (direct loops chosen
+!> or not enough memory) by ab_two_pdm.
+subroutine ab_two_pdm_any(bra,ket,p2)
+  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
+  logical(kind=iwp) :: done
+  done = .false.
+  if (res_mode > 0) call ab_two_pdm_res(res_mode,bra,ket,p2,done)
+  if (.not. done) call ab_two_pdm(bra,ket,p2)
+end subroutine ab_two_pdm_any
+
+!> The alpha-beta part of the 2-RDM (as ab_two_pdm) through the
+!> (N-1)-string resolution: per batch of K strings, X(K,u,Jb) =
+!> <K|a_u|Ja> ket(Ja,Jb) and Y(K,t,Ib) = <K|a_t|Ia> bra(Ia,Ib) for all beta
+!> strings, M(t,u,vx) += sgn Y(:,:,Ib)^T X(:,:,Jb) for every beta excitation
+!> Ib = a+_v a_x Jb (one DGEMM over the orbitals of the allowed symmetries),
+!> and p2(t,u,v,x) += M(t,u,v,x) + M(v,x,t,u) (for singlets M is symmetric
+!> under the exchange of the pairs, which ab_two_pdm uses instead).
+!> done = .false. if not even one K per batch fits.
+subroutine ab_two_pdm_res(mode,bra,ket,p2,done)
+  use stdalloc, only: mma_maxDBLE
+  integer(kind=iwp), intent(in) :: mode
+  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
+  logical(kind=iwp), intent(out) :: done
+  integer(kind=iwp) :: n, nsb, mxmem, maxkb, t, u, v, x, tl, ul
+  real(kind=wp), allocatable :: M(:,:,:,:)
+  done = .false.
+  n = ras_norb
+  nsb = sb%nstr
+  call mma_maxDBLE(mxmem)
+  if (allocated(res_Xw)) mxmem = mxmem+size(res_Xw)
+  if (allocated(res_Sw)) mxmem = mxmem+size(res_Sw)
+  maxkb = int((real(mxmem,kind=wp)/3.0_wp-real(n,kind=wp)**4)/(Two*real(n,kind=wp)*real(nsb+1,kind=wp)),kind=iwp)
+  if (maxkb < 1) return
+  done = .true.
+  if (mode == 1) then
+    maxkb = min(maxkb,maxval(res_boff(2:res_nblk+1)-res_boff(1:res_nblk)))
+  else
+    maxkb = min(maxkb,maxval(res_cboff(2:res_ncb+1)-res_cboff(1:res_ncb)))
+  end if
+  if (allocated(res_Sw)) then
+    if (size(res_Sw) < maxkb*n*nsb) call mma_deallocate(res_Sw)
+  end if
+  if (.not. allocated(res_Sw)) call mma_allocate(res_Sw,maxkb*n*nsb,label='res_Sw')
+  if (allocated(res_Xw)) then
+    if (size(res_Xw) < maxkb*n*nsb) call mma_deallocate(res_Xw)
+  end if
+  if (.not. allocated(res_Xw)) call mma_allocate(res_Xw,maxkb*n*nsb,label='res_Xw')
+  ! M(t',u',v,x), t' and u' in the symmetry order of the orbitals
+  call mma_allocate(M,n,n,n,n,label='res_M')
+  M(:,:,:,:) = Zero
+  if (mode == 1) then
+    call ab_res_blocks(res_nblk,res_boff,res_bsym,res_okb,size(res_Xw),res_Xw,size(res_Sw),res_Sw,maxkb,bra,ket,M)
+  else
+    call ab_res_blocks(res_ncb,res_cboff,res_cbsym,res_cokb,size(res_Xw),res_Xw,size(res_Sw),res_Sw,maxkb,bra,ket,M)
+  end if
+  do x=1,n
+    do v=1,n
+      do ul=1,n
+        u = res_ord(ul)
+        do tl=1,n
+          t = res_ord(tl)
+          p2(t,u,v,x) = p2(t,u,v,x)+M(tl,ul,v,x)
+          p2(v,x,t,u) = p2(v,x,t,u)+M(tl,ul,v,x)
+        end do
+      end do
+    end do
+  end do
+  call mma_deallocate(M)
+end subroutine ab_two_pdm_res
+
+!> The blocks of K of ab_two_pdm_res (fine or coarse).
+subroutine ab_res_blocks(nb,boff,bsym,okb,nX,Xk,nY,Yb,maxkb,bra,ket,M)
+  integer(kind=iwp), intent(in) :: nb, boff(nb+1), bsym(nb), nX, nY, maxkb
+  logical(kind=iwp), intent(in) :: okb(nb,sb%ncls)
+  ! Xk(kk,u',jb) at kk+(u'-1)*nkb+(jb-1)*nkb*norb (ket), Yb(kk,t',ib) likewise (bra)
+  real(kind=wp), intent(inout) :: Xk(nX), Yb(nY), M(ras_norb,ras_norb,ras_norb,ras_norb)
+  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  integer(kind=iwp) :: n, nsb, iblk, ks, k0, k1, nkb, jb, ib, cb, sa_sym, usym, tsym, nu, nt, u0, t0, ul, u, kk, r, ia, ca, &
+                       o, e, v, x
+  n = ras_norb
+  nsb = sb%nstr
+  do iblk=1,nb
+    ks = bsym(iblk)
+    do k0=boff(iblk)+1,boff(iblk+1),maxkb
+      k1 = min(k0+maxkb-1,boff(iblk+1))
+      nkb = k1-k0+1
+      ! the gathers of ket (Xk) and bra (Yb) for the beta strings that couple
+      do jb=1,nsb
+        cb = sb%str_cls(jb)
+        if (.not. okb(iblk,cb)) cycle
+        sa_sym = ieor(ras_lsym-1,sb%cls_sym(cb)-1)+1
+        usym = ieor(sa_sym-1,ks-1)+1
+        nu = res_ns(usym)
+        if (nu == 0) cycle
+        u0 = res_soff(usym)
+        do ul=1,nu
+          u = res_ord(u0+ul)
+          do kk=1,nkb
+            o = kk+(u0+ul-1)*nkb+(jb-1)*nkb*n
+            Xk(o) = Zero
+            Yb(o) = Zero
+            r = res_cre(u,k0+kk-1)
+            if (r == 0) cycle
+            ia = abs(r)
+            ca = sa%str_cls(ia)
+            if (blk_off(ca,cb) < 0) cycle
+            if (r > 0) then
+              Xk(o) = ket(blk_off(ca,cb)+sa%str_idx(ia)+(sb%str_idx(jb)-1)*sa%cls_nstr(ca))
+              Yb(o) = bra(blk_off(ca,cb)+sa%str_idx(ia)+(sb%str_idx(jb)-1)*sa%cls_nstr(ca))
+            else
+              Xk(o) = -ket(blk_off(ca,cb)+sa%str_idx(ia)+(sb%str_idx(jb)-1)*sa%cls_nstr(ca))
+              Yb(o) = -bra(blk_off(ca,cb)+sa%str_idx(ia)+(sb%str_idx(jb)-1)*sa%cls_nstr(ca))
+            end if
+          end do
+        end do
+      end do
+      ! M(t',u',v,x) += sgn Yb(:,t',Ib)^T Xk(:,u',Jb)
+      do jb=1,nsb
+        cb = sb%str_cls(jb)
+        if (.not. okb(iblk,cb)) cycle
+        sa_sym = ieor(ras_lsym-1,sb%cls_sym(cb)-1)+1
+        usym = ieor(sa_sym-1,ks-1)+1
+        nu = res_ns(usym)
+        if (nu == 0) cycle
+        u0 = res_soff(usym)
+        do e=sb%ex_off(jb)+1,sb%ex_off(jb+1)
+          ib = sb%ex_j(e)
+          if (.not. okb(iblk,sb%str_cls(ib))) cycle
+          v = sb%ex_p(e)
+          x = sb%ex_q(e)
+          tsym = ieor(ieor(usym-1,ras_osym(v)-1),ras_osym(x)-1)+1
+          nt = res_ns(tsym)
+          if (nt == 0) cycle
+          t0 = res_soff(tsym)
+          call DGEMM_('T','N',nt,nu,nkb,real(sb%ex_sgn(e),kind=wp),Yb(1+t0*nkb+(ib-1)*nkb*n),nkb,Xk(1+u0*nkb+(jb-1)*nkb*n), &
+                      nkb,One,M(t0+1,u0+1,v,x),n)
+        end do
+      end do
+    end do
+  end do
+end subroutine ab_res_blocks
 
 !> The alpha-beta part of ras_trans_two_pdm, <bra|a+_ta a_ua a+_vb a_xb|ket>
 !> added to (t,u,v,x) and (v,x,t,u), batched as opposite_spin:
