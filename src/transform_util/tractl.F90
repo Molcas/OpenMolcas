@@ -11,6 +11,7 @@
 ! Copyright (C) 1987, Bjorn O. Roos                                    *
 !               1992, Per Ake Malmqvist                                *
 !               1998, Jun-ya Hasegawa                                  *
+!               2026, Okan Koeksal                                     *
 !***********************************************************************
 !--------------------------------------------*
 ! 1987  B. O. ROOS                           *
@@ -286,13 +287,28 @@ do NSP=1,NSYM
         if ((MEMT > MEMLFT) .or. (L2 > MEMLFT-LURPQ)) then
           !LRUPQ = INT((One*MEMLFT*LRUPQ+MEMT-1)/MEMT)
           !LURPQ = INT((One*MEMLFT*LURPQ+MEMT-1)/MEMT)
-          NX = MEMLFT/(LRUPQM+LURPQM+LTUPQM)
           iiPart = 1
           if (iPart > 0) then
             iiPart = iPart
           end if
+
+          ! Preserve the historical TRA2 workspace estimate whenever the
+          ! resulting partitioned buffers still fit in MEMLFT.
+          NX = MEMLFT/(LRUPQM+LURPQM+LTUPQM)
           LRUPQ = NX*LRUPQM*iiPart
           LURPQ = NX*LURPQM*iiPart
+
+          ! iPart partitions the temporary files, so LRUPQ and LURPQ are
+          ! allocated in multiples of iiPart.  If the historical estimate
+          ! oversubscribes MEMLFT after that multiplication, recompute NX
+          ! with the partition multiplier included.  This keeps the original
+          ! behavior for ordinary cases while providing a safe fallback for
+          ! large partitioned transformations.
+          if (LRUPQ+LURPQ+LTUPQM > MEMLFT) then
+            NX = MEMLFT/(iiPart*(LRUPQM+LURPQM)+LTUPQM)
+            LRUPQ = NX*LRUPQM*iiPart
+            LURPQ = NX*LURPQM*iiPart
+          end if
         end if
         LTUPQ = max(0,MEMLFT-LRUPQ-LURPQ)
         !write(u6,*) 'LRUPQ=',LRUPQ
