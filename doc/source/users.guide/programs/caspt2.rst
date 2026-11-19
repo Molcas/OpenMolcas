@@ -255,6 +255,8 @@ Dependencies
 The :program:`CASPT2` program needs the :file:`JOBIPH` file from a :program:`RASSCF`
 calculation, and in addition one- and two-electron integrals and some auxiliary
 files from :program:`SEWARD`.
+GASSCF wave functions are not supported yet: :program:`CASPT2` stops with an input error
+if the reference wave function is of GASSCF type.
 
 .. index::
    pair: Files; CASPT2

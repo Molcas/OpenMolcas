@@ -200,6 +200,8 @@ by the :program:`RASSCF` program. Also, it needs a :file:`ONEINT` file from
 :program:`SEWARD`, with overlap integrals and any one-electron
 property integrals for the requested matrix elements. If Hamiltonian
 matrix elements are used, also the :file:`ORDINT` file is needed.
+GASSCF wave functions are not supported yet: :program:`RASSI` stops with an input error
+if any of the wave functions is of GASSCF type.
 
 .. For derivatives the :program:`RASSI` needs the :file:`MCKINT` file
    produced by :program:`MCKINLEY` and :program:`MCLR` containing
