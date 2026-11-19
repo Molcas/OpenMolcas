@@ -13,7 +13,7 @@
 
 module Vec_Backup
 
-use caspt2_global, only: LUSBT
+use caspt2_global, only: do_grad, LUSBT, nStpGrd
 use caspt2_module, only: NASUP, NINDEP, NISUP, nSym
 use EQSOLV, only: IDBMAT, IDTMAT
 use fake_GA, only: GA_Arrays
@@ -43,6 +43,8 @@ subroutine BackupVecs(iMode,iVec,VecKeep)
 
   ! The transformation of a vector, SR --> contrav C --> SR, is not numerically exact.
   ! iMode = 1 stores the rows of iVec that are sensitive to it (see SelectRows) in VecKeep, and iMode = 2 restores them.
+
+  if (.not. (do_grad .or. (nStpGrd == 2))) return
 
   call mma_allocate(Keep,sum(NINDEP(1:nSym,1:11)),Label='Keep')
   call SelectRows(sum(NINDEP(1:nSym,1:11)),Keep)
