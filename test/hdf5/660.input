@@ -1,0 +1,386 @@
+*-------------------------------------------------------------------------------
+* Molecule: water H2O
+* Basis: STO-3G
+* Symmetry: C2v
+* Features tested: definition of the split graph (CSF order) in rasscf.h5 for
+*                  CAS, RAS and GAS CSF spaces, Tools/Shavitt
+* Responsible person: Roland Lindh
+*-------------------------------------------------------------------------------
+* The split graph (Shavitt graph) of the CSF space of RASSCF, and so the CSF
+* order of CI_VECTORS, follows from root attributes and datasets of rasscf.h5:
+* NSYM, NACTEL, SPINMULT, LSYM, the active orbitals (MO_TYPEINDICES), the RAS
+* restrictions (NHOLE1, NELEC3) or, for GAS, GAS_ORBITALS, GAS_MIN_ELECTRONS
+* and GAS_MAX_ELECTRONS, the level order (L2ACT) and the midlevel (MIDLEVEL).
+*
+* The check below asserts what the checkfile cannot see: the names, shapes and
+* descriptions of MIDLEVEL and the GAS datasets, their consistency with the rest
+* of the file, and that an independent count of the walks of the graph defined
+* by the file gives NCONF. Without active orbitals there is no MIDLEVEL.
+* When Tools/Shavitt is installed (TOOLS=ON) the graph is also rebuilt with it
+* and the one-body density matrix computed from the loops of the graph and the
+* CI vector is compared with DENSITY_MATRIX, which checks the CSF order.
+*
+* Runs: CAS(8,6) singlet A1; RAS triplet B1 (2 holes, 2 particles) and GAS
+* with bounds that restrict the space from above, both CI only in the CAS
+* orbitals; no active orbitals.
+*-------------------------------------------------------------------------------
+
+* Test HDF5 support
+> RM -FORCE TEST_HDF5
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+> IF ( -FILE TEST_HDF5 )
+>   EXIT 36
+> ENDIF
+
+* Test h5py and numpy support (the check below needs them)
+> RM -FORCE TEST_H5PY
+> SHELL python3 -c "import h5py, numpy" || touch TEST_H5PY
+> IF ( -FILE TEST_H5PY )
+>   EXIT 36
+> ENDIF
+
+>FILE check_shavitt_h5.py
+#
+# Check of the definition of the split graph (CSF order) in rasscf.h5.
+#
+# Usage: python3 check_shavitt_h5.py expect=CAS|RAS|GAS|none [tool=<dir>] [dir=<path>]
+#   expect  the CI type of the run (none: no active orbitals, no MIDLEVEL)
+#   tool    the directory of Tools/Shavitt; if it holds shavittlib, the graph is
+#           rebuilt with it and DENSITY_MATRIX is recomputed from its loops
+#   dir     the directory holding the file (default: the current one)
+#
+# Exits 0 on success, 1 on any failure. A nonzero exit trips MOLCAS_TRAP and is
+# reported by the verify script as a test failure.
+#
+import glob
+import os
+import sys
+
+import h5py
+import numpy as np
+
+failures = []
+GAS = ('GAS_ORBITALS', 'GAS_MIN_ELECTRONS', 'GAS_MAX_ELECTRONS')
+
+
+def fail(tag, msg):
+    failures.append('%s: %s' % (tag, msg))
+
+
+def finish():
+    if failures:
+        sys.stderr.write('\nsplit graph check FAILED\n')
+        for item in failures:
+            sys.stderr.write('  %s\n' % item)
+        sys.exit(1)
+
+
+def fatal(tag, msg):
+    fail(tag, msg)
+    finish()
+
+
+def text(value):
+    if isinstance(value, (bytes, np.bytes_)):
+        value = value.decode('ascii')
+    return str(value)
+
+
+args = dict(a.split('=', 1) for a in sys.argv[1:])
+expect = args.get('expect', '')
+if expect not in ('CAS', 'RAS', 'GAS', 'none'):
+    fatal('A0', 'expect=CAS|RAS|GAS|none is required')
+found = sorted(glob.glob(os.path.join(args.get('dir', '.'), '*.rasscf.h5')))
+if len(found) != 1:
+    fatal('A1', 'expected exactly one rasscf.h5 file, found %s' % found)
+fn = found[0]
+
+with h5py.File(fn, 'r') as f:
+    # A: presence, names, types, shapes and descriptions
+    if 'SHAVITT' in f:
+        fail('A2', 'a SHAVITT group was written')
+    if expect == 'none':
+        if 'MIDLEVEL' in f.attrs:
+            fail('A3', 'MIDLEVEL was written for a run without active orbitals')
+        finish()
+        print('split graph check passed (no MIDLEVEL without active orbitals)')
+        sys.exit(0)
+    ci_type = text(f.attrs['CI_TYPE']).strip()
+    if ci_type != expect:
+        fail('A4', 'CI_TYPE is %s, expected %s' % (ci_type, expect))
+    if 'MIDLEVEL' not in f.attrs:
+        fatal('A5', 'no MIDLEVEL')
+    nsym = int(f.attrs['NSYM'])
+    nactel = int(f.attrs['NACTEL'])
+    ispin = int(f.attrs['SPINMULT'])
+    lsym = int(f.attrs['LSYM'])
+    nbas = np.atleast_1d(np.asarray(f.attrs['NBAS'], dtype=int))
+    if expect == 'GAS':
+        for name in GAS:
+            if name not in f:
+                fatal('A6', 'no %s' % name)
+            if f[name].dtype.kind not in 'iu':
+                fail('A7', '%s has type %s, expected integers' % (name, f[name].dtype))
+            if not text(f[name].attrs.get('DESCRIPTION', '')).strip():
+                fail('A8', '%s has no DESCRIPTION' % name)
+        orbs = np.asarray(f['GAS_ORBITALS'][()], dtype=int)  # [space][irrep] as seen by h5py
+        gmin = np.atleast_1d(np.asarray(f['GAS_MIN_ELECTRONS'][()], dtype=int))
+        gmax = np.atleast_1d(np.asarray(f['GAS_MAX_ELECTRONS'][()], dtype=int))
+        if orbs.ndim != 2 or orbs.shape[1] != nsym:
+            fatal('A9', 'GAS_ORBITALS has shape %s, expected (spaces, %d)' % (orbs.shape, nsym))
+        if gmin.shape != (orbs.shape[0],) or gmax.shape != (orbs.shape[0],):
+            fail('A9', 'GAS electron bounds of shapes %s, %s for %d spaces' % (gmin.shape, gmax.shape, orbs.shape[0]))
+    else:
+        for name in GAS:
+            if name in f:
+                fail('A6', '%s written for a %s run' % (name, expect))
+    finish()
+
+    # B: consistency with the rest of the file
+    types = [text(t).strip() for t in f['MO_TYPEINDICES'][()]]
+    act_sym, nrs, i0 = [], np.zeros((3, nsym), dtype=int), 0
+    for s in range(nsym):
+        for t in types[i0:i0 + nbas[s]]:
+            if t in ('1', '2', '3'):
+                act_sym.append(s)
+                nrs[int(t) - 1, s] += 1
+        i0 += nbas[s]
+    nlev = len(act_sym)
+    if expect == 'GAS':
+        if orbs.sum(axis=0).tolist() != nrs.sum(axis=0).tolist():
+            fail('B1', 'GAS_ORBITALS %s, active orbitals per irrep %s' % (orbs.tolist(), nrs.sum(axis=0).tolist()))
+        if gmin[-1] > nactel or gmax[-1] < nactel or np.any(gmin > gmax):
+            fail('B2', 'GAS bounds %s, %s for %d electrons' % (gmin.tolist(), gmax.tolist(), nactel))
+    l2act = np.asarray(f.attrs['L2ACT'][:nlev], dtype=int)
+    if sorted(l2act.tolist()) != list(range(1, nlev + 1)):
+        fatal('B3', 'L2ACT %s is not a permutation of %d active orbitals' % (l2act.tolist(), nlev))
+    midlev = int(f.attrs['MIDLEVEL'])
+    if not 1 <= midlev <= max(1, nlev - 1):
+        fail('B4', 'MIDLEVEL %d for %d levels' % (midlev, nlev))
+    nconf = int(f.attrs['NCONF'])
+    ci = np.atleast_2d(np.asarray(f['CI_VECTORS'][()]))
+    if ci.shape[1] != nconf:
+        fail('B5', 'NCONF = %d, CI_VECTORS of length %d' % (nconf, ci.shape[1]))
+    finish()
+
+    # C: independent count of the walks of the graph defined by the file
+    # the cumulative electron bounds after each space, at its last level
+    if expect == 'GAS':
+        sizes, bmin, bmax = orbs.sum(axis=1), gmin, gmax
+    elif nrs[0].sum() + nrs[2].sum() > 0:
+        sizes = nrs.sum(axis=1)
+        bmin = [2 * sizes[0] - int(f.attrs['NHOLE1']), nactel - int(f.attrs['NELEC3']), nactel]
+        bmax = [nactel] * 3
+    else:
+        sizes, bmin, bmax = [nlev], [nactel], [nactel]
+    lo = np.zeros(nlev + 1, dtype=int)
+    hi = np.full(nlev + 1, nactel, dtype=int)
+    L = 0
+    for k in range(len(sizes)):
+        L += sizes[k]
+        lo[L] = max(lo[L], bmin[k])
+        hi[L] = min(hi[L], bmax[k])
+    level_irreps = [act_sym[a - 1] for a in l2act]
+    b0 = ispin - 1
+    a0 = (nactel - b0) // 2
+    if 2 * a0 + b0 != nactel or nlev - a0 - b0 < 0:
+        fatal('C1', 'no graph for %d electrons, %d levels, 2S+1 = %d' % (nactel, nlev, ispin))
+    # walks from the tail to the vertex (a, b) at level L, by irrep; N = 2a + b electrons below it
+    steps = ((0, 0), (0, 1), (1, -1), (1, 0))  # increase of (a, b) for the steps d = 0..3
+    walks = {(0, 0): np.eye(1, nsym, 0, dtype=np.int64)[0]}
+    for L in range(1, nlev + 1):
+        sym = level_irreps[L - 1]
+        nxt = {}
+        for (a, b), w in walks.items():
+            for d, (da, db) in enumerate(steps):
+                t = (a + da, b + db)
+                if min(t) < 0 or t[0] + t[1] > L or not lo[L] <= 2 * t[0] + t[1] <= hi[L]:
+                    continue
+                add = w[[s ^ sym for s in range(nsym)]] if d in (1, 2) else w
+                nxt[t] = nxt.get(t, 0) + add
+        walks = nxt
+    count = walks.get((a0, b0), np.zeros(nsym, dtype=np.int64))
+    if int(count[lsym - 1]) != nconf:
+        fail('C2', 'NCONF = %d, counted %d CSFs (per irrep %s)' % (nconf, count[lsym - 1], count.tolist()))
+    finish()
+
+    dm = np.asarray(f['DENSITY_MATRIX'][()]) if 'DENSITY_MATRIX' in f else None
+    a2lev = np.asarray(f.attrs['A2LEV'][:nlev], dtype=int) - 1
+
+# D: with Tools/Shavitt: the rebuilt graph and the density matrix from its loops
+tool = args.get('tool', '')
+if tool and os.path.isfile(os.path.join(tool, 'shavittlib', 'build.py')):
+    sys.path.insert(0, tool)
+    from shavittlib.graph import ShavittGraph
+    from shavittlib.loops import density_matrix
+    try:
+        sg = ShavittGraph.from_h5(fn)
+    except ValueError as e:
+        fatal('D1', str(e))
+    if sg.warnings:
+        fail('D2', 'Shavitt: %s' % ' '.join(sg.warnings))
+    if sg.ci_type != expect or sg.ncsf.tolist() != count.tolist():
+        fail('D3', 'Shavitt: %s graph with CSFs %s' % (sg.ci_type, sg.ncsf.tolist()))
+    for root in range(ci.shape[0]):
+        if dm is None:
+            fail('D4', 'no DENSITY_MATRIX')
+            break
+        err = np.abs(density_matrix(sg, root)[np.ix_(a2lev, a2lev)] - dm[root]).max()
+        if err > 1.0e-8:
+            fail('D4', 'root %d: density matrix from the loops differs from DENSITY_MATRIX by %.2e'
+                 % (root + 1, err))
+    finish()
+    print('split graph check passed (%s, %d levels, %d vertices, CSFs %s; checked with Tools/Shavitt)'
+          % (expect, nlev, sg.nvert, count.tolist()))
+else:
+    finish()
+    print('split graph check passed (%s, %d levels, CSFs %s; Tools/Shavitt not installed)'
+          % (expect, nlev, count.tolist()))
+sys.exit(0)
+>EOF
+
+ &GATEWAY
+Title = H2O, STO-3G
+Coord = 3
+
+O   0.000000  0.000000  0.117300
+H   0.000000  0.757200 -0.469200
+H   0.000000 -0.757200 -0.469200
+Basis = STO-3G
+Group = X Y
+NoCD
+
+ &SEWARD
+
+ &SCF
+
+* CAS(8,6), singlet A1, one partition
+ &RASSCF
+Spin = 1
+Symmetry = 1
+nActEl = 8 0 0
+Inactive = 1 0 0 0
+Ras2 = 3 1 2 0
+
+> SHELL python3 check_shavitt_h5.py expect=CAS tool=$MOLCAS/Tools/Shavitt
+
+* RAS triplet B1: at most 2 holes in RAS1, at most 2 electrons in RAS3 (CI only)
+ &RASSCF
+Spin = 3
+Symmetry = 2
+nActEl = 8 2 2
+Inactive = 1 0 0 0
+Ras1 = 1 0 1 0
+Ras2 = 1 1 0 0
+Ras3 = 1 0 1 0
+CIOnly
+
+> SHELL python3 check_shavitt_h5.py expect=RAS tool=$MOLCAS/Tools/Shavitt
+
+* GAS singlet A1: 2 or 3 electrons in GAS1, 5 to 7 in GAS1+GAS2 (CI only)
+ &RASSCF
+Spin = 1
+Symmetry = 1
+nActEl = 8
+Inactive = 1 0 0 0
+GASScf
+3
+1 0 1 0
+2 3
+1 1 0 0
+5 7
+1 0 1 0
+8 8
+CIOnly
+
+> SHELL python3 check_shavitt_h5.py expect=GAS tool=$MOLCAS/Tools/Shavitt
+
+* No active orbitals: no MIDLEVEL
+ &RASSCF
+Spin = 1
+Symmetry = 1
+nActEl = 0 0 0
+Inactive = 3 1 1 0
+Ras2 = 0 0 0 0
+
+> SHELL python3 check_shavitt_h5.py expect=none
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 26.06-1362-g143b7472d
+* Linux lucia 7.0.0-43-generic #43~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Sat Oct 31 06:52:47 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+* Wed Nov 18 16:14:02 2026
+*
+#>>   1
+#> POTNUC="9.189533756405"/12
+#>>   2
+#> POTNUC="9.189533756405"/12
+#> SEWARD_MLTPL1X="0.050791928312"/5
+#> SEWARD_KINETIC="29.003204064678"/5
+#> SEWARD_ATTRACT="-61.723472120299"/5
+#>>   3
+#> SCF_ITER="7"/8
+#> E_SCF="-74.963023162913"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.678787301921"/5
+#> MLTPL__2[0]="-0.972544890509"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.963822415986"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.008722474523"/5
+#>>   4
+#> RASSCF_ITER="4"/8
+#> E_RASSCF="-75.012529605873"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.635768975233"/5
+#> MLTPL__2[0]="-0.907024418131"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.892033469996"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.014990948135"/5
+#>>   5
+#> E_RASSCF="-74.592846472151"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.021811495748"/5
+#> MLTPL__2[0]="0.653617469468"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.271653814315"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-0.381963655154"/5
+#>>   6
+#> E_RASSCF="-73.966933424562"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.383626885987"/5
+#> MLTPL__2[0]="-0.424129400416"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.698854834850"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="-0.274725434435"/5
+#>>   7
+#> RASSCF_ITER="7"/8
+#> E_RASSCF="-74.963023162959"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.678787114229"/5
+#> MLTPL__2[0]="-0.972544684194"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="0.963822190831"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.008722493363"/5
+>>EOF

@@ -148,7 +148,8 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   ! Set wavefunction type
   if (iDoGAS) then
     call mh5_init_attr(file_id,'CI_TYPE','GAS')
-  else if (CI_St(istate)%IFRAS == 0) then
+  else if (CI_St(istate)%nRsPrt == 1) then
+    ! one partition: CAS (IFRAS also counts the irreps with active orbitals)
     call mh5_init_attr(file_id,'CI_TYPE','CAS')
   else
     call mh5_init_attr(file_id,'CI_TYPE','RAS')
