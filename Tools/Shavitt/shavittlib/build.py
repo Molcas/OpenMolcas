@@ -66,6 +66,55 @@ def levels_from_partitions(nras):
     return np.array(level_sym, dtype=int), np.array(level_to_act, dtype=int)
 
 
+def ras_partitions(nactel, nrs1, nrs2, nrs3, nhole1, nelec3):
+    """Partitions and cumulative bounds of a RAS (CAS) space, as Setup_RASSCF.
+
+    nrs1..3: orbitals of each irrep; returns nras[partition][irrep], minel,
+    maxel (None: no upper bounds). Without holes and particles one partition.
+    """
+    nrs1, nrs2, nrs3 = (np.asarray(x, dtype=int) for x in (nrs1, nrs2, nrs3))
+    if nhole1 + nelec3 == 0:
+        return np.atleast_2d(nrs1 + nrs2 + nrs3), [nactel], None
+    return np.array([nrs1, nrs2, nrs3]), [2 * int(nrs1.sum()) - nhole1, nactel - nelec3, nactel], None
+
+
+def gas_partitions(nactel, ngssh, gmin, gmax):
+    """Partitions and cumulative bounds of a GAS space, as Space_From_GAS (src/csf_graph_util/ci_space_def.F90).
+
+    ngssh[space][irrep]: orbitals; gmin/gmax: bounds on the electrons in the
+    spaces 1..g together. Spaces without orbitals are dropped (their bounds
+    restrict the previous partition), the bounds are tightened to the possible
+    ones and the last partition holds all electrons.
+    """
+    ngssh = np.atleast_2d(np.asarray(ngssh, dtype=int))
+    nras, mn, mx = [], [], []
+    for g, row in enumerate(ngssh):
+        if row.sum() == 0:
+            if not nras:
+                if gmin[g] > 0 or gmax[g] < 0:
+                    raise ValueError(f'GAS space {g + 1}: inconsistent electron bounds')
+            else:
+                mn[-1] = max(mn[-1], int(gmin[g]))
+                mx[-1] = min(mx[-1], int(gmax[g]))
+            continue
+        nras.append(row)
+        mn.append(int(gmin[g]))
+        mx.append(int(gmax[g]))
+    if not nras:
+        raise ValueError('GAS: no active orbitals')
+    nras = np.array(nras)
+    sizes = nras.sum(axis=1)
+    for k in range(len(nras)):
+        below, above = int(sizes[:k + 1].sum()), int(sizes[k + 1:].sum())
+        mn[k] = max(mn[k], 0, nactel - 2 * above)
+        mx[k] = min(mx[k], nactel, 2 * below)
+    mn[-1] = mx[-1] = nactel
+    for k in range(len(nras)):
+        if mn[k] > mx[k]:
+            raise ValueError(f'GAS partition {k + 1}: inconsistent electron bounds ({mn[k]} > {mx[k]})')
+    return nras, mn, mx
+
+
 def build_tables(nactel, ispin, level_sym, nsym, nras=None, minel=None, maxel=None, midlev=None):
     """The graph tables of SGUGA for nactel electrons, spin multiplicity ispin and the level irreps.
 

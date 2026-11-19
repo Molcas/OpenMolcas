@@ -54,37 +54,17 @@ def graph_from_args(a):
     """The graph defined on the command line (--cas, --ras1..3 or --gas)."""
     if a.electrons is None:
         raise ValueError('--electrons is needed for a graph from scratch')
-    n = a.electrons
+    gas = None
     if a.gas:
-        if a.cas or a.ras1 or a.ras2 or a.ras3:
-            raise ValueError('give either --gas, --ras1..3 or --cas')
-        nras, minel, maxel = [], [], []
+        gas = []
         for t in a.gas:
             try:
                 orbs, lo, hi = t.split(':')
-                nras.append([int(x) for x in orbs.replace(',', ' ').split()])
-                minel.append(int(lo))
-                maxel.append(int(hi))
+                gas.append(([int(x) for x in orbs.replace(',', ' ').split()], int(lo), int(hi)))
             except ValueError:
                 raise ValueError(f'--gas {t}: expected ORBITALS:MIN:MAX, e.g. 2,0,1,0:2:4') from None
-        if maxel[-1] != n or minel[-1] != n:
-            raise ValueError(f'--gas: the last space must hold all {n} electrons together (MIN = MAX = {n})')
-    elif a.ras1 or a.ras2 or a.ras3:
-        if a.cas:
-            raise ValueError('give either --ras1..3 or --cas')
-        width = max(len(x or []) for x in (a.ras1, a.ras2, a.ras3))
-        nras = [list(x or []) + [0] * (width - len(x or [])) for x in (a.ras1, a.ras2, a.ras3)]
-        # as RASSCF: at least 2*RAS1 - holes electrons in RAS1, at most particles in RAS3
-        minel, maxel = [2 * sum(nras[0]) - a.holes, n - a.particles, n], None
-    else:
-        nras, minel, maxel = [a.cas], None, None
-    lens = {len(r) for r in nras}
-    if len(lens) != 1 or lens.pop() not in (1, 2, 4, 8):
-        raise ValueError('give the orbitals of 1, 2, 4 or 8 irreps, the same number for every space')
-    nsym = len(nras[0])
-    if not 1 <= a.irrep <= nsym:
-        raise ValueError(f'--irrep must be 1..{nsym}')
-    return ShavittGraph.build(nsym, n, a.spin, a.irrep - 1, nras, minel, maxel, irrep_labels=a.irrep_labels)
+    return ShavittGraph.from_definition(a.electrons, a.spin, a.irrep, cas=a.cas, ras1=a.ras1, ras2=a.ras2, ras3=a.ras3,
+                                        holes=a.holes, particles=a.particles, gas=gas, irrep_labels=a.irrep_labels)
 
 
 def main(argv=None):
@@ -149,7 +129,12 @@ def main(argv=None):
     if g is None:
         if not a.h5:
             p.error('a rasscf.h5 file (or the definition of a graph) is needed with -o, --text or --vertices')
-        g = ShavittGraph.from_h5(a.h5)
+        try:
+            g = ShavittGraph.from_h5(a.h5)
+        except (OSError, KeyError, ValueError) as e:
+            sys.exit(f'shavitt.py: {e}')
+        for w in g.warnings:
+            print(f'Warning: {w}', file=sys.stderr)
     print(g.summary())
 
     if a.vertices:

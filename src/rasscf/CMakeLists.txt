@@ -121,7 +121,6 @@ set (sources
      setprlev.F90
      setup_rasscf.F90
      sgfcin.F90
-     shavitt2h5.F90
      sigvec.F90
      socc_dmrg_rdinp.F90
      sphpur.F90

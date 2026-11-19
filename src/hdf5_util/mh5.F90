@@ -20,11 +20,11 @@ use Definitions, only: wp, iwp, u6, MOLCAS_C_INT, MOLCAS_C_REAL
 implicit none
 private
 
-public :: mh5_create_file, mh5_open_file_rw, mh5_open_file_r, mh5_close_file, mh5_is_hdf5, mh5_create_group, mh5_open_group, &
-          mh5_close_group, mh5_exists_attr, mh5_open_attr, mh5_close_attr, mh5_exists_dset, mh5_open_dset, mh5_close_dset, &
-          mh5_create_attr_int, mh5_create_attr_real, mh5_create_attr_str, mh5_put_attr, mh5_get_attr, mh5_init_attr, &
-          mh5_fetch_attr, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, mh5_put_dset, mh5_get_dset, &
-          mh5_init_dset, mh5_fetch_dset, mh5_resize_dset, mh5_get_dset_dims
+public :: mh5_create_file, mh5_open_file_rw, mh5_open_file_r, mh5_close_file, mh5_is_hdf5, mh5_open_group, mh5_close_group, &
+          mh5_exists_attr, mh5_open_attr, mh5_close_attr, mh5_exists_dset, mh5_open_dset, mh5_close_dset, mh5_create_attr_int, &
+          mh5_create_attr_real, mh5_create_attr_str, mh5_put_attr, mh5_get_attr, mh5_init_attr, mh5_fetch_attr, &
+          mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, mh5_put_dset, mh5_get_dset, mh5_init_dset, &
+          mh5_fetch_dset, mh5_resize_dset, mh5_get_dset_dims
 
 !======================
 ! Overloaded interfaces
@@ -198,14 +198,6 @@ interface
   end function mh5_c_is_hdf5
 
   ! group
-
-  function mh5_c_create_group(lu,groupname) result(groupid) &
-           bind(C,name='mh5c_create_group')
-    import :: MOLCAS_C_INT, c_char
-    integer(kind=MOLCAS_C_INT) :: groupid
-    integer(kind=MOLCAS_C_INT), value :: lu
-    character(kind=c_char) :: groupname(*)
-  end function mh5_c_create_group
 
   function mh5_c_open_group(lu,groupname) result(groupid) &
            bind(C,name='mh5c_open_group')
@@ -768,16 +760,6 @@ function mh5_is_hdf5(filename) result(ishdf5)
 end function mh5_is_hdf5
 
 ! group
-
-function mh5_create_group(lu,groupname) result(groupid)
-  integer(kind=iwp) :: groupid
-  integer(kind=iwp), intent(in) :: lu
-  character(len=*), intent(in) :: groupname
-  character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
-  call f2c_string(groupname,mh5_lbl)
-  groupid = mh5_c_create_group(lu,mh5_lbl)
-  if (groupid < 0) call abend()
-end function mh5_create_group
 
 function mh5_open_group(lu,groupname) result(groupid)
   integer(kind=iwp) :: groupid

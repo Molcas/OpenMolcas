@@ -3,11 +3,12 @@
 Draws the Shavitt graph (the split-GUGA distinct-row table) of a RASSCF/CASSCF
 wave function, with the walks of its leading CSFs.
 
-RASSCF writes the definition of the graph to the group `SHAVITT` of
-`$Project.rasscf.h5` (`src/rasscf/shavitt2h5.F90`); this tool rebuilds the
-graph and the CSF order from it as SGUGA does (`shavittlib/build.py`) and
-reads the `CI_VECTORS` of the same file. It can also build a graph from
-scratch, from the orbitals, electrons and RAS/GAS restrictions.
+The graph follows from the definition of the CI space, which RASSCF stores in
+`$Project.rasscf.h5` (electrons, spin, symmetry, active orbitals, RAS/GAS
+restrictions, level order, midlevel); this tool rebuilds the graph and the CSF
+order from it as SGUGA does (`shavittlib/build.py`) and reads the `CI_VECTORS`
+of the same file. It also builds the graph of a CI space defined by hand,
+without any file (*New...* in the interface, or the command line).
 
 ## Requirements
 
@@ -26,6 +27,15 @@ checks); it can also be run from the source tree.
 ## Graphical interface
 
     shavitt.py h2o.rasscf.h5        # or just shavitt.py, then File > Open
+    shavitt.py                      # ... or File > New graph (no file)
+
+*New...* (File > New graph, Ctrl+N) defines a CI space as the RASSCF input
+does: active electrons, spin multiplicity, number of irreps (and their
+labels), the irrep of the wave function, and CAS (orbitals of each irrep),
+RAS (RAS1/RAS2/RAS3 orbitals, holes in RAS1, electrons in RAS3) or GAS (any
+number of spaces with the minimum and maximum number of electrons in the
+spaces 1..k together). The dialog shows the number of vertices and CSFs as
+it is edited, and starts from the space of the graph on display.
 
 * **Wave function**: root, energy, threshold |c| for the CSF table.
 * **Leading CSFs**: select rows (Ctrl/Shift-click) to highlight their walks;
@@ -128,25 +138,32 @@ d=3 bmax+1 columns), so a run of equal steps is a straight line. Only the
 columns in use are labelled. The dashed line marks the midlevel of the split
 graph; the OpenMolcas logo sits in the lower right corner of the figure.
 
-## The SHAVITT group of rasscf.h5
+## The definition of the graph in rasscf.h5
 
-The definition of the graph; with the file attributes `NSYM`, `NACTEL`,
-`SPINMULT`, `LSYM` and `L2ACT` (level -> active orbital) it determines the
-graph and the CSF order of `CI_VECTORS`. Integers, written in Fortran order
-(h5py shows the dimensions reversed), 1-based.
+The graph and the CSF order of `CI_VECTORS` follow from root attributes and
+datasets of the file (`src/rasscf/raswfn.F90`):
 
-| Name | Dimensions (Fortran) | Content |
-|---|---|---|
-| `LEVEL_IRREPS` | `[nLev]` | irrep of the orbital of each level (level 1 at the bottom) |
-| `PARTITION_ORBITALS` | `[NSYM,nPart]` | orbitals of each irrep in each partition (RAS/GAS space) |
-| `PARTITION_MIN_ELECTRONS` | `[nPart]` | minimum number of electrons in the partitions 1..k together |
-| `PARTITION_MAX_ELECTRONS` | `[nPart]` | maximum number of electrons in the partitions 1..k together (-1: no bound) |
-| `CSFS_PER_IRREP` | `[NSYM]` | CSFs of each total irrep (check) |
+| Name | Content |
+|---|---|
+| `NSYM`, `NACTEL`, `SPINMULT`, `LSYM` | irreps, active electrons, 2S+1, irrep of the wave function |
+| `NBAS`, `MO_TYPEINDICES` | the active orbitals of each irrep (types `1`, `2`, `3`: RAS1/2/3) |
+| `NHOLE1`, `NELEC3` | RAS: maximum holes in RAS1, maximum electrons in RAS3 |
+| `GAS_ORBITALS` `[NSYM,nGAS]` | GAS: orbitals of each irrep in each space (all active orbitals have type `2`) |
+| `GAS_MIN_ELECTRONS`, `GAS_MAX_ELECTRONS` `[nGAS]` | GAS: bounds on the electrons in the spaces 1..k together |
+| `L2ACT` | active orbital of each level (the level order) |
+| `MIDLEVEL` | the midlevel of the split graph chosen by SGUGA (`MKMID`) |
+| `NCONF` | number of CSFs (check) |
 
-Attributes: `MIDLEVEL` (the midlevel of the split graph), `NUM_VERTICES`
-(check), `DESCRIPTION`; each dataset has a `DESCRIPTION` too. The tool uses
-the stored midlevel and stops if its graph has another number of vertices or
-CSFs than RASSCF's.
+The levels are numbered space by space, irrep by irrep. RAS uses three
+partitions when `NHOLE1 + NELEC3 > 0` (at least 2 RAS1 - `NHOLE1` electrons
+in RAS1, at most `NELEC3` in RAS3), else one. GAS spaces without orbitals are
+dropped and the bounds tightened as in `Space_From_GAS`
+(`src/csf_graph_util/ci_space_def.F90`).
+
+Files of older RASSCF versions are read too: without `MIDLEVEL` it is computed
+as `MKMID` does now (with a warning); a GAS file without the `GAS_*` datasets
+is read as a CAS (with a warning). If the rebuilt graph does not have `NCONF`
+CSFs the tool stops: the CSF order of the file is then unknown.
 
 The graph (`shavittlib/build.py`, after `MKSGUGA` of
 `src/csf_graph_util/csf_graph.F90`): the Paldus table is built from the head
@@ -157,9 +174,6 @@ enumerated depth first with the steps 0..3 in order. CSF order of
 `CI_VECTORS` (symmetry `LSYM`): blocks (midvertex outermost, upper-walk irrep
 inside), within a block the upper half walk runs fastest.
 `shavittlib.graph.ShavittGraph.step_vector` implements this.
-
-Files written by version 0.9 before 2026-11-18 stored the tables themselves
-(`DRT`, `DOWN`, `NOW`, `IOW`, `NOCSF`, `IOCSF`, `ICASE`, ...); they are still read.
 
 ## Checking
 
@@ -178,8 +192,8 @@ and coefficient, and checks that the walks counted on the graph equal the CSF
 counts of the file.
 
 The regression test `test/hdf5/660.input` (CAS, RAS, GAS and no active
-orbitals) checks the `SHAVITT` group: names, shapes and descriptions, its
-consistency with the rest of the file, the number of vertices and of CSFs per
-irrep from an independent count, and, when the tool is installed, the
+orbitals) checks `MIDLEVEL` and the `GAS_*` datasets: names, shapes and
+descriptions, their consistency with the rest of the file, `NCONF` from an
+independent count of the walks of the graph, and, when the tool is installed, the
 density matrix from the loops of the rebuilt graph against `DENSITY_MATRIX`
 (the CSF order). It needs `h5py` and `numpy` in `python3`.

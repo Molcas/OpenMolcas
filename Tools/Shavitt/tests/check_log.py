@@ -14,8 +14,8 @@
 
 usage: check_log.py rasscf.log rasscf.h5
 
-Every CSF printed by RASSCF (PRWF) is decoded from its index with the
-SHAVITT group of the HDF5 file; the occupation string and the coefficient
+Every CSF printed by RASSCF (PRWF) is decoded from its index with the graph
+rebuilt from the HDF5 file; the occupation string and the coefficient
 must agree. Exits with status 1 on any mismatch.
 """
 

@@ -11,7 +11,7 @@
 # Copyright (C) 2026, Roland Lindh                                     *
 #***********************************************************************
 """The split graph (Shavitt graph) of a RASSCF CSF space, rebuilt from the
-definition in the SHAVITT group of a rasscf.h5 file (or from scratch), and
+definition of the CI space in a rasscf.h5 file (or from scratch), and
 the decoding of the CSF indices of CI_VECTORS into step vectors and walks.
 
 Conventions (as in src/csf_graph_util/csf_graph.F90):
@@ -74,6 +74,7 @@ class ShavittGraph:
     irrep_labels: list = field(default_factory=list)
     ci_vectors: np.ndarray = field(default=None)  # [nroots,nconf]
     root_energies: np.ndarray = field(default=None)
+    warnings: list = field(default_factory=list)  # from reading a file
 
     # ------------------------------------------------------------------
     @classmethod
@@ -107,64 +108,157 @@ class ShavittGraph:
         return self
 
     @classmethod
+    def from_definition(cls, electrons, spin=1, irrep=1, cas=None, ras1=None, ras2=None, ras3=None, holes=0,
+                        particles=0, gas=None, irrep_labels=None):
+        """The graph of a CI space given as RASSCF's input defines it (no file).
+
+        electrons: active electrons; spin: 2S+1; irrep: 1-based target irrep.
+        One of: cas (orbitals per irrep); ras1/ras2/ras3 (orbitals per irrep)
+        with holes (in RAS1) and particles (in RAS3); gas, a list of
+        (orbitals per irrep, min, max) with the bounds on the electrons in the
+        spaces 1..k together. Raises ValueError for an inconsistent definition.
+        """
+        from .build import gas_partitions, ras_partitions
+        n = int(electrons)
+        if n < 0:
+            raise ValueError('the number of electrons must be >= 0')
+        ras = [list(x) if x else [] for x in (ras1, ras2, ras3)]
+        if sum(bool(x) for x in (cas, any(ras), gas)) != 1:
+            raise ValueError('give the orbitals of exactly one kind of space: CAS, RAS1..3 or GAS')
+        if gas:
+            rows = [list(o) for o, _, _ in gas]
+        elif any(ras):
+            width = max(len(x) for x in ras)
+            rows = [x + [0] * (width - len(x)) for x in ras]
+        else:
+            rows = [list(cas)]
+        lens = {len(r) for r in rows}
+        if len(lens) != 1 or lens.pop() not in (1, 2, 4, 8):
+            raise ValueError('give the orbitals of 1, 2, 4 or 8 irreps, the same number for every space')
+        if any(int(x) < 0 for r in rows for x in r):
+            raise ValueError('the numbers of orbitals must be >= 0')
+        nsym = len(rows[0])
+        if not 1 <= irrep <= nsym:
+            raise ValueError(f'the target irrep must be 1..{nsym}')
+        if gas:
+            if int(gas[-1][1]) != n or int(gas[-1][2]) != n:
+                raise ValueError(f'GAS: the last space must hold all {n} electrons together (min = max = {n})')
+            nras, minel, maxel = gas_partitions(n, rows, [int(g[1]) for g in gas], [int(g[2]) for g in gas])
+        elif any(ras):
+            if not 0 <= holes <= 2 * sum(rows[0]) or not 0 <= particles <= 2 * sum(rows[2]):
+                raise ValueError('RAS: at most 2 holes per RAS1 orbital and 2 particles per RAS3 orbital')
+            nras, minel, maxel = ras_partitions(n, rows[0], rows[1], rows[2], int(holes), int(particles))
+        else:
+            nras, minel, maxel = np.atleast_2d(rows), None, None
+        if labels := list(irrep_labels or []):
+            if len(labels) != nsym:
+                raise ValueError(f'give {nsym} irrep labels')
+        return cls.build(nsym, n, int(spin), irrep - 1, nras, minel, maxel, irrep_labels=labels,
+                         ci_type='GAS' if gas else None)
+
+    @classmethod
     def from_h5(cls, filename):
+        """The graph of the CI space of a rasscf.h5 file, rebuilt from its definition in the root attributes.
+
+        Used: NSYM, NACTEL, SPINMULT, LSYM, NBAS, MO_TYPEINDICES (active
+        orbitals), NHOLE1 and NELEC3 (RAS) or GAS_ORBITALS, GAS_MIN_ELECTRONS
+        and GAS_MAX_ELECTRONS (GAS), L2ACT (level order) and MIDLEVEL; checked
+        against NCONF. Files without MIDLEVEL (or, for GAS, without the
+        restrictions) are read with warnings (self.warnings); a graph that
+        does not give the CSFs of the file raises ValueError.
+        """
+        import os
+
         import h5py
+        from .build import gas_partitions, levels_from_partitions, ras_partitions
+
+        if not os.path.isfile(filename):
+            raise OSError(f'{filename}: no such file')
+
+        def text(x):
+            return x.decode().strip() if isinstance(x, bytes) else str(x).strip()
+
+        warnings = []
         with h5py.File(filename, 'r') as f:
-            if 'SHAVITT' not in f:
-                raise KeyError(f'{filename}: no SHAVITT group; rerun RASSCF with a version that writes the split graph')
-            g = f['SHAVITT']
-            at = g.attrs
+            at = f.attrs
+            missing = [k for k in ('NSYM', 'NACTEL', 'SPINMULT', 'LSYM', 'NBAS', 'NCONF') if k not in at]
+            if missing or 'MO_TYPEINDICES' not in f:
+                raise ValueError(f'{filename}: not a RASSCF wave function file (no {", ".join(missing or ["MO_TYPEINDICES"])})')
+            nsym, nactel, ispin = int(at['NSYM']), int(at['NACTEL']), int(at['SPINMULT'])
+            lsym = int(at['LSYM']) - 1
+            ct = text(at.get('CI_TYPE', b''))
+            labels = [text(x) for x in at.get('IRREP_LABELS', [])]
+            # active orbitals of each irrep by type (RAS1/2/3; GAS: all 2), MO order irrep by irrep
+            types = [text(x).upper() for x in np.asarray(f['MO_TYPEINDICES'][()]).ravel()]
+            nbas = np.atleast_1d(np.asarray(at['NBAS'])).astype(int)
+            nrs = np.zeros((3, nsym), dtype=int)
+            act_sym = []
+            i0 = 0
+            for s in range(nsym):
+                for t in types[i0:i0 + nbas[s]]:
+                    if t in ('1', '2', '3'):
+                        nrs[int(t) - 1, s] += 1
+                        act_sym.append(s)
+                i0 += nbas[s]
+            act_sym = np.array(act_sym, dtype=int)
+            nlev = len(act_sym)
+            if nlev == 0:
+                raise ValueError(f'{filename}: no active orbitals, no graph')
 
-            # HDF5 stores the Fortran arrays with the dimensions reversed
-            def F(name):
-                return np.asarray(g[name][()]).T
-
-            ct = f.attrs.get('CI_TYPE', b'')
-            ct = ct.decode() if isinstance(ct, bytes) else str(ct)
-            labels = [x.decode().strip() if isinstance(x, bytes) else str(x).strip()
-                      for x in f.attrs.get('IRREP_LABELS', [])]
-            nsym = int(f.attrs['NSYM'])
-            lsym = int(f.attrs['LSYM']) - 1
-            if 'DRT' not in g:
-                # the definition of the graph: rebuild it as SGUGA does, check it against RASSCF's counts
-                nras = F('PARTITION_ORBITALS').astype(int).T  # [partition][irrep]
-                level_sym = np.atleast_1d(F('LEVEL_IRREPS')).astype(int) - 1
-                nlev = len(level_sym)
-                self = cls.build(nsym, int(f.attrs['NACTEL']), int(f.attrs['SPINMULT']), lsym, nras,
-                                 np.atleast_1d(F('PARTITION_MIN_ELECTRONS')).astype(int),
-                                 np.atleast_1d(F('PARTITION_MAX_ELECTRONS')).astype(int), level_sym=level_sym,
-                                 level_to_act=np.asarray(f.attrs['L2ACT'][:nlev]).astype(int),
-                                 midlev=int(at['MIDLEVEL']), irrep_labels=labels)
-                ncsf = np.atleast_1d(F('CSFS_PER_IRREP')).astype(int)
-                if self.nvert != int(at['NUM_VERTICES']) or not np.array_equal(self.ncsf, ncsf):
-                    raise ValueError(f'{filename}: the rebuilt graph ({self.nvert} vertices, '
-                                     f'CSFs {self.ncsf.tolist()}) '
-                                     f'differs from RASSCF\'s ({int(at["NUM_VERTICES"])} vertices, CSFs '
-                                     f'{ncsf.tolist()}): the CSF order of SGUGA may have changed')
+            if 'GAS_ORBITALS' in f:
+                ngssh = np.atleast_2d(np.asarray(f['GAS_ORBITALS'][()])).astype(int)  # [space][irrep]
+                nras, minel, maxel = gas_partitions(nactel, ngssh, np.atleast_1d(f['GAS_MIN_ELECTRONS'][()]),
+                                                    np.atleast_1d(f['GAS_MAX_ELECTRONS'][()]))
+                ci_type = 'GAS'
+            elif ct == 'GAS':
+                warnings.append('The file has no GAS restrictions (GAS_ORBITALS, GAS_MIN/MAX_ELECTRONS; written by an '
+                                'older RASSCF): the graph is built without them, i.e. as a CAS.')
+                nras, minel, maxel = nrs.sum(axis=0)[None, :], [nactel], None
+                ci_type = 'GAS'
             else:
-                # files written by Shavitt 0.9 (before 2026-11-18): the tables as stored by RASSCF
-                down = F('DOWN').astype(int) - 1
-                self = cls(
-                    nsym=nsym, nactel=int(at['NACTEL']), ispin=int(at['ISPIN']), nlev=int(at['NLEV']),
-                    midlev=int(at['MIDLEV']), mvsta=int(at['MVSTA']) - 1, nmidv=int(at['NMIDV']), lsym=lsym,
-                    level_sym=F('LEVEL_SYM').astype(int) - 1, level_to_act=F('LEVEL_TO_ACT').astype(int),
-                    drt=F('DRT').astype(int), down=down,
-                    now=F('NOW').astype(int), iow=F('IOW').astype(int),
-                    nocsf=F('NOCSF').astype(int), iocsf=F('IOCSF').astype(int), ncsf=F('NCSF').astype(int),
-                    icase=F('ICASE').astype(np.int64), npack=int(at['NPACK']), nipwlk=int(at['NIPWLK']),
-                    nras=F('NRAS').astype(int), nrasel=F('NRASEL').astype(int), nrasmx=F('NRASMX').astype(int),
-                )
-                # CI_TYPE says RAS for any CAS with symmetry in files before that fix: use the partitions
-                self.ci_type = 'CAS' if int(at['NRSPRT']) == 1 else 'RAS'
-                if 'L2ACT' in f.attrs:  # level -> active orbital (files written before LEVEL_TO_ACT was IDXSX)
-                    self.level_to_act = np.asarray(f.attrs['L2ACT'][:self.nlev]).astype(int)
-                self.irrep_labels = labels
-            if ct.strip() == 'GAS':
-                self.ci_type = 'GAS'
+                nras, minel, maxel = ras_partitions(nactel, nrs[0], nrs[1], nrs[2], int(at.get('NHOLE1', 0)),
+                                                    int(at.get('NELEC3', 0)))
+                # CI_TYPE says RAS for any CAS with symmetry in older files: use the partitions
+                ci_type = 'CAS' if len(nras) == 1 else 'RAS'
+            if int(nras.sum()) != nlev:
+                raise ValueError(f'{filename}: {int(nras.sum())} orbitals in the CI spaces, but {nlev} active orbitals')
+
+            # the level order: RASSCF numbers the levels partition by partition, irrep by irrep
+            level_sym, level_to_act = levels_from_partitions(nras)
+            if 'L2ACT' in at:
+                l2act = np.asarray(at['L2ACT'][:nlev]).astype(int)
+                if sorted(l2act) != list(range(1, nlev + 1)):
+                    raise ValueError(f'{filename}: L2ACT is not a permutation of the {nlev} active orbitals')
+                if not np.array_equal(l2act, level_to_act):
+                    if len(nras) > 1:
+                        raise ValueError(f'{filename}: the level order of the file (L2ACT) is not that of the '
+                                         'partitions: unknown CSF order')
+                    # one partition: any level order is a valid graph
+                    level_to_act, level_sym = l2act, act_sym[l2act - 1]
+            else:
+                warnings.append('The file has no level order (L2ACT): RASSCF\'s default order is assumed.')
+
+            midlev = int(at['MIDLEVEL']) if 'MIDLEVEL' in at else None
+            if midlev is None:
+                warnings.append('The file has no MIDLEVEL (written by an older RASSCF): it is computed as SGUGA '
+                                '(MKMID) does now.')
+            self = cls.build(nsym, nactel, ispin, lsym, nras, minel, maxel, level_sym=level_sym,
+                             level_to_act=level_to_act, midlev=midlev, ci_type=ci_type, irrep_labels=labels)
+
+            nconf = int(at['NCONF'])
             if 'CI_VECTORS' in f:
                 self.ci_vectors = np.atleast_2d(np.asarray(f['CI_VECTORS'][()]))
+                nconf_ci = self.ci_vectors.shape[1]
+                if nconf_ci != nconf:
+                    raise ValueError(f'{filename}: NCONF = {nconf}, but CI_VECTORS has {nconf_ci} coefficients per root')
+            if int(self.ncsf[lsym]) != nconf:
+                hint = (' (the GAS restrictions are missing from the file)' if ci_type == 'GAS' and 'GAS_ORBITALS' not in f
+                        else '')
+                raise ValueError(f'{filename}: the rebuilt graph has {int(self.ncsf[lsym])} CSFs of irrep '
+                                 f'{self.irrep_name(lsym)}, the file {nconf}{hint}: the CSF order is unknown')
             if 'ROOT_ENERGIES' in f:
                 self.root_energies = np.asarray(f['ROOT_ENERGIES'][()])
+        self.warnings = warnings
         return self
 
     # ------------------------------------------------------------------

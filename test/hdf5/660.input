@@ -2,22 +2,20 @@
 * Molecule: water H2O
 * Basis: STO-3G
 * Symmetry: C2v
-* Features tested: SHAVITT group of rasscf.h5 (split graph of CAS, RAS and GAS
-*                  CSF spaces), Tools/Shavitt
+* Features tested: definition of the split graph (CSF order) in rasscf.h5 for
+*                  CAS, RAS and GAS CSF spaces, Tools/Shavitt
 * Responsible person: Roland Lindh
 *-------------------------------------------------------------------------------
-* RASSCF writes to the group SHAVITT of rasscf.h5 the definition of the split
-* graph (Shavitt graph) of its CSF space: the irrep of each level, the orbitals
-* of each irrep in the partitions with their cumulative electron bounds, the
-* midlevel, and as checks the number of vertices and the CSFs per irrep.
-* Together with NSYM, NACTEL, SPINMULT, LSYM and L2ACT of the file this gives
-* the graph and the CSF order of CI_VECTORS (Tools/Shavitt rebuilds them).
+* The split graph (Shavitt graph) of the CSF space of RASSCF, and so the CSF
+* order of CI_VECTORS, follows from root attributes and datasets of rasscf.h5:
+* NSYM, NACTEL, SPINMULT, LSYM, the active orbitals (MO_TYPEINDICES), the RAS
+* restrictions (NHOLE1, NELEC3) or, for GAS, GAS_ORBITALS, GAS_MIN_ELECTRONS
+* and GAS_MAX_ELECTRONS, the level order (L2ACT) and the midlevel (MIDLEVEL).
 *
 * The check below asserts what the checkfile cannot see: the names, shapes and
-* descriptions of the attributes and datasets of the group; that the group is
-* consistent with the rest of the file; and, from an independent count of the
-* Paldus vertices and walks under the electron bounds, the stored number of
-* vertices and of CSFs per irrep. Without active orbitals there is no group.
+* descriptions of MIDLEVEL and the GAS datasets, their consistency with the rest
+* of the file, and that an independent count of the walks of the graph defined
+* by the file gives NCONF. Without active orbitals there is no MIDLEVEL.
 * When Tools/Shavitt is installed (TOOLS=ON) the graph is also rebuilt with it
 * and the one-body density matrix computed from the loops of the graph and the
 * CI vector is compared with DENSITY_MATRIX, which checks the CSF order.
@@ -46,10 +44,10 @@
 
 >FILE check_shavitt_h5.py
 #
-# Structure and consistency check of the SHAVITT group of rasscf.h5.
+# Check of the definition of the split graph (CSF order) in rasscf.h5.
 #
 # Usage: python3 check_shavitt_h5.py expect=CAS|RAS|GAS|none [tool=<dir>] [dir=<path>]
-#   expect  the CI type of the run (none: no active orbitals, no SHAVITT group)
+#   expect  the CI type of the run (none: no active orbitals, no MIDLEVEL)
 #   tool    the directory of Tools/Shavitt; if it holds shavittlib, the graph is
 #           rebuilt with it and DENSITY_MATRIX is recomputed from its loops
 #   dir     the directory holding the file (default: the current one)
@@ -65,6 +63,7 @@ import h5py
 import numpy as np
 
 failures = []
+GAS = ('GAS_ORBITALS', 'GAS_MIN_ELECTRONS', 'GAS_MAX_ELECTRONS')
 
 
 def fail(tag, msg):
@@ -73,7 +72,7 @@ def fail(tag, msg):
 
 def finish():
     if failures:
-        sys.stderr.write('\nSHAVITT group check FAILED\n')
+        sys.stderr.write('\nsplit graph check FAILED\n')
         for item in failures:
             sys.stderr.write('  %s\n' % item)
         sys.exit(1)
@@ -100,147 +99,118 @@ if len(found) != 1:
 fn = found[0]
 
 with h5py.File(fn, 'r') as f:
-    # A: presence
+    # A: presence, names, types, shapes and descriptions
+    if 'SHAVITT' in f:
+        fail('A2', 'a SHAVITT group was written')
     if expect == 'none':
-        if 'SHAVITT' in f:
-            fatal('A2', 'a SHAVITT group was written for a run without active orbitals')
-        print('SHAVITT group check passed (no group without active orbitals)')
+        if 'MIDLEVEL' in f.attrs:
+            fail('A3', 'MIDLEVEL was written for a run without active orbitals')
+        finish()
+        print('split graph check passed (no MIDLEVEL without active orbitals)')
         sys.exit(0)
-    if 'SHAVITT' not in f:
-        fatal('A2', 'no SHAVITT group')
-    g = f['SHAVITT']
     ci_type = text(f.attrs['CI_TYPE']).strip()
     if ci_type != expect:
-        fail('A3', 'CI_TYPE is %s, expected %s' % (ci_type, expect))
-
-    # B: names, types, shapes and descriptions
-    attrs = {'DESCRIPTION', 'MIDLEVEL', 'NUM_VERTICES'}
-    dsets = {'LEVEL_IRREPS', 'PARTITION_ORBITALS', 'PARTITION_MIN_ELECTRONS', 'PARTITION_MAX_ELECTRONS',
-             'CSFS_PER_IRREP'}
-    if set(g.attrs) != attrs:
-        fail('B1', 'attributes %s, expected %s' % (sorted(g.attrs), sorted(attrs)))
-    if set(g) != dsets:
-        fatal('B2', 'datasets %s, expected %s' % (sorted(g), sorted(dsets)))
-    if not text(g.attrs.get('DESCRIPTION', '')).strip():
-        fail('B3', 'the group has no DESCRIPTION')
-    for name in sorted(dsets):
-        if g[name].dtype.kind not in 'iu':
-            fail('B4', '%s has type %s, expected integers' % (name, g[name].dtype))
-        if not text(g[name].attrs.get('DESCRIPTION', '')).strip():
-            fail('B5', '%s has no DESCRIPTION' % name)
+        fail('A4', 'CI_TYPE is %s, expected %s' % (ci_type, expect))
+    if 'MIDLEVEL' not in f.attrs:
+        fatal('A5', 'no MIDLEVEL')
     nsym = int(f.attrs['NSYM'])
     nactel = int(f.attrs['NACTEL'])
     ispin = int(f.attrs['SPINMULT'])
     lsym = int(f.attrs['LSYM'])
-    level_irreps = np.asarray(g['LEVEL_IRREPS'][()], dtype=int)
-    orbs = np.asarray(g['PARTITION_ORBITALS'][()], dtype=int)  # [partition][irrep] as seen by h5py
-    minel = np.atleast_1d(np.asarray(g['PARTITION_MIN_ELECTRONS'][()], dtype=int))
-    maxel = np.atleast_1d(np.asarray(g['PARTITION_MAX_ELECTRONS'][()], dtype=int))
-    csfs = np.atleast_1d(np.asarray(g['CSFS_PER_IRREP'][()], dtype=int))
-    nlev = len(level_irreps)
-    npart = orbs.shape[0] if orbs.ndim == 2 else 0
-    if orbs.ndim != 2 or orbs.shape[1] != nsym:
-        fatal('B6', 'PARTITION_ORBITALS has shape %s, expected (partitions, %d)' % (orbs.shape, nsym))
-    if minel.shape != (npart,) or maxel.shape != (npart,):
-        fail('B7', 'electron bounds of shapes %s, %s for %d partitions' % (minel.shape, maxel.shape, npart))
-    if csfs.shape != (nsym,):
-        fail('B8', 'CSFS_PER_IRREP has shape %s, expected (%d,)' % (csfs.shape, nsym))
+    nbas = np.atleast_1d(np.asarray(f.attrs['NBAS'], dtype=int))
+    if expect == 'GAS':
+        for name in GAS:
+            if name not in f:
+                fatal('A6', 'no %s' % name)
+            if f[name].dtype.kind not in 'iu':
+                fail('A7', '%s has type %s, expected integers' % (name, f[name].dtype))
+            if not text(f[name].attrs.get('DESCRIPTION', '')).strip():
+                fail('A8', '%s has no DESCRIPTION' % name)
+        orbs = np.asarray(f['GAS_ORBITALS'][()], dtype=int)  # [space][irrep] as seen by h5py
+        gmin = np.atleast_1d(np.asarray(f['GAS_MIN_ELECTRONS'][()], dtype=int))
+        gmax = np.atleast_1d(np.asarray(f['GAS_MAX_ELECTRONS'][()], dtype=int))
+        if orbs.ndim != 2 or orbs.shape[1] != nsym:
+            fatal('A9', 'GAS_ORBITALS has shape %s, expected (spaces, %d)' % (orbs.shape, nsym))
+        if gmin.shape != (orbs.shape[0],) or gmax.shape != (orbs.shape[0],):
+            fail('A9', 'GAS electron bounds of shapes %s, %s for %d spaces' % (gmin.shape, gmax.shape, orbs.shape[0]))
+    else:
+        for name in GAS:
+            if name in f:
+                fail('A6', '%s written for a %s run' % (name, expect))
     finish()
 
-    # C: consistency with the rest of the file
-    if expect == 'CAS' and npart != 1:
-        fail('C1', 'a CAS with %d partitions' % npart)
-    if expect != 'CAS' and npart < 2:
-        fail('C1', 'a %s with %d partition(s)' % (expect, npart))
-    if nlev < 1 or orbs.sum() != nlev:
-        fail('C2', '%d levels but %d orbitals in the partitions' % (nlev, orbs.sum()))
+    # B: consistency with the rest of the file
     types = [text(t).strip() for t in f['MO_TYPEINDICES'][()]]
-    nact = sum(t in ('1', '2', '3') for t in types)
-    if nact != nlev:
-        fail('C3', '%d levels but %d active orbitals in MO_TYPEINDICES' % (nlev, nact))
-    # levels partition by partition, irrep by irrep; active orbitals irrep by irrep, partition by partition
-    seq = [s + 1 for p in range(npart) for s in range(nsym) for _ in range(orbs[p, s])]
-    if level_irreps.tolist() != seq:
-        fail('C4', 'LEVEL_IRREPS %s, expected %s' % (level_irreps.tolist(), seq))
-    act, n = {}, 0
+    act_sym, nrs, i0 = [], np.zeros((3, nsym), dtype=int), 0
     for s in range(nsym):
-        for p in range(npart):
-            for k in range(orbs[p, s]):
-                n += 1
-                act[(p, s, k)] = n
-    l2act = [act[(p, s, k)] for p in range(npart) for s in range(nsym) for k in range(orbs[p, s])]
-    if np.asarray(f.attrs['L2ACT'][:nlev]).tolist() != l2act:
-        fail('C5', 'L2ACT %s, expected %s' % (np.asarray(f.attrs['L2ACT'][:nlev]).tolist(), l2act))
-    if minel[-1] != nactel or np.any(np.diff(minel) < 0):
-        fail('C6', 'PARTITION_MIN_ELECTRONS %s for %d electrons' % (minel.tolist(), nactel))
-    if np.any((maxel >= 0) & (maxel < minel)) or (maxel[-1] >= 0 and maxel[-1] != nactel):
-        fail('C7', 'PARTITION_MAX_ELECTRONS %s' % maxel.tolist())
-    if expect == 'GAS' and not np.any(maxel >= 0):
-        fail('C7', 'a GAS run without upper bounds')
-    midlev = int(g.attrs['MIDLEVEL'])
+        for t in types[i0:i0 + nbas[s]]:
+            if t in ('1', '2', '3'):
+                act_sym.append(s)
+                nrs[int(t) - 1, s] += 1
+        i0 += nbas[s]
+    nlev = len(act_sym)
+    if expect == 'GAS':
+        if orbs.sum(axis=0).tolist() != nrs.sum(axis=0).tolist():
+            fail('B1', 'GAS_ORBITALS %s, active orbitals per irrep %s' % (orbs.tolist(), nrs.sum(axis=0).tolist()))
+        if gmin[-1] > nactel or gmax[-1] < nactel or np.any(gmin > gmax):
+            fail('B2', 'GAS bounds %s, %s for %d electrons' % (gmin.tolist(), gmax.tolist(), nactel))
+    l2act = np.asarray(f.attrs['L2ACT'][:nlev], dtype=int)
+    if sorted(l2act.tolist()) != list(range(1, nlev + 1)):
+        fatal('B3', 'L2ACT %s is not a permutation of %d active orbitals' % (l2act.tolist(), nlev))
+    midlev = int(f.attrs['MIDLEVEL'])
     if not 1 <= midlev <= max(1, nlev - 1):
-        fail('C8', 'MIDLEVEL %d for %d levels' % (midlev, nlev))
+        fail('B4', 'MIDLEVEL %d for %d levels' % (midlev, nlev))
     nconf = int(f.attrs['NCONF'])
     ci = np.atleast_2d(np.asarray(f['CI_VECTORS'][()]))
-    if csfs[lsym - 1] != nconf or ci.shape[1] != nconf:
-        fail('C9', 'CSFS_PER_IRREP[LSYM] = %d, NCONF = %d, CI_VECTORS of length %d'
-             % (csfs[lsym - 1], nconf, ci.shape[1]))
+    if ci.shape[1] != nconf:
+        fail('B5', 'NCONF = %d, CI_VECTORS of length %d' % (nconf, ci.shape[1]))
     finish()
 
-    # D: independent count of the vertices and walks of the graph under the electron bounds
-    b0 = ispin - 1
-    a0 = (nactel - b0) // 2
-    if 2 * a0 + b0 != nactel or nlev - a0 - b0 < 0:
-        fatal('D1', 'no graph for %d electrons, %d levels, 2S+1 = %d' % (nactel, nlev, ispin))
+    # C: independent count of the walks of the graph defined by the file
+    # the cumulative electron bounds after each space, at its last level
+    if expect == 'GAS':
+        sizes, bmin, bmax = orbs.sum(axis=1), gmin, gmax
+    elif nrs[0].sum() + nrs[2].sum() > 0:
+        sizes = nrs.sum(axis=1)
+        bmin = [2 * sizes[0] - int(f.attrs['NHOLE1']), nactel - int(f.attrs['NELEC3']), nactel]
+        bmax = [nactel] * 3
+    else:
+        sizes, bmin, bmax = [nlev], [nactel], [nactel]
     lo = np.zeros(nlev + 1, dtype=int)
     hi = np.full(nlev + 1, nactel, dtype=int)
     L = 0
-    for p in range(npart):
-        L += orbs[p].sum()
-        lo[L] = minel[p]
-        if maxel[p] >= 0:
-            hi[L] = maxel[p]
-    # vertices (a, b) by level, from the head; N = 2a + b electrons below the vertex
-    steps = ((0, 0), (0, 1), (1, -1), (1, 0))  # decrease of (a, b) for the steps d = 0..3
-    levels = {nlev: {(a0, b0)}}
-    for L in range(nlev, 0, -1):
-        nxt = set()
-        for a, b in levels[L]:
-            for d, (da, db) in enumerate(steps):
-                t = (a - da, b - db)
-                if min(t) >= 0 and L - 1 - t[0] - t[1] >= 0 and lo[L - 1] <= 2 * t[0] + t[1] <= hi[L - 1]:
-                    nxt.add(t)
-        levels[L - 1] = nxt
-    # walk counts by irrep from the tail up, and back down from the head: keep the vertices on walks
-    below = {(0, 0, 0): np.eye(1, nsym, 0, dtype=np.int64)[0]} if (0, 0) in levels[0] else {}
+    for k in range(len(sizes)):
+        L += sizes[k]
+        lo[L] = max(lo[L], bmin[k])
+        hi[L] = min(hi[L], bmax[k])
+    level_irreps = [act_sym[a - 1] for a in l2act]
+    b0 = ispin - 1
+    a0 = (nactel - b0) // 2
+    if 2 * a0 + b0 != nactel or nlev - a0 - b0 < 0:
+        fatal('C1', 'no graph for %d electrons, %d levels, 2S+1 = %d' % (nactel, nlev, ispin))
+    # walks from the tail to the vertex (a, b) at level L, by irrep; N = 2a + b electrons below it
+    steps = ((0, 0), (0, 1), (1, -1), (1, 0))  # increase of (a, b) for the steps d = 0..3
+    walks = {(0, 0): np.eye(1, nsym, 0, dtype=np.int64)[0]}
     for L in range(1, nlev + 1):
-        sym = level_irreps[L - 1] - 1
-        for a, b in levels[L]:
-            w = np.zeros(nsym, dtype=np.int64)
+        sym = level_irreps[L - 1]
+        nxt = {}
+        for (a, b), w in walks.items():
             for d, (da, db) in enumerate(steps):
-                c = below.get((L - 1, a - da, b - db))
-                if c is not None:
-                    w += c[[s ^ sym for s in range(nsym)]] if d in (1, 2) else c
-            if w.any():
-                below[(L, a, b)] = w
-    above = {(nlev, a0, b0)} if (nlev, a0, b0) in below else set()
-    for L in range(nlev, 0, -1):
-        for a, b in [(a, b) for (l, a, b) in above if l == L]:
-            for da, db in steps:
-                if (L - 1, a - da, b - db) in below:
-                    above.add((L - 1, a - da, b - db))
-    nvert = len(above)
-    count = below.get((nlev, a0, b0), np.zeros(nsym, dtype=np.int64))
-    if nvert != int(g.attrs['NUM_VERTICES']):
-        fail('D2', 'NUM_VERTICES = %d, counted %d' % (int(g.attrs['NUM_VERTICES']), nvert))
-    if count.tolist() != csfs.tolist():
-        fail('D3', 'CSFS_PER_IRREP = %s, counted %s' % (csfs.tolist(), count.tolist()))
+                t = (a + da, b + db)
+                if min(t) < 0 or t[0] + t[1] > L or not lo[L] <= 2 * t[0] + t[1] <= hi[L]:
+                    continue
+                add = w[[s ^ sym for s in range(nsym)]] if d in (1, 2) else w
+                nxt[t] = nxt.get(t, 0) + add
+        walks = nxt
+    count = walks.get((a0, b0), np.zeros(nsym, dtype=np.int64))
+    if int(count[lsym - 1]) != nconf:
+        fail('C2', 'NCONF = %d, counted %d CSFs (per irrep %s)' % (nconf, count[lsym - 1], count.tolist()))
     finish()
 
     dm = np.asarray(f['DENSITY_MATRIX'][()]) if 'DENSITY_MATRIX' in f else None
     a2lev = np.asarray(f.attrs['A2LEV'][:nlev], dtype=int) - 1
 
-# E: with Tools/Shavitt: the rebuilt graph and the density matrix from its loops
+# D: with Tools/Shavitt: the rebuilt graph and the density matrix from its loops
 tool = args.get('tool', '')
 if tool and os.path.isfile(os.path.join(tool, 'shavittlib', 'build.py')):
     sys.path.insert(0, tool)
@@ -249,24 +219,26 @@ if tool and os.path.isfile(os.path.join(tool, 'shavittlib', 'build.py')):
     try:
         sg = ShavittGraph.from_h5(fn)
     except ValueError as e:
-        fatal('E1', str(e))
-    if sg.ci_type != expect or sg.nvert != nvert or sg.ncsf.tolist() != csfs.tolist():
-        fail('E2', 'Shavitt: %s graph with %d vertices, CSFs %s' % (sg.ci_type, sg.nvert, sg.ncsf.tolist()))
+        fatal('D1', str(e))
+    if sg.warnings:
+        fail('D2', 'Shavitt: %s' % ' '.join(sg.warnings))
+    if sg.ci_type != expect or sg.ncsf.tolist() != count.tolist():
+        fail('D3', 'Shavitt: %s graph with CSFs %s' % (sg.ci_type, sg.ncsf.tolist()))
     for root in range(ci.shape[0]):
         if dm is None:
-            fail('E3', 'no DENSITY_MATRIX')
+            fail('D4', 'no DENSITY_MATRIX')
             break
         err = np.abs(density_matrix(sg, root)[np.ix_(a2lev, a2lev)] - dm[root]).max()
         if err > 1.0e-8:
-            fail('E3', 'root %d: density matrix from the loops differs from DENSITY_MATRIX by %.2e'
+            fail('D4', 'root %d: density matrix from the loops differs from DENSITY_MATRIX by %.2e'
                  % (root + 1, err))
     finish()
-    print('SHAVITT group check passed (%s, %d levels, %d vertices, CSFs %s; checked with Tools/Shavitt)'
-          % (expect, nlev, nvert, csfs.tolist()))
+    print('split graph check passed (%s, %d levels, %d vertices, CSFs %s; checked with Tools/Shavitt)'
+          % (expect, nlev, sg.nvert, count.tolist()))
 else:
     finish()
-    print('SHAVITT group check passed (%s, %d levels, %d vertices, CSFs %s; Tools/Shavitt not installed)'
-          % (expect, nlev, nvert, csfs.tolist()))
+    print('split graph check passed (%s, %d levels, CSFs %s; Tools/Shavitt not installed)'
+          % (expect, nlev, count.tolist()))
 sys.exit(0)
 >EOF
 
@@ -326,7 +298,7 @@ CIOnly
 
 > SHELL python3 check_shavitt_h5.py expect=GAS tool=$MOLCAS/Tools/Shavitt
 
-* No active orbitals: no SHAVITT group
+* No active orbitals: no MIDLEVEL
  &RASSCF
 Spin = 1
 Symmetry = 1

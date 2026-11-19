@@ -148,7 +148,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
     # ------------------------------------------------------------------ widgets
     def _build_menu(self):
         m = self.menuBar().addMenu('&File')
-        for text, key, slot in [('&Open...', QtGui.QKeySequence.Open, self.open_dialog),
+        for text, key, slot in [('&New graph...', QtGui.QKeySequence.New, self.new_dialog),
+                                ('&Open...', QtGui.QKeySequence.Open, self.open_dialog),
                                 ('&Save figure...', QtGui.QKeySequence.Save, self.save_dialog),
                                 ('&Quit', QtGui.QKeySequence.Quit, self.close)]:
             a = QAction(text, self)
@@ -177,8 +178,17 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.file_label = QtWidgets.QLabel('-')
         self.file_label.setWordWrap(True)
         openb = QtWidgets.QPushButton('Open...')
+        openb.setToolTip('Open a rasscf.h5 file')
         openb.clicked.connect(self.open_dialog)
-        f.addRow(openb, self.file_label)
+        newb = QtWidgets.QPushButton('New...')
+        newb.setToolTip('Build a graph from the definition of a CI space (electrons, spin, symmetry, CAS/RAS/GAS), '
+                        'without a file')
+        newb.clicked.connect(self.new_dialog)
+        h = QtWidgets.QHBoxLayout()
+        h.addWidget(openb)
+        h.addWidget(newb)
+        f.addRow(h)
+        f.addRow(self.file_label)
         self.info_label = QtWidgets.QLabel('')
         self.info_label.setWordWrap(True)
         f.addRow(self.info_label)
@@ -467,6 +477,13 @@ class ShavittWindow(QtWidgets.QMainWindow):
         if fn:
             self.load(fn)
 
+    def new_dialog(self):
+        """Define a CI space (electrons, spin, symmetry, CAS/RAS/GAS) and show its graph, without a file."""
+        from .define import DefineGraphDialog
+        dlg = DefineGraphDialog(self, self.g)
+        if dlg.exec() and dlg.graph is not None:
+            self.load(None, dlg.graph)
+
     def load(self, filename, graph=None):
         """Show the graph of a rasscf.h5 file, or a graph built from scratch (filename None)."""
         if graph is None:
@@ -487,7 +504,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
                 self.orbs = ActiveOrbitals(filename, g)
             except Exception:  # no MO data in the file
                 self.orbs = None
-        name = os.path.basename(filename) if filename else 'graph built from its definition (no wave function)'
+        name = os.path.basename(filename) if filename else 'Graph from its definition (no wave function)'
         self.walks.clear()
         self.from_table.clear()
         self.opts.selected_vertex = None
@@ -512,6 +529,8 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.fill_table()
         self.select_top()
         self.statusBar().showMessage(f'Read {filename}' if filename else 'Graph built from its definition', 5000)
+        if g.warnings:
+            QtWidgets.QMessageBox.warning(self, 'Shavitt', f'{os.path.basename(filename)}:\n\n' + '\n\n'.join(g.warnings))
 
     # ------------------------------------------------------------------ CSFs
     def fill_table(self):
