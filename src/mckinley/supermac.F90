@@ -28,8 +28,9 @@ integer(kind=iwp), external :: IsFreeUnit
 call Get_cArray('Relax Method',Method,8)
 
 Numerical = (Method(1:6) == 'RASSCF') .or. (Method(1:6) == 'GASSCF') .or. (Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. &
-            (Method == 'CASPT2') .or. (Method == 'UHF-SCF') .or. (Method == 'MBPT2') .or. (Method == 'CCSDT') .or. &
-            (Method == 'KS-DFT') .or. (Method == 'UKS-DFT') .or. (Method == 'MCPDFT') .or. (Method == 'MSPDFT')
+            (Method == 'CASPT2') .or. (Method == 'UHF-SCF') .or. (Method == 'MBPT2') .or. (Method == 'UMP2') .or. &
+            (Method == 'ROMP2') .or. (Method == 'CCSDT') .or. (Method == 'KS-DFT') .or. (Method == 'UKS-DFT') .or. &
+            (Method == 'MCPDFT') .or. (Method == 'MSPDFT')
 
 if (Method == 'CASSCF') then
   call Get_iScalar('NumGradRoot',irlxroot)
@@ -110,6 +111,18 @@ else if (Method == 'CASPT2') then
   call Lu2Lu('RASSCINP',LuInput)
   write(LuInput,'(A)')
   call Lu2Lu('CASPTINP',LuInput)
+else if (Method == 'ROMP2') then
+  ! ROMP2 is energy-only.  At every Hessian displacement regenerate
+  ! the determinant RASSCF reference and then the ROMP2 energy.
+  call Lu2Lu('RASSCINP',LuInput)
+  write(LuInput,'(A)')
+  call Lu2Lu('MBPT2INP',LuInput)
+else if (Method == 'UMP2') then
+  ! UMP2 is energy-only.  At every Hessian displacement regenerate
+  ! the UHF reference and then the UMP2 energy.
+  call Lu2Lu('SCFINP',LuInput)
+  write(LuInput,'(A)')
+  call Lu2Lu('MBPT2INP',LuInput)
 else if (Method == 'MBPT2') then
   call Lu2Lu('SCFINP',LuInput)
 else if (Method == 'CCSDT') then
@@ -127,6 +140,19 @@ write(LuInput,'(A)') '> END IF <'
 if (Method == 'MBPT2') then
   write(LuInput,'(A)')
   call Lu2Lu('MBPT2INP',LuInput)
+end if
+
+! UMP2 and ROMP2 do not provide analytic gradients.  Their numerical
+! Hessian is therefore assembled by SLAPAF from numerical gradients.
+! ALASKA dispatches each gradient to NUMERICAL_GRADIENT, which replays
+! the complete electronic-structure chain at every +/- displacement.
+! On the first Hessian iteration the reference UMP2/ROMP2 energy already
+! exists, so only ALASKA is needed.  On later Hessian iterations the
+! IF (ITER NE 1) block above regenerates SEWARD + reference + MBPT2 first.
+if ((Method == 'UMP2') .or. (Method == 'ROMP2')) then
+  write(LuInput,'(A)')
+  write(LuInput,'(A)') '&ALASKA &End'
+  write(LuInput,'(A)') 'End of Input'
 end if
 
 write(LuInput,'(A)')

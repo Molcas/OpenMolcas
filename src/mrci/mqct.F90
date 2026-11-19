@@ -22,10 +22,10 @@ implicit none
 real(kind=wp), intent(in) :: AREF(NREF,NREF), EREF(NREF)
 real(kind=wp), intent(out) :: CI(NCONF), SGM(NCONF)
 integer(kind=iwp), intent(out) :: ICI(MBUF)
-integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, NCONV, &
-                     NN, NRON, NZ
-real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM1, DUM2, DUM3, EACPF, ECI, EDAV, EDISP, ELOW, EMIN, &
-                 ENREF, H, P, PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
+integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, IMAX, IMIN, IPARENT, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, &
+                     NCONV, NN, NRON, NZ
+real(kind=wp) :: C, C2NREF, C2REF, CMAX, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM1, DUM2, DUM3, EACPF, ECI, EDAV, EDISP, ELOW, &
+                 EMIN, ENREF, H, P, PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
 integer(kind=iwp), allocatable :: IBMN(:), IDC(:), IDS(:)
 real(kind=wp), allocatable :: ABIJ(:), AC1(:), AC2(:), AIBJ(:), AJBI(:), ARR(:,:,:), ASCR1(:), ASCR2(:), BFIN3(:), BFIN4(:), &
                               BIAC2(:), BICA2(:), BMN(:), BSCR1(:), BSCR2(:), CBUF(:,:), CNEW(:,:), CSECT(:,:), DBK(:), DBUF(:), &
@@ -546,6 +546,17 @@ do I=1,NRROOT
     call iDAFILE(LUEIG,2,ICI,NN,IDISK)
     call UPKVEC(NN,ICI,CI(ISTA))
   end do
+  ! IDENTIFY THE REFERENCE ROOT.
+  IPARENT = IROOT(1)
+  CMAX = abs(CI(IREFX(IPARENT)))
+  do J=2,NRROOT
+    IR = IROOT(J)
+    C = abs(CI(IREFX(IR)))
+    if (C > CMAX) then
+      CMAX = C
+      IPARENT = IR
+    end if
+  end do
   call CSFTRA(' CSF',CI,AREF)
   C2REF = Zero
   do IR=1,NREF
@@ -553,7 +564,7 @@ do I=1,NRROOT
     C = CI(ICSF)
     C2REF = C2REF+C**2
   end do
-  IR = IROOT(I)
+  IR = IPARENT
   ECI = ESMALL(I)+ESHIFT
   ENREF = ECI-EREF(IR)
   C2NREF = One-C2REF
