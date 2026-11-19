@@ -19,6 +19,7 @@ use general_data, only: nLev
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: EPSA, HZERO, JSTATE, NG1, NG2, NG3, NG3TOT
 use BDerNEV, only: BDerNEV_E4
+use SC_NEVPT2, only: SC_NEVPT2_NINDEP, SC_prop
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
@@ -152,7 +153,9 @@ call mma_deallocate(DF3_H)
 
 if (HZERO == 'DYALL') then
   if (IPRGLB >= VERBOSE) call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+  if (SC_prop) call SC_NEVPT2_NINDEP(1)
   call BDerNEV_E4(nConf,nLev,CLag(1,jState))
+  if (SC_prop) call SC_NEVPT2_NINDEP(2)
   if (IPRGLB >= VERBOSE) then
     call TIMING(CPTF10,CPE,TIOTF10,TIOE)
     CPUT = CPTF10-CPTF0
