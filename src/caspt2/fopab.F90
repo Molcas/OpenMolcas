@@ -12,7 +12,8 @@
 subroutine FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
 
 use Index_Functions, only: iTri, nTri_Elem
-use sguga, only: CIS, EXS, sg_epq_psi, SGS
+use CI_Info, only: CI_St
+use CI_States, only: CI_Epq_Psi
 use caspt2_global, only: IDCIEX, LUCIEX
 use general_data, only: NASH, nLEV, STSYM
 use caspt2_module, only: ISCF, NAES, NCONF, NISH, NORB, NSYM
@@ -115,21 +116,21 @@ end if
 ! the ket wave function.
 SGM(:) = Zero
 do LEVU=1,NLEV
-  IUABS = SGS(istate)%L2ACT(LEVU)
-  ISU = SGS(istate)%ISM(LEVU)
+  IUABS = CI_St(istate)%L2Act(LEVU)
+  ISU = CI_St(istate)%ISm(LEVU)
   IU = IUABS-NAES(ISU)
   NI = NISH(ISU)
   IUTOT = NI+IU
   do LEVT=1,LEVU
-    if (SGS(istate)%ISM(LEVT) /= ISU) cycle
-    ITABS = SGS(istate)%L2ACT(LEVT)
+    if (CI_St(istate)%ISm(LEVT) /= ISU) cycle
+    ITABS = CI_St(istate)%L2Act(LEVT)
     IST = ISU
     IT = ITABS-NAES(IST)
     ITTOT = NI+IT
     ITUTOT = iTri(IUTOT,ITTOT)
     FTU = FIFA(IOFF(ISU)+ITUTOT)
     if (abs(FTU) < 1.0e-16_wp) cycle
-    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVT,LEVU,FTU,STSYM,KET,SGM)
+    call CI_Epq_Psi(istate,LEVT,LEVU,FTU,STSYM,KET,SGM)
   end do
 end do
 ! Add contribution from inactive part:
@@ -158,21 +159,21 @@ end if
 ! Note that I already have BRA in memory
 SGM(:) = Zero
 do LEVU=2,NLEV
-  IUABS = SGS(istate)%L2ACT(LEVU)
-  ISU = SGS(istate)%ISM(LEVU)
+  IUABS = CI_St(istate)%L2Act(LEVU)
+  ISU = CI_St(istate)%ISm(LEVU)
   IU = IUABS-NAES(ISU)
   NI = NISH(ISU)
   IUTOT = NI+IU
   do LEVT=1,LEVU-1
-    if (SGS(istate)%ISM(LEVT) /= ISU) cycle
-    ITABS = SGS(istate)%L2ACT(LEVT)
+    if (CI_St(istate)%ISm(LEVT) /= ISU) cycle
+    ITABS = CI_St(istate)%L2Act(LEVT)
     IST = ISU
     IT = ITABS-NAES(IST)
     ITTOT = NI+IT
     ITUTOT = iTri(IUTOT,ITTOT)
     FTU = FIFA(IOFF(ISU)+ITUTOT)
     if (abs(FTU) < 1.0e-16_wp) cycle
-    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVT,LEVU,FTU,STSYM,BRA,SGM)
+    call CI_Epq_Psi(istate,LEVT,LEVU,FTU,STSYM,BRA,SGM)
   end do
 end do
 

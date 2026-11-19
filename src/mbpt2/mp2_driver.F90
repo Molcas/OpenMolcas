@@ -11,6 +11,7 @@
 ! Copyright (C) 1998, Roland Lindh                                     *
 !               2004,2012, Thomas Bondo Pedersen                       *
 !               2007, Francesco Aquilante                              *
+!               2026, Okan Koeksal                                     *
 !***********************************************************************
 
 subroutine MP2_Driver(ireturn)
@@ -51,9 +52,26 @@ use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Open_Shell_Symmetry, only: Open_Shell_Symmetry_Driver
 
 implicit none
+
+interface
+  subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF,OpenErr,OpenMessage,SymFrozen,SymOcc)
+    use Definitions, only: wp,iwp
+#include "intent.fh"
+    real(kind=wp),optional,intent(_OUT_) :: CMO(*),Eall(*),Eocc(*),Eext(*)
+    integer(kind=iwp),optional,intent(out) :: iTst,OpenErr
+    real(kind=wp),optional,intent(out) :: ESCF
+    character(len=*),optional,intent(out) :: OpenMessage
+    integer(kind=iwp),optional,intent(out) :: SymFrozen(:)
+    integer(kind=iwp),optional,intent(in) :: SymOcc(:,:)
+  end subroutine RdInp
+end interface
+
+#include "warnings.h"
 integer(kind=iwp), intent(out) :: ireturn
+integer(kind=iwp) :: ReferenceNSym
 integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, iTol, iTst, iType, l_T1, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), &
                      nIsh(8), nOccT
 real(kind=wp) :: Dum(2), E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
@@ -72,6 +90,44 @@ TCPT = seconds()
 ! Check so it is a RHF-SCF reference that is being used.
 ! TBP, November 2012: do not quit, just issue a warning!
 call Get_cArray('Relax Method',Method1,8)
+
+! Preserve the tested C1 drivers: use irrep-blocked processing otherwise.
+if ((Method1(1:7)=='UHF-SCF').or. &
+    (Method1(1:6)=='CASSCF').or. &
+    (Method1(1:6)=='RASSCF')) then
+  call Get_iScalar('nSym',ReferenceNSym)
+  if (ReferenceNSym/=1) then
+    call Open_Shell_Symmetry_Driver(Method1,ireturn)
+    return
+  end if
+end if
+
+! Dispatch UHF before entering RHF-specific orbital processing.
+if (Method1(1:7) == 'UHF-SCF') then
+  call UMP2_Driver(ireturn)
+  return
+end if
+
+! ROMP2 accepts the determinant RASSCF/ROHF subset.  The reference
+! reader rejects multiconfigurational wave functions rather than applying
+! the single-reference ROHF-MBPT(2) equations to an invalid reference.
+if ((Method1(1:6) == 'CASSCF') .or. (Method1(1:6) == 'RASSCF')) then
+  call ROMP2_Driver(ireturn)
+  return
+end if
+if (Method1(1:5) == 'ROMP2') then
+  call WarningMessage(2,'Run determinant RASSCF again before another ROMP2 calculation.')
+  ireturn = _RC_INPUT_ERROR_
+  return
+end if
+
+! Prevent a previous UMP2 result from entering the RHF path.
+if (Method1(1:4) == 'UMP2') then
+  call WarningMessage(2,'Run SCF again before another UMP2 calculation.')
+  ireturn = _RC_INPUT_ERROR_
+  return
+end if
+
 if ((Method1(1:7) /= 'RHF-SCF') .and. (Method1(1:5) /= 'MBPT2')) then
   write(u6,*)
   call WarningMessage(1,'MP2 implementation intended for RHF references only')

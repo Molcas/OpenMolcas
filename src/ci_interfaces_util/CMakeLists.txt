@@ -10,14 +10,26 @@
 #***********************************************************************
 
 set (sources
+     ci_info.F90
      ci_interfaces.F90
+     ci_states.F90
+     ci_verify_options.F90
      general_data.F90
+     SD_CSF_Codec_module.F90
+     sg_lucia_bridge.F90
+     sg_setup_rasscf.F90
+     ug2sg.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     ci_info.F90
      ci_interfaces.F90
+     ci_states.F90
+     ci_verify_options.F90
      general_data.F90
+     SD_CSF_Codec_module.F90
+     sg_lucia_bridge.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

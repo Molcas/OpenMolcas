@@ -43,7 +43,7 @@ end type XYZAtom
 integer(kind=iwp) :: FileNum = 0, Oper(7)
 character(len=256) :: BasisAll, Symmetry
 character(len=256), allocatable :: BasisSets(:,:)
-type(XYZAtom), dimension(:), allocatable :: Geom
+type(XYZAtom), allocatable :: Geom(:)
 
 public :: Clear_XYZ, Out_Raw, Parse_Basis, Parse_Group, Read_XYZ, Symmetry, Write_SewInp
 
@@ -750,7 +750,7 @@ end function FindBasis
 ! Subroutine to transform a geometry according to the matrix M
 subroutine TransformGeom(G,M)
 
-  type(XYZAtom), dimension(:), intent(inout) :: G
+  type(XYZAtom), intent(inout) :: G(:)
   real(kind=wp), intent(in) :: M(3,5)
   real(kind=wp) :: Old(3)
   integer(kind=iwp) :: i, j

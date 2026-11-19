@@ -85,7 +85,7 @@ do iSym=1,nSym
     if (converged(isym)) then
       call mma_allocate(EVal2,2*nX,Label='EVal2')
       call mma_allocate(Tmp3,nX**2,Label='Tmp3')
-      call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),Tmp3,EVec2,EVal2,RedMas,iNeg)
+      call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),Tmp3,EVec2,EVal2,RedMas(i1),iNeg)
       EVec(:) = EVec2(1,:)
       EVal(i1:i1+nX-1) = EVal2(1:nX)
       call mma_deallocate(EVal2)
@@ -123,9 +123,9 @@ do iSym=1,nSym
 
         rNorm = Zero
         do jX=0,nX-1
-          Fact = sqrt(real(nDeg(jX+1),kind=wp))
+          Fact = sqrt(real(nDeg(i1+jX),kind=wp))
           NMod(ipNx+jX) = NMod(ipNx+jX)/Fact
-          rNorm = rNorm+real(nDeg(jX+1),kind=wp)*NMod(ipNx+jX)**2
+          rNorm = rNorm+real(nDeg(i1+jX),kind=wp)*NMod(ipNx+jX)**2
         end do
         NMod(ipNx:ipNx+nX-1) = NMod(ipNx:ipNx+nX-1)/sqrt(rNorm)
 
@@ -134,7 +134,7 @@ do iSym=1,nSym
       end do
       nModes = nModes+nX
       EVec(1:nX**2) = NMod(jpNx:jpNx+nX**2-1)
-      call GF_Print(EVal(i1),EVec,elout(kk),ll,nX,nX,iCtl,Intens(i1),RedMas,Lu_10,i1-1)
+      call GF_Print(EVal(i1),EVec,elout(kk),ll,nX,nX,iCtl,Intens(i1),RedMas(i1),Lu_10,i1-1)
     else
       write(u6,*)
       write(u6,*) '     NOT CONVERGED'
@@ -190,7 +190,8 @@ if ((nUserPT == 0) .and. (nsRot == 0)) then
   UserT(1:nUserPT) = DefTemp(1:nUserPT)
   !call ThermoData(EVal,nEig)
 end if
-call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nEig,.false.)
+call Get_dScalar('Last energy',Energy)
+call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nEig,.false.,Energy)
 
 ! Write stuff on Molden input file
 

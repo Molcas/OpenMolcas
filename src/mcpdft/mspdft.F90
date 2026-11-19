@@ -36,13 +36,19 @@ subroutine mspdft_init()
   use rasscf_global, only: lroots
   use mcpdft_input, only: mcpdft_options
   use mspdftgrad, only: mspdftgrad_init
+  use Constants, only: Zero
 
   character(len=18) :: matrix_info
 
   call mma_allocate(heff,lroots,lroots,label='heff')
 
-  call readmat2('ROT_HAM',matrix_info,heff,size(heff,1),size(heff,2),7,len(matrix_info),'T')
-  call determine_method(matrix_info)
+  if (mcpdft_options%lpdft) then
+    heff(:,:) = Zero
+    mspdftmethod = 'LPDFT'
+  else
+    call readmat2('ROT_HAM',matrix_info,heff,size(heff,1),size(heff,2),7,len(matrix_info),'T')
+    call determine_method(matrix_info)
+  end if
 
   if (mcpdft_options%grad) call mspdftgrad_init()
 
@@ -70,7 +76,7 @@ subroutine determine_method(matrix_info)
   select case (buffer)
     case ('XMS-PDFT','CMS-PDFT','FMS-PDFT','VMS-PDFT')
       mspdftmethod = buffer
-      if (print_level > VERBOSE) write(u6,'(6X,A,A)') 'The MS-PDFT method is ',mspdftmethod
+      if (print_level > VERBOSE) write(u6,'(6X,A,A)') 'The MS-PDFT method is ',trim(mspdftmethod)
     case default
       if (print_level > VERBOSE) write(u6,'(6X,A)') 'The MS-PDFT calculation is based on a user-supplied rotation matrix'
   end select
@@ -105,15 +111,15 @@ subroutine mspdft_finalize(nroots)
 
   if (iprlev >= USUAL) then
     write(u6,*)
-    write(Line,'(6X,2A)') MSPDFTMethod,' FINAL RESULTS'
+    write(Line,'(6X,2A)') trim(MSPDFTMethod),' FINAL RESULTS'
     call CollapseOutput(1,Line)
     write(u6,'(6X,A)') repeat('-',len_trim(Line)-3)
     write(u6,*)
 
     if (mcpdft_options%otfnal%is_hybrid()) then
-      write(u6,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
+      write(u6,'(6X,3A)') 'Hybrid ',trim(MSPDFTMethod),' Effective Hamiltonian'
     else
-      write(u6,'(6X,2A)') mspdftmethod,' Effective Hamiltonian'
+      write(u6,'(6X,2A)') trim(mspdftmethod),' Effective Hamiltonian'
     end if
     call print_effective_ham(heff,nroots,10)
   end if
@@ -146,9 +152,9 @@ subroutine mspdft_finalize(nroots)
 
   if (iprlev >= USUAL) then
     if (mcpdft_options%otfnal%is_hybrid()) then
-      write(u6,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
+      write(u6,'(6X,3A)') 'Hybrid ',trim(MSPDFTMethod),' Eigenvectors:'
     else
-      write(u6,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
+      write(u6,'(6X,2A)') trim(MSPDFTMethod),' Eigenvectors:'
     end if
     call print_mspdft_vectors(si_pdft,nroots)
   end if

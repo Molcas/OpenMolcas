@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,DF,DDIAG)
+subroutine SXHAM(D,P,PA,FP,SXN,nSXS,F1,F2,DIA,G,nIAIA,H,nAOAE,HDIAG,nDF,nDDIAG)
 ! RASSCF VERSION IBM-3090: SX-SECTION
 !
 ! Objective: Compute the auxiliary matrices G,H,F1,F2,and SXN
@@ -40,10 +40,9 @@ subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,DF,DDIAG)
 !
 ! ********** IBM-3090 RELEASE 89 01 23 **********
 
+use stdalloc, only: mma_deallocate, mma_allocate
 use Index_Functions, only: iTri, nTri_Elem
-use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, IXSYM, IZROT, LVSHFT, NROOT, NSXS, SXSHFT
-use PrintLevel, only: DEBUG
-use output_ras, only: IPRLOC
+use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, IXSYM, IZROT, LVSHFT, NROOT, SXSHFT
 use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
@@ -51,20 +50,26 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
+integer(kind=iwp), intent(in) :: nDF, nDDIAG, nIAIA, nAOAE, nSXS
 real(kind=wp), intent(in) :: D(*), PA(*), FP(*)
-real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*), DF(*), DDIAG(*)
-integer(kind=iwp) :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, &
+real(kind=wp), intent(_OUT_) :: P(*), SXN(nSXS), F1(*), F2(*), DIA(nIAIA), G(nIAIA), H(nAOAE), HDIAG(*)
+
+integer(kind=iwp) :: I, IASHI, IASHJ, IPQ, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, &
                      IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO, NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR, NT, NTT, NTU, &
                      NTUT, NTUTU, NTUVX, NU, NUT, NV, NVT, NVX, NVXF, NVXT, NX, NXT
 real(kind=wp) :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, P2Act(1), PRPR, SXNRM2, XLEV
+real(kind=wp), allocatable :: DF(:)
+real(kind=wp), allocatable :: DDIAG(:)
 real(kind=wp), parameter :: Large = 1.0e32_wp, THRA = 1.0e-6_wp
+
 #include "warnings.h"
 
 ! -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
 
 ! Local print level (if any)
-IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering SXHAM'
+
+Call mma_allocate(DF,nDF,Label='DF')
+Call mma_allocate(DDIAG,nDDIAG,Label='DDiag')
 
 ! Loop over all symmetry blocks
 
@@ -196,10 +201,6 @@ do ISYM=1,NSYM
         end if
       end do
     end do
-    if (IPRLEV >= DEBUG) then
-      write(u6,*) 'DIA in SXHAM:'
-      write(u6,*) (DIA(ISTIA+i),i=1,NIA**2)
-    end if
 
     ! Form the matrix DF (row index active, column index all orbitals)
 
@@ -335,22 +336,6 @@ do ISYM=1,NSYM
 
       end do
     end do
-    !write(u6,*) 'SXHAM: The IXSYM array='
-    !write(u6,'(1x,40i2)') (ixsym(i),i=1,ntot)
-
-    ! Test print of all matrices
-
-    if (IPRLEV >= DEBUG) then
-      write(u6,1000) ISYM
-      write(u6,1100) (DDIAG(I),I=1,NO)
-      write(u6,1200) (SXN(I),I=ISTBM+1,ISTBM+NIA*NAE)
-      write(u6,1300) (DF(I),I=1,NAO*NO)
-      write(u6,1400) (F1(I),I=ISTIA+1,ISTIA+NIA**2)
-      write(u6,1500) (F2(I),I=ISTAE+1,ISTAE+NAE**2)
-      write(u6,1600) (G(I),I=ISTIA+1,ISTIA+NIA**2)
-      write(u6,1700) (H(I),I=ISTH+1,ISTH+NAO*NAE)
-      write(u6,1800) (HDIAG(I),I=ISTBM+1+NROOT,ISTBM+NAE*NIA+NROOT)
-    end if
 
     IASHI = IASHI+NAO
     ISTD = ISTD+nTri_Elem(NAO)
@@ -379,7 +364,6 @@ SXSHFT = max(XLEV-HDMIN,Zero)
 
 if (LVSHFT == Zero) SXSHFT = Zero
 HDIAG(NROOT+1:NROOT+NSXS) = HDIAG(NROOT+1:NROOT+NSXS)+SXSHFT
-if (IPRLEV >= DEBUG) write(u6,1900) HDMIN,SXSHFT
 
 ! Add diagonal elements for the reference space (CI-states)
 
@@ -389,17 +373,7 @@ if (ICICP /= 0) then
   HDIAG(1:NROOT) = ENER(1:NROOT,ITER)-ENER(IROOT1,ITER)
 end if
 
-return
-
-1000 format(/1X,'Matrices in SXHAM for symmetry block',I2)
-1100 format(/1X,'Diagonal of the full density matrix'/(1X,5G18.6))
-1200 format(/1X,'Normalization constants for SX-states'/(1X,5G18.6))
-1300 format(/1X,'The matrix sum(D(pr)F(rq)) -DF'/(1X,5G18.6))
-1400 format(/1X,'The occupied part of the Fock matrix'/(1X,5G18.6))
-1500 format(/1X,'The act-ext part of the Fock matrix'/(1X,5G18.6))
-1600 format(/1X,'The G-matrix'/(1X,5G18.6))
-1700 format(/1X,'The H-matrix'/(1X,5G18.6))
-1800 format(/1X,'Diagonal of the SX Hamiltonian'/(1X,5G18.6))
-1900 format(1X,'Lowest diagonal element has the value',F12.6,' A level shift of',F12.6,' has been used')
+Call mma_deallocate(DF)
+Call mma_deallocate(DDIAG)
 
 end subroutine SXHAM

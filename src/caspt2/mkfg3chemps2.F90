@@ -19,7 +19,7 @@
 subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
 
 use Symmetry_Info, only: Mul
-use sguga, only: SGS
+use CI_Info, only: CI_St
 use general_data, only: nActel
 use caspt2_module, only: EPSA, jState, mState
 use InputData, only: Input
@@ -44,9 +44,9 @@ end if
 
 ! Double checked with CheMPS2::CASPT2::create_f_dots()
 do iz=1,nlev
-  iySym = SGS(istate)%ism(iz)
+  iySym = CI_St(istate)%ISm(iz)
   do iy=1,nlev
-    ixySym = Mul(SGS(istate)%ism(iy),iySym)
+    ixySym = Mul(CI_St(istate)%ISm(iy),iySym)
     if (mkF .and. (ixySym == 1)) then
       F1(iy,iz) = Zero
       do iw=1,nlev

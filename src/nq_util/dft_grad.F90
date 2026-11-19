@@ -188,8 +188,8 @@ select case (Functional_type)
         Aux(6,j) = Two*vSigma(3,j)*gxb+vSigma(2,j)*gxa
         Aux(7,j) = Two*vSigma(3,j)*gyb+vSigma(2,j)*gya
         Aux(8,j) = Two*vSigma(3,j)*gzb+vSigma(2,j)*gza
-        Aux(9,j) = Half*vTau(1,j)
-        Aux(10,j) = Half*vTau(2,j)
+        Aux(9,j) = Quart*vTau(1,j)
+        Aux(10,j) = Quart*vTau(2,j)
       end do
     end if
     !                                                                  *
@@ -226,8 +226,8 @@ select case (Functional_type)
         Aux(6,j) = Two*vSigma(3,j)*gxb+vSigma(2,j)*gxa
         Aux(7,j) = Two*vSigma(3,j)*gyb+vSigma(2,j)*gya
         Aux(8,j) = Two*vSigma(3,j)*gzb+vSigma(2,j)*gza
-        Aux(9,j) = Half*vTau(1,j)
-        Aux(10,j) = Half*vTau(2,j)
+        Aux(9,j) = Quart*vTau(1,j)
+        Aux(10,j) = Quart*vTau(2,j)
         Aux(11,j) = vLapl(1,j)
         Aux(12,j) = vLapl(2,j)
       end do

@@ -122,6 +122,7 @@ Marcus Johansson
 Andy Kaiser  
 Erik Källman  
 Gunnar Karlström  
+Benjamin W. Kaufold  
 Stefan Knecht  
 Vladislav Kochetov  
 Okan Köksal  
@@ -207,6 +208,7 @@ Victor P. Vysotskiy
 Ulf Wahlgren  
 Meng Wang  
 Yubin Wang  
+Meredith E. Wanta  
 Mark A. Watson  
 Hans-Joachim Werner  
 Oskar Weser  

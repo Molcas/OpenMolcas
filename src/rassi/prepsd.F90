@@ -15,7 +15,8 @@ subroutine PREPSD(WFTP,iState,LSYM,ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,NCONF,CI,DET,d
 ! getting biorthonormal orbitals, prepare a wave function
 ! in the general SD format, using transformed orbitals.
 
-use sguga, only: CIS, SGS
+use CI_States, only: CI_SYG2SGU
+use rassi_aux, only: ipglob
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -36,7 +37,7 @@ if (WFTP == 'GENERAL') then
   ! Transform SGUGA to SymmG:
   call mma_allocate(CTMP,NCONF,Label='CTMP')
   IMODE = 1
-  call SYG2SGU(IMODE,SGS(istate),CIS(istate),LSYM,ICNFTAB,ISPNTAB,CI,CTMP)
+  call CI_SYG2SGU(IMODE,istate,LSYM,ICNFTAB,ISPNTAB,CI,CTMP,ipglob)
   ! Transform SymmG to Slater Dets:
   call SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CTMP,DET,detocc,detcoeff,SPTRA)
   call mma_deallocate(CTMP)

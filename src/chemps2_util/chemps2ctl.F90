@@ -26,10 +26,9 @@ use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 use filesystem, only: remove_, symlink_
 #endif
-
 use rasscf_global, only: CBLBM, chemps2_blb, chemps2_can, chemps2_lrestart, chemps2_no4rdm, chemps2_noise, chemps2_restart, &
-                         davidson_tol, Do3RDM, ENER, iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, &
-                         MxDMRG, NAC, THRE, hfocc
+                         davidson_tol, Do3RDM, ENER, hfocc, iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, MxDMRG, NAC, &
+                         THRE
 use general_data, only: ISPIN, NACTEL, NASH, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Half
@@ -77,7 +76,6 @@ do iSym=1,nSym
   end do
 end do
 lSymMolpro = iChMolpro(stSym)
-
 
 !*********************
 !  WRITEOUT FCIDUMP  *
@@ -535,16 +533,16 @@ contains
 
 subroutine link_from_parent(file_name)
 
-character(len=*), intent(in) :: file_name
-integer(kind=iwp) :: link_error
+  character(len=*), intent(in) :: file_name
+  integer(kind=iwp) :: link_error
 
-call remove_(trim(file_name))
-call symlink_('../'//trim(file_name),trim(file_name),link_error)
+  call remove_(trim(file_name))
+  call symlink_('../'//trim(file_name),trim(file_name),link_error)
 
-if (link_error /= 0) then
-  write(u6,*) 'CHEMPS2> Could not create symbolic link for ',trim(file_name)
-  call abend()
-end if
+  if (link_error /= 0) then
+    write(u6,*) 'CHEMPS2> Could not create symbolic link for ',trim(file_name)
+    call abend()
+  end if
 
 end subroutine link_from_parent
 #endif

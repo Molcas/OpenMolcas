@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CSDTVC(CSFVEC,DETVEC,IWAY,IREFSM,ICOPY)
 ! PURPOSE: TRANSFORM FROM DETERMINANT TO CSF BASIS AND VICE VERSA
 !          IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
@@ -95,7 +96,7 @@ else
   call GATVCS(CSFVEC,DETVEC,SDREO,NDET)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' SDREO reorder array'
-  call IWRTMA(SDREO,1,100,1,100)
+  call IWRTMA(SDREO,1,Min(NDET,100),1,Min(NDET,100))
 # endif
   DETVEC(1:NDET) = CSFVEC(1:NDET)
   do ITYP=1,NTYP

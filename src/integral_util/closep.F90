@@ -36,7 +36,7 @@ if (Method_chk == 'CASPT2  ') then
     call mma_deallocate(iOffAO)
     close(LuGamma_PT2)
     call mma_deallocate(CMOPT2)
-    if (allocated(SSDM)) call mma_deallocate(SSDM)
+    call mma_deallocate(SSDM,safe='*')
     call mma_deallocate(WRK1)
     call mma_deallocate(WRK2)
   else

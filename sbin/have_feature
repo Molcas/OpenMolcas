@@ -106,7 +106,8 @@ while [ -n "$1" ]; do
 
     "tinker")
       Echo "Processing feature: $FEATURE"
-      TINKER_FILE="$TINKER/tkr2qm_s"
+      # same default as in the Fortran code (RunTinker, RdCtl_Seward)
+      TINKER_FILE="${TINKER:-$MOLCAS/tinker/bin}/tkr2qm_s"
       if [ -x "$TINKER_FILE" ] ; then
         Echo "Found: $TINKER_FILE"
       else

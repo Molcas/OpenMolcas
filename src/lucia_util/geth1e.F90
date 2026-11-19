@@ -19,7 +19,7 @@ function GETH1E(IORB,ITP,ISM,JORB,JTP,JSM)
 use Symmetry_Info, only: Mul
 use lucia_data, only: IBSO, IH1FORM, INT1, IOBPTS, IREOTS, MXPNGAS, NACOBS, PGINT1, PGINT1A, PINT1
 use Constants, only: Zero
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: GETH1E
@@ -32,14 +32,16 @@ GETH1E = Zero
 if (IH1FORM == 1) then
   ! Normal integrals, lower triangular packed
   if (IJSM == 1) then
-    !write(u6,*) ' GETH1E, old route'
     GETH1E = GTH1ES(IREOTS,PINT1,INT1,IBSO,MXPNGAS,IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)
   else
     GETH1E = GTH1ES(IREOTS,PGINT1(IJSM)%A,INT1,IBSO,MXPNGAS,IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)
   end if
-else
+else if (IH1FORM == 2) then
   ! Integrals are in full blocked form
   GETH1E = GTH1ES(IREOTS,PGINT1A(IJSM)%A,INT1,IBSO,MXPNGAS,IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,0)
+else
+  Write (u6,*) 'IH1FORM has an illegal value'
+  Call Abend()
 end if
 
 end function GETH1E

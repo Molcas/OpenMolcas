@@ -15,7 +15,7 @@
 subroutine mkrdcas_cvb()
 
 use casvb_global, only: civb1, civb2, corenrg, formE, icrit, ifhamil, ifinish, ipr, memplenty, projcas, strtci, variat
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -25,6 +25,7 @@ logical(kind=iwp) :: need_cas
 logical(kind=iwp), external :: ifcasci_cvb, & ! ... Files available ...
                                up2date_cvb, & ! ... Make: up to date? ...
                                valid_cvb
+real(kind=wp), parameter:: c_daxpy=Zero
 
 if (ifinish == 0) then
   need_cas = (icrit == 1) .or. projcas
@@ -60,14 +61,12 @@ if ((.not. up2date_cvb('CASCHECK')) .or. (ipr(3) >= 2)) then
   end if
   if (ifhamil) then
     call cicopy_cvb(civb1,civb2)
-    call applyh_cvb(civb2)
+    call applyh_cvb(civb2,c_daxpy)
     call cidot_cvb(civb1,civb2,eexp)
     if (ipr(3) >= 1) write(u6,formE) ' CASSCF energy :',eexp+corenrg
     if (ipr(3) >= 1) write(u6,'(a)') ' '
   end if
 end if
 if (.not. memplenty) call ciwr_cvb(civb1,61001.2_wp)
-
-return
 
 end subroutine mkrdcas_cvb

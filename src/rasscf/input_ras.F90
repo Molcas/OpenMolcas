@@ -19,7 +19,7 @@ private
 ! Logical unit number for reading input:
 integer(kind=iwp) :: LuInput
 ! Used for input processing
-integer(kind=iwp), parameter :: NKeys = 152
+integer(kind=iwp), parameter :: NKeys = 153
 ! Logical flags, to check whether a keyword has been used in the input:
 logical(kind=iwp) :: KeyFlags(0:NKeys)
 ! Actual keywords
@@ -28,14 +28,14 @@ character(len=4), parameter :: CMD(nKeys) = ['ALTE','ATOM','CHAR','CHOI','CHOL',
                                              'LINE','LOWD','LOWM','LUMO','MAXO','NACT','NEWI','NONE','NOQU','OPTO','ORBA','ORBL', &
                                              'ORBO','ORDE','OUTO','OUTP','PRIN','PROR','PRSP','PRWF','QUNE','RAS1','RAS2','RAS3', &
                                              'GASS','RFPE','CIRF','RFRO','RLXR','RASS','SDAV','SPIN','SUPS','SXDA','SYMM','THRS', &
-                                             'TIGH','TITL','TYPE','VB  ','EXPE','    ','    ','    ','    ','FOSP','MDRL','OFEM', &
+                                             'TIGH','TITL','TYPE','VB  ','EXPE','SGEX','SGCI','    ','    ','FOSP','MDRL','OFEM', &
                                              'FTHA','DFMD','    ','ALPH','FARO','DMRG','3RDM','NECI','TOTA','TIME','NMCY','CALC', &
                                              'RDMS','REAL','DEFI','DIAG','EMBD','SOCC','RGIN','PRSD','FCID','NOCA','SAVE','EXPA', &
                                              'H5OR','H5CI','HEXS','HEUR','DMPO','NEVP','HFOC','DAVT','CHRE','CHBL','MXSW','NOIS', &
                                              'DMRE','MXCA','DEXS','HROO','TDM ','DFCF','NKEE','REOR','TRIA','POPS','SEMI','MEMO', &
                                              'IVO ','CRPR','RDML','ORTH','CCCI','ROST','XMSI','CMSI','CMMA','CMMI','CMTH','GUGA', &
                                              'CMSS','CMSO','PERI','SSCR','MCM7','WRMA','DICE','STOC','EPSI','SAMP','DITE','DIRE', &
-                                             'DIOC','PPT2','NDPT','RGRA','STAV','DMPF','CHNO','NO4R']
+                                             'DIOC','PPT2','NDPT','RGRA','STAV','DMPF','CHNO','NO4R','LPDF']
 
 public :: CMD, Key, KeyFlags, LuInput, NKeys, SetKey
 

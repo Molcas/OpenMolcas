@@ -37,16 +37,16 @@ real(kind=wp), intent(in) :: Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedM
 character(len=*), intent(in) :: Path
 logical(kind=iwp), intent(in) :: Do_Energy, Do_Intens
 #ifdef _HDF5_
-integer(kind=iwp) :: dsetid, fileid, iAll, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iSpin, iStab(0:7), iUnique, lcDmp, MaxDCR, &
+integer(kind=iwp) :: dsetid, fileid, i_All, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iSpin, iStab(0:7), iUnique, lcDmp, MaxDCR, &
                      nAll_Atoms, nCnttp, nCoSet, nGen, nStab, nTmp, nUnique_Atoms
 logical(kind=iwp) :: Found, Have_AtoB, Have_cDmp, Have_Iso
+character(len=8) :: Method
 integer(kind=iwp), allocatable :: AtNum(:), AtNum_All(:), AtoB(:)
 real(kind=wp), allocatable :: Charge(:), Coord(:,:), Coord_All(:,:), Mass(:), NMode(:,:,:)
-character(len=8) :: Method
-character(len=LenIn), allocatable :: Label(:)
 character(len=LenIn+4), allocatable :: Label_All(:)
-character(len=80), allocatable :: Bsl(:), Bsl_Old(:)
+character(len=LenIn), allocatable :: Label(:)
 character(len=2*80), allocatable :: cDmp(:)
+character(len=80), allocatable :: Bsl(:), Bsl_Old(:)
 integer(kind=iwp), external :: iChxyz
 
 call Symmetry_Info_Get()
@@ -109,6 +109,22 @@ call mh5_init_attr(dsetid,'DESCRIPTION','Atomic numbers of the unique centers, s
 call mh5_put_dset(dsetid,AtNum)
 call mh5_close_dset(dsetid)
 
+! LDV: the effective nuclear charge differs from the atomic number for a ghost atom of a real element (0), and for a center with
+! an effective core potential; it is the only way to tell such a ghost atom from the file.
+call Qpg_dArray('Effective nuclear Charge',Found,nTmp)
+if (Found) then
+  call mma_allocate(Charge,nUnique_Atoms,label='Charge')
+  call Get_dArray('Effective nuclear Charge',Charge,nUnique_Atoms)
+  dsetid = mh5_create_dset_real(fileid,'CENTER_CHARGES',1,[nUnique_Atoms])
+  call mh5_init_attr(dsetid,'DESCRIPTION','Effective nuclear charges of the unique centers, stored as array of size '// &
+                     '[NATOMS_UNIQUE]; it is 0 for a ghost atom of a real element, which keeps its atomic number in '// &
+                     'CENTER_ATNUMS, and it is the charge seen by the electrons, less than the atomic number, for a center '// &
+                     'with an effective core potential')
+  call mh5_put_dset(dsetid,Charge)
+  call mh5_close_dset(dsetid)
+  call mma_deallocate(Charge)
+end if
+
 call mma_allocate(Coord,3,nUnique_Atoms,label='Coord')
 call Get_dArray('Unique Coordinates',Coord,3*nUnique_Atoms)
 dsetid = mh5_create_dset_real(fileid,'CENTER_COORDINATES',2,[3,nUnique_Atoms])
@@ -168,7 +184,7 @@ if (Have_AtoB .and. Have_cDmp) then
   call mma_deallocate(Bsl)
   call mma_deallocate(Bsl_Old)
 end if
-!                                                                   *
+!                                                                      *
 !***********************************************************************
 !                                                                      *
 ! All centers, only with symmetry, in the order of the coordinates and normal modes of Freq_Molden: each unique center is
@@ -185,16 +201,16 @@ if (nIrrep > 1) then
 
   call mma_allocate(Label_All,nAll_Atoms,label='Label_All')
   call mma_allocate(AtNum_All,nAll_Atoms,label='AtNum_All')
-  iAll = 0
+  i_All = 0
   MaxDCR = 0
   do iUnique=1,nUnique_Atoms
     iChAtom = iChxyz(Coord(:,iUnique),iGen,nGen)
     call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
     nCoSet = nIrrep/nStab
     do iCo=0,nCoSet-1
-      iAll = iAll+1
-      Label_All(iAll) = Label(iUnique)//':'//ChOper(iCoSet(iCo,0))
-      AtNum_All(iAll) = AtNum(iUnique)
+      i_All = i_All+1
+      Label_All(i_All) = Label(iUnique)//':'//ChOper(iCoSet(iCo,0))
+      AtNum_All(i_All) = AtNum(iUnique)
     end do
   end do
 
@@ -259,14 +275,21 @@ dsetid = mh5_create_dset_real(fileid,'NORMAL_MODES',3,[3,nAll_Atoms,nFreq])
 call mh5_init_attr(dsetid,'DESCRIPTION','Normal modes as written to freq.molden, array of size [NFREQ,NATOMS,3], stored '// &
                    'with mode index varying slowest, then atom index, where NATOMS is NATOMS_ALL when NSYM is larger '// &
                    'than 1 and NATOMS_UNIQUE otherwise, and the atoms are in the order of DESYM_CENTER_COORDINATES, or '// &
-                   'of CENTER_COORDINATES without symmetry')
+                   'of CENTER_COORDINATES without symmetry; the normalization depends on the path: for an analytic Hessian '// &
+                   'each mode has the sum over all atoms of |v|^2 equal to 1, and for a numerical Hessian or the '// &
+                   "optimizer's updated Hessian with the default coordinates of the optimizer it has the sum over all atoms "// &
+                   'of m|v|^2 equal to 1 with m the mass in u, while other coordinate options can give another '// &
+                   'normalization, so a tool that depends on a convention should normalize the modes itself')
 call mh5_put_dset(dsetid,NMode)
 call mh5_close_dset(dsetid)
 call mma_deallocate(NMode)
 
 dsetid = mh5_create_dset_real(fileid,'REDUCED_MASSES',1,[nFreq])
 call mh5_init_attr(dsetid,'DESCRIPTION','Reduced masses of the normal modes in u, vector of size [NFREQ] in the order of '// &
-                   'FREQUENCIES')
+                   'FREQUENCIES; each is the sum over all atoms of m|v|^2 divided by the sum over all atoms of |v|^2, where '// &
+                   'v is the displacement of the atom in the mode as stored in NORMAL_MODES and m the mass of the atom in u '// &
+                   '(the mass in CENTER_MASSES converted from electron masses), so that it does not depend on how the '// &
+                   'mode is normalized')
 call mh5_put_dset(dsetid,RedMas)
 call mh5_close_dset(dsetid)
 

@@ -31,7 +31,8 @@ complex(kind=wp), intent(in) :: M(3,N,N)
 real(kind=wp), intent(out) :: MT, Z
 integer(kind=iwp) :: i, j
 real(kind=wp) :: dltw, pB, S1, S2
-real(kind=wp), parameter :: kB = kBoltzmann/(cm_s*hPlanck), & ! in cm-1*K-1
+real(kind=wp), parameter :: dltw_deg = 1.0e-3_wp, &
+                            kB = kBoltzmann/(cm_s*hPlanck), & ! in cm-1*K-1
                             mB = mBohr/(cm_s*hPlanck) ! in cm-1*T-1
 
 Z = Zero
@@ -46,17 +47,20 @@ do I=1,N
     do J=NM+1,N
       DLTW = W(I)-W(J)
       S1 = real(M(L,I,J)*conjg(M(1,I,J)))*dX+real(M(L,I,J)*conjg(M(2,I,J)))*dY+real(M(L,I,J)*conjg(M(3,I,J)))*dZ
-      S2 = S2-Two*mB*H*S1/DLTW
+      if (abs(DLTW) < dltw_deg) then
+        S2 = S2+mB*H*S1/(kB*T)
+      else
+        S2 = S2-Two*mB*H*S1/DLTW
+      end if
     end do ! J
   else ! I
     ! case when I > NM
+    S2 = Zero
     do J=1,N
       DLTW = W(I)-W(J)
       S1 = real(M(L,I,J)*conjg(M(1,I,J)))*dX+real(M(L,I,J)*conjg(M(2,I,J)))*dY+real(M(L,I,J)*conjg(M(3,I,J)))*dZ
-      S2 = Zero
-
-      if (abs(DLTW) < 1.0e-3_wp) then
-        S2 = S2+mB*H*S1/kB/T
+      if (abs(DLTW) < dltw_deg) then
+        S2 = S2+mB*H*S1/(kB*T)
       else
         S2 = S2-Two*mB*H*S1/DLTW
       end if

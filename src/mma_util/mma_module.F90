@@ -12,7 +12,10 @@
 module mma_module
 
 use, intrinsic :: iso_c_binding, only: c_char, c_ptr
-use Definitions, only: wp, iwp, MOLCAS_C_INT
+use Definitions, only: iwp, MOLCAS_C_INT
+#ifdef _GARBLE_
+use Definitions, only: wp
+#endif
 
 implicit none
 private
@@ -43,11 +46,13 @@ interface
     type(c_ptr), value, intent(in) :: ptr
   end function cptr2woff
 
+#ifdef _GARBLE_
   function woff2cptr(offset) bind(C,name='woff2cptr_')
     import :: c_ptr, MOLCAS_C_INT
     type(c_ptr) :: woff2cptr
     integer(kind=MOLCAS_C_INT), value, intent(in) :: offset
   end function woff2cptr
+#endif
 
 end interface
 
@@ -63,7 +68,7 @@ subroutine garble(ipos,length,vartyp)
 # ifdef _FPE_TRAP_
   use, intrinsic :: IEEE_Arithmetic, only: IEEE_signaling_NaN, IEEE_value
 # endif
-  use Definitions, only: byte, RtoB
+  use Definitions, only:  byte, RtoB
 
   integer(kind=iwp), intent(in) :: ipos, length
   character(len=*), intent(in) :: vartyp

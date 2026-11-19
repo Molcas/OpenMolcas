@@ -17,7 +17,6 @@ set (sources
      appendchr_cvb.F90
      appendint_cvb.F90
      applyh_cvb.F90
-     applyhpcx_cvb.F90
      applyt2_cvb.F90
      applyt_cvb.F90
      applyth_cvb.F90
