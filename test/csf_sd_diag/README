@@ -1,7 +1,0 @@
-Diagnostic tests for the CSF/SD implementation (see test/csf_sd).
-
-Tests here are expected to FAIL until a known bug is fixed. Their checkfiles
-are generated with MOLCAS_CI_VERIFY=NO (the energies do not depend on the
-checks), after which the >export line is switched back to EPQ or YES. Once a
-test passes, move it to test/csf_sd. This directory has no .csf_sd file, so
-'pymolcas verify .csf_sd' does not include it.
