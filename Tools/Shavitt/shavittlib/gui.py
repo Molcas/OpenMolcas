@@ -22,7 +22,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolb
 from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 from matplotlib.figure import Figure
 
-from .draw import MAX_WALKS, SERIES, SURFACE, DrawOptions, LoopOverlay, SegmentOverlay, Walk, draw
+from .draw import MAX_WALKS, SERIES, SURFACE, DrawOptions, LoopOverlay, SegmentOverlay, Walk, draw, fixed_layout
 from . import segments as sgm
 from . import loops as lps
 from .orbitals import ActiveOrbitals
@@ -514,7 +514,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
         self.info_label.setText(
             f'{g.ci_type} {g.nactel} electrons in {g.nlev} orbitals, 2S+1 = {g.ispin}, irrep {g.irrep_name(g.lsym)}\n'
             f'{g.nvert} vertices, {len(g.arcs())} arcs, midlevel {g.midlev} ({g.nmidv} midvertices), '
-            f'{int(g.ncsf[g.lsym])} CSFs')
+            f'{int(g.ncsf[g.lsym])} CSFs\nCSFs per irrep: {g.csf_counts()}')
         nroots = 0 if g.ci_vectors is None else g.ci_vectors.shape[0]
         self.root_spin.blockSignals(True)
         self.root_spin.setRange(1, max(1, nroots))
@@ -1221,7 +1221,7 @@ class ShavittWindow(QtWidgets.QMainWindow):
         else:
             self.toolbar.update()  # new home view
         self._reset_view = False
-        self.fig.tight_layout()
+        fixed_layout(self.fig, self.ax, g, 'loops' if self.loops_mode() else 'segments' if self.segments_mode() else 'walks')
         self.canvas.draw_idle()
 
     def save_dialog(self):

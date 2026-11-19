@@ -34,8 +34,11 @@ does: active electrons, spin multiplicity, number of irreps (and their
 labels), the irrep of the wave function, and CAS (orbitals of each irrep),
 RAS (RAS1/RAS2/RAS3 orbitals, holes in RAS1, electrons in RAS3) or GAS (any
 number of spaces with the minimum and maximum number of electrons in the
-spaces 1..k together). The dialog shows the number of vertices and CSFs as
-it is edited, and starts from the space of the graph on display.
+spaces 1..k together). The dialog shows the number of vertices and of CSFs
+of each irrep as it is edited, and starts from the space of the graph on
+display. The number of CSFs of each irrep is also given in the Wave function
+tab and by --text. The graph keeps its place when the legend or a note
+appears or disappears (the room for them is reserved).
 
 * **Wave function**: root, energy, threshold |c| for the CSF table.
 * **Leading CSFs**: select rows (Ctrl/Shift-click) to highlight their walks;

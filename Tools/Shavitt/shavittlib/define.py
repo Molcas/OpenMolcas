@@ -280,7 +280,8 @@ class DefineGraphDialog(QtWidgets.QDialog):
             return
         ncsf = int(g.ncsf[g.lsym])
         self.status.setText(f'{g.ci_type}: {g.nactel} electrons in {g.nlev} orbitals, {g.nvert} vertices, '
-                            f'{ncsf} CSF{"s" if ncsf != 1 else ""} of irrep {g.irrep_name(g.lsym)}')
+                            f'{ncsf} CSF{"s" if ncsf != 1 else ""} of irrep {g.irrep_name(g.lsym)}<br>'
+                            f'CSFs per irrep: {g.csf_counts()}')
         ok.setEnabled(ncsf > 0)
 
     def accept(self):

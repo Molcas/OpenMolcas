@@ -453,12 +453,17 @@ class ShavittGraph:
             return self.irrep_labels[isym]
         return str(isym + 1)
 
+    def csf_counts(self, sep=', '):
+        """The number of CSFs of each irrep, e.g. 'a1 139 (wave function), b1 120, ...'."""
+        return sep.join(f'{self.irrep_name(i)} {int(n)}' + (' (wave function)' if i == self.lsym else '')
+                        for i, n in enumerate(self.ncsf))
+
     def summary(self):
         lines = [
             f'CI type {self.ci_type}, {self.nactel} electrons in {self.nlev} levels, 2S+1 = {self.ispin}, '
             f'{self.nsym} irreps, target irrep {self.irrep_name(self.lsym)}',
             f'{self.nvert} vertices, {len(self.arcs())} arcs, midlevel {self.midlev} ({self.nmidv} midvertices)',
-            'CSFs per irrep: ' + ' '.join(str(int(n)) for n in self.ncsf),
+            'CSFs per irrep: ' + self.csf_counts(),
             'level  irrep  act   vertices',
         ]
         for L in range(self.nlev, 0, -1):

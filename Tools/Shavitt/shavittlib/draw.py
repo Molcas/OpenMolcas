@@ -203,9 +203,52 @@ def draw(g, ax, walks=(), opts=None, loops=None, segments=None):
     if opts.title:
         ax.set_title(opts.title, color=INK, fontsize=10, loc='left', pad=30)
     if nw or mid or (loops is not None and loops.loops) or (segments is not None and segments.segments):
-        ax.legend(loc='upper left', bbox_to_anchor=(1.0, 1.0), frameon=False, fontsize=8, labelcolor=INK,
-                  title='CSF  step vector  coeff' if nw else None, title_fontsize=8)
+        ax.legend(title=WALKS_TITLE if nw else None, **LEGEND_STYLE)
     return x, y
+
+
+LEGEND_STYLE = dict(loc='upper left', bbox_to_anchor=(1.0, 1.0), frameon=False, fontsize=8, labelcolor=INK,
+                    title_fontsize=8)
+WALKS_TITLE = 'CSF  step vector  coeff'
+NOTE_LINES = 2  # the longest note under the graph (a loop value and a common walk)
+
+
+def _widest_legend(g, kind):
+    """The widest legend entries (and title) the overlay kind 'walks', 'loops' or 'segments' can show."""
+    if kind == 'loops':
+        return ['common walk parts', 'bra (L)', 'ket (R)', 'bra (L) arcs', 'ket (R) arcs', 'loop midvertex',
+                'midvertex'], None
+    if kind == 'segments':
+        return ['bra (L) step', 'ket (R) step', 'segment vertex', 'midvertex'], None
+    steps = '2' * g.nlev
+    irr = max((g.irrep_name(i) for i in range(g.nsym)), key=len)
+    return [f'{g.ncsf.max():>6d}  {steps}  -0.000', f'     -  {steps}  ({irr})', 'midvertex'], WALKS_TITLE
+
+
+def fixed_layout(fig, ax, g, kind='walks'):
+    """Lay out the figure with room for the widest legend and note of this overlay kind.
+
+    Unlike tight_layout with the legend in it, the axes do not move when the legend or the
+    note under the graph comes and goes (a vertex picked or unpicked).
+    """
+    from matplotlib.legend import Legend
+    from matplotlib.lines import Line2D
+    renderer = fig.canvas.get_renderer()
+    labels, title = _widest_legend(g, kind)
+    probe = Legend(ax, [Line2D([], [], lw=2.0) for _ in labels], labels, title=title, **LEGEND_STYLE)
+    probe.set_figure(fig)
+    w = probe.get_window_extent(renderer).width + 8
+    h = 0.0
+    if kind in ('loops', 'segments'):
+        h = NOTE_LINES * 8 * 1.25 * fig.dpi / 72.0 + 6
+    leg = ax.get_legend()
+    if leg is not None:
+        leg.set_in_layout(False)
+    for t in ax.texts:
+        if t.get_gid() == 'note':
+            t.set_in_layout(False)
+    fw, fh = fig.get_figwidth() * fig.dpi, fig.get_figheight() * fig.dpi
+    fig.tight_layout(rect=(0.0, min(h / fh, 0.3), 1.0 - min(w / fw, 0.5), 1.0))
 
 
 def _draw_loops(g, ax, x, y, ov):
@@ -247,7 +290,7 @@ def _draw_loops(g, ax, x, y, ov):
         ax.scatter(x[m], y[m], s=150, marker='s', color=INK, edgecolors=SURFACE, linewidths=1.5, zorder=24,
                    label='loop midvertex')
     if ov.note:
-        ax.text(0.0, -0.02, ov.note, transform=ax.transAxes, fontsize=8, color=INK, va='top', ha='left')
+        ax.text(0.0, -0.02, ov.note, transform=ax.transAxes, fontsize=8, color=INK, va='top', ha='left', gid='note')
 
 
 def _draw_segments(g, ax, x, y, ov):
@@ -279,7 +322,7 @@ def _draw_segments(g, ax, x, y, ov):
         ax.scatter([x[v]], [y[v]], s=260, facecolors='none', edgecolors=INK, linewidths=1.8, zorder=24,
                    label='segment vertex')
     if ov.note:
-        ax.text(0.0, -0.02, ov.note, transform=ax.transAxes, fontsize=8, color=INK, va='top', ha='left')
+        ax.text(0.0, -0.02, ov.note, transform=ax.transAxes, fontsize=8, color=INK, va='top', ha='left', gid='note')
 
 
 LOGO = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'openmolcas_logo.png')
