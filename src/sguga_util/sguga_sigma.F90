@@ -26,7 +26,7 @@ private
 ! pages in every call for large CI spaces); freed by SG_Sigma_Free
 real(kind=wp), allocatable, target :: Wrk_S1(:), Wrk_S2(:)
 
-public :: SG_Sigma_Free, sg_ci_full, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref, SG_Occ_Diag
+public :: SG_Sigma_Free, SG_Work_Need, sg_ci_full, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref, SG_Occ_Diag
 
 contains
 
@@ -43,7 +43,7 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
 
   use Index_functions, only: iTri
   use symmetry_info, only: MUL
-  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi
+  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SG_No_Reuse
   use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
   use Constants, only: Zero, One, Half
   use Definitions, only: iwp, wp, u6
@@ -55,7 +55,7 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
   integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
   real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
   real(kind=wp), intent(out) :: Sigma(nCSFs)
-  integer(kind=iwp) :: nOrb, iOrb, jOrb, kOrb, ijSym, SigmaSym, mCSFs, nP, p, q, q0, nB, MaxMem
+  integer(kind=iwp) :: nOrb, iOrb, jOrb, kOrb, ijSym, SigmaSym, mCSFs, nP, p, q, q0, nB, MaxMem, tPsi
   integer(kind=iwp), allocatable :: PI(:), PJ(:)
   real(kind=wp) :: TwoInt
   real(kind=wp), allocatable :: G(:,:)
@@ -63,6 +63,8 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
   logical(kind=iwp), save :: Warned = .false.
 
   Sigma(:) = Zero
+  ! all E_pq|Psi> share the tag of Psi (intermediates reused by SG_Epq_Psi)
+  tPsi = SG_New_Tag()
   nOrb = SGS%nLev
   call mma_allocate(PI,max(1,nOrb*(nOrb+1)/2),Label='PI')
   call mma_allocate(PJ,max(1,nOrb*(nOrb+1)/2),Label='PJ')
@@ -95,8 +97,8 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
     D(1:mCSFs,1:nP) => Wrk_S1(1:mCSFs*nP)
     D(:,:) = Zero
     do p=1,nP
-      call SG_Epq_Psi(SGS,CIS,EXS,PI(p),PJ(p),One,PsiSym,Psi,D(:,p))
-      if (PI(p) /= PJ(p)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(p),PI(p),One,PsiSym,Psi,D(:,p))
+      call SG_Epq_Psi(SGS,CIS,EXS,PI(p),PJ(p),One,PsiSym,Psi,D(:,p),CI_Tag=tPsi)
+      if (PI(p) /= PJ(p)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(p),PI(p),One,PsiSym,Psi,D(:,p),CI_Tag=tPsi)
       if (ijSym == 1) then
         TwoInt = Zero
         do kOrb=1,nOrb
@@ -123,8 +125,8 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
       nB = min(nB,nP-q0+1)
       call DGEMM_('N','T',mCSFs,nB,nP,One,D,mCSFs,G(q0,1),nP,Zero,W,mCSFs)
       do q=q0,q0+nB-1
-        call SG_Epq_Psi(SGS,CIS,EXS,PI(q),PJ(q),One,SigmaSym,W(:,q-q0+1),Sigma)
-        if (PI(q) /= PJ(q)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(q),PI(q),One,SigmaSym,W(:,q-q0+1),Sigma)
+        call SG_Epq_Psi(SGS,CIS,EXS,PI(q),PJ(q),One,SigmaSym,W(:,q-q0+1),Sigma,CI_Tag=SG_No_Reuse)
+        if (PI(q) /= PJ(q)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(q),PI(q),One,SigmaSym,W(:,q-q0+1),Sigma,CI_Tag=SG_No_Reuse)
       end do
     end do
     nullify(W)
@@ -146,8 +148,8 @@ contains
     call mma_allocate(Y,nCSFs,Label='Y_HPsi')
     do ip=1,nP
       X(:) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,PI(ip),PJ(ip),One,PsiSym,Psi,X)
-      if (PI(ip) /= PJ(ip)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ip),PI(ip),One,PsiSym,Psi,X)
+      call SG_Epq_Psi(SGS,CIS,EXS,PI(ip),PJ(ip),One,PsiSym,Psi,X,CI_Tag=tPsi)
+      if (PI(ip) /= PJ(ip)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ip),PI(ip),One,PsiSym,Psi,X,CI_Tag=tPsi)
       if (ijSym == 1) then
         T2 = Zero
         do kk=1,nOrb
@@ -157,8 +159,8 @@ contains
       end if
       do ir=1,nP
         Y(:) = Zero
-        call SG_Epq_Psi(SGS,CIS,EXS,PI(ir),PJ(ir),One,SigmaSym,X,Y)
-        if (PI(ir) /= PJ(ir)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ir),PI(ir),One,SigmaSym,X,Y)
+        call SG_Epq_Psi(SGS,CIS,EXS,PI(ir),PJ(ir),One,SigmaSym,X,Y,CI_Tag=SG_No_Reuse)
+        if (PI(ir) /= PJ(ir)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ir),PI(ir),One,SigmaSym,X,Y,CI_Tag=SG_No_Reuse)
         Sigma(:) = Sigma(:)+Half*TUVX_Tri(iTri(iTri(PI(ir),PJ(ir)),iTri(PI(ip),PJ(ip))))*Y(:)
       end do
     end do
@@ -196,7 +198,7 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
   ! sg_h_psi_ras_direct if the vectors of a block do not fit in memory.
   use Index_functions, only: iTri
   use symmetry_info, only: MUL
-  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_Level_Map
+  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_Level_Map, SG_New_Tag, SG_No_Reuse
   use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
   use Constants, only: Zero, One, Half
   use Definitions, only: iwp, wp
@@ -207,6 +209,7 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
   integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
   real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
   real(kind=wp), intent(out) :: Sigma(nCSFs)
+  integer(kind=iwp) :: tPsi
   integer(kind=iwp) :: iA, iLev, iOrb, ijSym, jLev, jOrb, kLev, lLev, mCSFs, mLev, nLev, SigmaSym, nP, ip, iq, q0, nB, &
                        MaxMem, MaxNeed
   real(kind=wp) :: Fact, OneInt
@@ -240,6 +243,8 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
   call mma_allocate(PI,nLev**2,Label='PI')
   call mma_allocate(PJ,nLev**2,Label='PJ')
   Sigma(:) = Zero
+  ! all E_ij|Psi> share the tag of Psi
+  tPsi = SG_New_Tag()
   do ijSym=1,SGS%nSym
     ! the ordered level pairs (i,j) of symmetry ijSym, in the order of ij = (i-1)*nLev+j
     nP = 0
@@ -261,7 +266,7 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
     do ip=1,nP
       iLev = PI(ip)
       jLev = PJ(ip)
-      call SG_Epq_Psi(SGS,CIS,EXS,iLev,jLev,One,PsiSym,Psi,D(:,ip))
+      call SG_Epq_Psi(SGS,CIS,EXS,iLev,jLev,One,PsiSym,Psi,D(:,ip),CI_Tag=tPsi)
       if (ijSym == 1) then
         iOrb = L2Orb(iLev)
         jOrb = L2Orb(jLev)
@@ -307,7 +312,7 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
       nB = min(nB,nP-q0+1)
       call DGEMM_('N','T',mCSFs,nB,nP,One,D,mCSFs,G(q0,1),nP,Zero,W,mCSFs)
       do iq=q0,q0+nB-1
-        if (Used(iq)) call SG_Epq_Psi(SGS,CIS,EXS,PI(iq),PJ(iq),One,SigmaSym,W(:,iq-q0+1),Sigma)
+        if (Used(iq)) call SG_Epq_Psi(SGS,CIS,EXS,PI(iq),PJ(iq),One,SigmaSym,W(:,iq-q0+1),Sigma,CI_Tag=SG_No_Reuse)
       end do
     end do
     nullify(W)
@@ -324,7 +329,7 @@ subroutine sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX
 
   use Index_functions, only: iTri
   use symmetry_info, only: MUL
-  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_Level_Map
+  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_Level_Map, SG_New_Tag, SG_No_Reuse
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Half
   use Definitions, only: iwp, wp
@@ -336,6 +341,7 @@ subroutine sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX
   integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
   real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
   real(kind=wp), intent(out) :: Sigma(nCSFs)
+  integer(kind=iwp) :: tPsi
   integer(kind=iwp), parameter :: nBuff = 10
   integer(kind=iwp) :: iBuff, iA, iB, iLev, iOrb, ij, ijSym, jLev, jOrb, kl, klSym, kLev, kOrb, lLev, lOrb, mCSFs, mLev, nLev, &
                        SigmaSym
@@ -353,6 +359,8 @@ subroutine sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX
   call mma_allocate(Ekl_Eij_Psi,nCSFs,nBuff,Label='Ekl_Eij_Psi')
 
   Sigma(:) = Zero
+  ! all E_ij|Psi> share the tag of Psi
+  tPsi = SG_New_Tag()
 
   do iLev=1,nLev
     iOrb = L2Orb(iLev)
@@ -366,7 +374,7 @@ subroutine sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX
 
       ! E_ij|Psi>, restricted to the CSF space
       Eij_Psi(1:mCSFs) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,iLev,jLev,One,PsiSym,Psi,Eij_Psi)
+      call SG_Epq_Psi(SGS,CIS,EXS,iLev,jLev,One,PsiSym,Psi,Eij_Psi,CI_Tag=tPsi)
 
       ! one-electron part, h'_ij E_ij
       if (ijSym == 1) then
@@ -395,7 +403,7 @@ subroutine sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX
           lOrb = L2Orb(lLev)
           iBuff = iBuff+1
           Ekl_Eij_Psi(:,iBuff) = Zero
-          call SG_Epq_Psi(SGS,CIS,EXS,kLev,lLev,One,SigmaSym,Eij_Psi,Ekl_Eij_Psi(:,iBuff))
+          call SG_Epq_Psi(SGS,CIS,EXS,kLev,lLev,One,SigmaSym,Eij_Psi,Ekl_Eij_Psi(:,iBuff),CI_Tag=SG_No_Reuse)
           Fact = One
           if (kl == ij) Fact = Half
           iA = iTri(kOrb,lOrb)
@@ -864,6 +872,44 @@ subroutine SG_Occ_Diag(iState,ISYCI,ETA,DIAG,nDiag)
 
 end subroutine SG_Occ_Diag
 
+
+!> The memory (words) the sigma (sg_h_psi, or sg_h_psi_ras with Ordered)
+!> and the 2-RDM (sg_two_pdm) of CI vectors of symmetry PsiSym need for
+!> their largest block of orbital pairs (D and W, A and B, G), so that the
+!> callers (the Davidson vector store) leave it free.
+function SG_Work_Need(SGS,CIS,PsiSym,Ordered) result(nNeed)
+  use sguga, only: SGStruct, CIStruct
+  use symmetry_info, only: MUL
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  integer(kind=iwp), intent(in) :: PsiSym
+  logical(kind=iwp), intent(in) :: Ordered
+  integer(kind=iwp) :: nNeed
+  integer(kind=iwp) :: ijSym, i, j, nL, nT, nO, m
+  nNeed = 0
+  nL = SGS%nLev
+  do ijSym=1,SGS%nSym
+    nT = 0
+    nO = 0
+    do i=1,nL
+      do j=1,nL
+        if (MUL(SGS%ISM(i),SGS%ISM(j)) /= ijSym) cycle
+        nO = nO+1
+        if (j <= i) nT = nT+1
+      end do
+    end do
+    m = CIS%nCSF(MUL(PsiSym,ijSym))
+    if (Ordered) then
+      nNeed = max(nNeed,2*m*nO+nO**2)
+    else
+      nNeed = max(nNeed,2*m*nT+nT**2)
+    end if
+    ! sg_two_pdm: A, B and their four overlap matrices
+    nNeed = max(nNeed,2*m*nT+4*nT**2)
+  end do
+  ! the routines use a block only if it takes at most 80 % of the free memory
+  nNeed = int(real(nNeed,kind=wp)/0.8_wp,kind=iwp)+1
+end function SG_Work_Need
 
 !> Free the work arrays kept between the calls.
 subroutine SG_Sigma_Free()

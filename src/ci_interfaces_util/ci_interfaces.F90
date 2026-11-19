@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use SGUGA_Sigma, only: SG_Sigma_Free, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
+use SGUGA_Sigma, only: SG_Sigma_Free, SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
 use SGUGA_Densities, only: SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
 use CI_Input, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
@@ -42,7 +42,7 @@ Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
 Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, CI_Initialize, &
-          CI_Lucia_Active, CI_Timer, CI_Verify, Faro_nTmp, SG_CI
+          CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_nTmp, SG_CI
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
@@ -147,6 +147,30 @@ else
   n = nDetA*nDetB
 end if
 end function Faro_nTmp
+
+!> The memory (words) the active CI back ends need besides the CI vectors of
+!> the caller, for the Davidson vector store (Ini_David) to leave free; the
+!> programs get it only from here, never from the CI libraries. Lucia (if
+!> initialized, also as the reference of MOLCAS_CI_VERIFY=SIGMA): its own
+!> estimate; SGUGA (SGCI): the blocks of its sigma and 2-RDM (for GAS in the
+!> relaxed space, plus the two vectors there); Faroald sizes its work arrays
+!> from the free memory and needs nothing reserved.
+function CI_Work_Need() result(nNeed)
+use lucia_data, only: Memory_Needed_Lucia
+integer(kind=iwp) :: nNeed
+integer(kind=iwp), parameter :: iState = 1
+integer(kind=iwp) :: iR, LSM
+nNeed = 0
+if (Lucia_Active) nNeed = nNeed+Memory_Needed_Lucia
+if (.not. SG_CI()) return
+LSM = CI_St(iState)%STSym
+iR = CI_St(iState)%iRel
+if (iR > 0) then
+  nNeed = nNeed+SG_Work_Need(SGS(iR),CIS(iR),LSM,.true.)+2*CIS(iR)%NCSF(LSM)
+else
+  nNeed = nNeed+SG_Work_Need(SGS(iState),CIS(iState),LSM,CI_St(iState)%nRsPrt /= 1)
+end if
+end function CI_Work_Need
 
 !> Lucia is initialized (CI_Initialize): its tables (determinant counts,
 !> configuration types) may be used.

@@ -31,7 +31,7 @@ contains
 subroutine sg_one_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,lD1MAT)
 
   use Index_Functions, only: iTri
-  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SGStruct
+  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SGStruct
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One
   use Definitions, only: wp, iwp
@@ -47,6 +47,8 @@ subroutine sg_one_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,lD1MAT)
   real(kind=wp), allocatable :: SGM(:)
   real(kind=wp), parameter :: CPQ = One
 
+  integer(kind=iwp) :: tCI
+  tCI = SG_New_Tag()
   call mma_allocate(SGM,lCI,Label='SGM')
 
   D1MAT(:) = Zero
@@ -57,7 +59,7 @@ subroutine sg_one_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,lD1MAT)
       if (jSym /= iSym) cycle
 
       SGM(:) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,ISYCI,CI,SGM)
+      call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,ISYCI,CI,SGM,CI_Tag=tCI)
 
       D1MAT(iTri(iOrb,jOrb)) = dot_product(CI,SGM)
 
@@ -82,7 +84,7 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
 
   use Index_Functions, only: iTri
   use Symmetry_Info, only: Mul
-  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SGStruct
+  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SGStruct
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Two, Half
   use Definitions, only: wp, iwp
@@ -99,6 +101,8 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
   real(kind=wp), allocatable :: G(:)
   real(kind=wp), pointer :: A(:,:), B(:,:)
 
+  integer(kind=iwp) :: tCI
+  tCI = SG_New_Tag()
   SDMAT(:) = Zero
   if (SGS%iSpin == 1) return
   nL = SGS%nLev
@@ -116,8 +120,8 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
     do q=1,nL
       A(:,q) = Zero
       B(:,q) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,r,q,One,ISYCI,CI,A(:,q))
-      call SG_Epq_Psi(SGS,CIS,EXS,q,r,One,ISYCI,CI,B(:,q))
+      call SG_Epq_Psi(SGS,CIS,EXS,r,q,One,ISYCI,CI,A(:,q),CI_Tag=tCI)
+      call SG_Epq_Psi(SGS,CIS,EXS,q,r,One,ISYCI,CI,B(:,q),CI_Tag=tCI)
     end do
     do p=1,nL
       do q=1,p
@@ -161,7 +165,7 @@ end subroutine sg_spin_pdm
 subroutine sg_trans_pdm(SGS,CIS,EXS,Bra,Ket,lCI,ISYCI,nL,T1DM,T1SDM,Spin)
 
   use Symmetry_Info, only: Mul
-  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SGStruct
+  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SGStruct
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Two, Half
   use Definitions, only: wp, iwp
@@ -178,6 +182,9 @@ subroutine sg_trans_pdm(SGS,CIS,EXS,Bra,Ket,lCI,ISYCI,nL,T1DM,T1SDM,Spin)
   real(kind=wp) :: S, X
   real(kind=wp), allocatable :: Sgm(:), AB(:,:), AK(:,:), BB(:,:), BK(:,:), G(:,:)
 
+  integer(kind=iwp) :: tBra, tKet
+  tBra = SG_New_Tag()
+  tKet = SG_New_Tag()
   T1DM(:,:) = Zero
   T1SDM(:,:) = Zero
   MaxDim = maxval(CIS%nCSF(:))
@@ -187,7 +194,7 @@ subroutine sg_trans_pdm(SGS,CIS,EXS,Bra,Ket,lCI,ISYCI,nL,T1DM,T1SDM,Spin)
     do q=1,nL
       if (SGS%ISm(p) /= SGS%ISm(q)) cycle
       Sgm(:) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,p,q,One,ISYCI,Ket,Sgm)
+      call SG_Epq_Psi(SGS,CIS,EXS,p,q,One,ISYCI,Ket,Sgm,CI_Tag=tKet)
       T1DM(p,q) = dot_product(Bra(1:lCI),Sgm(1:lCI))
     end do
   end do
@@ -208,10 +215,10 @@ subroutine sg_trans_pdm(SGS,CIS,EXS,Bra,Ket,lCI,ISYCI,nL,T1DM,T1SDM,Spin)
       AK(:,q) = Zero
       BB(:,q) = Zero
       BK(:,q) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,r,q,One,ISYCI,Bra,AB(:,q))
-      call SG_Epq_Psi(SGS,CIS,EXS,r,q,One,ISYCI,Ket,AK(:,q))
-      call SG_Epq_Psi(SGS,CIS,EXS,q,r,One,ISYCI,Bra,BB(:,q))
-      call SG_Epq_Psi(SGS,CIS,EXS,q,r,One,ISYCI,Ket,BK(:,q))
+      call SG_Epq_Psi(SGS,CIS,EXS,r,q,One,ISYCI,Bra,AB(:,q),CI_Tag=tBra)
+      call SG_Epq_Psi(SGS,CIS,EXS,r,q,One,ISYCI,Ket,AK(:,q),CI_Tag=tKet)
+      call SG_Epq_Psi(SGS,CIS,EXS,q,r,One,ISYCI,Bra,BB(:,q),CI_Tag=tBra)
+      call SG_Epq_Psi(SGS,CIS,EXS,q,r,One,ISYCI,Ket,BK(:,q),CI_Tag=tKet)
     end do
     do p=1,nL
       do q=1,nL
@@ -251,7 +258,7 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
   ! of a block do not fit in memory.
   use Index_functions, only: iTri
   use Symmetry_Info, only: Mul
-  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SGStruct
+  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SGStruct
   use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
   use Constants, only: Zero, One, Half
   use Definitions, only: wp, iwp
@@ -269,6 +276,8 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
   real(kind=wp), allocatable :: AA(:,:), AB(:,:), BA(:,:), BB(:,:)
   real(kind=wp), pointer :: A(:,:), B(:,:)
 
+  integer(kind=iwp) :: tCI
+  tCI = SG_New_Tag()
   nL = SGS%nLev
   ! memory: the vectors of the largest block
   MaxNeed = 0
@@ -315,8 +324,8 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
     A(:,:) = Zero
     B(:,:) = Zero
     do ip=1,nPr
-      call SG_Epq_Psi(SGS,CIS,EXS,PI(ip),PJ(ip),One,PsiSym,Psi,A(:,ip))
-      if (PI(ip) /= PJ(ip)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ip),PI(ip),One,PsiSym,Psi,B(:,ip))
+      call SG_Epq_Psi(SGS,CIS,EXS,PI(ip),PJ(ip),One,PsiSym,Psi,A(:,ip),CI_Tag=tCI)
+      if (PI(ip) /= PJ(ip)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(ip),PI(ip),One,PsiSym,Psi,B(:,ip),CI_Tag=tCI)
     end do
     call mma_allocate(AA,nPr,nPr,Label='AA')
     call mma_allocate(AB,nPr,nPr,Label='AB')
@@ -388,7 +397,7 @@ subroutine sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
 
   use Index_functions, only: iTri
   use Symmetry_Info, only: Mul
-  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SGStruct
+  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SGStruct
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Half
   use Definitions, only: wp, iwp
@@ -407,6 +416,8 @@ subroutine sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
   real(kind=wp), allocatable, target :: Eij_Psi_X(:), Elk_Psi_X(:), Eji_Psi_X(:)
   real(kind=wp), parameter :: CPQ = One
 
+  integer(kind=iwp) :: tCI
+  tCI = SG_New_Tag()
   MaxDim = maxval(CIS%nCSF(:))
   call mma_allocate(Eij_Psi_X,MaxDim,Label='Eij_Psi_X')
   call mma_allocate(Eji_Psi_X,MaxDim,Label='Eji_Psi_X')
@@ -446,10 +457,10 @@ subroutine sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
       Eij_Psi(:) = Zero
       Eji_Psi(:) = Zero
       ! Operate with E_ij on |Psi> and produce E_ij|Psi>
-      call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
+      call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi,CI_Tag=tCI)
       ! Compute Dij to be distributed below
       if (iSym == jSym) D_ij = dot_product(Psi,Eij_Psi)
-      if (iOrb /= jOrb) call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eji_Psi)
+      if (iOrb /= jOrb) call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eji_Psi,CI_Tag=tCI)
 
       ! Note, in the case of a RASSCF the resulting sigma vector is incomplete. For the case of E_ij
       ! the complete expansion of E_ij|Psi> would require CSFs that are outside the set of CSFs defining the
@@ -488,7 +499,7 @@ subroutine sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
 
           Elk_Psi(1:mCSFs) = Zero
           ! <Psi|E_kl is computed as E_lk|Psi>
-          call SG_Epq_Psi(SGS,CIS,EXS,lOrb,kOrb,CPQ,PsiSym,Psi,Elk_Psi)
+          call SG_Epq_Psi(SGS,CIS,EXS,lOrb,kOrb,CPQ,PsiSym,Psi,Elk_Psi,CI_Tag=tCI)
           ! cap with <Psi|E_kl on E_ij|Psi>, contribution to Pklij
           P_klij = dot_product(Elk_Psi,Eij_Psi)
 
