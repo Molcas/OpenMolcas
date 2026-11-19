@@ -27,7 +27,7 @@ integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLB
                      ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), IXMSP, IXSYM(mxOrb), IZROT(ITRIM), &
                      JBLB(8), JBLBM, JCJ(mxRoot,mxRef), KTIGHT, LOWMS, LROOTS, MALTER(MAXALTER,3), MAXIT, MAXJT, MAXORBOUT, &
                      MxDMRG, n_Det, n_keep, NAC, NACPAR, NACPR2, NALTER, NCRVEC, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, &
-                     NQUNE, NROOT, NROOTS, NSEC, NSXS, NTIT, NTOT3, NTOT4
+                     NQUNE, NROOT, NROOTS, NSEC, NTIT, NTOT3, NTOT4
 integer(kind=iwp), allocatable :: CleanMask(:)
 real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, CONV(6,mxIter+2), CoreShift, DE, E2act, &
                  ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, &
@@ -35,6 +35,13 @@ real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, C
                  TMIN, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
 logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, Lowdin_On, lSquare, NonEq, RFpert, &
                      Start_Vectors
+! Explicit CI Hamiltonian of the CI start from SGUGA (keyword SGEX)
+logical(kind=iwp) :: DoSGEx = .false.
+public :: DoSGEx
+! The whole CI in the SGUGA (split-graph) CSF basis, without Lucia (keyword
+! SGCI); development, see ci_interfaces
+logical(kind=iwp) :: DoSGCI = .false.
+public :: DoSGCI
 character(len=LenIn+8) :: BName(mxOrb)
 character(len=256) :: CMSStartMat
 character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)
@@ -51,7 +58,7 @@ public :: BName, CBLB, CBLBM, CCI, CleanMask, CMAX, CMSStartMat, CMSThreshold, C
           IROOT, IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD, ISTORP, ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc, &
           IXMSP, IXSYM, IZROT, JBLB, JBLBM, JCJ, kIvo, KSDFT, KSDFT_TEMP, KTIGHT, l_casdft, Lowdin_On, LOWMS, LROOTS, lSquare, &
           LVSHFT, MALTER, MAXALTER, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, n_keep, NAC, NACPAR, NACPR2, NALTER, NCRVEC, NDIMSX, &
-          NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, NSXS, NTIT, NTOT3, NTOT4, OutFmt1, OutFmt2, &
+          NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, NTIT, NTOT3, NTOT4, OutFmt1, OutFmt2, &
           POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, RLXGRD, ROTMAX, S, Start_Vectors, SXDAMP, SXSEL, SXSHFT, &
           THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT
 
@@ -66,9 +73,10 @@ public :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, MPSCompressM, RF1, RF2, twordm_q
 #if defined (_ENABLE_CHEMPS2_DMRG_)
 integer(kind=iwp) :: chemps2_lrestart, max_canonical, max_sweep
 real(kind=wp) :: chemps2_blb, chemps2_noise, davidson_tol
-logical(kind=iwp) :: chemps2_restart
+logical(kind=iwp) :: chemps2_can, chemps2_no4rdm, chemps2_restart
 
-public :: chemps2_blb, chemps2_lrestart, chemps2_noise, chemps2_restart, davidson_tol, max_canonical, max_sweep
+public :: chemps2_blb, chemps2_can, chemps2_lrestart, chemps2_no4rdm, chemps2_noise, chemps2_restart, davidson_tol, max_canonical, &
+          max_sweep
 #endif
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)

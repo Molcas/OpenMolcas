@@ -20,7 +20,7 @@ This script checks that the commits in the test checkfiles are valid
 
 import sys
 from os import environ, walk
-from os.path import isdir, join
+from os.path import isdir, islink, join
 import re
 from subprocess import check_call, PIPE
 
@@ -35,7 +35,9 @@ if not isdir(MOLCAS):
 files = []
 for dname, dirs, fnames in walk(join(MOLCAS, 'test')):
   for fname in fnames:
-    if fname.endswith('.input'):
+    # symbolic links (tests collected in another group) are checked at
+    # their target, which may be missing in the pre-commit copy
+    if fname.endswith('.input') and not islink(join(dname, fname)):
       files.append(join(dname, fname))
 
 version_re = re.compile(r'\* Molcas version (.*)')

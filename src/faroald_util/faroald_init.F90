@@ -9,14 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine faroald_init(nactel,nasht,ispin)
+subroutine faroald_init(nactel,nasht,ispin,full)
 ! The initialization subroutine lives outside of the
 ! faroald module so that it can be called separately.
 ! It fills in the necessary global data in the module,
 ! in preparation for the sigma_update routine.
+! full: also the excitation tables and occupation patterns of the full
+! (CAS) string and determinant spaces (sigma_update, densities, traci);
+! not needed for the string-driven RAS code (faroald_ras), which only uses
+! the sizes, the rank tables and the integrals.
 
-use faroald, only: ex1_a, ex1_b, ex1_init, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, my_nel, &
-                   my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob
+use faroald, only: ex1_a, ex1_b, ex1_init, faroald_full, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, &
+                   my_ndet, my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob
 use faroald, only: mma_allocate ! with extensions for ex1_struct
 !use faroald, only: verify_occ_patterns, build_patterns, analyse_patterns, build_conf_arcw
 use faroald, only: verify_occ_patterns, build_patterns, analyse_patterns
@@ -25,6 +29,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nactel, nasht, ispin
+logical(kind=iwp), intent(in) :: full
 
 my_nel = nactel
 my_norb = nasht
@@ -53,6 +58,9 @@ max_ex1b = nelb*(nhob+1)
 max_ex2a = (nela*(nela-1)*(nhoa)*(nhoa-1))/4+nela*nhoa+1
 max_ex2b = (nelb*(nelb-1)*(nhob)*(nhob-1))/4+nelb*nhob+1
 
+faroald_full = full
+if (full) then
+
 ! For SG_Epq_Psi, we use an excitation table for the beta strings.
 call mma_allocate(ex1_b,max_ex1b,ndetb,label='ex1_b')
 call ex1_init(nelb,my_norb,ex1_b)
@@ -68,6 +76,8 @@ call ex1_init(nela,my_norb,ex1_a)
 call verify_occ_patterns()
 call build_patterns()
 call analyse_patterns()
+
+end if
 
 ! For sigma3, we need to construct a list of determinant couples L(i)
 ! = E_pq R(i) for a given p and q for the alpha strings. This is done

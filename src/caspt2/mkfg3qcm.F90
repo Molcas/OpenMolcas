@@ -22,7 +22,7 @@ use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full, qcmaquis_interfa
                               qcmaquis_interface_get_3rdm_full, qcmaquis_interface_get_fock_contracted_4rdm_full, &
                               qcmaquis_interface_read_fock_contracted_4rdm
 use printLevel, only: verbose
-use sguga, only: SGS
+use CI_Info, only: CI_St
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: EPSA, jState
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -70,7 +70,7 @@ call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp,.false._c_bool)
 if (mkF) then
   do t=1,nLev
     do u=1,t
-      if (Mul(SGS(istate)%ism(t),SGS(istate)%ism(u)) == 1) then
+      if (Mul(CI_St(istate)%ISm(t),CI_St(istate)%ISm(u)) == 1) then
         do w=1,nLev
           F1(t,u) = F1(t,u)+G2(t,u,w,w)*epsa(w)
         end do
@@ -85,7 +85,7 @@ if (mkF) then
     do u=1,nLev
       do v=1,nLev
         do x=1,nLev
-          if (Mul(SGS(istate)%ism(x),Mul(SGS(istate)%ism(v),Mul(SGS(istate)%ism(u),SGS(istate)%ism(t)))) == 1) then
+          if (Mul(CI_St(istate)%ISm(x),Mul(CI_St(istate)%ISm(v),Mul(CI_St(istate)%ISm(u),CI_St(istate)%ISm(t)))) == 1) then
             do w=1,nLev
               F2(t,u,v,x) = F2(t,u,v,x)+G3tmp(t,v,w,u,x,w)*epsa(w)
             end do

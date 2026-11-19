@@ -23,6 +23,7 @@ set (sources
      ecp_shells.F90
      fileorb.F90
      freeze_default.F90
+     freq_hdf5.F90
      freq_i.F90
      freq_molden.F90
      getdens.F90

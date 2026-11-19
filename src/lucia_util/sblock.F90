@@ -32,10 +32,9 @@ use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, De
                       MNHL, MOCAA, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXTSOB, NELEC, NELFGP, NELFSPGP, NGAS, NHLFSPGP, &
                       NIRREP, NOBPTS, NOCOB, NOCTYP, NPTSPC, NSMOB, NSTFSMSPGP, NSTSO, NTOOB, OCSTR, PSSIGN, REO, VEC3, Z, ZSCR
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
 use lucia_data, only: ICISTR, IPRCIX
-use Definitions, only: u6
 #endif
 
 implicit none
@@ -220,15 +219,11 @@ call mma_allocate(ZSCR,LZSCR,Label='ZSCR')
 
 if (I12 == 2) then
   IDOH2 = 1
-else
+else if (I12 == 1) Then
   IDOH2 = 0
-end if
-! Place perturbation integrals over one body integrals
-! INSERT_START
-if (I12 == 2) then
-  IDOH2 = 1
 else
-  IDOH2 = 0
+  Write (u6,*) 'SBLOCK: I12 has an illegal value.'
+  Call abend()
 end if
 
 ! Prepare for perturbation calculation

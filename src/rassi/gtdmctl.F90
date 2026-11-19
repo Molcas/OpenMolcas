@@ -14,8 +14,8 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use sguga, only: CIS
-use sguga, only: SG_Free
+use CI_Info, only: CI_St
+use CI_States, only: CI_CITRA, CI_Free_State, CI_Print_Graph
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use general_data, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
@@ -391,10 +391,10 @@ if (WFTP1 == 'GENERAL') then
     call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,iState1)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
-      call SG_Print(iState1)
+      call CI_Print_Graph(iState1)
     end if
     ! CI sizes, as function of symmetry, are now known.
-    NCONF1 = CIS(1)%NCSF(LSYM1)
+    NCONF1 = CI_St(iState1)%nCSF(LSYM1)
   else
     NCONF1 = 1
   end if
@@ -510,10 +510,10 @@ if (WFTP2 == 'GENERAL') then
     call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,iState2)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
-      call SG_Print(iState2)
+      call CI_Print_Graph(iState2)
     end if
     ! CI sizes, as function of symmetry, are now known.
-    NCONF2 = CIS(2)%NCSF(LSYM2)
+    NCONF2 = CI_St(iState2)%nCSF(LSYM2)
   else
     NCONF2 = 1
   end if
@@ -622,7 +622,7 @@ do IST=1,NSTAT(JOB1)
     end if
     DET1(:) = Zero
     ! Transform to bion basis, Split-Guga format
-    if (TrOrb) call SG_CITRA(WFTP1,iState1,LSYM1,NTRA,TRA1,NCONF1,CI1,NOSH,NISH,NASH)
+    if (TrOrb) call CI_CITRA(WFTP1,iState1,LSYM1,NTRA,TRA1,NCONF1,CI1,NOSH,NISH,NASH)
     call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
     call PREPSD(WFTP1,iState1,LSYM1,CNFTAB1,SPNTAB1,SSTAB,FSBTAB1,NCONF1,CI1,DET1,detocc,detcoeff1,TRANS1)
 
@@ -673,7 +673,7 @@ do JST=1,NSTAT(JOB2)
     if (DoGSOR) CI2_o(:) = CI2(:)
     DET2(:) = Zero
     ! Transform to bion basis, Split-Guga format
-    if (TrOrb) call SG_CITRA(WFTP2,iState2,LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
+    if (TrOrb) call CI_CITRA(WFTP2,iState2,LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
     call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
     call PREPSD(WFTP2,iState2,LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
 
@@ -1060,7 +1060,7 @@ if (DoGSOR) then
       call READCI(JSTATE,iState2,NCONF2,CI2)
       CI2_o(:) = CI2(:)
       DET2(:) = Zero
-      if (TrOrb) call SG_CITRA(WFTP2,iState2,LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
+      if (TrOrb) call CI_CITRA(WFTP2,iState2,LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
       call PREPSD(WFTP2,iState2,LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
 
       call mma_allocate(ThetaN,NCONF2,Label='ThetaN')
@@ -1163,10 +1163,10 @@ if (mstate_dens) then
 end if
 
 if (WFTP1 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(iState1)
+  if (.not. doDMRG) call CI_Free_State(iState1)
 end if
 if (WFTP2 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(iState2)
+  if (.not. doDMRG) call CI_Free_State(iState2)
 end if
 
 if (JOB1 /= JOB2) then

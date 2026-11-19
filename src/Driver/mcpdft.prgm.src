@@ -10,6 +10,7 @@
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/mcpdft.exe             executable
  (file)  MCPDFINP "$WorkDir/$Project."Mcpdft.Input     rwi
+ (file)  MOLEL "$WorkDir/$Project."MolEl.dat       rwm
 #include "aoints.inc"
 #include "choints.inc"
  (file)  MPPROP   "$WorkDir/$Project."MpProp      rw
@@ -20,6 +21,7 @@
 #include "rasscffiles.inc"
 #include "orbitals.inc"
 #include "wfnfiles.inc"
+ (file)  LPDFTDM  "$WorkDir/$Project."tdm_4_lpdft.h5  ro
  (file)  NQGRID   "$WorkDir/$Project."NqGrid    rw
 #include "moldenfiles.inc"
  (file)  GV.off   "$WorkDir/$Project$SubProject."GV.off    rw

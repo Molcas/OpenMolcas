@@ -21,7 +21,7 @@ use DWSol, only: DWSol_wgt, W_SOLV
 use general_data, only: iDoGAS
 use rasscf_files, only: JOBIPH
 use general_data, only: NACTEL, NCONF
-use sguga, only: SGS
+use CI_Info, only: CI_St
 use sxci, only: IDXSX
 #ifdef _DMRG_
 use rasscf_global, only: RF1, RF2, TwoRDM_qcm
@@ -97,7 +97,7 @@ else if (iFinal == 2) then
       else
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
         call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
-        if ((SGS(istate)%IFRAS > 2) .or. (iDoGAS)) then
+        if ((CI_St(istate)%IFRAS > 2) .or. (iDoGAS)) then
           call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
         end if
         call mma_deallocate(PAtmp)

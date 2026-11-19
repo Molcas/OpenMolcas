@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SIGVEC(CIN,HC,HD,BM,SXN,G,H,DIA,F1,F2,X,C,NTRIAL)
+subroutine SIGVEC(CIN,HC,HD,BM,SXN,nSXS,G,H,DIA,F1,F2,X,C,NTRIAL)
 ! RASSCF Program version IBM-3090: SX section
 !
 ! Purpose: Calculation of the SIGMA vector HC for a super-CI
@@ -20,7 +20,7 @@ subroutine SIGVEC(CIN,HC,HD,BM,SXN,G,H,DIA,F1,F2,X,C,NTRIAL)
 ! ********** IBM-3090 Release 88 09 01 **********
 
 use Index_Functions, only: nTri_Elem
-use rasscf_global, only: ENER, ICICP, IROOT, ITER, NDIMSX, NROOT, NSXS, SXDAMP, SXSHFT
+use rasscf_global, only: ENER, ICICP, IROOT, ITER, NDIMSX, NROOT, SXDAMP, SXSHFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NISH, NSSH
@@ -30,7 +30,8 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(in) :: CIN(*), HD(*), BM(*), SXN(*), G(*), H(*), DIA(*), F1(*), F2(*)
+integer(kind=iwp), intent(in) :: nSXS
+real(kind=wp), intent(in) :: CIN(*), HD(*), BM(nSXS), SXN(nSXS), G(*), H(*), DIA(*), F1(*), F2(*)
 real(kind=wp), intent(_OUT_) :: HC(*), X(*), C(*)
 integer(kind=iwp) :: NTRIAL
 integer(kind=iwp) :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM, ITRIAL, NAE, NAO, NEO, NIA, NIO, NNST, NST

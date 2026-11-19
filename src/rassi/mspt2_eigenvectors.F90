@@ -54,8 +54,8 @@ subroutine deinit_mspt2_eigenvectors()
 
   use stdalloc, only: mma_deallocate
 
-  if (allocated(Heff_evc_pc)) call mma_deallocate(Heff_evc_pc)
-  if (allocated(Heff_evc_sc)) call mma_deallocate(Heff_evc_sc)
+  call mma_deallocate(Heff_evc_pc,safe='*')
+  call mma_deallocate(Heff_evc_sc,safe='*')
 
 end subroutine deinit_mspt2_eigenvectors
 

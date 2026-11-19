@@ -14,6 +14,7 @@
 
 subroutine fx_evb1_cvb(fx,fast,orbstry,cvbtry,civec,civbh,civbs,civb,cvbdet)
 
+use constants, only: Zero
 use casvb_global, only: corenrg, evb, formE, gjorb, ipr, ndet, ndetvb, norb, nvb, ovraa_try, ww_try
 use Definitions, only: wp, iwp, u6
 
@@ -22,6 +23,7 @@ real(kind=wp), intent(out) :: fx, cvbdet(ndetvb)
 logical(kind=iwp), intent(in) :: fast
 real(kind=wp), intent(in) :: orbstry(norb,norb)
 real(kind=wp), intent(inout) :: cvbtry(nvb), civec(0:ndet), civbh(0:ndet), civbs(0:ndet), civb(0:ndet)
+real(kind=wp), parameter:: c_daxpy=Zero
 
 call str2vbc_cvb(cvbtry,cvbdet)
 if (fast) then
@@ -31,7 +33,7 @@ if (fast) then
   call proj_cvb(civb)
   call cinorm_cvb(civb,ovraa_try)
   call cicopy_cvb(civb,civbh)
-  call applyh_cvb(civbh)
+  call applyh_cvb(civbh,c_daxpy)
   call cidot_cvb(civb,civbh,ww_try)
 else
   call makecivb_cvb(civec,civb,cvbdet,orbstry,cvbtry,0)
@@ -45,7 +47,5 @@ end if
 evb = ww_try/ovraa_try+corenrg
 fx = evb
 if (fast .and. (ipr(3) >= 2)) write(u6,formE) ' Evb :      ',evb
-
-return
 
 end subroutine fx_evb1_cvb

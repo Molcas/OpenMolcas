@@ -9,27 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
+subroutine SIGMADET_CVB(C,HC,IREFSM_CASVB,NCI)
 
+use ci_interfaces, only: Mk_H_Psi_Det
 use wadr, only: FMO, TUVX
-use Lucia_Interface, only: Lucia_Util
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: IREFSM, NCI
+integer(kind=iwp), intent(in) :: IREFSM_CASVB, NCI
 real(kind=wp), intent(_IN_) :: C(NCI)
 real(kind=wp), intent(out) :: HC(NCI)
+integer(kind=iwp), parameter :: iState=1
 
-! Export arguments to be used in sigma_master_cvb
-
-! Call the sigma routine
-call LUCIA_UTIL('SIGMA_CVB', &
-                CI_Vector=C, &
-                SIGMA_Vector=HC, &
-                iSym=iREFSM, &
-                nTU=size(FMO),TU=FMO, &
-                nTUVX=size(TUVX),TUVX=TUVX)
+Call Mk_H_Psi_Det(iState,IREFSM_CASVB,nCI,C,HC,nTU=size(FMO),TU=FMO,nTUVX=size(TUVX),TUVX=TUVX)
 
 end subroutine SIGMADET_CVB

@@ -45,14 +45,10 @@
 subroutine SG_CITRA(WFTP,iState,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
 
 use Molcas, only: MxSym
-use sguga, only: sg_epq_psi
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
-use Definitions, only: wp, iwp
-#ifdef _DEBUGPRINT_
-use Definitions, only: u6
-#endif
+use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=8), intent(in) :: WFTP
@@ -72,6 +68,7 @@ write(u6,*) ' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
 #endif
 ! TRA contains square matrices, one per symmetry
 !  FIRST TRANSFORM THE INACTIVE ORBITALS:
+
 FAC = One
 ISTA = 1
 do ISYM=1,nIrrep
@@ -83,11 +80,13 @@ do ISYM=1,nIrrep
   end do
   ISTA = ISTA+NO**2
 end do
+
 FAC = FAC**2
 CI(:) = FAC*CI(:)
 ! THEN THE ACTIVE ONES:
-if (WFTP /= 'EMPTY') then
-  if ((WFTP == 'HISPIN') .or. (WFTP == 'CLOSED')) then
+Select Case(WFTP)
+
+  Case ('HISPIN','CLOSED')
     ! The HISPIN case may be buggy and is not presently used.
     ISTA = 1
     do ISYM=1,nIrrep
@@ -103,7 +102,10 @@ if (WFTP /= 'EMPTY') then
     end do
     if (WFTP == 'CLOSED') FAC = FAC**2
     CI(:) = FAC*CI(:)
-  else
+
+  Case ('EMPTY')
+
+  Case ('GENERAL')
     ! The general case:
     call mma_allocate(TMP,NCO,Label='TMP')
     ISTA = 1
@@ -114,12 +116,16 @@ if (WFTP /= 'EMPTY') then
       ISTA = ISTA+NO**2
     end do
     call mma_deallocate(TMP)
-  end if
+
+  Case Default
+    Write (u6,'(A)') ' RASSI_CITRA: Illegal WFTP value'
+    Write (u6,'(2A)')'WFTP=',WFTP
+    Call Abend()
+
+End Select
 # ifdef _DEBUGPRINT_
   write(u6,*) ' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
 # endif
-
-end if
 
 contains
 
@@ -127,6 +133,7 @@ contains
 subroutine SG_SSOTRA(iState,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
 
 use sguga, only: SGS, CIS, EXS
+use sguga, only: sg_epq_psi
 implicit none
 integer(kind=iwp), intent(in) :: iState, ISYM, LSM, NA, NO, NCO
 real(kind=wp), intent(in) :: TRA(NO,NO)
@@ -150,8 +157,11 @@ do IP=1,NA
   end do
   ILEV(IP) = IL
 end do
-
+!Call RecPrt('SG_SSOTRA: CI',' ',CI,1,NCO)
+!Call RecPrt('TRA',' ',Tra,NO,NO)
 do IK=1,NA
+
+!   Write (6,*) 'ik=',ik
 
   IKLEV = ILEV(IK)
   TMP(:) = Zero
@@ -163,10 +173,13 @@ do IK=1,NA
     if (abs(X) < 1.0e-14_wp) cycle
     call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,X,LSM,CI,TMP)
   end do
+!  Call RecPrt('TMP',' ',TMP,1,NCO)
 
   CKK = TRA(NI+IK,NI+IK)
   X = Three-CKK
+!  Write (6,*) 'CKK, X=',CKK, X
   CI(:) = CI(:)+X*TMP(:)
+!  Call RecPrt('CI',' ',CI,1,NCO)
 
   do IP=1,NA
     IPLEV = ILEV(IP)
@@ -175,6 +188,7 @@ do IK=1,NA
     if (abs(CPK) < 1.0e-14_wp) cycle
     call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,CPK,LSM,TMP,CI)
   end do
+!  Call RecPrt('CI',' ',CI,1,NCO)
 
 end do
 call mma_deallocate(ILEV)

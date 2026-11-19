@@ -28,7 +28,7 @@ type InputTable
   ! TITL  one line with a descriptive name
   character(len=128) :: Title = ' '
   ! FILE  file to read CAS/RAS reference from
-  character(len=128) :: File = 'JOBIPH'
+  character(len=128) :: Filename = 'JOBIPH'
   ! MULT  the number of states, followed by the ID of each state
   logical(kind=iwp) :: MULT = .false.
   integer(kind=iwp) :: nMultState = 0
@@ -153,6 +153,10 @@ type InputTable
   ! DMRG-related keywords
   ! CUMU
   logical(kind=iwp) :: doCumulant = .false.
+  ! CHTR  transform external CheMPS2 RDMs to pseudocanonical orbitals
+  logical(kind=iwp) :: DoTranRDM = .false.
+  ! CHCU  approximate the CheMPS2 F.4-RDM by cumulant reconstruction
+  logical(kind=iwp) :: DoApproRDM = .false.
   ! DMRG  DMRG-CASPT2 using QCMaquis
   logical(kind=iwp) :: DMRG = .false.
 
@@ -270,7 +274,7 @@ subroutine readin_CASPT2(LuIn,nSym)
         ! File with the reference CAS/RAS wavefunction
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         ! Not using list-directed input (*), because then the slash means end of input
-        read(Line,'(A)',iostat=iError) Input%file
+        read(Line,'(A)',iostat=iError) Input%Filename
         if (iError /= 0) call IOError(Line)
 
       ! root selection
@@ -645,6 +649,12 @@ subroutine readin_CASPT2(LuIn,nSym)
         Input%doCumulant = .true.
         dochemps2 = .true.
 
+      case ('CHTR')
+        Input%DoTranRDM = .true.
+
+      case ('CHCU')
+        Input%DoApproRDM = .true.
+
 #     elif _DMRG_
       case ('DMRG')
         Input%DMRG = .true.
@@ -801,6 +811,10 @@ subroutine readin_CASPT2(LuIn,nSym)
   ! Check if nState>1
   if (dochemps2 .and. (nStates > 1)) then
     write(u6,*) 'CHEMPS2> Only State Specific calculation supported'
+    call Quit_OnUserError()
+  end if
+  if (Input%DoApproRDM .and. (.not. dochemps2)) then
+    write(u6,*) 'CHEMPS2> CHCU requires the CHEM keyword'
     call Quit_OnUserError()
   end if
 # endif

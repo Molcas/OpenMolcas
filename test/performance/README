@@ -1,0 +1,43 @@
+Performance tests (test/performance)
+====================================
+
+Status on 2026-11-13, checked with gfortran, CMAKE_BUILD_TYPE=Fast and
+OpenBLAS, single-threaded, for both master (2ce4fd2a9) and the sguga_III
+branch (production code path, MOLCAS_CI_VERIFY unset). Tests checked:
+900-906, 913, 915, 916, 918. Not run: 907, 908, 909-912, 914, 917.
+
+Known problems, identical on master and sguga_III (so not caused by the
+branch). TO BE HANDLED IN THE FUTURE:
+
+* 902  FAILS: E_CASPT2 = -909.4082221283, checkfile -909.4081192475,
+       error 1.0e-4 with tolerance 1.0e-8. E_SCF and E_RASSCF agree. The
+       CASPT2 reference value (or the test setup) needs to be checked and
+       the checkfile updated if the new value is confirmed.
+
+* 918  passes, but takes about 16-17 minutes instead of the "about 2 min 15 sec"
+       stated in the input; nearly all of it is ALASKA (11-13 minutes). This
+       is not a regression: at the commit that added the test (d3f477a99,
+       2026-07-01) it takes 940 s with the same build settings (seward 142 s,
+       rasscf 37 s, caspt2 64 s, mclr 7 s, alaska 680 s). The estimate in the
+       input header was wrong from the start; it now says about 16 min.
+       (If a short test was the intention, the test should be made cheaper.)
+
+* The "Runtime:" estimates in the input headers are outdated: on current
+  hardware most tests take a fraction of the stated time (e.g. 900 takes
+  about 27 s instead of about 3 min).
+
+Timing comparison master vs sguga_III, one test at a time on an idle
+machine (wall time in seconds, two runs each):
+
+  test   master       sguga_III
+  900    27.4  27.6   27.2  27.0
+  901    12.3  12.4   12.4  12.5
+  903     8.3   8.3    8.3   8.3
+  904     9.6   9.6    9.6   9.6
+  905    25.5  25.6   25.3  25.2
+  906     9.4   9.5    9.4   9.4
+  915    13.1  13.1   13.0  13.1
+
+i.e. no difference beyond about 1%. (Before the fix in SG_Init, which now
+leaves the determinant reordering SDREO to be built on first use,
+sguga_III took 16.2 s for 904, a CAS(12,12), against 9.7 s on master.)
