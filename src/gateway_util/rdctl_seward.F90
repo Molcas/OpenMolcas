@@ -12,7 +12,8 @@
 subroutine RdCtl_Seward(LuRd_,lOPTO,Do_OneEl)
 
 use AMFI_Info, only: No_AMFI
-use Basis_Info, only: dbsc, DoEmPC, Gaussian_Type, Max_Shells, mGaussian_Type, MolWgh, nCnttp, Nuclear_Model, Point_Charge, Shells
+use Basis_Info, only: dbsc, DoEmPC, Gaussian_Type, iCnttp_Dummy, Max_Shells, mGaussian_Type, MolWgh, nCnttp, Nuclear_Model, &
+                      Point_Charge, Shells
 use Center_Info, only: dc, n_dc
 use Her_RW, only: nPrp
 use Period, only: AdCell, Cell_l, lthCell, ispread, VCell
@@ -1698,6 +1699,18 @@ do
         if ((iChk_RI+iChk_DC) > 0) then
           call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
           call Quit_OnUserError()
+        end if
+        ! In SEWARD, the basis comes from GATEWAY: an RI auxiliary basis
+        ! set there (e.g. RICD by default with MOLCAS_NEW_DEFAULTS) would
+        ! be counted in the SO offsets used by the Cholesky decomposition.
+        if (Run_Mode == S_Mode) then
+          do iCnttp=1,nCnttp
+            if (dbsc(iCnttp)%Aux .and. (iCnttp /= iCnttp_Dummy)) then
+              call WarningMessage(2,'Cholesky in SEWARD is incompatible with the RI auxiliary basis set of GATEWAY '// &
+                                    '(RICD is the default with MOLCAS_NEW_DEFAULTS); use NOCD in GATEWAY to disable it')
+              call Quit_OnUserError()
+            end if
+          end do
         end if
         GWInput = .false.
 
