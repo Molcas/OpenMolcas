@@ -16,7 +16,8 @@ subroutine SG_SETUP_CASPT2()
 use Molcas, only: MxLev
 use caspt2_qmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
-use sguga, only: CIS, SG_Init, SG_Init_Light
+use CI_Info, only: CI_St
+use CI_States, only: CI_Setup_SG
 use general_data, only: iSpin, nActel, nAsh, nElec3, nHole1, nLev, nRas, nRasEl, nRsPrt, STSym
 use caspt2_module, only: DMRG, DoCumulant, HZERO, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use Definitions, only: iwp
@@ -52,17 +53,14 @@ end if
 if ((.not. DoCumulant) .and. (nactel > 0) .and. ((iscf == 0) .or. (HZERO == 'DYALL')) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) &
   then
 
-  call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
-               xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
+  call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,L2Act,nLev,ISM,'FULL')
 
 else
 
-  call SG_Init_Light(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
-                     xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM,Do_MkSGuga=.false.)
-  CIS(iState)%NCSF(STSYM) = 1
+  call CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,L2Act,nLev,ISM,'NONE',LSM_Single=STSYM)
 end if
 
-MXCI = maxval(CIS(iState)%NCSF(1:NSYM))
+MXCI = maxval(CI_St(iState)%nCSF(1:NSYM))
 
 ! NOTE: AT THIS POINT, WE HAVE ALLOCATED MEMORY SPACE FOR SGUGA USE:
 ! MVL,MVR,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,ICASE,ICOUP,VTAB,TMP.

@@ -17,32 +17,28 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 
-subroutine PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
+subroutine PRWF1_CP2(ISYCI,CI,mCI,THR)
 
-use Symmetry_Info, only: Mul
-use sguga, only: CIS, nPack, SGS
+use CI_Info, only: CI_St
+use CI_States, only: CI_Walk_Next
 use general_data, only: ISPIN, nLev
-use caspt2_module, only: NSYM, PRSD
+use caspt2_module, only: PRSD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nMidV, NOCSF(NSYM,NMIDV,NSYM), IOCSF(NSYM,NMIDV,NSYM), NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), &
-                                 ISYCI, mCI
+integer(kind=iwp), intent(in) :: ISYCI, mCI
 real(kind=wp), intent(in) :: CI(mCI), THR
-integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, LENCSF, &
-                     LEV, MV, NCI, NDWN, nIpWlk, NNN, NUP
+integer(kind=iwp) :: ICONF, IMS, ISY, it(4), itc(4), K, LENCSF, LEV
 real(kind=wp) :: COEF
 character(len=256) :: LINE
 integer(kind=iwp), allocatable :: ICS(:), LEX(:)
 character, parameter :: CODE(0:3) = ['0','u','d','2']
 integer(kind=iwp), parameter :: istate = 1
 
-nIpWlk = CIS(istate)%nIpWlk
-
-! NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
-! ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
-! THE   U P P E R   PART OF THE WALK.
+! The CSFs come from the CI interface in the order of the CI vector, with
+! their split-graph position (midvertex, upper symmetry, upper and lower
+! walk) and step vector.
 
 call mma_allocate(ICS,NLEV,Label='ICS')
 
@@ -51,8 +47,8 @@ LINE = ' '
 LENCSF = 0
 ISY = 0
 do LEV=1,NLEV
-  if (ISY /= SGS(istate)%ISM(LEV)) then
-    ISY = SGS(istate)%ISM(LEV)
+  if (ISY /= CI_St(istate)%ISm(LEV)) then
+    ISY = CI_St(istate)%ISm(LEV)
     LENCSF = LENCSF+1
   end if
   LENCSF = LENCSF+1
@@ -73,83 +69,37 @@ if (PRSD) call mma_allocate(LEX,NLEV,LABEL='LEX')
 
 LINE = ''
 
-! THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
-! WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-do MV=1,NMIDV
-  do ISYUP=1,NSYM
-    NCI = NOCSF(ISYUP,MV,ISYCI)
-    if (NCI == 0) cycle
-    NUP = NOW(1,ISYUP,MV)
-    ISYDWN = Mul(ISYUP,ISYCI)
-    NDWN = NOW(2,ISYDWN,MV)
-    ICONF = IOCSF(ISYUP,MV,ISYCI)
-    IUW0 = 1-NIPWLK+IOW(1,ISYUP,MV)
-    IDW0 = 1-NIPWLK+IOW(2,ISYDWN,MV)
-    IDWNSV = 0
-    do IDWN=1,NDWN
-      do IUP=1,NUP
-        ICONF = ICONF+1
-        COEF = CI(ICONF)
-        ! SKIP OR PRINT IT OUT?
-        if (abs(COEF) < THR) cycle
-        if (IDWNSV /= IDWN) then
-          ICDPOS = IDW0+IDWN*NIPWLK
-          ICDWN = CIS(istate)%ICASE(ICDPOS)
-          ! UNPACK LOWER WALK.
-          NNN = 0
-          do LEV=1,SGS(istate)%MIDLEV
-            NNN = NNN+1
-            if (NNN == nPack+1) then
-              NNN = 1
-              ICDPOS = ICDPOS+1
-              ICDWN = CIS(istate)%ICASE(ICDPOS)
-            end if
-            IC1 = ICDWN/4
-            ICS(LEV) = ICDWN-4*IC1
-            ICDWN = IC1
-          end do
-          IDWNSV = IDWN
-        end if
-        ICUPOS = IUW0+NIPWLK*IUP
-        ICUP = CIS(istate)%ICASE(ICUPOS)
-        ! UNPACK UPPER WALK:
-        NNN = 0
-        do LEV=SGS(istate)%MIDLEV+1,NLEV
-          NNN = NNN+1
-          if (NNN == nPack+1) then
-            NNN = 1
-            ICUPOS = ICUPOS+1
-            ICUP = CIS(istate)%ICASE(ICUPOS)
-          end if
-          IC1 = ICUP/4
-          ICS(LEV) = ICUP-4*IC1
-          ICUP = IC1
-        end do
-        ! PRINT IT!
-        K = 0
-        ISY = 0
-        do LEV=1,NLEV
-          if (ISY /= SGS(istate)%ISM(LEV)) then
-            ISY = SGS(istate)%ISM(LEV)
-            K = K+1
-            LINE(K:K) = ' '
-          end if
-          K = K+1
-          LINE(K:K) = CODE(ICS(LEV))
-        end do
-        write(u6,'(2X,I10,2X,"(",I2,":",I1,":",I4,"/",I4,")",2X,A,2(2X,F13.6))') ICONF,MV,ISYUP,IUP,IDWN,LINE(1:LENCSF),COEF,COEF**2
-        ! SVC2010 experimental: add determinant expansion
-        if (PRSD) then
-          ! Specify projected spin in half integer units
-          ! Default: use maximum spin projection
-          IMS = ISPIN-1
-          write(u6,*)
-          call EXPCSF(ICS,NLEV,IMS,LEX,coef,0)
-          write(u6,*)
-        end if
-      end do
-    end do
+it(:) = 1
+do ICONF=1,mCI
+  if (it(1) == 0) exit
+  itc(:) = it(:)
+  call CI_Walk_Next(istate,ISYCI,it,ICS)
+  COEF = CI(ICONF)
+  ! SKIP OR PRINT IT OUT?
+  if (abs(COEF) < THR) cycle
+  ! PRINT IT!
+  K = 0
+  ISY = 0
+  do LEV=1,NLEV
+    if (ISY /= CI_St(istate)%ISm(LEV)) then
+      ISY = CI_St(istate)%ISm(LEV)
+      K = K+1
+      LINE(K:K) = ' '
+    end if
+    K = K+1
+    LINE(K:K) = CODE(ICS(LEV))
   end do
+  write(u6,'(2X,I10,2X,"(",I2,":",I1,":",I4,"/",I4,")",2X,A,2(2X,F13.6))') ICONF,itc(1),itc(2),itc(4),itc(3),LINE(1:LENCSF), &
+                                                                          COEF,COEF**2
+  ! SVC2010 experimental: add determinant expansion
+  if (PRSD) then
+    ! Specify projected spin in half integer units
+    ! Default: use maximum spin projection
+    IMS = ISPIN-1
+    write(u6,*)
+    call EXPCSF(ICS,NLEV,IMS,LEX,coef,0)
+    write(u6,*)
+  end if
 end do
 
 call mma_deallocate(ICS)

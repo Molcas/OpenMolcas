@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DAVCRE(C,HC,HH,CC,E,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
+subroutine DAVCRE(C,ESX,SXG,HD,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS,DIA,F1,nIAIA,F2,nAEAE,SXH,nAOAE,SXN,BM)
 ! RASSCF program: version IBM-3090: SX section
 !
 ! Using the Davidson method, in the multiple root version suggested
@@ -27,7 +27,7 @@ subroutine DAVCRE(C,HC,HH,CC,E,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
 !            Jacob (full diagonalization routine)
 !            DGEMM and other ESSL routines for matrix operations
 ! Parameters: C  SuperCI-vectors
-!             HC SuperCI Sigma vectors
+!             HC SuperCI Sigma vectors  (allocated locally)
 !             HH Davidson's H-matrix
 !             CC      "     eigenvectors
 !             E       "     eigenvalues
@@ -40,7 +40,7 @@ subroutine DAVCRE(C,HC,HH,CC,E,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
 
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
-use wadr, only: DIA, PA, SXN
+use wadr, only: PA
 use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC, RC_SX
 use RASDim, only: MxSXIt
@@ -50,22 +50,29 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NROOT, NDIM, NSXS
+integer(kind=iwp), intent(in) :: NROOT, NDIM, NSXS, nIAIA, nAEAE, nAOAE
 integer(kind=iwp), intent(inout) :: ITMAX
-real(kind=wp), intent(out) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), CC((ITMAX*NROOT)**2), E((ITMAX*NROOT)), SC((NROOT+NSXS)), &
-                              Q((NROOT+NSXS)*(NROOT+1)), QQ(NROOT), S(ITMAX*NROOT**2)
-real(kind=wp), intent(inout) :: HC((NROOT+NSXS)*NROOT*ITMAX), HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
-real(kind=wp), intent(in) :: HD(NROOT+NSXS)
+real(kind=wp), intent(out) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), ESX
+real(kind=wp), intent(in) :: HD(NROOT+NSXS), DIA(nIAIA), F1(nIAIA), F2(nAEAE), SXG(nIAIA), SXH(nAOAE), SXN(nSXS), BM(nSXS)
 character(len=*), intent(in) :: SXSEL
 integer(kind=iwp), intent(out) :: ITERSX
 integer(kind=iwp) :: i, iConvA, iConvL, iConvQ, ii, ij, iPass, iPrLev, iSel, iST, iSTC, iSTQ, j, ji, jST, k, kDimH, Length, nCR, &
                      nDimH, nDimH2, nST, nTotDC, nTrial
 real(kind=wp) :: ASQ, Ei, ENO, Ovl, QNorm, SWAP, THRA_, XMX, XNorm, XX
 character(len=4) :: IOUTW, IOUTX
-real(kind=wp), allocatable :: C1(:), C2(:), X(:)
+real(kind=wp), allocatable :: C1(:), C2(:), X(:), HC(:), HH(:), CC(:), E(:), SC(:), Q(:), QQ(:), S(:)
 real(kind=wp), parameter :: THRA = 1.0e-13_wp, THRLD1 = 1.0e-8_wp, THRLD2 = 5.0e-14_wp, THRQ = 1.0e-7_wp, THRZ = 1.0e-6_wp
 real(kind=wp), external :: DDot_
 #include "warnings.h"
+
+call mma_allocate(HC,(NROOT+NSXS)*NROOT*ITMAX,Label='HC')
+call mma_allocate(HH,(ITMAX*NROOT)*(ITMAX*NROOT+1),Label='HH')
+Call mma_allocate(CC,(ITMAX*NROOT)**2,Label='CC')
+Call mma_allocate(E,(ITMAX*NROOT),Label='E')
+Call mma_allocate(SC,(NROOT+NSXS),Label='SC')
+Call mma_allocate(Q,(NROOT+NSXS)*(NROOT+1),Label='Q')
+Call mma_allocate(QQ,NROOT,Label='QQ')
+call mma_allocate(S,ITMAX*NROOT**2,Label='S')
 
 if (iCIRst == 1) then
   THRA_ = THRA
@@ -115,7 +122,7 @@ NDIMH = 0
 !               Head of Super-CI iteration loop:
 !*************************************************************
 do ITERSX=1,ITMAX
-  call HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL)
+  call HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL,DIA,F1,nIAIA,F2,nAEAE,SXG,SXH,nAOAE,SXN,nSXS,BM)
   KDIMH = nTri_Elem(NDIMH)
 
   ! Echo the HH-matrix before diagonalizing it.
@@ -224,7 +231,7 @@ do ITERSX=1,ITMAX
   ICONVQ = 0
   IST = 1+NDIM
   do I=1,NROOT
-    call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,QQ(I))
+    call COVLP(Q(IST),Q(IST),DIA,PA,SXN,nSXS,C1,C2,X,QQ(I))
     IST = IST+NDIM
   end do
 
@@ -334,7 +341,7 @@ do ITERSX=1,ITMAX
       ISTC = 1
       do J=1,NDIMH
         IJ = IJ+1
-        call COVLP(Q(ISTQ),C(ISTC),DIA,PA,SXN,C1,C2,X,OVL)
+        call COVLP(Q(ISTQ),C(ISTC),DIA,PA,SXN,nSXS,C1,C2,X,OVL)
         S(IJ) = -OVL
         ISTC = ISTC+NDIM
       end do
@@ -361,7 +368,7 @@ do ITERSX=1,ITMAX
 
         JST = 1
         do J=1,NTRIAL
-          call COVLP(Q(IST),Q(JST),DIA,PA,SXN,C1,C2,X,OVL)
+          call COVLP(Q(IST),Q(JST),DIA,PA,SXN,nSXS,C1,C2,X,OVL)
           S(J) = -OVL
           JST = JST+NDIM
         end do
@@ -375,7 +382,7 @@ do ITERSX=1,ITMAX
 
       ! Normalize this vector and move to trial set if norm large enough
 
-      call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,XNORM)
+      call COVLP(Q(IST),Q(IST),DIA,PA,SXN,nSXS,C1,C2,X,XNORM)
       ! Due to large noise amplification in COVLP, the squared-norm
       ! can actually come out as a negative number.
       ! Acceptable, only if it is very close to zero. Else, quit.
@@ -500,7 +507,7 @@ end if
 
 IST = 1
 do I=1,NROOT
-  call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,XNORM)
+  call COVLP(Q(IST),Q(IST),DIA,PA,SXN,nSXS,C1,C2,X,XNORM)
   XNORM = One/XNORM
   C(IST:IST+NDIM-1) = XNORM*Q(IST:IST+NDIM-1)
   IST = IST+NDIM
@@ -520,8 +527,18 @@ end if
 ! End of diagonalization
 ! Free memory for COVLP
 
+ESX = E(1)
+
 call mma_deallocate(C1)
 call mma_deallocate(C2)
 call mma_deallocate(X)
+call mma_deallocate(S)
+call mma_deallocate(QQ)
+call mma_deallocate(Q)
+call mma_deallocate(SC)
+call mma_deallocate(E)
+call mma_deallocate(CC)
+call mma_deallocate(HH)
+call mma_deallocate(HC)
 
 end subroutine DAVCRE

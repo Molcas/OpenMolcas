@@ -1269,12 +1269,14 @@ A list of these keywords is given below:
   :math:`n_{\text{Ref}}`, up to five.
   The second line gives :math:`n_{\text{Ref}}` reference configuration indices.
   The third line gives estimates of CI coefficients for these CSF's.
+  The CSF indices are those of the CI vectors on the JOBIPH/HDF5 files
+  (the split-graph order of the CI printout), whatever CI back end is used.
   The program will select the roots which have the largest overlap with
   this input.
   Be careful to use a large enough value for LROOTS (see above) to cover
   the roots of interest.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CISELECT" LEVEL="ADVANCED" APPEAR="CI select" KIND="UNKNOWN">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CISELECT" LEVEL="ADVANCED" APPEAR="CI select" KIND="CUSTOM">
               %%Keyword: CISElect <advanced>
               <HELP>
               This keyword is used to select CI roots by an overlap
@@ -1284,6 +1286,8 @@ A list of these keywords is given below:
               nRef, where nRef at most 5.
               The second line gives nRef reference configuration indices.
               The third line gives estimates of CI coefficients for these CSF's.
+              The CSF indices are those of the CI vectors on the JOBIPH/HDF5
+              files (the split-graph order of the printout).
               </HELP>
               </KEYWORD>
 
@@ -2222,6 +2226,65 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`SGEX`
+  The explicit Hamiltonian of keyword :kword:`SDAV` is computed with the
+  symmetric-group graphical unitary group approach (SGUGA) directly in the
+  CSF basis, instead of by the CI back end (Lucia, or Faroald with
+  :kword:`FAROALD`) through the determinant expansion of each configuration.
+  For CASSCF, RASSCF and GASSCF (also with :kword:`HEXS` or :kword:`DEXS`;
+  for GAS the matrix elements are evaluated in a relaxed space whose GAS
+  bounds are widened by one electron). Experimental.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGEX" APPEAR="SGUGA explicit Hamiltonian" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: SGEX <advanced>
+              <HELP>
+              Compute the explicit Hamiltonian of the Davidson procedure (SDAV)
+              with SGUGA in the CSF basis instead of with the CI back end.
+              CASSCF, RASSCF and GASSCF. Experimental.
+              </HELP>
+              </KEYWORD>
+
+:kword:`FAROald`
+  Do the whole CI with Faroald, a determinant-based CI code, in its own CSF
+  basis (the CSFs grouped by configuration): the diagonal, the explicit
+  Hamiltonian of the Davidson procedure, the sigma vectors, the density and
+  transition density matrices and the CI transformation of the orbital
+  optimization, without Lucia. The CI vectors on the JobIph and HDF5 files are
+  in the usual (split-graph) order. For CASSCF, RASSCF and GASSCF, with or
+  without symmetry; RAS and GAS spaces use string-driven sigma vectors over
+  the determinants of the restricted space only, and :kword:`HEXS` and
+  :kword:`DEXS` are supported. With DMRG, NECI or CASVB the keyword is
+  ignored; :kword:`SGEX` has no effect with it. Experimental.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" APPEAR="Faroald CI" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: FAROald <advanced>
+              <HELP>
+              Do the whole CI with Faroald (determinant-based) in its own CSF
+              basis, without Lucia. CASSCF, RASSCF and GASSCF with or without
+              symmetry, also with HEXS and DEXS, not with DMRG, NECI or CASVB.
+              Experimental.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SGCI`
+  Do the whole CI with SGUGA in its own (split-graph) CSF basis: the diagonal,
+  the explicit Hamiltonian of the Davidson procedure, the sigma vectors, the
+  density matrices (including the spin density) and the CI transformation of
+  the orbital optimization, without Lucia. For CASSCF, RASSCF and GASSCF
+  (also with :kword:`HEXS`, :kword:`DEXS` and :kword:`TDM`; for GAS the
+  products of excitation operators are evaluated in a relaxed space whose GAS
+  bounds are widened by one electron); with :kword:`FAROALD`, DMRG or CASVB
+  the keyword is ignored. Experimental.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGCI" APPEAR="SGUGA CI" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: SGCI <advanced>
+              <HELP>
+              Do the whole CI with SGUGA in its own CSF basis, without Lucia.
+              CASSCF, RASSCF and GASSCF (also HEXS, DEXS), not with FAROALD,
+              DMRG or CASVB. Experimental.
+              </HELP>
+              </KEYWORD>
+
 :kword:`NKEE`
   Here follows the maximum dimension of the full Davidson Hamiltonian.
   This Hamiltonian contains the current CI vectors for each state as well
@@ -2611,6 +2674,10 @@ A list of these keywords is given below:
 
 :kword:`PRSP`
   Use this keyword to get the spin density matrix for the active orbitals printed.
+  For states other than singlets it also records two checksums of the spin
+  density of each root for the verification tests (label ``SPINDENS_RASSCF``):
+  the Frobenius norm of the active spin-density matrix and the sum of the
+  absolute spin natural occupation numbers.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PRSP" APPEAR="Print spin density" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: PRSP <basic>
@@ -3134,8 +3201,6 @@ Input example for HCI-CASSCF with Dice--|molcas| interface: ::
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="H5CI" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="AVERAGE" LEVEL="UNDOCUMENTED" KIND="INTS_COMPUTED" SIZE="2" />
-
-.. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DEXS" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
 

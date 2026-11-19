@@ -11,9 +11,10 @@
 ! Copyright (C) 1992, Markus P. Fuelscher                              *
 !               1995, Martin Schuetz                                   *
 !               2004,2005, Thomas Bondo Pedersen                       *
+!               2026, Okan Koeksal                                     *
 !***********************************************************************
 
-subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
+subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF,OpenErr,OpenMessage,SymFrozen,SymOcc)
 !***********************************************************************
 !                                                                      *
 !     Locate input stream and read commands                            *
@@ -46,13 +47,21 @@ use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use UMP2_Global, only: UHF_Frozen => nFro, nOccA, nOccB, ExplicitFrozen, EnergyReady, &
+                       OpenShellPrintLevel => iPL
 
 implicit none
-real(kind=wp), intent(_OUT_) :: CMO(*), Eall(*), Eocc(*), Eext(*)
-integer(kind=iwp), intent(out) :: iTst
-real(kind=wp), intent(out) :: ESCF
+real(kind=wp), intent(_OUT_), optional :: CMO(*), Eall(*), Eocc(*), Eext(*)
+integer(kind=iwp), intent(out), optional :: iTst
+real(kind=wp), intent(out), optional :: ESCF
+integer(kind=iwp), intent(out), optional :: OpenErr
+character(len=*), intent(out), optional :: OpenMessage
+integer(kind=iwp), intent(out), optional :: SymFrozen(:)
+integer(kind=iwp), intent(in), optional :: SymOcc(:,:)
 integer(kind=iwp) :: i, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, ip, iostatus, iPrt, iSym, iUpp, j, jCom, jDel, &
                      jFro, jOcc, l_Occup, LC, LEE, LEO, LSQ, Lu_orb, LuSpool, nExtT, nFre, nOccT
+logical :: OpenShell, Parsed
+integer(kind=iwp) :: InputNSym, FrozenCounts(8)
 logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb, &
                      Skip
 character(len=4) :: Command
@@ -70,6 +79,31 @@ character(len=180), external :: Get_Ln
 
 #include "warnings.h"
 
+! Open-shell calls use the same keyword loop and FROZ branch as
+! restricted MBPT2, but skip restricted orbital-space preparation.
+OpenShell=present(OpenErr)
+if (OpenShell) then
+  OpenErr=1
+  if (.not.present(OpenMessage)) return
+  OpenMessage='Invalid open-shell MBPT2 input.'
+  if (present(SymFrozen).neqv.present(SymOcc)) return
+  if (present(SymFrozen)) then
+    InputNSym=size(SymFrozen)
+    if (InputNSym<1.or.InputNSym>8) return
+    if (size(SymOcc,1)/=InputNSym.or.size(SymOcc,2)/=2) return
+    SymFrozen(:)=0
+  else
+    InputNSym=1
+    if (nOccA<0.or.nOccB<0) return
+    UHF_Frozen=0
+    ExplicitFrozen=.false.
+    EnergyReady=.false.
+  end if
+  OpenMessage=''
+else
+  InputNSym=nSym
+end if
+
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
 !----------------------------------------------------------------------*
@@ -81,6 +115,7 @@ lSFro = .false.
 lSDel = .false.
 lExt = .false.
 lPrt = .false.
+if (.not.OpenShell) then
 LovMP2 = .false.
 DoMP2 = .false.
 FNOMP2 = .false.
@@ -94,6 +129,7 @@ ERef_UsrDef = .false.
 DecoMP2_UsrDef = .false.
 nActa = 0
 call Put_iScalar('mp2prpt',0)
+end if
 
 ! copy input from standard input to a local scratch file
 
@@ -106,7 +142,9 @@ call RdNLst(LuSpool,'MBPT2')
 !----------------------------------------------------------------------*
 iPL = iPrintLevel(-1)
 if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
+if (OpenShell) OpenShellPrintLevel = iPL
 
+if (.not.OpenShell) then
 if (DoCholesky) then
   ChoAlg = 2
 else
@@ -150,6 +188,9 @@ nFro2(:) = 0
 nDel1(:) = 0
 nDel2(:) = 0
 call Get_iArray('Non valence orbitals',nFro1,nSym)
+else
+  nFro1(:)=0
+end if
 nFre = 0
 !----------------------------------------------------------------------*
 !     Read the input stream line by line and identify key command      *
@@ -165,12 +206,20 @@ outer: do
       if (Command == ComTab(iCom)) jCom = iCom
     end do
     if (jCom == 0) then
+      if (OpenShell) then
+        OpenMessage='Unsupported open-shell MBPT2 keyword: '//trim(Command)
+        exit outer
+      end if
       write(u6,*) 'RdInp: Illegal keyword!'
       write(u6,'(A,A)') 'Command=',Command
       call Abend()
     end if
   end if
   Skip = .false.
+  if (OpenShell.and.Command/='FROZ'.and.Command/='END ') then
+    OpenMessage='Unsupported open-shell MBPT2 keyword: '//trim(Command)
+    exit outer
+  end if
   !--------------------------------------------------------------------*
   !     Branch to the processing of the command sections               *
   !--------------------------------------------------------------------*
@@ -204,6 +253,10 @@ outer: do
     case ('FROZ')
       !---- Process the "FROZ" input card -----------------------------*
       if (lFre .or. lFro) then
+        if (OpenShell) then
+          OpenMessage='Frozen was specified more than once.'
+          exit outer
+        end if
         write(u6,*) 'RdInp: Error while reading input!'
         if (lFro) write(u6,*) 'Frozen option already processed!'
         if (lFre) write(u6,*) 'Freeze option and Frozen option are incompatible!'
@@ -213,14 +266,34 @@ outer: do
       lFro = .true.
       Line = Get_Ln(LuSpool)
 
+      if (.not.OpenShell) then
       write(u6,*)
       write(u6,'(A)') 'WARNING!'
       write(u6,'(A)') 'Default frozen orbitals as non valence orbitals is overwritten by user input.'
       write(u6,'(A,8I4)') 'Default values:',(nFro1(iSym),iSym=1,nSym)
       write(u6,*)
 
-      read(Line,*,iostat=iostatus) (nFro1(iSym),iSym=1,nSym)
-      if (iostatus > 0) call error()
+      end if
+      if (OpenShell) then
+        call ParseFrozenInput(Line,FrozenCounts,InputNSym,Parsed)
+        if (.not.Parsed) then
+          OpenMessage='Frozen requires one nonnegative integer per irrep.'
+          exit outer
+        end if
+        if (present(SymOcc)) then
+          if (any(FrozenCounts(1:InputNSym)>SymOcc(:,1)).or. &
+              any(FrozenCounts(1:InputNSym)>SymOcc(:,2))) then
+            OpenMessage='Frozen exceeds the occupied count in an irrep.'
+            exit outer
+          end if
+        else if (FrozenCounts(1)>min(nOccA,nOccB)) then
+          OpenMessage='Frozen exceeds the occupied count of one spin set.'
+          exit outer
+        end if
+      else
+        read(Line,*,iostat=iostatus) (nFro1(iSym),iSym=1,nSym)
+        if (iostatus > 0) call error()
+      end if
 
     case ('DELE')
       !---- Process the "DELE" input card -----------------------------*
@@ -572,6 +645,24 @@ outer: do
 
   end select
 end do outer
+if (OpenShell) then
+  call Close_LuSpool(LuSpool)
+  if (len_trim(OpenMessage)>0) return
+  if (.not.lFro) then
+    OpenMessage='Specify Frozen explicitly (one count per irrep).'
+    return
+  end if
+  if (.not.Parsed) return
+  if (present(SymFrozen)) then
+    SymFrozen(:)=FrozenCounts(1:InputNSym)
+  else
+    UHF_Frozen=FrozenCounts(1)
+    ExplicitFrozen=.true.
+  end if
+  OpenErr=0
+  OpenMessage=''
+  return
+end if
 !----------------------------------------------------------------------*
 !     "End of input"                                                   *
 !----------------------------------------------------------------------*
@@ -804,6 +895,48 @@ call xFlush(u6)
 return
 
 contains
+
+subroutine ParseFrozenInput(Text,Values,nExpected,Success)
+
+  character(len=*), intent(in) :: Text
+  integer(kind=iwp), intent(out) :: Values(:)
+  integer(kind=iwp), intent(in) :: nExpected
+  logical(kind=iwp), intent(out) :: Success
+
+  character(len=len(Text)) :: Token
+  integer(kind=iwp) :: k, first, last, count, ios
+
+  Values=0
+  Success=.false.
+  last=len_trim(Text)
+  k=1
+  count=0
+  do while (k<=last)
+    if (index(' ,'//achar(9),Text(k:k))/=0) then
+      k=k+1
+      cycle
+    end if
+    first=k
+    if (Text(k:k)=='+') k=k+1
+    if (k>last) return
+    if (index('0123456789',Text(k:k))==0) return
+    do while (k<=last)
+      if (index('0123456789',Text(k:k))==0) exit
+      k=k+1
+    end do
+    if (k<=last) then
+      if (index(' ,'//achar(9),Text(k:k))==0) return
+    end if
+    count=count+1
+    if (count>nExpected) return
+    Token=Text(first:k-1)
+    read(Token,*,iostat=ios) Values(count)
+    if (ios/=0) return
+    if (Values(count)<0) return
+  end do
+  Success=(count==nExpected)
+
+end subroutine ParseFrozenInput
 
 subroutine error()
   !--------------------------------------------------------------------*

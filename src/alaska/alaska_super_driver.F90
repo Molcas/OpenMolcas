@@ -122,9 +122,13 @@ if (Method == 'DMRGSCFS') then
   call Get_iScalar('SA ready',iGo)
 end if
 
+! UMP2 and ROMP2 have energies only: always request finite differences,
+! regardless of mp2prpt.  For ROMP2 the numerical-gradient driver reruns
+! the determinant RASSCF reference before every displaced MBPT2 evaluation.
+! The MBPT2 analytic-density branches above remain unchanged.
 if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'GASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
     ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
-    (Method == 'CCSDT') .or. (Method == 'EXTERNAL')) then
+    (Method == 'UMP2    ') .or. (Method == 'ROMP2   ') .or. (Method == 'CCSDT') .or. (Method == 'EXTERNAL')) then
   if (isNAC) then
     call Store_Not_Grad(0,NACstates(1),NACstates(2))
     call WarningMessage(2,'Numerical nonadiabatic coupling not implemented')

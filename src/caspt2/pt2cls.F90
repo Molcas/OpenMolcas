@@ -25,7 +25,7 @@ use caspt2_module, only: DMRG
 use OFembed, only: FMaux
 #endif
 use ChoCASPT2, only: NASplit, NISplit, NumCho_PT2
-use sguga, only: SG_Free
+use CI_States, only: CI_Free_State
 use general_data, only: NASH
 use caspt2_global, only: CMOPT2, DMIX, DREF, DWGT, FIFA, FIMO, IDCIEX, IDSCT, IDTCEX, PREF, TAT, TORB, Weight
 use caspt2_module, only: IfChol, nIsh, nSsh, nSym
@@ -59,7 +59,7 @@ if (IfChol) then
 end if
 
 ! Deallocate SGUGA tables:
-call SG_Free(iState)
+call CI_Free_State(iState)
 
 ! dealloacte DMRG stuff
 #ifdef _DMRG_

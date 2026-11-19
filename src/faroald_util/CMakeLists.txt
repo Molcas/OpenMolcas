@@ -15,6 +15,7 @@ set (sources
      citrans_init.F90
      faroald.F90
      faroald_free.F90
+     faroald_ras.F90
      faroald_init.F90
      second_quantization.F90
 )
@@ -23,6 +24,7 @@ set (sources
 set (modfile_list
      citrans.F90
      faroald.F90
+     faroald_ras.F90
      second_quantization.F90
 )
 

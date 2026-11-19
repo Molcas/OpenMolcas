@@ -118,7 +118,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
 # ifdef _HDF5_
   use general_data, only: nSym, nActEl, multiplicity => iSpin, stSym, nAsh
-  use sguga, only: SGS
+  use CI_Info, only: CI_St
   use general_data, only: iDoGAS
   use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_file, mh5_create_dset_int, mh5_create_dset_real, mh5_init_attr, &
                  mh5_put_dset
@@ -146,7 +146,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   ! Set wavefunction type
   if (iDoGAS) then
     call mh5_init_attr(file_id,'CI_TYPE','GAS')
-  else if (SGS(istate)%IFRAS == 0) then
+  else if (CI_St(istate)%IFRAS == 0) then
     call mh5_init_attr(file_id,'CI_TYPE','CAS')
   else
     call mh5_init_attr(file_id,'CI_TYPE','RAS')

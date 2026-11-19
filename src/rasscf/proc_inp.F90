@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use ci_interfaces, only: CI_Initialize
+use ci_interfaces, only: CI_Basis, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Initialize, CI_Verify
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -41,7 +41,7 @@ use general_data, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL,
                         NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
 use DWSol, only: DWSol_DWRO
-use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
+use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
 use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, CRPROJ, CRVEC, DFTFOCK, DoBLOCKDMRG, DoDMRG, &
@@ -55,6 +55,7 @@ use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, C
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
+use rasscf_global, only: DoSGEx, DoSGCI
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, &
                          Do3RDM, Max_Canonical, Max_Sweep, MxDMRG
@@ -71,7 +72,7 @@ use Para_Info, only: mpp_nprocs, mpp_procid
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -85,7 +86,9 @@ integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2
                      length, mBas, mCof, mConf, mm, mOrb, N, NA, NAO, NASHT, NBAS_L(8), NCHRG, nClean, nCof, NCRPROJ, NDEL_L(8), &
                      nDiff, NFRO_L(8), nGrp, NGSSH_HI, NGSSH_LO, NISH_L(8), NISHT, NISHT_old, nItems, nNUc, NORB_L(8), nOrbRoot, &
                      nOrbs, NRS1_L(8), NRS2_L(8), NRS3_L(8), NSSH_L(8), nSym_l, nT, nU, nW, start, step
-real(kind=wp) :: dSum, Dummy(1), POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
+integer(kind=iwp) :: nOrbGAS(MxGAS)
+integer(kind=iwp) :: MaxFaro
+real(kind=wp) :: dSum, Dummy(1), nDetFaro, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
 logical(kind=iwp) :: DBG, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists, SkipGUGA
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=256) :: myTitle
@@ -110,6 +113,7 @@ character(len=20) :: guess_dmrg
 integer(kind=iwp) :: lRoots_l, mh5id
 character, allocatable :: typestring(:)
 #endif
+integer(kind=iwp) :: iPh, iRt, jRt
 integer(kind=iwp), external :: IsFreeUnit, nToken
 real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Is_First_Iter
@@ -117,6 +121,8 @@ character(len=180), external :: Get_LN
 #include "warnings.h"
 
 DoFaro = .false.
+DoSGEx = .false.
+DoSGCI = .false.
 
 #ifdef _DMRG_
 ! Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
@@ -734,7 +740,8 @@ else
   !---  Process PRSP command
   if (Key('PRSP')) then
     if (DBG) write(u6,*) ' PRSPIN command was used.'
-    ISPDEN = 1
+    ! print the spin density and record checksums of it (Add_Info)
+    ISPDEN = 2
   end if
   !---  Process IVO command
   if (Key('IVO')) then
@@ -3502,6 +3509,14 @@ else
   !---  Process FARO command
   if (Key('FARO')) DoFaro = .true.
 
+  !---  Process SGEX command (explicit Hamiltonian of the CI start from SGUGA)
+  if (Key('SGEX')) DoSGEx = .true.
+  ! CI development: MOLCAS_CI_VERIFY=SGEX forces it (see CI_Verify)
+  if (CI_Verify('SGEX')) DoSGEx = .true.
+
+  !---  Process SGCI command (the whole CI with SGUGA, in its own CSF basis)
+  if (Key('SGCI')) DoSGCI = .true.
+
   !---  Process NOCA command
   if (DBG) write(u6,*) ' Check if NOCALC case.'
   if (Key('NOCA')) then
@@ -4071,33 +4086,69 @@ call mma_deallocate(initial_occ,safe='*')
 
 call Setup_RASSCF()
 
-if (DOFARO .and. (NSYM > 1)) then
-  write(u6,'(1X,A)') 'FARO keyword was used, but NSYM > 1,'
-  write(u6,'(1X,A)') 'switching to LUCIA as the CI backend.'
-  DOFARO = .false.
+! SGCI: SGUGA covers CAS, RAS and GAS spaces (GAS through the relaxed space,
+! HEXS/DEXS applied by the CI interface), and is not combined with the
+! other CI back ends or wave function types.
+if (DoSGCI) then
+  if (DoFaro .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+    write(u6,'(1X,A)') 'SGCI keyword was used, but SGUGA cannot run this CI (FARO, DMRG, NECI or CASVB);'
+    write(u6,'(1X,A)') 'the CI is done by the CI backend.'
+    DoSGCI = .false.
+  else
+    write(u6,'(1X,A)') '**EXPERIMENTAL** SGCI: the CI is done by SGUGA in its own CSF basis.'
+  end if
 end if
 ! ======================================================================
 
 if (.not. SkipGUGA) then
   call StatusLine('RASSCF: ','Initializing Lucia/SGUGA/Faroald')
 
-# ifdef _FAROALD_VERIFY_
-  ! Turn on the Faroald SD CI code in case of
-  ! 1) no symmetry
-  ! 2) not RASSCF or GASSCF
-  ! 3) not using the expert, the HEXS or the DEXS key word
-  ! 4) not running the CASVB module.
-  if ((nSym == 1) .and. &
-      ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
-      (.not. iDoGas) .and. &
-      (.not. Key('HEXS')) .and. &
-      (.not. Key('DEXS')) .and. &
-      (.not. Key('EXPE')) .and. &
-      (IFVB == 0)) &
-    DoFaro = .true.
-# endif
+  ! CI development only (MOLCAS_CI_VERIFY=FARO or ALL, see CI_Verify):
+  ! force the Faroald SD CI code, to compare it with Lucia (not with the
+  ! expert keyword; the restrictions of FARO below apply). Normal runs use
+  ! Faroald only if requested with the FARO keyword.
+  if (CI_Verify('FARO') .and. (.not. DoSGCI) .and. (.not. Key('EXPE'))) DoFaro = .true.
+  ! FARO: the CI in the configuration basis of Faroald (citrans), for
+  ! CAS, RAS and GAS spaces (with symmetry, also with HEXS/DEXS, applied by
+  ! the CI interface), and not with the other CI back ends or CASVB (which
+  ! works with the CSF basis of Lucia).
+  if (DoFaro) then
+    if (DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+      if (Key('FARO')) then
+        write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (DMRG, NECI'
+        write(u6,'(1X,A)') 'or CASVB); the CI is done by the CI backend.'
+      end if
+      DoFaro = .false.
+    end if
+  end if
+  ! Faroald works in the full (C1) determinant space of CAS, and in the
+  ! RAS/GAS determinant space (all symmetries) with several partitions
+  ! (faroald_ras): fall back to the CI backend if a few vectors of that size
+  ! do not fit in the available memory. (The GAS description NGSSH, IGSOCCX
+  ! is set for CAS and RAS as well.)
+  if (DoFaro) then
+    call mma_maxDBLE(MaxFaro)
+    if (iDoGAS .or. (nHole1+nElec3 /= 0)) then
+      do iGAS=1,NGAS
+        nOrbGAS(iGAS) = sum(NGSSH(iGAS,1:NSYM))
+      end do
+      nDetFaro = CI_Faro_nDet_RAS((NACTEL+ISPIN-1)/2,(NACTEL-ISPIN+1)/2,NGAS,nOrbGAS(1:NGAS),IGSOCCX(1:NGAS,1), &
+                                  IGSOCCX(1:NGAS,2))
+    else
+      nDetFaro = Binom_R((NACTEL+ISPIN-1)/2,NAC)*Binom_R((NACTEL-ISPIN+1)/2,NAC)
+    end if
+    if (NAC > 30) then
+      write(u6,'(1X,A,I0,A)') 'Faroald cannot run this CI: ',NAC,' active orbitals (at most 30, bit strings);'
+      write(u6,'(1X,A)') 'the CI is done by the CI backend.'
+      DoFaro = .false.
+    else if (8.0_wp*nDetFaro > real(MaxFaro,kind=wp)) then
+      write(u6,'(1X,A,ES10.3,A)') 'Faroald cannot run this CI: ',nDetFaro,' determinants'
+      write(u6,'(1X,A)') 'do not fit in the available memory; the CI is done by the CI backend.'
+      DoFaro = .false.
+    end if
+  end if
 
-  call CI_Initialize(.not. iDoGAS,DOFARO)
+  call CI_Initialize(.true.,DOFARO)
 
 end if
 
@@ -4114,13 +4165,42 @@ end if
 ! to the symmetric group numbering
 
 ! ====================================================================
-if (ICICH == 1 .and. (.not. SkipGUGA)) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
+! (SGCI: the CI vectors are in the split-graph order of the reference CSF
+! numbers already)
+if (ICICH == 1 .and. (.not. SkipGUGA)) then
+  if (CI_Basis() == 1) then
+    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
+  else
+    ! SGCI and FARO: map the reference CSFs from the file order
+    JCJ(:,:) = 0
+    do iRt=1,NROOTS
+      do jRt=1,size(ICI,2)
+        if (ICI(iRt,jRt) <= 0) cycle
+        call CI_File_Index_To_Basis(1,STSYM,NCONF,ICI(iRt,jRt),JCJ(iRt,jRt),iPh)
+        CCI(iRt,jRt) = iPh*CCI(iRt,jRt)
+      end do
+    end do
+  end if
+end if
 ! ====================================================================
 
 !---  Normal exit -----------------------------------------------------*
 if (DBG) write(u6,*) ' Normal exit from PROC_INP.'
 
 contains
+
+! the binomial coefficient (n over k), in floating point (no overflow)
+function Binom_R(k,n) result(b)
+  integer(kind=iwp), intent(in) :: k, n
+  real(kind=wp) :: b
+  integer(kind=iwp) :: i
+  b = Zero
+  if ((k < 0) .or. (k > n)) return
+  b = One
+  do i=1,min(k,n-k)
+    b = b*real(n-min(k,n-k)+i,kind=wp)/real(i,kind=wp)
+  end do
+end function Binom_R
 
 subroutine Error(code)
 

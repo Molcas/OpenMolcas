@@ -26,7 +26,7 @@ subroutine TRDACT(IVEC,JVEC,DTU)
 ! in the notation of the comments.
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
-use sguga, only: SGS
+use CI_Info, only: CI_St
 use caspt2_global, only: IDTCEX, LUCIEX
 use general_data, only: nAsh, nLev, STSym
 use caspt2_module, only: iASym, iSCF, jState, MxCI, nAes, nAshT, nAshT, nConf, nSym
@@ -80,7 +80,7 @@ if (ISCF == 0) then
   ITABS = 0
   do ISYM=1,NSYM
     do I=1,NLEV
-      if (SGS(istate)%ISM(I) == ISYM) then
+      if (CI_St(istate)%ISm(I) == ISYM) then
         ITABS = ITABS+1
         IATOG(ITABS) = I
       end if

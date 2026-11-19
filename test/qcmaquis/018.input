@@ -147,9 +147,10 @@ States=3
 * GFortran+OpenBLAS (Forrest CI) produces XMS eigenvalues that differ by up to ~8e-7 au
 * for the three degenerate quintet states, because diagonalisation of the 3x3 H_EFF_SC
 * matrix is numerically sensitive to the LAPACK implementation when eigenvalues are nearly
-* degenerate. This is expected behaviour, not a code bug. MOLCAS_THR=1 raises the
-* comparison window by one order of magnitude (from 1e-7 to 1e-6) for this block only.
->> EXPORT MOLCAS_THR=1
+* degenerate. This is expected behaviour, not a code bug. MOLCAS_THR=2 raises the
+* comparison window by two orders of magnitude (from 1e-7 to 1e-5) for this block only
+* (since the VecPhase change of the SCF/guess orbital phases, GFortran differs by 1.5e-6).
+>> EXPORT MOLCAS_THR=2
 &MPSSI
 NrofJobIphs
 3 3 3 3

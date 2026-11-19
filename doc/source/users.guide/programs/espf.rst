@@ -50,13 +50,32 @@ Whereas the ESPF method can be used standalone, it has been developed for hybrid
 Using |molcas| together with :program:`Tinker`
 ..............................................
 
-In order to obtain the modified :program:`TINKER` code, you must run the ":command:`molcas get_tinker`" command.
+|molcas| needs a modified version of :program:`TINKER`. The current patched version of :program:`TINKER`\ [#fn1]_ is **6.3.3**. There are two ways to obtain it:
 
-The current patched version of :program:`TINKER`\ [#fn1]_ is **6.3.3**.
+* At configuration time, with the CMake option ``-DTINKER=ON`` (independent of ``-DTOOLS=ON``, which does not build :program:`TINKER`). :program:`TINKER` is then downloaded, patched and compiled together with |molcas|, and installed in :file:`$MOLCAS/tinker`; :command:`make install` checks that the installed |molcas| can run it. :program:`TINKER` does not depend on |molcas|, so a single patched :program:`TINKER` can be shared by several |molcas| installations. The following CMake variables can be used to adapt the build:
+
+  ``TINKER_DIR``
+    An existing patched :program:`TINKER` (the directory containing :file:`bin/tkr2qm_s`, e.g. :file:`$MOLCAS/tinker` of another installation). Nothing is downloaded or compiled, :file:`$MOLCAS/tinker` becomes a link to this directory.
+
+  ``TINKER_SOURCE``
+    Local :program:`TINKER` tarball (or a directory containing it) or URL to use instead of the default download location.
+
+  ``TINKER_MAXATM``
+    Maximum number of atoms in :program:`TINKER` (default 100000). A smaller value reduces the memory needed.
+
+  ``TINKER_Fortran_COMPILER``
+    Fortran compiler for :program:`TINKER`. Only GNU Fortran (or compatible) is supported. By default the |molcas| compiler is used if it is GNU Fortran, otherwise :command:`gfortran`.
+
+  ``TINKER_MAKE_JOBS``, ``TINKER_MAKE_RETRIES``
+    Number of parallel :command:`make` jobs and of compilation attempts.
+
+* At any time, with the ":command:`molcas get_tinker`" command (the script is :file:`Tools/patch2tinker/get_tinker` in the sources). By default it installs :program:`TINKER` in :file:`$MOLCAS/tinker`, run :command:`molcas get_tinker -h` for the available options, e.g. ``-p DIR`` to install it somewhere else, ``-t FILE`` to use a tarball that was downloaded beforehand, or ``-y`` to run without asking for confirmation.
+
+In both cases, the integrity of the downloaded tarball is verified with its SHA-256 checksum.
 
 .. [#fn1] https://dasher.wustl.edu/tinker/
 
-*IMPORTANT:* The environment variable :variable:`TINKER` must point to the directory in which the :program:`TINKER` executable binaries are stored (usually in :file:`$MOLCAS/tinker/bin`).
+The environment variable :variable:`TINKER` must point to the directory in which the :program:`TINKER` executable binaries are stored. If it is not set, :file:`$MOLCAS/tinker/bin` is used, which is where both methods above install it by default.
 
 The most convenient way to define (i) the QM and MM subsystems and (ii) which atoms are to be known by |molcas| (all the QM ones and some MM ones, see below) requires to simply add the keyword :kword:`TINKER` in :program:`GATEWAY`. This way, :program:`GATEWAY` will ask :program:`TINKER` to pass it all information needed.
 

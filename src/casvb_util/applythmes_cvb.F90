@@ -26,7 +26,7 @@ call makegjorbs_cvb(orbs)
 
 call applyt_cvb(civbh,gjorb)
 call proj_cvb(civbh)
-call applyhpcx_cvb(civbh,-ww/ovraa)
+call applyh_cvb(civbh,-ww/ovraa)
 call applyt_cvb(civbh,gjorb2)
 
 return

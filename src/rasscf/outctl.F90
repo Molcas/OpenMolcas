@@ -31,6 +31,7 @@ subroutine OutCtl(CMO,OCCN,SMAT,lOPTO)
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
+use ci_interfaces, only: CI_Lucia_Active
 use general_data, only: iDoGAS, NGAS, NGSSH
 use input_ras, only: Key
 use rasscf_global, only: BName, CBLBM, cCI, CleanMask, CMAX, DE, DoDMRG, ECAS, Ener, ESX, FDIAG, HalfQ, iADR15, IBLBM, iCI, ICICH, &
@@ -66,7 +67,7 @@ real(kind=wp), intent(in) :: SMAT(*)
 logical(kind=iwp), intent(in) :: lOPTO
 integer(kind=iwp) :: i, iAd03, iAd12, iAd14, iAd15, iCharge, iComp, iDimN, iDimO, iDimV, iDum(56), iEnd, iGAS, Ind, iOpt, iPrLev, &
                      iRC, iRC1, iRC2, iRef, iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot, left, luTmp, NAO, nDCInt, nMVInt, NO
-real(kind=wp) :: CASDFT_Funct, DM(3), Dum(1), EAV, EDC, Emv, Erel, Temp(2,mxRoot), vNentropy, xnu
+real(kind=wp) :: SDChk(2), CASDFT_Funct, DM(3), Dum(1), EAV, EDC, Emv, Erel, Temp(2,mxRoot), vNentropy, xnu
 logical(kind=iwp) :: Do_DM, Do_ESPF, FullMlk, get_BasisType, lSave
 character(len=120) :: Line
 character(len=80) :: Note
@@ -217,7 +218,7 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
       write(u6,Fmt2//'A)') '----------------------------'
       write(u6,*)
       write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-      write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
+      if (CI_Lucia_Active()) write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
     end if
     write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
     if (ICICH == 0) then
@@ -651,7 +652,7 @@ do KROOT=1,LROOTS
 
     if (IPRLEV >= VERBOSE) then
       ! Start of long if-block F over IPRLEV
-      if (ISPDEN == 1) then
+      if (ISPDEN >= 1) then
         ! Print spin density matrix
         write(u6,'(/6X,A,I3)') 'Spin density matrix for root number:',KROOT
         write(u6,'(6X,A)') '--------------------------------------'
@@ -682,14 +683,39 @@ do KROOT=1,LROOTS
     call mma_allocate(CMOSO,NTOT2,Label='CMOSO')
     CMOSO(:) = CMON(:)
 
+    ! PRSP (ISPDEN = 2): two orbital-invariant checksums of the spin
+    ! density of this root for the verification, the Frobenius norm of
+    ! the active spin-density matrix and the sum of the absolute spin
+    ! natural occupation numbers
+    if (ISPDEN == 2) then
+      SDChk(:) = Zero
+      IND = 0
+      do ISYM=1,NSYM
+        do i=1,NASH(ISYM)
+          do j=1,i
+            IND = IND+1
+            if (i == j) then
+              SDChk(1) = SDChk(1)+X6(IND)**2
+            else
+              SDChk(1) = SDChk(1)+Two*X6(IND)**2
+            end if
+          end do
+        end do
+      end do
+      SDChk(1) = sqrt(SDChk(1))
+    end if
     if (.not. doDMRG) call SPINORB(X6,CMOSO,OCCN)
+    if ((ISPDEN == 2) .and. (.not. doDMRG)) then
+      SDChk(2) = sum(abs(OCCN(1:NTOT)))
+      call Add_Info('SPINDENS_RASSCF',SDChk,2,6)
+    end if
     call mma_deallocate(X6)
     call DDAFILE(JOBIPH,1,CMOSO,NTOT2,IAD14)
     call DDAFILE(JOBIPH,1,OCCN,NTOT,IAD14)
 
     if (IPRLEV >= USUAL) then
       ! Start of long if-block G over IPRLEV
-      if (ISPDEN == 1) then
+      if (ISPDEN >= 1) then
         write(u6,'(/6X,A,I3)') 'Mulliken spin population analysis for root number:',KROOT
         write(u6,'(6X,A)') '---------------------------------------------------'
         write(u6,*)

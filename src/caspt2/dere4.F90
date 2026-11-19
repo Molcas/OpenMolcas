@@ -18,7 +18,8 @@ use BDerNEV, only: Gact, Gder
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX
 use general_data, only: NACTEL, STSYM
 use caspt2_module, only: JSTATE, MXCI, NSYM
-use sguga, only: CIS, EXS, sg_epq_psi, SGS
+use CI_Info, only: CI_St
+use CI_States, only: CI_Epq_Psi
 use NEVPT2_E4, only: do_xvec, do_yvec, ixyzend, ixyzsta, NEVPT2_E4_derivative1, NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, &
                      NEVPT2_E4_XYder1, NEVPT2_E4_XYder2, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXY_work, NXYVEC, nxyzdim, NZVEC
 use PrintLevel, only: verbose
@@ -55,7 +56,7 @@ integer(kind=iwp), parameter :: istate = 1
 if (nlev == 0) return
 if (NACTEL == 0) return
 
-NCI = CIS(istate)%NCSF(STSYM)
+NCI = CI_St(istate)%nCSF(STSYM)
 ! This should not happen, but...
 if (NCI == 0) return
 
@@ -317,45 +318,45 @@ else
   do ip4=1,nlev2
     ialev = idx2ij(1,ip4)
     iblev = idx2ij(2,ip4)
-    isab = Mul(SGS(istate)%ism(ialev),SGS(istate)%ism(iblev))
+    isab = Mul(CI_St(istate)%ISm(ialev),CI_St(istate)%ISm(iblev))
     issg4 = Mul(isab,stsym)
-    nsgm4 = CIS(istate)%ncsf(issg4)
-    !ia = SGS(istate)%L2ACT(ialev)
-    !ib = SGS(istate)%L2ACT(iblev)
+    nsgm4 = CI_St(istate)%nCSF(issg4)
+    !ia = CI_St(istate)%L2Act(ialev)
+    !ib = CI_St(istate)%L2Act(iblev)
     BUF2(1:nsgm4,4) = Zero
-    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IALEV,IBLEV,One,STSYM,CI,BUF2(:,4))
+    call CI_Epq_Psi(istate,IALEV,IBLEV,One,STSYM,CI,BUF2(:,4))
     do ip3=ip4,nlev2
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      isyz = Mul(SGS(istate)%ism(iylev),SGS(istate)%ism(izlev))
+      isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
       issg3 = Mul(isyz,issg4)
-      nsgm3 = CIS(istate)%ncsf(issg3)
-      !iy = SGS(istate)%L2ACT(iylev)
-      !iz = SGS(istate)%L2ACT(izlev)
+      nsgm3 = CI_St(istate)%nCSF(issg3)
+      !iy = CI_St(istate)%L2Act(iylev)
+      !iz = CI_St(istate)%L2Act(izlev)
       BUF2(1:nsgm3,3) = Zero
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IYLEV,IZLEV,One,issg4,BUF2(:,4),BUF2(:,3))
+      call CI_Epq_Psi(istate,IYLEV,IZLEV,One,issg4,BUF2(:,4),BUF2(:,3))
       write(u6,'(a,2f10.3)') ' AC_E4(1): CPU/WALL TIME=',cput,wallt
     end do
     do ip2=ip3,nlev2
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
-      isvx = Mul(SGS(istate)%ism(ivlev),SGS(istate)%ism(ixlev))
+      isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
       issg2 = Mul(isvx,issg3)
-      nsgm2 = CIS(istate)%ncsf(issg2)
-      !iv = SGS(istate)%L2ACT(ivlev)
-      !ix = SGS(istate)%L2ACT(ixlev)
+      nsgm2 = CI_St(istate)%nCSF(issg2)
+      !iv = CI_St(istate)%L2Act(ivlev)
+      !ix = CI_St(istate)%L2Act(ixlev)
       BUF2(1:nsgm2,2) = Zero
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IVLEV,IXLEV,One,issg3,BUF2(:,3),BUF2(:,2))
+      call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg3,BUF2(:,3),BUF2(:,2))
       do ip1=ip2,nlev2
         itlev = idx2ij(1,ip1)
         iulev = idx2ij(2,ip1)
-        istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
+        istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
         issg1 = Mul(istu,issg2)
-        nsgm1 = CIS(istate)%ncsf(issg1)
-        !it = SGS(istate)%L2ACT(itlev)
-        !iu = SGS(istate)%L2ACT(iulev)
+        nsgm1 = CI_St(istate)%nCSF(issg1)
+        !it = CI_St(istate)%L2Act(itlev)
+        !iu = CI_St(istate)%L2Act(iulev)
         BUF2(1:nsgm1,1) = Zero
-        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),ITLEV,IULEV,One,issg2,BUF2(:,2),BUF2(:,1))
+        call CI_Epq_Psi(istate,ITLEV,IULEV,One,issg2,BUF2(:,2),BUF2(:,1))
       end do
     end do
   end do

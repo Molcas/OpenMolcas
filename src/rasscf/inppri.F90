@@ -30,6 +30,7 @@ subroutine InpPri(lOPTO)
 
 use OneDat, only: sNoOri
 use fcidump, only: DumpOnly
+use ci_interfaces, only: CI_Lucia_Active
 use fciqmc, only: DoNECI
 use CC_CI_mod, only: Do_CC_CI
 use Fock_util_global, only: DoLocK
@@ -282,7 +283,9 @@ if (IPRLEV > SILENT) then
       else
         write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
         if (I_ELIMINATE_GAS > 0) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',nCSF_HEXS
-        if (DoComb) then
+        ! (no determinants without Lucia, SGCI)
+        if (.not. CI_Lucia_Active()) then
+        else if (DoComb) then
           write(u6,Fmt2//'A,T40,I11)') 'Number of spin combinations',NDTASM(STSYM)
           write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',2*NDTASM(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
         else

@@ -11,6 +11,7 @@
 ! Copyright (C) 1989, Bjorn O. Roos                                    *
 !               1989, Per Ake Malmqvist                                *
 !               1991,1993,1996, Markus P. Fuelscher                    *
+!               2026, Roland Lindh                                     *
 !***********************************************************************
 
 subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
@@ -59,11 +60,10 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
-use Lucia_Interface, only: Lucia_Util
-use wadr, only: BM, DIA, F1, F2, NLX, SXG, SXH, SXN, TUVX
+use wadr, only: NLX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
-                         l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
+                         l_casdft, NAC, nDimSX, nFint, nQune, NROOT, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: ChemPS2_Can
 #endif
@@ -84,8 +84,8 @@ real(kind=wp), intent(inout) :: CMO(*), OCC(*), P(*), FI(*), FA(*)
 real(kind=wp), intent(in) :: D(*), PA(*), D1A(*)
 real(kind=wp), intent(out) :: THMAX
 integer(kind=iwp), intent(in) :: IFINAL
-integer(kind=iwp) :: i, iBas, IC, iDisk, IndType(7,8), iOff, iOrb, iPrLev, iRC, iRef, iSym, iWay, j, kMax, LCSXI, LuvvVec, MIAAE, &
-                     MNO, NAEAE, NAOAE, NCR, NCR1, NIAIA, NLCC, NLHH, NLOVL, NLQ, nP2Act, NQ
+integer(kind=iwp) :: IC, iDisk, IndType(7,8), iPrLev, iRC, iRef, iWay, kMax, LCSXI, LuvvVec, MIAAE, &
+                     MNO, NAEAE, NAOAE, NCR1, NIAIA, nP2Act, NQ, NSXS
 real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
@@ -95,9 +95,9 @@ integer(kind=iwp) :: ChemCh(8), iAct, iActOffset, iFockIndex, jAct, LuChemFck, n
 character(len=3) :: ChemLabel
 integer(kind=iwp), allocatable :: ChemOrbSym(:)
 #endif
-real(kind=wp), allocatable :: CC(:), CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), ENER_X(:), Fck(:), FTR(:), HH(:), OVL(:), P2Raw(:), &
-                              P2reo(:), PUVX(:), QMat(:), QQ(:), SC(:), SCR(:), Sigma(:), SQ(:), STRP(:), SXDD(:), SXDF(:), &
-                              SXHD(:), V1(:), V2(:), Vec(:), VL(:), VT(:), WO(:), X2(:), XMAT(:), XQN(:)
+real(kind=wp), allocatable :: CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), Fck(:), FTR(:),  P2Raw(:), &
+                              P2reo(:), PUVX(:), QMat(:), SQ(:), STRP(:), SXG(:), SXHD(:), VEC(:), &
+                              WO(:), DIA(:), F1(:), F2(:), SXH(:), SXN(:), BM(:)
 real(kind=wp), allocatable, target :: SMAT(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
@@ -122,16 +122,10 @@ real(kind=wp), external :: DDot_
 ! (Tested against 1.0e20 in IF-statements)
 ! Extra term in overlaps (COVLP, SXHAM): 1.0e-14
 ! Extra term in SIGVEC:                  1.0e-12
-
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
 !write(u6,*) 'Entering SXCTL!'
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering SXCTL'
-
-! --- Check for Cholesky ---------------
-
-!call DecideOnCholesky(DoCholesky)
-! --------------------------------------
 
 ! compute constants needed for addressing
 NSXS = sum((NISH(1:NSYM)+NASH(1:NSYM))*(NASH(1:NSYM)+NSSH(1:NSYM)))
@@ -144,6 +138,25 @@ NLX = max(MIAAE,maxval(NASH(1:NSYM)*(NISH(1:NSYM)+NASH(1:NSYM))))
 NQ = max(NIAIA,maxval(NASH(1:NSYM)*NORB(1:NSYM)))
 NROOT = 1
 NDIMSX = NROOT+NSXS
+
+Call SXCTL_Prelude()
+
+if (IFINAL == 1) then
+
+  Call SXCTL_Final()
+
+else
+
+  Call SXCTL_Iterate()
+
+end if
+
+call mma_deallocate(BM)
+
+Contains
+
+Subroutine SXCTL_Prelude()
+integer(kind=iwp) iSym, iOrb, iOff
 !***********************************************************************
 ! load back two-electron integrals (pu|vx)
 !***********************************************************************
@@ -236,6 +249,7 @@ else ! GLM-CASDFT
     call mma_allocate(STRP,1,Label='STRP')
   end if
 end if
+
 !***********************************************************************
 ! Compute the MCSCF generalized Fock matrix and Brillouin matrix elements
 !***********************************************************************
@@ -334,9 +348,13 @@ if (IFINAL /= 1) then
   call mh5_put_dset(wfn_mocoef,CMO)
   call mh5_put_dset(wfn_occnum,OCC)
 # endif
-end if
 
-if (IFINAL == 1) then
+end if
+End Subroutine SXCTL_Prelude
+
+Subroutine SXCTL_Final()
+integer(kind=iwp) :: i, j, iBas, iOff, iSym
+
   ! If ifinal=1 , this is the last call to SXCTL for calculating
   ! the MCSCF Fock matrix for occupied orbitals, and new orbitals).
   ! First generate final orbitals:
@@ -404,8 +422,9 @@ if (IFINAL == 1) then
 #       endif
       else if (doBlockDMRG .or. DoNECI) then
       else !CI
-        iDisk = IADR15(4)
-        call LUCIA_UTIL('TRACI',iDisk=iDisk,Lu=JOBIPH,Array=SMAT(:),nTUVX=size(TUVX),TUVX=TUVX)
+        ! Transform the CI vectors
+        iDisk = IADR15(4) ! Disk adress where the CI vectors are stored on JOBIPH
+        call TraCI_Master(iDisk,JOBIPH,SMAT(:))
       end if
       call mma_deallocate(SMAT)
     else
@@ -427,7 +446,10 @@ if (IFINAL == 1) then
 
   call TIMING(CPTS,CPES,TIOS,TIOES)
 
-else
+End Subroutine SXCTL_Final
+
+Subroutine SXCTL_Iterate()
+  integer(kind=iwp) I, iOff, iSym, iOrb
 
   ! Memory allocation and calling sequence for SXHAM
   ! SXN: Normalization constants for super-CI vector
@@ -446,16 +468,8 @@ else
   call mma_allocate(SXG,NIAIA,Label='SXG')
   call mma_allocate(SXH,NAOAE,Label='SXH')
   call mma_allocate(SXHD,NDIMSX,Label='SXHD')
-  call mma_allocate(SXDF,NQ,Label='SXDF')
-  call mma_allocate(SXDD,MNO,Label='SXDD')
 
-  !call TRIPRT(' Dmat in MO in SXCTL bf call to SXHAM ',' ',D,NAC)
-  !call TRIPRT(' Pmat in MO in SXCTL bf call to SXHAM ',' ',P,NACPAR)
-  !call TRIPRT(' PAmat in MO in SXCTL bf call to SXHAM',' ',PA,NACPAR)
-  call SXHAM(D,P,PA,FA,SXN,F1,F2,DIA,SXG,SXH,SXHD,SXDF,SXDD)
-
-  call mma_deallocate(SXDD)
-  call mma_deallocate(SXDF)
+  call SXHAM(D,P,PA,FA,SXN,NSXS,F1,F2,DIA,SXG,nIAIA,SXH,NAOAE,SXHD,NQ,MNO)
 
   ! PAM01 Removal of certain rotations from the BLB elements.
   ! Some additional rotations (besides those listed in IZROT) may
@@ -480,34 +494,12 @@ else
   ! QQ:   Norm of update vectors
   ! OVL:  Overlap matrix
 
-  NCR = NDIMSX*NROOT*ITMAX
-  KMAX = ITMAX*NROOT
+  KMAX =        NROOT*ITMAX
   NCR1 = NDIMSX*NROOT*(ITMAX+1)
   call mma_allocate(CSX,NCR1,Label='CSX')
-  call mma_allocate(SIGMA,NCR,Label='SIGMA')
-  NLHH = KMAX**2+KMAX
-  NLCC = KMAX**2
-  NLQ = NDIMSX*(NROOT+1)
-  NLOVL = ITMAX*NROOT**2
-  call mma_allocate(HH,NLHH,Label='HH')
-  call mma_allocate(CC,NLCC,Label='CC')
-  call mma_allocate(ENER_X,KMAX,Label='ENER_X')
-  call mma_allocate(SC,NDIMSX,Label='SC')
-  call mma_allocate(QMat,NLQ,Label='QMat')
-  call mma_allocate(QQ,NROOT,Label='QQ')
-  call mma_allocate(OVL,NLOVL,Label='OVL')
 
-  call DAVCRE(CSX,SIGMA,HH,CC,ENER_X,SXHD,SC,QMat,QQ,OVL,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS)
+  call DAVCRE(CSX,ESX,SXG,SXHD,SXSEL,NROOT,ITMAX,NDIMSX,ITERSX,NSXS,DIA,F1,NIAIA,F2,NAEAE,SXH,NAOAE,SXN,BM)
 
-  ESX = ENER_X(1)
-  call mma_deallocate(SIGMA)
-  call mma_deallocate(HH)
-  call mma_deallocate(CC)
-  call mma_deallocate(ENER_X)
-  call mma_deallocate(SC)
-  call mma_deallocate(QMat)
-  call mma_deallocate(QQ)
-  call mma_deallocate(OVL)
   call mma_deallocate(F1)
   call mma_deallocate(F2)
   call mma_deallocate(SXG)
@@ -541,23 +533,12 @@ else
   if (doDMRG .and. (ITER <= 2)) NCALL = 0  ! YM: change 4 -> 2, for saving time
   if (XSXMAX > Half) NCALL = 0
   if ((NQUNE /= 0) .and. (XSXMAX < Half)) then
-    call mma_allocate(VT,NSXS,Label='VT')
-    call mma_allocate(VL,NSXS,Label='VL')
-    call mma_allocate(XQN,NSXS,Label='XQN')
-    call mma_allocate(SCR,NSXS,Label='SCR')
-    call mma_allocate(V1,NSXS,Label='V1')
-    call mma_allocate(V2,NSXS,Label='V2')
+
     CASDFT_En = Zero
     if ((KSDFT /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_En)
     CASDFT_En = ECAS+CASDFT_En
-    call QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),VL,VT,XQN,SCR,V1,V2,NSXS,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
+    call QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),NSXS,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
 
-    call mma_deallocate(VT)
-    call mma_deallocate(VL)
-    call mma_deallocate(XQN)
-    call mma_deallocate(SCR)
-    call mma_deallocate(V1)
-    call mma_deallocate(V2)
   end if
 
   ! Rotation of orbitals with exp(x) where x is obtained from
@@ -568,12 +549,7 @@ else
   ! X2:  work area, also in ORTHO (AO overlap matrix)
   ! Scr: WORK AREA
 
-  call mma_allocate(CMON,NTOT2,Label='CMON')
-  call mma_allocate(XMAT,NO2M,Label='XMAT')
-  call mma_allocate(X2,NTOT1,Label='X2')
-  call mma_allocate(Scr,NO2M,Label='SCR')
-
-  call ROTORB(CMO,CMON,CSX(LCSXI),XMAT,X2,SCR,THMAX,FA)
+  call ROTORB(CMO,CSX(LCSXI),THMAX,FA)
 
   if (IPRLEV >= DEBUG) then
     write(u6,*)
@@ -587,10 +563,7 @@ else
       iOff = iOff+nTri_Elem(iOrb)
     end do
   end if
-  call mma_deallocate(CMON)
-  call mma_deallocate(XMAT)
-  call mma_deallocate(X2)
-  call mma_deallocate(SCR)
+
   call mma_deallocate(SXN)
   call mma_deallocate(DIA)
   call mma_deallocate(CSX)
@@ -603,8 +576,7 @@ else
   call mh5_put_dset(wfn_occnum,OCC)
 # endif
   call TIMING(CPTS,CPES,TIOS,TIOES)
-end if
 
-call mma_deallocate(BM)
+End Subroutine SXCTL_Iterate
 
 end subroutine SXCtl

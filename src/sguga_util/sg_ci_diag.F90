@@ -1,0 +1,313 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2026, Roland Lindh                                     *
+!***********************************************************************
+
+subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
+                        TUVX_Tri,nTUVX_Tri, &
+                        TU_Tri,nTU_Tri, &
+                        Diag)
+
+!#define _TEST_
+#ifdef _TEST_
+  use sguga, only: sg_Epq_Psi, sg_EpqEqp_diag
+  use Definitions, only: u6
+#endif
+  use sguga, only: SGStruct, CIStruct, EXStruct
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One
+  use Definitions, only: wp, iwp
+
+  implicit none
+
+  type(SGStruct), intent(in)    :: SGS
+  type(CIStruct), intent(in)    :: CIS
+  type(EXStruct), intent(inout) :: EXS
+
+  integer(kind=iwp), intent(in) :: nCSFs
+  integer(kind=iwp), intent(in) :: CSFSym
+
+  integer(kind=iwp), intent(in) :: nTUVX_Tri
+  integer(kind=iwp), intent(in) :: nTU_Tri
+
+  real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri)
+  real(kind=wp), intent(in) :: TU_Tri(nTU_Tri)
+
+  real(kind=wp), intent(out) :: Diag(nCSFs)
+
+  real(kind=wp), allocatable :: Psi(:)
+  real(kind=wp), allocatable :: Sigma(:)
+
+  integer(kind=iwp) :: iCSF, mCSFs
+
+#ifdef _TEST_
+  logical(kind=iwp) :: ReUse_Save
+  integer(kind=iwp) :: p, q
+  real(kind=wp), allocatable :: Epq(:), Eqp(:)
+#endif
+
+! Note, the sigma vector might be of a different length than Psi. For safty measurers allocate the largest possible size.
+  mCSFs=MaxVal(CIS%nCSF)
+  call mma_allocate(Psi,nCSFs,Label='Psi')
+  call mma_allocate(Sigma,mCSFs,Label='Sigma')
+
+#ifdef _TEST_
+! turn off reuse of SGTMP
+ReUse_Save=EXS%Reuse_SGTMP
+EXS%Reuse_SGTMP=.False.
+call mma_allocate(Epq,nCSFs,Label='Epq')
+call mma_allocate(Eqp,nCSFs,Label='Eqp')
+
+do p=1,SGS%nLev
+do q=1,SGS%nLev
+!Write (u6,*) 'p,q=',p,q
+
+do iCSF=1,nCSFs
+  Psi(:) = Zero
+  Psi(iCSF) = One
+  Sigma(:) = Zero
+  call SG_Epq_Psi(SGS,CIS,EXS, &
+                  p,q, &
+                  One, &
+                  CSFSym, &
+                  Psi, &
+                  Sigma)
+! Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
+  Epq(iCSF)=Dot_product(Sigma,Sigma)
+end do
+!Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
+
+call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                    p,q, &
+                    One, &
+                    CSFSym, &
+                    Psi, &
+                    Sigma)
+!Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
+
+Do iCSF=1,nCSFs
+If (Abs(Epq(iCSF)-Sigma(iCSF))>1.0e-10_wp) Then
+   Write (u6,*) 'p, q, iCSF=',p, q, iCSF
+   Write (u6,*) 'MidLev=',SGS%MidLev
+   Write (u6,*) 'Level=',SGS%Level(1:SGS%nLev)
+   Write (u6,*) 'L2Act=',SGS%L2Act(1:SGS%nLev)
+   Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
+   Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
+   Call Abend()
+End If
+End Do
+
+end do
+end do
+
+call mma_deallocate(Eqp)
+call mma_deallocate(Epq)
+
+EXS%Reuse_SGTMP=ReUse_Save
+Write (u6,*)
+Write (u6,*) 'Test passed!'
+Write (u6,*)
+!Call Abend()
+#endif
+
+  do iCSF=1,nCSFs
+
+     Psi(:)   = Zero
+     Sigma(:) = Zero
+
+     Psi(iCSF) = One
+
+     ! sg_h_psi needs intermediate states outside a RAS space; there the
+     ! operator-ordered sg_h_psi_ras is used (both read TU/TUVX in the
+     ! symmetry-blocked orbital order)
+     if (SGS%nRsPrt == 1) then
+       call sg_h_psi(SGS,CIS,EXS, &
+                     Psi,nCSFs,CSFSym, &
+                     Sigma, &
+                     TUVX_Tri,nTUVX_Tri, &
+                     TU_Tri,nTU_Tri)
+     else
+       call sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,CSFSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+     end if
+
+     Diag(iCSF) = Sigma(iCSF)
+
+  end do
+!  call RecPrt('Diag',' ',Diag,1,nCSFs)
+
+  call mma_deallocate(Sigma)
+  call mma_deallocate(Psi)
+
+end subroutine sg_hdiag_ref
+
+subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
+                         TUVX_Tri,nTUVX_Tri, &
+                         TU_Tri,nTU_Tri, &
+                         Diag)
+
+  use sguga, only: SGStruct, CIStruct, EXStruct, SG_Epq_Psi, SG_EpqEqp_Diag, SG_Level_Ints
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One, Half, Two
+  use Definitions, only: wp, iwp
+  use Index_Functions, only: iTri
+
+  implicit none
+
+  type(SGStruct), intent(in)    :: SGS
+  type(CIStruct), intent(in)    :: CIS
+  type(EXStruct), intent(inout) :: EXS
+
+  integer(kind=iwp), intent(in) :: nCSFs
+  integer(kind=iwp), intent(in) :: CSFSym
+
+  integer(kind=iwp), intent(in) :: nTUVX_Tri
+  integer(kind=iwp), intent(in) :: nTU_Tri
+
+  real(kind=wp), intent(in)  :: TUVX_Tri(nTUVX_Tri)
+  real(kind=wp), intent(in)  :: TU_Tri(nTU_Tri)
+
+  real(kind=wp), intent(out) :: Diag(nCSFs)
+
+  real(kind=wp), allocatable :: Psi(:)
+  real(kind=wp), allocatable :: Epp(:)
+  real(kind=wp), allocatable :: Eqq(:)
+  real(kind=wp), allocatable :: EqqEpp(:)
+  real(kind=wp), allocatable :: EpqEqp(:)
+  ! the integrals indexed by graph level (TU/TUVX: symmetry-blocked orbitals)
+  real(kind=wp), allocatable :: TU_L(:), TUVX_L(:)
+
+  integer(kind=iwp) :: p,q
+  integer(kind=iwp) :: ppTri
+  integer(kind=iwp) :: ppqqTri
+  integer(kind=iwp) :: pqqpTri
+
+  real(kind=wp) :: OneInt
+  real(kind=wp) :: Coul
+  real(kind=wp) :: Exch
+
+  Diag(:) = Zero
+
+  call mma_allocate(TU_L,nTU_Tri,Label='TU_L')
+  call mma_allocate(TUVX_L,nTUVX_Tri,Label='TUVX_L')
+  call SG_Level_Ints(SGS,TU_Tri,nTU_Tri,TUVX_Tri,nTUVX_Tri,TU_L,TUVX_L)
+
+  call mma_allocate(Psi,nCSFs,Label='Psi')
+  call mma_allocate(Epp,nCSFs,Label='Epp')
+  call mma_allocate(Eqq,nCSFs,Label='Eqq')
+  call mma_allocate(EqqEpp,nCSFs,Label='EqqEpp')
+  call mma_allocate(EpqEqp,nCSFs,Label='EpqEqp')
+
+  !
+  ! Trick:
+  !
+  ! Psi(:)=1 allows SG_Epq_Psi to return the diagonal
+  ! expectation values for ALL CSFs simultaneously.
+  !
+  Psi(:) = One
+
+do p=1,SGS%nLev
+
+   Epp(:) = Zero
+
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   p,p, &
+                   One, &
+                   CSFSym, &
+                   Psi, &
+                   Epp)
+
+!
+! One-electron contribution
+!
+   ppTri = iTri(p,p)
+
+   OneInt = TU_L(ppTri)
+
+   Diag(:) = Diag(:) + OneInt*Epp(:)
+
+!
+!-------------------------------------------------------
+! PPPP contribution
+!
+! 1/2 (pp|pp) [Epp*Epp - Epp]
+!-------------------------------------------------------
+!
+   ppqqTri = iTri(iTri(p,p),iTri(p,p))
+   Coul    = Half*TUVX_L(ppqqTri)
+
+   Diag(:)=Diag(:) + Coul*(Epp(:)**2 - Epp(:))
+
+! PPQQ and PQQP contributions
+
+   do q=p+1,SGS%nLev
+
+      EqqEpp(:)=Zero
+      call SG_Epq_Psi(SGS,CIS,EXS, &
+                      q,q, &
+                      One, &
+                      CSFSym, &
+                      Epp, &
+                      EqqEpp)
+!
+!-------------------------------------------------------
+! PPQQ contribution
+!
+! (pp|qq) Epp Eqq
+!-------------------------------------------------------
+!
+      ppqqTri = iTri(iTri(p,p),iTri(q,q))
+
+      Diag(:)=Diag(:) + TUVX_L(ppqqTri)*EqqEpp(:)
+
+!
+!-------------------------------------------------------
+! PQQP contribution
+!
+! 1/2 (pq|qp)
+! [ <EpqEqp> + <EqpEpq> - Epp - Eqq ]
+!-------------------------------------------------------
+!
+      Eqq(:)=Zero
+      call SG_Epq_Psi(SGS,CIS,EXS, &
+                      q,q, &
+                      One, &
+                      CSFSym, &
+                      Psi, &
+                      Eqq)
+
+      EpqEqp(:)=Zero
+      call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                          p,q, &
+                          One, &
+                          CSFSym, &
+                          Psi, &
+                          EpqEqp)
+
+      ! EpqEqp = <E_qp E_pq> (p < q), the walk |E_pq e_I|**2, is exact also
+      ! in a RAS graph; <E_pq E_qp> = <E_qp E_pq> + n_p - n_q (its walk
+      ! |E_qp e_I|**2 would need intermediate states outside a RAS space),
+      ! so <E_pq E_qp> + <E_qp E_pq> - n_p - n_q = 2 (<E_qp E_pq> - n_q).
+      pqqpTri = iTri(iTri(q,p),iTri(q,p))
+      Exch    = Half*TUVX_L(pqqpTri)
+
+      Diag(:)=Diag(:) + Exch * Two * ( EpqEqp(:) - Eqq(:) )
+   end do
+end do
+
+  call mma_deallocate(EpqEqp)
+  call mma_deallocate(TUVX_L)
+  call mma_deallocate(TU_L)
+  call mma_deallocate(EqqEpp)
+  call mma_deallocate(Eqq)
+  call mma_deallocate(Epp)
+  call mma_deallocate(Psi)
+
+end subroutine sg_hdiag_fast
