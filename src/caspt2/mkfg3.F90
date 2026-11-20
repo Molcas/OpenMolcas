@@ -80,16 +80,20 @@ integer(kind=byte), intent(out) :: idxG3(6,nG3)
 integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, IP1STA, IP2, &
                      IP3, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, IXLEV, &
                      IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, NLEV2, NSGM1, &
-                     NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
+                     NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2, NBAT, NBATMX, NCOL, MEMBAT
 real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
-integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
-real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:), BUFT(:)
+integer(kind=iwp), allocatable :: BAT_IDX(:,:), ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
+real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:,:), BUFT(:,:)
 integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: DDOT_, DNRM2_
 
 ! IJ2IDX, IDX2IJ, ICNJ, IP1_BUF: translation tables for levels i,j to and from pair indices idx
 ! BUFR: result buffer, maximum size is the largest possible ip1 range,
-! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
+! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2,
+! times the number of columns of BUFT
+! BUFT: batch of NBATMX ket vectors E_ip2 E_ip3|Psi0> (and with mkF their
+! products with H0-e_v, interleaved: column 2k-1 G, 2k F), contracted with
+! BUF1 in one DGEMM; BAT_IDX(1:4,k) = ibmn, nb, iv, ix of the k-th one
 
 ! Put in zeroes. Recognize special cases:
 if (nlev == 0) return
@@ -179,8 +183,14 @@ if (do_grad .or. (nStpGrd == 2)) then
 end if
 call mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
 call mma_allocate(BUF2,MXCI,LABEL='BUF2')
-call mma_allocate(BUFT,MXCI,LABEL='BUFT')
 call mma_allocate(BUFD,MXCI,LABEL='BUFD')
+! the batch of ket vectors takes what is left (BUFT was counted in nbuf1)
+NCOL = 1
+if (mkF) NCOL = 2
+call mma_MaxDBLE(membat)
+NBATMX = max(1,min(16,ntri2,int(real(membat,kind=wp)*0.9_wp,kind=iwp)/(NCOL*(MXCI+nlev2))))
+call mma_allocate(BUFT,MXCI,NCOL*NBATMX,LABEL='BUFT')
+call mma_allocate(BAT_IDX,4,NBATMX,LABEL='BAT_IDX')
 
 !-SVC20100301: calculate maximum number of tasks possible
 MXTASK = (NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
@@ -194,7 +204,7 @@ if (iPrGlb >= VERBOSE) then
 end if
 
 call mma_allocate(ip1_buf,nlev2,Label='ip1_buf')
-call mma_allocate(bufr,nlev2,Label='bufr')
+call mma_allocate(bufr,nlev2,NCOL*NBATMX,Label='bufr')
 
 !! For gradients, iTasks_grad has the sequence of subtasks executed below so that derfg3 processes exactly the same batching
 if (do_grad .or. (nStpGrd == 2)) then
@@ -388,80 +398,49 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     end if
 
     nbtot = 0
+    nbat = 0
     do ip2=ip3,ntri2
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
       isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
-      iv = CI_St(istate)%L2Act(ivlev)
-      ix = CI_St(istate)%L2Act(ixlev)
-      if (isvx == Mul(issg1,issg2)) then
-        BUFT(1:nSgm1) = Zero
-        ! form <0| E_zy E_xv
-        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
-        !-----------
-        ! Max and min values of index p1:
-        ip1mx = ntri2
-        if (ip3 <= ntri1) then
-          ip1mx = nlev2
-          if (ip2 > ntri1) ip1mx = iq1
-        end if
-        ip1mn = max(ip2,ip1sta)
-        ip1mx = min(ip1mx,ip1end)
-        ! The corresponding locations in the Sgm1 buffer:
-        ibmn = 999999
-        ibmx = -999999
-        do ib=ibuf1,1,-1
-          ip1 = ip1_buf(ib)
-          if (ip1 >= ip1mn) ibmn = ib
-        end do
-        do ib=1,ibuf1
-          ip1 = ip1_buf(ib)
-          if (ip1 <= ip1mx) ibmx = ib
-        end do
-        nb = ibmx-ibmn+1
-        if (nb > 0) then
-
-          !-----------
-          ! Contract the Sgm1 wave functions with the Tau wave function.
-          ! form <0| E_zy E_xv * E_ut|0>
-          call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
-          ! and distribute this result into G3:
-          G3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
-          ! and copy the active indices into idxG3:
-          do ib=1,nb
-            iG3 = iG3OFF+ib
-            idx = ip1_buf(ibmn-1+ib)
-            itlev = idx2ij(1,idx)
-            iulev = idx2ij(2,idx)
-            iT = CI_St(istate)%L2Act(itlev)
-            iU = CI_St(istate)%L2Act(iulev)
-            idxG3(1,iG3) = int(iT,kind=byte)
-            idxG3(2,iG3) = int(iU,kind=byte)
-            idxG3(3,iG3) = int(iV,kind=byte)
-            idxG3(4,iG3) = int(iX,kind=byte)
-            idxG3(5,iG3) = int(iY,kind=byte)
-            idxG3(6,iG3) = int(iZ,kind=byte)
-          end do
-
-          if (mkF) then
-            ! Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
-            ! form <0| E_zy E_xv (H0 -e_v)
-            BufT(1:nSgm1) = (BufD(1:nSgm1)-EpsA(iV))*BufT(1:nSgm1)
-            !do icsf=1,nsgm1
-            !  buft(icsf) = (bufd(icsf)-epsa(iv))*buft(icsf)
-            !end do
-            ! so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-
-            ! form <0| E_zy E_xv (H0 -e_v) E_ut|0> = F3(iuv,xyz)
-            call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
-            F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
-          end if
-
-          iG3OFF = iG3OFF+nb
-          nbtot = nbtot+nb
-        end if
+      if (isvx /= Mul(issg1,issg2)) cycle
+      !-----------
+      ! Max and min values of index p1:
+      ip1mx = ntri2
+      if (ip3 <= ntri1) then
+        ip1mx = nlev2
+        if (ip2 > ntri1) ip1mx = iq1
       end if
+      ip1mn = max(ip2,ip1sta)
+      ip1mx = min(ip1mx,ip1end)
+      ! The corresponding locations in the Sgm1 buffer:
+      ibmn = 999999
+      ibmx = -999999
+      do ib=ibuf1,1,-1
+        ip1 = ip1_buf(ib)
+        if (ip1 >= ip1mn) ibmn = ib
+      end do
+      do ib=1,ibuf1
+        ip1 = ip1_buf(ib)
+        if (ip1 <= ip1mx) ibmx = ib
+      end do
+      nb = ibmx-ibmn+1
+      if (nb <= 0) cycle
+      nbat = nbat+1
+      bat_idx(1,nbat) = ibmn
+      bat_idx(2,nbat) = nb
+      bat_idx(3,nbat) = CI_St(istate)%L2Act(ivlev)
+      bat_idx(4,nbat) = CI_St(istate)%L2Act(ixlev)
+      j = NCOL*(nbat-1)+1
+      BUFT(1:nSgm1,j) = Zero
+      ! form <0| E_zy E_xv
+      call CI_Epq_Psi(istate,IVLEV,IXLEV,One,ISSG2,BUF2,BUFT(:,j))
+      ! Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
+      ! form <0| E_zy E_xv (H0 -e_v)
+      if (mkF) BUFT(1:nSgm1,j+1) = (BufD(1:nSgm1)-EpsA(bat_idx(3,nbat)))*BufT(1:nSgm1,j)
+      if (nbat == NBATMX) call Flush_Batch()
     end do
+    call Flush_Batch()
 
     if (iPrGlb >= DEBUG) write(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)') iSubTask,ip1sta,ip1end,ip3,nbtot
     !! consistent tasks must be executed here and in derfg3 for grad
@@ -502,6 +481,7 @@ call mma_deallocate(TASKLIST)
 call mma_deallocate(BUF1)
 call mma_deallocate(BUF2)
 call mma_deallocate(BUFT)
+call mma_deallocate(BAT_IDX)
 call mma_deallocate(BUFD)
 
 !-SVC20100302: Synchronized add into the densitry matrices
@@ -664,6 +644,46 @@ if (iPrGlb >= DEBUG) then
 end if
 
 contains
+
+!> Contract the batch of ket vectors in BUFT with the Sgm1 wave functions
+!> in BUF1 (one DGEMM over the union of their ip1 ranges) and distribute
+!> the results into G3 (and F3) in the order of the ip2 loop.
+subroutine Flush_Batch()
+
+  integer(kind=iwp) :: ib_, ibat, iblo, ibhi, idx_, iG3_, jcol, nb_, nrow
+
+  if (nbat == 0) return
+  iblo = huge(iblo)
+  ibhi = -huge(ibhi)
+  do ibat=1,nbat
+    iblo = min(iblo,bat_idx(1,ibat))
+    ibhi = max(ibhi,bat_idx(1,ibat)+bat_idx(2,ibat)-1)
+  end do
+  nrow = ibhi-iblo+1
+  ! form <0| E_zy E_xv * E_ut|0> (and <0| E_zy E_xv (H0 -e_v) E_ut|0>)
+  call DGEMM_('T','N',nrow,NCOL*nbat,nsgm1,One,BUF1(:,iblo),mxci,BUFT,mxci,Zero,bufr,nlev2)
+  do ibat=1,nbat
+    nb_ = bat_idx(2,ibat)
+    ib_ = bat_idx(1,ibat)-iblo+1
+    jcol = NCOL*(ibat-1)+1
+    G3(iG3OFF+1:iG3OFF+nb_) = bufr(ib_:ib_+nb_-1,jcol)
+    if (mkF) F3(iG3OFF+1:iG3OFF+nb_) = bufr(ib_:ib_+nb_-1,jcol+1)
+    ! and copy the active indices into idxG3:
+    do iG3_=iG3OFF+1,iG3OFF+nb_
+      idx_ = ip1_buf(bat_idx(1,ibat)+iG3_-iG3OFF-1)
+      idxG3(1,iG3_) = int(CI_St(istate)%L2Act(idx2ij(1,idx_)),kind=byte)
+      idxG3(2,iG3_) = int(CI_St(istate)%L2Act(idx2ij(2,idx_)),kind=byte)
+      idxG3(3,iG3_) = int(bat_idx(3,ibat),kind=byte)
+      idxG3(4,iG3_) = int(bat_idx(4,ibat),kind=byte)
+      idxG3(5,iG3_) = int(iY,kind=byte)
+      idxG3(6,iG3_) = int(iZ,kind=byte)
+    end do
+    iG3OFF = iG3OFF+nb_
+    nbtot = nbtot+nb_
+  end do
+  nbat = 0
+
+end subroutine Flush_Batch
 
 ! Build the task list for symmetry issg
 subroutine build_TaskList(issg,nTasks_,nSubTasks_)
