@@ -17,7 +17,7 @@
 !> CI interface (the gateway), not to either environment.
 module SG_Lucia_Bridge
 
-use sguga, only: CIS, EXS, MkCOT, MkSgNum, SG_NUM, SG_PHASE, SGS, StepVec
+use sguga, only: CIS, EXS, MkCOT, MkSgNum, SG_NUM, SG_Num_Setup, SG_PHASE, SGS, StepVec
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -54,7 +54,7 @@ subroutine SG_ReOrd_orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !     University of Lund, Sweden, 1990                                 *
 !***********************************************************************
 
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
 use Constants, only: One
@@ -76,8 +76,7 @@ real(kind=wp) :: Fact
 integer(kind=iwp) :: i
 #endif
 
-If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
-If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
+call SG_Num_Setup(iState,IREFSM)
 
 
 ICSFJP = 0
@@ -312,7 +311,7 @@ end subroutine SG_Lucia_Walk
 !> (used for nRsPrt /= 1, where the CDCInfo tables are not built).
 subroutine SG_Lucia_Walk_CFTP(iState,IREFSM,ICSF,IWALK,IP)
 
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
 

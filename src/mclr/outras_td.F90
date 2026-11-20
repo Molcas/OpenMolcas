@@ -26,16 +26,18 @@ subroutine OutRAS_td(iKapDisp,iCiDisp)
 !         Theoretical Chemistry, University of Lund                *
 !*******************************************************************
 
+use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use MCLR_Data, only: DspVec, lDisp, LuTEMP, nConf1, nDens, nDensC
-use general_data, only: nSym, STSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: iMethod, kPrint, nCSF, nDisp, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
 integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iMode, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym
 logical(kind=iwp) :: CI
@@ -54,7 +56,7 @@ write(u6,*)
 idisp = 0
 do iSym=1,nSym
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(STSym,iSym)
+  PState_SYM = Mul(CI_St(iState)%STSym,iSym)
   nconfM = ncsf(PState_Sym)
   nconf1 = ncsf(PState_Sym)
   CI = .false.
@@ -73,7 +75,7 @@ do iSym=1,nSym
     else
       call mma_allocate(CIp1,nconf1,1,Label='CIp1')
     end if
-    call InCSFSD(Pstate_sym,STSym)
+    call InCSFSD(Pstate_sym,CI_St(iState)%STSym)
   end if
   do jDisp=1,lDisp(iSym)
     iDisp = iDisp+1

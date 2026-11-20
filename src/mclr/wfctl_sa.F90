@@ -18,10 +18,12 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 !                                                                      *
 !***********************************************************************
 
+use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
-use general_data, only: nAsh, nRS2, STSym
+use Orbital_Spaces, only: nAsh
+use CI_Input, only: nRS2
 use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, NROOTS, PT2, STEPTYPE, &
                       TWOSTEP
 use PCM_grad, only: def_solv, do_RF, iStpPCM, PCM_grad_CLag, PCM_grad_PT2
@@ -33,6 +35,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp)
 logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
@@ -72,7 +75,7 @@ if (lSAVE) then
   call Abend()
 end if
 isym = 1
-nconf1 = ncsf(STSym)
+nconf1 = ncsf(CI_St(iState)%STSym)
 !! iStpPCM has been set somewhere; just a reminder
 iStpPCM = 1
 
@@ -80,7 +83,7 @@ CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(Mul(iSym,STSym),STSym)
+call InCSFSD(Mul(iSym,CI_St(iState)%STSym),CI_St(iState)%STSym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
@@ -91,7 +94,7 @@ call InCSFSD(Mul(iSym,STSym),STSym)
 !
 ! Output: Commonblocks (Pointers.fh)
 
-nConf3 = nint(max(xispsm(STSym,1),xispsm(STSym,1)))
+nConf3 = nint(max(xispsm(CI_St(iState)%STSym,1),xispsm(CI_St(iState)%STSym,1)))
 
 call Setup_MCLR(iSym)
 
@@ -101,7 +104,7 @@ call Setup_MCLR(iSym)
 
 call mma_allocate(FANCY,nroots**3,Label='FANCY')
 call mma_allocate(rCHC,nRoots,Label='rCHC')
-call CIDia_SA(STSym,rCHC,Fancy)
+call CIDia_SA(CI_St(iState)%STSym,rCHC,Fancy)
 call mma_deallocate(rCHC)
 
 call ipOut(ipdia)
@@ -195,7 +198,7 @@ else
       do iR=1,nRoots
         wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
         iMode = 1
-        call SG2SymG(wrk,nConf1,iMode,STSym)
+        call SG2SymG(wrk,nConf1,iMode,CI_St(iState)%STSym)
         W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
       end do
       call mma_deallocate(wrk)

@@ -17,7 +17,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use ci_interfaces, only: Mk_T1DM
 use rasscf_global, only: iAdr15, lRoots, nAc
 use rasscf_files, only: JOBIPH
-use general_data, only: NCONF
+use rasscf_global, only: NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

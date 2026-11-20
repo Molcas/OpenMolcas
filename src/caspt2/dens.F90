@@ -25,7 +25,7 @@ use PrintLevel, only: DEBUG, VERBOSE
 use EQSOLV, only: IVECC, IVECC2, IVECR, IVECW, IVECX
 use ChoCASPT2, only: iALGO, MaxVec_PT2
 use CI_Info, only: CI_St
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
                          DPT2Canti_tot, DRDMFro, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_FroSCF, if_invar, &
                          if_invaria, if_SSDM, imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, RDMSCF, &

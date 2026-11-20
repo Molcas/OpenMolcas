@@ -29,17 +29,19 @@ use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings
 use CMS, only: CMSGiveOpt, iCMSOpt
 use UnixInfo, only: SuperName
-use general_data, only: IGSOCCX, NGAS, NGSSH
+use CI_Input, only: IGSOCCX, NGAS, NGSSH
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, NSEL, NSSH, STSYM
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSSH
+use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, NRS3, STSYM
+use rasscf_global, only: NSEL
 use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, ICIRST, &
                          ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot, &
                          iPhName, iPT2, iRLXRoot, IROOT, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, iXMSP, ixSym, &
                          KSDFT, kTight, LOWDIN_ON, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NALTER, NewFock, NonEq, &
                          NQUNE, NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXDAMP, SXSel, &
                          ThFact, Thre, ThrEn, ThrSX, ThrTE, Title, TMin, Weight
-use spinfo, only: I_ELIMINATE_GAS, ISPEED
+use CI_Info, only: Space_Inp
 use rasscf_files, only: STARTORBFILE
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half
@@ -195,8 +197,9 @@ ICICH = 0
 
 ISUPSM = 0
 ! make no use of supersymmetry
-I_ELIMINATE_GAS = 0
-! Highly excited states are not default
+! Highly excited states are not default (HEXS/DEXS)
+Space_Inp%nHEXS = 0
+Space_Inp%nDEXS = 0
 hRoots = 0
 ! No hidden roots by default
 n_keep = 0
@@ -290,10 +293,6 @@ StartOrbFile = 'INPORB'
 ! Initialize alpha or beta orbitals (none):
 iAlphaBeta = 0
 
-! Initialize speed options (turn everything that's working on)
-iSpeed(1:2) = 1
-! The rest is at the present time just to allow testing
-iSpeed(3:) = 0
 
 TimeTotal = Zero
 TimeInput = Zero

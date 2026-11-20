@@ -18,9 +18,10 @@ subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
 use ci_interfaces, only: Mk_pdms
 use rasscf_global, only: DoDMRG, Ener, IADR15, ITER, NAC, NACPAR, NACPR2, nRoots
 use DWSol, only: DWSol_wgt, W_SOLV
-use general_data, only: iDoGAS
+use CI_Input, only: iDoGAS
 use rasscf_files, only: JOBIPH
-use general_data, only: NACTEL, NCONF
+use CI_Input, only: NACTEL
+use rasscf_global, only: NCONF
 use CI_Info, only: CI_St
 use sxci, only: IDXSX
 #ifdef _DMRG_

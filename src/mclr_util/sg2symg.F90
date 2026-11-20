@@ -12,10 +12,11 @@
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
 use CI_Info, only: CI_St
-use CI_States, only: CI_Free_State, CI_ReOrd_Orig
+use CI_States, only: CI_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
-use lucia_data, only: CFTP, CONF_OCC
-use general_data, only: nSym, STSym
+use lucia_data, only: CFTP, CONF_OCC, MINOP, NCNFTP, NCSFTP, NTYP
+use MCLR_Data, only: MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, NTYP_MCLR => NTYP
+use Orbital_Spaces, only: nSym
 use input_mclr, only: NCSF, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -36,13 +37,13 @@ real(kind=wp), parameter :: PRWTHR = 0.05_wp
 
 ! Transformation of CI vector to symmetric group from GUGA pepresentation, or the reverse
 
-call SG_Setup_MCLR()
+! (the CI state of the run, SG_Setup_MCLR in RdJobIph)
 
 NCSF(1:nSym) = CI_St(istate)%nCSF(1:nSym)
 NCONF = CI_St(istate)%nCSF(pState_Sym)
 
 iss = 1
-if (pState_sym /= STSym) iss = 2
+if (pState_sym /= CI_St(iState)%STSym) iss = 2
 
 #ifdef _DEBUGPRINT_
 write(u6,101)
@@ -60,6 +61,12 @@ call mma_allocate(Conf_Occ(pState_Sym)%A,size(CNSM(iss)%ICONF),Label='CINEW')
 Conf_Occ(pState_Sym)%A(:) = -CNSM(iss)%ICONF
 call mma_allocate(CFTP,size(CFTP_MCLR),Label='CFTP')
 CFTP(:) = CFTP_MCLR(:)
+! MCLR's configuration types, for the reordering in the CI interface
+! (sg_lucia_bridge reads Lucia's tables)
+MINOP = MINOP_MCLR
+NTYP = NTYP_MCLR
+NCNFTP(:,:) = NCNFTP_MCLR(:,:)
+NCSFTP(:) = NCSFTP_MCLR(:)
 
 call CI_ReOrd_Orig(istate,pState_Sym,iMode,nConf,CI,CINEW)
 
@@ -72,7 +79,5 @@ call mma_deallocate(CINEW)
 #ifdef _DEBUGPRINT_
 call CI_PrWF(iState,pState_sym,PRWTHR,CI_St(istate)%iSpin,CI,nConf,.false.,-99)
 #endif
-
-call CI_Free_State(iState)
 
 end subroutine sg2symg

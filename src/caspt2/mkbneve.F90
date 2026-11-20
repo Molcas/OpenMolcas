@@ -15,7 +15,7 @@ subroutine MKBNEVE(nAshT,Hact,Gact,G1,G2)
 
 use Index_Functions, only: iTri, nTri_Elem
 use caspt2_global, only: LUSBT
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAES, NINDEP, NSYM
 use EQSOLV, only: IDBMAT
 use Symmetry_Info, only: Mul

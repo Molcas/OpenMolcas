@@ -20,7 +20,7 @@
 subroutine EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2AO,FPT2CAO,DRDM,CMO,Trf,FPT2,FPT2C,FIFA,FIMO,RDM)
 
 use caspt2_global, only: OLag
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NBAS, NBAST, NDEL, NFRO, NFROT, NISH, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

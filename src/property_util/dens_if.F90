@@ -21,7 +21,7 @@ subroutine Dens_IF(i_root,CA,CB,OCCA,OCCB)
 use casvb_global, only: ifvb
 use rasscf_global, only: iADR15, iOrbTyp, NAC, NACPAR, NACPR2
 use rasscf_files, only: JOBIPH
-use general_data, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
+use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp

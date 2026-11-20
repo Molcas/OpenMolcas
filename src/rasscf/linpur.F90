@@ -12,7 +12,7 @@
 subroutine LINPUR(CMO)
 
 use rasscf_global, only: BName, IXSYM
-use general_data, only: NBAS, NORB, NSYM
+use Orbital_Spaces, only: NBAS, NORB, NSYM
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

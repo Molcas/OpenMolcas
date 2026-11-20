@@ -22,7 +22,7 @@ use Fock_util_global, only: ALGO, DoCholesky
 use rasscf_files, only: LUINTM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
-use general_data, only: NTOT1
+use Orbital_Spaces, only: NTOT1
 #endif
 use wadr, only: nPWXY
 use Definitions, only: wp, iwp, u6

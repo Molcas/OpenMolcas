@@ -15,7 +15,6 @@ subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use CI_Info, only: CI_St
-use general_data, only: STSym
 use caspt2_global, only: CLag, CLagFull, CMOPT2, do_csf, do_nac, DPT2_tot, FIFA, FIFA_all, FIFASA_all, if_equalW, iRoot1, iRoot2, &
                          NDREF, nOLag, OLag, RDMSCF, TORB
 use caspt2_module, only: ENERGY, IFDW, IFRMS, IFXMS, MXCI, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NROOTS, NSTATE, &
@@ -94,7 +93,8 @@ if (IFXMS .or. IFRMS) then
       NTG1 = NASHT**2
       NTG3 = nTri3_Elem(NTG1)
       OVL = Zero
-      call DERTG3(.false.,STSYM,STSYM,NCONF,NASHT,CI1,CI2,OVL,DG1,DG2,NTG3,DG3,CLag(1,iStat),CLag(1,jStat))
+      call DERTG3(.false.,CI_St(jState)%STSym,CI_St(jState)%STSym,NCONF,NASHT,CI1,CI2,OVL,DG1,DG2,NTG3,DG3,CLag(1,iStat), &
+                  CLag(1,jStat))
       call mma_deallocate(DG3)
     end do
   end do

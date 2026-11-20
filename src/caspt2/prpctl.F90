@@ -29,7 +29,7 @@ use Para_Info, only: Is_Real_Par
 use EQSOLV, only: IVECX, NLSTOT
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, do_nac, DPT2_tot, DPT2C_tot, iPrGlb, iRoot1, iRoot2, LISTS, LUONEM, &
                          NCMO, SLag, TORB
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: BNAME, CPT2Method, Energy, IAD1M, IFMSCOUP, IFPROP, irlxroot, ISCF, JSTATE, MSTATE, MSTATE, NASHT, NBAS, &
                          NBAST, NCONF, NDEL, NFRO, NISH, NORB, NRAS1, NRAS2, NRAS3, NSYM, OUTFMT, PRORB, THRENE, THROCC
 use stdalloc, only: mma_allocate, mma_deallocate

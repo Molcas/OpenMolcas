@@ -16,7 +16,7 @@ subroutine RHS_PT2(rkappa,CLag,SLag)
 ! CASPT2 module, so here we only need to read it from file
 
 use MCLR_Data, only: LuPT2, nDens
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: nCSF, nOrb, nRoots
 use Definitions, only: wp, iwp
 

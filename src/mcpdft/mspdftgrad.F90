@@ -13,6 +13,7 @@
 
 module mspdftgrad
 
+use CI_Info, only: CI_St
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
@@ -29,8 +30,10 @@ subroutine mspdftgrad_init()
 
   use rasscf_global, only: nacpr2, nroots, nTot4
   use mcpdft_input, only: mcpdft_options
-  use general_data, only: ispin, ntot1
+  use Orbital_Spaces, only: ntot1
   use Constants, only: Zero
+  use Definitions, only: iwp
+  integer(kind=iwp), parameter :: iState = 1
 
   call mma_allocate(F1MS,nTot1,nRoots,label='F1MS')
   call mma_allocate(F2MS,NacPR2,nRoots,label='F2MS')
@@ -39,7 +42,7 @@ subroutine mspdftgrad_init()
   call mma_allocate(P2MOT,nacpr2,nroots,label='P2MO')
   call mma_allocate(D1AOMS,ntot1,nroots,label='D1AOMS')
   call mma_allocate(DIDA,ntot1,nroots+1,label='DIDA')
-  if (iSpin /= 1) call mma_allocate(D1SaoMS,nTot1,nRoots,label='D1SAOMS')
+  if (CI_St(iState)%iSpin /= 1) call mma_allocate(D1SaoMS,nTot1,nRoots,label='D1SAOMS')
 
   P2MOT(:,:) = Zero
 

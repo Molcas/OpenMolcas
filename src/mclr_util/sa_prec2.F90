@@ -11,18 +11,19 @@
 
 subroutine SA_PREC2(rdia,S,CI,ENE)
 
-use general_data, only: STSym
+use CI_Info, only: CI_St
 use input_mclr, only: nCSF, nRoots
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: rdia(nCSF(STSym)), CI(nCSF(STSym),nCSF(STSym)), ENE
+integer(kind=iwp), parameter :: iState = 1
+real(kind=wp), intent(in) :: rdia(nCSF(CI_St(iState)%STSym)), CI(nCSF(CI_St(iState)%STSym),nCSF(CI_St(iState)%STSym)), ENE
 real(kind=wp), intent(out) :: S(nroots,nroots)
 integer(kind=iwp) :: i, j, k, n
 real(kind=wp) :: dnum
 
-n = nCSF(STSym)
+n = nCSF(CI_St(iState)%STSym)
 S(:,:) = Zero
 do i=1,nroots
   do j=1,nroots

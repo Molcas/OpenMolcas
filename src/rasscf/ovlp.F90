@@ -45,7 +45,7 @@ subroutine Ovlp(iWay,C1,C2,Smat)
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: NAC
-use general_data, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT1
+use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

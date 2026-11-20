@@ -22,11 +22,12 @@ subroutine rotorb(cmoo,c,thmax,FA)
 !      ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
 use Index_Functions, only: nTri_Elem
-use general_data, only: iDoGAS, NGAS, NGSSH
+use CI_Input, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: CMAX, iXSym, PURIFY, ROTMAX, NO2M
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRLOC
-use general_data, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NSSH, NSYM, NTOT2, NTOT1
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NSSH, NSYM, NTOT2, NTOT1
+use CI_Input, only: NRS1, NRS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6

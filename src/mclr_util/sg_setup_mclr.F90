@@ -9,16 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SG_Setup_MCLR()
+!> The CI state of MCLR (CI_St(iState), CI_Info) for the whole run: set up
+!> once after the reference wave function has been read (RdJobIph,
+!> RdJobIph_td; Mode 'GRAPH': graph and walks, for the reorderings of
+!> SG2SymG), freed at the end of MCLR.
+subroutine SG_Setup_MCLR(Mode)
 
 use molcas, only: MxLev
-use CI_States, only: CI_Setup_SG
-use general_data, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
-use general_data, only: nRas, nRasEl, nRsPrt
+use CI_States, only: CI_Setup_RAS
+use Orbital_Spaces, only: nSym
+use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iBas, iq, ISM(MxLev), iSym, Level(MxLev), nLev, nRs1T
+character(len=*), intent(in) :: Mode
+integer(kind=iwp) :: iBas, iq, ISM(MxLev), iSym, Level(MxLev), nLev
 integer(kind=iwp), parameter :: iState = 1
 
 nLev = 0
@@ -41,23 +46,9 @@ do iSym=1,nSym
   end do
 end do
 
-if (nHole1+nElec3 /= 0) then
-  nRsPrt = 3
-  nRas(:,1) = nRs1(:)
-  nRas(:,2) = nRs2(:)
-  nRas(:,3) = nRs3(:)
-  nRs1T = sum(nRs1(1:nSym))
-  nRasEl(1) = 2*nRs1T-nHole1
-  nRasEl(2) = nActel-nElec3
-  nRasEl(3) = nActel
-else
-  nRsPrt = 1
-  nRas(:,1) = nRs2(:)
-  nRasEl(1) = nActel
-end if
-
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-call CI_Setup_SG(istate,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,Level,nLev,ISM,'GRAPH')
+call CI_Setup_RAS(istate,nSym,nActEl,iSpin,STSym,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nLev,Level(1:nLev), &
+                  Level(1:nLev),ISM(1:nLev),Mode)
 
 end subroutine SG_Setup_MCLR

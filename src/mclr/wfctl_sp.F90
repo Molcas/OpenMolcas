@@ -18,16 +18,17 @@ subroutine WfCtl_sp(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP)
 !                                                                      *
 !***********************************************************************
 
+use CI_Info, only: CI_St
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: FIMO, G1m, G2mp, Int2, ipCI, ipDia, LuTemp, MS2P, n1Dens, nConf1, nDens, nDensC, nNA, RMS, SFock, XISPSM
 use MCLR_procedures, only: CISigma
-use general_data, only: STSym
 use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, nCSF, nDisp, nIter, PotNuc, rIn_Ene
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), &
                                   iRHSCIDisp(nDisp)
 integer(kind=iwp) :: i1, iDis, iDisp, iLen, ipCID, ipCIT, ipS1, ipS2, ipST, Iter, j1, Left, lLine, lPaper, nConf3
@@ -53,17 +54,17 @@ lprint = .false.
 nconf1 = 0
 
 lprint = btest(kprint,0)
-if (iMethod == 2) call InCSFSD(STSym,STSym)
+if (iMethod == 2) call InCSFSD(CI_St(iState)%STSym,CI_St(iState)%STSym)
 
-nconf1 = ncsf(STSym)
-nconf3 = nint(xispsm(STSym,1))
+nconf1 = ncsf(CI_St(iState)%STSym)
+nconf3 = nint(xispsm(CI_St(iState)%STSym,1))
 call Setup_MCLR(1)
 
 !                            [2]
 ! Calculate the diagonal of E    and store in core/disc
 
 if (imethod > 0) then
-  if (nconf1 > 1) call CIDia_MCLR(STSym,rCHC)
+  if (nconf1 > 1) call CIDia_MCLR(CI_St(iState)%STSym,rCHC)
   call ipout(ipdia)
 
   ! Allocate disk/memory space
@@ -195,7 +196,7 @@ do
   if ((i1 > 0) .and. (j1 > 0)) write(u6,*) 'Kap_sig',Sc4(j1)
   if (nconf1 > 1) then
     call opout(-1)
-    call CISigma(1,STSym,STSym,Temp4,nDens,rmoaa,nna**4,rmoaa2,nna**4,ipCI,ipS1,.true.)
+    call CISigma(1,CI_St(iState)%STSym,CI_St(iState)%STSym,Temp4,nDens,rmoaa,nna**4,rmoaa2,nna**4,ipCI,ipS1,.true.)
     call opout(-1)
     call ipin(ipCI)
     call ipin(ipS1)
@@ -206,7 +207,7 @@ do
 
     call opout(-1)
 
-    call CISigma(0,STSym,STSym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,.true.)
+    call CISigma(0,CI_St(iState)%STSym,CI_St(iState)%STSym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,.true.)
     call opout(-1)
     EC = rin_ene+potnuc-ERASSCF(1)
 
@@ -217,7 +218,7 @@ do
 
     call ipin(ipCI)
     call ipin(ipCid)
-    call SpinDens(W(ipCI)%A,W(ipCid)%A,STSym,STSym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
+    call SpinDens(W(ipCI)%A,W(ipCid)%A,CI_St(iState)%STSym,CI_St(iState)%STSym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
 
     d_0 = ddot_(nconf1,W(ipCid)%A,1,W(ipci)%A,1)
     call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)

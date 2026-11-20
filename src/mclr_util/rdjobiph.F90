@@ -30,13 +30,15 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sNew
 use MCLR_Data, only: CMO, FnJob, FnMck, G1t, G2t, IRLXROOT, ISNAC, ISTATE, LuJob, LuMck, nA, NACSTATES, nNA, NSSA, OVERRIDE, SA
-use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, STSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
+use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
 use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iTOC, iTocIph, lRoots, McKinley, nBas, nCOnf, nDel, &
                       nFro, nOrb, nRoots, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
+use CI_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -45,7 +47,7 @@ real(kind=wp), allocatable, intent(out) :: CIVec(:,:)
 integer(kind=iwp) :: i, iDisk, iDummer, iGo, iMode, iOpt, iRC, iS, iSym, Iter, j, jS, k, kRoots, kS, Length, lS, nAct, nAct2, &
                      nAct4, nG1, nG2
 real(kind=wp) :: PotNuc0, rdum(1), Temp
-logical(kind=iwp) :: Found
+logical(kind=iwp) :: Found, FoundSpace, GAS
 character(len=8) :: Method
 real(kind=wp), allocatable :: Tmp2(:)
 character, allocatable :: TempTxt(:)
@@ -70,6 +72,10 @@ kRoots = lRoots
 call DaName(LuJob,FnJob)
 iDisk = 0
 call iDaFile(LuJob,2,iToc,iTOCIPH,iDisk)
+! the CI space of the wave function (record of RASSCF)
+call CI_Space_Rd_JobIph(LuJob,iToc(19),FoundSpace,GAS)
+if (GAS) call CI_No_GAS('MCLR')
+call CI_Space_Free()
 !----------------------------------------------------------------------*
 !     Read the the system description                                  *
 !----------------------------------------------------------------------*
@@ -84,6 +90,8 @@ if (doDMRG) then ! yma
   nash(:) = LRras2(:)
   nrs2(:) = LRras2(:)
 end if
+! the CI state of MCLR for the whole run (CI_Info)
+call SG_Setup_MCLR('GRAPH')
 !do i=1,8
 !  write(u6,*) i,'-irrep',nIsh(i),nAsh(i),nRs1(i),nRs2(i),nRs3(i)
 !  call xflush(u6)

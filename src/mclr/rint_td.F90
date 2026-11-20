@@ -33,7 +33,7 @@ subroutine RInt_td(ekappa,mkappa,isym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t, ipCM, ipMat, nA, nDens
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nBas, Omega
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two

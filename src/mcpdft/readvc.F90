@@ -27,7 +27,7 @@ use mcpdft_output, only: iPrGlb, iPrLoc
 use mcpdft_input, only: mcpdft_options
 use rasscf_files, only: jobiph, jobold
 use rasscf_global, only: invec
-use general_data, only: ntot2
+use Orbital_Spaces, only: ntot2
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_fetch_dset, mh5_open_file_r
 #endif

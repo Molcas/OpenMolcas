@@ -21,7 +21,7 @@ use ChoCASPT2, only: MXCHARR, MXNVC, NCHSPC, NFTSPC, NHTSPC, NUMCHO_PT2
 use Cho_Square, only: Cho_Red2Sq, Cho_Sq_Close, Cho_Sq_Setup, IPLSQ, LSQ, NSUB
 use PrintLevel, only: VERBOSE
 use caspt2_global, only: iPrGlb
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: nBas, nBasT, nBSqT, nBtch, nBtches, nBTri, nFro, nFroT, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: PotNuc

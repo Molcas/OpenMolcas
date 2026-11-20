@@ -19,13 +19,17 @@ use mcpdft_input, only: mcpdft_options
 use mcpdft_output, only: iPrLoc
 use rasscf_global, only: IPT2, iRoot, lRoots, NAC, NACPAR, NACPR2, NFR, NIN, NO2M, NORBT, NROOTS, NSEC, nTot3, nTot4, Weight, INVEC
 use rasscf_files, only: jobiph, jobold
-use general_data, only: ispin, nactel, nash, nbas, nconf, ndel, ndelt, nelec3, nfro, nhole1, nish, norb, nrs1, nrs1t, nrs2, nrs2t, &
-                        nrs3, nrs3t, nssh, nsym, ntot, ntot1, ntot2, ntotsp, stsym
+use Orbital_Spaces, only: nash, nbas, ndel, ndelt, nfro, nish, norb, nssh, nsym, ntot, ntot1, ntot2
+use CI_Input, only: ispin, nactel, nelec3, nhole1, nrs1, nrs1t, nrs2, nrs2t, nrs3, nrs3t, stsym
+use rasscf_global, only: nconf
 use rctfld_module, only: lrf
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
+use CI_States, only: CI_Space_Rd_H5
 #endif
+use CI_Info, only: Space_CI
+use CI_States, only: CI_Space_Free, CI_Space_Rd_JobIph
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
 use Definitions, only: wp, iwp, u6
@@ -34,9 +38,9 @@ implicit none
 logical(kind=iwp), intent(in) :: dscf
 integer(kind=iwp), intent(out) :: irc
 #include "warnings.h"
-integer(kind=iwp) :: i, iad19, IADR19(15), iorbdata, iprlev, isym, ndiff
+integer(kind=iwp) :: i, iad19, IADR19(30), iorbdata, iprlev, isym, ndiff
 real(kind=wp) :: potnucdummy
-logical(kind=iwp) :: DBG, keyjobi, lExists, RunFile_Exists
+logical(kind=iwp) :: DBG, FoundSpace, GAS, keyjobi, lExists, RunFile_Exists
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=72) :: JobTit(mxTit), ReadStatus
 character(len=2*72) :: lJobH2
@@ -214,13 +218,23 @@ end if
 
 iprlev = INSANE
 
+FoundSpace = .false.
+GAS = .false.
 !> read orbital space data AND CI optimiation parameters from JOBIPH
 if (IORBDATA == 0) then
   IAD19 = 0
-  call IDaFile(JOBIPH,2,IADR19,10,IAD19)
+  call IDaFile(JOBIPH,2,IADR19,15,IAD19)
+  if (IADR19(15) == -1) then
+    IAD19 = 0
+    call IDaFile(JOBIPH,2,IADR19,30,IAD19)
+  else
+    IADR19(16:30) = 0
+  end if
   iAd19 = iAdr19(1)
   call WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,mxSym,lJobH1,(LenIn+8)*mxOrb,NCONF,lJobH2, &
                       2*72,JobTit,4*18*mxTit,POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
+  ! the CI space of the wave function (record of RASSCF)
+  call CI_Space_Rd_JobIph(JOBIPH,IADR19(19),FoundSpace,GAS)
 end if  !> IORBDATA
 
 !> read CI optimization parameters from HDF5 file
@@ -243,6 +257,8 @@ if (mcpdft_options%is_hdf5_wfn) then
     nroots = lroots
   end if
   call mh5_fetch_attr(mh5id,'STATE_WEIGHT',weight)
+  ! the CI space of the wave function (record of RASSCF)
+  call CI_Space_Rd_H5(mh5id,FoundSpace,GAS)
 
   call mh5_close_file(mh5id)
 end if
@@ -266,6 +282,23 @@ JOBIPH = IsFreeUnit(15)
 call DANAME(JOBIPH,'JOBIPH')
 
 !---  complete orbital specifications ---------------------------------*
+! MC-PDFT needs only the active orbitals and the densities, not the CI
+! space: a GAS wave function (whose RAS fields are not its partitions) is
+! described by its active orbitals of the CI-space record, as one RAS2.
+if (GAS) then
+  if (.not. FoundSpace) then
+    call WarningMessage(2,'The GAS wave function file has no CI-space record (older RASSCF).')
+    call Quit_OnUserError()
+  end if
+  do iSym=1,nSym
+    nrs1(iSym) = 0
+    nrs2(iSym) = sum(Space_CI%nOrb(iSym,1:Space_CI%nPart))
+    nrs3(iSym) = 0
+  end do
+  nhole1 = 0
+  nelec3 = 0
+end if
+call CI_Space_Free()
 do iSym=1,nSym
   nash(isym) = nrs1(isym)+nrs2(isym)+nrs3(isym)
   NORB(ISYM) = NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)
@@ -276,7 +309,6 @@ NTOT1 = 0
 NTOT2 = 0
 NO2M = 0
 NTOT3 = 0
-NTOTSP = 0
 NTOT4 = 0
 ntot = sum(nbas(1:nsym))
 nrs1t = sum(nrs1(1:nsym)) ! for RAS
@@ -293,7 +325,6 @@ do ISYM=1,NSYM
   NTOT2 = NTOT2+NBAS(ISYM)**2
   NO2M = max(NO2M,NBAS(ISYM)**2)
   ntot3 = ntot3+nTri_Elem(norb(isym))
-  NTOTSP = NTOTSP+nTri_Elem(NASH(ISYM))
   NTOT4 = NTOT4+NORB(ISYM)**2
 end do
 NACPAR = nTri_Elem(nac)

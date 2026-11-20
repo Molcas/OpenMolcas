@@ -37,7 +37,7 @@ subroutine Ortho_RASSCF(SMAT,SCRATCH,CMO,TEMP)
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: LOWDIN_ON
-use general_data, only: NBAS, NDEL, NSYM
+use Orbital_Spaces, only: NBAS, NDEL, NSYM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

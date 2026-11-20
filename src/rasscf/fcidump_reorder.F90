@@ -81,8 +81,8 @@ end subroutine TwoElIntTable_reorder
 function get_P_GAS(ngssh) result(P)
 
   use sorting, only: argsort
-  use general_data, only: nSym
-  use general_data, only: nGAS
+  use Orbital_Spaces, only: nSym
+  use CI_Input, only: nGAS
 
   integer(kind=iwp), intent(in) :: ngssh(:,:)
   integer(kind=iwp) :: P(sum(ngssh))
@@ -99,7 +99,7 @@ end function get_P_GAS
 function get_P_inp(ReOrInp) result(P)
 
   use sorting, only: sort
-  use general_data, only: nAsh
+  use Orbital_Spaces, only: nAsh
 
   integer(kind=iwp) :: P(sum(nAsh))
   integer(kind=iwp), intent(in) :: ReOrInp(:)

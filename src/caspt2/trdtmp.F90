@@ -13,7 +13,7 @@ subroutine TRDTMP(DPT2,NDPT2)
 
 use Para_Info, only: King
 use EQSOLV, only: iVecc
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: nAES, nAshT, nIsh, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

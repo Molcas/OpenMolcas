@@ -29,7 +29,7 @@
 subroutine ao2mo_1e(cmo,d_ao,d_mo,nSym,nBas,nOrb,nFro)
 
 use Index_Functions, only: nTri_Elem
-use general_data, only: ntot1, ntot2
+use Orbital_Spaces, only: ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp

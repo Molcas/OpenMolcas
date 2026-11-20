@@ -31,7 +31,8 @@ use input_ras, only: Key
 use Index_Functions, only: nTri_Elem
 use ci_interfaces, only: CI_File_To_Basis, Mk_pdms
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
-use general_data, only: iDoGAS, NCONF, NELEC3, NHOLE1, STSYM
+use CI_Input, only: iDoGAS, NELEC3, NHOLE1, STSYM
+use rasscf_global, only: NCONF
 use rasscf_files, only: JOBIPH
 use CI_Info, only: CI_St
 use stdalloc, only: mma_allocate, mma_deallocate

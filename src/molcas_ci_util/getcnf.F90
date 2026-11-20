@@ -18,7 +18,7 @@ subroutine GETCNF(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 !
 ! Adapted for LUCIA Jeppe Olsen, summer of 02
 
-use spinfo, only: MINOP, NCNFTP, NTYP
+use lucia_data, only: MINOP, NCNFTP, NTYP
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

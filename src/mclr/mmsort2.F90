@@ -13,7 +13,7 @@ subroutine MMSort2(A,B,P,iel)
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: DspVec, lDisp
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: nTPert
 use Definitions, only: wp, iwp
 

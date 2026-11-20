@@ -16,7 +16,7 @@ subroutine creq_sp(q,rint,G2,idsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, ipMO, nA, nDens, nNA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nOrb
 use Definitions, only: wp, iwp
 

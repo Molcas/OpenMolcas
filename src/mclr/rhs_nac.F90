@@ -11,11 +11,12 @@
 
 subroutine RHS_NAC(Fock,SLag,ipS2)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: ipCI, ipMat, n1Dens, n2Dens, nConf1, nDens, NSSA, XISPSM
 use CandS, only: ICSM, ISSM
-use general_data, only: nSym, STSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, nConf, nCSF, nRoots, ntAsh, PT2
 use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
 use ISRotation, only: InvEne, InvSCF
@@ -24,6 +25,7 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(out) :: Fock(nDens)
 real(kind=wp), intent(inout) :: SLag(nRoots,nRoots)
 integer(kind=iwp), intent(in) :: ipS2
@@ -53,8 +55,8 @@ G2r(:) = Zero
 ! from the CI vectors of the two NAC states
 ! (code copied from CIdens_SA, same symmetry)
 
-nConfL = max(nconf1,nint(xispsm(STSym,1)))
-nConfR = max(nconf1,nint(xispsm(STSym,1)))
+nConfL = max(nconf1,nint(xispsm(CI_St(iState)%STSym,1)))
+nConfR = max(nconf1,nint(xispsm(CI_St(iState)%STSym,1)))
 call mma_allocate(CIL,nConfL,Label='CIL')
 call mma_allocate(CIR,nConfR,Label='CIR')
 
@@ -93,9 +95,9 @@ if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
   nConf = ncsf(1) !! nconf is overwritten somewhere in densi2_mclr
 else
   call ipIn(ipCI)
-  call CSF2SD(W(ipCI)%A(1+(NSSA(2)-1)*nconf1),CIL,STSym)
+  call CSF2SD(W(ipCI)%A(1+(NSSA(2)-1)*nconf1),CIL,CI_St(iState)%STSym)
   call opout(ipCI)
-  call CSF2SD(W(ipCI)%A(1+(NSSA(1)-1)*nconf1),CIR,STSym)
+  call CSF2SD(W(ipCI)%A(1+(NSSA(1)-1)*nconf1),CIR,CI_St(iState)%STSym)
   call opout(ipCI)
   call ipnout(-1)
   icsm = 1
@@ -106,7 +108,7 @@ call mma_deallocate(CIL)
 call mma_deallocate(CIR)
 
 if (do_RF) then
-  nconf = ncsf(STSym)
+  nconf = ncsf(CI_St(iState)%STSym)
   ! Update state-specific quantities using rotated G1r
   DSSMO(1:ntAsh,1:ntAsh) = reshape(G1r(1:ntAsh**2),[ntAsh,ntAsh])
   call PrepPCM2(2,DSSMO,DSSAO,PCMSSAO,PCMSSMO)

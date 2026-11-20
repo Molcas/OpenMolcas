@@ -112,8 +112,14 @@ type(SG_Walks) :: FileW
 integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1, ci_nrsprt = 1, part_pos(MxGAS) = 0, part_n(MxGAS) = 0
 integer(kind=iwp), allocatable :: orbsym(:), orbras(:), ci_nrasel(:), ci_nrasmx(:), conf_off(:), conf_key(:), conf_doub(:), &
                                   conf_sing(:), nkeep_group(:)
+! the RAS address times the phase of every determinant of the kept
+! configurations, in the order of citrans_csf2ras/citrans_ras2csf (groups,
+! configurations, determinants); built on first use (mk_det_map), freed
+! with the CI space (citrans_sym_free)
+integer(kind=iwp), allocatable :: det_map(:)
 
-public :: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, citrans_graph_init, &
+public :: citrans_conf_dets, citrans_conf_occ, citrans_csf2ras, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, &
+          citrans_graph_init, &
           citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort, citrans_sym_free, citrans_sym_init, ncsf_group, ndet_group, &
           ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs, spintabs_allocate, spintabs_free
 
@@ -228,7 +234,39 @@ subroutine citrans_sym_free()
   call mma_deallocate(conf_doub,safe='*')
   call mma_deallocate(conf_sing,safe='*')
   call mma_deallocate(nkeep_group,safe='*')
+  call mma_deallocate(det_map,safe='*')
 end subroutine citrans_sym_free
+
+!> det_map: the signed RAS address (faroald_ras) of each determinant of the
+!> kept configurations, in the loop order of citrans_csf2ras.
+subroutine mk_det_map()
+  use second_quantization, only: lex_init, lex_next
+  use faroald, only: my_nel, nela
+  use faroald_ras, only: ras_addr
+  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, k, n, doub, sing, alfa, beta, deta, detb, phase
+  n = 0
+  do ido=ndo_min,ndo_max
+    n = n+nkeep_group(ido)*ndet_group(ido)
+  end do
+  call mma_allocate(det_map,max(1,n),label='det_map')
+  k = 0
+  do ido=ndo_min,ndo_max
+    iso = my_nel-2*ido
+    isoa = nela-ido
+    do kconf=1,nkeep_group(ido)
+      doub = conf_doub(conf_off(ido)+kconf)
+      sing = conf_sing(conf_off(ido)+kconf)
+      alfa = lex_init(isoa,iso)
+      do idet=1,ndet_group(ido)
+        beta = ibits(not(alfa),0,iso)
+        phase = ds2ab(doub,sing,alfa,beta,deta,detb)
+        k = k+1
+        det_map(k) = phase*ras_addr(deta,detb)
+        alfa = lex_next(alfa)
+      end do
+    end do
+  end do
+end subroutine mk_det_map
 
 !> The partitions of the orbitals (contiguous, as the levels): first
 !> orbital minus one, part_pos, and number of orbitals, part_n, of
@@ -791,15 +829,12 @@ end subroutine citrans_sd2csf
 !> string classes (faroald_ras) instead of the full determinant matrix.
 subroutine citrans_csf2ras(ci,vec)
 
-  use second_quantization, only: lex_init, lex_next
-  use faroald, only: my_nel, my_norb, nela
-  use faroald_ras, only: n_ras, ras_addr
+  use faroald, only: my_norb
+  use faroald_ras, only: n_ras
 
   real(kind=wp), intent(in) :: ci(:)
   real(kind=wp), intent(out) :: vec(n_ras)
-  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
-                       doub, sing, alfa, beta, & ! occupation substrings
-                       deta, detb, phase         ! determinant strings
+  integer(kind=iwp) :: ido, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, k
   integer(kind=iwp), allocatable :: stepvector(:)
   real(kind=wp), allocatable :: tmp(:,:)
 
@@ -819,6 +854,8 @@ subroutine citrans_csf2ras(ci,vec)
   write(u6,'(5(1x,a4))') 'ido','ndoc','nsoc','ndet','ncsf'
 # endif
 
+  if (.not. allocated(det_map)) call mk_det_map()
+  k = 0
   ioff_csf1 = 1
   do ido=ndo_min,ndo_max
 #   ifdef _DEBUGPRINT_
@@ -839,18 +876,15 @@ subroutine citrans_csf2ras(ci,vec)
     ! the correct place in the determinant matrix. The loops runs over
     ! the determinants in the order they are stored in the tmp array.
 
-    iso = my_nel-2*ido
-    isoa = nela-ido
-
+    ! (signed addresses of det_map)
     do kconf=1,nconf
-      doub = conf_doub(conf_off(ido)+kconf)
-      sing = conf_sing(conf_off(ido)+kconf)
-      alfa = lex_init(isoa,iso)
       do idet=1,ndet
-        beta = ibits(not(alfa),0,iso)
-        phase = ds2ab(doub,sing,alfa,beta,deta,detb)
-        vec(ras_addr(deta,detb)) = phase*tmp(idet,kconf)
-        alfa = lex_next(alfa)
+        k = k+1
+        if (det_map(k) > 0) then
+          vec(det_map(k)) = tmp(idet,kconf)
+        else
+          vec(-det_map(k)) = -tmp(idet,kconf)
+        end if
       end do
     end do
 
@@ -864,15 +898,12 @@ end subroutine citrans_csf2ras
 
 subroutine citrans_ras2csf(vec,ci)
 
-  use second_quantization, only: lex_init, lex_next
-  use faroald, only: my_nel, my_norb, nela
-  use faroald_ras, only: n_ras, ras_addr
+  use faroald, only: my_norb
+  use faroald_ras, only: n_ras
 
   real(kind=wp), intent(in) :: vec(n_ras)
   real(kind=wp), intent(out) :: ci(:)
-  integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
-                       doub, sing, alfa, beta, & ! occupation substrings
-                       deta, detb, phase         ! determinant strings
+  integer(kind=iwp) :: ido, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, k
   integer(kind=iwp), allocatable :: stepvector(:)
   real(kind=wp), allocatable :: tmp(:,:)
 
@@ -884,6 +915,8 @@ subroutine citrans_ras2csf(vec,ci)
 
   call mma_allocate(stepvector,my_norb,label='stepvector')
 
+  if (.not. allocated(det_map)) call mk_det_map()
+  k = 0
   ioff_csf1 = 1
   do ido=ndo_min,ndo_max
     nconf = nkeep_group(ido)
@@ -897,18 +930,15 @@ subroutine citrans_ras2csf(vec,ci)
     ! from the correct place in the determinant matrix. The loops runs
     ! over the determinants in the order they should end up in tmp.
 
-    iso = my_nel-2*ido
-    isoa = nela-ido
-
+    ! (signed addresses of det_map)
     do kconf=1,nconf
-      doub = conf_doub(conf_off(ido)+kconf)
-      sing = conf_sing(conf_off(ido)+kconf)
-      alfa = lex_init(isoa,iso)
       do idet=1,ndet
-        beta = ibits(not(alfa),0,iso)
-        phase = ds2ab(doub,sing,alfa,beta,deta,detb)
-        tmp(idet,kconf) = phase*vec(ras_addr(deta,detb))
-        alfa = lex_next(alfa)
+        k = k+1
+        if (det_map(k) > 0) then
+          tmp(idet,kconf) = vec(det_map(k))
+        else
+          tmp(idet,kconf) = -vec(-det_map(k))
+        end if
       end do
     end do
 
@@ -922,6 +952,42 @@ subroutine citrans_ras2csf(vec,ci)
   call mma_deallocate(stepvector)
 
 end subroutine citrans_ras2csf
+
+!> The kept configurations in the CSF order of citrans: for configuration
+!> i its first CSF k1(i), number of CSFs nc(i), and the doubly and singly
+!> occupied orbitals as bit strings (docc, socc; orbital p is bit p-1).
+subroutine citrans_conf_occ(nconf,k1,nc,docc,socc)
+
+  use faroald, only: my_norb
+
+  integer(kind=iwp), intent(out) :: nconf
+  integer(kind=iwp), allocatable, intent(out) :: k1(:), nc(:), docc(:), socc(:)
+  integer(kind=iwp) :: ido, kconf, ioff, i, doub
+
+  nconf = 0
+  do ido=ndo_min,ndo_max
+    nconf = nconf+nkeep_group(ido)
+  end do
+  call mma_allocate(k1,max(1,nconf),label='conf_k1')
+  call mma_allocate(nc,max(1,nconf),label='conf_nc')
+  call mma_allocate(docc,max(1,nconf),label='conf_docc')
+  call mma_allocate(socc,max(1,nconf),label='conf_socc')
+  i = 0
+  ioff = 0
+  do ido=ndo_min,ndo_max
+    do kconf=1,nkeep_group(ido)
+      i = i+1
+      doub = conf_doub(conf_off(ido)+kconf)
+      k1(i) = ioff+(kconf-1)*ncsf_group(ido)+1
+      nc(i) = ncsf_group(ido)
+      docc(i) = doub
+      ! the singly occupied orbitals among the not doubly occupied ones (as in ds2ab)
+      socc(i) = pdep(conf_sing(conf_off(ido)+kconf),ibits(not(doub),0,my_norb))
+    end do
+    ioff = ioff+nkeep_group(ido)*ncsf_group(ido)
+  end do
+
+end subroutine citrans_conf_occ
 
 subroutine citrans_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
 ! Determinant expansion of the configuration holding the CSF kcsf, kcsf

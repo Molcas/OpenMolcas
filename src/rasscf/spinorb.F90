@@ -18,7 +18,7 @@ subroutine SPINORB(D,CMO,OCC)
 use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NASH, NBAS, NFRO, NISH, NSYM
+use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

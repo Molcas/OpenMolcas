@@ -15,13 +15,15 @@ use Cntrl, only: bNAME, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, IDCMO, IFEJOB, IFHEFF
                  LSYM1, LuIPH, MLTPLT, MPLET1, NACTE, NACTE1, NASH1, NBAS1, NCONF, NCONF1, NDEL1, NELE3, NELE31, NFRO1, NHOL11, &
                  NHOLE1, NISH1, NROOT1, NRS11, NRS21, NRS31, NSTAT, NSTATE, NSYM1, RASTYP, RefEne, TITLE1
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym, MxLev
-use general_data, only: NRS1, NRS2, NRS3
+use CI_Input, only: NRS1, NRS2, NRS3
 use RASDim, only: MxIter, MxTit
 use rassi_aux, only: ipglob, Level
 use rassi_data, only: WFTYPE, NASH, NSSH, NDEL, NOSH, NASH, NISH, NFRO, NBASF, NDEL, NFRO, NISH
 use rassi_global_arrays, only: JBNUM, LROOT
 use Symmetry_Info, only: nIrrep
+use CI_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
 #ifdef _HDF5_
+use CI_States, only: CI_Space_Rd_H5
 use Cntrl, only: NDET, NROOTS, QDPT2SC
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 #endif
@@ -39,7 +41,7 @@ logical(kind=iwp), intent(in) :: READ_STATES
 integer(kind=iwp) :: I, IAD, IAD15, IDISK, IDUM(1), IPT2, ISNUM, ISTATE, ISY, IT, J, JSNUM, JSTATE, NEJOB, NHEFF, NIS, NIS1, &
                      NMAYBE, NROOT0, NTIT1
 real(kind=wp) :: E, ENUCDUMMY, HIJ
-logical(kind=iwp) :: ISZERO
+logical(kind=iwp) :: Found, GAS, ISZERO
 real(kind=wp), allocatable :: EJOB(:), EREAD(:), H_Eff(:), Weight(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: ref_iSpin, ref_nactel, ref_nash(mxSym), ref_nBas(mxSym), ref_nconf, ref_ndel(mxSym), ref_ndet, ref_nelec3, &
@@ -82,6 +84,9 @@ if (mh5_is_hdf5(jbname(job))) then
   refwfn_id = mh5_open_file_r(jbname(job))
 
   call mh5_fetch_attr(refwfn_id,'MOLCAS_MODULE',molcas_module)
+  call CI_Space_Rd_H5(refwfn_id,Found,GAS)
+  if (GAS) call CI_No_GAS('RASSI')
+  call CI_Space_Free()
   call mh5_fetch_attr(refwfn_id,'SPINMULT',ref_iSpin)
   call mh5_fetch_attr(refwfn_id,'NSYM',ref_nSym)
   call mh5_fetch_attr(refwfn_id,'LSYM',ref_stSym)
@@ -367,6 +372,14 @@ else
   ! READ TABLE OF CONTENTS ON THIS JOBIPH FILE:
   IAD = 0
   call IDAFILE(LUIPH,2,ITOC15,30,IAD)
+  ! the CI space of the wave function (new layout only)
+  if (ITOC15(15) == -1) then
+    call CI_Space_Rd_JobIph(LUIPH,ITOC15(19),Found,GAS)
+  else
+    call CI_Space_Rd_JobIph(LUIPH,0,Found,GAS)
+  end if
+  if (GAS) call CI_No_GAS('RASSI')
+  call CI_Space_Free()
   ! SCATTER-READ VARIOUS DATA:
   ! PAM Mar2014: Note that ENUC1 (=POTNUC) replaced by dummy placeholder
   IAD = ITOC15(1)

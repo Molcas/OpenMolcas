@@ -16,7 +16,7 @@ subroutine creq_td(q,rint,G2,idsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMatBA, ipMO, nA, nDens
-use general_data, only: nAsh, nSym
+use Orbital_Spaces, only: nAsh, nSym
 use input_mclr, only: nBas, ntAsh
 use Constants, only: Zero
 use Definitions, only: wp, iwp

@@ -20,7 +20,7 @@ subroutine CNFSTR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,ISCR,SGN,IPR
 !
 ! Jeppe Olsen, Summer of '89
 
-use spinfo, only: MINOP, NDTFTP
+use lucia_data, only: MINOP, NDTFTP
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

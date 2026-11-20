@@ -7,33 +7,23 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine SG_UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
+!> The orbital spaces per symmetry (frozen, inactive, active, secondary,
+!> deleted; basis functions and orbitals) and their totals.
+module Orbital_Spaces
 
-use sguga, only: nPack
+use Molcas, only: MxSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: N, IPWLK, NWALK, IWALK(*)
-integer(kind=iwp), intent(out) :: ICASE(N,NWALK)
-integer(kind=iwp) :: I, IPOS, IWORD, J, L, LEND, LSTA, NEXT
+private
 
-! See companion subroutine PKWLK.
-IPOS = 0
-do I=1,NWALK
-  LEND = 0
-  do J=1,IPWLK
-    LSTA = LEND+1
-    LEND = min(LSTA+nPack-1,N)
-    IPOS = IPOS+1
-    IWORD = IWALK(IPOS)
-    do L=LSTA,LEND
-      NEXT = IWORD/4
-      ICASE(L,I) = IWORD-4*NEXT
-      IWORD = NEXT
-    end do
-  end do
-end do
+integer(kind=iwp) :: NASH(mxSym), NBAS(mxSym), NDEL(mxSym), NDELT, NFRO(mxSym), NFROT, NISH(mxSym), NORB(mxSym), NSSH(mxSym), &
+                     NSYM, NTOT, NTOT1, NTOT2
 
-end subroutine SG_UPKWLK
+public :: NASH, NBAS, NDEL, NDELT, NFRO, NFROT, NISH, NORB, NSSH, NSYM, NTOT, NTOT1, NTOT2
+
+end module Orbital_Spaces

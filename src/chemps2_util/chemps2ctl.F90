@@ -29,7 +29,8 @@ use filesystem, only: remove_, symlink_
 use rasscf_global, only: CBLBM, chemps2_blb, chemps2_can, chemps2_lrestart, chemps2_no4rdm, chemps2_noise, chemps2_restart, &
                          davidson_tol, Do3RDM, ENER, hfocc, iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, MxDMRG, NAC, &
                          THRE
-use general_data, only: ISPIN, NACTEL, NASH, NSYM, STSYM
+use Orbital_Spaces, only: NASH, NSYM
+use CI_Input, only: ISPIN, NACTEL, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Half
 use Definitions, only: wp, iwp, u6

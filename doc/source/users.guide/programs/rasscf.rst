@@ -622,6 +622,13 @@ excitations are allowed. This input shows clearly the difference
 with the RAS approach.
 Also for the GASSCF variant a slower convergence might occur.
 
+The description of the CI space, that is, the GAS partitions with their cumulative minimum and
+maximum numbers of electrons, is stored with the wave function on the :file:`JOBIPH` file and in the
+HDF5 wave function file. Programs that read the wave function use it to recognize a GASSCF
+wave function. :program:`MCPDFT` accepts GASSCF wave functions. :program:`CASPT2`,
+:program:`RASSI`, and :program:`MCLR` do not support them yet and stop with an input error
+when they are given a GASSCF wave function.
+
 MC-PDFT method
 --------------
 

@@ -22,7 +22,8 @@ use Definitions, only: MPIInt
 use Index_Functions, only: nTri_Elem
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, ENER, ITER, lroots, &
                          NAC, nref_dice
-use general_data, only: ISPIN, NACTEL, NASH, NSYM, STSYM
+use Orbital_Spaces, only: NASH, NSYM
+use CI_Input, only: ISPIN, NACTEL, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp, u6

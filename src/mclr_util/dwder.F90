@@ -15,7 +15,7 @@ subroutine DWder_MCLR(mode,idsym,der1,nder1,der2,nder2,DWOut)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: ERASSCF, iToc, nBas, nRoots, ntAsh, weight
 use DWSol, only: DWSol_der
 use MCLR_Data, only: ipCM, LUJOB

@@ -39,7 +39,7 @@ subroutine Get_D1I_RASSCF(CMO,D1I_AO)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: nBas, nFro, nIsh, nSym
+use Orbital_Spaces, only: nBas, nFro, nIsh, nSym
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 

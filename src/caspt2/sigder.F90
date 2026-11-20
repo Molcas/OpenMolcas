@@ -19,6 +19,7 @@
 
 subroutine SIGDER(IVEC,JVEC,SCAL)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
 use EQSOLV, only: IFCOUP
@@ -28,7 +29,7 @@ use GA_Wrapper, only: GA_Destroy
 #endif
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: do_lindep, FIFA, idSCMat, idSDMat, LISTS, LUSTD
-use general_data, only: nActel, nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: CPUSGM, FockType, G1SecIn, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Vec_Backup, only: BackupVecs
@@ -39,6 +40,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iVec, jVec
 real(kind=wp), intent(in) :: Scal
 integer(kind=iwp) :: iCase, iCase1, idSDer, IfC, IFIFA, iLoop, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, Lg_SgmX, &
@@ -264,7 +266,7 @@ do ILOOP=1,NLOOP
       ! If there are 1-electron contributions, add them into the 2-el
       ! part (This requires a non-empty active space.)
       if (NSGM1 > 0) then
-        FACT = One/real(max(1,NACTEL),kind=wp)
+        FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
         if (ICASE1 == 1) then
           call SPEC1A(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
         else if (ICASE1 == 4) then
@@ -363,7 +365,7 @@ do ILOOP=1,NLOOP
       ND1 = 0
       !LD1 = 1
       IMLTOP = 1
-      FACT = One/real(max(1,NACTEL),kind=wp)
+      FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
       if (ICASE1 == 1) then
         ND1 = NASH(ISYM1)*NISH(ISYM1)
         if (ND1 > 0) then

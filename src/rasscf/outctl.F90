@@ -32,7 +32,7 @@ use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
 use ci_interfaces, only: CI_Lucia_Active
-use general_data, only: iDoGAS, NGAS, NGSSH
+use CI_Input, only: iDoGAS, NGAS, NGSSH
 use input_ras, only: Key
 use rasscf_global, only: BName, CBLBM, cCI, CleanMask, CMAX, DE, DoDMRG, ECAS, Ener, ESX, FDIAG, HalfQ, iADR15, IBLBM, iCI, ICICH, &
                          iPCMRoot, iPT2, iRLXRoot, iRoot, iSPDen, iSupSM, iSymBB, ITER, ixSym, JBLBM, kIVO, KSDFT, lRoots, &
@@ -51,9 +51,10 @@ use rasscf_global, only: ChemPS2_blb, ChemPS2_lrestart, ChemPS2_No4RDM, ChemPS2_
 use PrintLevel, only: DEBUG, TERSE, USUAL, VERBOSE
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSSH, NSYM, &
-                        NTOT, NTOT1, NTOT2, STSYM
-use spinfo, only: NCSASM, NDTASM
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSSH, NSSH, NSYM, NTOT, NTOT1, NTOT2
+use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
+use rasscf_global, only: NCONF
+use CI_Info, only: CI_St
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use Molcas, only: MxRoot
 use RASDim, only: MxRef
@@ -62,6 +63,7 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(inout) :: CMO(*), OCCN(*)
 real(kind=wp), intent(in) :: SMAT(*)
 logical(kind=iwp), intent(in) :: lOPTO
@@ -217,8 +219,8 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
       call CollapseOutput(1,Line)
       write(u6,Fmt2//'A)') '----------------------------'
       write(u6,*)
-      write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-      if (CI_Lucia_Active()) write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
+      write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',CI_St(iState)%nCSF(STSYM)
+      if (CI_Lucia_Active()) write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(iState)%nDet(STSYM)
     end if
     write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
     if (ICICH == 0) then

@@ -16,7 +16,7 @@ subroutine CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
 use Index_Functions, only: nTri_Elem
 use EQSOLV, only: IDSMAT
 use caspt2_global, only: ipea_shift, LUSBT, LUSOLV
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: EASUM, EPSA, HZERO, NAES, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
 use BDerNEV, only: BDNA, BDNB, BDNC, BDND, BDNE, BDNF, BDNG, BDN_G3
 use SC_NEVPT2, only: SC_prop, SC_NEVPT2_CLagD

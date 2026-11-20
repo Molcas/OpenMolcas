@@ -26,8 +26,10 @@ use REFWFN, only: IADR15, REFWFN_FILENAME
 use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
 use CI_Info, only: CI_St
+use CI_States, only: CI_Space_Rec_Len
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
-use general_data, only: ISPIN, NACTEL, NASH, nElec3, NHOLE1, STSYM
+use Orbital_Spaces, only: NASH
+use CI_Input, only: nElec3, NHOLE1
 use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, LROOTS, &
                          MSTATE, MSTATE, MXCI, NBAS, NBSQT, NCONF, NDEL, NFRO, NISH, NRAS1, NRAS2, NRAS3, NROOTS, NSYM, POTNUC, &
                          TITLE
@@ -40,6 +42,7 @@ integer(kind=iwp), intent(in) :: Nstate
 real(kind=wp), intent(in) :: Heff(Nstate,Nstate), Ueff(Nstate,Nstate), U0(Nstate,Nstate)
 integer(kind=iwp) :: I, IAD15, ID, IDISK, IDR, IDW, IISTATE, ISNUM, ISTATE, J, JOBIPH, JOBMIX, JSNUM, MROOTS, NIDIST, NOLDE
 integer(kind=iwp), allocatable :: IDIST(:), JROOT(:), xL2Act(:), xLevel(:)
+integer(kind=iwp) :: SpaceRec(CI_Space_Rec_Len)
 real(kind=wp), allocatable :: CI1(:), CI2(:), EFFCP(:), OLDE(:), Weight_(:)
 integer(kind=iwp), parameter :: jstate = 1
 
@@ -109,8 +112,9 @@ end if
 call mma_allocate(Weight_,MxRoot,Label='Weight_')
 WEIGHT_(1:NROOTS) = WEIGHT(1:NROOTS)
 WEIGHT_(NROOTS+1:) = Zero
-call WR_RASSCF_INFO(JOBMIX,1,iAd15,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,8,BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144, &
-                    TITLE,4*18*MXTIT,POTNUC,LROOTS,MROOTS,JROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,nElec3,IFQCAN,Weight_)
+call WR_RASSCF_INFO(JOBMIX,1,iAd15,CI_St(jState)%nActEl,CI_St(jState)%iSpin,NSYM,CI_St(jState)%STSym,NFRO,NISH,NASH,NDEL,NBAS,8, &
+                    BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144,TITLE,4*18*MXTIT,POTNUC,LROOTS,MROOTS,JROOT,MXROOT,NRAS1,NRAS2,NRAS3, &
+                    NHOLE1,nElec3,IFQCAN,Weight_)
 call mma_deallocate(Weight_)
 call mma_deallocate(JROOT)
 ! Copy MO coefficients from JOBIPH to JOBMIX
@@ -163,6 +167,13 @@ XLevel(:) = CI_St(jstate)%Level(:)
 call IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
 call mma_deallocate(xL2Act)
 call mma_deallocate(xLevel)
+! the CI-space record of RASSCF (same disk address on JOBMIX)
+if (IADR15(19) > 0) then
+  IAD15 = IADR15(19)
+  call IDAFILE(JOBIPH,2,SpaceRec,CI_Space_Rec_Len,IAD15)
+  IAD15 = IADR15(19)
+  call IDAFILE(JOBMIX,1,SpaceRec,CI_Space_Rec_Len,IAD15)
+end if
 
 ! PAM07: Eliminate unsafe IPOSFILE calls, use instead dummy i/o operations
 ! to find disk addresses to CI arrays:
@@ -220,7 +231,7 @@ if (IFMSCOUP) then
     if (ISCF == 0) then
       if (IPRGLB >= USUAL) then
         write(u6,'(1x,a,i3)') ' The CI coefficients for the MIXED state nr. ',ISTATE
-        call PRWF_CP2(STSYM,NCONF,CI2,CITHR)
+        call PRWF_CP2(CI_St(jState)%STSym,NCONF,CI2,CITHR)
       end if
     end if
     IDISK = IDIST(ISTATE)

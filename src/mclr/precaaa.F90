@@ -38,7 +38,8 @@ subroutine Precaaa(iC,is,js,nd,ir,rOut,nbaj,focki,fock,Sgn,Scr,nScr,ActInt)
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t, nA
-use general_data, only: nAsh, nIsh, nRS1, nRS2, nRS3, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
+use CI_Input, only: nRS1, nRS2, nRS3
 use input_mclr, only: ntAsh
 use Constants, only: One, Two, Four
 use Definitions, only: wp, iwp

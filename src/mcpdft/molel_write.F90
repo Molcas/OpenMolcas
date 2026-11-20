@@ -13,14 +13,16 @@
 
 subroutine molel_write(CMO)
 
+use CI_Info, only: CI_St
 use onedat, only: snoori
 use rasscf_global, only: lRoots
-use general_data, only: nactel, nash, nbas, nfro, nish, nsym, ntot, ntot1, ntot2
+use Orbital_Spaces, only: nash, nbas, nfro, nish, nsym, ntot, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(in) :: cmo(ntot2)
 integer(kind=iwp) :: comp, counter, i, ibas, isym, j, molet_lu, nActOrb, offset, opt, rc, sylbl, tot_el
 character(len=80) :: FMT1
@@ -42,11 +44,11 @@ molet_lu = IsFreeUnit(40)
 call molcas_open(molet_lu,'MOLEL')
 nActOrb = sum(nAsh(1:nsym))
 
-Tot_El = 2*sum(nfro+nish)+nactel
+Tot_El = 2*sum(nfro+nish)+CI_St(iState)%nActEl
 
 FMT1 = '(I4,1X,I4,1X,I4,1X,I4,1X,I4)'
 write(molet_lu,*) 'Number of states,orbitals,electrons,ActOrb,ActEl'
-write(molet_lu,FMT1) lroots,nTot,Tot_El,nActOrb,nActEl
+write(molet_lu,FMT1) lroots,nTot,Tot_El,nActOrb,CI_St(iState)%nActEl
 write(molet_lu,*) 'Overlap Matrix (AO)'
 
 FMT1 = '(I4,1X,I4,1X,F20.14)'

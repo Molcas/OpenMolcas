@@ -35,7 +35,7 @@ subroutine Preciba(iB,iS,jS,nd,rOut,nba,focki,focka,fock,Sgn,A_J,A_K,Scr,nScr)
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, nA
-use general_data, only: nAsh, nIsh
+use Orbital_Spaces, only: nAsh, nIsh
 use input_mclr, only: nBas, nOrb
 use Constants, only: Two, Four, Six
 use Definitions, only: wp, iwp

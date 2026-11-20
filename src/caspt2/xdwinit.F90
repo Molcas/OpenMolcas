@@ -14,16 +14,17 @@
 
 subroutine xdwinit(Heff,H0,U0,nState)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri
 use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO
-use general_data, only: STSym
 use caspt2_module, only: CIThr, HZERO, iAd1m, iSCF, mState, nAshT, nConf, NoTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: jState = 1
 integer(kind=iwp), intent(in) :: NState
 real(kind=wp), intent(inout) :: Heff(Nstate,Nstate)
 real(kind=wp), intent(out) :: H0(Nstate,Nstate), U0(Nstate,Nstate)
@@ -165,7 +166,7 @@ do J=1,Nstate
 
   if (IPRGLB >= VERBOSE) then
     write(u6,'(1x,a,i3)') ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-    call PRWF_CP2(STSYM,NCONF,CIXMS,CITHR)
+    call PRWF_CP2(CI_St(jState)%STSym,NCONF,CIXMS,CITHR)
   end if
 end do
 

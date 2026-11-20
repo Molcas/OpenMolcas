@@ -144,15 +144,19 @@ subroutine dgemm_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
   integer(kind=CUDAInt) :: k4, lda4, ldb4, ldc4, m4, n4
   integer(kind=iwp), parameter :: ncuda = 128*128
 # endif
-  integer(kind=iwp), parameter :: mnkSmall = 4096
+  integer(kind=iwp), parameter :: kSmall = 16, mnkSmall = 128
   real(kind=BLASR8), parameter :: ZeroB = 0.0_BLASR8, OneB = 1.0_BLASR8
 
   if ((m_ == 0) .and. (n_ == 0)) return
 
-  ! For small matrices the overhead of a BLAS call (argument checking,
+  ! For tiny matrices the overhead of a BLAS call (argument checking,
   ! character comparison, kernel dispatch) dominates the actual work, so
-  ! do the multiplication here instead. The threshold is heuristic.
-  if ((m_ > 0) .and. (n_ > 0) .and. (k_ > 0) .and. (m_*n_*k_ <= mnkSmall)) then
+  ! do the multiplication here instead. These loops are not vectorized
+  ! for the small m and n of such calls, so their cost grows with k at
+  ! scalar speed: beyond a few hundred multiply-adds an optimized BLAS is
+  ! faster (with MKL on an Intel CPU, by a factor of 3 to 6 for
+  ! m*n*k = 256 to 4096). The limits are set where the two are equal.
+  if ((m_ > 0) .and. (n_ > 0) .and. (k_ > 0) .and. (k_ <= kSmall) .and. (m_*n_*k_ <= mnkSmall)) then
     if (beta == ZeroB) then
       c(1:m_,1:n_) = ZeroB
     else if (beta /= OneB) then
@@ -261,12 +265,12 @@ subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
   integer(kind=CUDAInt) :: lda4, m4, n4, incx4, incy4
   integer(kind=iwp), parameter :: ncuda = 128*128
 # endif
-  integer(kind=iwp), parameter :: mnSmall = 1024
+  integer(kind=iwp), parameter :: mnSmall = 64
   real(kind=BLASR8), parameter :: ZeroB = 0.0_BLASR8, OneB = 1.0_BLASR8
 
-  ! For small matrices the BLAS call overhead (argument checking,
+  ! For tiny matrices the BLAS call overhead (argument checking,
   ! character comparison, dispatch) dominates the actual work, so do
-  ! the multiplication in place instead.
+  ! the multiplication in place instead (see dgemm_ for the limit).
   if ((incx_ == 1) .and. (incy_ == 1) .and. (m_ > 0) .and. (n_ > 0) .and. (m_*n_ <= mnSmall)) then
     if ((trans == 'N') .or. (trans == 'n')) then
       if (beta == ZeroB) then

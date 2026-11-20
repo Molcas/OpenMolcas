@@ -14,7 +14,7 @@ subroutine Pickmo_MCLR(rmo,rmoaa,idsym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMO, nA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nOrb
 use Definitions, only: wp, iwp
 

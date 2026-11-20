@@ -16,7 +16,7 @@ subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
 
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: FIMO, H0F, H0S, IDC, Int2, iRefSM, NACOB, NAELCI, NBELCI, NDPCNT, nGP, NOCOB, PSSIGN, SBIDT, XISPSM
-use spinfo, only: NCSFTP, NTYP
+use MCLR_Data, only: NCSFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

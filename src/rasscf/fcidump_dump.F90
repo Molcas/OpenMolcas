@@ -47,7 +47,8 @@ contains
 !>  @param[in] orbsym
 subroutine dump_ascii(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
-  use general_data, only: nActEl, iSpin, stSym, nAsh
+  use Orbital_Spaces, only: nAsh
+  use CI_Input, only: nActEl, iSpin, stSym
 
   character(len=*), intent(in) :: path
   real(kind=wp), intent(in) :: EMY
@@ -117,9 +118,10 @@ end subroutine dump_ascii
 subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
 # ifdef _HDF5_
-  use general_data, only: nSym, nActEl, multiplicity => iSpin, stSym, nAsh
+  use Orbital_Spaces, only: nSym, nAsh
+  use CI_Input, only: nActEl, multiplicity => iSpin, stSym
   use CI_Info, only: CI_St
-  use general_data, only: iDoGAS
+  use CI_Input, only: iDoGAS
   use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_file, mh5_create_dset_int, mh5_create_dset_real, mh5_init_attr, &
                  mh5_put_dset
 # endif
@@ -146,7 +148,8 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   ! Set wavefunction type
   if (iDoGAS) then
     call mh5_init_attr(file_id,'CI_TYPE','GAS')
-  else if (CI_St(istate)%IFRAS == 0) then
+  else if (CI_St(istate)%nRsPrt == 1) then
+    ! one partition: CAS (IFRAS also counts the irreps with active orbitals)
     call mh5_init_attr(file_id,'CI_TYPE','CAS')
   else
     call mh5_init_attr(file_id,'CI_TYPE','RAS')
@@ -219,7 +222,8 @@ end subroutine dump_hdf5
 !>  orbital energies are omitted.
 subroutine dump_fort55(path,EMY,fock_table,two_el_table,orbsym)
 
-  use general_data, only: nActEl, nAsh, nSym
+  use Orbital_Spaces, only: nAsh, nSym
+  use CI_Input, only: nActEl
   use Symmetry_Info, only: lIrrep, SymLab, Symmetry_Info_Get
   use Index_Functions, only: iTri, nTri_Elem
   use fcidump_tables, only: cutoff_default, length

@@ -23,7 +23,6 @@ subroutine DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,DRDM,SCAL,nLev)
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use CI_Info, only: CI_St
-use general_data, only: STSym
 use caspt2_module, only: MxCI, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -74,14 +73,14 @@ do while (Rsv_Tsk(ID,iTask))
   ISU = CI_St(istate)%ISm(LU)
   IU = CI_St(istate)%L2Act(LU)
   ISTU = Mul(IST,ISU)
-  ISSG = Mul(ISTU,STSYM)
+  ISSG = Mul(ISTU,CI_St(iState)%STSym)
   NSGM = CI_St(istate)%nCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
   if (ISTU == 1) then
-    call GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
+    call GETSGM2(LU,LT,CI_St(iState)%STSym,CI1,MXCI,SGM1,NSGM)
     CLag2(1:NSGM) = CLag2(1:NSGM)+SCAL*DRDM(IT,IU)*SGM1(1:NSGM)
-    call GETSGM2(LU,LT,STSYM,CI2,MXCI,SGM1,NSGM)
+    call GETSGM2(LU,LT,CI_St(iState)%STSym,CI2,MXCI,SGM1,NSGM)
     CLag1(1:NSGM) = CLag1(1:NSGM)+SCAL*DRDM(IT,IU)*SGM1(1:NSGM)
   end if
   ! SVC: The master node now continues to only handle task scheduling,

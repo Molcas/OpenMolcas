@@ -35,7 +35,7 @@ subroutine Upd_FA(PUVX,F,D,ExFac)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use general_data, only: NASH, NISH, NORB, NSYM
+use Orbital_Spaces, only: NASH, NISH, NORB, NSYM
 use Molcas, only: MxSym
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp

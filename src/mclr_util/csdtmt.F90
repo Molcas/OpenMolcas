@@ -18,7 +18,7 @@ subroutine CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN)
 ! prototype combinations in DTOC
 
 use MCLR_Data, only: MS2P, MULTSP, NDPCNT
-use spinfo, only: MINOP, NCSFTP, NTYP
+use MCLR_Data, only: MINOP, NCSFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp

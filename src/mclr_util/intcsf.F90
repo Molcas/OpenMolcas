@@ -34,7 +34,7 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LCSF,N
 !                      in CNSM(:)%ICTS
 
 use Str_Info, only: CFTP, CNSM, DFTP, DTOC
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use MCLR_Data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use MCLR_Data, only: MAXOP, MS2P, MULTSP, MXPCSM, NCNASM, NCSASM, NDPCNT, NDTASM
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
@@ -57,7 +57,7 @@ else
   IMSCMB = 0
 end if
 
-! Define parameters in SPINFO
+! Define the configuration-type parameters (MCLR_Data)
 
 MULTSP = MULTP
 MS2P = MS2

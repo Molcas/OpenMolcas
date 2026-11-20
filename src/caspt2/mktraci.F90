@@ -11,7 +11,7 @@
 
 subroutine mkTraCI(nTORB,TORB,STSYM,nConf,CI)
 
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: nAES, nIsh, nRas1, nRas2, nRas3, nSsh, nSym
 use Definitions, only: wp, iwp
 

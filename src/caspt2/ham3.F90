@@ -28,7 +28,6 @@ use Symmetry_Info, only: Mul
 use CI_Info, only: CI_St
 use CI_States, only: CI_Epq_Psi
 use Molcas, only: MxLev
-use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, MxCI, NASHT, NCONF, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -46,13 +45,13 @@ integer(kind=iwp), parameter :: istate = 1
 
 if (NCONF == 0) return
 if (abs(OP0) > 1.0e-15_wp) SGM(1:NCONF) = SGM(1:NCONF)+OP0*CI(1:NCONF)
-if (NACTEL == 0) return
+if (CI_St(iState)%nActEl == 0) return
 
 ! Unless this is a special-case wave function, reserve space
 ! for intermediate results of elementary excitations.
 if (ISCF == 0) then
   call mma_allocate(SGM1,MXCI,Label='SGM1')
-  if (NACTEL >= 2) call mma_allocate(SGM2,MXCI,Label='SGM2')
+  if (CI_St(iState)%nActEl >= 2) call mma_allocate(SGM2,MXCI,Label='SGM2')
 end if
 ! Special cases:
 OCCNO = Zero
@@ -63,7 +62,7 @@ if (ISCF == 2) OCCNO = One
 ! ordinal number of each active orbital.
 ITABS = 0
 do ISYM=1,NSYM
-  do I=1,NLEV
+  do I=1,CI_St(iState)%nLev
     if (CI_St(istate)%ISm(I) == ISYM) then
       ITABS = ITABS+1
       IATOG(ITABS) = I
@@ -96,7 +95,7 @@ do IZ=1,NASHT
       X = OCCNO*OP1(IY,IZ)
       SGM(1) = SGM(1)+X*CI(1)
     end if
-    if (NACTEL == 1) cycle
+    if (CI_St(iState)%nActEl == 1) cycle
     do IX=IZ,NASHT
       IVMIN = 1
       if (IX == IZ) IVMIN = IY
@@ -127,7 +126,7 @@ do IZ=1,NASHT
           X = (OCCNO**2)*OP2(IVXYZ)
           SGM(1) = SGM(1)+X*CI(1)
         end if
-        if (NACTEL == 2) cycle
+        if (CI_St(iState)%nActEl == 2) cycle
         do IU=IX,NASHT
           ITMIN = 1
           if (IU == IX) ITMIN = IV
@@ -161,7 +160,7 @@ end do
 ! Deallocate temporary arrays, if any:
 if (ISCF == 0) then
   call mma_deallocate(SGM1)
-  if (NACTEL >= 2) call mma_deallocate(SGM2)
+  if (CI_St(iState)%nActEl >= 2) call mma_deallocate(SGM2)
 end if
 
 end subroutine HAM3

@@ -11,18 +11,20 @@
 
 subroutine StPert()
 
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use MckDat, only: sNew
 use ipPage, only: ipin, W
 use MCLR_Data, only: FAMO_SpinM, FAMO_SpinP, Fm, FnMck, Fp, G1m, G1p, G2mm, G2mp, G2pp, Hss, ipCI, lDisp, LuMck, MS2, nDens, &
                      rBetaA, rBetaS, RMS, SwLbl
-use general_data, only: nAsh, nIsh, nSym, STSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: McKinley, nBas, nDisp, nTPert, PT2, SpinPol
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: idum(1), iDummer, iOpt, iRC, iS, nAct, nG, nG2, nHss, nMax
 real(kind=wp) :: rAlphas
 character(len=288) :: Header
@@ -157,7 +159,7 @@ if (SPINPOL) then
   call mma_allocate(G1p,nG,Label='G1p')
   call mma_allocate(G1m,nG,Label='G1m')
   call ipin(ipCI)
-  call SpinDens(W(ipCI)%A,W(ipCI)%A,STSym,STSym,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,2)
+  call SpinDens(W(ipCI)%A,W(ipCI)%A,CI_St(iState)%STSym,CI_St(iState)%STSym,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,2)
 
   call mma_allocate(Tmp2,nDens,Label='Tmp2')
   call mma_MaxDBLE(nMax)

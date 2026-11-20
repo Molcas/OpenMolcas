@@ -24,7 +24,7 @@ subroutine calcerr(kappa,iestate)
 
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: ipMat, ISTATE, nDens
-use general_data, only: nSym
+use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

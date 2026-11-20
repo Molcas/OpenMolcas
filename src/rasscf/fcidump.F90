@@ -18,7 +18,7 @@
 module fcidump
 
 use rasscf_global, only: nacpar
-use general_data, only: nTot, nTot1, nTot2
+use Orbital_Spaces, only: nTot, nTot1, nTot2
 use fcidump_tables, only: fill_2ElInt, fill_fock, fill_orbitals, FockTable, mma_allocate, mma_deallocate, OrbitalTable, &
                           TwoElIntTable
 use fcidump_transformations, only: fold_Fock, get_orbital_E
@@ -38,7 +38,7 @@ contains
 
 subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,core_energy,permutation,fort55_path)
 
-  use general_data, only: nSym, nAsh
+  use Orbital_Spaces, only: nSym, nAsh
 
   character(len=*), intent(in) :: ascii_path, h5_path
   real(kind=wp), intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
@@ -104,7 +104,7 @@ end subroutine make_fcidumps
 !>   permutation(i) = new position (1-based) of original orbital i.
 subroutine energy_sort_permutation(orbital_energies,permutation)
 
-  use general_data, only: nAsh, nBas, nFro, nIsh, nSym
+  use Orbital_Spaces, only: nAsh, nBas, nFro, nIsh, nSym
   use Definitions, only: wp, iwp
 
   real(kind=wp), intent(in) :: orbital_energies(:)

@@ -111,7 +111,7 @@ end subroutine save_energies
 subroutine save_ci(si_pdft,nstates)
 
   use rasscf_files, only: jobiph
-  use general_data, only: nconf
+  use rasscf_global, only: nconf
 # ifdef _HDF5_
   use mcpdft_input, only: mcpdft_options
   use mh5, only: mh5_close_file, mh5_fetch_dset, mh5_open_dset, mh5_open_file_rw, mh5_put_dset

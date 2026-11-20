@@ -44,7 +44,6 @@ use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
 use CI_Info, only: CI_St
 use Molcas, only: MxLev
-use general_data, only: nActEl, STSym
 use caspt2_module, only: MxCI, nG1, nG2, nG3, nSym
 #ifdef _DMRG_
 use caspt2_module, only: DMRG
@@ -86,9 +85,9 @@ if (mkF) then
   F3(1:NG3) = Zero
 end if
 
-if (NACTEL == 0) return
+if (CI_St(iState)%nActEl == 0) return
 
-NCI = CI_St(istate)%nCSF(STSYM)
+NCI = CI_St(istate)%nCSF(CI_St(iState)%STSym)
 ! This should not happen, but...
 if (NCI == 0) return
 
@@ -158,7 +157,7 @@ iG3OFF = 0
 ! A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 
 do issg1=1,nsym
-  isp1 = Mul(issg1,stsym)
+  isp1 = Mul(issg1,CI_St(iState)%STSym)
   !nsgm1 = CI_St(istate)%nCSF(issg1)
   !call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1)
 
@@ -309,7 +308,7 @@ do issg1=1,nsym
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
     isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
-    issg2 = Mul(isyz,stsym)
+    issg2 = Mul(isyz,CI_St(iState)%STSym)
     !nsgm2 = CI_St(istate)%nCSF(issg2)
     iy = CI_St(istate)%L2Act(iylev)
     iz = CI_St(istate)%L2Act(izlev)

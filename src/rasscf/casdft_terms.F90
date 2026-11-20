@@ -30,7 +30,8 @@ use OneDat, only: sNoNuc, sNoOri
 use rctfld_module, only: lRF
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NFRO, NISH, NSYM, NTOT1
+use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT1
+use CI_Input, only: ISPIN, NACTEL
 use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp, NAC, NACPAR, NONEQ, PotNuc, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half

@@ -15,7 +15,7 @@ subroutine MKCRVEC(CMO_0,CRVEC)
 
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: ITCORE
-use general_data, only: NBAS, NFRO, NISH, NTOT, NTOT1, NTOT2
+use Orbital_Spaces, only: NBAS, NFRO, NISH, NTOT, NTOT1, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

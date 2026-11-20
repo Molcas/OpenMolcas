@@ -18,7 +18,7 @@ subroutine GASCI(ISM,ISPC,nTUVX,TUVX)
 
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI_VEC, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, ECORE, ECORE_ORIG, &
-                      I12, I_ELIMINATE_GAS, I_RES_AB, IADVICE, IBSPGPFTP, ICISTR, IDC, IDIAG, IDISK, IGSOCC, IH1FORM, IPHGAS, &
+                      I12, I_RES_AB, nDEXS, nHEXS, IADVICE, IBSPGPFTP, ICISTR, IDC, IDIAG, IDISK, IGSOCC, IH1FORM, IPHGAS, &
                       IPRCIX, IREFSM, IRESTR, kvec3_length, LCSBLK, LUDIA, LUSC1, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, &
                       MXSOOB, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NIRREP, NOBPT, NOBPTS, NOCSF, NOCTYP, NSMOB, &
                       NSTFSMSPGP, NSTSO, PSSIGN, VEC3, XISPSM
@@ -162,7 +162,7 @@ NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 ! Here we find which type should be eliminated in the diagonal and
 ! in the sigma vector calculation. This to satisfy RASSI.
 ! Insert if statement
-if (I_ELIMINATE_GAS >= 1) call I_AM_SO_EXCITED(NBATCH,CIBT,CLBT,CI1BT)
+if ((nHEXS > 0) .or. (nDEXS > 0)) call I_AM_SO_EXCITED(NBATCH,CIBT,CLBT,CI1BT)
 ! End of story for Lasse
 
 call mma_deallocate(CLBT)

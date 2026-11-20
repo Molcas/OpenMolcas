@@ -18,7 +18,7 @@ use PrintLevel, only: VERBOSE
 use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: iParRHS, iPrGlb, iStpGrd
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAGEB, NAGTB, NASHT, NBTCH, NBTCHES, NIGEJ, NIGTJ, NISH, NISUP, NSSH, NSYM, NTGEU, NTGTU, NTU, NTUV
 use stdalloc, only: mma_MaxDBLE
 use Definitions, only: wp, iwp, u6
