@@ -43,9 +43,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
+#include "warnings.h"
 real(kind=wp), allocatable, intent(out) :: CIVec(:,:)
 integer(kind=iwp) :: i, iDisk, iDummer, iGo, iMode, iOpt, iRC, iS, iSym, Iter, j, jS, k, kRoots, kS, Length, lS, nAct, nAct2, &
-                     nAct4, nG1, nG2
+                     nAct4, nG1, nG2, iDum(1)
 real(kind=wp) :: PotNuc0, rdum(1), Temp
 logical(kind=iwp) :: Found, FoundSpace, GAS
 character(len=8) :: Method
@@ -202,9 +203,15 @@ else if ((irlxroot == 1) .and. (.not. (McKinley .or. PT2 .or. iMCPD))) then
   iopt = ibset(0,sNew)
   call OPNMCK(irc,iopt,FNMCK,LUMCK)
   iopt = 0
-  call WrMck(iRC,iOpt,'nSym',1,nBas,iDummer)
-  call ClsFls_MCLR()
-  call Finish(0)
+  iDum(1) = nSym
+  call WrMck(iRC,iOpt,'nSym',1,iDum,iDummer)
+  ! Only MCKINT (and the files opened before) are open at this point; ClsFls_MCLR
+  ! would try to close files that are opened later
+  iRc = -1
+  iOpt = 0
+  call ClsMck(iRc,iOpt)
+  ! a deliberate early stop: most of the module's data are still allocated
+  call xQuit(_RC_ALL_IS_WELL_)
 end if
 
 !iDisk = iToc(9)
