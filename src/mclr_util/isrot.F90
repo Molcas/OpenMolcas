@@ -355,16 +355,16 @@ subroutine DMInvISR(ISRotIn,ISRotOut)
 
   do i=1,nRoots
     do j=1,i-1
-      Edeg = .false.
-      if (abs(ERASSCF(i)-ERASSCF(j)) < 1.0e-9_wp) Edeg = .true.
-      Wdeg = .false.
-      if (ScalWeight .and. (abs(Weight(i)-Weight(j)) < 1.0e-9_wp)) Wdeg = .true.
-      ! How to avoid the zero divsion for degenerated states?
+      ! The diagonal of the S-S block is 2*(E_i-E_j) (times (w_i-w_j) with
+      ! ScalWeight). A (near-)vanishing factor is replaced by one, so that
+      ! degenerate states do not lead to a division by (almost) zero.
+      Edeg = abs(ERASSCF(i)-ERASSCF(j)) < 1.0e-9_wp
+      Wdeg = (.not. ScalWeight) .or. (abs(Weight(i)-Weight(j)) < 1.0e-9_wp)
       if (Edeg .and. Wdeg) then
         ISRotOut(i,j) = Half*ISRotIn(i,j)
-      else if (Wdeg .or. (.not. ScalWeight)) then
+      else if (Wdeg) then
         ISRotOut(i,j) = Half*ISRotIn(i,j)/(ERASSCF(i)-ERASSCF(j))
-      else if (Edeg .and. ScalWeight) then
+      else if (Edeg) then
         ISRotOut(i,j) = Half*ISRotIn(i,j)/(Weight(i)-Weight(j))
       else
         ISRotOut(i,j) = Half*ISRotIn(i,j)/((ERASSCF(i)-ERASSCF(j))*(Weight(i)-Weight(j)))
