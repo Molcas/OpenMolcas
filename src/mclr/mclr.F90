@@ -43,16 +43,16 @@ use External_Centers, only: External_Centers_Free
 use Symmetry_Info, only: Symmetry_Info_Free
 use Str_Info, only: CFTP, CNSM, DFTP, DTOC
 use ipPage, only: ipclose
-use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FAMO_SpinM, FAMO_SpinP, FIMO, Fm, Fp, G1m, G1p, G1t, G2mm, G2mp, G2pp, &
+use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FIMO, G1t, &
                      G2sq, G2t, Hss, iAllo, Int1, INT2, LuPT2, nA, nAcPar, nAcPr2, NACSTATES, nNA, nrec, PDFT_Ratio, pINT1, pINT2, &
-                     SA, SFock, SS, WF_Ratio
+                     SA, SS, WF_Ratio
 use PCM_grad, only: PCM_grad_final
 use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
 use Orbital_Spaces, only: nAsh, nSym
 use CI_Input, only: nRS2
 use CI_States, only: CI_Free_State
 use input_mclr, only: double, Fail, iMCPD, iMethod, iMSPD, LuAChoVec, LuChoInt, LuIChoVec, McKinley, nDisp, NewCho, ntAsh, ntASqr, &
-                      ntAtri, PT2, RASSI, SpinPol, StepType, TimeDep, TwoStep
+                      ntAtri, PT2, RASSI, StepType, TimeDep, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, RtoB
@@ -262,12 +262,7 @@ ifpRHSCI(:) = -1
 
 ! Output is stored on disk
 
-if (SPINPOL) then
-  call WfCtl_SP(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
-!else if (ELECHESS) then
-!  call WfCtl_PCG(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
-!  call Abend()
-else if (iMCPD) then !pdft
+if (iMCPD) then !pdft
 
   Do_Hybrid = .false.
   call qpg_DScalar('R_WF_HMC',Do_Hybrid)
@@ -356,18 +351,6 @@ end if
 
 ! Arrays allocated in stpert.f
 call mma_deallocate(Hss)
-if (SPINPOL) then
-  call mma_deallocate(FAMO_SpinP)
-  call mma_deallocate(FAMO_SpinM)
-  call mma_deallocate(G2mm)
-  call mma_deallocate(G2mp)
-  call mma_deallocate(G2pp)
-  call mma_deallocate(Fp)
-  call mma_deallocate(Fm)
-  call mma_deallocate(G1p)
-  call mma_deallocate(G1m)
-  call mma_deallocate(SFock)
-end if
 ! Arrays allocated in fckmat.f
 call mma_deallocate(FAMO)
 call mma_deallocate(Int2)

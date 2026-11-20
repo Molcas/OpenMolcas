@@ -12,10 +12,8 @@
 set (sources
      main.F90
      abxpy.F90
-     add2.F90
      addgrad2.F90
      addgrad.F90
-     addgrad_sp.F90
      calcaxk2.F90
      calcaxkzx.F90
      calcaxpzx.F90
@@ -48,15 +46,12 @@ set (sources
      ci_reconstruct.F90
      cmsrdmat.F90
      cmsrhsgdmat.F90
-     coeff.F90
      compress2.F90
      compress.F90
      creq2.F90
      creqadd2.F90
      creqadd.F90
-     creqadd_sp.F90
      creq.F90
-     creq_sp.F90
      creq_td.F90
      csdtvc_dmrg.F90
      dmat_mclr.F90
@@ -64,15 +59,12 @@ set (sources
      dminvci_sa.F90
      dminvci_td.F90
      dminvkap.F90
-     dminvkap_sp.F90
      dminvkap_td.F90
      exp_close.F90
-     ex_spin.F90
      fact.F90
      fckmat.F90
      fcoor.F90
      fockgen.F90
-     fockgen_sp.F90
      fockgen_td.F90
      freestr.F90
      freqanal.F90
@@ -105,7 +97,6 @@ set (sources
      niclas.F90
      nipre.F90
      npre.F90
-     oit_sp.F90
      opnfls_mclr.F90
      out_pt2.F90
      output_mclr.F90
@@ -135,7 +126,6 @@ set (sources
      qaaverif.F90
      r2elint.F90
      r2elint_ns.F90
-     r2elint_sp.F90
      rd1int_mclr.F90
      rd2int.F90
      rdab.F90
@@ -155,13 +145,11 @@ set (sources
      rhs_td.F90
      rint_generic.F90
      rint_ns.F90
-     rint_sp.F90
      rint_td.F90
      setlab.F90
      setup_mclr.F90
      solveforrhs.F90
      solveforzx.F90
-     spindens.F90
      sqm.F90
      start_mclr.F90
      stpert.F90
@@ -171,14 +159,12 @@ set (sources
      timese2mspdft.F90
      tramo_mclr.F90
      trctl_mclr.F90
-     unc.F90
      uncompress2.F90
      uncompress.F90
      wfctl_hess.F90
      wfctl_mspd.F90
      wfctl_pdft.F90
      wfctl_sa.F90
-     wfctl_sp.F90
      wfctl_td.F90
 )
 

@@ -42,7 +42,6 @@ module Input_MCLR
 ! iMSPD                 : MS-PDFT calculation
 ! McKinley              : Input read from McKinley True if MCKINT exists
 ! PT2                   : Read in RHS from CASPT2
-! SPINPOL               : Calculate spin polarization for casscf
 ! double                : Double isotope substitutions
 ! newCho                : Switch to the new Cholesky algorithm
 ! PotNuc, ERASSCF, ESCF : Energies
@@ -71,13 +70,13 @@ private
 
 integer(kind=iwp), parameter :: itociph = 64, mxPer = 255
 
-integer(kind=iwp) :: iaddressQDAT, iBreak, iMethod, iPt2, iRoot(mxRoot), ispop, iToc(itociph), kprint, lRoots, LuAChoVec(8), &
+integer(kind=iwp) :: iaddressQDAT, iBreak, iMethod, iPt2, iRoot(mxRoot), iToc(itociph), kprint, lRoots, LuAChoVec(8), &
                      LuChoInt(2), LuIChoVec(8), mTit, nAtoms, nBas(mxSym), nConf, nCSF(8), nDel(mxSym), nDisp, nFro(mxSym), &
                      NIRREP, niter, nOrb(mxSym), nRoots, nSkip(mxSym), nsRot, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, &
                      ntIsqr, ntItri, nTPert(mxPer), nUserPT
 real(kind=wp) :: Coor(3,MxAtom), Eps, ERASSCF(mxroot), ESCF, Omega, PotNuc, rin_ene, UserP, UserT(64), Weight(mxroot)
 logical(kind=iwp) :: CASINT, debug, double, fail, iMCPD, iMSPD, lCalc(3*MxAtom+3), McKinley, newCho, page, PT2, RASSI, lSave, &
-                     SPINPOL, Timedep, TwoStep
+                     Timedep, TwoStep
 character(len=LenIn) :: AtLbl(MxAtom)
 character(len=72) :: Header1I(2), HeaderJP(2), TitleJp(mxTit)
 character(len=16) :: Perturbation
@@ -86,9 +85,9 @@ character(len=4) :: StepType
 character(len=3) :: chirr(8)
 
 public :: AtLbl, CASINT, chirr, Coor, debug, double, Eps, ERASSCF, ESCF, fail, Header1I, HeaderJP, iaddressQDAT, iBreak, iMCPD, &
-          iMethod, iMSPD, iPt2, iRoot, ispop, iToc, itociph, kprint, lCalc, lRoots, LuAChoVec, LuChoInt, LuIChoVec, McKinley, &
+          iMethod, iMSPD, iPt2, iRoot, iToc, itociph, kprint, lCalc, lRoots, LuAChoVec, LuChoInt, LuIChoVec, McKinley, &
           mTit, nAtoms, nBas, nConf, nCSF, nDel, nDisp, newCho, nFro, NIRREP, niter, nOrb, nRoots, nSkip, nsRot, ntAsh, ntAsqr, &
           ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, RASSI, &
-          rin_ene, lSave, SPINPOL, StepType, Timedep, TitleIN, TitleJp, TwoStep, UserP, UserT, Weight
+          rin_ene, lSave, StepType, Timedep, TitleIN, TitleJp, TwoStep, UserP, UserT, Weight
 
 end module Input_MCLR

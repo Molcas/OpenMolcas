@@ -204,7 +204,7 @@ end if
 ! orbitals of the CI code (RAS1, RAS2, RAS3, symmetries within each),
 ! while the rest of MCLR uses symmetry ordered active indices. Reorder
 ! (a no-op without RAS1/RAS3 orbitals or without symmetry). The ieaw=1
-! densities (spin densities) mix two storage layouts and are left as they are.
+! densities (no current caller) mix two storage layouts and are left as they are.
 if (ieaw == 0) call Reorder_TS_Densities()
 
 ! Free memory

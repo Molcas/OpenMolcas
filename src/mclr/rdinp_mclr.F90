@@ -25,8 +25,8 @@ use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
 use MCLR_Data, only: DspVec, ESTERR, FANCY_PRECONDITIONER, ISMECIMSPD, ISNAC, ISTATE, lDisp, NACSTATES, NewPre, nexp_max, nGP, &
                      NoFile, NSSA, OVERRIDE, SA, SwLbl
 use Orbital_Spaces, only: nSym
-use input_mclr, only: CasInt, Debug, double, Eps, iBreak, IsPop, kPrint, lCalc, lRoots, lSave, mTit, nAtoms, nDisp, NewCho, nIter, &
-                      nsRot, ntPert, nUserPT, Omega, Page, RASSI, SpinPol, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
+use input_mclr, only: CasInt, Debug, double, Eps, iBreak, kPrint, lCalc, lRoots, lSave, mTit, nAtoms, nDisp, NewCho, nIter, &
+                      nsRot, ntPert, nUserPT, Omega, Page, RASSI, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
 use PCM_grad, only: RFPERT
 use cgs_mod, only: CGS
 use Molcas, only: MxAtom
@@ -79,7 +79,6 @@ Page = .false.
 ibreak = 2
 nIter = 200
 RASSI = .false.
-spinpol = .false.
 SA = .false.
 esterr = .false.
 FANCY_PRECONDITIONER = .true.
@@ -276,9 +275,9 @@ outer: do
 
     case (16)
       !---- SPIN ------------------------------------------------------*
-      SPINPOL = .true.
-      ispop = 1
-      if (debug) write(u6,*) 'RHF lagrangian, not supported'
+      ! The (experimental, untested) spin polarization code has been retired
+      call WarningMessage(2,'MCLR: the SPIN keyword (spin polarization) is no longer supported')
+      call Quit_OnUserError()
 
     case (17)
       !---- PRIN ------------------------------------------------------*
