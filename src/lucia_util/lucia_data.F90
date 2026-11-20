@@ -46,8 +46,7 @@ public :: MXTYP, NCNFTP, NCSFTP, NDTFTP, NTYP
 integer(kind=iwp), parameter :: LOFFI = 8**6, MXPCSM = 8, MXPICI = 30, MXPIRR = 8, MXPNSMST = 8, MXPOBS = 8, MXPORB = 500, &
                                 MXPPTSPC = 20, MXPR4T = 10, MXPSTT = 2500, MXPTSOB = 35
 integer(kind=iwp), parameter :: MXPNGAS = MXPR4T+6
-integer(kind=iwp), parameter :: ABTOR2_TINY_M_MAX = 4, ABTOR2_TINY_N_MAX = 4, RSBB1E_CPU_D1_MAX = 16, RSBB1E_CPU_D2_MAX = 16, &
-                                SKICKJ_TINY_K_MAX = 4, SKICKJ_TINY_N_MAX = 4
+integer(kind=iwp), parameter :: RSBB1E_CPU_D1_MAX = 16, RSBB1E_CPU_D2_MAX = 16
 
 integer(kind=iwp) :: IH1FORM
 integer(kind=iwp) :: I12, I1234S, I12S, iDEXS(MXPNGAS), I34S, I_AM_OUT(MXPSTT), I_RES_AB, IADVICE, &
@@ -84,7 +83,7 @@ real(kind=wp), allocatable :: DStmp(:), Dtmp(:), DTOC(:), INT1(:), PAtmp(:), Psc
                               VEC3(:)
 real(kind=wp), allocatable, target :: CI_VEC(:)
 
-public :: ABTOR2_TINY_M_MAX, ABTOR2_TINY_N_MAX, Allocate_Local_Arrays, CBLTP, CFTP, CI1BT, CI_VEC, CIBT, CLBT, CLEBT, CONF_OCC, &
+public :: Allocate_Local_Arrays, CBLTP, CFTP, CI1BT, CI_VEC, CIBT, CLBT, CLEBT, CONF_OCC, &
           CONF_REO, Deallocate_Local_Arrays, DFTP, DStmp, Dtmp, DTOC, ECORE, ECORE_ORIG, ENVIRO, I12, I1234S, I12S, &
           iDEXS, I34S, I_AM_OUT, I_RES_AB, IADVICE, IB_CONF_OCC, IB_CONF_REO, IB_SD_FOR_OPEN, &
           IBCONF_ALL_SYM_FOR_OCCLS, IBGPSTR, IBSO, IBSPGPFTP, ICISTR, ICJKAIB, ICMBSPC, IDC, IDIAG, IDISK, iHEXS, &
@@ -99,8 +98,8 @@ public :: ABTOR2_TINY_M_MAX, ABTOR2_TINY_N_MAX, Allocate_Local_Arrays, CBLTP, CF
           NINOB, NINOBS, NIRREP, NMXOCCLS, NOBPT, NOBPTS, NOCOB, NOCSF, NOCTYP, NOINT, NORB1, NORB2, NORB3, NPCMCNF, NPCSCNF, &
           NPDTCNF, NPTSPC, NROOT, NSD_PER_SYM, NSMOB, NSPGPFTP, NSTFGP, NSTFSMGP, NSTFSMSPGP, NSTRKS, NSTSGP, NSTSO, NSTTP, &
           NSTTYP, NTOOB, NTOOBS, NTSPGP, OCCSTR, OCSTR, PAtmp, PGINT1, PGINT1A, PINT1, PINT2, Pscr, PSSIGN, Ptmp, REO, REO_PTDT, &
-          RHO1, RSBB1E_CPU_D1_MAX, RSBB1E_CPU_D2_MAX, SDREO, SDREO_I, Sigma_on_disk, SIGMA_VEC, SKICKJ_TINY_K_MAX, &
-          SKICKJ_TINY_N_MAX, SPGPAN, SPGPCR, SRHO1, STREO, STSTM, TDENSI, TSIGMA, VEC3, XISPSM, Z, Z_PTDT, Zmat, ZSCR
+          RHO1, RSBB1E_CPU_D1_MAX, RSBB1E_CPU_D2_MAX, SDREO, SDREO_I, Sigma_on_disk, SIGMA_VEC, SPGPAN, SPGPCR, &
+          SRHO1, STREO, STSTM, TDENSI, TSIGMA, VEC3, XISPSM, Z, Z_PTDT, Zmat, ZSCR
 
 contains
 
