@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: iSym, iCase, nIN, nIS, nAS, nState
 real(kind=wp), intent(in) :: VECROT(nState)
 real(kind=wp), intent(inout) :: BDERmat(NAS*NAS), SDERmat(NAS*NAS)
-integer(kind=iwp) :: i, idB, idSD, idT, j, jICB, lg_V1, lg_V2
+integer(kind=iwp) :: idB, idSD, idT, jICB, lg_V1, lg_V2
 real(kind=wp) :: Dummy(1), EigJ, SCAL, Tmp
 logical(kind=iwp) :: do_lambda
 real(kind=wp), allocatable :: DIS(:), EIG(:), TRANS(:), WRK1(:), WRK2(:), WRK3(:), XC(:)
@@ -252,6 +252,7 @@ subroutine Contract_(iStep,nRowA,nRowB,VEC1,VEC2)
 
 integer(kind=iwp), intent(in) :: iStep, nRowA, nRowB
 real(kind=wp), intent(in) :: VEC1(nRowA*nIS), VEC2(nRowB*nIS)
+integer(kind=iwp) :: iloc, jloc
 
 select case (iStep)
   case (1)
@@ -264,9 +265,9 @@ select case (iStep)
     if (iStep == 2) Tmp = -Half
     if ((iStep == 3) .and. (.not. do_lambda)) Tmp = Half*SCAL
     call DGEMM_('N','T',nIN,nIN,nIS,Tmp,VEC1,nIN,VEC2,nIN,Zero,WRK2,nIN)
-    do j=1,nIN
-      do i=1,nIN
-        WRK1(i+nIN*(j-1)) = WRK1(i+nIN*(j-1))+WRK2(i+nIN*(j-1))+WRK2(j+nIN*(i-1))
+    do jloc=1,nIN
+      do iloc=1,nIN
+        WRK1(iloc+nIN*(jloc-1)) = WRK1(iloc+nIN*(jloc-1))+WRK2(iloc+nIN*(jloc-1))+WRK2(jloc+nIN*(iloc-1))
       end do
     end do
   case (4)

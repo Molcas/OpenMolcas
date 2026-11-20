@@ -20,9 +20,9 @@ use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
 use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use Para_Info, only: Is_Real_Par
+use Constants, only: Zero
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none

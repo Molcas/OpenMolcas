@@ -17,7 +17,7 @@ use caspt2_global, only: IDTCEX, LUCIEX
 use general_data, only: NASH
 use caspt2_module, only: ISCF, NAES, NBAS, NDEL, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half
+use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
