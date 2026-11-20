@@ -40,7 +40,7 @@ logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: i, iDis, iDisp, ij, iLen, iOff, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iS, iSym, Iter, j, ji, jS, jSpin, &
                      kSym, Left, lLine, lPaper, Lu_50, nConf3, nG1, nG2, nOrbAct, nPre2, nTri
-real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, Diff, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), rE, ReCo, Res, rEsci, &
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, Diff, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), rE, ReCo, Res, rEsci, &
                  rEsk, TRoot, WScale
 logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=8) :: Fmt2
@@ -351,8 +351,6 @@ do iDisp=1,nDisp
   iLen = nDensC
   iRHSDisp(iDisp) = iDis
   call Compress(Temp5,Sigma,iSym)
-  r1 = ddot_(nDensC,Sigma,1,Sigma,1)
-  if (debug) write(u6,*) 'Hi how about r1',r1
   call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
   call ipIn(ipCIT)
@@ -445,8 +443,6 @@ do iDisp=1,nDisp
   call ipIn(ipPre2)
   call DMInvKap(W(ipPre2)%A,iPre,Sigma,dKappa,Sc1,iSym,iter)
   call opOut(ippre2)
-  r2 = ddot_(nDensC,dKappa,1,dKappa,1)
-  if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
   call mma_deallocate(kap_new)
   call mma_deallocate(kap_new_temp)

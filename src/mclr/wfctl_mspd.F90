@@ -39,7 +39,7 @@ integer(kind=iwp), intent(in) :: iPL
 #include "warnings.h"
 integer(kind=iwp) :: iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iSym, Iter, JRoot, jSpin, Left, lLine, lPaper, &
                      Lu_50, LURot, nConf3, niPre2, nPre2
-real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk
 logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=16) :: VecName
 character(len=8) :: Fmt2
@@ -228,8 +228,6 @@ else
     iLen = nDensC
     iRHSDisp(iDisp) = iDis
     call Compress(Temp4,Sigma,iSym)
-    r1 = ddot_(nDensc,Sigma,1,Sigma,1)
-    if (debug) write(u6,*) 'Hi how about r1',r1
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
     call ipIn(ipCIT)
@@ -247,9 +245,6 @@ else
     call DMInvKap(W(ipPre2)%A,iPre,Sigma,Kappa,Temp4,isym,iter)
 
     call opOut(ippre2)
-    r2 = ddot_(nDensC,Kappa,1,Kappa,1)
-    if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
-    if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     dKappa(:) = Kappa(:)
 

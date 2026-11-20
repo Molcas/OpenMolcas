@@ -41,7 +41,7 @@ logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: iDis, iDisp, iLen, iMode, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, &
                      Lu_50, nConf3, niPre2, nPre2
-real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
 logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=8) :: Fmt2
 integer(kind=iwp), allocatable :: iPre(:)
@@ -261,9 +261,6 @@ else
     iLen = nDensC
     iRHSDisp(iDisp) = iDis
     call Compress(Temp3,Sigma,iSym)
-    r1 = ddot_(nDensC,Sigma,1,Sigma,1)
-    if (PT2 .or. do_RF) R1 = R1+DDot_(nConf1*nRoots,W(ipST)%A,1,W(ipST)%A,1)
-    if (debug) write(u6,*) 'Hi how about r1',r1
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
     if (PT2 .or. do_RF) then !! .or. unequal_SA) then
@@ -300,10 +297,6 @@ else
     end if
 
     call opOut(ippre2)
-    r2 = ddot_(nDensC,Kappa,1,Kappa,1)
-    if (PT2) R2 = R2+DDot_(nConf1*nRoots,W(ipS2)%A,1,W(ipS2)%A,1)
-    if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
-    if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     dKappa(:) = Kappa(:)
 
