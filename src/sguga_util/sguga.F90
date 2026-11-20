@@ -6062,6 +6062,12 @@ Do ISYCI=1, SGS(istate)%nSym
 End Do
 #endif
 
+! Nothing to test without active levels (e.g. RASSCF with an empty active space)
+if (SGS(iState)%nLev == 0) then
+  write(u6,'(1X,A)') 'SG_Test_EpqErs_Ref: no active levels, nothing to test'
+  return
+end if
+
 ! State and symmetry of the module-level matrix-element routines
 ME_iState = iState
 ME_LSM = LSM
