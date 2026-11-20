@@ -149,7 +149,7 @@ end if
 !----------------------------------------------------------------------*
 
 call mma_allocate(CMO,Length,Label='CMO')
-call Get_dArray_chk('Last orbitals',CMO,Length)
+call Get_CMO_MCLR(CMO,Length)
 
 ! Read state for geo opt
 

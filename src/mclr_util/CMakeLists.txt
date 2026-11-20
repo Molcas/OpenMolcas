@@ -54,6 +54,7 @@ set (sources
      gatrmt.F90
      genstr_mclr.F90
      getcnf_mclr.F90
+     get_cmo_mclr.F90
      geth1i_mclr.F90
      getinc_abs.F90
      getinc_abs_td.F90
