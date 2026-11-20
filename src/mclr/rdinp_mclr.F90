@@ -490,14 +490,7 @@ if (Timedep) then
   end do
 end if
 
-if (Epsilon_Undef) then
-  !if (SA) then
-  !  Eps = 1.0e-6_wp
-  !else
-  Eps = 1.0e-4_wp
-  ! This I need to change back
-  !end if
-end if
+if (Epsilon_Undef) Eps = 1.0e-6_wp
 
 if (debug) write(u6,*) 'FINITO'
 !----------------------------------------------------------------------*
