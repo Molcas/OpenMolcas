@@ -240,6 +240,15 @@ do iSym=kksym,kkksym
       call ipin(ipST)
       call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
       W(ipST)%A(1:2*nConf1) = -W(ipST)%A(1:2*nConf1)
+      ! The CI preconditioner cannot see the reference component, so it
+      ! must not enter the residual (the solution is orthogonal to |0>).
+      if (isym == 1) then
+        call ipin(ipCI)
+        rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipST)%A,1)
+        W(ipST)%A(1:nConf1) = W(ipST)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+        rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipST)%A(1+nConf1),1)
+        W(ipST)%A(nConf1+1:2*nConf1) = W(ipST)%A(nConf1+1:2*nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+      end if
     end if
 
     call DMInvKap_td(DigPrec,Sigma,Kappa)
@@ -471,6 +480,15 @@ do iSym=kksym,kkksym
         call ipin1(ipS2,2*nconf1)
         W(ipS1)%A(1:2*nConf1) = W(ipS1)%A(1:2*nConf1)+W(ipS2)%A(1:2*nConf1)
         call opout(ips2)
+        ! Project the reference state out of the CI part of the Hessian
+        ! product (see wfctl_hess).
+        if (isym == 1) then
+          call ipin(ipCI)
+          rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipS1)%A,1)
+          W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+          rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipS1)%A(1+nConf1),1)
+          W(ipS1)%A(nConf1+1:2*nConf1) = W(ipS1)%A(nConf1+1:2*nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+        end if
       end if
 
       !-----------------------------------------------------------------

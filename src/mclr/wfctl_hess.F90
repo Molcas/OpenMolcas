@@ -364,6 +364,13 @@ do
     call ipin(ipST)
     call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
     W(ipST)%A(1:nConf1) = -W(ipST)%A(1:nConf1)
+    ! The CI preconditioner cannot see the reference component, so it
+    ! must not enter the residual (the solution is orthogonal to |0>).
+    if (isym == 1) then
+      call ipin(ipCI)
+      rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipST)%A,1)
+      W(ipST)%A(1:nConf1) = W(ipST)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+    end if
   end if
 
   Sigma(:) = -Sigma(:)
@@ -486,11 +493,6 @@ do
         ! when the wavefunction is converged.
 
         call ipin(ipS1)
-        if (isym == 1) then
-          call ipin(ipCI)
-          rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipS1)%A,1)
-          W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)-rgrad*W(ipCI)%A(1:nConf1)
-        end if
         W(ipS1)%A(1:nConf1) = Two*W(ipS1)%A(1:nConf1)
 
         call opout(ipCI)
@@ -617,6 +619,15 @@ do
       call ipin1(ipS2,nconf1)
       W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)+W(ipS2)%A(1:nConf1)
       call opout(ipS2)
+      ! Project the reference state out of the CI part of the Hessian
+      ! product: the CI preconditioner maps that component to zero, and
+      ! with an incompletely converged |0> (<0|H-E|d> /= 0) it would
+      ! accumulate in the CI residual and stall the PCG.
+      if (isym == 1) then
+        call ipin(ipCI)
+        rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipS1)%A,1)
+        W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+      end if
     end if
     !                                                                  *
     !*******************************************************************
