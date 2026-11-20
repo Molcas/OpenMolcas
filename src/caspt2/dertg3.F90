@@ -36,7 +36,7 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi
+use CI_States, only: CI_Epq_Psi, CI_New_Tag
 use caspt2_module, only: IASYM, ISCF, MXCI
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One
@@ -49,9 +49,9 @@ real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), OVL
 real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT), DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3), CLAG1(NCONF), CLAG2(NCONF)
 integer(kind=iwp) :: ibuf, IL, IM, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, IT, ITS, &
                      ITU, IU, IUS, IV, IVS, IVX, IX, IXS, IY, IYS, IYZ, IZ, IZS, JL, JM, JTU, JTUVXYZ, JVX, JYZ, LFROM, LFROMD, &
-                     LSGM1, LSGM2, LTAU, LTO, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
+                     LSGM1, LSGM2, LTAU, LTO, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF, TAG1, TAG2
 real(kind=wp) :: VAL
-integer(kind=iwp), allocatable :: P2LEV(:,:)
+integer(kind=iwp), allocatable :: P2LEV(:,:), TAG_S2(:)
 real(kind=wp), allocatable :: BUF1(:), DTU(:,:), DYZ(:,:), TG3WRK(:)
 integer(kind=iwp), parameter :: istate = 1
 
@@ -198,6 +198,11 @@ end if
 ! Wishful thinking:
 NVECS = 2*NASHT**2+1
 ! But what is really available?
+! tags of the CI vectors for CI_Epq_Psi: CI1, CI2 and each buffered
+! Sigma2 = E(YZ) Psi2 (applied for every IP2)
+call mma_allocate(TAG_S2,NASHT**2,Label='TAG_S2')
+TAG1 = CI_New_Tag()
+TAG2 = CI_New_Tag()
 call mma_MaxDBLE(NTG3WRK)
 NTG3WRK = NTG3WRK-3*MXCI ! for BUF1, DTU, and DYZ, allocated later
 NTG3WRK = NTG3WRK/2
@@ -249,7 +254,8 @@ do IP3STA=1,NASHT**2,NYZBUF
     ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
     TG3WRK(LTO:LTO+MXCI-1) = Zero
     ! LTO is first element of Sigma2 = E(YZ) Psi2
-    call CI_Epq_Psi(istate,IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
+    call CI_Epq_Psi(istate,IL,JL,One,LSYM2,CI2,TG3WRK(LTO),TAG2)
+    TAG_S2(IP3-IP3STA+1) = CI_New_Tag()
     !! It is possible to calculate the contribution using
     !! DGEMV, but DAXPY seems to be faster than DGEMV
     if ((ISSG2 == LSYM1) .and. (DTG1(IY,IZ) /= Zero)) CLAG1(1:NCI1) = CLAG1(1:NCI1)+DTG1(IY,IZ)*TG3WRK(LTO:LTO+NCI1-1)
@@ -273,7 +279,7 @@ do IP3STA=1,NASHT**2,NYZBUF
       IUS = IASYM(IU)
       ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
       TG3WRK(LTO:LTO+MXCI-1) = Zero
-      call CI_Epq_Psi(istate,IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
+      call CI_Epq_Psi(istate,IL,JL,One,LSYM1,CI1,TG3WRK(LTO),TAG1)
       if ((ISSG1 == LSYM1) .and. (DTG1(IU,IT) /= Zero) .and. (IP3STA == 1)) &
         CLAG2(1:NCI1) = CLAG2(1:NCI1)+DTG1(IU,IT)*TG3WRK(LTO:LTO+NCI1-1)
       LTO = LTO+MXCI
@@ -306,7 +312,7 @@ do IP3STA=1,NASHT**2,NYZBUF
         TG3WRK(LTAU:LTAU+MXCI-1) = Zero
         ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
         !! LTAU = EvxEyz|Psi2>
-        call CI_Epq_Psi(istate,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
+        call CI_Epq_Psi(istate,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU),TAG_S2(IP3-IP3STA+1))
         if ((ISTAU == LSYM1) .and. (DTG2(IV,IX,IY,IZ) /= Zero)) then
           !DTG2(IV,IX,IY,IZ) = DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           !! For left derivative: <I|Evx Eyz|Psi2>
@@ -316,7 +322,7 @@ do IP3STA=1,NASHT**2,NYZBUF
             ibuf = lsgm1+mxci*(ip2-ip1sta)
             DYZ(1:MXCI,LFROMD) = DYZ(1:MXCI,LFROMD)+DTG2(IV,IX,IY,IZ)*TG3WRK(IBUF:IBUF+MXCI-1)
           else if (abs(DTG2(IV,IX,IY,IZ)) < 1.0e-12_wp) then
-            call CI_Epq_Psi(istate,JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD))
+            call CI_Epq_Psi(istate,JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD),TAG1)
           end if
           DTG2(IV,IX,IY,IZ) = Zero
         end if
@@ -425,6 +431,7 @@ do IP3STA=1,NASHT**2,NYZBUF
 end do
 
 call mma_deallocate(TG3WRK)
+call mma_deallocate(TAG_S2)
 call mma_deallocate(BUF1)
 call mma_deallocate(DTU)
 call mma_deallocate(DYZ)
