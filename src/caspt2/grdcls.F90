@@ -14,10 +14,10 @@
 subroutine GrdCls(IRETURN,nState,UEFF,U0,H0)
 
 use PrintLevel, only: VERBOSE
-use caspt2_global, only: CLag, CLagFull, do_csf, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, FIFA_all, &
-                         FIFASA_all, FIMO_all, iPrGlb, iRoot1, iRoot2, iTasks_grad, LuAPT2, LUGRAD, LuPT2, LUSTD, nOLag, nWLag, &
-                         OLag, OLagFull, OMGDER, SLag, TraFro, WLag
-use caspt2_module, only: DWTYPE, IfChol, IFDW, IFMSCOUP, IFRMS, IFXMS, iRlxRoot, NBAST, NBSQT, NBTRI, NCONF, nFroT, NROOTS, &
+use caspt2_global, only: CLag, CLagFull, do_csf, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, DRDMFro, &
+                         FIFA_all, FIFASA_all, FIMO_all, if_FroSCF, if_SSDM, iPrGlb, iRoot1, iRoot2, iTasks_grad, LuAPT2, LUGRAD, &
+                         LuPT2, LUSTD, nOLag, nWLag, OLag, OLagFull, OMGDER, RDMSCF, SLag, TraFro, Weight, WLag
+use caspt2_module, only: DWTYPE, IfChol, IFDW, IFMSCOUP, IFRMS, IFXMS, iRlxRoot, NASHT, NBAST, NBSQT, NBTRI, NCONF, nFroT, NROOTS, &
                          REFENE, RFPERT, Zeta
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
@@ -30,11 +30,11 @@ implicit none
 integer(kind=iwp), intent(in) :: IRETURN, nState
 real(kind=wp), intent(inout) :: UEFF(nState,nState), U0(nState,nState)
 real(kind=wp), intent(in) :: H0(nState,nState)
-integer(kind=iwp) :: i, iGo, ilStat, j, jlStat
+integer(kind=iwp) :: i, iGo, ilStat, iState, j, jlStat
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, WALLT
 logical(kind=iwp) :: DEB, Found
 character(len=16) :: mstate1
-real(kind=wp), allocatable :: CI1(:,:), HEFF1(:,:), WRK1(:,:), WRK2(:,:)
+real(kind=wp), allocatable :: CI1(:,:), CIK(:), HEFF1(:,:), SGM(:), WRK1(:,:), WRK2(:,:)
 integer(kind=iwp), external :: isFreeUnit
 logical(kind=iwp), external :: RF_On
 
@@ -95,6 +95,30 @@ if (IRETURN == 0) then
     CPUT = CPTF10-CPTF0
     WALLT = TIOTF10-TIOTF0
     if (IPRGLB >= VERBOSE) write(u6,'(a,2f10.2)') ' XMS_Grad: CPU/WALL TIME=',cput,wallt
+  end if
+
+  ! Configuration Lagrangian of the frozen part.
+  ! The SCF density depends on the states before the XMS rotation through the weights,
+  ! so this part is not a function of the rotated states and is added after XMS_Grad.
+  if (if_FroSCF) then
+    call mma_allocate(CIK,nConf,Label='CIK')
+    call mma_allocate(SGM,nConf,Label='SGM')
+    do iState=1,nState
+      call LoadCI_XMS('N',1,nConf,nState,CIK,iState,U0)
+      SGM(:) = Zero
+      call Poly1_CLag(nConf,nAshT,CIK,SGM,Weight(iState)*DRDMFro)
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) call GADGOP(SGM,nConf,'+')
+#     endif
+      ! U0 is defined only with the rotation of the states
+      if (IFXMS .or. IFRMS) then
+        call DGER_(nConf,nState,One,SGM,1,U0(iState,1),nState,CLagFull,nConf)
+      else
+        CLagFull(:,iState) = CLagFull(:,iState)+SGM(:)
+      end if
+    end do
+    call mma_deallocate(CIK)
+    call mma_deallocate(SGM)
   end if
 
   !! Now, compute the state Lagrangian and do some projections
@@ -292,6 +316,8 @@ call mma_deallocate(FIFA_all)
 if (IFXMS .or. IFRMS) call mma_deallocate(FIFASA_all)
 if (IFDW .and. (zeta >= Zero)) call mma_deallocate(OMGDER)
 if (do_nac) call mma_deallocate(DPT2Canti_tot)
+if (if_SSDM) call mma_deallocate(RDMSCF,safe='*')
+if (if_FroSCF) call mma_deallocate(DRDMFro,safe='*')
 
 ! Prepare for MCLR
 iGo = 3

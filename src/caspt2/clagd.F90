@@ -14,19 +14,19 @@
 subroutine CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,VECROT)
 
 use Index_Functions, only: nTri_Elem
-use EQSOLV, only: IDBMAT, IDSMAT, IRHS, IVECR, IVECW, IVECX
-use fake_GA, only: GA_Arrays
-use caspt2_global, only: imag_shift, ipea_shift, iVecL, LUSBT, LUSOLV, sigma_p_epsilon
+use EQSOLV, only: IDSMAT
+use caspt2_global, only: ipea_shift, LUSBT, LUSOLV
 use Orbital_Spaces, only: NASH
-use caspt2_module, only: EASUM, EPSA, HZERO, IFMSCOUP, NAES, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
+use caspt2_module, only: EASUM, EPSA, HZERO, NAES, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
 use BDerNEV, only: BDNA, BDNB, BDNC, BDND, BDNE, BDNF, BDNG, BDN_G3
 use SC_NEVPT2, only: SC_prop, SC_NEVPT2_CLagD
 #ifdef _MOLCAS_MPP_
-use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
+use caspt2_global, only: do_lindep, idSCMat, idSDMat, imag_shift, LUSTD, real_shift, sigma_p_epsilon
+use caspt2_module, only: IFMSCOUP
 use Para_Info, only: Is_Real_Par, King
 use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use Definitions, only: u6
-use EQSOLV, only: IDTMAT
+use EQSOLV, only: IDBMAT, IDTMAT, IRHS, IVECR, IVECW, IVECX
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Four, Half
@@ -38,15 +38,15 @@ real(kind=wp), intent(inout) :: G1(NASHT,NASHT), G2(NASHT,NASHT,NASHT,NASHT), G3
                                 DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3), DF1(NASHT,NASHT), DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), &
                                 DEASUM, DEPSA(NASHT,NASHT)
 real(kind=wp), intent(in) :: VECROT(NSTATE)
-integer(kind=iwp) :: iCase, ID, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iXabs, iXgeYabs, &
-                     iXgtYabs, iXY2, iXYabs, iYabs, lg_V1, lg_V2, lg_V3, lg_V4, lg_V5, NAS, NIN, NIS, NS, NSEQ, NVEC
+integer(kind=iwp) :: iCase, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iXabs, iXgeYabs, iXgtYabs, &
+                     iXY2, iXYabs, iYabs, NAS, NIN, NIS, NS, NSEQ, NVEC
 real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BDERval, bsBDER, ET, EU, EX, EY, ScalB1, ScalB2, ScalS1, ScalS2, SDERval
-real(kind=wp), allocatable :: BDER(:), LBD(:), LID(:), SDER(:), SMat(:)
+real(kind=wp), allocatable :: BDER(:), SDER(:), SMat(:)
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: idT, IHI, ILO, JHI, JLO, LDV, lg_S, lg_T, mS, MYRANK
+integer(kind=iwp) :: ID, idT, IHI, ILO, J, JHI, JLO, LDV, lg_S, lg_T, lg_V1, lg_V2, mS, MYRANK
 logical(kind=iwp) :: bStat
 integer(kind=byte), allocatable :: idxG3(:,:)
-real(kind=wp), allocatable :: VEC1(:), VEC2(:), VEC3(:), VEC4(:), VEC5(:)
+real(kind=wp), allocatable :: LBD(:), LID(:), VEC1(:)
 #endif
 
 if ((HZERO == 'DYALL') .and. SC_prop) then
@@ -92,6 +92,23 @@ do iCase=1,11
           call mma_deallocate(VEC1)
         end if
         bStat = GA_destroy(lg_T)
+        if (do_lindep .and. (nAS /= nIN)) then
+          ! LinDepLag reads S in the triangular form
+          NS = nTri_Elem(NAS)
+          if (King()) call mma_allocate(VEC1,NAS*NAS,Label='VEC1')
+          call PSBMAT_GETMEM('S',lg_T,NAS)
+          call PSBMAT_READ('S',iCase,iSym,lg_T,NAS)
+          if (King()) then
+            call GA_GET(lg_T,1,NAS,1,NAS,VEC1,NAS)
+            do J=1,NAS
+              VEC1(nTri_Elem(J-1)+1:nTri_Elem(J)) = VEC1(NAS*(J-1)+1:NAS*(J-1)+J)
+            end do
+            idT = idSMAT(iSym,iCase)
+            call DDAFILE(LUSBT,1,VEC1,NS,idT)
+            call mma_deallocate(VEC1)
+          end if
+          call PSBMAT_FREEMEM(lg_T)
+        end if
       end if
     else
 #   endif
@@ -110,134 +127,7 @@ do iCase=1,11
     else
 #   endif
 
-      !write(u6,*) 'for icase = ',icase
-      !write(u6,*) '# of independent vecs:',nin
-      !write(u6,*) '# of non-active pairs:',nis
-      !write(u6,*) '# of     active pairs:',nas
-      !write(u6,*) 'dimension for Vec = ',nin*nis
-      !! lg_V1 = T (solution; not quasi-variational)
-      call RHS_ALLO(nIN,nIS,lg_V1)
-      call RHS_READ_SR(lg_V1,iCase,iSym,iVecX)
-      !! lg_V2 = lambda (shift correction)
-      call RHS_ALLO(nIN,nIS,lg_V2)
-      call RHS_READ_SR(lg_V2,iCase,iSym,iVecR)
-      if (sigma_p_epsilon /= Zero) then
-        call mma_allocate(LBD,nAS,Label='LBD')
-        call mma_allocate(LID,nIS,Label='LID')
-        iD = iDBMat(iSym,iCase)
-        call dDaFile(LUSBT,2,LBD,nAS,iD)
-        call dDaFile(LUSBT,2,LID,nIS,iD)
-        call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,LBD,LID)
-        call mma_deallocate(LBD)
-        call mma_deallocate(LID)
-      end if
-
-      !! lg_V3 = RHS (in IC basis)
-      call RHS_ALLO(nIN,nIS,lg_V3)
-      call RHS_READ_SR(lg_V3,iCase,iSym,iRHS)
-      !! lg_V4 = RHS (in MO basis)
-      call RHS_ALLO(nAS,nIS,lg_V4)
-      call RHS_READ(nAS,nIS,lg_V4,iCase,iSym,iVecW)
-      !! lg_V5 = RHS2 (in IC basis)
-      if (IFMSCOUP) then
-        call RHS_ALLO(nIN,nIS,lg_V5)
-        call RHS_READ_SR(lg_V5,iCase,iSym,iVecL) ! 7
-      else
-        lg_V5 = lg_V3
-      end if
-
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par()) then
-        if (KING()) then
-          ! copy global array to local buffer
-          call mma_allocate(VEC1,NVEC,Label='VEC1')
-          call GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
-          call mma_allocate(VEC2,NVEC,Label='VEC2')
-          call GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
-          call mma_allocate(VEC3,NIN*NIS,Label='VEC3')
-          call GA_GET(lg_V3,1,NIN,1,NIS,VEC3,NIN)
-          call mma_allocate(VEC4,NAS*NIS,Label='VEC4')
-          call GA_GET(lg_V4,1,NAS,1,NIS,VEC4,NAS)
-          !! is it possible to avoid allocating twice?
-          !if (IFMSCOUP) then
-          !  call mma_allocate(VEC5,NIN*NIS,Label='VEC5')
-          !  call GA_GET(lg_V5,1,NIN,1,NIS,VEC5,NIN)
-          !else
-          !  LVEC5 = LVEC3
-          !end if
-          call mma_allocate(VEC5,NIN*NIS,Label='VEC5')
-          call GA_GET(lg_V5,1,NIN,1,NIS,VEC5,NIN)
-
-          call CLagDX(0,ISYM,ICASE,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,nState,VECROT,VEC5,lg_V2,BDER,SDER)
-
-          ! free local buffer
-          call mma_deallocate(VEC1)
-          call mma_deallocate(VEC2)
-          call mma_deallocate(VEC3)
-          call mma_deallocate(VEC4)
-          !if (IFMSCOUP) then
-          call mma_deallocate(VEC5)
-          !end if
-        end if
-        call GASYNC()
-      else
-#     endif
-        call CLagDX(0,iSym,iCase,GA_Arrays(lg_V1)%A,GA_Arrays(lg_V2)%A,GA_Arrays(lg_V3)%A,GA_Arrays(lg_V4)%A,nIN,nIS,nAS,nState, &
-                    VECROT,GA_Arrays(lg_V5)%A,lg_V2,BDER,SDER)
-#     ifdef _MOLCAS_MPP_
-      end if
-#     endif
-
-      if ((imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero)) then
-        nAS = nASUP(iSym,iCase)
-        call mma_allocate(LBD,nAS,Label='LBD')
-        call mma_allocate(LID,nIS,Label='LID')
-        iD = iDBMat(iSym,iCase)
-        call dDaFile(LUSBT,2,LBD,nAS,iD)
-        call dDaFile(LUSBT,2,LID,nIS,iD)
-
-        call RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
-        call RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
-        call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,LBD,LID)
-        call mma_deallocate(LBD)
-        call mma_deallocate(LID)
-
-#       ifdef _MOLCAS_MPP_
-        if (Is_Real_Par()) then
-          if (KING()) then
-            ! copy global array to local buffer
-            call mma_allocate(VEC1,NVEC,Label='VEC1')
-            call GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
-            call mma_allocate(VEC2,NVEC,Label='VEC2')
-            call GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
-
-            !! lvec3 to lvec5 are not used
-            !! only lvec1 and lvec2?
-            call mma_allocate(VEC3,1,Label='VEC3')
-            call mma_allocate(VEC4,1,Label='VEC4')
-            call mma_allocate(VEC5,1,Label='VEC5')
-            call CLagDX(1,ISYM,ICASE,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,nState,VECROT,VEC5,lg_V2,BDER,SDER)
-
-            ! free local buffer
-            call mma_deallocate(VEC1)
-            call mma_deallocate(VEC2)
-            call mma_deallocate(VEC3)
-            call mma_deallocate(VEC4)
-            call mma_deallocate(VEC5)
-          end if
-          call GASYNC()
-        else
-#       endif
-          call CLagDX(1,iSym,iCase,GA_Arrays(lg_V1)%A,GA_Arrays(lg_V2)%A,GA_Arrays(lg_V3)%A,GA_Arrays(lg_V4)%A,nIN,nIS,nAS,nState, &
-                      VECROT,GA_Arrays(lg_V5)%A,lg_V2,BDER,SDER)
-#       ifdef _MOLCAS_MPP_
-        end if
-#       endif
-      end if
-
-      !! for non-separable density/derivative
-      call RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
-      call RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
+      call CLagDX(iSym,iCase,nIN,nIS,nAS,nState,VECROT,BDER,SDER)
 #   if defined(_MOLCAS_MPP_) && defined(_GA_)
     end if
 #   endif
@@ -291,12 +181,6 @@ do iCase=1,11
           call BDNG(iSym,NAS,BDER,SDER,G1,G2,DG1,DG2)
       end select
     end if
-
-    call RHS_FREE(lg_V1)
-    call RHS_FREE(lg_V2)
-    call RHS_FREE(lg_V3)
-    call RHS_FREE(lg_V4)
-    if (IFMSCOUP) call RHS_FREE(lg_V5)
 
 #   ifdef _MOLCAS_MPP_
     if (is_real_par()) then
@@ -914,14 +798,14 @@ end subroutine CLagDXG
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 subroutine CLagDX_MPP()
 
-  use caspt2_global, only: iVecL
+  use caspt2_global, only: iVecG, iVecL
   use caspt2_module, only: JSTATE, MAXIT
   use Constants, only: One
 
-  integer(kind=iwp) :: i, idB, idSD, iHiV1, iICB, iLoV1, j, jHiV1, jICB, jLoV1, LDV1, lg_BDER, lg_SDER, lg_T, lg_WRK, lg_WRK2, &
-                       mBDER, mSDER, mV1, myrank, NCOL, NROW
-  real(kind=wp) :: EigI, EigJ, SCAL, tmp
-  logical(kind=iwp) :: bStat, invar_act
+  integer(kind=iwp) :: i, idB, idSD, iHiV1, iICB, iLoV1, j, jHiV1, jICB, jLoV1, LDV1, lg_BDER, lg_GCDER, lg_GDER, lg_SDER, lg_T, &
+                       lg_WRK, lg_WRK2, lg_WT, mBDER, mSDER, mV1, mV2, myrank, NCOL, NROW
+  real(kind=wp) :: EigI, EigJ, SCAL
+  logical(kind=iwp) :: bStat
   integer(kind=byte), allocatable :: idxG3(:,:)
   real(kind=wp), allocatable :: EIG(:), WRK(:,:)
 
@@ -933,8 +817,6 @@ subroutine CLagDX_MPP()
   if (IFMSCOUP) SCAL = VECROT(jState)
   MYRANK = GA_NODEID()
 
-  invar_act = .true.
-  if (sigma_p_epsilon /= Zero) invar_act = .false.
   !! First, distribute the transformation matrix
   call GA_CREATE_STRIPED('H',NAS,NIN,'TRANS',lg_T)
   call PSBMAT_READ('T',iCase,iSym,lg_T,NAS*NIN)
@@ -963,26 +845,29 @@ subroutine CLagDX_MPP()
   call GA_DGEMM('N','T',NIN,NIN,NIS,SCAL,lg_V1,lg_V1,Zero,lg_WRK)
 
   if ((real_shift /= Zero) .or. (imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero) .or. IFMSCOUP) then
-    if (sigma_p_epsilon /= Zero) then
-      !! lg_V2 = lambda (shift correction)
-      call RHS_ALLO(nIN,nIS,lg_V2)
-      call RHS_READ_SR(lg_V2,iCase,iSym,iVecR)
-      call mma_allocate(LBD,nAS,Label='LBD')
-      call mma_allocate(LID,nIS,Label='LID')
-      iD = iDBMat(iSym,iCase)
-      call dDaFile(LUSBT,2,LBD,nAS,iD)
-      call dDaFile(LUSBT,2,LID,nIS,iD)
-      !! this scaling is needed, so GA_DGEMM cannot be used
-      call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,LBD,LID)
-      call mma_deallocate(LBD)
-      call mma_deallocate(LID)
-    else
-      !! lg_V2 = lambda (shift correction)
-      call RHS_ALLO(nIN,nIS,lg_V2)
-      call RHS_READ_SR(lg_V2,iCase,iSym,iVecR)
-    end if
+    !! lg_V2 = lambda (shift correction)
+    call RHS_ALLO(nIN,nIS,lg_V2)
+    call RHS_READ_SR(lg_V2,iCase,iSym,iVecR)
     call GA_DGEMM('N','T',NIN,NIN,NIS,Half,lg_V1,lg_V2,One,lg_WRK)
     call GA_DGEMM('N','T',NIN,NIN,NIS,Half,lg_V2,lg_V1,One,lg_WRK)
+    if (sigma_p_epsilon /= Zero) then
+      !! Term specific to sigma^p. Each rank contracts its own columns of the vectors.
+      call mma_allocate(EIG,NIN,Label='EIG')
+      idB = idBMAT(iSym,iCase)
+      call DDAFILE(LUSBT,2,EIG,NIN,IDB)
+      call mma_allocate(WRK,NIN,NIN,Label='WRK1')
+      WRK(:,:) = Zero
+      call RHS_ACCESS(nIN,nIS,lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1)
+      call RHS_ACCESS(nIN,nIS,lg_V2,iLoV1,iHiV1,jLoV1,jHiV1,mV2)
+      if (jLoV1 > 0) call CLagDX_Sigma(iSym,iCase,nIN,nIS,nAS,jLoV1,jHiV1-jLoV1+1,DBL_MB(mV1),DBL_MB(mV2),EIG,WRK)
+      call RHS_RELEASE(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
+      call RHS_RELEASE(lg_V2,iLoV1,iHiV1,jLoV1,jHiV1)
+      call GADGOP(WRK,NIN**2,'+')
+      if (King()) call GA_Acc(lg_WRK,1,NIN,1,NIN,WRK,NIN,One)
+      call GA_SYNC()
+      call mma_deallocate(EIG)
+      call mma_deallocate(WRK)
+    end if
     call RHS_FREE(lg_V2)
   end if
 
@@ -993,7 +878,7 @@ subroutine CLagDX_MPP()
   ! mode = 1 operations for B derivative
   ! lg_V1 is still loaded
 
-  if ((imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero)) then
+  if (imag_shift /= Zero) then
     call GA_Scale(lg_WRK,-One)
 
     !! T*T is skipped
@@ -1038,32 +923,25 @@ subroutine CLagDX_MPP()
 
   ! B derivative in NIN completed
 
-  if (invar_act) then
-    call GA_CREATE_STRIPED('H',NAS,NIN,'WRK2',lg_WRK2)
-    !! Use the same stripe as PSBMAT_GEMEM?
-    call GA_CREATE_STRIPED('H',NAS,NAS,'BDER',lg_BDER)
+  call GA_CREATE_STRIPED('H',NAS,NIN,'WRK2',lg_WRK2)
+  !! Use the same stripe as PSBMAT_GEMEM?
+  call GA_CREATE_STRIPED('H',NAS,NAS,'BDER',lg_BDER)
 
-    !! NIN -> NAS transformation of B derivative
-    !! Need 4 GAs; is it possible to reduce?
-    !! lg_WRK is used later, so probably not
-    call GA_DGEMM('N','N',NAS,NIN,NIN,One,lg_T,lg_WRK,Zero,lg_WRK2)
-    call GA_DGEMM('N','T',NAS,NAS,NIN,One,lg_WRK2,lg_T,Zero,lg_BDER)
-    !if (King()) then
-    !  call mma_allocate(VEC1,NAS*NAS,Label='WRK1')
-    !  call GA_GET(lg_bder,1,NAS,1,NAS,VEC1,NAS)
-    !  write(u6,*) 'B DERIVATIVE IN NAS'
-    !  call SQPRT(VEC1,NAS)
-    !  call mma_deallocate(VEC1)
-    !end if
+  !! NIN -> NAS transformation of B derivative
+  !! Need 4 GAs; is it possible to reduce?
+  !! lg_WRK is used later, so probably not
+  call GA_DGEMM('N','N',NAS,NIN,NIN,One,lg_T,lg_WRK,Zero,lg_WRK2)
+  call GA_DGEMM('N','T',NAS,NAS,NIN,One,lg_WRK2,lg_T,Zero,lg_BDER)
+  !if (King()) then
+  !  call mma_allocate(VEC1,NAS*NAS,Label='WRK1')
+  !  call GA_GET(lg_bder,1,NAS,1,NAS,VEC1,NAS)
+  !  write(u6,*) 'B DERIVATIVE IN NAS'
+  !  call SQPRT(VEC1,NAS)
+  !  call mma_deallocate(VEC1)
+  !end if
 
-    !! cannot destroy lg_WRK; it is used for overlap derivative
-    bStat = GA_destroy(lg_WRK2)
-  else
-    !! allocate BDER temporarily with the same dimension of WRK
-    call GA_CREATE_STRIPED('V',NIN,NIN,'BDER',lg_BDER)
-    call GA_COPY(lg_WRK,lg_BDER)
-    call GA_ZERO(lg_WRK)
-  end if
+  !! cannot destroy lg_WRK; it is used for overlap derivative
+  bStat = GA_destroy(lg_WRK2)
 
   !! At present, lg_T, lg_WRK, and lg_BDER are in GA.
   !! It is possible to destroy lg_T here and can reduce the max
@@ -1090,31 +968,29 @@ subroutine CLagDX_MPP()
   !mode = 0 operations for S derivative
 
   !! Scale with the eigenvalue
-  if (invar_act) then
-    call GA_Distribution(lg_WRK,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-    NROW = iHiV1-iLoV1+1
-    NCOL = jHiV1-jLoV1+1
-    if ((NROW > 0) .and. (NCOL > 0)) then
-      call mma_allocate(EIG,NIN,Label='EIG')
-      idB = idBMAT(iSym,iCase)
-      call DDAFILE(LUSBT,2,EIG,NIN,IDB)
-      call GA_Access(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
+  call GA_Distribution(lg_WRK,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
+  NROW = iHiV1-iLoV1+1
+  NCOL = jHiV1-jLoV1+1
+  if ((NROW > 0) .and. (NCOL > 0)) then
+    call mma_allocate(EIG,NIN,Label='EIG')
+    idB = idBMAT(iSym,iCase)
+    call DDAFILE(LUSBT,2,EIG,NIN,IDB)
+    call GA_Access(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
 
-      do j=1,NCOL
-        jICB = j+jLoV1-1
-        EigJ = EIG(jICB)
-        ! can't use array statement because DBL_MB is out of bounds!
-        !DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1) = -DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1)*(EIG(iLoV1:iLoV1+NROW-1)+EigJ)*Half
-        do i=1,NROW
-          iICB = i+iLoV1-1
-          EigI = EIG(iICB)
-          DBL_MB(mV1+i-1+NROW*(j-1)) = -DBL_MB(mV1+i-1+NROW*(j-1))*(EigI+EigJ)*Half
-        end do
+    do j=1,NCOL
+      jICB = j+jLoV1-1
+      EigJ = EIG(jICB)
+      ! can't use array statement because DBL_MB is out of bounds!
+      !DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1) = -DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1)*(EIG(iLoV1:iLoV1+NROW-1)+EigJ)*Half
+      do i=1,NROW
+        iICB = i+iLoV1-1
+        EigI = EIG(iICB)
+        DBL_MB(mV1+i-1+NROW*(j-1)) = -DBL_MB(mV1+i-1+NROW*(j-1))*(EigI+EigJ)*Half
       end do
+    end do
 
-      call GA_Release_Update(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1)
-      call mma_deallocate(EIG)
-    end if
+    call GA_Release_Update(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1)
+    call mma_deallocate(EIG)
   end if
   !if (King()) then
   !  call mma_allocate(VEC1,NIN*NIN,Label='VEC1'))
@@ -1155,60 +1031,6 @@ subroutine CLagDX_MPP()
 
   ! S derivative in NIN completed (some NAS operations remain)
 
-  !! For sigma_p, non-canonical condition
-  if (.not. invar_act) then
-    call mma_allocate(WRK,NIN,NIN,Label='WRK1')
-    call GA_GET(lg_WRK,1,NIN,1,NIN,WRK,NIN)
-    call GA_Distribution(lg_BDER,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-    NROW = iHiV1-iLoV1+1
-    NCOL = jHiV1-jLoV1+1
-    if ((NROW > 0) .and. (NCOL > 0)) then
-      call mma_allocate(EIG,NIN,Label='EIG')
-      idB = idBMAT(iSym,iCase)
-      call DDAFILE(LUSBT,2,EIG,NIN,IDB)
-      call GA_Access(lg_BDER,iLoV1,iHiV1,jLoV1,jHiV1,mBDER,LDV1)
-      !! construct the off-diagonal
-      do i=1,NROW
-        iICB = i+iLoV1-1
-        EigI = EIG(iICB)
-        do j=1,NCOL
-          jICB = j+jLoV1-1
-          EigJ = EIG(jICB)
-          if (iICB == jICB) cycle
-          tmp = WRK(iICB,jICB)-WRK(jICB,iICB)
-          tmp = tmp/(EigI-EigJ)
-          DBL_MB(mBDER+i-1+NROW*(j-1)) = tmp
-        end do
-      end do
-      !! -(e_o + e_p)*dS/da
-      call GA_Access(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-      do j=1,NCOL
-        jICB = j+jLoV1-1
-        EigJ = EIG(jICB)
-        ! can't use array statement because DBL_MB is out of bounds!
-        !DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1) = DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1)- &
-        !                                      DBL_MB(mBDER+NROW*(j-1):mBDER+NROW*j-1)*(EIG(iLoV1:iLoV1+NROW-1)+EigJ)*Half
-        do i=1,NROW
-          iICB = i+iLoV1-1
-          EigI = EIG(iICB)
-          DBL_MB(mV1+i-1+NROW*(j-1)) = DBL_MB(mV1+i-1+NROW*(j-1))-DBL_MB(mBDER+i-1+NROW*(j-1))*(EigI+EigJ)*Half
-        end do
-      end do
-      call GA_Release_Update(lg_BDER,iLoV1,iHiV1,jLoV1,jHiV1)
-      call GA_Release_Update(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1)
-      call mma_deallocate(EIG)
-    end if
-    call mma_deallocate(WRK)
-
-    !! IC -> MO (B matrix)
-    call GA_CREATE_STRIPED('H',NAS,NIN,'WRK2',lg_WRK2)
-    call GA_DGEMM('N','N',NAS,NIN,NIN,One,lg_T,lg_BDER,Zero,lg_WRK2)
-    bStat = GA_destroy(lg_BDER)
-    call GA_CREATE_STRIPED('H',NAS,NAS,'BDER',lg_BDER)
-    call GA_DGEMM('N','T',NAS,NAS,NIN,One,lg_WRK2,lg_T,Zero,lg_BDER)
-    bStat = GA_destroy(lg_WRK2)
-  end if
-
   call GA_CREATE_STRIPED('H',NAS,NIN,'WRK2',lg_WRK2)
   !! Use the same stripe as PSBMAT_GEMEM?
   call GA_CREATE_STRIPED('H',NAS,NAS,'SDER',lg_SDER)
@@ -1227,16 +1049,17 @@ subroutine CLagDX_MPP()
   bStat = GA_destroy(lg_WRK)
   bStat = GA_destroy(lg_WRK2)
 
-  !! Add some trivial contributions due to the dependence
-  !! on the linearly independent space
-  if (do_lindep .and. (nAS /= nIN)) call LinDepLag_MPP(lg_BDER,lg_SDER,nAS,nIN,iSym,iCase)
-
   ! 2) Explicit overlap derivative of the 2<1|H|0> part
   !    Again, not for imaginary shift-specific terms
   !! E = 2<1|H|0> + <1|H0-E0|1>
   !! lg_V1 = VEC1 = T (solution; not quasi-variational)
   call RHS_ALLO(nIN,nIS,lg_V1)
   call RHS_READ_SR(lg_V1,iCase,iSym,iVecX)
+  if (do_lindep .and. (nAS /= nIN) .and. IFMSCOUP) then
+    ! lg_WT = T in the MO basis, for the RHS of the other states
+    call GA_CREATE_STRIPED('V',NAS,NIS,'WT',lg_WT)
+    call GA_DGEMM('N','N',NAS,NIS,NIN,One,lg_T,lg_V1,Zero,lg_WT)
+  end if
   call RHS_SCAL(nIN,nIS,lg_V1,SCAL)
   if ((real_shift /= Zero) .or. (imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero) .or. IFMSCOUP) then
     !! lg_V2 = VEC2 = lambda (shift correction)
@@ -1255,7 +1078,21 @@ subroutine CLagDX_MPP()
   call RHS_ALLO(nAS,nIS,lg_V1)
   call RHS_READ(nAS,nIS,lg_V1,iCase,iSym,iVecW)
 
-  call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,One,lg_SDER)
+  if (do_lindep .and. (nAS /= nIN)) then
+    call GA_CREATE_STRIPED('H',NAS,NAS,'GDER',lg_GDER)
+    call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,Zero,lg_GDER)
+    ! lg_GCDER is the implicit derivative of the RHS of the other states, and the coupling of H0 with the lower cases
+    call GA_CREATE_STRIPED('H',NAS,NAS,'GCDER',lg_GCDER)
+    call GA_Zero(lg_GCDER)
+    if (do_lindep .and. (nAS /= nIN) .and. IFMSCOUP) then
+      ! lg_V1 = RHS of the other states (in MO basis)
+      call RHS_READ(nAS,nIS,lg_V1,iCase,iSym,iVecG)
+      call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WT,lg_V1,Zero,lg_GCDER)
+      bStat = GA_destroy(lg_WT)
+    end if
+  else
+    call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,One,lg_SDER)
+  end if
 
   call RHS_FREE(lg_V1)
   bStat = GA_destroy(lg_WRK)
@@ -1264,12 +1101,15 @@ subroutine CLagDX_MPP()
   !! Add the contributions from the off-diagonal coupling
   !! (i.e., CASPT2-N). Of course, this is not for imaginary shift-
   !! specific terms.
+  ! LinDepLag_MPP needs them, so they are added to lg_GDER and lg_GCDER before it.
   if (MAXIT /= 0) then
+    lg_WRK = lg_SDER
+    if (do_lindep .and. (nAS /= nIN)) lg_WRK = lg_GDER
     call mma_allocate(WRK,NAS,NAS,Label='WRK')
     idSD = idSDMat(iSym,iCase)
     call DDAFILE(LuSTD,2,WRK,nAS*nAS,idSD)
-    call GA_Distribution(lg_SDER,myRank,ILO,IHI,JLO,JHI)
-    call GA_Access(lg_SDER,ILO,IHI,JLO,JHI,mSDER,LDV)
+    call GA_Distribution(lg_WRK,myRank,ILO,IHI,JLO,JHI)
+    call GA_Access(lg_WRK,ILO,IHI,JLO,JHI,mSDER,LDV)
     NROW = IHI-ILO+1
     NCOL = JHI-JLO+1
     do J=1,NCOL
@@ -1279,10 +1119,23 @@ subroutine CLagDX_MPP()
         DBL_MB(mSDER+I-1+NROW*(J-1)) = DBL_MB(mSDER+I-1+NROW*(J-1))+WRK(I+ILO-1,J+JLO-1)*Half
       end do
     end do
-    call GA_Release_Update(lg_SDER,ILO,IHI,JLO,JHI)
+    call GA_Release_Update(lg_WRK,ILO,IHI,JLO,JHI)
+    if (King() .and. do_lindep .and. (nAS /= nIN)) then
+      idSD = idSCMat(iSym,iCase)
+      call DDAFILE(LuSTD,2,WRK,nAS*nAS,idSD)
+      call GA_Acc(lg_GCDER,1,NAS,1,NAS,WRK,NAS,Half)
+    end if
     call mma_deallocate(WRK)
   end if
   call GA_SYNC()
+
+  ! Add the contributions due to the dependence on the linearly independent space
+  ! LinDepLag_MPP also adds lg_GDER to lg_SDER.
+  if (do_lindep .and. (nAS /= nIN)) then
+    call LinDepLag_MPP(lg_BDER,lg_SDER,lg_GDER,lg_GCDER,nAS,nIN,iSym,iCase)
+    bStat = GA_destroy(lg_GDER)
+    bStat = GA_destroy(lg_GCDER)
+  end if
   !if (King()) then
   !  call mma_allocate(VEC1,NAS*NAS,Label='VEC1')
   !  call GA_GET(lg_sder,1,NAS,1,NAS,VEC1,NAS)

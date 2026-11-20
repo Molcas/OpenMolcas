@@ -85,6 +85,7 @@ use Orbital_Spaces, only: NASH
 use caspt2_module, only: HZERO, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, NIGEJES, NIGTJ, &
                          NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, &
                          NTUES, NTUV, NTUVES
+use SC_NEVPT2, only: SC_NEVPT2_NINDEP, SC_Prop
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -109,7 +110,7 @@ integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
 real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ3 = sqrt(Three), SQ05 = sqrt(Half), SQ32 = sqrt(OneHalf)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: i, lg_V, lg_V1, myRank, ndim2, NPROCS
-integer(kind=iwp), allocatable :: map2(:)
+integer(kind=iwp), allocatable :: map2(:), NVRank(:,:)
 #endif
 
 nSh(1:nSym,Inactive) = NISH(1:nSym)
@@ -117,6 +118,7 @@ nSh(1:nSym,Active) = NASH(1:nSym)
 nSh(1:nSym,Virtual) = NSSH(1:nSym)
 
 if (IPRGLB >= VERBOSE) write(u6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
+if (SC_Prop) call SC_NEVPT2_NINDEP(1)
 
 !iVec = iVecX
 iSym = iSym0
@@ -153,6 +155,20 @@ do JSYM=1,NSYM
   call mma_allocate(KET,NCHOBUF,Label='KETBUF')
   call mma_allocate(BRAD,NCHOBUF,Label='BRAD')
   call mma_allocate(KETD,NCHOBUF,Label='KETD')
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) then
+    myRank = GA_NodeID()
+    NPROCS = GA_nNodes()
+    ! NVRank(r,g): number of the Cholesky vectors of rank r-1 in the batch group g
+    call mma_allocate(NVRank,NPROCS,NBGRP,Label='NVRank')
+    NVRank(:,:) = 0
+    do IBGRP=1,NBGRP
+      NVRank(myRank+1,IBGRP) = sum(NVLOC_CHOBATCH(BGRP(1,IBGRP):BGRP(2,IBGRP)))
+    end do
+    call GAIGOP(NVRank,NPROCS*NBGRP,'+')
+    call mma_allocate(MAP2,NPROCS,Label='MAP2')
+  end if
+# endif
 
   ! Loop over groups of batches of Cholesky vectors
 
@@ -171,19 +187,11 @@ do JSYM=1,NSYM
 
 #   ifdef _MOLCAS_MPP_
     if (Is_Real_Par()) then
-      myRank = GA_NodeID()
-      NPROCS = GA_nNodes()
-
-      call mma_allocate(MAP2,NPROCS,Label='MAP2')
-      MAP2(:) = 0
-      MAP2(myRank+1) = NV
-      call GAIGOP(MAP2,NPROCS,'+')
-      ndim2 = sum(map2)
-
-      do i=nprocs,2,-1
-        map2(i) = sum(map2(1:i-1))+1
+      ndim2 = sum(NVRank(:,IBGRP))
+      MAP2(1) = 1
+      do i=2,NPROCS
+        MAP2(i) = MAP2(i-1)+NVRank(i-1,IBGRP)
       end do
-      map2(1) = 1
     end if
 #   endif
     !                                                                  *
@@ -356,14 +364,17 @@ do JSYM=1,NSYM
   call mma_deallocate(KETD)
   call mma_deallocate(PIQK)
   call mma_deallocate(BGRP)
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) then
+    call mma_deallocate(MAP2)
+    call mma_deallocate(NVRank)
+  end if
+# endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   ! End of loop over JSYM
 end do
-#ifdef _MOLCAS_MPP_
-if (Is_Real_Par()) call mma_deallocate(map2)
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -379,9 +390,9 @@ if (Is_Real_Par()) call mma_deallocate(map2)
 
 A_PT2(:,:) = Two*A_PT2(:,:)
 
-if (NBGRP /= 0) SCLNEL = SCLNEL/real(NBGRP,kind=wp)
 DPT2C(1:NBSQT) = DPT2C(1:NBSQT)*SCLNEL
 if (do_csf) DPT2Canti(1:NBSQT) = DPT2Canti(1:NBSQT)*SCLNEL
+if (SC_Prop) call SC_NEVPT2_NINDEP(2)
 
 #ifdef _MOLCAS_MPP_
 if (is_real_par()) call GADGOP(A_PT2,MaxVec_PT2**2,'+')
@@ -565,7 +576,7 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
 
       do IV=1,NV
         IVABS = IV+NAES(ISYV)
-        if (ISYV == ISYX) then !! not sure
+        if ((ISYV == ISYX) .and. (IBGRP == 1)) then !! not sure
           !! ONEADD contributions
           IW1 = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
           IW2 = IJ
@@ -864,8 +875,10 @@ subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
           IW = IW1+NAS*(IW2-1)
 
           ValCF = GA_Arrays(ipT)%A(IW)*Two
-          DPT2C(iAtot+nOrbA*(iUtot-1)) = DPT2C(iAtot+nOrbA*(iUtot-1))+ValCF
-          if (do_csf) DPT2Canti(iAtot+nOrbA*(iUtot-1)) = DPT2Canti(iAtot+nOrbA*(iUtot-1))+Two*GA_Arrays(ipTanti)%A(IW)
+          if (IBGRP == 1) then
+            DPT2C(iAtot+nOrbA*(iUtot-1)) = DPT2C(iAtot+nOrbA*(iUtot-1))+ValCF
+            if (do_csf) DPT2Canti(iAtot+nOrbA*(iUtot-1)) = DPT2Canti(iAtot+nOrbA*(iUtot-1))+Two*GA_Arrays(ipTanti)%A(IW)
+          end if
           ValCF = ValCF*SCLNEL
         end if
         do IX=1,NX
@@ -1000,7 +1013,7 @@ subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_
               IW2 = IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
               IW = IW1+NAS*(IW2-1)
 
-              if (iVtot == iXtot) then
+              if ((iVtot == iXtot) .and. (IBGRP == 1)) then
                 DPT2C(iAtot+nOrbA*(iJtot-1)) = DPT2C(iAtot+nOrbA*(iJtot-1))+Two*GA_Arrays(ipT)%A(IW)
                 if (do_csf) DPT2Canti(iAtot+nOrbA*(iJtot-1)) = DPT2Canti(iAtot+nOrbA*(iJtot-1))+Two*GA_Arrays(ipTanti)%A(IW)
               end if
@@ -2070,7 +2083,7 @@ subroutine Cnst_A_PT2(block1,block2)
   integer(kind=iwp), intent(in) :: block1, block2
   integer(kind=iwp) :: ndim1
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: IHIV1, ILOV1, iRank, JHIV1, JLOV1, MV1
+  integer(kind=iwp) :: ICOL, IHIV1, ILOV1, iRank, IROW, JHIV1, JLOV1, MV1
   logical(kind=iwp) :: bstat
 # endif
 
@@ -2106,11 +2119,13 @@ subroutine Cnst_A_PT2(block1,block2)
     !! ket is ndim1*NVJ dimension
     call Get_Cholesky_Vectors(block1,block2,JSYM,KET,size(KET),nKet,JBSTA,JBEND)
 
+    ! A_PT2 numbers the vectors by rank and then by batch group within the rank
+    ICOL = sum(NVRank(1:myRank,:))+sum(NVRank(myRank+1,1:JBGRP-1))+1
     do iRank=0,NPROCS-1
       call GA_DISTRIBUTION(LG_V1,iRank,ILOV1,IHIV1,JLOV1,JHIV1)
       call GA_GET(LG_V1,ILOV1,IHIV1,JLOV1,JHIV1,BRA,NDIM1)
-      call DGEMM_('T','N',JHIV1-JLOV1+1,NVJ,ndim1,One,BRA,ndim1,KET,ndim1,One,A_PT2(IOFFCV+JLOV1-1,JOFFCV+MAP2(myRank+1)-1), &
-                  MaxVec_PT2)
+      IROW = sum(NVRank(1:iRank,:))+sum(NVRank(iRank+1,1:IBGRP-1))+1
+      call DGEMM_('T','N',JHIV1-JLOV1+1,NVJ,ndim1,One,BRA,ndim1,KET,ndim1,One,A_PT2(IROW,ICOL),MaxVec_PT2)
     end do
     bStat = GA_DESTROY(LG_V1)
     unused_var(bStat)

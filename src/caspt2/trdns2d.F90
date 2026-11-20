@@ -29,8 +29,8 @@ use Para_Info, only: Is_Real_Par, King
 use EQSOLV, only: iDBMat
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: do_grad, imag_shift, LISTS, LUSBT, sigma_p_epsilon
-use caspt2_module, only: MXCASE, nASup, nInDep, nISup, nSym
-use SC_NEVPT2, only: SC_NEVPT2_Amplitude, SC_Prop
+use caspt2_module, only: nASup, nInDep, nISup, nSym
+use SC_NEVPT2, only: SC_NEVPT2_Amplitude, SC_NEVPT2_NINDEP, SC_Prop
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -40,23 +40,19 @@ integer(kind=iwp), intent(in) :: IVEC, JVEC, NDPT2
 real(kind=wp), intent(inout) :: DPT2(NDPT2)
 real(kind=wp), intent(in) :: SCAL
 integer(kind=iwp) :: ICASE, ISYM, jD, lg_v1, lg_v2, NAS, NIN, NIS, nVec
-integer(kind=iwp), allocatable :: NINDEP_tmp(:,:)
 real(kind=wp), allocatable :: BD(:), ID(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: VEC1(:), VEC2(:)
 #endif
 
-!! SC-NEVPT2 does not use linearly-dependence basis,
-!! so replace NINDEP with NASUP
 if (SC_Prop) then
   !! Ensure that the original NASUP is not used
   if (sigma_p_epsilon /= Zero) then
     call warningMessage(2,'sigma regularization cannot be used for SC-NEVPT2 properties.')
     call quit_onUserError()
   end if
-  call mma_allocate(NINDEP_tmp,8,MXCASE,Label='NINDEP_tmp')
-  NINDEP_tmp(:,:) = NINDEP(:,:)
-  NINDEP(:,:) = NASUP(:,:)
+  ! SC-NEVPT2 does not use linearly-dependence basis, so replace NINDEP with NASUP
+  call SC_NEVPT2_NINDEP(1)
 end if
 
 ! Inact/Inact and Virt/Virt blocks:
@@ -187,9 +183,6 @@ end do
 if (Is_Real_Par() .and. do_grad) call gadgop(DPT2,NDPT2,'+')
 #endif
 
-if (SC_Prop) then
-  NINDEP(:,:) = NINDEP_tmp(:,:)
-  call mma_deallocate(NINDEP_tmp)
-end if
+if (SC_Prop) call SC_NEVPT2_NINDEP(2)
 
 end subroutine TRDNS2D

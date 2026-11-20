@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 logical(kind=iwp), intent(out) :: Numerical
-integer(kind=iwp) :: iDNG, iGO, iRoot, iRoot0, istatus, LuWr
+integer(kind=iwp) :: iDNG, iGO, iRoot, iRoot0, istatus, LuWr, nPtDisp
 real(kind=wp) :: rDelta
 logical(kind=iwp) :: Is_Root_Set, DNG, KeepOld, Found
 character(len=180) :: KWord, Key
@@ -46,6 +46,7 @@ DefRoot = .true.
 ForceNAC = .false.
 iRlxRoot = 1
 Auto = .false.
+nPtDisp = 2 ! two calculations per degree of freedom
 
 ! RASSCF will set the default root to the root that is relaxed.
 
@@ -88,6 +89,8 @@ do
       KeepOld = .true.
     case ('AUTO')
       Auto = .true.
+    case ('FIVE')
+      nPtDisp = 4 ! four calculations per degree of freedom
     case ('END ')
       exit
     case default
@@ -109,6 +112,7 @@ else
   iRoot0 = 0
 end if
 call Put_dScalar('Numerical Gradient rDelta',rDelta)
+call Put_iScalar('nPtDisp',nPtDisp)
 
 ! These are really input options for numerical_gradient
 

@@ -37,7 +37,7 @@ use caspt2_global, only: iParRHS
 use caspt2_module, only: CPUDIA, CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUVEC, E2TOT, &
                          HZERO, IfChol, IFDENS, IFMSCOUP, IFPROP, NASUP, NINDEP, NISUP, NSYM, RHSDIRECT, SDECOM, SMATRIX, TIODIA, &
                          TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOVEC
-use SC_NEVPT2, only: do_FIC, SC_NEVPT2_Print
+use SC_NEVPT2, only: do_FIC, Do_SC, SC_NEVPT2_NINDEP, SC_NEVPT2_Print
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -160,6 +160,7 @@ call RHS_INIT()
 ! safe to initialize it (safe to write zeros to LUSOLV or delete it)
 
 ! Set up right-hand side matrix elements.
+if (Do_SC) call SC_NEVPT2_NINDEP(1)
 if (IfChol .and. (iALGO == 1)) then
   if (RHSDIRECT) then
     if (NSYM == 1) then
@@ -179,6 +180,7 @@ if (IfChol .and. (iALGO == 1)) then
 else
   call MKRHS(IVECW)
 end if
+if (Do_SC) call SC_NEVPT2_NINDEP(2)
 
 call GASync()
 call TIMING(CPU1,CPU,TIO1,TIO)

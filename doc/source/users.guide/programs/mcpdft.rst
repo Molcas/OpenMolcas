@@ -224,6 +224,13 @@ The :kword:`FUNC` is the only required keyword.
   This keyword can be used with state-specific and state-averaged CASSCF reference wavefunctions and with the CMS-PDFT method.
   Analytical gradients are not implemented for L-PDFT, and the combination of
   :kword:`GRAD` and :kword:`LPDF` results in an input error.
+  Analytical gradients are available for translated type-1 meta-GGA on-top
+  functionals (e.g. ``T:M06L``), including functionals with external parameters
+  (:kword:`EXPM`), for single-state, state-averaged and CMS-PDFT calculations.
+  Hybrid GGA and hybrid meta-GGA (hybrid-mGGA) on-top functionals are requested
+  with :kword:`LAMBda`. These functionals and Cholesky decomposition (RICD)
+  are supported for single-state and state-averaged MC-PDFT gradients.
+  MS-PDFT gradients do not support these options.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="GRAD" APPEAR="Potentials for Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: GRAD <basic>
@@ -387,6 +394,7 @@ The :kword:`FUNC` is the only required keyword.
   specifying the states between which the coupling is required.
   Note that, unlike :kword:`SALA`, the numbering here is absolute,
   regardless of which roots are included in the state average.
+  Not implemented for meta-GGA on-top functionals.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="NAC" APPEAR="Nonadiabatic coupling: root selection" KIND="INTS" SIZE="2" LEVEL="BASIC">
               %%Keyword: NAC <basic>
@@ -403,6 +411,7 @@ The :kword:`FUNC` is the only required keyword.
   minimum energy conical intersections (MECIs)
   This calculates the first derivative of the effective Hamiltonian matrix element rather
   than the NAC.
+  Not implemented for meta-GGA on-top functionals.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="MECI" APPEAR="Potentials for Off-Diagaonal Gradients" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MECI <basic>

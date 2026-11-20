@@ -66,6 +66,7 @@ call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,Label='pCff')
 call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,Label='Cff_p')
 Shells(iShll)%Cff_c(1,1,1) = One
 Shells(iShll)%Cff_c(1,1,2) = One
+Shells(iShll)%Cff_p(1,1,:) = One
 Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 
 Shells(iShll)%Transf = .false.

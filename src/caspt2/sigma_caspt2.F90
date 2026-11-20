@@ -34,6 +34,7 @@ use Orbital_Spaces, only: nAsh
 use caspt2_module, only: CPUSGM, FockType, G1SecIn, MaxIt, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, ThrShn, ThrShS, &
                          TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
+use Vec_Backup, only: BackupVecs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -45,7 +46,7 @@ integer(kind=iwp) :: iCASE1, iCase2, IfC, IFIFA, IMLTOP, ISYM, ISYM1, ISYM2, lCX
                      lSgmX, lSgmX_Sta, Max_MESG_Size, NA, NAS1, NAS2, nCX, ND1, ND2, NFIA, NFIT, NFTA, NI, NIS1, NIS2, NO, NS, &
                      nSgm1, nSgm2, nSgm2_Blk, nSgmX, nSgmX_blk
 real(kind=wp) :: CPU, CPU0, CPU1, Fact, TIO, TIO0, TIO1, XTST
-real(kind=wp), allocatable :: D1(:), D2(:), SGM1(:), SGM2(:)
+real(kind=wp), allocatable :: D1(:), D2(:), SGM1(:), SGM2(:), VecKeep(:)
 real(kind=wp), external :: RHS_DDot, DDot_
 
 #ifdef _DEBUGPRINT_
@@ -79,6 +80,9 @@ if (MAXIT == 0) return
 !TEST write(u6,*) ' Should be zero, in first iteration.'
 !TEST call OVLPRT(JVEC,JVEC,OVLAPS)
 ! From now on, scaling with BETA is already done.
+
+! Keep the rows of the vector that the transformation below does not recover (see BackupVecs)
+call BackupVecs(1,IVEC,VecKeep)
 
 ! Transform to standard representation:
 call PTRTOC(0,IVEC,IVEC)
@@ -469,6 +473,7 @@ end do
 
 ! Transform contrav C  to eigenbasis of H0(diag):
 call PTRTOSR(1,IVEC,IVEC)
+call BackupVecs(2,IVEC,VecKeep)
 ! Transform covar. sigma to eigenbasis of H0(diag):
 call PTRTOSR(0,JVEC,JVEC)
 

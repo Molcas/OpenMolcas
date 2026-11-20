@@ -18,7 +18,7 @@ module SC_NEVPT2
 
 use Index_Functions, only: iTri, nTri_Elem
 use caspt2_global, only: imag_shift, iPrGlb, jStLag, LUSBT, real_shift, sigma_p_epsilon
-use caspt2_module, only: CASES, EREF, IfChol, JSTATE, MXCASE, NASUP, NISUP, NSTATE, NSYM
+use caspt2_module, only: CASES, EREF, IfChol, JSTATE, MXCASE, NASUP, NINDEP, NISUP, NSTATE, NSYM
 use EQSOLV, only: IDBMAT, IDSMAT, IVECC, IVECC2, IVECW
 use fake_GA, only: GA_Arrays
 # ifdef _MOLCAS_MPP_
@@ -26,7 +26,7 @@ use GA_Wrapper, only: DBL_MB, GA_NodeId
 use Para_Info, only: Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -52,13 +52,13 @@ private
 ! UEFF_SC   :: Eigenvector
 
 integer(kind=iwp) :: IDBMAT_NEVPT2(8,13,2)
-real(kind=wp) :: DVALUE_SC, ECORR_SC(0:8,0:MXCASE), OVLAPS_SC(0:8,0:MXCASE), SC_thres = 1.0e-9_wp
+real(kind=wp) :: DVALUE_SC, ECORR_SC(0:8,0:MXCASE), OVLAPS_SC(0:8,0:MXCASE), SC_thres = 1.0e-14_wp
 logical(kind=iwp) :: Do_FIC, Do_SC, SC_amplitude = .false., SC_merge = .false., SC_prop = .false.
 real(kind=wp), allocatable :: ENERGY_SC(:), HEFF_SC(:,:), UEFF_SC(:,:)
 
 public :: Do_FIC, Do_SC, DVALUE_SC, ECORR_SC, ENERGY_SC, HEFF_SC, IDBMAT_NEVPT2, OVLAPS_SC, SC_amplitude, SC_merge, &
-          SC_NEVPT2_amplitude, SC_NEVPT2_CLagD, SC_NEVPT2_final, SC_NEVPT2_initial, SC_NEVPT2_Print, SC_NEVPT2_res, SC_prop, &
-          SC_thres, UEFF_SC
+          SC_NEVPT2_amplitude, SC_NEVPT2_CLagD, SC_NEVPT2_final, SC_NEVPT2_initial, SC_NEVPT2_Print, SC_NEVPT2_res, &
+          SC_NEVPT2_NINDEP, SC_prop, SC_thres, UEFF_SC
 
 contains
 
@@ -85,6 +85,26 @@ subroutine SC_NEVPT2_final()
   call mma_deallocate(UEFF_SC)
 
 end subroutine SC_NEVPT2_final
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_NINDEP(mode)
+
+  integer(kind=iwp), intent(in) :: mode
+  integer(kind=iwp), allocatable, save :: NINDEP_tmp(:,:)
+
+  ! SC-NEVPT2 does not use linearly-dependence basis, so replace NINDEP with NASUP
+
+  if (mode == 1) then
+    call mma_allocate(NINDEP_tmp,8,MXCASE,Label='NINDEP_tmp')
+    NINDEP_tmp(:,:) = NINDEP(:,:)
+    where (NISUP(:,:) > 0) NINDEP(:,:) = NASUP(:,:)
+  else if (mode == 2) then
+    NINDEP(:,:) = NINDEP_tmp(:,:)
+    call mma_deallocate(NINDEP_tmp)
+  end if
+
+end subroutine SC_NEVPT2_NINDEP
 
 !-----------------------------------------------------------------------
 
@@ -886,14 +906,15 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
         end if
       end if
       do isp=1,NIS
+        ! derivative of N: the explicit derivative (numerator)
+        ! Compensate the division by lid
+        derHNS(isp,3) = -lid(isp)
+        ! Without epsilon (small N in the energy), there is no derivative through it
         if (abs(ValHN(isp,2)) <= SC_thres) cycle
         ! derivative of H (through vale)
         derHNS(isp,1) = ValHN(isp,3)/ValHN(isp,2)
         ! derivative of N (through vale)
         derHNS(isp,2) = -ValHN(isp,3)*ValHN(isp,1)/ValHN(isp,2)**2
-        ! derivative of N: the explicit derivative (numerator)
-        ! Compensate the division by lid
-        derHNS(isp,3) = -lid(isp)
       end do
       call mma_deallocate(ValHN)
 
@@ -1066,12 +1087,15 @@ subroutine SC_NEVPT2_res(VECROT)
   end do
 
   !! derivative of the non-Jth states
+  call SC_NEVPT2_NINDEP(1)
   do iStLag=1,nState
     scal = VECROT(iStLag)
     if (iStLag == jStLag) cycle
     if (abs(scal) <= 1.0e-12_wp) cycle
-    call MS_Res(1,iStLag,jStLag,scal)
+    ! The transpose is needed as well for SC-NEVPT2
+    call MS_Res(IVECW,IVECC,iStLag,jStLag,Half*scal,'T')
   end do
+  call SC_NEVPT2_NINDEP(2)
 
 end subroutine SC_NEVPT2_res
 

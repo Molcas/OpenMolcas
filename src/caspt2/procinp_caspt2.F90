@@ -17,9 +17,9 @@ use inputData, only: input
 use PrintLevel, only: TERSE
 use UnixInfo, only: SuperName
 use Molcas, only: MxRoot, MxSym
-use caspt2_global, only: cmpThr, cntThr, CompressMPS, ConvInvar, dnmThr, do_csf, do_grad, do_lindep, do_nac, if_equalW, if_invar, &
-                         if_invaria, if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, &
-                         sigma_p_epsilon, sigma_p_exponent, Weight
+use caspt2_global, only: cmpThr, cntThr, CompressMPS, dnmThr, do_csf, do_grad, do_lindep, do_nac, if_equalW, if_invar, if_invaria, &
+                         if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, sigma_p_epsilon, &
+                         sigma_p_exponent, Weight
 use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, CPT2Method, DMRG, DoCumulant, DWType, FockType, G1SECIN, HZero, IfChol, &
                          IfDens, IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, &
                          mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, NRAS1, NRAS3, nRoots, nRoots, &
@@ -549,6 +549,10 @@ if (HZERO == 'DYALL') then
     call warningMessage(2,'Both NOPC and NOSC are specified? Cannot do the job...')
     call quit_onUserError()
   end if
+  if ((.not. Do_SC) .and. SC_prop) then
+    call warningMessage(2,'SC-NEVPT2 properties cannot be computed without SC-NEVPT2 energy. Remove the NOSC keyword.')
+    call quit_onUserError()
+  end if
   if (ipea_shift /= Zero) then
     ipea_shift = Zero
     if (IPRGLB >= TERSE) call warningMessage(1,'IPEA shift is automatically turned off for NEVPT2')
@@ -617,8 +621,6 @@ if ((input%GRDT .or. input%NAC) .and. (SuperName(1:18) /= 'numerical_gradient') 
     call warningMessage(2,'Analytic gradients only available without symmetry.')
     call quit_onUserError()
   end if
-
-  if (ipea_shift /= Zero) do_lindep = .true.
 
   ! only allow analytic gradients either with nstate = nroots or with sadref
   if ((nState /= nRoots) .and. (.not. input%SADREF)) then
@@ -722,17 +724,14 @@ end if
 
 IFSADREF = input%SADREF
 IFDORTHO = input%DORTHO
+do_lindep = do_grad ! Adding this contribution improves the accuracy
 if_invar = input%INVAR
 if (ipea_shift /= Zero) if_invar = .false.
+! The scaled orthonormalization gives a small non-invariance with respect to active space rotations
+if ((.not. IFDORTHO) .and. (.not. SC_prop)) if_invar = .false.
 if_invaria = input%IAINVAR
 if (sigma_p_epsilon /= Zero) if_invaria = .false. !! I'm not sure this is necessary, but it is needed for now
 if (SC_prop) if_invaria = .false.
-ConvInvar = input%ThrConvInvar
-
-if ((ipea_shift /= Zero) .and. do_grad .and. (.not. IFDORTHO)) then
-  call warningMessage(2,'Analytic gradients with IPEA shift must use the CORT or DORT option.')
-  call quit_onUserError()
-end if
 
 if (do_grad .and. (.not. if_invaria) .and. (.not. IfChol)) then
   call warningMessage(2,'Analytic gradients that are not invariant with respect to rotations among the inactive and among the '// &
@@ -740,14 +739,7 @@ if (do_grad .and. (.not. if_invaria) .and. (.not. IfChol)) then
   call quit_onUserError()
 end if
 
-#ifdef _MOLCAS_MPP_
-if (do_grad .and. (sigma_p_epsilon /= Zero) .and. (nProcs > 1)) then
-  call warningMessage(2,'Analytic gradients without the sigma^P regularization not available in parallel executions.')
-  call quit_onUserError()
-end if
-#endif
-
-if (do_grad .and. RF_On() .and. (.not. if_invar)) then
+if (do_grad .and. RF_On() .and. (ipea_shift /= Zero)) then
   if (IPRGLB >= TERSE) call warningMessage(1,'Analytic gradients with IPEA shift and PCM is not fully analytic.')
 end if
 
@@ -784,10 +776,6 @@ end if
 if (do_grad .and. (HZERO == 'DYALL')) then
   if ((.not. Do_FIC) .and. (.not. SC_prop)) then
     call warningMessage(2,'PC-NEVPT2 properties cannot be computed without PC-NEVPT2 energy. Remove the NOPC keyword.')
-    call quit_onUserError()
-  end if
-  if ((.not. Do_SC) .and. SC_prop) then
-    call warningMessage(2,'SC-NEVPT2 properties cannot be computed without SC-NEVPT2 energy. Remove the NOSC keyword.')
     call quit_onUserError()
   end if
 end if
