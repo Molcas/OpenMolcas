@@ -28,10 +28,10 @@ subroutine DMInvKap(rMFact,iMFact,rIn,rOut,rtemp,isym,iter)
 
 use Symmetry_Info, only: Mul
 use Spool, only: LuWr
-use MCLR_Data, only: ipMat, nDens, nDensC, SA
+use MCLR_Data, only: ipMat, nDens, nDensC
 use Orbital_Spaces, only: nAsh, nIsh, nSym
 use CI_Input, only: nRs1, nRs2, nRs3
-use input_mclr, only: kprint, nOrb, PT2
+use input_mclr, only: kprint, nOrb
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Definitions, only: wp, iwp, u6
 
@@ -94,16 +94,19 @@ do jS=1,nSym
   !                                                                    *
   !*********************************************************************
   !                                                                    *
+  ! The block dimension must match the one used in Prec/nPre/niPre and
+  ! the packing in Uncompress2: for an active orbital in RAS space k
+  ! (of the occupied symmetry jS) the non-redundant rotations are to all
+  ! orbitals of the general symmetry iS except those in RAS space k of iS.
+  ! This holds for SA and single-state wave functions alike.
+  nD = 0 ! dummy initialize
   do iI=1,nAsh(js)
-    nD = nOrb(is)-nAsh(is)
-    if (SA .or. PT2) then
-      if (iI <= nRs1(jS)) then
-        nD = nOrb(is)-nRs1(js)
-      else if (iI <= nRs1(jS)+nRs2(jS)) then
-        nD = nOrb(is)-nRs2(js)
-      else if (iI <= nRs1(jS)+nRs2(jS)+nRs3(jS)) then
-        nD = nOrb(is)-nRs3(js)
-      end if
+    if (iI <= nRs1(jS)) then
+      nD = nOrb(is)-nRs1(is)
+    else if (iI <= nRs1(jS)+nRs2(jS)) then
+      nD = nOrb(is)-nRs2(is)
+    else if (iI <= nRs1(jS)+nRs2(jS)+nRs3(jS)) then
+      nD = nOrb(is)-nRs3(is)
     end if
     if (nd /= 0) then
       ip2 = ipMat(is,js)+nOrb(is)*(iI-1+nIsh(js))
