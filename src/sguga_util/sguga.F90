@@ -345,6 +345,17 @@ integer(kind=iwp), allocatable :: ME_HD_Occ(:), ME_HW_Occ(:)
 real(kind=wp) :: ME_HD = Zero, ME_HW = Zero
 ! Coup_Value, Path_Value: blocks up to this size are scanned, not searched
 integer(kind=iwp), parameter :: nCoup_Lin = 16
+! MatEl_EpqErs_OO: the partial sums over the upper and the lower half of the
+! intermediate walks (OO_Half). They are coupling coefficients only (no
+! integrals) and recur for many CSF pairs, so they are kept in a
+! direct-mapped cache, valid as long as the graph of ME_iState: the key
+! (bra walk, ket walk, packed levels/orientations/bands/symmetry/half/state,
+! bra midvertex) in OO_Key, the sum in OO_Val; cleared by Reset_Decode_ME,
+! freed by SG_Free. Empty slot: OO_Key(4,:) = 0. Only sums with a coupling
+! block of more than OO_MinN transitions are kept (see OO_Half).
+integer(kind=iwp), parameter :: OO_MinN = 4, nOO_Cache = 8192, OO_MaxLev = 127, OO_MaxState = 511
+integer(kind=iwp), allocatable :: OO_Key(:,:)
+real(kind=wp), allocatable :: OO_Val(:)
 
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
 public :: SG_Map_CSFs, SG_Num_Setup
@@ -613,6 +624,8 @@ call mma_deallocate(ME_Blk,safe='*')
 call mma_deallocate(ME_nBlk,safe='*')
 call mma_deallocate(ME_HD_Occ,safe='*')
 call mma_deallocate(ME_HW_Occ,safe='*')
+call mma_deallocate(OO_Key,safe='*')
+call mma_deallocate(OO_Val,safe='*')
 call Reset_MatEl_H()
 call mma_deallocate(CIS%ICase,safe='*')
 call mma_deallocate(CIS%VSGM,safe='*')
@@ -5003,6 +5016,7 @@ integer(kind=iwp) :: nSy, nMV, ISYC, ISYU, MV, n, k, Tmp(3)
 ME_Dec(:,:) = 0
 ME_DecNext = 1
 call Reset_MatEl_H()
+if (allocated(OO_Key)) OO_Key(4,:) = 0
 call mma_deallocate(ME_Blk,safe='*')
 call mma_deallocate(ME_nBlk,safe='*')
 if (.not. allocated(CIS(ME_iState)%NOCSF)) return
@@ -9491,8 +9505,6 @@ integer(kind=iwp) :: MVI,MVJ,MVK,MV1,MV2
 integer(kind=iwp) :: ISYUI,ISYUJ,ISYUK,ISYDI,ISYDJ,ISYDK
 integer(kind=iwp) :: IUI,IUJ,IDI,IDJ
 integer(kind=iwp) :: U1,L1,U2,L2
-integer(kind=iwp) :: INDEO
-integer(kind=iwp) :: N1,Off1,N2,Off2
 integer(kind=iwp) :: iK
 logical(kind=iwp) :: Swap1, Swap2
 
@@ -9539,41 +9551,74 @@ do MV1 = 1, 2
    end do
    if (MV2 == 0) cycle
 
-   ! ------------------------------------------------------------
    ! Upper half: XU = Sum_Ku A_pq(Iu,Ku) A_rs(Ku,Ju)
-   ! ------------------------------------------------------------
-   INDEO = (MV2-1)*nLev+U2
-   N2   = merge(EXS(ME_iState)%NOCP(INDEO,ISYUK,MVK),EXS(ME_iState)%NOCP(INDEO,ISYUJ,MVJ),Swap2)
-   Off2 = merge(EXS(ME_iState)%IOCP(INDEO,ISYUK,MVK),EXS(ME_iState)%IOCP(INDEO,ISYUJ,MVJ),Swap2)
-   if (N2 == 0) cycle
-   INDEO = (MV1-1)*nLev+U1
-   N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYUK,MVK),Swap1)
-   Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYUK,MVK),Swap1)
-   if (N1 == 0) cycle
-   ! Walk index (Path_Value): only the transitions of E_rs starting at the
-   ! ket walk IUJ and of E_pq starting at K.
-   XU = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IUJ,Off1,N1,merge(2,1,Swap1),IUI)
+   XU = OO_Half(0,U1,U2,ISYUI,ISYUK,ISYUJ,MVI,MVK,MVJ,MV1,MV2,Swap1,Swap2,IUI,IUJ)
    if (XU == Zero) cycle
-
-   ! ------------------------------------------------------------
    ! Lower half: XL = Sum_Kl A_pq(Il,Kl) A_rs(Kl,Jl)
-   ! ------------------------------------------------------------
-   INDEO = (MV2-1)*nLev+L2
-   N2   = merge(EXS(ME_iState)%NOCP(INDEO,ISYDK,MVK),EXS(ME_iState)%NOCP(INDEO,ISYDJ,MVJ),Swap2)
-   Off2 = merge(EXS(ME_iState)%IOCP(INDEO,ISYDK,MVK),EXS(ME_iState)%IOCP(INDEO,ISYDJ,MVJ),Swap2)
-   if (N2 == 0) cycle
-   INDEO = (MV1-1)*nLev+L1
-   N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYDK,MVK),Swap1)
-   Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYDK,MVK),Swap1)
-   if (N1 == 0) cycle
-   ! Walk index (Path_Value): only the transitions of E_rs starting at the
-   ! ket walk IDJ and of E_pq starting at K.
-   XL = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IDJ,Off1,N1,merge(2,1,Swap1),IDI)
+   XL = OO_Half(1,L1,L2,ISYDI,ISYDK,ISYDJ,MVI,MVK,MVJ,MV1,MV2,Swap1,Swap2,IDI,IDJ)
 
    Value = Value+XU*XL
 end do
 
 end function MatEl_EpqErs_OO
+
+!
+! One half of MatEl_EpqErs_OO, X = Sum_K A_pq(I,K) A_rs(K,J) over the half
+! walks K (upper half iHalf = 0 with the upper levels A1 = max(p,q),
+! A2 = max(r,s), lower half iHalf = 1 with the lower levels), for the bra and
+! ket half walks IWI, IWJ of symmetries ISYI, ISYJ (ISYK for K), the
+! midvertices MVI, MVK, MVJ reached through the bands MV1 (E_pq) and MV2
+! (E_rs), and the orientations Swap1, Swap2 of the operators. X depends on
+! the graph only and is kept in the cache OO_Key/OO_Val.
+!
+function OO_Half(iHalf,A1,A2,ISYI,ISYK,ISYJ,MVI,MVK,MVJ,MV1,MV2,Swap1,Swap2,IWI,IWJ) result(X)
+
+use stdalloc, only: mma_allocate
+use, intrinsic :: iso_fortran_env, only: int64
+
+integer(kind=iwp), intent(in) :: iHalf, A1, A2, ISYI, ISYK, ISYJ, MVI, MVK, MVJ, MV1, MV2, IWI, IWJ
+logical(kind=iwp), intent(in) :: Swap1, Swap2
+real(kind=wp) :: X
+integer(kind=iwp) :: nLev, INDEO, N1, Off1, N2, Off2, Pack, h
+
+X = Zero
+nLev = SGS(ME_iState)%nLev
+INDEO = (MV2-1)*nLev+A2
+N2 = merge(EXS(ME_iState)%NOCP(INDEO,ISYK,MVK),EXS(ME_iState)%NOCP(INDEO,ISYJ,MVJ),Swap2)
+if (N2 <= 0) return
+INDEO = (MV1-1)*nLev+A1
+N1 = merge(EXS(ME_iState)%NOCP(INDEO,ISYI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYK,MVK),Swap1)
+if (N1 <= 0) return
+Off2 = merge(EXS(ME_iState)%IOCP((MV2-1)*nLev+A2,ISYK,MVK),EXS(ME_iState)%IOCP((MV2-1)*nLev+A2,ISYJ,MVJ),Swap2)
+Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYK,MVK),Swap1)
+
+! For small coupling blocks (at most OO_MinN transitions each) Path_Value
+! costs about as much as a cache lookup.
+if ((max(N1,N2) <= OO_MinN) .or. (nLev > OO_MaxLev) .or. (ME_iState > OO_MaxState)) then
+  ! Walk index (Path_Value): only the transitions of E_rs starting at the
+  ! ket walk IWJ and of E_pq starting at K.
+  X = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IWJ,Off1,N1,merge(2,1,Swap1),IWI)
+  return
+end if
+
+Pack = A1+128*(A2+128*(merge(1,0,Swap1)+2*(merge(1,0,Swap2)+2*((MV1-1)+2*((MV2-1)+2*((ISYI-1)+8*(iHalf+2*ME_iState)))))))
+! hash in 64-bit arithmetic (no overflow: each term < 2**54)
+h = int(mod(int(IWI,kind=int64)*40503_int64+int(IWJ,kind=int64)*65599_int64+int(Pack,kind=int64)*2654435_int64+ &
+            int(MVI,kind=int64)*97_int64,int(nOO_Cache,kind=int64)),kind=iwp)+1
+if (.not. allocated(OO_Key)) then
+  call mma_allocate(OO_Key,4,nOO_Cache,Label='OO_Key')
+  call mma_allocate(OO_Val,nOO_Cache,Label='OO_Val')
+  OO_Key(:,:) = 0
+  OO_Val(:) = Zero
+else if ((OO_Key(4,h) == MVI) .and. (OO_Key(1,h) == IWI) .and. (OO_Key(2,h) == IWJ) .and. (OO_Key(3,h) == Pack)) then
+  X = OO_Val(h)
+  return
+end if
+X = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IWJ,Off1,N1,merge(2,1,Swap1),IWI)
+OO_Key(:,h) = [IWI,IWJ,Pack,MVI]
+OO_Val(h) = X
+
+end function OO_Half
 
 !
 ! <I|E_pq E_rs|J> for I and J of symmetry LSM, by topology: each operator is
