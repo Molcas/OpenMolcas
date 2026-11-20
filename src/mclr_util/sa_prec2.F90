@@ -28,8 +28,9 @@ S(:,:) = Zero
 do i=1,nroots
   do j=1,nroots
     do k=1,n
-      dnum = rdia(k)-Ene
-      dnum = sign(max(abs(dnum),1.0e-16_wp),dnum)
+      ! |H0-E|: keeps the preconditioner positive definite for excited
+      ! roots (must be the same as in DMinvCI_SA)
+      dnum = max(abs(rdia(k)-Ene),1.0e-16_wp)
       S(i,j) = S(i,j)+CI(k,i)*CI(k,j)/dnum
     end do
   end do
