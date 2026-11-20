@@ -21,7 +21,7 @@ subroutine SKICKJ(SKII,CKJJ,NKA,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB
 !
 ! : Note : Route 1 has retired, March 97
 
-use lucia_data, only: MXPTSOB, SKICKJ_TINY_K_MAX, SKICKJ_TINY_N_MAX
+use lucia_data, only: MXPTSOB
 #ifdef _CUDA_BLAS_
 use, intrinsic :: iso_c_binding, only: c_int64_t
 use LUCIA_CUDA_INTERFACE, only: LUCIA_SKICKJ_CUDA_ROUTE3
@@ -104,11 +104,7 @@ if (IROUTE == 3) then
                 XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
                 XIJKL(JKINTOF+L:JKINTOF-1+NL) = Zero
               end if
-              if ((IMAX >= 1) .and. (IMAX <= SKICKJ_TINY_N_MAX) .and. (NJ >= 1) .and. (NJ <= SKICKJ_TINY_K_MAX)) then
-                call SKICKJ_MATML7_NN_TINY(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NJ,FACS,FACTOR)
-              else
-                call MATML7(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NKA,NJ,NJ,IMAX,FACS,FACTOR,0)
-              end if
+              call MATML7(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NKA,NJ,NJ,IMAX,FACS,FACTOR,0)
               if (IKORD /= 0) then
                 XIJKL(JKINTOF-1+L:JKINTOF-1+NL) = XIJILS(L:NL)
                 !XIJ(JKINTOF:JKINTOF+NJ-1) = XIJILS(1:NJ)
@@ -230,78 +226,5 @@ else if (IROUTE == 1) then
   !end do
 end if
 ! End of IROUTE branchning
-
-contains
-
-subroutine SKICKJ_MATML7_NN_TINY(C,A,B,M,N,K,FACTORC,FACTORAB)
-
-  integer(kind=iwp), intent(in) :: M, N, K
-  real(kind=wp), intent(inout) :: C(M,*)
-  real(kind=wp), intent(in) :: A(M,*), B(K,*), FACTORC, FACTORAB
-  integer(kind=iwp) :: I, J
-  real(kind=wp) :: B1, B2, B3, B4
-
-  select case (K)
-    case (1)
-      do J=1,N
-        B1 = FACTORAB*B(1,J)
-        if (FACTORC == Zero) then
-          do I=1,M
-            C(I,J) = B1*A(I,1)
-          end do
-        else
-          do I=1,M
-            C(I,J) = FACTORC*C(I,J)+B1*A(I,1)
-          end do
-        end if
-      end do
-    case (2)
-      do J=1,N
-        B1 = FACTORAB*B(1,J)
-        B2 = FACTORAB*B(2,J)
-        if (FACTORC == Zero) then
-          do I=1,M
-            C(I,J) = B1*A(I,1)+B2*A(I,2)
-          end do
-        else
-          do I=1,M
-            C(I,J) = FACTORC*C(I,J)+B1*A(I,1)+B2*A(I,2)
-          end do
-        end if
-      end do
-    case (3)
-      do J=1,N
-        B1 = FACTORAB*B(1,J)
-        B2 = FACTORAB*B(2,J)
-        B3 = FACTORAB*B(3,J)
-        if (FACTORC == Zero) then
-          do I=1,M
-            C(I,J) = B1*A(I,1)+B2*A(I,2)+B3*A(I,3)
-          end do
-        else
-          do I=1,M
-            C(I,J) = FACTORC*C(I,J)+B1*A(I,1)+B2*A(I,2)+B3*A(I,3)
-          end do
-        end if
-      end do
-    case (4)
-      do J=1,N
-        B1 = FACTORAB*B(1,J)
-        B2 = FACTORAB*B(2,J)
-        B3 = FACTORAB*B(3,J)
-        B4 = FACTORAB*B(4,J)
-        if (FACTORC == Zero) then
-          do I=1,M
-            C(I,J) = B1*A(I,1)+B2*A(I,2)+B3*A(I,3)+B4*A(I,4)
-          end do
-        else
-          do I=1,M
-            C(I,J) = FACTORC*C(I,J)+B1*A(I,1)+B2*A(I,2)+B3*A(I,3)+B4*A(I,4)
-          end do
-        end if
-      end do
-  end select
-
-end subroutine SKICKJ_MATML7_NN_TINY
 
 end subroutine SKICKJ

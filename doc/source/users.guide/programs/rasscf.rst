@@ -218,10 +218,9 @@ symmetry can be enforced by the keyword :kword:`ATOM`.
 Lucia contraction optimizations
 -------------------------------
 
-The conventional Lucia CI solver uses optimized CPU paths for selected small
-contractions. In builds configured with ``CUBLAS=ON``, supported contractions
-use native Lucia CUDA kernels. Size and execution-mode constraints determine
-which contractions run on the CPU.
+In builds configured with ``CUBLAS=ON``, the supported contractions of the
+conventional Lucia CI solver use native Lucia CUDA kernels. Size and
+execution-mode constraints determine which contractions run on the CPU.
 
 .. _UG\:sec\:core-hole:
 
