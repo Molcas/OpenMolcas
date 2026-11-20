@@ -86,7 +86,7 @@ type Distinct_Basis_set_centers
   integer(kind=iwp) :: iPrj = 0, nPrj = 0
   integer(kind=iwp) :: iSRO = 0, nSRO = 0
   integer(kind=iwp) :: iSOC = 0, nSOC = 0
-  integer(kind=iwp) :: kDel(0:iTabMx)
+  integer(kind=iwp) :: kDel(0:iTabMx) = 0
   integer(kind=iwp) :: iPP = 0, nPP = 0, cPP = 0
   integer(kind=iwp) :: nShells = 0
   integer(kind=iwp) :: AtmNr = 0
@@ -377,6 +377,7 @@ subroutine Basis_Info_Dmp()
       call Abend()
     end if
   end do
+  iDmp(:,nCnttp+1) = 0
   iDmp(1,nCnttp+1) = nFrag_LineWords
   iDmp(2,nCnttp+1) = nCnttp
   iDmp(3,nCnttp+1) = iCnttp_Dummy
