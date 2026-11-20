@@ -18,7 +18,7 @@
 subroutine CheckFuncParam(FileExtParam)
 
 use Functionals, only: check_n_ext_params
-use libxc_parameters, only: FuncExtParams, lExtParams
+use libxc_parameters, only: FuncExtParams, lExtParams, Put_External_Params
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
@@ -60,6 +60,7 @@ close(LUFile)
 call check_n_ext_params(nFuncs,nParam)
 
 lExtParams = .true.
+call Put_External_Params() ! needed by later modules (e.g. ALASKA)
 !call mma_deallocate(FuncExtParams) !It will be freed in Set_External_Params.
 call mma_deallocate(nParam)
 

@@ -34,8 +34,8 @@ integer(kind=iwp) :: iEGrad, iGrid
 real(kind=wp) :: Diff1, GraddZdR, GradRatio, GradRatioX, GradRatioY, GradRatioZ, GradZetaX, GradZetaY, GradZetaZ, Rd2RdRho2, &
                  Rd2RdRhodPi, Rd2ZdR2, Rd2ZdRdZ, RdRdPi, RdRdRho, RRatio, TempR, XAdd, YAdd, ZAdd, ZetaX, ZetaY, ZetaZ
 real(kind=wp), allocatable :: dRatio(:,:), dRhodx(:), dRhody(:), dRhodz(:), dZeta(:,:), ftx23(:), fty23(:), ftz23(:), &
-                              GradRhoAB(:,:), GradRhoX(:,:), GradRhoY(:,:), GradRhoZ(:,:), RatioX(:), RatioY(:), RatioZ(:), &
-                              tanhrx(:), tanhry(:), tanhrz(:)
+                              GradRhoAB(:,:), GradRhoX(:,:), GradRhoY(:,:), GradRhoZ(:,:), GradTauAB(:,:), RatioX(:), RatioY(:), &
+                              RatioZ(:), tanhrx(:), tanhry(:), tanhrz(:)
 real(kind=wp), external :: DDot_
 ! PassX
 ! Pass1. Total density is greater than thresRho
@@ -285,6 +285,20 @@ if (DoGrad) then
       end if
     end do
   end do
+
+  if (lmGGA1) then
+    call mma_allocate(GradTauAB,mGrid,nEGrad,label='GradTauAB')
+    GradTauAB(:,:) = dRho_dr(9,:,:)+dRho_dr(10,:,:)
+    do iEGrad=1,nEGrad
+      do iGrid=1,mGrid
+        if (Pass1(iGrid)) then
+          dRho_dr(9,iGrid,iEGrad) = OnePZ(iGrid)*GradTauAB(iGrid,iEGrad)+Two*dZeta(iGrid,iEGrad)*TauAB(iGrid)
+          dRho_dr(10,iGrid,iEGrad) = OneMZ(iGrid)*GradTauAB(iGrid,iEGrad)-Two*dZeta(iGrid,iEGrad)*TauAB(iGrid)
+        end if
+      end do
+    end do
+    call mma_deallocate(GradTauAB)
+  end if
 
   if (lGGA) then
     do iEGrad=1,nEGrad

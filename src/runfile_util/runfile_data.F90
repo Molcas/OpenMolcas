@@ -157,6 +157,7 @@ character(len=lw), parameter :: LabelsCA(nTocCA) = [ &
 !> - '``Last Dipole Moments``'
 !> - '``Un_cen Effective Charge``'
 !> - '``Un_cen Coordinates``'
+!> - '``ExtFuncParams``'            External Libxc parameters (EXPM keyword of MCPDFT): number of functions, parameters per function, values.
 !> - '``D1ao_PCM``'                 One particle density matrix in AO that polarizes ASCs during RASSCF
 !> - '``SolventWeight``'            Weight of the density matrix used for generating reaction-field
 
@@ -212,7 +213,7 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'P2INTER         ','D1AO_MS         ','D1SAO_MS        ','MS_FINAL_ROT    ', & ! 193-196
                                 'F1_PDFT         ','F2_PDFT         ','FxyMS           ','SH_Ovlp_Save    ', & ! 297-200
                                 'Old_Phase       ','<rhoB|VnucA>    ','D1ao_PCM        ','SolventWeight   ', & ! 201-204
-                                '                ','                ','                ','                ', & ! 205-208
+                                'ExtFuncParams   ','                ','                ','                ', & ! 205-208
                                 '                ','                ','                ','                ', & ! 209-212
                                 '                ','                ','                ','                ', & ! 213-216
                                 '                ','                ','                ','                ', & ! 217-220

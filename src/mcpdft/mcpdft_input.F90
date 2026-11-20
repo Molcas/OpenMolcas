@@ -237,18 +237,15 @@ subroutine verify_input()
     end if
   end if
 
-  if (mcpdft_options%grad) then
+  if (mcpdft_options%nac) then
     if (Get_Func_Type(get_base(mcpdft_options%otfnal%otxc)) == meta_GGA_Type1) then
-      call WarningMessage(2,'MC-PDFT gradients with translated meta-GGA not supported')
+      call WarningMessage(2,'NACs with translated meta-GGA not implemented')
       write(u6,*) ' ************* ERROR **************'
-      write(u6,*) ' MC-PDFT gradients are not         '
-      write(u6,*) ' implemented with meta-GGAs        '
+      write(u6,*) ' NACs are not implemented          '
+      write(u6,*) ' with meta-GGA on-top functionals  '
       write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if
-  end if
-
-  if (mcpdft_options%nac) then
     if (.not. mcpdft_options%mspdft) then
       call WarningMessage(2,'NACs implemented only for MS-PDFT')
       write(u6,*) ' ************* ERROR **************'
