@@ -3978,260 +3978,68 @@ end subroutine Contract_Crossing_Temporary
 
 subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
+  ! SIGMA(:,I2) = SIGMA(:,I2) + CPQ*V*CI(:,I1) for every coupling (I1,I2,V)
+  ! of the lower half (columns of the CSF block). One contiguous column update
+  ! per coupling: the blocks are small, so gathering the columns for a GEMM
+  ! cost more (copies, temporaries, call overhead) than it gained.
   integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
-  integer(kind=iwp), parameter :: KBLOCK = 16
-  integer(kind=iwp) :: blck, finish, finish2, i, I1a(KBLOCK), I1b(KBLOCK), I2, I2b, ICP, nk, nk2, offset, start, start2
-  real(kind=wp) :: Xa(KBLOCK), Xb(KBLOCK), ABLOCK(NUP,KBLOCK), W(KBLOCK,2), TEMP(NUP,2)
-  real(kind=wp), pointer :: VTAB(:)
+  integer(kind=iwp) :: I1, I2, ICP, iFrom, iTo
+  real(kind=wp) :: X
 
-  VTAB => EXS%VTab
-
-  ICP = 1
-  start2=0
-  i2b=0
-  finish2=0
-
-  if (swap) then
-
-  do while (ICP <= NCP)
-
-    I2 = ICOUP(1,ICP)
-    start = ICP
-    finish = ICP
-    do
-      if (finish > NCP) exit
-      if (ICOUP(1,finish)/=I2) exit
-      finish = finish + 1
-    end do
-
-    nk = finish-start
-
-    if (finish <= NCP) then
-      I2b = ICOUP(1,finish)
-      start2 = finish
-      finish2 = start2
-      do
-        if (finish2 > NCP) exit
-        if (ICOUP(1,finish2)/=I2b) exit
-        finish2 = finish2 + 1
-      end do
-      nk2 = finish2-start2
-    else
-      nk2 = -1
-    end if
-
-    ! structural GEMM only if perfectly safe AND fits buffers
-    if ((nk == nk2) .and. (nk > 0) .and. (nk <= KBLOCK)) then
-      do i=1,nk
-        I1a(i)=ICOUP(2,start+i-1)
-        I1b(i)=ICOUP(2,start2+i-1)
-      end do
-      if (all(I1a(1:nk)==I1b(1:nk))) then
-        do i=1,nk
-          Xa(i)=CPQ*VTAB(ICOUP(3,start+i-1))
-          Xb(i)=CPQ*VTAB(ICOUP(3,start2+i-1))
-          ABLOCK(:,i)=CI(:,I1a(i))
-          W(i,1)=Xa(i)
-          W(i,2)=Xb(i)
-        end do
-
-        call DGEMM_('N','N',NUP,2,nk,One,ABLOCK,NUP,W,KBLOCK,Zero,TEMP,NUP)
-
-        SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
-        SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
-
-        ICP = finish2
-        cycle
-      end if
-    end if
-
-    ! fallback blocked GEMV
-    do offset = 1, nk, KBLOCK
-      blck = min(KBLOCK,nk-offset+1)
-
-      do i=1,blck
-        I1a(i)=ICOUP(2,start+offset+i-2)
-        Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
-        ABLOCK(:,i)=CI(:,I1a(i))
-      end do
-
-      call DGEMM_('N','N', NUP, 1, blck, 1.0_wp, ABLOCK, NUP, Xa, KBLOCK, 0.0_wp, TEMP, NUP)
-
-      SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
-    end do
-
-    ICP = finish
-
+  ! with swap the roles of the walk indices are exchanged
+  iTo = merge(1,2,swap)
+  iFrom = merge(2,1,swap)
+  do ICP=1,NCP
+    I2 = ICOUP(iTo,ICP)
+    I1 = ICOUP(iFrom,ICP)
+    X = CPQ*EXS%VTab(ICOUP(3,ICP))
+    SIGMA(:,I2) = SIGMA(:,I2)+X*CI(:,I1)
   end do
-
-  else
-
-  do while (ICP <= NCP)
-
-    I2 = ICOUP(2,ICP)
-    start = ICP
-    finish = ICP
-    do
-      if (finish > NCP) exit
-      if (ICOUP(2,finish)/=I2) exit
-      finish = finish + 1
-    end do
-
-    nk = finish-start
-
-    if (finish <= NCP) then
-      I2b = ICOUP(2,finish)
-      start2 = finish
-      finish2 = start2
-      do
-        if (finish2 > NCP) exit
-        if (ICOUP(2,finish2)/=I2b) exit
-        finish2 = finish2 + 1
-      end do
-      nk2 = finish2-start2
-    else
-      nk2 = -1
-    end if
-
-    if ((nk == nk2) .and. (nk > 0) .and. (nk <= KBLOCK)) then
-      do i=1,nk
-        I1a(i)=ICOUP(1,start+i-1)
-        I1b(i)=ICOUP(1,start2+i-1)
-      end do
-      if (all(I1a(1:nk)==I1b(1:nk))) then
-        do i=1,nk
-          Xa(i)=CPQ*VTAB(ICOUP(3,start+i-1))
-          Xb(i)=CPQ*VTAB(ICOUP(3,start2+i-1))
-          ABLOCK(:,i)=CI(:,I1a(i))
-          W(i,1)=Xa(i)
-          W(i,2)=Xb(i)
-        end do
-
-        call DGEMM_('N','N',NUP,2,nk,One,ABLOCK,NUP,W,KBLOCK,Zero,TEMP,NUP)
-
-        SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
-        SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
-
-        ICP = finish2
-        cycle
-      end if
-    end if
-
-    do offset = 1, nk, KBLOCK
-      blck = min(KBLOCK,nk-offset+1)
-
-      do i=1,blck
-        I1a(i)=ICOUP(1,start+offset+i-2)
-        Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
-        ABLOCK(:,i)=CI(:,I1a(i))
-      end do
-
-      call DGEMM_('N','N',NUP,1,blck,One,ABLOCK,NUP,Xa,KBLOCK,Zero,TEMP,NUP)
-
-      SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
-    end do
-
-    ICP = finish
-
-  end do
-
-  end if
-
-  nullify(VTAB)
 
 end subroutine apply_col
 
   subroutine apply_row(CPQ,NDWN,NUPC,CI,NUPSG,SIGMA,NCP,ICOUP,swap)
 
-    integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
+  ! SIGMA(I2,:) = SIGMA(I2,:) + CPQ*V*CI(I1,:) for every coupling (I1,I2,V)
+  ! of the upper half (rows of the CSF block). Columns outside, couplings
+  ! inside: every access stays within one column of CI and of SIGMA (no
+  ! strided rows, no tile copies).
+  integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUPC,NDWN)
   real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
   logical(kind=iwp), intent(in) :: swap
-  integer(kind=iwp), parameter :: KBLOCK=16
-    integer(kind=iwp) :: blk, i, ICP, IDWN, j, nblk
-    real(kind=wp) :: CI_blk(KBLOCK,KBLOCK), X
-    integer(kind=iwp), pointer :: I1LIST(:), I2LIST(:)
-    real(kind=wp), pointer :: VTAB(:), XLIST(:)
-  logical, parameter :: USE_OPT=.true.
+  integer(kind=iwp) :: ICP, IDWN
+  integer(kind=iwp), pointer :: I1LIST(:), I2LIST(:)
+  real(kind=wp), pointer :: XLIST(:)
 
-  VTAB => EXS%VTab
   XLIST => EXS%XLIST
   I1LIST => EXS%I1LIST
   I2LIST => EXS%I2LIST
 
-  if (.not. USE_OPT) then
-
-    if (swap) then
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(2,ICP)
-        I2list(ICP)=ICOUP(1,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    else
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(1,ICP)
-        I2list(ICP)=ICOUP(2,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    end if
-
-
+  if (swap) then
     do ICP=1,NCP
-!$OMP SIMD
-      do IDWN=1,NDWN
-        SIGMA(I2list(ICP),IDWN)=SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
-      end do
+      I1list(ICP) = ICOUP(2,ICP)
+      I2list(ICP) = ICOUP(1,ICP)
+      Xlist(ICP) = CPQ*EXS%VTab(ICOUP(3,ICP))
     end do
-
   else
-
-    ! sorted input improves locality (optional external sort)
-    if (swap) then
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(2,ICP)
-        I2list(ICP)=ICOUP(1,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    else
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(1,ICP)
-        I2list(ICP)=ICOUP(2,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    end if
-
-    ! tiled processing
-    do j=1,NDWN,KBLOCK
-      nblk = min(KBLOCK, NDWN-j+1)
-
-      do i=1,NCP,KBLOCK
-        blk = min(KBLOCK, NCP-i+1)
-
-        ! pack tile (transpose-like)
-        do ICP=1,blk
-          do IDWN=1,nblk
-            CI_blk(IDWN,ICP)=CI(I1list(i+ICP-1), j+IDWN-1)
-          end do
-        end do
-
-        ! compute
-        do ICP=1,blk
-          X = Xlist(i+ICP-1)
-!$OMP SIMD
-          do IDWN=1,nblk
-            SIGMA(I2list(i+ICP-1), j+IDWN-1) =               SIGMA(I2list(i+ICP-1), j+IDWN-1) + X*CI_blk(IDWN,ICP)
-          end do
-        end do
-
-      end do
+    do ICP=1,NCP
+      I1list(ICP) = ICOUP(1,ICP)
+      I2list(ICP) = ICOUP(2,ICP)
+      Xlist(ICP) = CPQ*EXS%VTab(ICOUP(3,ICP))
     end do
-
   end if
 
-    nullify(VTAB)
+  do IDWN=1,NDWN
+    do ICP=1,NCP
+      SIGMA(I2list(ICP),IDWN) = SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
+    end do
+  end do
+
+  nullify(XLIST,I1LIST,I2LIST)
 
 end subroutine apply_row
 
