@@ -16,7 +16,6 @@ subroutine CnstCLag(IFF,nLev,NG3,NCONF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 use PrintLevel, only: VERBOSE
 use CI_Info, only: CI_St
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
-use general_data, only: STSYM
 use caspt2_module, only: CITHR, EPSA, ETA, ISCF, JSTATE, MSTATE, NSTATE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
@@ -56,7 +55,7 @@ if (ISCF == 0) then
     else
       write(u6,*) ' With new orbitals, the CI array is:'
     end if
-    call PRWF_CP2(STSYM,NCONF,CI1,CITHR)
+    call PRWF_CP2(CI_St(iState)%STSym,NCONF,CI1,CITHR)
   end if
 else
   CI1(1) = One

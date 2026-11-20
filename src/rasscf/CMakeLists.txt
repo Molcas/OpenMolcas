@@ -64,7 +64,6 @@ set (sources
      fckpt2.F90
      fmat.F90
      fock.F90
-     gasprwf.F90
      generic_CI.F90
      getddgmat.F90
      getgdmat.F90
@@ -119,7 +118,6 @@ set (sources
      scan_inp.F90
      setpos.F90
      setprlev.F90
-     setup_rasscf.F90
      sgfcin.F90
      sigvec.F90
      socc_dmrg_rdinp.F90

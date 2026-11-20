@@ -13,13 +13,14 @@
 
 subroutine CLagX_TrfCI(NCONF,CI)
 
+use CI_Info, only: CI_St
 use caspt2_global, only: TAT, TORB
-use general_data, only: STSYM
 use caspt2_module, only: NISH, NRAS1, NRAS2, NRAS3, NSSH, NSYM
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: NCONF
 real(kind=wp), intent(inout) :: CI(NCONF)
 integer(kind=iwp) :: I, IOFF1, IOFF2, ISYM, NI, NISH_SAVE(8), NR1, NR2, NR3, NS
@@ -64,7 +65,7 @@ end do
 ! orbitals to zero.
 NISH_SAVE(:) = NISH(:)
 NISH(:) = 0
-call mkTraCI(size(TAT),TAT,STSYM,nConf,CI)
+call mkTraCI(size(TAT),TAT,CI_St(iState)%STSym,nConf,CI)
 NISH(:) = NISH_SAVE(:)
 
 end subroutine CLagX_TrfCI

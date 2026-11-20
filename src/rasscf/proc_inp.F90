@@ -37,10 +37,11 @@ use Symmetry_info, only: Mul
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
-use general_data, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NDELT, NELEC3, NFRO, NFROT, NGAS, NGSSH, NHOLE1, &
-                        NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM
-use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NDELT, NFRO, NFROT, NISH, NORB, NSSH, NSYM, NTOT, NTOT1, NTOT2
+use CI_Input, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM
+use rasscf_global, only: NCONF, NSEL
 use DWSol, only: DWSol_DWRO
+use CI_Info, only: Space_Inp
 use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
@@ -2160,7 +2161,6 @@ else
   NSEC = sum(NSSH(1:NSYM))
   NORBT = sum(NORB(1:NSYM))
   NTOT3 = sum(nTri_Elem(NORB(1:NSYM)))
-  NTOTSP = sum(nTri_Elem(NASH(1:NSYM)))
   NTOT4 = sum(NORB(1:NSYM)**2)
   NRS1T = sum(NRS1(1:NSYM)) ! for RASSCF
   NRS2T = sum(NRS2(1:NSYM))
@@ -2808,14 +2808,13 @@ else
       call Error(1)
       return
     end if
-    if ((I_ELIMINATE_GAS /= 0) .and. (I_ELIMINATE_GAS /= 2)) then
+    if (Space_Inp%nHEXS /= 0) then
       call WarningMessage(2,'HEXS keyword defined more than once')
       call Error(1)
       return
     end if
-    I_ELIMINATE_GAS = I_ELIMINATE_GAS+1
     ReadStatus = ' Failure reading data following HEXS keyword.'
-    read(LUInput,*,iostat=istatus) N_ELIMINATED_GAS
+    read(LUInput,*,iostat=istatus) Space_Inp%nHEXS
     if (istatus < 0) then
       call Error(2)
       return
@@ -2825,7 +2824,7 @@ else
     end if
     ReadStatus = ' O.K. after reading data following HEXS keyword.'
     ReadStatus = ' Failure reading data following HEXS keyword.'
-    read(LUInput,*,iostat=istatus) (IELIMINATED_IN_GAS(I),I=1,N_ELIMINATED_GAS)
+    read(LUInput,*,iostat=istatus) (Space_Inp%iHEXS(I),I=1,Space_Inp%nHEXS)
     if (istatus < 0) then
       call Error(2)
       return
@@ -2844,14 +2843,13 @@ else
       call Error(1)
       return
     end if
-    if (I_ELIMINATE_GAS > 1) then
+    if (Space_Inp%nDEXS /= 0) then
       call WarningMessage(2,'DEXS keyword defined more than once')
       call Error(1)
       return
     end if
-    I_ELIMINATE_GAS = I_ELIMINATE_GAS+2
     ReadStatus = ' Failure reading data following DEXS keyword.'
-    read(LUInput,*,iostat=istatus) N_2ELIMINATED_GAS
+    read(LUInput,*,iostat=istatus) Space_Inp%nDEXS
     if (istatus < 0) then
       call Error(2)
       return
@@ -2861,7 +2859,7 @@ else
     end if
     ReadStatus = ' O.K. after reading data following DEXS keyword.'
     ReadStatus = ' Failure reading data following DEXS keyword.'
-    read(LUInput,*,iostat=istatus) (I2ELIMINATED_IN_GAS(I),I=1,N_2ELIMINATED_GAS)
+    read(LUInput,*,iostat=istatus) (Space_Inp%iDEXS(I),I=1,Space_Inp%nDEXS)
     if (istatus < 0) then
       call Error(2)
       return
@@ -4084,7 +4082,6 @@ SkipGUGA = DoBlockDMRG .or. Key('DMRG') .or. doDMRG .or. DoNECI .or. Do_CC_CI .o
 call mma_deallocate(initial_occ,safe='*')
 ! ======================================================================
 
-call Setup_RASSCF()
 
 ! SGCI: SGUGA covers CAS, RAS and GAS spaces (GAS through the relaxed space,
 ! HEXS/DEXS applied by the CI interface), and is not combined with the

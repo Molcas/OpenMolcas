@@ -11,11 +11,12 @@
 
 subroutine InpOne()
 
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use rctfld_module, only: Conductor, lRF
 use MCLR_Data, only: CMO, Int1, KAIN1, nDens, SA
-use general_data, only: iSpin, nActEl, nIsh, nSym
+use Orbital_Spaces, only: nIsh, nSym
 use input_mclr, only: nAtoms, nBas, nFro, nOrb, PotNuc, PT2
 use PCM_grad, only: DSCFAO, DSCFMO, iCharge_PCM, iStpPCM, PCM_grad_dens, PCM_grad_dens2, potnuc_pcm, RFPERT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -23,6 +24,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: iCharge, iComp, idum(1), iiSym, iOpt, ip, ip2, iRC, iS, Leng
 real(kind=wp) :: ERFX, ExFac, potnucsav, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
 logical(kind=iwp) :: Dff, Do_DFT, Do_ESPF, First, Found, NonEq
@@ -67,7 +69,7 @@ call mma_allocate(Nuc,nAtoms,Label='Nuc')
 call Get_dArray('Effective nuclear Charge',Nuc,nAtoms)
 Tot_Nuc_Charge = sum(Nuc(1:nAtoms))
 call mma_deallocate(Nuc)
-Tot_El_Charge = -Two*sum(real(nFro(1:nSym)+nIsh(1:nSym),kind=wp))-real(nActEl,kind=wp)
+Tot_El_Charge = -Two*sum(real(nFro(1:nSym)+nIsh(1:nSym),kind=wp))-real(CI_St(iState)%nActEl,kind=wp)
 Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 iCharge = int(Tot_Charge)
 call DecideOnESPF(Do_ESPF)
@@ -125,7 +127,7 @@ if (Do_ESPF .or. (lRF .and. (iStpPCM == 1))) then
 
     ! Don't care about the last arguments: no (CAS-)DFT here I guess)
 
-    call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge,iSpin,'1234',Do_DFT)
+    call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge,CI_St(iState)%iSpin,'1234',Do_DFT)
     potnuc_pcm = potnuc-potnucsav
     Temp1(1:leng) = Temp1(1:leng)+Htmp(:)+Gtmp(:)
 

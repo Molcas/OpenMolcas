@@ -16,7 +16,7 @@ subroutine creqadd_sp(q,G2,idsym,Temp,Scr,n2)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nA, nDens, nNA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nOrb
 use Definitions, only: wp, iwp
 

@@ -18,7 +18,6 @@ use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
 use CI_Info, only: CI_St
 use caspt2_global, only: iPrGlb
-use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, MxCI, nAshT, nG1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -44,7 +43,7 @@ if (ISCF == 2) then
   do IT=1,NASHT
     G1(IT,IT) = One
   end do
-else if ((ISCF == 1) .and. (NACTEL > 0)) then
+else if ((ISCF == 1) .and. (CI_St(iState)%nActEl > 0)) then
   ! Special code for closed-shell:
   do IT=1,NASHT
     G1(IT,IT) = Two
@@ -87,14 +86,13 @@ else
     ISU = CI_St(istate)%ISm(LU)
     IU = CI_St(istate)%L2Act(LU)
     ISTU = Mul(IST,ISU)
-    ISSG = Mul(ISTU,STSYM)
+    if (ISTU /= 1) cycle
+    ISSG = Mul(ISTU,CI_St(iState)%STSym)
     NSGM = CI_St(istate)%nCSF(ISSG)
     if (NSGM == 0) cycle
-    call GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
-    if (ISTU == 1) then
-      GTU = DDOT_(NSGM,CI2,1,SGM1,1)
-      G1(IT,IU) = G1(IT,IU)+GTU
-    end if
+    call GETSGM2(LU,LT,CI_St(iState)%STSym,CI1,MXCI,SGM1,NSGM)
+    GTU = DDOT_(NSGM,CI2,1,SGM1,1)
+    G1(IT,IU) = G1(IT,IU)+GTU
 
     !SVC: The master node now continues to only handle task scheduling,
     !     needed to achieve better load balancing. So it exits from the task

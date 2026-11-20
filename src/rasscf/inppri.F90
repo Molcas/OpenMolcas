@@ -37,7 +37,7 @@ use Fock_util_global, only: DoLocK
 use Functionals, only: Init_Funcs, Print_Info
 use KSDFT_Info, only: CoefR, CoefX
 use rctfld_module, only: lRF
-use general_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
+use CI_Input, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use rasscf_global, only: cCI, DoBlockDMRG, DoDMRG, Header, iCI, ICICH, ICIRST, iPCMRoot, iRLXRoot, iRoot, iSupSM, ITMAX, ixSym, &
                          KSDFT, l_casdft, lRoots, lSquare, LvShft, MAXIT, n_Det, NAC, NFR, NIN, NONEQ, NQUNE, NROOTS, NSEC, nTit, &
                          RFPert, ThrE, ThrSX, ThrTE, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, Weight
@@ -54,9 +54,12 @@ use rasscf_global, only: ChemPS2_blb, ChemPS2_lreStart, ChemPS2_No4RDM, ChemPS2_
 #endif
 use PrintLevel, only: SILENT, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSEL, NSSH, NSYM, NTOT1, &
-                        STSYM
-use spinfo, only: DoComb, I_ELIMINATE_GAS, NCNFTP, NCSASM, NCSF_HEXS, NDTASM, NDTFTP
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSSH, NSYM, NTOT1
+use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
+use rasscf_global, only: NSEL
+use CI_Info, only: CI_St, Space_Inp
+use CI_Space_Def, only: Space_Removals
+use lucia_data, only: IDC, NCNFTP, NDTFTP
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use RASDim, only: MxRef
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
@@ -64,6 +67,7 @@ use Constants, only: Zero, Two, Six, Half, OneHalf
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp), intent(in) :: lOPTO
 integer(kind=iwp) :: i, iCharge, iComp, iDoRI, iEnd, iGAS, iOpt, iPrLev, iRC, iRef, iStart, iSyLbl, iSym, iTemp, j, left, lLine, &
                      lPaper, MaxRem, n_paired_elec, n_unpaired_elec, nLine
@@ -281,21 +285,21 @@ if (IPRLEV > SILENT) then
         call print_dmrg_info(u6,fmt2,1,dmrg_start_guess,nroots,thre)
 #       endif
       else
-        write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-        if (I_ELIMINATE_GAS > 0) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',nCSF_HEXS
+        write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',CI_St(iState)%nCSF(STSYM)
+        if (Space_Removals(Space_Inp)) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',CI_St(iState)%nCSF_Kept
         ! (no determinants without Lucia, SGCI)
         if (.not. CI_Lucia_Active()) then
-        else if (DoComb) then
-          write(u6,Fmt2//'A,T40,I11)') 'Number of spin combinations',NDTASM(STSYM)
-          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',2*NDTASM(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
+        else if (IDC == 2) then
+          write(u6,Fmt2//'A,T40,I11)') 'Number of spin combinations',CI_St(iState)%nDet(STSYM)
+          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',2*CI_St(iState)%nDet(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
         else
-          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
+          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(iState)%nDet(STSYM)
         end if
       end if
       n_Det = 2
       n_unpaired_elec = (iSpin-1)
       n_paired_elec = nActEl-n_unpaired_elec
-      if ((n_unpaired_elec+n_paired_elec/2 == nac) .or. (NDTASM(STSYM) == 1)) n_Det = 1
+      if ((n_unpaired_elec+n_paired_elec/2 == nac) .or. (CI_St(iState)%nDet(STSYM) == 1)) n_Det = 1
       if (KSDFT == 'DIFF') n_Det = 1
       if (KSDFT == 'ROKS') n_Det = 1
 
@@ -367,8 +371,8 @@ if (IPRLEV > SILENT) then
   ! Check that the user doesn't try to calculate more roots than it's possible
   ! NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
   !              since Block DMRG code will check this internally
-  !if (NROOTS > NCSASM(STSYM)) then
-  if ((.not. any([DoNECI,Do_CC_CI,DumpOnly,doDMRG,doBlockDMRG])) .and. (NROOTS > NCSASM(STSYM))) then
+  !if (NROOTS > CI_St(1)%nCSF(STSYM)) then
+  if ((.not. any([DoNECI,Do_CC_CI,DumpOnly,doDMRG,doBlockDMRG])) .and. (NROOTS > CI_St(iState)%nCSF(STSYM))) then
     write(u6,*) '************ ERROR ***********'
     write(u6,*) ' You can''t ask for more roots'
     write(u6,*) ' than there are configurations '
@@ -378,14 +382,14 @@ if (IPRLEV > SILENT) then
   end if
   ! If the calculation will be too big:
   call mma_MaxDBLE(MaxRem)
-  WillNeedMB = OneHalf*Six*NDTASM(STSYM)*RtoB/Two**20
+  WillNeedMB = OneHalf*Six*CI_St(iState)%nDet(STSYM)*RtoB/Two**20
   AvailMB = MaxRem*RtoB/Two**20
   if (WillNeedMB > AvailMB) then
     write(u6,*)
     write(u6,*) ' *************************************************'
     write(u6,*) ' Sorry, but your calculation will probably be too'
     write(u6,*) ' large for the available memory.'
-    write(u6,*) ' The number of determinants is ',NDTASM(STSYM)
+    write(u6,*) ' The number of determinants is ',CI_St(iState)%nDet(STSYM)
     write(u6,*) ' During CI equation solution, there will be'
     write(u6,*) ' up to six vectors of this size in memory.'
     write(u6,*) ' We estimate an additional 50% for other stuff.'

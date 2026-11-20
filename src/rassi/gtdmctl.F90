@@ -17,7 +17,7 @@ use frenkel_global_vars, only: DoCoul
 use CI_Info, only: CI_St
 use CI_States, only: CI_CITRA, CI_Free_State, CI_Print_Graph
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
-use general_data, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
+use CI_Input, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
 use rasscf_global, only: DoDMRG
 use rassi_aux, only: AO_Mode, iDisk_TDM, ipglob, jDisk_TDM
 use rassi_data, only: ENUC, NASH, NASHT, NCMO, NDEL, NFRO, NISH, NISHT, NOSH, NSSH, NTDMAB, NTDMZZ, NTRA
@@ -379,16 +379,8 @@ end do
 ! Initialize SGUGA tables for JOB1 functions.
 
 if (WFTP1 == 'GENERAL') then
-  NRSPRT = 3
-  NRAS(:,1) = NRS1(:)
-  NRAS(:,2) = NRS2(:)
-  NRAS(:,3) = NRS3(:)
-  NRASEL(1) = 2*NRS1T-NHOL11
-  NRASEL(2) = NACTE1-NELE31
-  NRASEL(3) = NACTE1
-
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,iState1)
+    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,LSYM1,iState1,NRS1(1:nIrrep),NRS2(1:nIrrep),NRS3(1:nIrrep),NHOL11,NELE31)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call CI_Print_Graph(iState1)
@@ -498,16 +490,8 @@ end if
 ! Initialize SGUGA tables for JOB2 functions.
 
 if (WFTP2 == 'GENERAL') then
-  NRSPRT = 3
-  NRAS(:,1) = NRS1(:)
-  NRAS(:,2) = NRS2(:)
-  NRAS(:,3) = NRS3(:)
-  NRASEL(1) = 2*NRS1T-NHOL12
-  NRASEL(2) = NACTE2-NELE32
-  NRASEL(3) = NACTE2
-
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,iState2)
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,LSYM2,iState2,NRS1(1:nIrrep),NRS2(1:nIrrep),NRS3(1:nIrrep),NHOL12,NELE32)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call CI_Print_Graph(iState2)

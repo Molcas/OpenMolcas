@@ -19,7 +19,7 @@
 
 subroutine DPT2_Trf(NBSQT,nAshT,DPT2,DPT2AO,CMO,DEPSA,DSUM)
 
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NBAS, NDEL, NFRO, NISH, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half

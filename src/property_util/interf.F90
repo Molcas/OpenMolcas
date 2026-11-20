@@ -17,7 +17,7 @@ subroutine Interf(i_root,Ene,isuseene,iscasvb)
 !***********************************************************************
 
 use casvb_global, only: ifvb
-use general_data, only: NBAS, NSYM
+use Orbital_Spaces, only: NBAS, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

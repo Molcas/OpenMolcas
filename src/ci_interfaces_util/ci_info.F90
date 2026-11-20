@@ -18,7 +18,7 @@
 module CI_Info
 
 use Molcas, only: MxLev, MxSym
-use CI_Space_Def, only: CI_Space
+use CI_Space_Def, only: CI_Space, CI_Space_Input
 use Definitions, only: iwp
 
 implicit none
@@ -43,6 +43,13 @@ type CI_State_Info
   ! GAS: the state holding the relaxed space of this one (0: none), see
   ! SG_Rel_State
   integer(kind=iwp) :: iRel = 0
+  ! nDet(iSym): dimension of the determinant space of the CI back end per
+  ! symmetry (Lucia: determinants or spin combinations; without Lucia
+  ! nCSF); nCSF_Kept: CSFs of the CI symmetry kept by HEXS/DEXS
+  integer(kind=iwp) :: nDet(MxSym) = 0, nCSF_Kept = 0
+  ! STSym: the symmetry of the CI state (CI_Setup_SG; one graph covers all
+  ! symmetries)
+  integer(kind=iwp) :: STSym = 0
 end type CI_State_Info
 
 type(CI_State_Info) :: CI_St(MxCIState)
@@ -59,6 +66,9 @@ public :: CI_St, CI_State_Info, MxCIState, SG_Rel_State
 !> (CI_Space_Def: partitions with cumulative bounds, removed HEXS/DEXS
 !> configurations), built by the CI interface (CI_Space_Setup).
 type(CI_Space) :: Space_CI
-public :: Space_CI
+!> The HEXS/DEXS requests of the input (set by RASSCF's input processing),
+!> from which CI_Space_Setup builds the removals of Space_CI.
+type(CI_Space_Input) :: Space_Inp
+public :: Space_CI, Space_Inp
 
 end module CI_Info

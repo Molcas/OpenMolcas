@@ -37,7 +37,6 @@ use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use CI_Info, only: CI_St
 use CI_States, only: CI_Epq_Psi
-use general_data, only: NACTEL, NLEV
 use caspt2_module, only: IASYM, ISCF, MXCI
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One
@@ -59,7 +58,7 @@ integer(kind=iwp), parameter :: istate = 1
 ! Put in zeroes. Recognize special cases:
 !OVL = One
 if (NASHT == 0) return
-if (NACTEL == 0) return
+if (CI_St(iState)%nActEl == 0) return
 !if (LSYM1 /= LSYM2) OVL = Zero
 !TG1(:,:) = Zero
 !TG2(:,:,:,:) = Zero
@@ -78,17 +77,17 @@ end if
 call mma_allocate(P2LEV,2,NASHT**2,Label='P2LEV')
 IP = 0
 ! First, IL < JL pairs.
-do IL=1,NLEV-1
-  P2LEV(1,IP+1:IP+NLEV-IL) = IL
-  P2LEV(2,IP+1:IP+NLEV-IL) = [(JL,JL=IL+1,NLEV)]
-  IP = IP+NLEV-IL
+do IL=1,CI_St(iState)%nLev-1
+  P2LEV(1,IP+1:IP+CI_St(iState)%nLev-IL) = IL
+  P2LEV(2,IP+1:IP+CI_St(iState)%nLev-IL) = [(JL,JL=IL+1,CI_St(iState)%nLev)]
+  IP = IP+CI_St(iState)%nLev-IL
 end do
 ! Then, IL = JL pairs.
-P2LEV(1,IP+1:IP+NLEV) = [(IL,IL=1,NLEV)]
-P2LEV(2,IP+1:IP+NLEV) = [(IL,IL=1,NLEV)]
-IP = IP+NLEV
+P2LEV(1,IP+1:IP+CI_St(iState)%nLev) = [(IL,IL=1,CI_St(iState)%nLev)]
+P2LEV(2,IP+1:IP+CI_St(iState)%nLev) = [(IL,IL=1,CI_St(iState)%nLev)]
+IP = IP+CI_St(iState)%nLev
 ! Last, IL > JL pairs.
-do IL=2,NLEV
+do IL=2,CI_St(iState)%nLev
   P2LEV(1,IP+1:IP+IL-1) = IL
   P2LEV(2,IP+1:IP+IL-1) = [(JL,JL=1,IL-1)]
   IP = IP+IL-1

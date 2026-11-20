@@ -19,7 +19,7 @@ subroutine XMSRot(CMO,FI,FA)
 
 use Index_Functions, only: nTri_Elem
 use rasscf_global, only: LROOTS, NAC
-use general_data, only: NTOT1, NTOT2
+use Orbital_Spaces, only: NTOT1, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 

@@ -93,7 +93,7 @@ module MCLR_Data
 !  ITOBS   : "Increaser"
 !  ITFSO   : Type array for symmetry ordered orbitals (not activated)
 
-! Stuff from spinfo_mclr.fh    (todo: nove to spinfo)
+! Stuff from spinfo_mclr.fh
 !  MULTSP : Spin multiplicity
 !  MS2P   : 2*MS
 !  MINOP  : Minum open orbitals     (DONE)
@@ -142,6 +142,12 @@ private
 
 integer(kind=iwp), parameter :: Mxdccc = 500, MXINKA = 200, MXPCSM = 8, MXPCTP = 30, MXPICI = 30, MXPNGAS = 3, MXPOBS = 20, &
                                 MXPORB = 500, MXPR4T = 10, MXSTATE = 10
+
+! The configuration types of MCLR's CSF basis (formerly in spinfo), set by
+! intcsf: NTYP types of MINOP..MINOP+NTYP-1 open shells, NCNFTP(type,sym)
+! configurations and NCSFTP(type) CSFs per configuration of each type.
+integer(kind=iwp) :: MINOP, NCNFTP(MXPCTP,MXPCSM), NCSFTP(MXPCTP), NTYP
+public :: MINOP, NCNFTP, NCSFTP, NTYP
 
 integer(kind=iwp) :: dspvec(mxdccc), i1, I12, IACTI(MXPICI), iAllo, iAnders, IASTFI(MXPICI), IBSO(MXPOBS), IBSTFI(MXPICI), &
                      IBTSOB(3,MXPOBS), ICISTR, IDC, IDIAG, ipCI, ipCM(8), ipdia, ipMat(8,8), ipmatba(8,8), ipMatLT(8,8), &

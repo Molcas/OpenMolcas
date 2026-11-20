@@ -43,7 +43,7 @@ subroutine SXHAM(D,P,PA,FP,SXN,nSXS,F1,F2,DIA,G,nIAIA,H,nAOAE,HDIAG,nDF,nDDIAG)
 use stdalloc, only: mma_deallocate, mma_allocate
 use Index_Functions, only: iTri, nTri_Elem
 use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, IXSYM, IZROT, LVSHFT, NROOT, SXSHFT
-use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
+use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 

@@ -131,16 +131,20 @@ end type CIStruct
 !           midlevel; with Reuse_SGTMP they are kept for the next call with
 !           the same upper-half orbital (Save_U), the same symmetry of the
 !           lower-half orbital (Save_LSym) and the same CI vector (Save_CISym,
-!           Save_nCSF and the fingerprints Save_ID); Save_Valid tells whether
-!           SGTMP holds the intermediates of that key, Save_Owner which routine
-!           wrote them (1: SG_Epq_Psi, 2: SG_EpqEqp_Diag; different layouts).
+!           Save_nCSF, and the tag Save_Tag the caller gave the vector, or for
+!           untagged calls (Save_Tag = 0) the fingerprints Save_ID); Save_Valid
+!           tells whether SGTMP holds the intermediates of that key,
+!           Save_Owner which routine wrote them (1: SG_Epq_Psi,
+!           2: SG_EpqEqp_Diag; different layouts).
 type EXStruct
   integer(kind=iwp) :: MxEO, nICoup
   integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:), IOrd(:,:)
   real(kind=wp), allocatable :: VTab(:), SGTMP(:)
   logical(kind=iwp) :: Reuse_SGTMP
   logical(kind=iwp) :: Save_Valid = .false., Save_Swap = .false.
-  integer(kind=iwp) :: Save_Owner = 0, Save_U = 0, Save_LSym = 0, Save_CISym = 0, Save_nCSF = 0
+  integer(kind=iwp) :: Save_Owner = 0, Save_U = 0, Save_LSym = 0, Save_CISym = 0, Save_nCSF = 0, Save_Tag = 0
+  ! the symmetry for which USGN and LSGN (MkSgNum) were built (0: none)
+  integer(kind=iwp) :: Num_Sym = 0
   real(kind=wp) :: Save_ID(2) = 0.0_wp
   integer(kind=iwp), allocatable:: I1list(:), I2list(:)
   real(kind=wp), allocatable:: XList(:)
@@ -290,7 +294,7 @@ integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, MkCOT, MkSgNum, SG_NUM, SG_PHASE
 public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, StepVec, SG_TRACI
-public :: SG_Test_EpqErs_Ref
+public :: SG_HPsi_Proc, SG_Test_EpqErs_Ref
 public :: SG_Mk_SDREO
 !#define _TEST_CSFDET_
 #ifdef _TEST_CSFDET_
@@ -312,6 +316,13 @@ Public:: SGS, CIS, EXS, State_is_used
 ! development); set by the CI interface before the initialization.
 logical(kind=iwp) :: SG_Checks = .false.
 public :: SG_Checks
+! Tags of CI vectors (SG_New_Tag): a caller that applies several E_pq to the
+! same vector passes the same tag to SG_Epq_Psi, which may then reuse its
+! intermediates; positive, a new one for every vector.
+! SG_No_Reuse: the vector is used only once (no reuse, no fingerprints).
+integer(kind=iwp) :: SG_Tag_Last = 0
+integer(kind=iwp), parameter :: SG_No_Reuse = -1
+public :: SG_New_Tag, SG_No_Reuse
 
 ! State and CSF symmetry of the single-CSF matrix elements (MatEl_Epq,
 ! MatEl_EpqErs, MatEl_H_Direct and their helpers), set by
@@ -336,7 +347,7 @@ real(kind=wp) :: ME_HD = Zero, ME_HW = Zero
 integer(kind=iwp), parameter :: nCoup_Lin = 16
 
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
-public :: SG_Map_CSFs
+public :: SG_Map_CSFs, SG_Num_Setup
 public :: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Cnf_Occ, SG_Select_Explicit, SG_Block_H, SG_Explicit_Block
 public :: SG_Cnf_Avg_Diag
 public :: SG_CSF_StepVec, SG_MatEl_Tpq, SG_Tpq_Psi, SG_Tpq_Psi_Ref, SG_Xpq_Psi
@@ -355,6 +366,20 @@ real(kind=wp), allocatable :: TRP_V(:)
 integer(kind=iwp) :: ASTA_iState = 0, ASTA_Off(8) = 0
 integer(kind=iwp), allocatable :: ASTA_Steps(:,:), ASTA_Key(:), ASTA_Idx(:)
 
+! A sigma routine H|Psi> of a split graph (module SGUGA_Sigma: sg_h_psi,
+! sg_h_psi_ras), passed to SG_Test_EpqErs_Ref as the reference of its
+! <I|H|J> check (SGUGA_Sigma uses this module, so SGUGA cannot use it).
+abstract interface
+  subroutine SG_HPsi_Proc(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+    import :: SGStruct, CIStruct, EXStruct, iwp, wp
+    type(SGStruct), intent(in) :: SGS
+    type(CIStruct), intent(in) :: CIS
+    type(EXStruct), intent(inout) :: EXS
+    integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
+    real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
+    real(kind=wp), intent(out) :: Sigma(nCSFs)
+  end subroutine SG_HPsi_Proc
+end interface
 
 contains
 
@@ -605,6 +630,7 @@ call mma_deallocate(CIS%ISGM,safe='*')
  call mma_deallocate(EXS%MVR,safe='*')
  call mma_deallocate(EXS%USGN,safe='*')
  call mma_deallocate(EXS%LSGN,safe='*')
+ EXS%Num_Sym = 0
  call mma_deallocate(EXS%I1list,safe='*')
  call mma_deallocate(EXS%I2list,safe='*')
  call mma_deallocate(EXS%Xlist,safe='*')
@@ -3225,6 +3251,7 @@ integer(kind=iwp) :: IC, ICODE, ICONF, IDAWSUM, ILOFF, ILW, IPOS, IRAWSUM, ISTEP
                      NLW, NUW
 integer(kind=iwp), allocatable :: ISTEPVEC(:)
 
+EXS%Num_Sym = STSYM
 call mma_allocate(EXS%USGN,SGS%MxUp,CIS%nMidV,Label='EXS%USGN',safe='*')
 call mma_allocate(EXS%LSGN,SGS%MxDwn,CIS%nMidV,Label='EXS%LSGN',safe='*')
 call mma_allocate(ISTEPVEC,SGS%nLev,Label='ISTEPVEC')
@@ -3549,7 +3576,15 @@ subroutine MKTRANS(SGS,CIS,TRS)
 
 end subroutine MKTRANS
 
-subroutine SG_Epq_Psi(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM)
+!> A new tag for a CI vector (see SG_Epq_Psi, CI_Tag).
+function SG_New_Tag() result(iTag)
+integer(kind=iwp) :: iTag
+SG_Tag_Last = SG_Tag_Last+1
+if (SG_Tag_Last >= huge(SG_Tag_Last)) SG_Tag_Last = 1
+iTag = SG_Tag_Last
+end function SG_New_Tag
+
+subroutine SG_Epq_Psi(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM,CI_Tag)
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
@@ -3563,6 +3598,11 @@ type(EXStruct), intent(inout), target :: EXS
 integer(kind=iwp), intent(in) :: IP, IQ, ISYCI
 real(kind=wp), intent(in) :: CPQ, CI(*)
 real(kind=wp), intent(_OUT_) :: SGM(*)
+! CI_Tag: the tag of the vector CI (SG_New_Tag); the intermediates of a
+! previous call with the same tag may be reused. SG_No_Reuse: no reuse.
+! Without it the vector is recognized by its fingerprints (CI_Fingerprint,
+! a pass over the vector).
+integer(kind=iwp), intent(in), optional :: CI_Tag
 integer(kind=iwp) :: I, IC, ICS, INDEO, IOC, IOLW, IOUW, IPPOW, IPSHFT, ISGSTA, ISTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
                      ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MVSGM, NCP, NDWNC, NDWNSG, NS1, NUPC, &
                      NUPSG, NCP1, NCP2, MV, MVX, nCSFs, LICP1, LICP2, JQ, JP
@@ -3570,7 +3610,8 @@ real(kind=wp) :: X
 
 ! declarations to facilitate the reuse of sigma vectors if possible (the key
 ! is kept in EXS, next to SGTMP)
-logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Moved
+logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Moved, Tagged, Same_Key
+integer(kind=iwp) :: iTag
 real(kind=wp) :: CI_ID(2)
 integer(kind=iwp) ::  iOff, jOff
 
@@ -3661,13 +3702,30 @@ else
   JQ=MERGE(IP,IQ,SWAP)
   ! The intermediates depend on the CI vector, on the upper-half orbital JP
   ! and on the symmetry of the lower-half orbital JQ.
+  ! A tagged vector is recognized by its tag (the fingerprints only as the
+  ! sanity check of SG_Checks), an untagged one by its fingerprints.
   Reuse_Sigma = .false.
   CI_ID(:) = Zero
-  if (EXS%Reuse_SGTMP) then
-    CI_ID(:) = CI_Fingerprint(CI,nCSFs)
-    Reuse_Sigma = EXS%Save_Valid .and. (EXS%Save_Owner == 1) .and. (EXS%Save_Swap .eqv. Swap) .and. (EXS%Save_U == JP) .and. &
-                  (EXS%Save_LSym == SGS%ISm(JQ)) .and. (EXS%Save_CISym == ISYCI) .and. (EXS%Save_nCSF == nCSFs) .and. &
-                  all(EXS%Save_ID(:) == CI_ID(:))
+  iTag = 0
+  if (present(CI_Tag)) iTag = CI_Tag
+  Tagged = iTag > 0
+  if (EXS%Reuse_SGTMP .and. (iTag >= 0)) then
+    Same_Key = EXS%Save_Valid .and. (EXS%Save_Owner == 1) .and. (EXS%Save_Swap .eqv. Swap) .and. (EXS%Save_U == JP) .and. &
+               (EXS%Save_LSym == SGS%ISm(JQ)) .and. (EXS%Save_CISym == ISYCI) .and. (EXS%Save_nCSF == nCSFs) .and. &
+               (EXS%Save_Tag == iTag)
+    if (Tagged) then
+      Reuse_Sigma = Same_Key
+      if (SG_Checks) then
+        CI_ID(:) = CI_Fingerprint(CI,nCSFs)
+        if (Reuse_Sigma .and. any(EXS%Save_ID(:) /= CI_ID(:))) then
+          write(u6,*) 'SG_Epq_Psi: the same tag for different CI vectors, tag ',iTag
+          call Abend()
+        end if
+      end if
+    else
+      CI_ID(:) = CI_Fingerprint(CI,nCSFs)
+      Reuse_Sigma = Same_Key .and. all(EXS%Save_ID(:) == CI_ID(:))
+    end if
   end if
   ! Loop over all mid vertex
   do MVSGM=1,CIS%nMidV  ! m
@@ -3762,7 +3820,10 @@ else
       EXS%Save_LSym = SGS%ISm(JQ)
       EXS%Save_CISym = ISYCI
       EXS%Save_nCSF = nCSFs
+      EXS%Save_Tag = iTag
       EXS%Save_ID(:) = CI_ID(:)
+      ! a vector used only once leaves nothing to reuse
+      if (iTag < 0) EXS%Save_Valid = .false.
     end if
   else
     ! SGTMP was overwritten
@@ -5806,7 +5867,7 @@ enddo
 
 end subroutine STEPVEC
 
-subroutine SG_Test_EpqErs_Ref(iState,LSM,Epq_Only)
+subroutine SG_Test_EpqErs_Ref(iState,LSM,HPsi,HPsi_RAS,Epq_Only)
 
 use Constants,   only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -5821,6 +5882,9 @@ logical(kind=iwp), intent(in), optional :: Epq_Only
 
 integer(kind=iwp), intent(in) :: iState
 integer(kind=iwp), intent(in) :: LSM
+! the sigma routines of CAS and RAS graphs (sg_h_psi, sg_h_psi_ras of
+! SGUGA_Sigma), the reference of the <I|H|J> check (Check_MatEl_H)
+procedure(SG_HPsi_Proc) :: HPsi, HPsi_RAS
 
 !
 ! Operator-product topologies.
@@ -7107,23 +7171,6 @@ subroutine Check_MatEl_H()
   integer(kind=iwp) :: p, q, r, s, pq, rs
   integer(kind=iwp), allocatable :: L2Orb(:)
 
-  ! sg_h_psi uses this module, so it is called through a wrapper with
-  ! intrinsic arguments only (an interface block with the derived types of
-  ! the host module conflicts with the external procedure, Intel #8000)
-  interface
-    subroutine sg_h_psi_state(iState,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
-      import :: iwp, wp
-      integer(kind=iwp), intent(in) :: iState, nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
-      real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-      real(kind=wp), intent(out) :: Sigma(nCSFs)
-    end subroutine sg_h_psi_state
-    subroutine sg_h_psi_ras_state(iState,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
-      import :: iwp, wp
-      integer(kind=iwp), intent(in) :: iState, nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
-      real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
-      real(kind=wp), intent(out) :: Sigma(nCSFs)
-    end subroutine sg_h_psi_ras_state
-  end interface
 
   nL = SGS(iState)%nLev
   nTU = nL*(nL+1)/2
@@ -7189,9 +7236,9 @@ subroutine Check_MatEl_H()
     Psi(:) = Zero
     Psi(J) = One
     if (RAS) then
-      call sg_h_psi_ras_state(iState,Psi,nC,LSM,Sgm,TUVX_O,nTUVX,TU_O,nTU)
+      call HPsi_RAS(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX_O,nTUVX,TU_O,nTU)
     else
-      call sg_h_psi_state(iState,Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
+      call HPsi(SGS(iState),CIS(iState),EXS(iState),Psi,nC,LSM,Sgm,TUVX,nTUVX,TU,nTU)
     end if
     do I = 1, nC
       call CWTime(T0,W)
@@ -11525,6 +11572,17 @@ recursive subroutine ASTA_Gen(SGS,k,iVert,V,nLev,F,BF,P,BP,i,j,FixedIsKet,Triple
   end do
 end subroutine ASTA_Gen
 
+!> The walk tables of state iState for the CSFs of symmetry LSM: ICase
+!> (MkCOT) and the walk numbering USGN/LSGN (MkSgNum), which depends on the
+!> symmetry and is rebuilt when another symmetry is asked for (a state can
+!> serve several symmetries, e.g. MCLR's state for the whole run).
+subroutine SG_Num_Setup(iState,LSM)
+  integer(kind=iwp), intent(in) :: iState, LSM
+  if (.not. allocated(CIS(iState)%ICase)) call MkCOT(SGS(iState),CIS(iState))
+  if ((.not. allocated(EXS(iState)%USGN)) .or. (EXS(iState)%Num_Sym /= LSM)) &
+    call MkSgNum(LSM,SGS(iState),CIS(iState),EXS(iState))
+end subroutine SG_Num_Setup
+
 !> Set up the single-CSF matrix elements for the CSFs of symmetry LSM of
 !> state iState (SG_CSF_Occ, SG_MatEl_H).
 subroutine SG_MatEl_Init(iState,LSM)
@@ -11532,8 +11590,7 @@ subroutine SG_MatEl_Init(iState,LSM)
   ME_iState = iState
   ME_LSM = LSM
   call Reset_Decode_ME()
-  if (.not. allocated(CIS(iState)%ICase)) call MkCOT(SGS(iState),CIS(iState))
-  if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(LSM,SGS(iState),CIS(iState),EXS(iState))
+  call SG_Num_Setup(iState,LSM)
   if (.not. allocated(EXS(iState)%IOrd)) call Mk_Coup_Index(EXS(iState))
 end subroutine SG_MatEl_Init
 

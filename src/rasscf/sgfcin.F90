@@ -51,7 +51,8 @@ use RunFile_procedures, only: Get_dExcdRa
 use timers, only: TimeDens
 use rasscf_global, only: dftfock, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, tot_el_charge, tot_nuc_charge
 use OneDat, only: sNoNuc, sNoOri
-use general_data, only: iSpin, nActEl, nAsh, nBas, nFro, nIsh, nSym, nTot1
+use Orbital_Spaces, only: nAsh, nBas, nFro, nIsh, nSym, nTot1
+use CI_Input, only: iSpin, nActEl
 use OFEmbed, only: Do_OFemb, FMaux, OFE_first, Rep_EN
 use rctfld_module, only: lRF
 use PrintLevel, only: DEBUG

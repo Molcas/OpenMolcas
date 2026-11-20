@@ -80,11 +80,12 @@ if (DEFINED ${util}_flags)
   set_property (SOURCE ${sources} APPEND_STRING PROPERTY COMPILE_FLAGS ${${util}_flags})
 endif ()
 # add a dummy source if there are none left,
-# (CMake does not like empty targets)
+# (CMake does not like empty targets); its name is unique per util, so that
+# several such utils can be linked into one (shared) library
 if (NOT sources)
-  set (dummy_file ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util}/dummy.f90)
+  set (dummy_file ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util}/dummy_${util}.f90)
   if (NOT EXISTS ${dummy_file})
-    file (WRITE ${dummy_file} "subroutine empty_dummy() ; end subroutine")
+    file (WRITE ${dummy_file} "subroutine empty_dummy_${util}() ; end subroutine")
   endif ()
   target_sources (${util}_obj PRIVATE ${dummy_file})
 endif ()

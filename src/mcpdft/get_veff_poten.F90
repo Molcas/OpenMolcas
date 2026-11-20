@@ -30,7 +30,7 @@ subroutine get_veff_poten(cmo,dm1_core,dm1_cas,veff)
 
 use PrintLevel, only: DEBUG, INSANE
 use rasscf_global, only: lsquare, NACPR2, nfint
-use general_data, only: ntot1, ntot2
+use Orbital_Spaces, only: ntot1, ntot2
 use mcpdft_output, only: iprglb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Zero

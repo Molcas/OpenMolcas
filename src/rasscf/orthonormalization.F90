@@ -14,7 +14,8 @@
 module orthonormalization
 
 use Index_Functions, only: nTri_Elem
-use general_data, only: nActEl, nBas, nDel, nDelt, nOrb, nSSH, nSym
+use Orbital_Spaces, only: nBas, nDel, nDelt, nOrb, nSSH, nSym
+use CI_Input, only: nActEl
 use rasscf_global, only: nFr, nIn, nOrbt, nSec, nTot3, nTot4, Tot_Nuc_Charge
 use output_ras, only: IPRLOC
 use PrintLevel, only: USUAL

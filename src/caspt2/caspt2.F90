@@ -276,7 +276,7 @@ STATELOOP: do IGROUP=1,NGROUP
     ! if the dens keyword is used, need accurate density and
     ! for that the serial LUSOLV file is needed, in that case copy
     ! the distributed LURHS() to LUSOLV here.
-    if (IFDENS .and. (.not. do_grad)) then
+    if (IFDENS .and. ((.not. do_grad) .or. (IFPROP .and. (iRlxRoot /= MSTATE(JSTATE))))) then
       if (do_FIC) then
         call PCOLLVEC(IRHS,0)
         call PCOLLVEC(IVECX,0)

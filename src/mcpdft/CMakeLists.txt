@@ -45,6 +45,7 @@ set (sources
      ref_energy.F90
      savefock_mspdft.F90
      savefock_pdft.F90
+     sg_setup_mcpdft.F90
      validate_wfn.F90
      write_pdft_job.F90
     )

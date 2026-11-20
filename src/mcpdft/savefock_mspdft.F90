@@ -21,7 +21,7 @@ use mcpdft_output, only: iPrLoc
 use wadr, only: fockocc
 use rasscf_global, only: ISTORP, nacpar, nacpr2, nFint, ntot4
 use mspdftgrad, only: F1MS, F2MS, FocMS, FxyMS
-use general_data, only: nbas, nfro, norb, nsym, ntot1, ntot2
+use Orbital_Spaces, only: nbas, nfro, norb, nsym, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

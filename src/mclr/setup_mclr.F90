@@ -15,7 +15,8 @@ subroutine SetUp_MCLR(DSYM)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, ipMatBA, ipMatLT, ipMO, n1Dens, n2Dens, nA, nB, nCMO, nDens, nDensC, nMBA, nNA, pInt1, pInt2
-use general_data, only: nAsh, nIsh, nRS1, nRS2, nRs3, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
+use CI_Input, only: nRS1, nRS2, nRs3
 use input_mclr, only: iMethod, nBas, nDel, nFro, nOrb, PT2, TimeDep
 use caspt2_module, only: nBMx
 use Definitions, only: iwp

@@ -23,7 +23,7 @@ use Index_Functions, only: nTri_Elem
 use rasscf_global, only: ENER, ICICP, IROOT, ITER, NDIMSX, NROOT, SXDAMP, SXSHFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NASH, NISH, NSSH
+use Orbital_Spaces, only: NSYM, NASH, NISH, NSSH
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

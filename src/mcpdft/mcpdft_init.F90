@@ -25,7 +25,8 @@ use Cholesky, only: ChFracMem
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
 use mcpdft_output, only: set_print_level
-use general_data, only: ispin, nactel, nash, nbas, ndel, nelec3, nfro, nhole1, nish, nrs1, nrs2, nrs3, nssh, stsym
+use Orbital_Spaces, only: nash, nbas, ndel, nfro, nish, nssh
+use CI_Input, only: ispin, nactel, nelec3, nhole1, nrs1, nrs2, nrs3, stsym
 use rasscf_global, only: DFTFOCK, ExFac, IPT2, iroot, iXSym, lROOTS, NonEq, NROOTS, TITLE, weight
 use Constants, only: Zero, One
 #ifdef _MOLCAS_MPP_

@@ -27,7 +27,7 @@ use rasscf_global, only: iADR15, KSDFT, lRoots, NACPAR, NACPR2
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
-use general_data, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
+use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 

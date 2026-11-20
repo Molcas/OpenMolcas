@@ -23,7 +23,7 @@ subroutine CalcGD(GD,nGD)
 use CI_interfaces, only: Mk_T1DM
 use rasscf_global, only: iADR15, lRoots, NAC
 use rasscf_files, only: JOBIPH
-use general_data, only: NCONF
+use rasscf_global, only: NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

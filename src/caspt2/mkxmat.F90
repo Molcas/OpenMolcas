@@ -17,7 +17,7 @@ subroutine MKXMAT(TORB,XMAT)
 ! Written by N. Nakatani, Oct. 2014
 
 use caspt2_global, only: NTORB
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: nAES, nAshT, nIsh, nRas1, nRas2, nRas3, nSsh, nSym
 use Definitions, only: wp, iwp
 

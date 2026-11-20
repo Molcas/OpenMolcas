@@ -30,7 +30,7 @@ subroutine Rd2Int_RASSCF()
 
 use UnixInfo, only: ProgName
 use rasscf_global, only: lSquare
-use general_data, only: NBAS, NSYM
+use Orbital_Spaces, only: NBAS, NSYM
 use Definitions, only: iwp, u6
 
 implicit none

@@ -15,11 +15,17 @@
 !> CI states (split-graph walks, SGUGA): setup with explicit arguments,
 !> operations by state index. The programs use only this module and CI_Info
 !> (the copy of the state information); they never use the environments.
+#include "macros.fh"
+
 module CI_States
 
 use sguga, only: CIS, EXS, SG_Checks, SG_Epq_Psi, SG_Free, SG_Init, SG_Init_Light, SGS, StepVec
 use SG_Lucia_Bridge, only: SG_ReOrd, SG_ReOrd_Orig
-use CI_Info, only: CI_St
+use SGUGA_Sigma, only: SG_Occ_Diag
+use SGUGA_Print, only: SG_Print, SG_PRWF
+use SGUGA_Transform, only: SG_CITRA, SYG2SGU
+use CI_Info, only: CI_St, Space_CI
+use CI_Space_Def, only: Space_Free, Space_Pack, Space_Rec_Len, Space_Unpack
 use CI_Verify_Options, only: CI_Verify
 use CSF_Graph, only: SG_Walk_Next
 use Molcas, only: MxLev, MxSym
@@ -28,19 +34,75 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-public :: CI_CITRA, CI_Epq_Psi, CI_Free_State, CI_Occ_Diag, CI_Print_Graph, CI_PrWF, CI_ReOrd, CI_ReOrd_Orig, CI_Setup_SG, &
-          CI_StepVec, CI_SYG2SGU, CI_Walk_Next
+public :: CI_CITRA, CI_Epq_Psi, CI_Free_State, CI_Occ_Diag, CI_Print_Graph, CI_PrWF, CI_ReOrd, CI_ReOrd_Orig, CI_Setup_RAS, &
+          CI_Setup_SG, CI_StepVec, CI_SYG2SGU, CI_Walk_Next, RAS_Partitions
+public :: CI_No_GAS, CI_Space_Free, CI_Space_From_Rec, CI_Space_Rd_H5, CI_Space_Rd_JobIph, CI_Space_Rec_Len, CI_Space_To_Rec
+
+! length of the CI-space record of JobIph (IADR15(19)) and HDF5 (CI_SPACE)
+integer(kind=iwp), parameter :: CI_Space_Rec_Len = Space_Rec_Len
 
 contains
 
+!> The partitions of a RAS space (RAS1, RAS2, RAS3 with nRs1, nRs2, nRs3
+!> orbitals per symmetry, at most nHole1 holes in RAS1 and nElec3 electrons
+!> in RAS3) in the form of CI_Setup_SG: nPrt partitions with nRas(iSym,k)
+!> orbitals and at least nRasEl(k) electrons in the partitions 1..k. With
+!> holes or electrons restricted, or All_Parts, the three partitions;
+!> otherwise (CAS) RAS2 as the only partition.
+subroutine RAS_Partitions(nSym,nActEl,nRs1,nRs2,nRs3,nHole1,nElec3,All_Parts,nPrt,nRas,nRasEl)
+  integer(kind=iwp), intent(in) :: nSym, nActEl, nRs1(nSym), nRs2(nSym), nRs3(nSym), nHole1, nElec3
+  logical(kind=iwp), intent(in) :: All_Parts
+  integer(kind=iwp), intent(out) :: nPrt, nRas(MxSym,3), nRasEl(3)
+  nRas(:,:) = 0
+  nRasEl(:) = 0
+  if (All_Parts .or. (nHole1+nElec3 /= 0)) then
+    nPrt = 3
+    nRas(1:nSym,1) = nRs1(1:nSym)
+    nRas(1:nSym,2) = nRs2(1:nSym)
+    nRas(1:nSym,3) = nRs3(1:nSym)
+    nRasEl(1) = 2*sum(nRs1(1:nSym))-nHole1
+    nRasEl(2) = nActEl-nElec3
+    nRasEl(3) = nActEl
+  else
+    nPrt = 1
+    nRas(1:nSym,1) = nRs2(1:nSym)
+    nRasEl(1) = nActEl
+  end if
+end subroutine RAS_Partitions
+
+!> CI_Setup_SG for a RAS space (see RAS_Partitions): Level(1:nLev) and
+!> L2Act(1:nLev) the orbital <-> level maps, NSM(1:nLev) the symmetries of
+!> the levels; Mode and LSM_Single as in CI_Setup_SG.
+subroutine CI_Setup_RAS(iState,nSym,nActEl,iSpin,LSym,nRs1,nRs2,nRs3,nHole1,nElec3,All_Parts,nLev,Level,L2Act,NSM,Mode,LSM_Single)
+  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, LSym, nRs1(nSym), nRs2(nSym), nRs3(nSym), nHole1, nElec3, nLev, &
+                                   Level(nLev), L2Act(nLev), NSM(nLev)
+  logical(kind=iwp), intent(in) :: All_Parts
+  character(len=*), intent(in) :: Mode
+  integer(kind=iwp), intent(in), optional :: LSM_Single
+  integer(kind=iwp) :: nPrt, nRas(MxSym,3), nRasEl(3), LevelX(MxLev), L2ActX(MxLev), NSMX(MxLev), iq
+  call RAS_Partitions(nSym,nActEl,nRs1,nRs2,nRs3,nHole1,nElec3,All_Parts,nPrt,nRas,nRasEl)
+  LevelX(:) = [(iq,iq=1,MxLev)]
+  L2ActX(:) = [(iq,iq=1,MxLev)]
+  NSMX(:) = 0
+  LevelX(1:nLev) = Level(1:nLev)
+  L2ActX(1:nLev) = L2Act(1:nLev)
+  NSMX(1:nLev) = NSM(1:nLev)
+  if (present(LSM_Single)) then
+    call CI_Setup_SG(iState,nSym,nActEl,iSpin,LSym,nRas(:,1:nPrt),nRasEl(1:nPrt),nPrt,LevelX,L2ActX,nLev,NSMX,Mode, &
+                     LSM_Single=LSM_Single)
+  else
+    call CI_Setup_SG(iState,nSym,nActEl,iSpin,LSym,nRas(:,1:nPrt),nRasEl(1:nPrt),nPrt,LevelX,L2ActX,nLev,NSMX,Mode)
+  end if
+end subroutine CI_Setup_RAS
+
 !> Set up the split-graph CI space of state iState (SGUGA): nSym, nActEl,
-!> iSpin; the RAS partitions nRas(iSym,iPrt) with the electron limits
+!> iSpin, LSym the symmetry of the CI state; the RAS partitions nRas(iSym,iPrt) with the electron limits
 !> nRasEl(iPrt); Level/L2Act (orbital <-> level), nLev levels with
 !> symmetries NSM. Mode 'FULL' (graph, walks and coupling tables), 'GRAPH'
 !> (graph and walks), 'NONE' (no graph; with LSM_Single the CI space is
 !> the single function of symmetry LSM_Single). Fills CI_St(iState).
-subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,L2Act,nLev,NSM,Mode,LSM_Single,nRasMx)
-  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt), Level(MxLev), &
+subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,LSym,nRas,nRasEl,nRsPrt,Level,L2Act,nLev,NSM,Mode,LSM_Single,nRasMx)
+  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin, LSym, nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt), Level(MxLev), &
                                    L2Act(MxLev), nLev, NSM(MxLev)
   character(len=*), intent(in) :: Mode
   ! LSM_Single: see above; nRasMx: GAS, upper bounds on the electrons in the
@@ -62,6 +124,11 @@ subroutine CI_Setup_SG(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt,Level,L2Act,n
       call Abend()
   end select
   call Fill_Info(iState)
+  ! the CI state itself, also without a graph (Mode 'NONE' marks the graph
+  ! with SGS%nActEl = SGS%iSpin = 0)
+  CI_St(iState)%nActEl = nActEl
+  CI_St(iState)%iSpin = iSpin
+  CI_St(iState)%STSym = LSym
 end subroutine CI_Setup_SG
 
 !> The copy of the state information for the programs.
@@ -93,6 +160,7 @@ subroutine CI_Free_State(iState)
   call SG_Free(iState)
   CI_St(iState)%Active = .false.
   CI_St(iState)%nCSF(:) = 0
+  CI_St(iState)%STSym = 0
 end subroutine CI_Free_State
 
 !> SGM = SGM + CPQ E_pq CI for state iState (CI of symmetry ISYCI).
@@ -180,5 +248,94 @@ subroutine CI_SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,iPrint)
   real(kind=wp), intent(out) :: CINEW(*)
   call SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,iPrint)
 end subroutine CI_SYG2SGU
+
+!> The CI space of the wave function (CI_Info's Space_CI) as the record of
+!> JobIph/HDF5; GAS tells whether it came from a GAS input. Have is false
+!> if there is no space (e.g. DMRG, NECI: no CI of the CI interface).
+subroutine CI_Space_To_Rec(GAS,n,Rec,Have)
+  logical(kind=iwp), intent(in) :: GAS
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp), intent(out) :: Rec(n)
+  logical(kind=iwp), intent(out) :: Have
+  Have = (Space_CI%nPart > 0)
+  Rec(:) = 0
+  if (Have) call Space_Pack(Space_CI,GAS,n,Rec)
+end subroutine CI_Space_To_Rec
+
+!> CI_Info's Space_CI from the record of JobIph/HDF5; GAS tells whether the
+!> wave function came from a GAS input.
+subroutine CI_Space_From_Rec(n,Rec,GAS)
+  integer(kind=iwp), intent(in) :: n, Rec(n)
+  logical(kind=iwp), intent(out) :: GAS
+  call Space_Unpack(n,Rec,Space_CI,GAS)
+end subroutine CI_Space_From_Rec
+
+!> The CI-space record of a JobIph at the disk address iAdr (IADR15(19));
+!> iAdr <= 0 (files without the record): Found = .false. and no space, the
+!> reader keeps the RAS description of the header.
+subroutine CI_Space_Rd_JobIph(Lu,iAdr,Found,GAS)
+  integer(kind=iwp), intent(in) :: Lu, iAdr
+  logical(kind=iwp), intent(out) :: Found, GAS
+  integer(kind=iwp) :: iDisk, Rec(CI_Space_Rec_Len)
+  GAS = .false.
+  Found = (iAdr > 0)
+  if (.not. Found) then
+    call Space_Free(Space_CI)
+    return
+  end if
+  iDisk = iAdr
+  call iDaFile(Lu,2,Rec,CI_Space_Rec_Len,iDisk)
+  call CI_Space_From_Rec(CI_Space_Rec_Len,Rec,GAS)
+end subroutine CI_Space_Rd_JobIph
+
+!> The CI-space record of an HDF5 wave-function file (attribute CI_SPACE);
+!> files without it (older files, DMRG, NECI) give Found = .false.; their
+!> GAS flag is then taken from CI_TYPE.
+subroutine CI_Space_Rd_H5(id,Found,GAS)
+# ifdef _HDF5_
+  use mh5, only: mh5_exists_attr, mh5_fetch_attr
+# endif
+  integer(kind=iwp), intent(in) :: id
+  logical(kind=iwp), intent(out) :: Found, GAS
+# ifdef _HDF5_
+  integer(kind=iwp) :: Rec(CI_Space_Rec_Len)
+  character(len=3) :: CIType
+# endif
+  Found = .false.
+  GAS = .false.
+# ifdef _HDF5_
+  if (mh5_exists_attr(id,'CI_SPACE')) then
+    call mh5_fetch_attr(id,'CI_SPACE',Rec)
+    call CI_Space_From_Rec(CI_Space_Rec_Len,Rec,GAS)
+    Found = .true.
+  else
+    call Space_Free(Space_CI)
+    if (mh5_exists_attr(id,'CI_TYPE')) then
+      call mh5_fetch_attr(id,'CI_TYPE',CIType)
+      GAS = (CIType == 'GAS')
+    end if
+  end if
+# else
+  unused_var(id)
+# endif
+end subroutine CI_Space_Rd_H5
+
+!> Free CI_Info's Space_CI (read by CI_Space_Rd_*).
+subroutine CI_Space_Free()
+  call Space_Free(Space_CI)
+end subroutine CI_Space_Free
+
+!> Stop a program that cannot yet treat a GAS reference wave function.
+subroutine CI_No_GAS(ProgName)
+  use Definitions, only: u6
+  character(len=*), intent(in) :: ProgName
+  character(len=len(ProgName)) :: Name
+  Name = ProgName
+  call UpCase(Name)
+  call WarningMessage(2,trim(Name)//': GAS reference wave functions are not supported yet.')
+  write(u6,'(1X,A)') 'The reference wave function was optimized with GASSCF (CI space with general'
+  write(u6,'(1X,A)') 'active-space partitions), which '//trim(Name)//' cannot yet use.'
+  call Quit_OnUserError()
+end subroutine CI_No_GAS
 
 end module CI_States

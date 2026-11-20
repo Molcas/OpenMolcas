@@ -37,7 +37,7 @@ subroutine SUPINI()
 
   use Index_Functions, only: nTri_Elem
   use Symmetry_Info, only: Mul
-  use general_data, only: nAsh
+  use Orbital_Spaces, only: nAsh
   use caspt2_module, only: nAes, nAGEB, nAGEBES, nAGTB, nAGTBES, nAshT, nASUP, nCases, nIAES, nIES, nIGEJ, nIGEJES, nIGTJ, &
                            nIGTJES, nInDep, nIsh, nIshT, nISUP, nSES, nSES, nSsh, nSsh, nSshT, nSym, nTGEU, nTGEUES, nTGTU, &
                            nTGTUES, nTU, nTUES, nTUV, nTUVEs

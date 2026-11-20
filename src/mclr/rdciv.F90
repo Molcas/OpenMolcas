@@ -20,8 +20,8 @@ subroutine RdCIV()
 !                                                                      *
 !***********************************************************************
 
+use CI_Info, only: CI_St
 use MCLR_Data, only: ERAS, LuCIV, LuJob
-use general_data, only: STSym
 use input_mclr, only: iTOC, lRoots, nConf
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
@@ -30,6 +30,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: i, iDisk, iDisk1, iMode, Iter
 real(kind=wp), allocatable :: OCIvec(:), Tmp(:,:)
 
@@ -46,7 +47,7 @@ idisk1 = 0
 do i=1,lroots
   call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
   iMode = 1
-  call SG2SymG(OCIvec,nConf,iMode,STSym)
+  call SG2SymG(OCIvec,nConf,iMode,CI_St(iState)%STSym)
   call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
 end do
 

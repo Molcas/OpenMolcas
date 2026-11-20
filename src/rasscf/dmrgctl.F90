@@ -45,13 +45,14 @@ use wadr, only: FMO
 use rctfld_module, only: lRF
 use casvb_global, only: ifvb
 use timers, only: TimeDens
-use general_data, only: iDoGAS
+use CI_Input, only: iDoGAS
 use rasscf_global, only: DFTFOCK, ExFac, iAdr15, iPCMRoot, iRoot, ITER, KSDFT, lRoots, n_Det, NAC, NACPAR, NACPR2, nFint, nRoots, &
                          S, Weight
 use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC
 use rasscf_files, only: jobiph
-use general_data, only: ISPIN, nactel, nash, ntot2
+use Orbital_Spaces, only: nash, ntot2
+use CI_Input, only: ISPIN, nactel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6

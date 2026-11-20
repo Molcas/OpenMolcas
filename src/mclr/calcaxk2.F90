@@ -18,7 +18,7 @@
 subroutine CalcAXk2(AXk,D1,D2,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
 
 use MCLR_Data, only: ipMat, nDens, nNA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nOrb, ntAsh, ntBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

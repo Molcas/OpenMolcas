@@ -452,6 +452,18 @@ Optional keywords for numerical gradients
               </HELP>
               </KEYWORD>
 
+:kword:`FIVE`
+  Compute numerical gradients through the five-point stencil method, instead of the default central difference.
+  This option improves the accuracy of numerical gradients and doubles the computational cost,
+  as four displacements are computed for each degree of freedom instead of two.
+
+  .. xmldoc:: <KEYWORD MODULE="ALASKA" NAME="FIVE" APPEAR="Five-point stencil numerical gradient" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Five <advanced>
+              <HELP>
+              Compute numerical gradients through the five-point stencil method.
+              </HELP>
+              </KEYWORD>
+
   .. xmldoc:: </GROUP>
 
 The following is an example of an input which will work for

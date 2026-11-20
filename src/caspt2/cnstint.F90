@@ -15,7 +15,7 @@ subroutine CnstInt(Mode,INT1,INT2)
 
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use caspt2_global, only: FIMO_all
-use general_data, only: NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: IfChol, NASHT, NBAS, NBAST, NBSQT, NBTCH, NBTCHES, NFRO, NISH, NSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par

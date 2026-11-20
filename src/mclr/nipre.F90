@@ -12,7 +12,8 @@
 function niPre(kS)
 
 use Symmetry_Info, only: Mul
-use general_data, only: nIsh, nRS1, nRS2, nRS3, nSym
+use Orbital_Spaces, only: nIsh, nSym
+use CI_Input, only: nRS1, nRS2, nRS3
 use input_mclr, only: nOrb
 use Definitions, only: iwp
 

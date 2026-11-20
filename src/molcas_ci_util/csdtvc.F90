@@ -16,8 +16,8 @@ subroutine CSDTVC(CSFVEC,DETVEC,IWAY,IREFSM,ICOPY)
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
 use lucia_data, only: DTOC, SDREO
-use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDTASM, NDTFTP, NTYP
-use general_data, only: NDET
+use lucia_data, only: NCNFTP, NCSFTP, NDTFTP, NTYP
+use CI_Info, only: CI_St
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -25,9 +25,10 @@ use Definitions, only: u6
 #endif
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: IWAY, IREFSM, ICOPY
-real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
-integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF
+real(kind=wp), intent(inout) :: CSFVEC(CI_St(iState)%nDet(IREFSM)), DETVEC(CI_St(iState)%nDet(IREFSM))
+integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NDET
 
 ! To avoid compiler complaints
 
@@ -35,8 +36,8 @@ IOFFCS = 0
 IOFFDT = 0
 IOFFCD = 0
 
-NDET = NDTASM(IREFSM)
-NCSF = NCSASM(IREFSM)
+NDET = CI_St(iState)%nDet(IREFSM)
+NCSF = CI_St(iState)%nCSF(IREFSM)
 #ifdef _DEBUGPRINT_
 write(u6,*) '======================================='
 write(u6,*) '         CSDTVC INFORMATIONS'

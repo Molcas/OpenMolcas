@@ -11,14 +11,16 @@
 
 subroutine MODRHS(IVEC,FIMO,NFIMO)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: KTU, KTUV
-use general_data, only: NACTEL, NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAES, NASHT, NASUP, NINDEP, NISH, NISUP, NORB, NSSH, NSYM, NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: IVEC, NFIMO
 real(kind=wp), intent(in) :: FIMO(NFIMO)
 integer(kind=iwp) :: IA, IAJ, IATOT, ICASE, IFOFF, IJ, ISYJ, ISYM, ISYT, ISYU, IT, ITABS, ITTOT, IU, IUABS, IUU, IVABS, IW1, IW2, &
@@ -51,7 +53,7 @@ do ISYM=1,NSYM
       ITTOT = NIT+IT
       ITABS = NAES(ISYT)+IT
       do IJ=1,NIT
-        Val = FIMO(IFOFF+iTri(ITTOT,IJ))/real(max(1,NACTEL),kind=wp)
+        Val = FIMO(IFOFF+iTri(ITTOT,IJ))/real(max(1,CI_St(iState)%nActEl),kind=wp)
         do IVABS=1,NASHT
           IW1 = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
           IW2 = IJ
@@ -101,7 +103,7 @@ do ISYM=1,NSYM
           IYYWA = IYYW+NAS*(IA-1)
           rSUM = rSUM-WC(IYYWA)
         end do
-        ONEADD = rSUM/real(max(1,NACTEL),kind=wp)
+        ONEADD = rSUM/real(max(1,CI_St(iState)%nActEl),kind=wp)
         do IUABS=1,NASHT
           IW1 = KTUV(IXABS,IUABS,IUABS)-NTUVES(ISYM)
           IW2 = IA
@@ -147,7 +149,7 @@ if (NINDEP(ISYM,5)*NWD /= 0) then
     do IA=1,NSJ
       IATOT = NIJ+NAJ+IA
       do IJ=1,NIJ
-        ONEADD = FIMO(IFOFF+iTri(IATOT,IJ))/real(max(1,NACTEL),kind=wp)
+        ONEADD = FIMO(IFOFF+iTri(IATOT,IJ))/real(max(1,CI_St(iState)%nActEl),kind=wp)
         IAJ = IAJ+1
         do ISYU=1,NSYM
           do IU=1,NASH(ISYU)

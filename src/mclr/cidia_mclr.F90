@@ -13,17 +13,18 @@
 
 subroutine CIDIA_MCLR(iSym,ralp)
 
+use CI_Info, only: CI_St
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use MCLR_Data, only: ICISTR, ipCI, ipDia, NCSASM, NDPCNT, nexp, nexp_max, nGP, NOCSF, XISPSM
-use spinfo, only: NCNFTP, NCSFTP, NTYP
-use general_data, only: STSym
+use MCLR_Data, only: NCNFTP, NCSFTP, NTYP
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iSym
 real(kind=wp), intent(out) :: ralp
 integer(kind=iwp) :: i, iAMCmp, iC, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), nD, nP1, nP2, nQ, nSD, nSpc
@@ -46,7 +47,7 @@ iSM(1) = iSym
 IAMCMP = 0
 ICISTR = 1
 i = 2
-if (isym == STSym) i = 1
+if (isym == CI_St(iState)%STSym) i = 1
 
 if (NOCSF == 0) then
   nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))

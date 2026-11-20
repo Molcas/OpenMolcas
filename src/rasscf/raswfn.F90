@@ -39,11 +39,13 @@ subroutine cre_raswfn()
   use mh5, only: mh5_close_dset, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, &
                  mh5_create_file, mh5_init_attr, mh5_put_dset
   use sxci, only: IDXCI, IDXSX
-  use general_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
+  use CI_Input, only: iDoGAS, IGSOCCX, NGAS, NGSSH
   use input_ras, only: Key
-  use general_data, only: ISPIN, NACTEL, NBAS, NCONF, NDEL, NDET, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, &
-                          NTOT, NTOT2, STSYM
+  use Orbital_Spaces, only: NBAS, NDEL, NFRO, NISH, NSSH, NSYM, NSYM, NTOT, NTOT2
+  use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
+  use rasscf_global, only: NCONF, NDET
   use CI_Info, only: CI_St
+  use CI_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
 # ifdef _DMRG_
@@ -52,7 +54,8 @@ subroutine cre_raswfn()
   use stdalloc, only: mma_allocate, mma_deallocate
 
   implicit none
-  integer(kind=iwp) :: dsetid, NTMP1(mxsym), NTMP2(mxsym), NTMP3(mxsym)
+  integer(kind=iwp) :: dsetid, NTMP1(mxsym), NTMP2(mxsym), NTMP3(mxsym), SpaceRec(CI_Space_Rec_Len)
+  logical(kind=iwp) :: HaveSpace
   character, allocatable :: typestring(:)
   integer(kind=iwp), parameter :: istate = 1
 
@@ -90,6 +93,9 @@ subroutine cre_raswfn()
   call mh5_init_attr(wfn_fileid,'NDET',nDet)
 
   call mh5_init_attr(wfn_fileid,'L2ACT',1,[mxAct],IDXSX)
+  ! the CI space (partitions, electron bounds, HEXS/DEXS, GAS flag)
+  call CI_Space_To_Rec(iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
+  if (HaveSpace) call mh5_init_attr(wfn_fileid,'CI_SPACE',1,[CI_Space_Rec_Len],SpaceRec)
   call mh5_init_attr(wfn_fileid,'A2LEV',1,[mxAct],IDXCI)
 
   ! the split graph (Shavitt graph) of the CSF space, which fixes the CSF order of CI_VECTORS, follows from SPINMULT, LSYM,

@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine OLagFro4(NBSQT,iSym0,iSymI,iSymJ,iSymK,iSymL0,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK1)
+subroutine OLagFro4(NBSQT,iSym0,iSymI,iSymJ,iSymK,iSymL0,nDens,DAO,FAO,WRK1)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
@@ -27,29 +27,24 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NBSQT, iSym0, iSymI, iSymJ, iSymK, iSymL0
-real(kind=wp), intent(inout) :: DPT2AO(NBSQT), DPT2CAO(NBSQT)
-real(kind=wp), intent(out) :: FPT2AO(NBSQT), FPT2CAO(NBSQT), WRK1(NBSQT)
-integer(kind=iwp) :: i, IBATCH, IBATCH_TOT, ILOC, ipVecL, ipWRK(8), IRC, iSkip(8), iSMax, ISTLT(8), ISTSQ(8), iSwap, iSym, iSymIJ, &
-                     iSymL, iVec, j, JNUM, JRED, JRED1, JRED2, JREDC, JREDL, JSTART, jSym, JV1, JV2, JVEC1, jVref, lscr, MUSED, &
-                     nB, nB2, nB3, nBasI, nBasIJ, nBasJ, nBasK, nBasKL, nBasL, NBATCH, NUMV, NVECS_RED
+integer(kind=iwp), intent(in) :: NBSQT, iSym0, iSymI, iSymJ, iSymK, iSymL0, nDens
+real(kind=wp), intent(inout) :: DAO(NBSQT,nDens)
+real(kind=wp), intent(out) :: FAO(NBSQT,nDens), WRK1(NBSQT)
+integer(kind=iwp) :: i, IBATCH, iDens, IBATCH_TOT, ILOC, ipVecL, ipWRK(8), IRC, iSkip(8), iSMax, ISTLT(8), ISTSQ(8), iSwap, iSym, &
+                     iSymIJ, iSymL, iVec, j, JNUM, JRED, JRED1, JRED2, JREDC, JREDL, JSTART, jSym, JV1, JV2, JVEC1, jVref, lscr, &
+                     MUSED, nB, nB2, nB3, nBasI, nBasIJ, nBasJ, nBasK, nBasKL, nBasL, NBATCH, NUMV, NVECS_RED
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: CHSPC(:), WRK2(:)
 #include "warnings.h"
 
 !! It shoudl be zero, but just in case
-FPT2AO(1:NBSQT) = Zero
-FPT2CAO(1:NBSQT) = Zero
+FAO(:,:) = Zero
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
-  !! To broadcast DPT2AO and DPT2CAO
-  if (.not. King()) then
-    DPT2AO(1:NBSQT) = Zero
-    DPT2CAO(1:NBSQT) = Zero
-  end if
-  call GADGOP(DPT2AO,NBSQT,'+')
-  call GADGOP(DPT2CAO,NBSQT,'+')
+  !! To broadcast multiple DAOs
+  if (.not. King()) DAO(:,:) = Zero
+  call GADGOP(DAO,NBSQT*nDens,'+')
 end if
 #endif
 
@@ -166,8 +161,9 @@ do JRED=JRED1,JRED2
 
       ! ----- Fock-like transformations -----
 
-      call FDGTRF_RI(WRK2,DPT2AO,FPT2AO)
-      call FDGTRF_RI(WRK2,DPT2CAO,FPT2CAO)
+      do iDens=1,nDens
+        call FDGTRF_RI(WRK2,DAO(:,iDens),FAO(:,iDens))
+      end do
     end do
     JV1 = JV1+JNUM
   end do
@@ -177,21 +173,19 @@ call mma_deallocate(CHSPC)
 call mma_deallocate(WRK2)
 
 !! Have to symmetrize Fock-transformed matrices
-do i=1,nBasI
-  do j=1,i-1
-    tmp = (FPT2AO(i+nBasI*(j-1))+FPT2AO(j+nBasI*(i-1)))*Half
-    FPT2AO(i+nBasI*(j-1)) = Tmp
-    FPT2AO(j+nBasI*(i-1)) = Tmp
-    tmp = (FPT2CAO(i+nBasI*(j-1))+FPT2CAO(j+nBasI*(i-1)))*Half
-    FPT2CAO(i+nBasI*(j-1)) = Tmp
-    FPT2CAO(j+nBasI*(i-1)) = Tmp
+do iDens=1,nDens
+  do i=1,nBasI
+    do j=1,i-1
+      tmp = (FAO(i+nBasI*(j-1),iDens)+FAO(j+nBasI*(i-1),iDens))*Half
+      FAO(i+nBasI*(j-1),iDens) = Tmp
+      FAO(j+nBasI*(i-1),iDens) = Tmp
+    end do
   end do
 end do
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
-  call GADGOP(FPT2AO,NBSQT,'+')
-  call GADGOP(FPT2CAO,NBSQT,'+')
+  call GADGOP(FAO,NBSQT*nDens,'+')
 end if
 #endif
 

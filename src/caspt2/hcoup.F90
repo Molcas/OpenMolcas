@@ -70,7 +70,7 @@ do ICASE=1,13
     NIS = NISUP(ISYM,ICASE)
     HEBLK = Zero
 
-    if (NAS*NIS*NIN /= 0) then
+    if (NAS*NIS /= 0) then
 
       call RHS_ALLO(NAS,NIS,lg_V1)
       call RHS_ALLO(NAS,NIS,lg_V2)
@@ -78,7 +78,7 @@ do ICASE=1,13
       call RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
       NV1 = (iHi1-iLo1+1)*(jHi1-jLo1+1)
 
-      if (Do_FIC) then
+      if (Do_FIC .and. (NIN /= 0)) then
         call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
         call RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
         NV2 = (iHi2-iLo2+1)*(jHi2-jLo2+1)

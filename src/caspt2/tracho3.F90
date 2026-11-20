@@ -18,7 +18,7 @@ use CHOVEC_IO, only: ChoVec_Coll, ChoVec_load, ChoVec_Save, npq_ChoType, NVLOC_C
 use Cholesky, only: InfVec
 use ChoCASPT2, only: MxNVc, nChSpc, nFtSpc, nHtSpc, NumCho_PT2
 use Cho_Square, only: Cho_Red2Sq, Cho_Sq_Close, Cho_Sq_Setup, IPLSQ, LSQ, NSUB
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: nBas, nBasT, nBtch, nBtches, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

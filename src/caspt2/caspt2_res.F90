@@ -13,7 +13,7 @@
 
 subroutine CASPT2_Res(VECROT,nVECROT)
 
-use caspt2_global, only: imag_shift, iVecL, jStLag, real_shift, sigma_p_epsilon
+use caspt2_global, only: imag_shift, iVecG, iVecL, jStLag, real_shift, sigma_p_epsilon
 use caspt2_module, only: HZERO, IFMSCOUP, NSTATE
 use EQSOLV, only: IRHS, IVECC, IVECC2, IVECR, IVECW, IVECX
 use SC_NEVPT2, only: SC_prop, SC_NEVPT2_res
@@ -25,7 +25,6 @@ integer(kind=iwp), intent(in) :: nVECROT
 real(kind=wp), intent(in) :: VECROT(nVECROT)
 integer(kind=iwp) :: ICONV, iRHSbk, iStLag, iVecRbk, iVecXbk
 real(kind=wp) :: SAV, SAVI, savreg, Scal
-integer(kind=iwp), parameter :: iVecG = 8
 
 !! Some subroutines (e.g., PSCAVEC) use NINDEP, so they cannot be
 !! directly used for SC-NEVPT2. It should be easier to write from scratch
@@ -80,7 +79,7 @@ if (IFMSCOUP) then
     Scal = VECROT(iStLag)
     if (iStLag == jStLag) Scal = Zero
     if (abs(VECROT(iStLag)) <= 1.0e-12_wp) cycle
-    call MS_Res(1,iStLag,jStLag,Scal)
+    call MS_Res(IVECW,IVECC,iStLag,jStLag,Scal,'N')
   end do
   !! Transform to SR representatin (IRHS).
   call PTRTOSR(0,IVECC,IRHS)
@@ -113,16 +112,23 @@ iVecR = iVecRbk
 iRHS = iRHSbk
 
 !! For implicit derivative of S
+! The contribution of the other states is kept in the MO basis on iVecG.
+! LinDepLag needs it for the derivative of the removal of linearly dependent functions.
 if (IFMSCOUP) then
   call PTRTOSR(1,IVECW,IRHS)
   call RHS_ZERO(IVECC)
+  call RHS_ZERO(iVecG)
   do iStLag=1,nState
-    Scal = VECROT(iStLag)*Half
-    if (iStLag == jStLag) Scal = Scal*Two
     if (abs(VECROT(iStLag)) <= 1.0e-12_wp) cycle
-    call MS_Res(1,iStLag,jStLag,Scal)
+    if (iStLag == jStLag) then
+      call MS_Res(IVECW,IVECC,iStLag,jStLag,VECROT(iStLag),'N')
+    else
+      call MS_Res(IVECW,iVecG,iStLag,jStLag,VECROT(iStLag)*Half,'N')
+    end if
   end do
   call PTRTOSR(0,IVECC,iVecL)
+  call PTRTOSR(0,iVecG,IVECC2)
+  call PLCVEC(One,One,IVECC2,iVecL)
 end if
 
 !! Restore contravariant and covariant representations of the

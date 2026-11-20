@@ -21,7 +21,7 @@ subroutine ALLOC()
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use rasscf_global, only: ISTORD, ISTORP, nFint
-use general_data, only: NASH, NORB, NSYM
+use Orbital_Spaces, only: NASH, NORB, NSYM
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

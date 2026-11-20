@@ -18,7 +18,7 @@
 subroutine CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
 
 use MCLR_Data, only: ipMat, nDens, nNA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nBas
 use Constants, only: Zero
 use Definitions, only: wp, iwp

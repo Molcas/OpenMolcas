@@ -13,7 +13,7 @@ function E2_td(FockI,rMo,loper,idisp)
 
 use Index_Functions, only: iTri
 use MCLR_Data, only: G1t, G2sq, ipCM, nA, nCMO, nNA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nBas, ntPert
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp

@@ -26,7 +26,6 @@ use PrintLevel, only: DEBUG
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use CI_Info, only: CI_St
 use caspt2_global, only: iPrGlb
-use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, jState, mState, nAshT, nG1
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full
@@ -81,7 +80,7 @@ if (ISCF == 2) then
   return
 end if
 ! Special code for closed-shell:
-if ((ISCF == 1) .and. (NACTEL > 0)) then
+if ((ISCF == 1) .and. (CI_St(iState)%nActEl > 0)) then
   do IT=1,NASHT
     G1(IT,IT) = Two
   end do
@@ -126,11 +125,11 @@ do while (Rsv_Tsk(ID,iTask))
   IU = CI_St(istate)%L2Act(LU)
   ISTU = Mul(IST,ISU)
   if (ISTU /= 1) cycle
-  ISSG = Mul(ISTU,STSYM)
+  ISSG = Mul(ISTU,CI_St(iState)%STSym)
   NSGM = CI_St(istate)%nCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
-  call GETSGM2(LU,LT,STSYM,CI,nCI,SGM1,NSGM)
+  call GETSGM2(LU,LT,CI_St(iState)%STSym,CI,nCI,SGM1,NSGM)
   GTU = DDOT_(NSGM,CI,1,SGM1,1)
   G1(IT,IU) = GTU
   G1(IU,IT) = GTU
@@ -155,10 +154,10 @@ subroutine End_Stuff()
 
 # ifdef _ENABLE_CHEMPS2_DMRG_
   if (DoCumulant) then
-    if (NACTEL > 1) then
+    if (CI_St(iState)%nActEl > 1) then
       !QP: At this point, only load 2RDM of one state, JSTATE=1
       call chemps2_load2pdm(nlev,G2,MSTATE(1),.false.)
-      call two2onerdm(nlev,NACTEL,G2,G1)
+      call two2onerdm(nlev,CI_St(iState)%nActEl,G2,G1)
     else
       write(u6,*) 'FATAL ERROR: DMRG-CASPT2 with CHEMPS2 does not work with NACTEL=1'
     end if

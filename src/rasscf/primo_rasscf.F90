@@ -17,7 +17,7 @@ subroutine Primo_RasScf(VecTit,Ene,Occ,CMO)
 !***********************************************************************
 
 use rasscf_global, only: BName, iPT2, OutFmt2, PreThr, ProThr
-use general_data, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

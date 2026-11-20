@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,HEL,SCAL_)
+subroutine MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,HEL,SCAL,CNT)
 ! Compute the coupling Hamiltonian element defined as
 !     HEL = < ROOT1 | H * OMEGA | ROOT2 >
 ! assuming that IVEC contains a contravariant representation of
@@ -33,19 +33,18 @@ use PrintLevel, only: DEBUG
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: CASES, NASUP, NINDEP, NISUP, NSYM
-use SC_NEVPT2, only: SC_prop
-use Constants, only: Zero, Half
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
 real(kind=wp), intent(inout) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 real(kind=wp), intent(out) :: HEL
-real(kind=wp), intent(in) :: SCAL_
+real(kind=wp), intent(in) :: SCAL
+character(len=1), intent(in) :: CNT
 integer(kind=iwp) :: IC, ICASE, iHi1, iHi2, iLo1, iLo2, IS, ISYM, jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NHECOMP, &
                      NIN, NIS, nvlen
-real(kind=wp) :: HEBLK, HECOMP(14,9), SCAL
-character :: CNT
+real(kind=wp) :: HEBLK, HECOMP(14,9)
 
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
@@ -60,14 +59,6 @@ character :: CNT
 !     End of loop nest
 !     Deallocate VEC1 and VEC2
 !  End of loop.
-
-if (SC_prop) then
-  CNT = 'T'
-  SCAL = Half*SCAL_
-else
-  CNT = 'N'
-  SCAL = SCAL_
-end if
 
 HEL = Zero
 HECOMP = Zero
@@ -93,7 +84,7 @@ do ICASE=1,13
         call ABEND()
       end if
 
-      nvlen = (iHi1-jLo1+1)*(jHi1-jLo1+1)
+      nvlen = (iHi1-iLo1+1)*(jHi1-jLo1+1)
 
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) then

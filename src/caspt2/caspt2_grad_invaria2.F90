@@ -15,7 +15,7 @@ subroutine caspt2_grad_invaria2(NDPT2,nOLag,DPT2,OLag)
 ! See the IPEA-shift implementation for the active block non-invariance, and the sigma^P implementation for the non-invariance
 ! with respect to rotations in the internally contracted basis
 
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: EPSE, EPSI, nBas, nDel, nFro, nIsh, nSsh, nSym
 use Constants, only: Half
 use Definitions, only: wp, iwp

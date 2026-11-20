@@ -45,6 +45,7 @@ set (sources
      clagdxc_fg3.F90
      clagdxc_fg3_mpp.F90
      clagdx.F90
+     clagdx_sigma.F90
      clageig.F90
      clageigt.F90
      clagfinal.F90
@@ -69,8 +70,7 @@ set (sources
      dens1t_rpt2.F90
      dens2t_rpt2.F90
      dens.F90
-     depsaoffc.F90
-     depsaoffo.F90
+     depsaoff.F90
      depsatrf.F90
      dere4.F90
      derfg3.F90
@@ -378,6 +378,7 @@ set (sources
      triang.F90
      trimul.F90
      two2onerdm.F90
+     vec_backup.F90
      vscale.F90
      vvvo_drv.F90
      vvvox2.F90

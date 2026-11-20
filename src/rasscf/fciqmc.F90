@@ -32,7 +32,9 @@ use Para_Info, only: MyRank
 use filesystem, only: basename, get_errno_, getcwd_, real_path, strerror_
 use linalg_mod, only: abort_
 use rasscf_global, only: EMY, Ener, iter, KSDFT, lRoots, Nac, nAcPar, nAcpr2, nroots, rotmax, S
-use general_data, only: iSpin, nAsh, nConf, nSym, ntot, ntot1, ntot2
+use Orbital_Spaces, only: nAsh, nSym, ntot, ntot1, ntot2
+use CI_Input, only: iSpin
+use rasscf_global, only: nConf
 use CI_solver_util, only: wait_and_read
 use generic_CI, only: CI_solver_t
 use fciqmc_read_RDM, only: MCM7, read_neci_RDM
@@ -118,7 +120,7 @@ end function construct_FciqmcSolver_t
 !>  @param[out] PAMAT Average antisymm. 2-dens matrix
 subroutine fciqmc_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_AO,TUVX,F_IN,D1S_MO,DMAT,PSMAT,PAMAT)
 
-  use general_data, only: iDoGas, iGSOCCX, nGAS, ngssh
+  use CI_Input, only: iDoGas, iGSOCCX, nGAS, ngssh
   use fcidump_reorder, only: get_P_GAS, get_P_inp, ReOrFlag, ReOrInp
   use fcidump, only: make_fcidumps, transform
   use rctfld_module, only: lRF

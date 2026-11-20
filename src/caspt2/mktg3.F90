@@ -35,7 +35,6 @@ use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use CI_Info, only: CI_St
 use CI_States, only: CI_Epq_Psi
-use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, NASHT, MxCI
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs, MyRank
@@ -65,7 +64,7 @@ TG1(:,:) = Zero
 TG2(:,:,:,:) = Zero
 TG3(:) = Zero
 
-if (NACTEL == 0) return
+if (CI_St(iState)%nActEl == 0) return
 
 if (ISCF == 0) then
 
@@ -77,17 +76,17 @@ if (ISCF == 0) then
   call mma_allocate(TG3BUF,NASHT**2,Label='TG3BUF')
   IP = 0
   ! First, IL < JL pairs.
-  do IL=1,NLEV-1
-    P2LEV(1,IP+1:IP+NLEV-IL) = IL
-    P2LEV(2,IP+1:IP+NLEV-IL) = [(JL,JL=IL+1,NLEV)]
-    IP = IP+NLEV-IL
+  do IL=1,CI_St(iState)%nLev-1
+    P2LEV(1,IP+1:IP+CI_St(iState)%nLev-IL) = IL
+    P2LEV(2,IP+1:IP+CI_St(iState)%nLev-IL) = [(JL,JL=IL+1,CI_St(iState)%nLev)]
+    IP = IP+CI_St(iState)%nLev-IL
   end do
   ! Then, IL = JL pairs.
-  P2LEV(1,IP+1:IP+NLEV) = [(IL,IL=1,NLEV)]
-  P2LEV(2,IP+1:IP+NLEV) = [(IL,IL=1,NLEV)]
-  IP = IP+NLEV
+  P2LEV(1,IP+1:IP+CI_St(iState)%nLev) = [(IL,IL=1,CI_St(iState)%nLev)]
+  P2LEV(2,IP+1:IP+CI_St(iState)%nLev) = [(IL,IL=1,CI_St(iState)%nLev)]
+  IP = IP+CI_St(iState)%nLev
   ! Last, IL > JL pairs.
-  do IL=2,NLEV
+  do IL=2,CI_St(iState)%nLev
     P2LEV(1,IP+1:IP+IL-1) = IL
     P2LEV(2,IP+1:IP+IL-1) = [(JL,JL=1,IL-1)]
     IP = IP+IL-1
@@ -301,7 +300,7 @@ else
   do IT=1,NASHT
     TG1(IT,IT) = OCC
   end do
-  if (NACTEL == 1) return
+  if (CI_St(iState)%nActEl == 1) return
   do IT=1,NASHT
     do IU=1,NASHT
       TG2(IT,IT,IU,IU) = TG1(IT,IT)*TG1(IU,IU)
@@ -312,15 +311,15 @@ else
       end if
     end do
   end do
-  if (NACTEL == 2) return
-  do IT1=1,NLEV
-    do IU1=1,NLEV
+  if (CI_St(iState)%nActEl == 2) return
+  do IT1=1,CI_St(iState)%nLev
+    do IU1=1,CI_St(iState)%nLev
       IND1 = IT1+NASHT*(IU1-1)
-      do IT2=1,NLEV
+      do IT2=1,CI_St(iState)%nLev
         do IU2=1,IU1
           IND2 = IT2+NASHT*(IU2-1)
           if (IND2 > IND1) cycle
-          do IT3=1,NLEV
+          do IT3=1,CI_St(iState)%nLev
             do IU3=1,IU2
               IND3 = IT3+NASHT*(IU3-1)
               if (IND3 > IND2) cycle

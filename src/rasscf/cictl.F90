@@ -78,7 +78,9 @@ use rasscf_global, only: CMSStartMat, CRVEC, DoDMRG, Ener, ExFac, IADR15, iCIRFR
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
-use general_data, only: ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM, iDoGAS
+use Orbital_Spaces, only: NASH, NISH, NTOT2
+use CI_Input, only: ISPIN, NACTEL, STSYM, iDoGAS
+use rasscf_global, only: NCONF
 use CI_Info, only: CI_St
 use CI_States, only: CI_PrWF
 use ci_interfaces, only: CI_Basis_To_File

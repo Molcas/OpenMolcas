@@ -13,6 +13,7 @@
 
 subroutine RHSOD_C_NOSYM(IVEC)
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV, MTREL, MTUV
@@ -24,13 +25,14 @@ use GA_Wrapper, only: DBL_MB
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_global, only: FIMO, iPrGlb
-use general_data, only: nActel, nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: NAES, nAshT, nASup, nIsh, nISup, nOrb, nSsh, nSym, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: IVEC
 integer(kind=iwp) :: IA, IAEND, IASTA, IAT, IATOT, iCASE, IDX, IIEND, IISTA, IOBRA(8,8), IOFFAT, IOFFVX, IOKET(8,8), ISYA, iSym, &
                      ISYT, ISYV, ISYX, IT, ITABS, ITTOT, ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS, IVX, IX, IXABS, lg_W, mW, &
@@ -126,7 +128,7 @@ do ISYM=1,NSYM
         SUMU = SUMU+GA_Arrays(lg_w)%A(IDX)
 #       endif
       end do
-      ADDONE = (FAT-SUMU)/real(max(1,NACTEL),kind=wp)
+      ADDONE = (FAT-SUMU)/real(max(1,CI_St(iState)%nActEl),kind=wp)
       do IVABS=1,NASHT
         ITVV = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
         IDX = ITVV+NAS*(IA-IISTA)

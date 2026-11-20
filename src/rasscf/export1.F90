@@ -36,9 +36,10 @@ subroutine Export1(iFinal,CMO,DA,PA,DAO,Focc)
 !                                                                      *
 !***********************************************************************
 !
-use general_data, only: iDoGAS
+use CI_Input, only: iDoGAS
 use rasscf_global, only: DoDMRG, iRLXRoot, KSDFT, NAC, NACPAR, NACPR2, nRoots, ThrSX, ThrTE, Weight
-use general_data, only: NACTEL, NSYM, NHOLE1, NELEC3, NASH, NDEL, NFRO, NISH, NTOT1, NTOT2
+use Orbital_Spaces, only: NSYM, NASH, NDEL, NFRO, NISH, NTOT1, NTOT2
+use CI_Input, only: NACTEL, NHOLE1, NELEC3
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

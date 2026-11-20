@@ -14,7 +14,8 @@ subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
 use ci_interfaces, only: Mk_Tra_Psi
 use rasscf_global, only: NROOTS
-use general_data, only: nCSF=>nConf, nLev, nSym, NASH
+use Orbital_Spaces, only: nSym, NASH
+use rasscf_global, only: NAC, nCSF=>nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -37,7 +38,7 @@ call mma_allocate(CI_Vector,nCSF,Label='CI_Vector')
 ! remove those blocks.
 
 ! MO-MO transformation matrix :
-call mma_allocate(TransMat,nLev**2,Label='TransMat')
+call mma_allocate(TransMat,NAC**2,Label='TransMat')
 TransMat(:) = Zero
 IOFF = 1
 IADR = 1
@@ -46,7 +47,7 @@ do ISM=1,nSym
   if (NASH(ISM) == 0) Cycle
   IROW = ICOL
   do I=1,NASH(ISM)
-    IADR = (ICOL-1)*nLev+IROW
+    IADR = (ICOL-1)*NAC+IROW
     do J=1,NASH(ISM)
       TransMat(IOFF+NASH(ISM)*(J-1)+I-1) = CMOMO(IADR+J-1)
     end do
@@ -56,7 +57,7 @@ do ISM=1,nSym
 end do
 
 ! Memory allocation for a matrix T
-call mma_allocate(LT,nLev**2,Label='LT')
+call mma_allocate(LT,NAC**2,Label='LT')
 
 ! Obtain T matrix used for transformation, for each symmetry separately
 IOFF = 0
@@ -87,7 +88,7 @@ do JROOT=1,NROOTS
 !    0.9131679804438881_wp  &
 !]
 
-  Call Mk_Tra_Psi(iState,LT,nLev**2,CI_Vector,nCSF)
+  Call Mk_Tra_Psi(iState,LT,NAC**2,CI_Vector,nCSF)
 
   Call VecPhase(CI_Vector,nCSF)
   call DDAFILE(JOBIPH,1,CI_Vector,nCSF,JOBDISK)

@@ -70,7 +70,8 @@ use rasscf_global, only: ChemPS2_Can
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH, LUINTM, LUQUNE
-use general_data, only: NACTEL, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, NTOT1, NTOT2
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NSSH, NSYM, NTOT, NTOT1, NTOT2
+use CI_Input, only: NACTEL, NRS1, NRS2, NRS3
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use raswfn, only: wfn_mocoef, wfn_occnum

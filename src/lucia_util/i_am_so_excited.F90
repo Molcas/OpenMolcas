@@ -20,13 +20,12 @@ subroutine I_AM_SO_EXCITED(NBATCH,IBATCH,LBATCH,I1BATCH)
 ! Will give single excited states in from the desired GAS (or GAS's)
 ! And now also doubly excited states
 !
-! The difference between the HEXS and DEXS is controlled by
-! I_ELIMINATE_GAS
+! HEXS acts on the spaces iHEXS(1:nHEXS), DEXS on iDEXS(1:nDEXS)
 ! Notice that for the doubly excited states (DEXS) all
 ! singly excited states (HEXS) are in effect.
 
-use lucia_data, only: I2ELIMINATED_IN_GAS, I_AM_OUT, I_ELIMINATE_GAS, IBSPGPFTP, IELIMINATED_IN_GAS, ISPGPFTP, MXPSTT, &
-                      N_2ELIMINATED_GAS, N_ELIMINATED_BATCHES, N_ELIMINATED_GAS, NELFGP, NGAS, NSPGPFTP
+use lucia_data, only: iDEXS, I_AM_OUT, nDEXS, nHEXS, IBSPGPFTP, iHEXS, ISPGPFTP, MXPSTT, &
+                      nDEXS, N_ELIMINATED_BATCHES, nHEXS, NELFGP, NGAS, NSPGPFTP
 use Definitions, only: iwp, u6
 
 implicit none
@@ -39,20 +38,20 @@ integer(kind=iwp) :: I, IBLOCK, IEL, IGAS, IGAS_ELIM, IITYPE, IMATCH_ALPHA, IMAT
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Oh I am so excited'
 write(u6,*)
-write(u6,*) ' Number of GAS without max (max-1) occupation = ',N_ELIMINATED_GAS+N_2ELIMINATED_GAS
+write(u6,*) ' Number of GAS without max (max-1) occupation = ',nHEXS+nDEXS
 write(u6,*)
-if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
+if (nHEXS > 0) then
   write(u6,*) ' GAS without maximum occupation (HEXS)'
   write(u6,*)
-  do I=1,N_ELIMINATED_GAS
-    write(u6,*) IELIMINATED_IN_GAS(I)
+  do I=1,nHEXS
+    write(u6,*) iHEXS(I)
   end do
 end if
-if (I_ELIMINATE_GAS > 1) then
+if (nDEXS > 0) then
   write(u6,*) ' GAS without maximum-1 occupation (DEXS)'
   write(u6,*)
-  do I=1,N_2ELIMINATED_GAS
-    write(u6,*) I2ELIMINATED_IN_GAS(I)
+  do I=1,nDEXS
+    write(u6,*) iDEXS(I)
   end do
 end if
 #endif
@@ -119,7 +118,7 @@ do JBATCH=1,min(NBATCH,2) ! only alpha and beta
             MAX_E_GAS_BETA(2,NBETA) = ISPGP
           end if
         end if
-        if (I_ELIMINATE_GAS > 1) then ! DEXS
+        if (nDEXS > 0) then ! DEXS
           if (IEL == IMAX_OCC(JBATCH,IGAS,1)-1) then
             if (JBATCH == 1) then
               NALPHAM1 = NALPHAM1+1
@@ -147,7 +146,7 @@ do IGAS=1,NGAS
     if (MAX_E_GAS_ALPHA(1,I) == IGAS) write(u6,*) MAX_E_GAS_ALPHA(1,I),MAX_E_GAS_ALPHA(2,I)
   end do
 end do
-if (I_ELIMINATE_GAS > 1) then ! DEXS
+if (nDEXS > 0) then ! DEXS
   write(u6,*)
   write(u6,*) ' GAS Supergroup for DEXS'
   write(u6,*)
@@ -167,7 +166,7 @@ do IGAS=1,NGAS
     if (MAX_E_GAS_BETA(1,I) == IGAS) write(u6,*) MAX_E_GAS_BETA(1,I),MAX_E_GAS_BETA(2,I)
   end do
 end do
-if (I_ELIMINATE_GAS > 1) then ! DEXS
+if (nDEXS > 0) then ! DEXS
   write(u6,*)
   write(u6,*) ' GAS Supergroup for DEXS'
   write(u6,*)
@@ -189,10 +188,10 @@ do JBATCH=1,NBATCH
     ITYPE_A = IBATCH(1,IBLOCK)
     ITYPE_B = IBATCH(2,IBLOCK)
     IMATCH_BLOCK = 0
-    if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
+    if (nHEXS > 0) then
       ! HEXS
-      do I=1,N_ELIMINATED_GAS
-        IGAS_ELIM = IELIMINATED_IN_GAS(I)
+      do I=1,nHEXS
+        IGAS_ELIM = iHEXS(I)
         ! Will first check if it matches a beta type
         IMATCH_BETA = 0
         do J=1,NBETA
@@ -217,10 +216,10 @@ do JBATCH=1,NBATCH
         cycle
       end if
     end if
-    if (I_ELIMINATE_GAS > 1) then
+    if (nDEXS > 0) then
       ! DEXS
-      do I=1,N_2ELIMINATED_GAS
-        IGAS_ELIM = I2ELIMINATED_IN_GAS(I)
+      do I=1,nDEXS
+        IGAS_ELIM = iDEXS(I)
         ! Will first check if it matches a beta type
         IMATCH_BETA = 0
         do J=1,NBETA

@@ -19,6 +19,7 @@
 
 subroutine SIZES()
 
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use PrintLevel, only: USUAL
@@ -26,7 +27,7 @@ use SUPERINDEX, only: SUPINI
 use Cholesky, only: NumCho
 use EQSOLV, only: IFCOUP, NLIST, NLSTOT
 use caspt2_global, only: do_csf, do_grad, do_nac, if_invar, if_invaria, if_SSDM, ipea_shift, iPrGlb, NCMO
-use general_data, only: nActel, nAsh, nLev
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: HZero, IfChol, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, MxCI, nAshT, nASup, nBasT, nBSqT, nBTri, nCases, &
                          nConf, nFroT, nG1, nG2, nG3Tot, nIMx, nInDep, nISh, nIshT, nISup, nOrb, nOSqT, nOTri, nSMx, nSsh, nState, &
                          nSym, nTGTU, nTU, nTUV, Zeta
@@ -39,6 +40,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "warnings.h"
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: ICASE, ICASE1, ICASE2, ISL1, ISL2, ISL3, ISYM, ISYM1, ISYM2, M, M11, M12, M21, M22, M31, MAXAIS, MC1S1DER, &
                      MC2DER, MEMBASE, MINBUF, MMX, MXLeft, MXLFT, N, NAS, NAS1, NAS2, NBOTTOM, NCH, nCLag, NCX, NDD, NEED, NEED0, &
                      NFIA, NFIT, NFTA, NG02, NG10, NG12, NG20, NG30, NGARR, ngrad, ngrad1, ngrad10, ngrad11, ngrad11_1, ngrad11_2, &
@@ -65,7 +67,7 @@ NG02 = 1
 NG30 = 1
 NG12 = 1
 
-if (NACTEL > 0) then
+if (CI_St(iState)%nActEl > 0) then
   NGARR = 2*(NG10+NG20+NG02+NG30+NG12)
   NPOLY = NPOLY+NGARR+5*MXCI
   MXLFT = MXLEFT-NPOLY
@@ -91,7 +93,7 @@ if (NACTEL > 0) then
   !write(u6,*)
   ! For NEVPT2 (MKNEVE4)
   if (HZERO == 'DYALL') then
-    NNEVE4 = NBOTTOM+NCONF+MXCI+(2*MXCI+3*NLEV**2+2)*NLEV
+    NNEVE4 = NBOTTOM+NCONF+MXCI+(2*MXCI+3*CI_St(iState)%nLev**2+2)*CI_St(iState)%nLev
     NPOLY = max(NPOLY,NNEVE4)
   end if
 end if
@@ -407,7 +409,8 @@ if (do_grad) then
   ngrad6 = ngrad6+max(ngrad6_1,ngrad6_2)
   ! For NEVPT2
   if (HZERO == 'DYALL') then
-    ngrad6_3 = NCONF+MXCI+(4*MXCI+5*NLEV**2+2*nTri_Elem(NLEV**2))*NLEV ! DERE4 (inside CLagX)
+    ! DERE4 (inside CLagX)
+    ngrad6_3 = NCONF+MXCI+(4*MXCI+5*CI_St(iState)%nLev**2+2*nTri_Elem(CI_St(iState)%nLev**2))*CI_St(iState)%nLev
     ngrad6_4 = 6*NASHT**2+2*NASHT**4+2*sum(NTUV(1:NSYM)**2) ! BDerNEV (before CLagX)
     ngrad6 = max(ngrad6,ngrad6_3)+ngrad6_4
   end if
@@ -436,9 +439,9 @@ if (do_grad) then
   ngrad7_2 = ngrad7_2+MXLFT
   ngrad7 = ngrad7+max(ngrad7_1,ngrad7_2)
 
-  ! gradient: iterative CI derivatives (DEPSAOffC)
+  ! gradient: CI derivatives (DEPSAOff)
   ngrad8 = 0
-  if (.not. if_invar) ngrad8 = nConf*nState*5+nConf+nState**3+nAshT**2+nAshT**4
+  if (.not. if_invar) ngrad8 = 2*nConf
 
   ! gradient: kappa (orbital) derivatives
   !           (OLagNS_RI, OLagNS2, OLagVVVO)
@@ -479,7 +482,7 @@ if (do_grad) then
   write(u6,'(1x,a,i12)') 'sigder         :',ngrad5
   write(u6,'(1x,a,i12)') 'clagx          :',ngrad6
   write(u6,'(1x,a,i12)') 'derheff        :',ngrad7
-  write(u6,'(1x,a,i12)') 'DEPSAOffC      :',ngrad8
+  write(u6,'(1x,a,i12)') 'DEPSAOff       :',ngrad8
   write(u6,'(1x,a,i12)') 'OLagNS/OLagVVVO:',ngrad9
   write(u6,'(1x,a,i12)') 'CnstAB_SSDM    :',ngrad10
   write(u6,'(1x,a,i12)') 'XMS_Grad       :',ngrad11

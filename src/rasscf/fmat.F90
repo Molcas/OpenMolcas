@@ -61,7 +61,7 @@ use RunFile_procedures, only: Get_dExcdRa
 use rasscf_global, only: DFTFOCK, ECAS, EMY, ExFac, KSDFT, l_casdft, NAC, NewFock, nFint, VIA, VIA_DFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSYM, NTOT1
+use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NORB, NSYM, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6

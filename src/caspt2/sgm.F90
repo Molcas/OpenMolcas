@@ -39,7 +39,7 @@ use Fockof, only: FAI, FAT, FIA, FIT, FTA, FTI, IOFFIA
 use EQSOLV, only: IfCoup, LList, nList
 use Sigma_data, only: INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, nLst1, nLst2, Val1, Val2
 use fake_GA, only: GA_Arrays
-use general_data, only: nAsh
+use Orbital_Spaces, only: nAsh
 use caspt2_module, only: nAGEB, nAGTB, nASUP, nIGEJ, nIGTJ, nIsh, nISUP, nSSh, nSym, nTGEU, nTGEU, nTGTU, nTUV
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: Cases

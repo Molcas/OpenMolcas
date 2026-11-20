@@ -13,6 +13,7 @@
 
 module ontop_functional
 
+use CI_Info, only: CI_St
 use Functionals, only: Get_Func_Type
 use nq_Info, only: meta_GGA_Type1, meta_GGA_Type2, Other_Type
 use Constants, only: Zero
@@ -187,9 +188,10 @@ function energy_ot(self,folded_dm1,folded_dm1s,casdm2,charge)
 
   use rctfld_module, only: lrf
   use rasscf_global, only: dftfock, exfac, nacpr2, noneq, potnuc
-  use general_data, only: ispin, nash, nfro, nish, nsym, ntot1
+  use Orbital_Spaces, only: nash, nfro, nish, nsym, ntot1
   use stdalloc, only: mma_allocate, mma_deallocate
 
+  integer(kind=iwp), parameter :: iState = 1
   real(kind=wp) :: energy_ot
   class(OTFNAL_t), intent(in) :: self
   real(kind=wp), intent(in) :: folded_dm1(ntot1), folded_dm1s(ntot1), casdm2(nacpr2)
@@ -219,7 +221,7 @@ function energy_ot(self,folded_dm1,folded_dm1s,casdm2,charge)
   ! Perhaps ideally, we should reword how drvxv (and its children) handles the AO to MO transformation on the grid. It seems like
   ! perhaps we are doing redundant transformations by retransforming AOs
   charge_ = charge
-  call drvxv(dummy1,dummy2,folded_dm1,potnuc,ntot1,first,dff,noneq,lrf,self%otxc,exfac,charge_,ispin,dftfock,do_dft)
+  call drvxv(dummy1,dummy2,folded_dm1,potnuc,ntot1,first,dff,noneq,lrf,self%otxc,exfac,charge_,CI_St(iState)%iSpin,dftfock,do_dft)
 
   call mma_deallocate(dummy1)
   call mma_deallocate(dummy2)

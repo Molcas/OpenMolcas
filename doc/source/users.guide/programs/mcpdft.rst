@@ -63,6 +63,11 @@ with the :kword:`FUNCtional` keyword instead.
 Dependencies
 ------------
 
+A GASSCF wave function can be used as reference: since :program:`MCPDFT` needs only the active
+orbitals and the densities, it treats all active orbitals of a GASSCF wave function as one RAS2
+space. This requires a :file:`JOBIPH` or HDF5 file written by a version of :program:`RASSCF`
+that stores the description of the CI space with the wave function.
+
 .. compound::
 
   To start the :program:`MCPDFT` module, the one-electron

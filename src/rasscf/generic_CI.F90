@@ -50,7 +50,7 @@ abstract interface
   !> @param[out] PAMAT Average antisymm. 2-dens matrix
   subroutine CI_run_t(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_AO,TUVX,F_IN,D1S_MO,DMAT,PSMAT,PAMAT)
 
-    use general_data, only: ntot, ntot1, ntot2
+    use Orbital_Spaces, only: ntot, ntot1, ntot2
     use rasscf_global, only: nAcPar, nAcpr2, nroots
     use Definitions, only: wp, iwp
 

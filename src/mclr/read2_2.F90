@@ -49,7 +49,7 @@ subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,Temp2,Temp3,Temp4,nDens22,DI,DA,r
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, ipMO, nB, nCMO, nDens, nMBA
-use general_data, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: iMethod, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One

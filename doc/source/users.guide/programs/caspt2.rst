@@ -255,6 +255,8 @@ Dependencies
 The :program:`CASPT2` program needs the :file:`JOBIPH` file from a :program:`RASSCF`
 calculation, and in addition one- and two-electron integrals and some auxiliary
 files from :program:`SEWARD`.
+GASSCF wave functions are not supported yet: :program:`CASPT2` stops with an input error
+if the reference wave function is of GASSCF type.
 
 .. index::
    pair: Files; CASPT2
@@ -741,7 +743,6 @@ Keywords
 
 :kword:`DORT` or :kword:`CORT`
   Use a different (canonical) orthonormalization for internally contracted basis.
-  This keyword is required for analytical nuclear gradients with IPEA shift.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DORT" APPEAR="Canonical orthonormalization" KIND="SINGLE" LEVEL="ADVANCED" ALSO='CORT'>
               %%Keyword: DORT <advanced>

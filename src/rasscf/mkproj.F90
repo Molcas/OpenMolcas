@@ -14,7 +14,7 @@
 subroutine MKPROJ(CRVEC,CMO,TUVX)
 
 use rasscf_global, only: CORESHIFT, NCRVEC
-use general_data, only: NASH, NBAS, NTOT2
+use Orbital_Spaces, only: NASH, NBAS, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

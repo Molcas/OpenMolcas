@@ -21,16 +21,18 @@ subroutine MKRHSD(IVEC,FIMO,NFIMO,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
 ! Set up RHS vector of PT2 Linear Equation System, in vector
 ! number IVEC of LUSOLV, for case 5, AIVX.
 
+use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTU
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
-use general_data, only: NACTEL, NASH
+use Orbital_Spaces, only: NASH
 use caspt2_module, only: NAES, NINDEP, NISH, NISUP, NORB, NSSH, NSYM, NTU, NTUES
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: IVEC, NFIMO, nERI1, nERI2, nSCR
 real(kind=wp), intent(inout) :: FIMO(NFIMO), ERI1(nERI1), ERI2(nERI2), SCR(nSCR)
 integer(kind=iwp) :: IA, IATOT, IBUF1, IBUF2, ICASE, II, IO, IOFF(8), ISYM, ISYMA, ISYMI, ISYMT, ISYMU, IT, ITABS, ITTOT, IU, &
@@ -73,7 +75,7 @@ do ISYM=1,NSYM
             ONEADD = Zero
             if (ISYM == 1) then
               FAI = FIMO(NFIMOES+iTri(IATOT,II))
-              ONEADD = FAI/real(max(1,NACTEL),kind=wp)
+              ONEADD = FAI/real(max(1,CI_St(iState)%nActEl),kind=wp)
             end if
             do IT=1,NASH(ISYMT)
               ITABS = IT+NAES(ISYMT)

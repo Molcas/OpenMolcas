@@ -9,39 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Setup_RASSCF()
+!> The CI space as read from the input or the wave-function file (spin,
+!> active electrons, state symmetry, RAS and GAS description). Only the
+!> input readers and the CI setups use it; after the setup the programs
+!> read the state from CI_Info (CI_St(iState)).
+module CI_Input
 
-use Molcas, only: MxLev
-use general_data, only: Level, nActel, nElec3, NGAS, NGSSH, nHole1, NLEV, nRas, nRasEl, nRs1, nRs2, nRs3, nRsPrt, NSM, nSym
+use Molcas, only: MxSym, MxGas
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IGAS, iq, ISYM, nRs1T, NSTA
+private
 
-NLEV = 0
-do IGAS=1,NGAS
-  do ISYM=1,NSYM
-    NSTA = NLEV+1
-    NLEV = NLEV+NGSSH(IGAS,ISYM)
-    NSM(NSTA:NLEV) = ISYM
-  end do
-end do
+integer(kind=iwp) :: ISPIN, NACTEL, NELEC3, NHOLE1, NLEV, NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T, NRS3(mxSym), NRS3T, STSYM
+integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
+logical(kind=iwp) :: iDoGas = .false.
 
-Level(1:MxLev) = [(iq,iq=1,MxLev)]
+public :: iDoGas, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NLEV, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM
 
-if (nHole1+nElec3 /= 0) then
-  nRsPrt = 3
-  nRas(:,1) = nRs1(:)
-  nRas(:,2) = nRs2(:)
-  nRas(:,3) = nRs3(:)
-  nRs1T = sum(nRs1(1:nSym))
-  nRasEl(1) = 2*nRs1T-nHole1
-  nRasEl(2) = nActel-nElec3
-  nRasEl(3) = nActel
-else
-  nRsPrt = 1
-  nRas(:,1) = nRs2(:)
-  nRasEl(1) = nActel
-end if
-
-end subroutine Setup_RASSCF
+end module CI_Input

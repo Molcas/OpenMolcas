@@ -20,7 +20,7 @@ subroutine CNHCN(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DT
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use lucia_data, only: PSSIGN
-use spinfo, only: NCSFTP, NDTFTP
+use lucia_data, only: NCSFTP, NDTFTP
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

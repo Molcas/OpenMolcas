@@ -34,8 +34,8 @@ use Index_Functions, only: nTri_Elem
 use rasscf_global, only: INVEC, iRlxRoot, iROOT, iZROT, NAC, NACPAR, NACPR2, NIN, NO2M, NORBT, NROOTS, NSEC, NTIT, NTOT3, NTOT4, &
                          Title
 use jobiph_j, only: ispin_j, lsym_j, nactel_j, ndel_j, nelec3_j, nfro_j, nhole1_j, nish_j, nrs1_j, nrs2_j, nrs3_j, title_j
-use general_data, only: IGSOCCX, ISPIN, NACTEL, NASH, NBAS, NDEL, NDELT, NELEC3, NFRO, NFROT, NGAS, NGSSH, NHOLE1, NISH, NORB, &
-                        NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, STSYM
+use Orbital_Spaces, only: NASH, NBAS, NDEL, NDELT, NFRO, NFROT, NISH, NORB, NSSH, NSYM, NTOT, NTOT1, NTOT2
+use CI_Input, only: IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM, STSYM
 use Definitions, only: iwp
 
 implicit none
@@ -131,7 +131,6 @@ NFROT = sum(NFRO(1:NSYM))
 NSEC = sum(NSSH(1:NSYM))
 NORBT = sum(NORB(1:NSYM))
 NTOT3 = sum(nTri_Elem(NORB(1:NSYM)))
-NTOTSP = sum(nTri_Elem(NASH(1:NSYM)))
 NTOT4 = sum(NORB(1:NSYM)**2)
 NRS1T = sum(NRS1(1:NSYM))
 NRS2T = sum(NRS2(1:NSYM))

@@ -26,7 +26,6 @@ use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
 use CI_Info, only: CI_St
 use caspt2_global, only: iPrGlb
-use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, nAshT, nG1, nG2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
@@ -61,7 +60,7 @@ if (ISCF == 2) then
   return
 end if
 ! Special code for closed-shell:
-if ((ISCF == 1) .and. (NACTEL > 0)) then
+if ((ISCF == 1) .and. (CI_St(iState)%nActEl > 0)) then
   do IT=1,NASHT
     G1(IT,IT) = Two
     G2(IT,IT,IT,IT) = Two
@@ -108,11 +107,11 @@ do while (Rsv_Tsk(ID,iTask))
   ISU = CI_St(istate)%ISm(LU)
   IU = CI_St(istate)%L2Act(LU)
   ISTU = Mul(IST,ISU)
-  ISSG1 = Mul(ISTU,STSYM)
+  ISSG1 = Mul(ISTU,CI_St(iState)%STSym)
   NSGM1 = CI_St(istate)%nCSF(ISSG1)
   if (NSGM1 == 0) cycle
-  call GETSGM2(LU,LT,STSYM,CI1,NCONF,SGM1,NSGM1)
-  if (ISTU == STSYM) then
+  call GETSGM2(LU,LT,CI_St(iState)%STSym,CI1,NCONF,SGM1,NSGM1)
+  if (ISTU == CI_St(iState)%STSym) then
     GTU = DDOT_(NSGM1,CI2,1,SGM1,1)
     G1(IT,IU) = G1(IT,IU)+GTU
     !G1(IU,IT) = GTU
@@ -130,7 +129,7 @@ do while (Rsv_Tsk(ID,iTask))
       ISSG2 = Mul(ISVX,ISSG1)
       NSGM2 = CI_St(istate)%nCSF(ISSG2)
       if (NSGM2 == 0) cycle
-      if (ISSG2 == STSYM) then
+      if (ISSG2 == CI_St(iState)%STSym) then
         !if (LX == LT) then
         !  ! then actually T=U=V=X.
         !  GTUVX = DDOT_(NSGM,SGM1,1,SGM1,1)
@@ -155,9 +154,9 @@ do while (Rsv_Tsk(ID,iTask))
     end do
   end do
 
-  call GETSGM2(LU,LT,STSYM,CI2,NCONF,SGM1,NSGM1)
+  call GETSGM2(LU,LT,CI_St(iState)%STSym,CI2,NCONF,SGM1,NSGM1)
   !if (ISTU == 1) then
-  if (ISTU == STSYM) then
+  if (ISTU == CI_St(iState)%STSym) then
     GTU = DDOT_(NSGM1,CI1,1,SGM1,1)
     G1(IT,IU) = G1(IT,IU)+GTU
   end if
@@ -175,7 +174,7 @@ do while (Rsv_Tsk(ID,iTask))
       ISSG2 = Mul(ISVX,ISSG1)
       NSGM2 = CI_St(istate)%nCSF(ISSG2)
       if (NSGM2 == 0) cycle
-      if (ISSG2 == STSYM) then
+      if (ISSG2 == CI_St(iState)%STSym) then
         call GETSGM2(LX,LV,ISSG1,SGM1,NCONF,SGM2,NSGM2)
         GTUVX = DDOT_(NSGM2,CI1,1,SGM2,1)
         G2(IT,IU,IV,IX) = G2(IT,IU,IV,IX)+GTUVX

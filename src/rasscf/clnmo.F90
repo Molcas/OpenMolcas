@@ -36,7 +36,7 @@ subroutine ClnMO(CMO)
 !***********************************************************************
 
 use rasscf_global, only: CleanMask
-use general_data, only: NSYM, NBAS
+use Orbital_Spaces, only: NSYM, NBAS
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

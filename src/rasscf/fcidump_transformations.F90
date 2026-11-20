@@ -14,7 +14,8 @@
 
 module fcidump_transformations
 
-use general_data, only: nActEl, nAsh, nBas, nSym, ntot1, ntot2
+use Orbital_Spaces, only: nAsh, nBas, nSym, ntot1, ntot2
+use CI_Input, only: nActEl
 use rasscf_global, only: nAc, nAcPar, Emy
 use index_symmetry, only: one_el_idx_flatten
 use Constants, only: Zero

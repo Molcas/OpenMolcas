@@ -33,7 +33,8 @@ subroutine Prec(rpre,ipre,idsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: F0SQMO, FAMO, FIMO, ipCM, nrec
-use general_data, only: nAsh, nIsh, nRS1, nRS2, nRS3, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nSym
+use CI_Input, only: nRS1, nRS2, nRS3
 use input_mclr, only: iMethod, nBas, NewCho, nOrb, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One

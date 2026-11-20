@@ -12,8 +12,8 @@
 subroutine SETSXCI()
 
 use sxci, only: IDXCI, IDXSX
-use general_data, only: NGAS, NGSSH
-use general_data, only: NSYM
+use CI_Input, only: NGAS, NGSSH
+use Orbital_Spaces, only: NSYM
 use Molcas, only: MxGAS
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

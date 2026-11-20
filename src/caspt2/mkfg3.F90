@@ -64,7 +64,6 @@ use PrintLevel, only: DEBUG, VERBOSE
 use CI_Info, only: CI_St
 use CI_States, only: CI_Epq_Psi
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
-use general_data, only: nActEl, STSym
 use caspt2_module, only: EPSA, MxCI, nAshT, nBasT, nSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
@@ -104,7 +103,7 @@ if (mkF) then
   F3(:) = Zero
 end if
 
-if (NACTEL == 0) return
+if (CI_St(iState)%nActEl == 0) return
 
 ! This should not happen, but...
 if (NCI == 0) return
@@ -221,7 +220,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
 !                                                                      *
 !***********************************************************************
 
-  isp1 = Mul(issg1,stsym)       ! Symmetry index of E_ut
+  isp1 = Mul(issg1,CI_St(iState)%STSym)       ! Symmetry index of E_ut
 
   ! form: H0_I = \sum_t e_{t}  |I><I|E_{tt}|I><I|
 
@@ -295,7 +294,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
           ip1_buf(ibuf1) = ip1i
           ! form E_ut |0>
           BUF1(1:nSgm1,iBuf1) = Zero
-          call CI_Epq_Psi(istate,IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
+          call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibuf1))
         end if
       end do
 
@@ -312,7 +311,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     ! form <0| *  E_ut|0> = G_tu and
     !      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
 
-    if ((issg1 == stsym) .and. (ip3 == 1)) then
+    if ((issg1 == CI_St(iState)%STSym) .and. (ip3 == 1)) then
       if (mkF) then
         do ib=1,ibuf1
           idx = ip1_buf(ib)
@@ -353,13 +352,13 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
     isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
-    issg2 = Mul(isyz,stsym)
+    issg2 = Mul(isyz,CI_St(iState)%STSym)
     iy = CI_St(istate)%L2Act(iylev)
     iz = CI_St(istate)%L2Act(izlev)
     nsgm2 = CI_St(istate)%nCSF(issg2)
     BUF2(1:nSgm2) = Zero
     ! form <0| E_zy|
-    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,STSYM,CI,BUF2)
+    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(iState)%STSym,CI,BUF2)
 
     if (issg2 == issg1) then
 
@@ -669,11 +668,12 @@ contains
 ! Build the task list for symmetry issg
 subroutine build_TaskList(issg,nTasks_,nSubTasks_)
 
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: issg
   integer(kind=iwp), intent(out) :: nTasks_, nSubTasks_
   integer(kind=iwp) :: ibuf1, iOffSet, ip1, ip1end, ip1sta, ip3mx, isp1, istu, iTask, itlev, iulev
 
-  isp1 = Mul(issg,stsym)  ! Symmetry index of E_ut
+  isp1 = Mul(issg,CI_St(iState)%STSym)  ! Symmetry index of E_ut
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
   !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
