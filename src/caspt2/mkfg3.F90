@@ -62,7 +62,7 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG, VERBOSE
 use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi
+use CI_States, only: CI_Epq_Psi, CI_New_Tag
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
 use caspt2_module, only: EPSA, MxCI, nAshT, nBasT, nSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
@@ -80,7 +80,7 @@ integer(kind=byte), intent(out) :: idxG3(6,nG3)
 integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, IP1STA, IP2, &
                      IP3, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, IXLEV, &
                      IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, NLEV2, NSGM1, &
-                     NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2, NBAT, NBATMX, NCOL, MEMBAT
+                     NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2, NBAT, NBATMX, NCOL, MEMBAT, TAG_CI, TAG_BUF2
 real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
 integer(kind=iwp), allocatable :: BAT_IDX(:,:), ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:,:), BUFT(:,:)
@@ -97,6 +97,9 @@ real(kind=wp), external :: DDOT_, DNRM2_
 
 ! Put in zeroes. Recognize special cases:
 if (nlev == 0) return
+
+! tags of the CI vectors for CI_Epq_Psi (CI is fixed, BUF2 changes per ip3)
+TAG_CI = CI_New_Tag()
 
 G1(:,:) = Zero
 G2(:,:,:,:) = Zero
@@ -304,7 +307,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
           ip1_buf(ibuf1) = ip1i
           ! form E_ut |0>
           BUF1(1:nSgm1,iBuf1) = Zero
-          call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibuf1))
+          call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibuf1),TAG_CI)
         end if
       end do
 
@@ -368,7 +371,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     nsgm2 = CI_St(istate)%nCSF(issg2)
     BUF2(1:nSgm2) = Zero
     ! form <0| E_zy|
-    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(iState)%STSym,CI,BUF2)
+    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(iState)%STSym,CI,BUF2,TAG_CI)
+    TAG_BUF2 = CI_New_Tag()
 
     if (issg2 == issg1) then
 
@@ -434,7 +438,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
       j = NCOL*(nbat-1)+1
       BUFT(1:nSgm1,j) = Zero
       ! form <0| E_zy E_xv
-      call CI_Epq_Psi(istate,IVLEV,IXLEV,One,ISSG2,BUF2,BUFT(:,j))
+      call CI_Epq_Psi(istate,IVLEV,IXLEV,One,ISSG2,BUF2,BUFT(:,j),TAG_BUF2)
       ! Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
       ! form <0| E_zy E_xv (H0 -e_v)
       if (mkF) BUFT(1:nSgm1,j+1) = (BufD(1:nSgm1)-EpsA(bat_idx(3,nbat)))*BufT(1:nSgm1,j)
