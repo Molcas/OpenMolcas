@@ -58,7 +58,7 @@ write(LuWr,*) 'Focka=',DDot_(nDens,Focka,1,Focka,1)
 #endif
 
 ! rmoa (antisymmetric integrals) was only needed for the retired spin polarization
-unused_var(rmoa)
+unused_var(rmoa(1))
 
 Fact = -One
 Fock(:) = Zero
