@@ -361,7 +361,7 @@ public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
 public :: SG_Map_CSFs, SG_Num_Setup
 public :: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Cnf_Occ, SG_Select_Explicit, SG_Block_H, SG_Explicit_Block
 public :: SG_Cnf_Avg_Diag
-public :: SG_CSF_StepVec, SG_MatEl_Tpq, SG_Tpq_Psi, SG_Tpq_Psi_Ref, SG_Xpq_Psi
+public :: CSF_Det_Expand, SG_CSF_StepVec, SG_MatEl_Tpq, SG_Tpq_Psi, SG_Tpq_Psi_Ref, SG_Xpq_Psi
 
 ! The split-graph coupling tables of the triplet operator (TRP_Setup): the
 ! tuples (key, left/right half walk, their symmetries, right midvertex,
