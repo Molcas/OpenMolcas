@@ -185,6 +185,9 @@ subroutine sg_h_op_core(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,nL,H1,n2,G2)
       do j=1,nL
         do i=1,nL
           if (Exact(i,j,k,l)) cycle
+          ! (only the elements of the operator symmetry are read: the others
+          ! may be undefined)
+          if (MUL(MUL(SGS%ISm(i),SGS%ISm(j)),MUL(SGS%ISm(k),SGS%ISm(l))) /= iOp) cycle
           V = Half*Gv(i,j,k,l)
           if (V == Zero) cycle
           ! [E_ij,E_kl] = delta_jk E_il - delta_il E_kj
@@ -196,6 +199,7 @@ subroutine sg_h_op_core(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,nL,H1,n2,G2)
   end do
   do l=1,nL
     do i=1,nL
+      if (MUL(SGS%ISm(i),SGS%ISm(l)) /= iOp) cycle
       if (F(i,l) == Zero) cycle
       call SG_Epq_Psi(SGS,CIS,EXS,i,l,F(i,l),PsiSym,Psi,Sigma,CI_Tag=tPsi)
     end do
