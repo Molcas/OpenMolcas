@@ -63,8 +63,7 @@
 !> library keeps its own internal basis, ordering and work space.
 !>
 !> Libraries: the MCLR copy of Lucia (all operations); SGUGA (CAS/RAS,
-!> singlet operators between vectors of the same symmetry, no Square, no P
-!> space; the split graph has to be set up with the coupling tables,
+!> singlet operators between vectors of the same symmetry, no Square; the split graph has to be set up with the coupling tables,
 !> CI_Lib_Graph_Mode() = 'FULL'). The orbital spaces are taken from
 !> Orbital_Spaces (nSym, nOrb, nIsh, nAsh), the active orbitals in symmetry
 !> order. SGUGA takes the integrals in that order and maps them to the
@@ -294,7 +293,10 @@ subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,
   real(kind=wp), intent(in) :: Diag(n)
   integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
   real(kind=wp), intent(out) :: HP(nHP)
-  if (CI_Lib_Op == CI_Lib_SGUGA) call Not_Yet('CI_PSpace','the explicit P space')
+  if (CI_Lib_Op == CI_Lib_SGUGA) then
+    call SG_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,nPMax,nP,IdxP,nHP,HP)
+    return
+  end if
   call Check_Lib('CI_PSpace',associated(MCLR_Lucia_PSpace))
   call MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
 end subroutine CI_PSpace
@@ -462,6 +464,46 @@ subroutine SG_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   call mma_deallocate(R1)
   call mma_deallocate(L2O)
 end subroutine SG_Trans_Dens
+
+!> SGUGA: the explicit P space (as Mk_IHJ for RASSCF): whole configurations
+!> by increasing mean of the exact CSF diagonal until nPMax CSFs, and the
+!> block of the active Hamiltonian (no core energy, as for the MCLR copy of
+!> Lucia; the program shifts it). The diagonal of the program (Diag) is not
+!> needed for the selection.
+subroutine SG_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,nPMax,nP,IdxP,nHP,HP)
+  use sguga, only: CIS, EXS, SGCnfList, SGS, SG_Explicit_Block, SG_Free_Cnf_List, SG_Mk_Cnf_List, SG_Select_Explicit
+  use SGUGA_Sigma, only: sg_hdiag_fast
+  use Orbital_Spaces, only: nAsh, nSym
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, nPMax, nHP
+  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
+  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+  real(kind=wp), intent(out) :: HP(nHP)
+  integer(kind=iwp) :: nCSF, NPCNF, nTU, nTUVX
+  integer(kind=iwp), allocatable :: IPCNF(:)
+  real(kind=wp), allocatable :: DX(:), TU(:), TUVX(:)
+  type(SGCnfList) :: Cnf
+  nTU = nTri_Elem(sum(nAsh(1:nSym)))
+  nTUVX = nTri_Elem(nTU)
+  call mma_allocate(TU,nTU,Label='TU')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX')
+  call SG_Ints(iState,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
+  nCSF = CI_St(iState)%nCSF(iSym)
+  call mma_allocate(DX,nCSF,Label='DX')
+  call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nCSF,iSym,TUVX,nTUVX,TU,nTU,DX)
+  call SG_Mk_Cnf_List(iState,iSym,Cnf)
+  call mma_allocate(IPCNF,max(1,Cnf%nCnf),Label='IPCNF')
+  call SG_Select_Explicit(Cnf,DX,nPMax,NPCNF,IPCNF,nP,IdxP)
+  if (nHP < nTri_Elem(nP)) call Abend()
+  call SG_Explicit_Block(iState,Cnf,NPCNF,IPCNF,Zero,TU,nTU,TUVX,nTUVX,HP)
+  call SG_Free_Cnf_List(Cnf)
+  call mma_deallocate(IPCNF)
+  call mma_deallocate(DX)
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
+end subroutine SG_PSpace
 
 !> SGUGA: the CSF diagonal (exact or configuration average) + ECore
 subroutine SG_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
