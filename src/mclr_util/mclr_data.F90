@@ -122,7 +122,6 @@ module MCLR_Data
 !  INT1  : 1-electron integrals
 !  INT2  : 2-electron integrals
 !  PINT1 : Offsets to symmetry blocks
-!  PINT2 : Offsets to symmetry blocks
 !  KAIN1
 !  KINT2
 !  KINT2A
@@ -162,7 +161,7 @@ logical(kind=iwp) :: Do_Hybrid, esterr, Fancy_Preconditioner, isMECIMSPD, isNAC,
 character(len=LenIn+6) :: ChDisp(Mxdccc*3)
 character(len=8) :: FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, &
                     FNTRI5, FnTwo, SwLbl(Mxdccc)
-integer(kind=iwp), allocatable :: H0F(:), pINT1(:), pINT2(:), SBIDT(:)
+integer(kind=iwp), allocatable :: H0F(:), pINT1(:), SBIDT(:)
 real(kind=wp), allocatable :: CMO_Inv(:), F0SQMO(:), FAMO(:), FIMO(:), G1t(:), G2sq(:), G2t(:), H0S(:), Hss(:), INT2(:), &
                               SS(:,:)
 real(kind=wp), allocatable, target :: CMO(:), INT1(:)
@@ -177,6 +176,6 @@ public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, F0SQMO, FAMO, F
           MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, n1Dens, n2Dens, na, NACOB, nacpar, nacpr2, NACstates, NAELCI, nb, &
           NBELCI, nCMO, NCNASM, nconf1, NCPCNT, NCSASM, nDens, nDensC, NDPCNT, NDTASM, NELCI, NewPre, nexp, nexp_max, ngp, &
           nhess, NICISP, nmba, nna, NOBPT, NOBPTS, NOCOB, NOCSF, Nofile, NOPART, NORB1, NORB2, NORB3, nrec, NSSA, NTOOB, NTSOB, &
-          override, P1, P1INV, PDFT_Ratio, pINT1, pINT2, PSSIGN, ResQaaLag2, SA, SBIDT, square, SS, SwLbl, WF_Ratio, XISPSM
+          override, P1, P1INV, PDFT_Ratio, pINT1, PSSIGN, ResQaaLag2, SA, SBIDT, square, SS, SwLbl, WF_Ratio, XISPSM
 
 end module MCLR_Data

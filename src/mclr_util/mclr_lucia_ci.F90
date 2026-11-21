@@ -51,10 +51,24 @@ end subroutine MCLR_Lucia_Init
 
 !> Free the determinant tables (State_Proc of CI_Operations)
 subroutine MCLR_Lucia_Close(iState)
+  use Str_Info, only: CFTP, CNSM, DFTP, DTOC
+  use MCLR_Data, only: pInt1
+  use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState
+  integer(kind=iwp) :: i
 #include "macros.fh"
   unused_var(iState)
-  if (Initialized) call FreeStr()
+  if (Initialized) then
+    call FreeStr()
+    call mma_deallocate(DTOC)
+    call mma_deallocate(CFTP)
+    call mma_deallocate(DFTP)
+    call mma_deallocate(pInt1)
+  end if
+  do i=1,size(CNSM)
+    call mma_deallocate(CNSM(i)%ICONF,safe='*')
+    call mma_deallocate(CNSM(i)%ICTS,safe='*')
+  end do
   Initialized = .false.
 end subroutine MCLR_Lucia_Close
 
@@ -232,11 +246,14 @@ end subroutine MCLR_Lucia_Diag
 
 !> The explicit P space (PSpace_Proc of CI_Operations): H0MAT_MCLR with
 !> a P2 space of at most nPMax CSFs (no P1 and Q spaces)
-subroutine MCLR_Lucia_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
+subroutine MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
   use Index_Functions, only: nTri_Elem
-  use MCLR_Data, only: IDC, iRefSM, NACOB, NAELCI, NBELCI, NCSFTP, NDPCNT, NOCOB, NTYP, PSSIGN, XISPSM
+  use MCLR_Data, only: IDC, ipCM, iRefSM, KAIN1, KINT2, NACOB, NAELCI, NBELCI, NCSFTP, NDPCNT, NOCOB, NTYP, pInt1, PSSIGN, &
+                       XISPSM
+  use Orbital_Spaces, only: nSym
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, iSym, n, nPMax, nHP
+  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP
+  real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
   real(kind=wp), intent(in) :: Diag(n)
   integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
   real(kind=wp), intent(out) :: HP(nHP)
@@ -259,6 +276,10 @@ subroutine MCLR_Lucia_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
     ieaw = 2
   end if
   if (nHP < nTri_Elem(nPMax)) call Abend()
+  ! the integrals of the (totally symmetric) Hamiltonian, as for sigma
+  KAIN1(1:nInt1) => Int1(:)
+  KINT2(1:nInt2) => Int2(:)
+  pInt1(1:nSym) = ipCM(1:nSym)
   call mma_allocate(SBCnf,nPMax,Label='SBCnf')
   call mma_allocate(H0Scr,lH0Scr,Label='H0Scr')
   call mma_allocate(Vec2,lVec2,Label='Vec2')
@@ -266,6 +287,7 @@ subroutine MCLR_Lucia_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
   call mma_deallocate(Vec2)
   call mma_deallocate(H0Scr)
   call mma_deallocate(SBCnf)
+  nullify(KAIN1,KINT2)
 
 end subroutine MCLR_Lucia_PSpace
 

@@ -41,10 +41,9 @@ subroutine MCLR(ireturn)
 use Index_Functions, only: nTri_Elem
 use External_Centers, only: External_Centers_Free
 use Symmetry_Info, only: Symmetry_Info_Free
-use Str_Info, only: CFTP, CNSM, DFTP, DTOC
 use ipPage, only: ipclose
 use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FIMO, G1t, &
-                     G2sq, G2t, Hss, iAllo, Int1, INT2, LuPT2, nA, nAcPar, nAcPr2, NACSTATES, nNA, nrec, PDFT_Ratio, pINT1, pINT2, &
+                     G2sq, G2t, Hss, iAllo, Int1, INT2, LuPT2, nA, nAcPar, nAcPr2, NACSTATES, nNA, nrec, PDFT_Ratio, &
                      SA, SS, WF_Ratio
 use PCM_grad, only: PCM_grad_final
 use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
@@ -319,25 +318,9 @@ call External_Centers_Free()
 !                                                                      *
 ! Deallocate memory
 
-! Arrays in csf.f
-if (iMethod == 2) then
-  call mma_deallocate(DTOC)
-  call mma_deallocate(CFTP)
-  call mma_deallocate(DFTP)
-end if
-do i=1,size(CNSM)
-  call mma_deallocate(CNSM(i)%ICONF,safe='*')
-  call mma_deallocate(CNSM(i)%ICTS,safe='*')
-end do
-
 ! Free arrays allocated by memstr.f
 ! Arrays in inpone.f
 call mma_deallocate(INT1)
-! Arrays in detctl.f
-if (iMethod == 2) then
-  call mma_deallocate(pINT2)
-  call mma_deallocate(pINT1)
-end if
 
 ! Array in rdab.f
 if (iMethod == 1) call mma_deallocate(CMO)

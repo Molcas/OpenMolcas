@@ -50,7 +50,7 @@ call mma_allocate(SBIDT,MXP,Label='SBIDT')
 call mma_allocate(H0S,MXP**2,Label='H0S')
 call mma_allocate(H0F,MXP,Label='H0F')
 call mma_allocate(H0T,nTri_Elem(MXP),Label='H0T')
-call CI_PSpace(iState,iSym,nCSF(iSym),rdia,MXP,nprciv,SBIDT,size(H0T),H0T)
+call CI_PSpace(iState,iSym,size(FIMO),FIMO,size(Int2),Int2,nCSF(iSym),rdia,MXP,nprciv,SBIDT,size(H0T),H0T)
 do i=1,nprciv
   H0T(nTri_Elem(i)) = H0T(nTri_Elem(i))-ENA
 end do

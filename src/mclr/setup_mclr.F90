@@ -14,18 +14,17 @@ subroutine SetUp_MCLR(DSYM)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: ipCM, ipMat, ipMatBA, ipMatLT, ipMO, n1Dens, n2Dens, nA, nB, nCMO, nDens, nDensC, nMBA, nNA, pInt1, pInt2
+use MCLR_Data, only: ipCM, ipMat, ipMatBA, ipMatLT, ipMO, n1Dens, n2Dens, nA, nB, nCMO, nDens, nDensC, nMBA, nNA
 use Orbital_Spaces, only: nAsh, nIsh, nSym
 use CI_Input, only: nRS1, nRS2, nRs3
-use input_mclr, only: iMethod, nBas, nDel, nFro, nOrb, PT2, TimeDep
+use input_mclr, only: nBas, nDel, nFro, nOrb, PT2, TimeDep
 use caspt2_module, only: nBMx
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: dsym
-integer(kind=iwp) :: i, i1, iExt0, iExt1, iExt2, iExt3, iExt4, iInt0, iInt1, iInt2, iInt3, iInt4, iiSym, ijNum, ijOrb, ijS, ijSym, &
-                     iOff, iOrb, ip, iPlus, ipP, iS, jjSym, jOrb, jS, kkSym, klNum, klOrb, klS, klSym, kOrb, kS, llSym, lOrb, lS, &
-                     mATAB, nDensLT
+integer(kind=iwp) :: i, i1, iExt0, iExt1, iExt2, iExt3, iExt4, iInt0, iInt1, iInt2, iInt3, iInt4, ijS, ip, ipP, iS, jS, klS, &
+                     kS, lS, mATAB, nDensLT
 integer(kind=iwp), external :: iPntSO
 
 !                                                                      *
@@ -115,75 +114,6 @@ do jS=1,nSym
   end do
 end do
 
-! To begin with we assume that we have permutation symmetry
-
-if (iMethod == 2) then
-  iOff = 1
-  do iiSym=1,nSym
-    iOrb = nRs1(iiSym)+nRs2(iiSym)+nRs3(iiSym)
-    do jjSym=1,iiSym
-      jOrb = nRs1(jjSym)+nRs2(jjSym)+nRs3(jjSym)
-
-      if (Mul(iiSym,jjSym) == Dsym) then
-        pINT1(iiSym) = iOff
-        if (iiSym == jjSym) then
-          iOff = iOff+nTri_Elem(iOrb)
-        else
-          iOff = iOff+iOrb*jOrb
-        end if
-      end if
-
-    end do
-  end do
-
-  iOff = 1
-  do iiSym=1,nSym
-    iOrb = nRs1(iiSym)+nRs2(iiSym)+nRs3(iiSym)
-    do jjSym=1,iiSym
-      jOrb = nRs1(jjSym)+nRs2(jjSym)+nRs3(jjSym)
-
-      ijSym = Mul(iiSym,jjSym)
-      klSym = Mul(ijSym,DSym)
-
-      ijNum = iTri(iiSym,jjSym)
-
-      if (iiSym == jjSym) then
-        ijOrb = nTri_Elem(iOrb)
-      else
-        ijOrb = iOrb*jOrb
-      end if
-      do kkSym=1,nsym
-        kOrb = nRs1(kkSym)+nRs2(kkSym)+nRs3(kkSym)
-
-        llSym = Mul(klSym,kkSym)
-        lOrb = nRs1(llSym)+nRs2(llSym)+nRs3(llSym)
-
-        if (llSym > kkSym) cycle
-
-        klNum = iTri(kkSym,llSym)
-        if (klNum > ijNum) cycle
-
-        if (kkSym == llSym) then
-          klOrb = nTri_Elem(kOrb)
-        else
-          klOrb = kOrb*lOrb
-        end if
-        ip = iiSym+nSym*((jjSym-1)+nSym*(kkSym-1))
-        if (ijNum == klNum) then
-          iPlus = nTri_Elem(ijOrb)
-        else
-          iPlus = ijOrb*klOrb
-        end if
-
-        if (iPlus > 0) pINT2(ip) = iOff
-
-        iOff = iOff+iPlus
-
-      end do
-    end do
-  end do
-end if
-
 call Get_iArray('nFro',nFro,nSym)
 do i=1,nSym
   if (nFro(i) /= 0) then
@@ -201,7 +131,5 @@ do i=1,nSym
   end if
 end do
 call Put_iArray('nDelPT',nDel,nSym)
-
-!call iWrtMa(pINT2,64,8,64,8)
 
 end subroutine SetUp_MCLR

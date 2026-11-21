@@ -15,7 +15,7 @@ use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use rctfld_module, only: Conductor, lRF
-use MCLR_Data, only: CMO, Int1, KAIN1, nDens, SA
+use MCLR_Data, only: CMO, Int1, nDens, SA
 use Orbital_Spaces, only: nIsh, nSym
 use input_mclr, only: nAtoms, nBas, nFro, nOrb, PotNuc, PT2
 use PCM_grad, only: DSCFAO, DSCFMO, iCharge_PCM, iStpPCM, PCM_grad_dens, PCM_grad_dens2, potnuc_pcm, RFPERT
@@ -48,7 +48,6 @@ end if
 iRc = -1
 iOpt = 0
 call mma_allocate(Int1,nDens,Label='Int1')
-kain1 => Int1
 
 call mma_allocate(Temp1,leng+10,Label='Temp1')
 call mma_allocate(Temp2,nDens,Label='Temp2')

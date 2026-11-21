@@ -12,7 +12,7 @@
 subroutine DetCtl()
 
 use CI_Info, only: CI_St
-use MCLR_Data, only: FnCSF2SD, i12, ICISTR, idc, IDIAG, iST, LuCSF2SD, MS2, NOCSF, NOPART, pINT1, pINT2, PSSIGN
+use MCLR_Data, only: FnCSF2SD, i12, ICISTR, idc, IDIAG, iST, LuCSF2SD, MS2, NOCSF, NOPART, pINT1, PSSIGN
 use Orbital_Spaces, only: nSym
 use CI_Input, only: nElec3, nHole1, nRs1, nRs2, nRs3
 use input_mclr, only: nIrrep
@@ -26,8 +26,6 @@ integer(kind=iwp) :: iTmp, MNRS10, MXR4TP, MXRS30, nTRas1, nTRas3
 
 call mma_Allocate(pINT1,nSym,Label='pInt1')
 pInt1(:) = 0
-call mma_Allocate(pINT2,nSym**3,Label='pInt2')
-pInt2(:) = 0
 
 NOCSF = 0
 nopart = 0

@@ -51,8 +51,7 @@
 !>    selected by the library from the diagonal Diag (lowest first, complete
 !>    configurations), its nP CSF indices IdxP and the block of H (plus
 !>    ECore on the diagonal, as Diag) packed as a lower triangle, HP(iTri(i,j))
-!>    = <IdxP(i)|H|IdxP(j)>, with the integrals of the last setup of the
-!>    library (as for CI_Diag).
+!>    = <IdxP(i)|H|IdxP(j)>; Int1 and Int2 as for CI_Diag.
 !>  - CI_Lib_File_To_Basis, CI_Lib_Basis_To_File: a CI vector of symmetry
 !>    iSym between the stored basis (JobIph) and the CSF basis of the
 !>    selected library, in place.
@@ -107,9 +106,10 @@ abstract interface
     real(kind=wp), intent(in) :: ECore
     real(kind=wp), intent(out) :: Diag(n)
   end subroutine Diag_Proc
-  subroutine PSpace_Proc(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
+  subroutine PSpace_Proc(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
     import :: wp, iwp
-    integer(kind=iwp), intent(in) :: iState, iSym, n, nPMax, nHP
+    integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP
+    real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
     real(kind=wp), intent(in) :: Diag(n)
     integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
     real(kind=wp), intent(out) :: HP(nHP)
@@ -237,13 +237,14 @@ subroutine CI_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
 end subroutine CI_Diag
 
-subroutine CI_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
-  integer(kind=iwp), intent(in) :: iState, iSym, n, nPMax, nHP
+subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
+  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP
+  real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
   real(kind=wp), intent(in) :: Diag(n)
   integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
   real(kind=wp), intent(out) :: HP(nHP)
   call Check_Lib('CI_PSpace',associated(MCLR_Lucia_PSpace))
-  call MCLR_Lucia_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
+  call MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
 end subroutine CI_PSpace
 
 subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
