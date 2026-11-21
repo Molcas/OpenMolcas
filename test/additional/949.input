@@ -33,7 +33,7 @@ End of Grid input
 &SCF
 
 &RASSCF
- FileOrb = $Project.scf.h5
+ FileOrb = $Project.ScfOrb
  LUMORB
  Symmetry = 1
  Spin = 1
