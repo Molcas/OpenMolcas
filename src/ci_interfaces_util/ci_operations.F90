@@ -46,6 +46,13 @@
 !>    Int1 and Int2 as for the sigma with iOp = 1 and Square = .false..
 !>    Mode = CI_Diag_Cnf_Avg: averaged over the CSFs of each configuration
 !>    (Lucia's CSDIAG); CI_Diag_Exact: the exact CSF diagonal.
+!>  - CI_PSpace: the explicit part of the Hamiltonian for the
+!>    preconditioner: a P space of at most nPMax CSFs of symmetry iSym,
+!>    selected by the library from the diagonal Diag (lowest first, complete
+!>    configurations), its nP CSF indices IdxP and the block of H (plus
+!>    ECore on the diagonal, as Diag) packed as a lower triangle, HP(iTri(i,j))
+!>    = <IdxP(i)|H|IdxP(j)>, with the integrals of the last setup of the
+!>    library (as for CI_Diag).
 !>  - CI_Lib_File_To_Basis, CI_Lib_Basis_To_File: a CI vector of symmetry
 !>    iSym between the stored basis (JobIph) and the CSF basis of the
 !>    selected library, in place.
@@ -100,6 +107,13 @@ abstract interface
     real(kind=wp), intent(in) :: ECore
     real(kind=wp), intent(out) :: Diag(n)
   end subroutine Diag_Proc
+  subroutine PSpace_Proc(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
+    import :: wp, iwp
+    integer(kind=iwp), intent(in) :: iState, iSym, n, nPMax, nHP
+    real(kind=wp), intent(in) :: Diag(n)
+    integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+    real(kind=wp), intent(out) :: HP(nHP)
+  end subroutine PSpace_Proc
   subroutine State_Proc(iState)
     import :: iwp
     integer(kind=iwp), intent(in) :: iState
@@ -117,11 +131,12 @@ procedure(TDens_Proc), pointer :: MCLR_Lucia_TDens => null()
 procedure(Diag_Proc), pointer :: MCLR_Lucia_Diag => null()
 procedure(Conv_Proc), pointer :: MCLR_Lucia_Conv => null()
 procedure(State_Proc), pointer :: MCLR_Lucia_Init => null(), MCLR_Lucia_Close => null()
+procedure(PSpace_Proc), pointer :: MCLR_Lucia_PSpace => null()
 
 public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Faroald, CI_Lib_File_To_Basis, &
           CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_Op, CI_Lib_Register, CI_Lib_Select, &
-          CI_Lib_SGUGA, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens, Conv_Proc, Diag_Proc, Sigma_Proc, State_Proc, &
-          TDens_Proc
+          CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens, Conv_Proc, Diag_Proc, PSpace_Proc, &
+          Sigma_Proc, State_Proc, TDens_Proc
 
 contains
 
@@ -141,7 +156,8 @@ subroutine CI_Lib_Select(iLib)
 end subroutine CI_Lib_Select
 
 !> MCLR registers the routines of its copy of Lucia
-subroutine CI_Lib_Register(Init,Close,Sigma,TDens,Diag,Conv)
+subroutine CI_Lib_Register(Init,Close,Sigma,TDens,Diag,PSpace,Conv)
+  procedure(PSpace_Proc) :: PSpace
   procedure(State_Proc) :: Init, Close
   procedure(Sigma_Proc) :: Sigma
   procedure(TDens_Proc) :: TDens
@@ -153,6 +169,7 @@ subroutine CI_Lib_Register(Init,Close,Sigma,TDens,Diag,Conv)
   MCLR_Lucia_Conv => Conv
   MCLR_Lucia_Init => Init
   MCLR_Lucia_Close => Close
+  MCLR_Lucia_PSpace => PSpace
 end subroutine CI_Lib_Register
 
 !> Set up the selected library for the CI state
@@ -173,6 +190,7 @@ subroutine CI_Lib_Close(iState)
   MCLR_Lucia_Conv => null()
   MCLR_Lucia_Init => null()
   MCLR_Lucia_Close => null()
+  MCLR_Lucia_PSpace => null()
   CI_Lib_Op = CI_Lib_None
 end subroutine CI_Lib_Close
 
@@ -218,6 +236,15 @@ subroutine CI_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   end if
   call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
 end subroutine CI_Diag
+
+subroutine CI_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
+  integer(kind=iwp), intent(in) :: iState, iSym, n, nPMax, nHP
+  real(kind=wp), intent(in) :: Diag(n)
+  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+  real(kind=wp), intent(out) :: HP(nHP)
+  call Check_Lib('CI_PSpace',associated(MCLR_Lucia_PSpace))
+  call MCLR_Lucia_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
+end subroutine CI_PSpace
 
 subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, n

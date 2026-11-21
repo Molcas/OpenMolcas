@@ -12,11 +12,15 @@
 !***********************************************************************
 
 subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
-! frontend to Jeppe's explicit routines
+! The explicit part of the Hamiltonian for the CI preconditioner: the P
+! space of at most MP2 CSFs and its block of H from the CI library
+! (CI_PSpace), shifted by the energy, squared and factorized (H0S, H0F;
+! SBIDT: the CSFs of the P space). Only a P2 space (MP1 = MQ = 0).
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: FIMO, H0F, H0S, IDC, Int2, iRefSM, NACOB, NAELCI, NBELCI, NDPCNT, nGP, NOCOB, PSSIGN, SBIDT, XISPSM
-use MCLR_Data, only: NCSFTP, NTYP
+use CI_Operations, only: CI_PSpace
+use MCLR_Data, only: FIMO, H0F, H0S, Int2, nGP, SBIDT
+use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -25,58 +29,34 @@ real(kind=wp), intent(in) :: rdia(*)
 integer(kind=iwp), intent(in) :: MP1, MP2, MQ, iSym
 integer(kind=iwp), intent(out) :: nprciv
 logical(kind=iwp), intent(in) :: TimeDep
-integer(kind=iwp) :: i, ieaw, iRC, iSpc, lH0SCR, LH0T, lVec2, MxCSFC, MxDTFC, MXP, nActEl, nDet, nSBDet
+integer(kind=iwp), parameter :: iState = 1
+integer(kind=iwp) :: i, iRC, MXP
 real(kind=wp) :: ENA
-integer(kind=iwp), allocatable :: SBCNF(:)
-real(kind=wp), allocatable :: H0Scr(:), H0T(:), Vec2(:)
+real(kind=wp), allocatable :: H0T(:)
 real(kind=wp), external :: E2, E2_TD
 
-ispc = 1
-NDET = nint(XISPSM(ISYM,ISPC))
-
-NSBDET = MP1+MP2+MQ
-MXP = MP1+MP2
-LH0T = nTri_Elem(MXP)+MP1*MQ
-MXCSFC = max(0,maxval(NCSFTP(1:NTYP)))
-MXDTFC = max(0,maxval(NDPCNT(1:NTYP)))
-
-nactel = naelci(1)+nbelci(1)
+if ((MP1 /= 0) .or. (MQ /= 0)) then
+  write(u6,*) 'H0: only a P2 space is implemented (MP1 = MQ = 0)'
+  call Abend()
+end if
+MXP = MP2
 if (TimeDep) then
   EnA = E2_td(FIMO,Int2,0,-1)
 else
   EnA = E2(FIMO,Int2,0,-1)
 end if
-LH0SCR = max(6*NSBDET,4*NSBDET+4*NOCOB,nTri_Elem(MP1)+MP1**2)
-LVEC2 = MXCSFC**2+2*MXDTFC+2*MXDTFC**2+MXDTFC*NACTEL
-LVEC2 = max(lvec2,ndet)
 
-if (isym == irefsm) then
-  ieaw = 1
-else
-  ieaw = 2
-end if
-call mma_allocate(SBIDT,NSBDET,Label='SBIDT')
+call mma_allocate(SBIDT,MXP,Label='SBIDT')
 call mma_allocate(H0S,MXP**2,Label='H0S')
 call mma_allocate(H0F,MXP,Label='H0F')
-call mma_allocate(H0T,LH0T,Label='H0T')
-call mma_allocate(SBCNF,NSBDET,Label='SBCNF')
-call mma_allocate(H0SCR,LH0SCR,Label='H0Scr')
-call mma_allocate(VEC2,lvec2,Label='Vec2')
-
-call H0MAT_MCLR(H0T,SBIDT,SBCNF,MP1,MP2,MQ,NACOB,NPRCIV,ISYM,IDC,PSSIGN,rDIA,Vec2,H0Scr,ieaw)
-
+call mma_allocate(H0T,nTri_Elem(MXP),Label='H0T')
+call CI_PSpace(iState,iSym,nCSF(iSym),rdia,MXP,nprciv,SBIDT,size(H0T),H0T)
 do i=1,nprciv
   H0T(nTri_Elem(i)) = H0T(nTri_Elem(i))-ENA
 end do
 if (NGP) call mkp1(nprciv,SBIDT,H0T,rdia)
-!call Triprt('PRECI',' ',H0T,nprciv)
-!write(u6,*) (SBIDT(i),i=1,nprciv)
-call mma_deallocate(Vec2)
-call mma_deallocate(H0Scr)
-call mma_deallocate(SBCNF)
 call square(H0T,H0S,1,NPRCIV,NPRCIV)
 call mma_deallocate(H0T)
-
 irc = 0
 call dgetrf_(NPRCIV,NPRCIV,H0S,NPRCIV,H0F,irc)
 if (irc /= 0) then

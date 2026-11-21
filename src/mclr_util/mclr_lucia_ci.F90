@@ -32,7 +32,8 @@ contains
 subroutine MCLR_Lucia_CI_Setup()
   use CI_Operations, only: CI_Lib_MCLR_Lucia, CI_Lib_Register, CI_Lib_Select
   call CI_Lib_Select(CI_Lib_MCLR_Lucia)
-  call CI_Lib_Register(MCLR_Lucia_Init,MCLR_Lucia_Close,MCLR_Lucia_Sigma,MCLR_Lucia_TDens,MCLR_Lucia_Diag,MCLR_Lucia_Conv)
+  call CI_Lib_Register(MCLR_Lucia_Init,MCLR_Lucia_Close,MCLR_Lucia_Sigma,MCLR_Lucia_TDens,MCLR_Lucia_Diag,MCLR_Lucia_PSpace, &
+                       MCLR_Lucia_Conv)
 end subroutine MCLR_Lucia_CI_Setup
 
 !> Set up the determinant tables for the CI state (State_Proc of
@@ -208,6 +209,46 @@ subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   call mma_deallocate(DSD)
 
 end subroutine MCLR_Lucia_Diag
+
+!> The explicit P space (PSpace_Proc of CI_Operations): H0MAT_MCLR with
+!> a P2 space of at most nPMax CSFs (no P1 and Q spaces)
+subroutine MCLR_Lucia_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
+  use Index_Functions, only: nTri_Elem
+  use MCLR_Data, only: IDC, iRefSM, NACOB, NAELCI, NBELCI, NCSFTP, NDPCNT, NOCOB, NTYP, PSSIGN, XISPSM
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, n, nPMax, nHP
+  real(kind=wp), intent(in) :: Diag(n)
+  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+  real(kind=wp), intent(out) :: HP(nHP)
+  integer(kind=iwp) :: ieaw, lH0Scr, lVec2, MxCSFC, MxDTFC, nActEl
+  integer(kind=iwp), allocatable :: SBCnf(:)
+  real(kind=wp), allocatable :: H0Scr(:), Vec2(:)
+
+#include "macros.fh"
+  unused_var(iState)
+
+  MxCSFC = max(0,maxval(NCSFTP(1:NTYP)))
+  MxDTFC = max(0,maxval(NDPCNT(1:NTYP)))
+  nActEl = NAELCI(1)+NBELCI(1)
+  lH0Scr = max(6*nPMax,4*nPMax+4*NOCOB)
+  lVec2 = MxCSFC**2+2*MxDTFC+2*MxDTFC**2+MxDTFC*nActEl
+  lVec2 = max(lVec2,nint(XISPSM(iSym,1)))
+  ! (iRefSM is the symmetry of the last sigma vector, as before)
+  if (iSym == iRefSM) then
+    ieaw = 1
+  else
+    ieaw = 2
+  end if
+  if (nHP < nTri_Elem(nPMax)) call Abend()
+  call mma_allocate(SBCnf,nPMax,Label='SBCnf')
+  call mma_allocate(H0Scr,lH0Scr,Label='H0Scr')
+  call mma_allocate(Vec2,lVec2,Label='Vec2')
+  call H0MAT_MCLR(HP,IdxP,SBCnf,0,nPMax,0,NACOB,nP,iSym,IDC,PSSIGN,Diag,Vec2,H0Scr,ieaw)
+  call mma_deallocate(Vec2)
+  call mma_deallocate(H0Scr)
+  call mma_deallocate(SBCnf)
+
+end subroutine MCLR_Lucia_PSpace
 
 !> Stored basis <-> the CSF basis of the MCLR copy of Lucia (Conv_Proc
 !> of CI_Operations; the reordering of CI_ReOrd_Orig, via sg2symg)
