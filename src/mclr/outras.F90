@@ -70,7 +70,6 @@ do iSym=1,nSym
   call mma_allocate(Kap3,nDens,Label='Kap3')
   if (CI) then
     call mma_allocate(CIp1,nconfM,Label='CIp1')
-    call InCSFSD(Pstate_sym,CI_St(iState)%STSym)
   end if
   do jDisp=1,lDisp(iSym)
     iDisp = iDisp+1

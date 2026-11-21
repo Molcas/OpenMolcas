@@ -86,6 +86,7 @@ set (sources
      icisps.F90
      iel13.F90
      incoos.F90
+     incsfsd.F90
      input_mclr.F90
      intcsf.F90
      intdia.F90

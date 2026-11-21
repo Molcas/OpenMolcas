@@ -76,7 +76,6 @@ do iSym=1,nSym
     else
       call mma_allocate(CIp1,nconf1,1,Label='CIp1')
     end if
-    call InCSFSD(Pstate_sym,CI_St(iState)%STSym)
   end if
   do jDisp=1,lDisp(iSym)
     iDisp = iDisp+1

@@ -80,7 +80,6 @@ set (sources
      getwffock_nac.F90
      hess.F90
      hssprt_mclr.F90
-     incsfsd.F90
      init_data.F90
      inpctl_mclr.F90
      inpone.F90

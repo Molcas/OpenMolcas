@@ -16,7 +16,7 @@ subroutine CIDIA_MCLR(iSym,ralp)
 use CI_Info, only: CI_St
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use CI_Operations, only: CI_Diag, CI_Diag_Cnf_Avg
-use MCLR_Data, only: FIMO, INT2, ipCI, ipDia, NCSASM, nexp, nexp_max, nGP
+use MCLR_Data, only: FIMO, INT2, ipCI, ipDia, nexp, nexp_max, nGP
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -45,7 +45,7 @@ nsd = max(ncsf(isym),CI_St(iState)%nDet(ISYM))
 ipdiai = ipget(nsd)
 call ipin(ipdiai)
 call CI_Diag(iState,CI_Diag_Cnf_Avg,iSym,size(FIMO),FIMO,size(INT2),INT2,rin_ene+potnuc,ncsf(iSym),W(ipdiai)%A(1:ncsf(iSym)))
-nD = NCSASM(ISYM)
+nD = nCSF(iSym)
 
 ! Calculate explicit part of hamiltonian
 

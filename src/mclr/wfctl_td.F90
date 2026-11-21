@@ -84,9 +84,6 @@ do iSym=kksym,kkksym
   if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
   if (CI .and. (nconf1 == 1) .and. (isym == 1)) CI = .false.
-  ! Initiate CSF <-> SD
-  if (CI) call InCSFSD(Mul(iSym,CI_St(iState)%STSym),CI_St(iState)%STSym)
-
   ! Calculate length of the density, Fock and Kappa matrix etc
   ! notice that this matrixes not necessary are symmetric.
   ! Store pointers.

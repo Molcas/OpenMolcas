@@ -85,9 +85,6 @@ iStpPCM = 1
 CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
-! Initiate CSF <-> SD
-call InCSFSD(Mul(iSym,CI_St(iState)%STSym),CI_St(iState)%STSym)
-
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
 ! Store pointers.

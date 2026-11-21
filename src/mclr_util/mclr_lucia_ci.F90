@@ -58,6 +58,25 @@ subroutine MCLR_Lucia_Close(iState)
   Initialized = .false.
 end subroutine MCLR_Lucia_Close
 
+!> The CSF <-> SD tables (InCsfSD) for the symmetries of the vectors of an
+!> operation: those of the CI state are always there, one other symmetry
+!> is cached
+subroutine Use_Syms(iState,iSym1,iSym2)
+  use CI_Info, only: CI_St
+  integer(kind=iwp), intent(in) :: iState, iSym1, iSym2
+  integer(kind=iwp) :: iRef
+  iRef = CI_St(iState)%STSym
+  if ((iSym1 /= iRef) .and. (iSym2 /= iRef) .and. (iSym1 /= iSym2)) then
+    write(u6,'(A,3I3)') ' MCLR copy of Lucia: two symmetries other than that of the CI state:',iSym1,iSym2,iRef
+    call Abend()
+  end if
+  if (iSym1 /= iRef) then
+    call InCsfSD(iSym1,iRef)
+  else if (iSym2 /= iRef) then
+    call InCsfSD(iSym2,iRef)
+  end if
+end subroutine Use_Syms
+
 !> sigma = H C (Sigma_Proc of CI_Operations)
 subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
   use CI_Info, only: CI_St
@@ -77,6 +96,7 @@ subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Hav
   real(kind=wp), allocatable :: CDet(:), SDet(:)
 
   S(:) = Zero
+  call Use_Syms(iState,iCSym,iSSym)
   ! the integrals, as in CISigma
   KAIN1(1:nInt1) => Int1(:)
   KINT2(1:nInt2) => Int2(:)
@@ -139,12 +159,11 @@ subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,
   real(kind=wp), allocatable :: LDet(:), RDet(:)
 
 #include "macros.fh"
-  unused_var(iState)
-
   if (iOpSpin /= 0) then
     write(u6,'(A)') ' MCLR_Lucia_TDens: the MCLR copy of Lucia has spin-free densities only'
     call Abend()
   end if
+  call Use_Syms(iState,iLSym,iRSym)
   ! the determinant expansions (CSF2SD of the state of the run); without
   ! CSFs (NOCSF /= 0) the vectors are in determinants already
   call mma_allocate(LDet,max(nCSF(iLSym),nint(XISPSM(iLSym,1))),Label='LDet')
@@ -191,6 +210,7 @@ subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
     write(u6,'(A)') ' MCLR_Lucia_Diag: the MCLR copy of Lucia has the configuration-averaged diagonal only'
     call Abend()
   end if
+  call Use_Syms(iState,iSym,iSym)
   nSpc = 1
   iSPC(1) = 1
   iSM(1) = iSym
@@ -225,8 +245,7 @@ subroutine MCLR_Lucia_PSpace(iState,iSym,n,Diag,nPMax,nP,IdxP,nHP,HP)
   real(kind=wp), allocatable :: H0Scr(:), Vec2(:)
 
 #include "macros.fh"
-  unused_var(iState)
-
+  call Use_Syms(iState,iSym,iSym)
   MxCSFC = max(0,maxval(NCSFTP(1:NTYP)))
   MxDTFC = max(0,maxval(NDPCNT(1:NTYP)))
   nActEl = NAELCI(1)+NBELCI(1)
@@ -257,8 +276,7 @@ subroutine MCLR_Lucia_Conv(iState,iSym,iMode,n,CI)
   real(kind=wp), intent(inout) :: CI(n)
 
 #include "macros.fh"
-  unused_var(iState)
-
+  call Use_Syms(iState,iSym,iSym)
   call SG2SymG(CI,n,iMode,iSym)
 
 end subroutine MCLR_Lucia_Conv

@@ -14,7 +14,7 @@ subroutine CIDens_TD(iCI,iS,rP,rD)
 
 use CI_Info, only: CI_St
 use ipPage, only: ipin, W
-use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1, NOCSF
+use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1
 use CI_Operations, only: CI_Trans_Dens
 use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -80,35 +80,33 @@ call mma_allocate(Pe,n2Dens,Label='Pe')
 rD(1:n1Dens) = Zero
 rP(1:n2Dens) = Zero
 
-if (nocsf == 0) then
-  ! (through the CI interface) iCI is as long as ipcid for the timedep case!
-  iSy = CI_St(iState)%STSym
-  ! <0|E_pq|P> & <0|e_pqrs|P>: the bra is the reference
-  call ipin(iCI)
-  call ipin(ipCI)
-  call CI_Trans_Dens(iState,2,0,iSy,iS,ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),ncsf(iS),W(iCI)%A(1:ncsf(iS)),n1Dens,De,n2Dens,Pe)
-  rp(1:n2Dens) = Pe(:)
-  rD(1:n1Dens) = De(:)
-  ! minus <P'|E_pq|0> & <P'|e_pqrs|0>, P' the second half of iCI
-  call ipin(iCI)
-  call ipin(ipCI)
-  call CI_Trans_Dens(iState,2,0,iS,iSy,ncsf(iS),W(iCI)%A(nconf1+1:nconf1+ncsf(iS)),ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),n1Dens,De, &
-                     n2Dens,Pe)
-  rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
-  rD(1:n1Dens) = rD(1:n1Dens)-De(:)
+! (through the CI interface) iCI is as long as ipcid for the timedep case!
+iSy = CI_St(iState)%STSym
+! <0|E_pq|P> & <0|e_pqrs|P>: the bra is the reference
+call ipin(iCI)
+call ipin(ipCI)
+call CI_Trans_Dens(iState,2,0,iSy,iS,ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),ncsf(iS),W(iCI)%A(1:ncsf(iS)),n1Dens,De,n2Dens,Pe)
+rp(1:n2Dens) = Pe(:)
+rD(1:n1Dens) = De(:)
+! minus <P'|E_pq|0> & <P'|e_pqrs|0>, P' the second half of iCI
+call ipin(iCI)
+call ipin(ipCI)
+call CI_Trans_Dens(iState,2,0,iS,iSy,ncsf(iS),W(iCI)%A(nconf1+1:nconf1+ncsf(iS)),ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),n1Dens,De, &
+                   n2Dens,Pe)
+rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
+rD(1:n1Dens) = rD(1:n1Dens)-De(:)
 # ifdef _DEBUGPRINT_
-  do i=1,ntash
-    do j=1,ntash
-      do k=1,ntash
-        do l=1,ntash
-          ijkl = iTri(ntash*(j-1)+i,k+(l-1)*ntash)
-          write(u6,'(I1,I1,I1,I1,F12.6)') i,j,k,l,rp(ijkl)
-        end do
+do i=1,ntash
+  do j=1,ntash
+    do k=1,ntash
+      do l=1,ntash
+        ijkl = iTri(ntash*(j-1)+i,k+(l-1)*ntash)
+        write(u6,'(I1,I1,I1,I1,F12.6)') i,j,k,l,rp(ijkl)
       end do
     end do
   end do
+end do
 # endif
-end if
 
 call mma_deallocate(Pe)
 call mma_deallocate(De)
