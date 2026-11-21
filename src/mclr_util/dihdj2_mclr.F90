@@ -126,8 +126,10 @@ do JDET=1,NJDET
         LIA(1:NAEL) = IASTRM(:,IASTAC)
         LIB(1:NBEL) = IBSTRM(:,IBSTAC)
       else if (ILOOP == 2) then
-        LIB(1:NAEL) = IASTRM(:,IBSTAC)
-        LIA(1:NBEL) = IBSTRM(:,IASTAC)
+        ! the alpha string of the second determinant is the alpha string
+        ! with the index of the beta string, and vice versa
+        LIA(1:NAEL) = IASTRM(:,IBSTAC)
+        LIB(1:NBEL) = IBSTRM(:,IASTAC)
       end if
 
       ! =============================
