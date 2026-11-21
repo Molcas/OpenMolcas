@@ -24,7 +24,8 @@ subroutine PrInp_MCLR(iPL)
 !***********************************************************************
 
 use CI_Info, only: CI_St
-use MCLR_Data, only: ChDisp, DspVec, IRLXROOT, ISNAC, ISTATE, lDisp, NACSTATES, nexp_max, NSSA, SA, SwLbl, XISPSM
+use MCLR_Data, only: ChDisp, DspVec, IRLXROOT, ISNAC, ISTATE, lDisp, NACSTATES, nexp_max, NSSA, SA, SwLbl
+use MCLR_Lucia_Data, only: XISPSM
 use Orbital_Spaces, only: nAsh, nIsh, nSym
 use CI_Input, only: nElec3, nHole1, nRS1, nRS2, nRS3
 use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, iMethod, iPT2, iRoot, mTit, nAtoms, nBas, nCSF, &

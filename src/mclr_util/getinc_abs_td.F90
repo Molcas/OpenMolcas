@@ -20,7 +20,7 @@ subroutine GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,INTLST,I
 ! orbitals of the blocks are type ordered, hence the reordering IREOTS)
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: IBTSOB, IREOTS, NACOB, NTSOB
+use MCLR_Lucia_Data, only: IBTSOB, IREOTS, NACOB, NTSOB
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

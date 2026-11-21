@@ -16,7 +16,8 @@ subroutine CIDIA_sa(iSym,ralp,S)
 use CI_Info, only: CI_St
 use ipPage, only: ipclose, ipget, ipin, W
 use CI_Operations, only: CI_Diag, CI_Diag_Cnf_Avg
-use MCLR_Data, only: FANCY_PRECONDITIONER, FIMO, INT2, ipCI, ipDia, XISPSM
+use MCLR_Data, only: FANCY_PRECONDITIONER, FIMO, INT2, ipCI, ipDia
+use MCLR_Lucia_Data, only: XISPSM
 use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, Weight
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

@@ -16,7 +16,7 @@ function IOCTP2_MCLR(STRING,NEL,ITYP)
 ! New version allowing general set of strings
 
 use Str_Info, only: MNRS1, MNRS3, MXRS1, MXRS3
-use MCLR_Data, only: NORB1, NORB2
+use MCLR_Lucia_Data, only: NORB1, NORB2
 use Definitions, only: iwp, u6
 
 implicit none

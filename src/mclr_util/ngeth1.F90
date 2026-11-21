@@ -13,7 +13,7 @@
 subroutine NGETH1(H,ISM,ITP,JSM,JTP)
 ! One-electron integrals over orbitals belonging to given OS class
 
-use MCLR_Data, only: NTSOB
+use MCLR_Lucia_Data, only: NTSOB
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

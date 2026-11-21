@@ -20,8 +20,8 @@ subroutine SigmaVec(C,HC,kic)
 ! This routine is just a setup routine for memory etc
 
 use Str_Info, only: CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP, STR
-use MCLR_Data, only: i12, IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, ist, ITSOB, MAXI, MAXK, MNR1IC, MXINKA, MXR3IC, MXSB, &
-                     MXSOOB, NOCSF, NOPART, NTSOB, PSSIGN, XISPSM
+use MCLR_Lucia_Data, only: i12, IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, ist, ITSOB, MAXI, MAXK, MNR1IC, MXINKA, MXR3IC, &
+                           MXSB, MXSOOB, NOCSF, NOPART, NTSOB, PSSIGN, XISPSM
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use input_mclr, only: nIrrep, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate

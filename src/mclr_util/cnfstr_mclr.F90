@@ -24,8 +24,8 @@ subroutine CNFSTR_MCLR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,IAGRP,I
 ! Modified September 1993 for LUCIA
 
 use Str_Info, only: NELEC, Str
-use MCLR_Data, only: NACOB, NDPCNT
-use MCLR_Data, only: MINOP
+use MCLR_Lucia_Data, only: NACOB, NDPCNT
+use MCLR_Lucia_Data, only: MINOP
 use Definitions, only: wp, iwp
 
 implicit none

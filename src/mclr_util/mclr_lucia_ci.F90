@@ -40,7 +40,7 @@ end subroutine MCLR_Lucia_CI_Setup
 !> CI_Operations) and publish the dimensions of the determinant space
 subroutine MCLR_Lucia_Init(iState)
   use CI_Info, only: CI_St
-  use MCLR_Data, only: XISPSM
+  use MCLR_Lucia_Data, only: XISPSM
   use Orbital_Spaces, only: nSym
   integer(kind=iwp), intent(in) :: iState
   call DetCtl()
@@ -52,7 +52,7 @@ end subroutine MCLR_Lucia_Init
 !> Free the determinant tables (State_Proc of CI_Operations)
 subroutine MCLR_Lucia_Close(iState)
   use Str_Info, only: CFTP, CNSM, DFTP, DTOC
-  use MCLR_Data, only: pInt1
+  use MCLR_Lucia_Data, only: pInt1
   use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: i
@@ -95,7 +95,8 @@ end subroutine Use_Syms
 subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
   use CI_Info, only: CI_St
   use Symmetry_Info, only: Mul
-  use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, iST, KAIN1, KINT2, pInt1, Square_ => Square, XISPSM
+  use MCLR_Data, only: ipCM, ipMat
+  use MCLR_Lucia_Data, only: i12, iRefSM, iST, KAIN1, KINT2, pInt1, Square_ => Square, XISPSM
   use CandS, only: ICSM, ISSM
   use Orbital_Spaces, only: nSym
   use input_mclr, only: nCSF
@@ -164,7 +165,7 @@ end subroutine MCLR_Lucia_Sigma
 !> Transition densities between L and R (TDens_Proc of CI_Operations)
 subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use CandS, only: ICSM, ISSM
-  use MCLR_Data, only: NOCSF, XISPSM
+  use MCLR_Lucia_Data, only: NOCSF, XISPSM
   use input_mclr, only: nCSF
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
@@ -206,7 +207,7 @@ subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   use CI_Info, only: CI_St
   use CI_Operations, only: CI_Diag_Cnf_Avg
   use Str_Info, only: CNSM
-  use MCLR_Data, only: ICISTR, NCNFTP, NCSFTP, NDPCNT, NOCSF, NTYP, XISPSM
+  use MCLR_Lucia_Data, only: ICISTR, NCNFTP, NCSFTP, NDPCNT, NOCSF, NTYP, XISPSM
   use input_mclr, only: nCSF
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
@@ -248,8 +249,8 @@ end subroutine MCLR_Lucia_Diag
 !> a P2 space of at most nPMax CSFs (no P1 and Q spaces)
 subroutine MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
   use Index_Functions, only: nTri_Elem
-  use MCLR_Data, only: IDC, ipCM, iRefSM, KAIN1, KINT2, NACOB, NAELCI, NBELCI, NCSFTP, NDPCNT, NOCOB, NTYP, pInt1, PSSIGN, &
-                       XISPSM
+  use MCLR_Data, only: ipCM
+  use MCLR_Lucia_Data, only: IDC, iRefSM, KAIN1, KINT2, NACOB, NAELCI, NBELCI, NCSFTP, NDPCNT, NOCOB, NTYP, pInt1, PSSIGN, XISPSM
   use Orbital_Spaces, only: nSym
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP

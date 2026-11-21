@@ -24,7 +24,8 @@ subroutine ICISPS()
 ! Last revision April 1991
 
 use Str_Info, only: NOCTYP, STR
-use MCLR_Data, only: IACTI, IASTFI, IBSTFI, IDC, MNR1IC, MNR3IC, MXR1IC, MXR3IC, MXSB, MXSOOB, NAELCI, NBELCI, NICISP, XISPSM
+use MCLR_Lucia_Data, only: IACTI, IASTFI, IBSTFI, IDC, MNR1IC, MNR3IC, MXR1IC, MXR3IC, MXSB, MXSOOB, NAELCI, NBELCI, NICISP, &
+                           XISPSM
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

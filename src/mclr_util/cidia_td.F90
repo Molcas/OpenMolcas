@@ -15,7 +15,8 @@ subroutine CIDIA_TD(iSym)
 
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use CI_Operations, only: CI_Diag, CI_Diag_Cnf_Avg
-use MCLR_Data, only: FIMO, INT2, ipDia, NCSASM, nexp, nexp_max, XISPSM
+use MCLR_Data, only: FIMO, INT2, ipDia, nexp, nexp_max
+use MCLR_Lucia_Data, only: NCSASM, XISPSM
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use Definitions, only: iwp
 

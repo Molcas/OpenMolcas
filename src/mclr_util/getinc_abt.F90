@@ -20,7 +20,7 @@ subroutine GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,INTL
 ! orbitals of the blocks are type ordered, hence the reordering IREOTS)
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: IBTSOB, IREOTS, NTSOB
+use MCLR_Lucia_Data, only: IBTSOB, IREOTS, NTSOB
 use Constants, only: One
 use Definitions, only: wp, iwp
 

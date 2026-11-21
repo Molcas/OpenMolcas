@@ -17,7 +17,7 @@ subroutine GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,INTLST,ICOUL)
 !
 ! Version for integrals stored in INTLST
 
-use MCLR_Data, only: IBTSOB, NACOB, NTSOB
+use MCLR_Lucia_Data, only: IBTSOB, NACOB, NTSOB
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

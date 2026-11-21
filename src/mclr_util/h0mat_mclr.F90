@@ -24,7 +24,7 @@ subroutine H0MAT_MCLR(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,NOCOB,NPRCIV,IREFSM,IDC,PSS
 ! NPRCIV : Number of parameters in preconditioner space
 
 use Str_Info, only: CNSM, DFTP, DTOC
-use MCLR_Data, only: NAELCI, NBELCI, NCNASM
+use MCLR_Lucia_Data, only: NAELCI, NBELCI, NCNASM
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

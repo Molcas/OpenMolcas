@@ -10,6 +10,8 @@
 !***********************************************************************
 
 module MCLR_Data
+! The data of MCLR. The data of MCLR's copy of Lucia (its CI library) are
+! in MCLR_Lucia_Data, which only the Lucia routines of mclr_util use.
 
 ! MXINKA : Resolution of identity
 ! MXPORB : Maximum number of orbitals
@@ -130,52 +132,32 @@ module MCLR_Data
 !  H0F, H0S, NewPre, nexp, nexp_max, SBIDT
 
 use Molcas, only: LenIn
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 private
 
-integer(kind=iwp), parameter :: Mxdccc = 500, MXINKA = 200, MXPCSM = 8, MXPCTP = 30, MXPICI = 30, MXPNGAS = 3, MXPOBS = 20, &
-                                MXPORB = 500, MXPR4T = 10, MXSTATE = 10
+integer(kind=iwp), parameter :: Mxdccc = 500, MXSTATE = 10
 
-! The configuration types of MCLR's CSF basis (formerly in spinfo), set by
-! intcsf: NTYP types of MINOP..MINOP+NTYP-1 open shells, NCNFTP(type,sym)
-! configurations and NCSFTP(type) CSFs per configuration of each type.
-integer(kind=iwp) :: MINOP, NCNFTP(MXPCTP,MXPCSM), NCSFTP(MXPCTP), NTYP
-public :: MINOP, NCNFTP, NCSFTP, NTYP
 
-integer(kind=iwp) :: dspvec(mxdccc), i1, I12, IACTI(MXPICI), iAllo, iAnders, IASTFI(MXPICI), IBSO(MXPOBS), IBSTFI(MXPICI), &
-                     IBTSOB(3,MXPOBS), ICISTR, IDC, IDIAG, ipCI, ipCM(8), ipdia, ipMat(8,8), ipmatba(8,8), ipMatLT(8,8), &
-                     ipMO(8,8,8), IREFSM, IREOTS(MXPORB), irlxroot, ISMFTO(MXPORB), IST, istate, ITSOB(MXPORB), lconf, lDisp(8), &
-                     lldet, luciv, LUCSF2SD, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, &
-                     LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, MAXOP, MNR1IC(MXPICI), MNR3IC(MXPICI), MS2, MS2P, MULTSP, MXR1IC(MXPICI), &
-                     MXR3IC(MXPICI), MXSB, MXSOOB, n1Dens, n2Dens, na(8), NACOB, nacpar, nacpr2, NACstates(2), NAELCI(MXPICI), &
-                     nb(8), NBELCI(MXPICI), nCMO, NCNASM(MXPCSM), nconf1, NCPCNT(MXPCTP), NCSASM(MXPCSM), nDens, nDensC, &
-                     NDPCNT(MXPCTP), NDTASM(MXPCSM), NELCI(MXPICI), nexp = 0, nexp_max = 100, nhess, NICISP, nmba, nna, &
-                     NOBPT(MXPR4T+6), NOBPTS(MXPR4T+6,MXPOBS), NOCOB, NOCSF, NOPART, NORB1, NORB2, NORB3, nrec, NSSA(2), NTOOB, &
-                     NTSOB(3,MXPOBS)
-real(kind=wp) :: ERAS(MXSTATE), P1(MXSTATE*(MXSTATE+1)/2), P1INV(MXSTATE*(MXSTATE+1)/2), PDFT_Ratio, PSSIGN, ResQaaLag2, &
-                 WF_Ratio, XISPSM(MXPCSM,MXPICI) = Zero
-logical(kind=iwp) :: Do_Hybrid, esterr, Fancy_Preconditioner, isMECIMSPD, isNAC, NewPre = .true., ngp, Nofile, override, SA, square
+integer(kind=iwp) :: dspvec(mxdccc), ipCI, ipCM(8), ipdia, ipMat(8,8), ipmatba(8,8), ipMatLT(8,8), ipMO(8,8,8), irlxroot, &
+                     istate, lDisp(8), luciv, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, &
+                     LUTRi3, LUTRI4, LUTRI5, LuTwo, n1Dens, n2Dens, na(8), nacpar, nacpr2, NACstates(2), nb(8), nCMO, nconf1, &
+                     nDens, nDensC, nexp = 0, nexp_max = 100, nhess, nmba, nna, nrec, NSSA(2)
+real(kind=wp) :: ERAS(MXSTATE), P1(MXSTATE*(MXSTATE+1)/2), P1INV(MXSTATE*(MXSTATE+1)/2), PDFT_Ratio, ResQaaLag2, WF_Ratio
+logical(kind=iwp) :: Do_Hybrid, esterr, Fancy_Preconditioner, isMECIMSPD, isNAC, NewPre = .true., ngp, Nofile, override, SA
 character(len=LenIn+6) :: ChDisp(Mxdccc*3)
-character(len=8) :: FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, &
-                    FNTRI5, FnTwo, SwLbl(Mxdccc)
-integer(kind=iwp), allocatable :: H0F(:), pINT1(:), SBIDT(:)
-real(kind=wp), allocatable :: CMO_Inv(:), F0SQMO(:), FAMO(:), FIMO(:), G1t(:), G2sq(:), G2t(:), H0S(:), Hss(:), INT2(:), &
-                              SS(:,:)
+character(len=8) :: FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FnTwo, &
+                    SwLbl(Mxdccc)
+integer(kind=iwp), allocatable :: H0F(:), SBIDT(:)
+real(kind=wp), allocatable :: CMO_Inv(:), F0SQMO(:), FAMO(:), FIMO(:), G1t(:), G2sq(:), G2t(:), H0S(:), Hss(:), INT2(:), SS(:,:)
 real(kind=wp), allocatable, target :: CMO(:), INT1(:)
-real(kind=wp), pointer :: KAIN1(:), KINT2(:), KINT2A(:)
 
-public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, F0SQMO, FAMO, Fancy_Preconditioner, FIMO, FNCSF2SD, FnHlf2, &
-          FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FnTwo, G1t, G2sq, G2t, &
-          H0F, H0S, Hss, i1, I12, IACTI, iAllo, iAnders, IASTFI, IBSO, IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, INT1, INT2, ipCI, &
-          ipCM, ipdia, ipMat, ipmatba, ipMatLT, ipMO, IREFSM, IREOTS, irlxroot, isMECIMSPD, ISMFTO, isNAC, IST, istate, ITSOB, &
-          KAIN1, KINT2, KINT2A, lconf, lDisp, lldet, luciv, LUCSF2SD, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, &
-          LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, MAXOP, MNR1IC, MNR3IC, MS2, MS2P, MULTSP, MXINKA, &
-          MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, n1Dens, n2Dens, na, NACOB, nacpar, nacpr2, NACstates, NAELCI, nb, &
-          NBELCI, nCMO, NCNASM, nconf1, NCPCNT, NCSASM, nDens, nDensC, NDPCNT, NDTASM, NELCI, NewPre, nexp, nexp_max, ngp, &
-          nhess, NICISP, nmba, nna, NOBPT, NOBPTS, NOCOB, NOCSF, Nofile, NOPART, NORB1, NORB2, NORB3, nrec, NSSA, NTOOB, NTSOB, &
-          override, P1, P1INV, PDFT_Ratio, pINT1, PSSIGN, ResQaaLag2, SA, SBIDT, square, SS, SwLbl, WF_Ratio, XISPSM
+public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, F0SQMO, FAMO, Fancy_Preconditioner, FIMO, FnHlf2, FNHlf3, &
+          FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FnTwo, G1t, G2sq, G2t, H0F, H0S, &
+          Hss, INT1, INT2, ipCI, ipCM, ipdia, ipMat, ipmatba, ipMatLT, ipMO, irlxroot, isMECIMSPD, isNAC, istate, lDisp, luciv, &
+          LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LuTwo, n1Dens, &
+          n2Dens, na, nacpar, nacpr2, NACstates, nb, nCMO, nconf1, nDens, nDensC, NewPre, nexp, nexp_max, ngp, nhess, nmba, nna, &
+          Nofile, nrec, NSSA, override, P1, P1INV, PDFT_Ratio, ResQaaLag2, SA, SBIDT, SS, SwLbl, WF_Ratio
 
 end module MCLR_Data

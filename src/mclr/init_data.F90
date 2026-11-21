@@ -18,9 +18,9 @@ subroutine Init_Data()
 !                                                                      *
 !***********************************************************************
 
-use MCLR_Data, only: FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, &
-                     FNTRI5, FnTwo, LUCSF2SD, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, &
-                     LUTRi3, LUTRI4, LUTRI5, LuTwo
+use MCLR_Data, only: FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, &
+                     FnTwo, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, &
+                     LUTRI5, LuTwo
 use CI_Input, only: STSym
 use input_mclr, only: nsRot, nUserPT, UserP, UserT
 use Constants, only: Zero, One
@@ -38,8 +38,6 @@ FnPT2 = '.RLXPT2'
 LuPT2 = 17
 FnTemp = 'RESP'
 LuTemp = 19
-FnCSF2SD = 'REORD'
-LuCSF2SD = 20
 
 FnTwo = 'ORDINT'
 LuTwo = 40

@@ -42,9 +42,8 @@ use Index_Functions, only: nTri_Elem
 use External_Centers, only: External_Centers_Free
 use Symmetry_Info, only: Symmetry_Info_Free
 use ipPage, only: ipclose
-use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FIMO, G1t, &
-                     G2sq, G2t, Hss, iAllo, Int1, INT2, LuPT2, nA, nAcPar, nAcPr2, NACSTATES, nNA, nrec, PDFT_Ratio, &
-                     SA, SS, WF_Ratio
+use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FIMO, G1t, G2sq, G2t, Hss, Int1, INT2, LuPT2, nA, nAcPar, nAcPr2, &
+                     NACSTATES, nNA, nrec, PDFT_Ratio, SA, SS, WF_Ratio
 use PCM_grad, only: PCM_grad_final
 use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
 use Orbital_Spaces, only: nAsh, nSym
@@ -164,7 +163,6 @@ call CWTime(TCpu1,TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iAllo = 0
 !idp = RtoI
 nrec = get_MBl_wa()/RtoB
 

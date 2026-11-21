@@ -13,11 +13,11 @@
 subroutine GETINT_MCLR(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL,ieaw)
 ! Outer routine for accessing integral block
 
-use MCLR_Data, only: KINT2, KINT2A, Square
+use MCLR_Lucia_Data, only: KINT2, KINT2A, Square
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: NOBPTS
+use MCLR_Lucia_Data, only: NOBPTS
 use Definitions, only: u6
 #endif
 

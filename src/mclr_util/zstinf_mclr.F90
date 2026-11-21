@@ -38,7 +38,7 @@ subroutine ZSTINF_MCLR()
 !    !            reference space                         \ /
 
 use Str_Info, only: ISTAC, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP
-use MCLR_Data, only: NORB1, NORB2, NORB3
+use MCLR_Lucia_Data, only: NORB1, NORB2, NORB3
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

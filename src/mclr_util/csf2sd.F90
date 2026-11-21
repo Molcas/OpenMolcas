@@ -17,7 +17,7 @@ subroutine CSF2SD(CSF,SD,is)
 use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use Str_Info, only: CNSM, DTOC
-use MCLR_Data, only: NDTASM
+use MCLR_Lucia_Data, only: NDTASM
 use input_mclr, only: nConf, nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

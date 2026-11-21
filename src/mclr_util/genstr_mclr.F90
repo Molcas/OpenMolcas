@@ -27,7 +27,7 @@ subroutine GENSTR_MCLR(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,NOCTYP,NSM,Z,LSTAS
 ! IREORD             : Reordering array going from lexical
 !                      order to symmetry and occupation type order.
 
-use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
+use MCLR_Lucia_Data, only: NACOB, NORB1, NORB2, NORB3
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

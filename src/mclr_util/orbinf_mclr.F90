@@ -25,7 +25,7 @@ subroutine ORBINF_MCLR(NIRREP,NRAS1,NRAS2,NRAS3,MXR4tp)
 ! ======
 ! Orbital information in /ORBINP/
 
-use MCLR_Data, only: IBSO, IBTSOB, IREOTS, ISMFTO, ITSOB, NACOB, NOBPT, NOBPTS, NOCOB, NORB1, NORB2, NORB3, NTOOB, NTSOB
+use MCLR_Lucia_Data, only: IBSO, IBTSOB, IREOTS, ISMFTO, ITSOB, NACOB, NOBPT, NOBPTS, NOCOB, NORB1, NORB2, NORB3, NTOOB, NTSOB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

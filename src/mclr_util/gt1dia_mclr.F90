@@ -14,7 +14,8 @@
 ! type -> symmetry order)
 subroutine GT1DIA_MCLR(H1DIA)
 
-use MCLR_Data, only: FIMO, ipCM, IREOTS, NACOB
+use MCLR_Data, only: FIMO, ipCM
+use MCLR_Lucia_Data, only: IREOTS, NACOB
 use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nOrb
 use stdalloc, only: mma_allocate, mma_deallocate

@@ -14,7 +14,8 @@ subroutine GTJK_MCLR(RJ,RK)
 !          WITH THE CHARGE DISTRIBUTION JK
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: Int2, IREOTS, NACOB
+use MCLR_Data, only: Int2
+use MCLR_Lucia_Data, only: IREOTS, NACOB
 use Definitions, only: wp, iwp
 
 implicit none

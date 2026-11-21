@@ -18,7 +18,7 @@ subroutine GETCNF_MCLR(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 !
 ! Jeppe Olsen, summer of 89
 
-use MCLR_Data, only: MINOP, NCNFTP, NTYP
+use MCLR_Lucia_Data, only: MINOP, NCNFTP, NTYP
 use Definitions, only: iwp
 
 #include "intent.fh"

@@ -25,7 +25,8 @@ subroutine ClsFls_MCLR()
 !                                                                      *
 !***********************************************************************
 
-use MCLR_Data, only: FnMck, LuCSF2SD, LuJob, LuMck, LuQDat, LuTemp, LuTri1, SA
+use MCLR_Data, only: FnMck, LuJob, LuMck, LuQDat, LuTemp, LuTri1, SA
+use MCLR_Lucia_Data, only: LuCSF2SD
 use input_mclr, only: iMethod, RASSI, TwoStep
 use Definitions, only: iwp, u6
 

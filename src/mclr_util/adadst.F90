@@ -30,7 +30,7 @@ subroutine ADADST(IOBTP,IOBSM,IOBOFF,NIOB,JOBTP,JOBSM,JOBOFF,NJOB,IJORD,ICLS,ISM
 ! Jeppe Olsen, Winter of 1991
 
 use Str_Info, only: ISTAC, IUNIQMP, NOCTYP, STR
-use MCLR_Data, only: NACOB
+use MCLR_Lucia_Data, only: NACOB
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

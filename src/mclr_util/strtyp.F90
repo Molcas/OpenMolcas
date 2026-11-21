@@ -30,7 +30,7 @@ subroutine STRTYP(MS2,NACTEL,MNRS10,MXRS30)
 ! DELTA : number of electrons in string - reference + 5
 
 use Str_Info, only: IATPM1, IATPM2, IAZTP, IBTPM1, IBTPM2, IBZTP, ISTAC, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NSTTYP
-use MCLR_Data, only: NORB1, NORB3
+use MCLR_Lucia_Data, only: NORB1, NORB3
 use Definitions, only: iwp, u6
 
 implicit none

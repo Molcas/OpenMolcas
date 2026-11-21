@@ -13,7 +13,7 @@ function ISYMST_MCLR(STRING,NEL)
 ! Master routine for symmetry of string
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: ISMFTO
+use MCLR_Lucia_Data, only: ISMFTO
 use Definitions, only: iwp
 
 implicit none

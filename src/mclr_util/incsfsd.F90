@@ -13,7 +13,7 @@ subroutine InCSFSD(iState,State_sym)
 
 use Symmetry_Info, only: Mul
 use Str_Info, only: CNSM
-use MCLR_Data, only: i1, iALLO, iAnders, lConf, llDet, LuCSF2SD
+use MCLR_Lucia_Data, only: i1, iALLO, iAnders, lConf, llDet, LuCSF2SD
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 

@@ -30,7 +30,7 @@ subroutine ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,NK,IEND)
 !              January 1994 : modified to allow for several orbitals
 
 use Str_Info, only: ISTAC, IUNIQMP, NOCTYP, STR
-use MCLR_Data, only: ISMFTO, NACOB, NORB1, NORB2
+use MCLR_Lucia_Data, only: ISMFTO, NACOB, NORB1, NORB2
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

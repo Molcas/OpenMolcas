@@ -14,7 +14,8 @@ function GTIJKL_MCLR(I,J,K,L)
 ! where I,J,K and l refers to active orbitals in type ordering
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: Int2, IREOTS
+use MCLR_Data, only: Int2
+use MCLR_Lucia_Data, only: IREOTS
 use Definitions, only: wp, iwp
 
 implicit none

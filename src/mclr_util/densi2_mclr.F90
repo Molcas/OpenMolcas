@@ -32,9 +32,9 @@ subroutine DENSI2_MCLR(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Str_Info, only: IATPM1, IATPM2, IBTPM1, IBTPM2, ITYP_DUMMY, NELEC, NOCTYP, STR
-use MCLR_Data, only: IREOTS
-use MCLR_Data, only: IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, MAXI, MAXK, MNR1IC, MXINKA, MXPNGAS, MXR3IC, MXSB, MXSOOB, NACOB, &
-                     NOBPTS, NTSOB, PSSIGN
+use MCLR_Lucia_Data, only: IREOTS
+use MCLR_Lucia_Data, only: IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, MAXI, MAXK, MNR1IC, MXINKA, MXPNGAS, MXR3IC, MXSB, MXSOOB, &
+                           NACOB, NOBPTS, NTSOB, PSSIGN
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
