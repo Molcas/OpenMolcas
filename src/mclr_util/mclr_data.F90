@@ -19,9 +19,6 @@ module MCLR_Data
 ! Stuff from Pointers.fh
 !  ipCI, ipCM, ipMat, ipmatba, ipMatLT, ipMO, n1Dens, n2Dens, na, nacpar, nacpr2, nb, nCMO, nconf1, nDens, nDensC, nmba, nna
 
-! Stuff from spin_mclr.fh
-!  rbetaa, rbetas, rms
-
 ! Stuff from genop.fh
 ! Type of operator in action
 !  I12    : 2:Both on and two electron integrals
@@ -116,9 +113,9 @@ module MCLR_Data
 !  Do_Hybrid, PDFT_Ratio, WF_Ratio
 
 ! Stuff from Arrays
-!  F0SQMO, FAMO, FAMO_spinm, FAMO_spinp, FIMO, Fm, Fp, Hss, SFock
+!  F0SQMO, FAMO, FIMO, Hss
 ! Various one- and two-particle densities
-!  G1m, G1p, G1t, G2mm, G2mp, G2pp, G2sq, G2t
+!  G1t, G2sq, G2t
 ! MO coefficients
 !  CMO, CMO_Inv(:)
 !
@@ -159,28 +156,27 @@ integer(kind=iwp) :: dspvec(mxdccc), i1, I12, IACTI(MXPICI), iAllo, iAnders, IAS
                      NDPCNT(MXPCTP), NDTASM(MXPCSM), NELCI(MXPICI), nexp = 0, nexp_max = 100, nhess, NICISP, nmba, nna, &
                      NOBPT(MXPR4T+6), NOBPTS(MXPR4T+6,MXPOBS), NOCOB, NOCSF, NOPART, NORB1, NORB2, NORB3, nrec, NSSA(2), NTOOB, &
                      NTSOB(3,MXPOBS)
-real(kind=wp) :: rms, ERAS(MXSTATE), P1(MXSTATE*(MXSTATE+1)/2), P1INV(MXSTATE*(MXSTATE+1)/2), PDFT_Ratio, PSSIGN, rbetaa, rbetas, &
-                 ResQaaLag2, WF_Ratio, XISPSM(MXPCSM,MXPICI) = Zero
+real(kind=wp) :: ERAS(MXSTATE), P1(MXSTATE*(MXSTATE+1)/2), P1INV(MXSTATE*(MXSTATE+1)/2), PDFT_Ratio, PSSIGN, ResQaaLag2, &
+                 WF_Ratio, XISPSM(MXPCSM,MXPICI) = Zero
 logical(kind=iwp) :: Do_Hybrid, esterr, Fancy_Preconditioner, isMECIMSPD, isNAC, NewPre = .true., ngp, Nofile, override, SA, square
 character(len=LenIn+6) :: ChDisp(Mxdccc*3)
 character(len=8) :: FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, &
                     FNTRI5, FnTwo, SwLbl(Mxdccc)
 integer(kind=iwp), allocatable :: H0F(:), pINT1(:), pINT2(:), SBIDT(:)
-real(kind=wp), allocatable :: CMO_Inv(:), F0SQMO(:), FAMO(:), FAMO_spinm(:), FAMO_spinp(:), FIMO(:), Fm(:), Fp(:), G1m(:), G1p(:), &
-                              G1t(:), G2mm(:), G2mp(:), G2pp(:), G2sq(:), G2t(:), H0S(:), Hss(:), INT2(:), SFock(:), SS(:,:)
+real(kind=wp), allocatable :: CMO_Inv(:), F0SQMO(:), FAMO(:), FIMO(:), G1t(:), G2sq(:), G2t(:), H0S(:), Hss(:), INT2(:), &
+                              SS(:,:)
 real(kind=wp), allocatable, target :: CMO(:), INT1(:)
 real(kind=wp), pointer :: KAIN1(:), KINT2(:), KINT2A(:)
 
-public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, F0SQMO, FAMO, FAMO_spinm, FAMO_spinp, Fancy_Preconditioner, FIMO, &
-          Fm, FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, &
-          FnTwo, Fp, G1m, G1p, G1t, G2mm, G2mp, G2pp, G2sq, G2t, H0F, H0S, Hss, i1, I12, IACTI, iAllo, iAnders, IASTFI, IBSO, &
-          IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, INT1, INT2, ipCI, ipCM, ipdia, ipMat, ipmatba, ipMatLT, ipMO, IREFSM, IREOTS, &
-          irlxroot, isMECIMSPD, ISMFTO, isNAC, IST, istate, ITSOB, KAIN1, KINT2, KINT2A, lconf, lDisp, lldet, luciv, LUCSF2SD, &
-          LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, &
-          MAXOP, MNR1IC, MNR3IC, MS2, MS2P, MULTSP, MXINKA, MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, n1Dens, n2Dens, na, &
-          NACOB, nacpar, nacpr2, NACstates, NAELCI, nb, NBELCI, nCMO, NCNASM, nconf1, NCPCNT, NCSASM, nDens, nDensC, NDPCNT, &
-          NDTASM, NELCI, NewPre, nexp, nexp_max, ngp, nhess, NICISP, nmba, nna, NOBPT, NOBPTS, NOCOB, NOCSF, Nofile, NOPART, &
-          NORB1, NORB2, NORB3, nrec, NSSA, NTOOB, NTSOB, override, P1, P1INV, PDFT_Ratio, pINT1, pINT2, PSSIGN, rbetaa, rbetas, &
-          ResQaaLag2, rms, SA, SBIDT, SFock, square, SS, SwLbl, WF_Ratio, XISPSM
+public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, F0SQMO, FAMO, Fancy_Preconditioner, FIMO, FNCSF2SD, FnHlf2, &
+          FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FnTwo, G1t, G2sq, G2t, &
+          H0F, H0S, Hss, i1, I12, IACTI, iAllo, iAnders, IASTFI, IBSO, IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, INT1, INT2, ipCI, &
+          ipCM, ipdia, ipMat, ipmatba, ipMatLT, ipMO, IREFSM, IREOTS, irlxroot, isMECIMSPD, ISMFTO, isNAC, IST, istate, ITSOB, &
+          KAIN1, KINT2, KINT2A, lconf, lDisp, lldet, luciv, LUCSF2SD, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, &
+          LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, MAXOP, MNR1IC, MNR3IC, MS2, MS2P, MULTSP, MXINKA, &
+          MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, n1Dens, n2Dens, na, NACOB, nacpar, nacpr2, NACstates, NAELCI, nb, &
+          NBELCI, nCMO, NCNASM, nconf1, NCPCNT, NCSASM, nDens, nDensC, NDPCNT, NDTASM, NELCI, NewPre, nexp, nexp_max, ngp, &
+          nhess, NICISP, nmba, nna, NOBPT, NOBPTS, NOCOB, NOCSF, Nofile, NOPART, NORB1, NORB2, NORB3, nrec, NSSA, NTOOB, NTSOB, &
+          override, P1, P1INV, PDFT_Ratio, pINT1, pINT2, PSSIGN, ResQaaLag2, SA, SBIDT, square, SS, SwLbl, WF_Ratio, XISPSM
 
 end module MCLR_Data

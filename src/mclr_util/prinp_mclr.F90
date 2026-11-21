@@ -29,7 +29,7 @@ use Orbital_Spaces, only: nAsh, nIsh, nSym
 use CI_Input, only: nElec3, nHole1, nRS1, nRS2, nRS3
 use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, iMethod, iPT2, iRoot, mTit, nAtoms, nBas, nCSF, &
                       nDel, nDisp, NewCho, nFro, nIter, nOrb, nRoots, nSkip, ntAsh, ntBas, ntIsh, nTPert, Perturbation, PotNuc, &
-                      PT2, SpinPol, StepType, TitleIn, TwoStep, Weight
+                      PT2, StepType, TitleIn, TwoStep, Weight
 use PCM_grad, only: RFPERT
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
@@ -187,9 +187,7 @@ if (iPL >= 2) then
     end if
   end if
 
-  if (SPINPOL) then
-    write(u6,Fmt1) 'Calculating spin polarization'
-  else if (SA .or. iMCPD .or. PT2) then
+  if (SA .or. iMCPD .or. PT2) then
     if (PT2) write(u6,Fmt2//'A)') 'Calculating Lagrangian multipliers for CASPT2'
     if (isNAC) then
       write(u6,Fmt2//'A,I3,"/",I3)') 'Lagrangian multipliers are calculated for states no. ',NACstates(1),NACstates(2)

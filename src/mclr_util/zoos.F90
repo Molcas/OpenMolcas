@@ -48,8 +48,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: ISM, IBLTP(*), MAXSYM, NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSSOA(MAXSYM,NOCTPA), &
-                                 NSSOB(MAXSYM,NOCTPB), IDC, IXPND
+integer(kind=iwp), intent(in) :: ISM, IBLTP(*), MAXSYM, NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSSOA(NOCTPA,MAXSYM), &
+                                 NSSOB(NOCTPB,MAXSYM), IDC, IXPND
 integer(kind=iwp), intent(out) :: IOOS(NOCTPA,NOCTPB,MAXSYM), NOOS(NOCTPA,NOCTPB,MAXSYM), NCOMB
 integer(kind=iwp) :: IAOCC, IASYM, IBOCC, IBSYM, IREST1, MXBOCC
 
@@ -77,11 +77,11 @@ do IASYM=1,MAXSYM
       if (IOCOC(IAOCC,IBOCC) == 1) then
         IOOS(IAOCC,IBOCC,IASYM) = NCOMB+1
         if ((IXPND == 0) .and. (IREST1 == 1) .and. (IAOCC == IBOCC)) then
-          NCOMB = NCOMB+(NSSOA(IASYM,IAOCC)+1)*NSSOB(IBSYM,IBOCC)/2
-          NOOS(IAOCC,IBOCC,IASYM) = (NSSOA(IASYM,IAOCC)+1)*NSSOB(IBSYM,IBOCC)/2
+          NCOMB = NCOMB+(NSSOA(IAOCC,IASYM)+1)*NSSOB(IBOCC,IBSYM)/2
+          NOOS(IAOCC,IBOCC,IASYM) = (NSSOA(IAOCC,IASYM)+1)*NSSOB(IBOCC,IBSYM)/2
         else
-          NCOMB = NCOMB+NSSOA(IASYM,IAOCC)*NSSOB(IBSYM,IBOCC)
-          NOOS(IAOCC,IBOCC,IASYM) = NSSOA(IASYM,IAOCC)*NSSOB(IBSYM,IBOCC)
+          NCOMB = NCOMB+NSSOA(IAOCC,IASYM)*NSSOB(IBOCC,IBSYM)
+          NOOS(IAOCC,IBOCC,IASYM) = NSSOA(IAOCC,IASYM)*NSSOB(IBOCC,IBSYM)
         end if
       end if
       !write(u6,*) ' NOOS(IA,IB,ISM) ',NOOS(IAOCC,IBOCC,IASYM)
@@ -96,8 +96,8 @@ write(u6,*) ' ZOOS reporting'
 write(u6,*) ' =============='
 write(u6,*)
 write(u6,*) ' NSSOA, NSSOB (input)'
-call IWRTMA(NSSOA,MAXSYM,NOCTPA,MAXSYM,NOCTPA)
-call IWRTMA(NSSOB,MAXSYM,NOCTPB,MAXSYM,NOCTPB)
+call IWRTMA(NSSOA,NOCTPA,MAXSYM,NOCTPA,MAXSYM)
+call IWRTMA(NSSOB,NOCTPB,MAXSYM,NOCTPB,MAXSYM)
 write(u6,*)
 write(u6,*) ' Number of combinations obtained ',NCOMB
 write(u6,*) ' Offsets for combination OOS blocks'

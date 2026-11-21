@@ -66,7 +66,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), ICSM, ISSM, ICBLTP(*), &
-                                 ISBLTP(*), NACOB, NSM, NSSOA(NSM,NOCTPA), NSSOB(NSM,NOCTPB), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, &
+                                 ISBLTP(*), NACOB, NSM, NSSOA(NOCTPA,NSM), NSSOB(NOCTPB,NSM), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, &
                                  IOCTPB, MXPNGAS, NOBPTS(*), IOBPTS(*), MAXK, MAXI, LC, LS, NELFSPGPA(3,*), NELFSPGPB(3,*), IDC, &
                                  LUL, LUR, ieaw, n1, n2
 real(kind=wp), intent(inout) :: RHO1(*), RHO2(*)
@@ -168,8 +168,8 @@ outer: do
     IBTP = ISSTTB
     do ISBLK=1,NSBLK
       IBSM = Mul(IASM,ISSM)
-      NIA = NSSOA(IASM,IATP)
-      NIB = NSSOB(IBSM,IBTP)
+      NIA = NSSOA(IATP,IASM)
+      NIB = NSSOB(IBTP,IBSM)
       ! Possible permutations of L blocks
       call PRMBLK(IDC,ISTRFL,IASM,IBSM,IATP,IBTP,PSL,PLR,LATP,LBTP,LASM,LBSM,LSGN,LTRP,NLPERM)
       do ILPERM=1,NLPERM
@@ -177,12 +177,12 @@ outer: do
         IIBSM = LBSM(ILPERM)
         IIATP = LATP(ILPERM)
         IIBTP = LBTP(ILPERM)
-        NIIA = NSSOA(IIASM,IIATP)
-        NIIB = NSSOB(IIBSM,IIBTP)
+        NIIA = NSSOA(IIATP,IIASM)
+        NIIB = NSSOB(IIBTP,IIBSM)
 
         if (LTRP(ILPERM) == 1) then
-          LROW = NSSOA(LASM(ILPERM-1),LATP(ILPERM-1))
-          LCOL = NSSOB(LBSM(ILPERM-1),LBTP(ILPERM-1))
+          LROW = NSSOA(LATP(ILPERM-1),LASM(ILPERM-1))
+          LCOL = NSSOB(LBTP(ILPERM-1),LBSM(ILPERM-1))
           call TRPMT3(SB(ISOFF),LROW,LCOL,C2)
           SB(ISOFF:ISOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
         end if
@@ -194,16 +194,16 @@ outer: do
         ICOFF = 1
         do ICBLK=1,NCBLK
           JBSM = Mul(JASM,ICSM)
-          NJA = NSSOA(JASM,JATP)
-          NJB = NSSOB(JBSM,JBTP)
+          NJA = NSSOA(JATP,JASM)
+          NJB = NSSOB(JBTP,JBSM)
           XNORM2 = dDot_(NJA*NJB,CB(ICOFF),1,CB(ICOFF),1)
           if ((NIA*NIB*NJA*NJB /= 0) .and. (ISOCOC(IATP,IBTP) == 1) .and. (ICOCOC(JATP,JBTP) == 1) .and. (XNORM2 /= Zero)) then
             ! Possible permutations of this block
             call PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PSR,PLR,RATP,RBTP,RASM,RBSM,RSGN,RTRP,NRPERM)
             do IRPERM=1,NRPERM
               if (RTRP(IRPERM) == 1) then
-                LROW = NSSOA(RASM(IRPERM-1),RATP(IRPERM-1))
-                LCOL = NSSOB(RBSM(IRPERM-1),RBTP(IRPERM-1))
+                LROW = NSSOA(RATP(IRPERM-1),RASM(IRPERM-1))
+                LCOL = NSSOB(RBTP(IRPERM-1),RBSM(IRPERM-1))
                 call TRPMT3(CB(ICOFF),LROW,LCOL,C2)
                 CB(ICOFF:ICOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
               end if
@@ -212,8 +212,8 @@ outer: do
               JJBSM = RBSM(IRPERM)
               JJATP = RATP(IRPERM)
               JJBTP = RBTP(IRPERM)
-              NJJA = NSSOA(JJASM,JJATP)
-              NJJB = NSSOB(JJBSM,JJBTP)
+              NJJA = NSSOA(JJATP,JJASM)
+              NJJB = NSSOB(JJBTP,JJBSM)
               call GSDNBB2_MCLR(I12,RHO1,RHO2,IIASM,IIATP,IIBSM,IIBTP,JJASM,JJATP,JJBSM,JJBTP,NGAS,NELFSPGPA(:,IOCTPA-1+IIATP), &
                                 NELFSPGPB(:,IOCTPB-1+IIBTP),NELFSPGPA(:,IOCTPA-1+JJATP),NELFSPGPB(:,IOCTPB-1+JJBTP),NAEL,NBEL, &
                                 IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3, &

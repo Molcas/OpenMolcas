@@ -16,9 +16,11 @@ subroutine GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,INTLST,I
 ! ICOUL = 1 :      XINT(IJ,KL) = (IJ!KL)
 !
 ! Version for integrals stored in INTLST
+! (INTLST is addressed with symmetry ordered active indices, while the
+! orbitals of the blocks are type ordered, hence the reordering IREOTS)
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: IBTSOB, NACOB, NTSOB
+use MCLR_Data, only: IBTSOB, IREOTS, NACOB, NTSOB
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -53,8 +55,8 @@ if (ICTL == 1) then
         iMin = iOff
         if (IKSM /= 0) iMin = kBas
         do iBas=iMin,iOff+iOrb-1
-          ij = jbas+ntash*(ibas-1)
-          kl = lbas+ntash*(kbas-1)
+          ij = IREOTS(jbas)+ntash*(IREOTS(ibas)-1)
+          kl = IREOTS(lbas)+ntash*(IREOTS(kbas)-1)
           ijkl = iTri(ij,kl)
           Xint(iInt) = Intlst(ijkl)
           iInt = iInt+1
@@ -76,11 +78,11 @@ else if (ICTL == 4) then
         iMin = iOff
         if (IKSM /= 0) iMin = kBas
         do iBas=iMin,iOff+iOrb-1
-          il = ibas+ntash*(lbas-1)
-          jk = kbas+ntash*(jbas-1)
+          il = IREOTS(ibas)+ntash*(IREOTS(lbas)-1)
+          jk = IREOTS(kbas)+ntash*(IREOTS(jbas)-1)
           iljk = iTri(il,jk)
-          ij = ibas+ntash*(jbas-1)
-          kl = kbas+ntash*(lbas-1)
+          ij = IREOTS(ibas)+ntash*(IREOTS(jbas)-1)
+          kl = IREOTS(kbas)+ntash*(IREOTS(lbas)-1)
           ijkl = iTri(ij,kl)
           XInt(iInt) = Intlst(ijkl)-Intlst(iljk)
           iInt = iInt+1

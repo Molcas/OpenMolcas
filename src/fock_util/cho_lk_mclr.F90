@@ -993,7 +993,11 @@ do jSym=1,nSym
 
                   mSh = Indx(0,jk_a,kDen) ! skip rest
 
-                else if ((xFab >= tau/MaxRedT) .and. (iaSkip*ibSkip == 1)) then
+                else if (((xFab >= tau/MaxRedT) .or. (.not. Fake_CMO2)) .and. (iaSkip*ibSkip == 1)) then
+                  ! The estimate xFab from the diagonal exchange elements is not
+                  ! valid for the one-index transformed (kappa) orbitals, whose
+                  ! density has (near) vanishing diagonal elements; using it
+                  ! dropped large contributions and made the Hessian non-symmetric.
 
                   nBsa = nBasSh(lSym,iaSh)
                   if (lSym >= kSym) then

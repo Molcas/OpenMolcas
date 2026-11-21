@@ -11,26 +11,20 @@
 
 subroutine StPert()
 
-use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use MckDat, only: sNew
-use ipPage, only: ipin, W
-use MCLR_Data, only: FAMO_SpinM, FAMO_SpinP, Fm, FnMck, Fp, G1m, G1p, G2mm, G2mp, G2pp, Hss, ipCI, lDisp, LuMck, MS2, nDens, &
-                     rBetaA, rBetaS, RMS, SwLbl
+use MCLR_Data, only: FnMck, Hss, lDisp, LuMck, SwLbl
 use Orbital_Spaces, only: nAsh, nIsh, nSym
-use input_mclr, only: McKinley, nBas, nDisp, nTPert, PT2, SpinPol
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-use Constants, only: Zero, Half
-use Definitions, only: wp, iwp, u6
+use input_mclr, only: McKinley, nBas, nDisp, nTPert, PT2
+use stdalloc, only: mma_allocate
+use Constants, only: Zero
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), parameter :: iState = 1
-integer(kind=iwp) :: idum(1), iDummer, iOpt, iRC, iS, nAct, nG, nG2, nHss, nMax
-real(kind=wp) :: rAlphas
+integer(kind=iwp) :: idum(1), iDummer, iOpt, iRC, iS, nHss
 character(len=288) :: Header
 character(len=16) :: Label
 character(len=8) :: MckLbl
-real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 
 nHss = 0
 do iS=1,nSym
@@ -141,35 +135,6 @@ if (.not. Mckinley) then
     write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
-end if
-
-if (SPINPOL) then
-  call coeff(ralphas,rbetaa,rbetas)
-  rms = real(ms2,kind=wp)*Half
-  nAct = sum(nAsh(1:nSym))
-  nG = nAct**2
-  nG2 = nAct**4
-  call mma_allocate(famo_spinp,nDens,Label='famo_spinp')
-  call mma_allocate(famo_spinm,nDens,Label='famo_spinm')
-  call mma_allocate(G2mp,nG2,Label='G2mp')
-  call mma_allocate(G2pp,nG2,Label='G2pp')
-  call mma_allocate(G2mm,nG2,Label='G2mm')
-  call mma_allocate(Fm,nG2,Label='Fm')
-  call mma_allocate(Fp,nG2,Label='Fp')
-  call mma_allocate(G1p,nG,Label='G1p')
-  call mma_allocate(G1m,nG,Label='G1m')
-  call ipin(ipCI)
-  call SpinDens(W(ipCI)%A,W(ipCI)%A,CI_St(iState)%STSym,CI_St(iState)%STSym,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,2)
-
-  call mma_allocate(Tmp2,nDens,Label='Tmp2')
-  call mma_MaxDBLE(nMax)
-  call mma_allocate(Tmp1,nMax/2,Label='Tmp1')
-
-  call Ex_spin(G1p,FAMO_Spinp,Tmp1,nMax/2,Tmp2)
-  call Ex_spin(G1m,FAMO_Spinm,Tmp1,nMax/2,Tmp2)
-
-  call mma_deallocate(Tmp1)
-  call mma_deallocate(Tmp2)
 end if
 
 end subroutine StPert

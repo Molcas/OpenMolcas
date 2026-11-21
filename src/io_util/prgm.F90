@@ -303,7 +303,7 @@ function FindFile(Short,Table,Exact)
   type(FileEntry), intent(in) :: Table(:)
   logical(kind=iwp), intent(in), optional :: Exact
   logical(kind=iwp) :: FindExact
-  integer(kind=iwp) :: i
+  integer(kind=iwp) :: i, L
   FindFile = 0
   if (present(Exact)) then
     FindExact = Exact
@@ -319,7 +319,10 @@ function FindFile(Short,Table,Exact)
         exit
       end if
     else
-      if (index(Short,trim(Table(i)%Shortname)) == 1) then
+      ! prefix test (index() would search the whole of Short for every entry)
+      L = len_trim(Table(i)%Shortname)
+      if (L > len(Short)) cycle
+      if (Short(1:L) == Table(i)%Shortname(1:L)) then
         if ((trim(Short) == trim(Table(i)%Shortname)) .or. (index(Table(i)%Attr,'*') > 0) .or. &
             (index(Table(i)%Attr,'.') > 0)) then
           FindFile = i

@@ -30,8 +30,9 @@ subroutine DENSI2_MCLR(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
 ! Definition of L and R is picked up from CANDS
 ! with L being S and  R being C
 
-use Index_Functions, only: nTri_Elem
+use Index_Functions, only: iTri, nTri_Elem
 use Str_Info, only: IATPM1, IATPM2, IBTPM1, IBTPM2, ITYP_DUMMY, NELEC, NOCTYP, STR
+use MCLR_Data, only: IREOTS
 use MCLR_Data, only: IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, MAXI, MAXK, MNR1IC, MXINKA, MXPNGAS, MXR3IC, MXSB, MXSOOB, NACOB, &
                      NOBPTS, NTSOB, PSSIGN
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
@@ -199,6 +200,13 @@ if ((IDC /= 1) .and. (ICISTR == 1)) then
   call SCDTC2_MCLR(R,ICSM,CBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY)
 end if
 
+! The densities have been accumulated with the type ordered active
+! orbitals of the CI code (RAS1, RAS2, RAS3, symmetries within each),
+! while the rest of MCLR uses symmetry ordered active indices. Reorder
+! (a no-op without RAS1/RAS3 orbitals or without symmetry). The ieaw=1
+! densities (no current caller) mix two storage layouts and are left as they are.
+if (ieaw == 0) call Reorder_TS_Densities()
+
 ! Free memory
 
 if (ICISTR == 1) then
@@ -217,5 +225,36 @@ call mma_deallocate(OOS)
 call mma_deallocate(RHO1S)
 call mma_deallocate(RHO1P)
 call mma_deallocate(XNATO)
+
+contains
+
+subroutine Reorder_TS_Densities()
+
+  integer(kind=iwp) :: iT, jT, IJ, KL, IJn, KLn, N
+  real(kind=wp), allocatable :: T1(:,:), T2(:)
+
+  N = NACOB
+  if (all(IREOTS(1:N) == [(iT,iT=1,N)])) return
+  call mma_allocate(T1,N,N,Label='T1')
+  T1(:,:) = RHO1(:,:)
+  do jT=1,N
+    do iT=1,N
+      RHO1(IREOTS(iT),IREOTS(jT)) = T1(iT,jT)
+    end do
+  end do
+  call mma_deallocate(T1)
+  if (I12 /= 2) return
+  call mma_allocate(T2,nTri_Elem(N**2),Label='T2')
+  T2(:) = RHO2(:)
+  do IJ=1,N**2
+    IJn = (IREOTS((IJ-1)/N+1)-1)*N+IREOTS(mod(IJ-1,N)+1)
+    do KL=1,IJ
+      KLn = (IREOTS((KL-1)/N+1)-1)*N+IREOTS(mod(KL-1,N)+1)
+      RHO2(iTri(IJn,KLn)) = T2(iTri(IJ,KL))
+    end do
+  end do
+  call mma_deallocate(T2)
+
+end subroutine Reorder_TS_Densities
 
 end subroutine DENSI2_MCLR

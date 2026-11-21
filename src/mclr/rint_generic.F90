@@ -22,7 +22,7 @@ use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, CMO_Inv, FAMO, FIMO, G1t, G2t, ipCM, ipMat, ipMatBA, nA, nDens, nMBA
 use Orbital_Spaces, only: nAsh, nIsh, nSym
-use input_mclr, only: iMethod, IsPop, LuAChoVec, LuIChoVec, nBas, NewCho, nOrb
+use input_mclr, only: iMethod, LuAChoVec, LuIChoVec, nBas, NewCho, nOrb
 #ifdef _DEBUGPRINT_
 use Spool, only: LuWr
 #endif
@@ -31,6 +31,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
+#include "macros.fh"
 
 implicit none
 real(kind=wp), intent(in) :: rkappa(nDens), reco
@@ -55,6 +56,9 @@ real(kind=wp), external :: DDot_
 write(LuWr,*) 'Focki=',DDot_(nDens,Focki,1,Focki,1)
 write(LuWr,*) 'Focka=',DDot_(nDens,Focka,1,Focka,1)
 #endif
+
+! rmoa (antisymmetric integrals) was only needed for the retired spin polarization
+unused_var(rmoa(1))
 
 Fact = -One
 Fock(:) = Zero
@@ -384,11 +388,6 @@ if (.not. newCho) then
   call mma_allocate(MT3,nmba,Label='MT3')
   MT3(:) = MT1(:)+MT2(:)
   call PickMO_MCLR(MT3,rmos,idsym)
-
-  if (ispop /= 0) then
-    MT3(:) = MT2(:)-MT1(:)
-    call PickMO_MCLR(MT3,rmoa,idsym)
-  end if
   call mma_deallocate(MT3)
   call mma_deallocate(MT2)
   call mma_deallocate(MT1)

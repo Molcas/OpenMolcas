@@ -245,6 +245,20 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`NODEfault`
+  Use a simpler preconditioner for the CI part of the state-averaged linear response equations,
+  in which each state is only projected against its own reference CI vector, instead of
+  against all the states in the average (default). Intended for testing.
+
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="NODE" APPEAR="Simpler SA CI preconditioner" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: NODEfault <advanced>
+              <HELP>
+              Use a simpler preconditioner for the CI part of the state-averaged linear response equations,
+              in which each state is only projected against its own reference CI vector, instead of
+              against all the states in the average (default). Intended for testing.
+              </HELP>
+              </KEYWORD>
+
 :kword:`PRINt`
   Raise the print level, default 0.
 

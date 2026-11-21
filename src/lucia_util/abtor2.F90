@@ -21,12 +21,11 @@ subroutine ABTOR2(SKII,CKJJ,NKA,NKB,RHO2B,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB
 !
 ! Jeppe Olsen, Fall of 96
 
-use lucia_data, only: ABTOR2_TINY_M_MAX, ABTOR2_TINY_N_MAX
 #ifdef _CUDA_BLAS_
 use, intrinsic :: iso_c_binding, only: c_int64_t
 use LUCIA_CUDA_INTERFACE, only: LUCIA_ABTOR2_CUDA_ROUTE
 #endif
-use Constants, only: Zero, One
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -94,11 +93,7 @@ do KB=1,NKB
             !  XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
             !  XIJKL(JKINTOF+L:JKINTOF+NL-1) = Zero
             !end if
-            if ((IMAX == NI) .and. (NI >= 1) .and. (NI <= ABTOR2_TINY_M_MAX) .and. (NJ >= 1) .and. (NJ <= ABTOR2_TINY_N_MAX)) then
-              call ABTOR2_MATML7_TN_TINY(RHO2B(KLOFF),SKII(ISOFF),CKJJ(ICOFF),NI,NJ,NKA,FACTOR)
-            else
-              call MATML7(RHO2B(KLOFF),SKII(ISOFF),CKJJ(ICOFF),NI,NJ,NKA,IMAX,NKA,NJ,One,FACTOR,1)
-            end if
+            call MATML7(RHO2B(KLOFF),SKII(ISOFF),CKJJ(ICOFF),NI,NJ,NKA,IMAX,NKA,NJ,One,FACTOR,1)
             !if (IKORD /= 0) XIJKL(JKINTOF+L-1:JKINTOF+NL-1) = XIJILS(L:NL)
 
           end if
@@ -109,140 +104,5 @@ do KB=1,NKB
   end if
 end do
 ! (end over loop over Kb strings)
-
-contains
-
-subroutine ABTOR2_MATML7_TN_TINY(C,A,B,M,N,K,FACTORAB)
-
-  integer(kind=iwp), intent(in) :: M, N, K
-  real(kind=wp), intent(inout) :: C(M,*)
-  real(kind=wp), intent(in) :: A(K,*), B(K,*), FACTORAB
-  integer(kind=iwp) :: KA
-  real(kind=wp) :: B1, B2, B3, B4, S11, S12, S13, S14, S21, S22, S23, S24, S31, S32, S33, S34, S41, S42, S43, S44
-
-  S11 = Zero
-  S21 = Zero
-  S31 = Zero
-  S41 = Zero
-  S12 = Zero
-  S22 = Zero
-  S32 = Zero
-  S42 = Zero
-  S13 = Zero
-  S23 = Zero
-  S33 = Zero
-  S43 = Zero
-  S14 = Zero
-  S24 = Zero
-  S34 = Zero
-  S44 = Zero
-
-  select case (N)
-    case (1)
-      do KA=1,K
-        B1 = B(KA,1)
-        S11 = S11+A(KA,1)*B1
-        if (M >= 2) S21 = S21+A(KA,2)*B1
-        if (M >= 3) S31 = S31+A(KA,3)*B1
-        if (M >= 4) S41 = S41+A(KA,4)*B1
-      end do
-    case (2)
-      do KA=1,K
-        B1 = B(KA,1)
-        B2 = B(KA,2)
-        S11 = S11+A(KA,1)*B1
-        S12 = S12+A(KA,1)*B2
-        if (M >= 2) then
-          S21 = S21+A(KA,2)*B1
-          S22 = S22+A(KA,2)*B2
-        end if
-        if (M >= 3) then
-          S31 = S31+A(KA,3)*B1
-          S32 = S32+A(KA,3)*B2
-        end if
-        if (M >= 4) then
-          S41 = S41+A(KA,4)*B1
-          S42 = S42+A(KA,4)*B2
-        end if
-      end do
-    case (3)
-      do KA=1,K
-        B1 = B(KA,1)
-        B2 = B(KA,2)
-        B3 = B(KA,3)
-        S11 = S11+A(KA,1)*B1
-        S12 = S12+A(KA,1)*B2
-        S13 = S13+A(KA,1)*B3
-        if (M >= 2) then
-          S21 = S21+A(KA,2)*B1
-          S22 = S22+A(KA,2)*B2
-          S23 = S23+A(KA,2)*B3
-        end if
-        if (M >= 3) then
-          S31 = S31+A(KA,3)*B1
-          S32 = S32+A(KA,3)*B2
-          S33 = S33+A(KA,3)*B3
-        end if
-        if (M >= 4) then
-          S41 = S41+A(KA,4)*B1
-          S42 = S42+A(KA,4)*B2
-          S43 = S43+A(KA,4)*B3
-        end if
-      end do
-    case (4)
-      do KA=1,K
-        B1 = B(KA,1)
-        B2 = B(KA,2)
-        B3 = B(KA,3)
-        B4 = B(KA,4)
-        S11 = S11+A(KA,1)*B1
-        S12 = S12+A(KA,1)*B2
-        S13 = S13+A(KA,1)*B3
-        S14 = S14+A(KA,1)*B4
-        if (M >= 2) then
-          S21 = S21+A(KA,2)*B1
-          S22 = S22+A(KA,2)*B2
-          S23 = S23+A(KA,2)*B3
-          S24 = S24+A(KA,2)*B4
-        end if
-        if (M >= 3) then
-          S31 = S31+A(KA,3)*B1
-          S32 = S32+A(KA,3)*B2
-          S33 = S33+A(KA,3)*B3
-          S34 = S34+A(KA,3)*B4
-        end if
-        if (M >= 4) then
-          S41 = S41+A(KA,4)*B1
-          S42 = S42+A(KA,4)*B2
-          S43 = S43+A(KA,4)*B3
-          S44 = S44+A(KA,4)*B4
-        end if
-      end do
-  end select
-
-  C(1,1) = C(1,1)+FACTORAB*S11
-  if (M >= 2) C(2,1) = C(2,1)+FACTORAB*S21
-  if (M >= 3) C(3,1) = C(3,1)+FACTORAB*S31
-  if (M >= 4) C(4,1) = C(4,1)+FACTORAB*S41
-  if (N >= 2) then
-    C(1,2) = C(1,2)+FACTORAB*S12
-    if (M >= 2) C(2,2) = C(2,2)+FACTORAB*S22
-    if (M >= 3) C(3,2) = C(3,2)+FACTORAB*S32
-    if (M >= 4) C(4,2) = C(4,2)+FACTORAB*S42
-  end if
-  if (N >= 3) then
-    C(1,3) = C(1,3)+FACTORAB*S13
-    if (M >= 2) C(2,3) = C(2,3)+FACTORAB*S23
-    if (M >= 3) C(3,3) = C(3,3)+FACTORAB*S33
-    if (M >= 4) C(4,3) = C(4,3)+FACTORAB*S43
-  end if
-  if (N >= 4) then
-    C(1,4) = C(1,4)+FACTORAB*S14
-    if (M >= 2) C(2,4) = C(2,4)+FACTORAB*S24
-    if (M >= 3) C(3,4) = C(3,4)+FACTORAB*S34
-    if (M >= 4) C(4,4) = C(4,4)+FACTORAB*S44
-  end if
-
-end subroutine ABTOR2_MATML7_TN_TINY
 
 end subroutine ABTOR2

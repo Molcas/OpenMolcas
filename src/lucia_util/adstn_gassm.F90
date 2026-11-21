@@ -89,8 +89,11 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
       NSTAINSTA = NSTAI*NSTA
       NSTAKNSTA = NSTAK*NSTA
       do IB=1,NSTB
-        ISTMAP(IADRK0+1:IADRK0+NSTA,IORBRTS) = [(IADRI0+IA,IA=1,NSTA)]
-        SGNMAP(IADRK0+1:IADRK0+NSTA,IORBRTS) = SGN
+        ! explicit loop: an array constructor here costs a heap temporary per IB
+        do IA=1,NSTA
+          ISTMAP(IADRK0+IA,IORBRTS) = IADRI0+IA
+          SGNMAP(IADRK0+IA,IORBRTS) = SGN
+        end do
         IADRI0 = IADRI0+NSTAINSTA
         IADRK0 = IADRK0+NSTAKNSTA
       end do
