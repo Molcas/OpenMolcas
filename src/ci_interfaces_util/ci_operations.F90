@@ -244,9 +244,8 @@ subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_e
     call Abend()
   end if
   if (CI_Lib_Op == CI_Lib_SGUGA) then
-    if ((iOpSpin /= 0) .or. (iCSym /= iSSym) .or. Square) &
-      call Not_Yet('CI_Sigma_Op','triplet, non-symmetric or symmetry-changing operators')
-    call SG_Sigma_Op(iState,iCSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+    if ((iOpSpin /= 0) .or. Square) call Not_Yet('CI_Sigma_Op','triplet or non-symmetric operators')
+    call SG_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
     return
   end if
   call Check_Lib('CI_Sigma_Op',associated(MCLR_Lucia_Sigma))
@@ -343,68 +342,87 @@ subroutine Not_Yet(Caller,What)
   call Abend()
 end subroutine Not_Yet
 
-!> The active integrals for SGUGA: the active diagonal blocks of Int1
-!> (square blocks of the totally symmetric operator, nOrb x nOrb) packed
-!> triangularly and Int2 (zero without two-body part), both over the
-!> symmetry-ordered active orbitals. The SGUGA sigma and diagonal routines
+!> The active integrals for SGUGA, for an operator of symmetry iOp: the
+!> active part of Int1 (square blocks (iS,Mul(iS,iOp)), nOrb(iS) x
+!> nOrb(jS), one after the other in the order of iS) packed triangularly
+!> and Int2 (zero without two-body part), both over the symmetry-ordered
+!> active orbitals. The SGUGA sigma and diagonal routines
 !> map them to the levels themselves (do not map them here).
-subroutine SG_Ints(iState,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
+subroutine SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
+  use Symmetry_Info, only: Mul
   use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
   use Index_Functions, only: iTri, nTri_Elem
   use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, nInt1, nInt2, nTU, nTUVX
+  integer(kind=iwp), intent(in) :: iState, iOp, nInt1, nInt2, nTU, nTUVX
   real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
   logical(kind=iwp), intent(in) :: Have_2_el
   real(kind=wp), intent(out) :: TU(nTU), TUVX(nTUVX)
-  integer(kind=iwp) :: iOff, iS, it, iu, nAOff
+  integer(kind=iwp) :: iOff(8), iS, it, iu, jS, nAOff(8), nAct
 #include "macros.fh"
   unused_var(iState)
   TU(:) = Zero
-  iOff = 0
-  nAOff = 0
+  ! offsets of the Int1 blocks (iS,Mul(iS,iOp)) and of the active orbitals
+  nAct = 0
   do iS=1,nSym
-    do iu=1,nAsh(iS)
-      do it=1,iu
-        TU(iTri(nAOff+it,nAOff+iu)) = Int1(iOff+(nIsh(iS)+iu-1)*nOrb(iS)+nIsh(iS)+it)
+    jS = Mul(iS,iOp)
+    if (iS == 1) then
+      iOff(iS) = 0
+    else
+      iOff(iS) = iOff(iS-1)+nOrb(iS-1)*nOrb(Mul(iS-1,iOp))
+    end if
+    nAOff(iS) = nAct
+    nAct = nAct+nAsh(iS)
+  end do
+  if (iOff(nSym)+nOrb(nSym)*nOrb(Mul(nSym,iOp)) > nInt1) call Abend()
+  do iS=1,nSym
+    jS = Mul(iS,iOp)
+    ! element (t,u), t of symmetry iS, u of symmetry jS (Hermitian: once)
+    do iu=1,nAsh(jS)
+      do it=1,nAsh(iS)
+        if (nAOff(iS)+it < nAOff(jS)+iu) cycle
+        TU(iTri(nAOff(iS)+it,nAOff(jS)+iu)) = Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it)
       end do
     end do
-    iOff = iOff+nOrb(iS)**2
-    nAOff = nAOff+nAsh(iS)
   end do
-  if (iOff > nInt1) call Abend()
   if (Have_2_el) then
     if (nInt2 < nTUVX) call Abend()
     TUVX(:) = Int2(1:nTUVX)
   else
     TUVX(:) = Zero
   end if
-  if (nTU /= nTri_Elem(nAOff)) call Abend()
+  if (nTU /= nTri_Elem(nAct)) call Abend()
 end subroutine SG_Ints
 
 !> SGUGA: sigma for a singlet operator between vectors of symmetry iSym
-subroutine SG_Sigma_Op(iState,iSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+subroutine SG_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+  use Symmetry_Info, only: Mul
   use sguga, only: CIS, EXS, SGS
-  use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras
+  use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_op, sg_h_psi_ras
   use Orbital_Spaces, only: nAsh, nSym
   use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, nC, nS
+  integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nInt1, nInt2, nC, nS
   real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), C(nC)
   logical(kind=iwp), intent(in) :: Have_2_el
   real(kind=wp), intent(out) :: S(nS)
-  integer(kind=iwp) :: nTU, nTUVX
+  integer(kind=iwp) :: iOp, nTU, nTUVX
   real(kind=wp), allocatable :: TU(:), TUVX(:)
   nTU = nTri_Elem(sum(nAsh(1:nSym)))
   nTUVX = nTri_Elem(nTU)
   call mma_allocate(TU,nTU,Label='TU')
   call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
-  if (CI_St(iState)%nRsPrt > 1) then
-    call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C,nC,iSym,S,TUVX,nTUVX,TU,nTU)
+  iOp = Mul(iCSym,iSSym)
+  call SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
+  if (iOp /= 1) then
+    ! operator of non-total symmetry (perturbations)
+    call sg_h_psi_op(SGS(iState),CIS(iState),EXS(iState),nC,C,iCSym,nS,S,iOp,TUVX,nTUVX,TU,nTU)
+  else if (CI_St(iState)%nRsPrt > 1) then
+    if (nS /= nC) call Abend()
+    call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,TUVX,nTUVX,TU,nTU)
   else
-    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C,nC,iSym,S,TUVX,nTUVX,TU,nTU)
+    if (nS /= nC) call Abend()
+    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,TUVX,nTUVX,TU,nTU)
   end if
-  if (nS /= nC) call Abend()
   call mma_deallocate(TUVX)
   call mma_deallocate(TU)
 end subroutine SG_Sigma_Op
@@ -489,7 +507,7 @@ subroutine SG_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,nPMax,nP,IdxP,nHP,HP)
   nTUVX = nTri_Elem(nTU)
   call mma_allocate(TU,nTU,Label='TU')
   call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
+  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
   nCSF = CI_St(iState)%nCSF(iSym)
   call mma_allocate(DX,nCSF,Label='DX')
   call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),nCSF,iSym,TUVX,nTUVX,TU,nTU,DX)
@@ -522,7 +540,7 @@ subroutine SG_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   nTUVX = nTri_Elem(nTU)
   call mma_allocate(TU,nTU,Label='TU')
   call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
+  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
   if (Mode == CI_Diag_Exact) then
     call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),n,iSym,TUVX,nTUVX,TU,nTU,Diag)
   else
