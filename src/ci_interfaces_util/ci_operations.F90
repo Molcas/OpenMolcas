@@ -128,8 +128,12 @@ end subroutine CI_Lib_Select
 !> two-body integrals of all later operations are in the square-pair
 !> layout (time-dependent response of MCLR)
 subroutine CI_Lib_Initialize(iState,TD)
+  use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRs1, nRs2, nRs3
+  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
+  use Molcas, only: MxSym
   integer(kind=iwp), intent(in) :: iState
   logical(kind=iwp), intent(in), optional :: TD
+  integer(kind=iwp) :: nDet(MxSym)
   logical(kind=iwp) :: TD_
   if (CI_Lib_Op == CI_Lib_SGUGA) then
     ! the split graph is the state of the CI interface (set up by the
@@ -144,7 +148,11 @@ subroutine CI_Lib_Initialize(iState,TD)
   call Check_Lib('CI_Lib_Initialize')
   TD_ = .false.
   if (present(TD)) TD_ = TD
-  call MCLR_Lucia_Init(iState,TD_)
+  ! the CI space as arguments: the library keeps its own copies
+  call MCLR_Lucia_Init(nSym,nOrb(1:nSym),nIsh(1:nSym),nAsh(1:nSym),nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,nActEl, &
+                       iSpin,CI_St(iState)%STSym,CI_St(iState)%nCSF(1:nSym),TD_,nDet(1:nSym))
+  CI_St(iState)%nDet(:) = 0
+  CI_St(iState)%nDet(1:nSym) = nDet(1:nSym)
 end subroutine CI_Lib_Initialize
 
 !> Free the library of the CI state and forget the selection (safe to call
@@ -703,6 +711,7 @@ subroutine Faro_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
   use faroald, only: gtuvx, htu, my_norb
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
   integer(kind=iwp), intent(in) :: iState, iOp, nInt1, nInt2
   real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
   logical(kind=iwp), intent(in) :: Have_2_el
@@ -713,14 +722,20 @@ subroutine Faro_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
   call mma_allocate(TU,nTU,Label='TU')
   call mma_allocate(TUVX,nTUVX,Label='TUVX')
   call SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
+  ! (only the elements allowed by symmetry are taken; the programs need
+  ! not define the others)
   do iu=1,my_norb
     do it=1,my_norb
       otu = iTri(Faro_Lev(it),Faro_Lev(iu))
       htu(it,iu) = TU(otu)
       do ix=1,my_norb
         do iv=1,my_norb
-          ovx = iTri(Faro_Lev(iv),Faro_Lev(ix))
-          gtuvx(it,iu,iv,ix) = TUVX(iTri(otu,ovx))
+          if (Faro_Sym4(it,iu,iv,ix) == iOp) then
+            ovx = iTri(Faro_Lev(iv),Faro_Lev(ix))
+            gtuvx(it,iu,iv,ix) = TUVX(iTri(otu,ovx))
+          else
+            gtuvx(it,iu,iv,ix) = Zero
+          end if
         end do
       end do
     end do
@@ -777,7 +792,7 @@ subroutine Faro_Ints_Sq(iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
       do iu=1,N
         do it=1,N
           otu = Faro_Lev(it)+(Faro_Lev(iu)-1)*N
-          if (Have_2_el) then
+          if (Have_2_el .and. (Faro_Sym4(it,iu,iv,ix) == iOp)) then
             G(it,iu,iv,ix) = Int2(iTri(otu,ovx))
           else
             G(it,iu,iv,ix) = Zero
@@ -806,6 +821,15 @@ subroutine Faro_Ints_Sq(iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
   call mma_deallocate(G)
   call mma_deallocate(H1)
 end subroutine Faro_Ints_Sq
+
+!> Faroald: the symmetry of the product of the orbitals of levels t, u,
+!> v, x
+function Faro_Sym4(it,iu,iv,ix) result(iS)
+  use Symmetry_Info, only: Mul
+  integer(kind=iwp), intent(in) :: it, iu, iv, ix
+  integer(kind=iwp) :: iS
+  iS = Mul(Mul(Faro_OrbSym(it),Faro_OrbSym(iu)),Mul(Faro_OrbSym(iv),Faro_OrbSym(ix)))
+end function Faro_Sym4
 
 !> Faroald: S = H C in the CSF space of the CI state
 subroutine Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S,Square)

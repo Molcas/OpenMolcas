@@ -21,8 +21,7 @@ subroutine STRINF()
 ! /STRINP/,/STINF/,/STRBAS/ and string information in STIN
 
 use Str_Info, only: ISTAC, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP, STR
-use MCLR_Lucia_Data, only: NACOB, NORB1, NORB2, NORB3
-use Orbital_Spaces, only: nSym
+use MCLR_Lucia_Data, only: NACOB, NORB1, NORB2, NORB3, nSym => L_nSym
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

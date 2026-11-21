@@ -18,7 +18,7 @@ function GTH1ES_MCLR(IORB,ITP,ISM,JORB,JTP,JSM)
 ! correct combination of row and column symmetry is assumed
 
 use MCLR_Lucia_Data, only: IBsO, IBTSOB, IREOTS, KAIN1, pInt1
-use Orbital_Spaces, only: nIsh, nOrb
+use MCLR_Lucia_Data, only: nIsh => L_nIsh, nOrb => L_nOrb
 use Definitions, only: wp, iwp
 
 implicit none

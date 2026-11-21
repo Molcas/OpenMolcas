@@ -13,7 +13,7 @@ function GETH1I_MCLR(I,J)
 ! Obtain one-electron integral H(IORB,JOB)
 
 use MCLR_Lucia_Data, only: IBSO, IREOTS, ISMFTO, KAIN1, pInt1
-use Orbital_Spaces, only: nIsh, nOrb
+use MCLR_Lucia_Data, only: nIsh => L_nIsh, nOrb => L_nOrb
 use Definitions, only: wp, iwp
 
 implicit none

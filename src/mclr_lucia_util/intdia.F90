@@ -19,9 +19,8 @@ subroutine INTDIA(DIAG,NSPC,ISPC,ISM,IAMCMP,ecore)
 ! constructed and written out twice
 
 use Str_Info, only: NELEC, NOCTYP, STR
-use MCLR_Lucia_Data, only: IASTFI, IBSTFI, ICISTR, iDC, MNR1IC, MXR3IC, NACOB, NTOOB, PSSIGN
+use MCLR_Lucia_Data, only: IASTFI, IBSTFI, ICISTR, iDC, MNR1IC, MXR3IC, NACOB, nSym => L_nSym, NTOOB, PSSIGN
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
-use Orbital_Spaces, only: nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

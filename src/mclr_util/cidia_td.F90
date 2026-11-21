@@ -13,7 +13,7 @@
 
 subroutine CIDIA_TD(iSym)
 
-use ipPage, only: ipclose, ipget, ipin, ipnout, W
+use ipPage, only: ipget, ipin, ipnout, W
 use CI_Operations, only: CI_Diag, CI_Diag_Cnf_Avg
 use MCLR_Data, only: FIMO, INT2, ipDia, nexp, nexp_max
 use CI_Info, only: CI_St

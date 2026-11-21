@@ -14,8 +14,7 @@
 ! type -> symmetry order)
 subroutine GT1DIA_MCLR(H1DIA)
 
-use MCLR_Lucia_Data, only: IREOTS, KAIN1, NACOB, pInt1
-use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
+use MCLR_Lucia_Data, only: IREOTS, KAIN1, NACOB, nAsh => L_nAsh, nIsh => L_nIsh, nOrb => L_nOrb, nSym => L_nSym, pInt1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

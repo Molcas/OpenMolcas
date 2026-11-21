@@ -14,7 +14,7 @@
 subroutine CIDIA_MCLR(iSym,ralp)
 
 use CI_Info, only: CI_St
-use ipPage, only: ipclose, ipget, ipin, ipnout, W
+use ipPage, only: ipget, ipin, ipnout, W
 use CI_Operations, only: CI_Diag, CI_Diag_Cnf_Avg
 use MCLR_Data, only: FIMO, INT2, ipCI, ipDia, nexp, nexp_max, nGP
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep

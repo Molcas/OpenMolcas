@@ -12,13 +12,15 @@
 !> The MCLR copy of Lucia as a CI library of the CI interface
 !> (CI_Operations, which calls these routines directly): the CI operations
 !> on top of the Lucia routines of the copy, which keep their data in
-!> MCLR_Lucia_Data and Str_Info. The integrals come with each call; the
-!> orbital spaces from Orbital_Spaces and CI_Input, the CSF counts from
-!> CI_St.
+!> MCLR_Lucia_Data and Str_Info. The CI space comes with MCLR_Lucia_Init
+!> (copies L_* in MCLR_Lucia_Data), the integrals with each operation; no
+!> data of the programs or of the CI interface is used (iState only
+!> identifies the CI state towards the CI interface: CI_ReOrd_Orig).
 !> The vectors are CSF vectors of their natural length; the expansion in
 !> determinants and its work space stay here.
 module MCLR_Lucia_CI
 
+use MCLR_Lucia_Data, only: L_nCSF, L_STSym
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -33,17 +35,43 @@ contains
 
 !> Set up the determinant tables for the CI state (State_Proc of
 !> CI_Operations) and publish the dimensions of the determinant space
-subroutine MCLR_Lucia_Init(iState,TD)
-  use CI_Info, only: CI_St
-  use MCLR_Lucia_Data, only: TD_Ints, XISPSM
-  use Orbital_Spaces, only: nSym
-  integer(kind=iwp), intent(in) :: iState
+subroutine MCLR_Lucia_Init(nSym,nOrb,nIsh,nAsh,nRs1,nRs2,nRs3,nHole1,nElec3,nActEl,iSpin,STSym,nCSF,TD,nDet)
+  use MCLR_Lucia_Data, only: L_iSpin, L_nActEl, L_nAsh, L_nElec3, L_nHole1, L_nIsh, L_nOrb, L_nRs1, L_nRs2, L_nRs3, L_nSym, &
+                             TD_Ints, XISPSM
+  ! the CI space: symmetries; orbitals, inactive and active orbitals, RAS1,
+  ! RAS2 and RAS3 orbitals per symmetry; holes in RAS1, electrons in RAS3;
+  ! active electrons, multiplicity, symmetry of the CI state, CSFs per
+  ! symmetry
+  integer(kind=iwp), intent(in) :: nSym, nOrb(nSym), nIsh(nSym), nAsh(nSym), nRs1(nSym), nRs2(nSym), nRs3(nSym), nHole1, nElec3, &
+                                   nActEl, iSpin, STSym, nCSF(nSym)
   ! TD: the two-body integrals of the run are in the square-pair layout
   logical(kind=iwp), intent(in) :: TD
+  ! the dimensions of the determinant spaces per symmetry
+  integer(kind=iwp), intent(out) :: nDet(nSym)
+  L_nSym = nSym
+  L_nOrb(:) = 0
+  L_nIsh(:) = 0
+  L_nAsh(:) = 0
+  L_nRs1(:) = 0
+  L_nRs2(:) = 0
+  L_nRs3(:) = 0
+  L_nCSF(:) = 0
+  L_nOrb(1:nSym) = nOrb(:)
+  L_nIsh(1:nSym) = nIsh(:)
+  L_nAsh(1:nSym) = nAsh(:)
+  L_nRs1(1:nSym) = nRs1(:)
+  L_nRs2(1:nSym) = nRs2(:)
+  L_nRs3(1:nSym) = nRs3(:)
+  L_nHole1 = nHole1
+  L_nElec3 = nElec3
+  L_nActEl = nActEl
+  L_iSpin = iSpin
+  L_STSym = STSym
+  L_nCSF(1:nSym) = nCSF(:)
   TD_Ints = TD
   call DetCtl()
-  call InCsfSD(CI_St(iState)%STSym,CI_St(iState)%STSym)
-  CI_St(iState)%nDet(1:nSym) = nint(XISPSM(1:nSym,1))
+  call InCsfSD(STSym,STSym)
+  nDet(:) = nint(XISPSM(1:nSym,1))
   Initialized = .true.
 end subroutine MCLR_Lucia_Init
 
@@ -74,11 +102,10 @@ end subroutine MCLR_Lucia_Close
 !> The CSF <-> SD tables (InCsfSD) for the symmetries of the vectors of an
 !> operation: those of the CI state are always there, one other symmetry
 !> is cached
-subroutine Use_Syms(iState,iSym1,iSym2)
-  use CI_Info, only: CI_St
-  integer(kind=iwp), intent(in) :: iState, iSym1, iSym2
+subroutine Use_Syms(iSym1,iSym2)
+  integer(kind=iwp), intent(in) :: iSym1, iSym2
   integer(kind=iwp) :: iRef
-  iRef = CI_St(iState)%STSym
+  iRef = L_STSym
   if ((iSym1 /= iRef) .and. (iSym2 /= iRef) .and. (iSym1 /= iSym2)) then
     write(u6,'(A,3I3)') ' MCLR copy of Lucia: two symmetries other than that of the CI state:',iSym1,iSym2,iRef
     call Abend()
@@ -92,7 +119,6 @@ end subroutine Use_Syms
 
 !> sigma = H C (Sigma_Proc of CI_Operations)
 subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
-  use CI_Info, only: CI_St
   use Symmetry_Info, only: Mul
   use MCLR_Lucia_Data, only: i12, iRefSM, iST, KAIN1, KINT2, pInt1, Square_ => Square, XISPSM
   use CandS, only: ICSM, ISSM
@@ -105,9 +131,11 @@ subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Hav
   real(kind=wp), intent(out) :: S(nS)
   integer(kind=iwp) :: iOp, kic(2), nDet
   real(kind=wp), allocatable :: CDet(:), SDet(:)
+#include "macros.fh"
+  unused_var(iState)
 
   S(:) = Zero
-  call Use_Syms(iState,iCSym,iSSym)
+  call Use_Syms(iCSym,iSSym)
   ! the integrals, as in CISigma
   KAIN1(1:nInt1) => Int1(:)
   KINT2(1:nInt2) => Int2(:)
@@ -120,12 +148,12 @@ subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Hav
   ! symmetries of sigma and C (kic = 1: the symmetry of the CI state)
   iSSM = iSSym
   kic(2) = 2
-  if (iSSM == CI_St(iState)%STSym) kic(2) = 1
+  if (iSSM == L_STSym) kic(2) = 1
   iCSM = iCSym
   kic(1) = 2
-  if (iCSM == CI_St(iState)%STSym) kic(1) = 1
+  if (iCSM == L_STSym) kic(1) = 1
   nDet = nint(max(XISPSM(iSSym,1),XISPSM(iCSym,1)))
-  nDet = max(nDet,CI_St(iState)%nCSF(iCSym),CI_St(iState)%nCSF(iSSym))
+  nDet = max(nDet,L_nCSF(iCSym),L_nCSF(iSSym))
   if (nDet == 0) then
     nullify(KAIN1,KINT2)
     return
@@ -155,7 +183,6 @@ end subroutine MCLR_Lucia_Sigma
 !> Transition densities between L and R (TDens_Proc of CI_Operations)
 subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use CandS, only: ICSM, ISSM
-  use CI_Info, only: CI_St
   use MCLR_Lucia_Data, only: NOCSF, XISPSM
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
@@ -164,15 +191,16 @@ subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,
   real(kind=wp), allocatable :: LDet(:), RDet(:)
 
 #include "macros.fh"
+  unused_var(iState)
   if (iOpSpin /= 0) then
     write(u6,'(A)') ' MCLR_Lucia_TDens: the MCLR copy of Lucia has spin-free densities only'
     call Abend()
   end if
-  call Use_Syms(iState,iLSym,iRSym)
+  call Use_Syms(iLSym,iRSym)
   ! the determinant expansions (CSF2SD of the state of the run); without
   ! CSFs (NOCSF /= 0) the vectors are in determinants already
-  call mma_allocate(LDet,max(CI_St(iState)%nCSF(iLSym),nint(XISPSM(iLSym,1))),Label='LDet')
-  call mma_allocate(RDet,max(CI_St(iState)%nCSF(iRSym),nint(XISPSM(iRSym,1))),Label='RDet')
+  call mma_allocate(LDet,max(L_nCSF(iLSym),nint(XISPSM(iLSym,1))),Label='LDet')
+  call mma_allocate(RDet,max(L_nCSF(iRSym),nint(XISPSM(iRSym,1))),Label='RDet')
   if (NOCSF == 0) then
     call CSF2SD(L,LDet,iLSym)
     call CSF2SD(R,RDet,iRSym)
@@ -192,7 +220,6 @@ end subroutine MCLR_Lucia_TDens
 !> The CSF diagonal (CI_Diag of CI_Operations), from the integrals of the
 !> call (a totally symmetric operator)
 subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
-  use CI_Info, only: CI_St
   use CI_Op_Defs, only: CI_Diag_Cnf_Avg
   use Str_Info, only: CNSM
   use MCLR_Lucia_Data, only: ICISTR, KAIN1, KINT2, NCNFTP, NCSFTP, NDPCNT, NOCSF, NTYP, pInt1, XISPSM
@@ -203,20 +230,22 @@ subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   real(kind=wp), intent(out) :: Diag(n)
   integer(kind=iwp) :: i, iAMCmp, iSM(1), iSPC(1), nSD, nSpc
   real(kind=wp), allocatable :: DSD(:)
+#include "macros.fh"
+  unused_var(iState)
 
   if (Mode /= CI_Diag_Cnf_Avg) then
     write(u6,'(A)') ' MCLR_Lucia_Diag: the MCLR copy of Lucia has the configuration-averaged diagonal only'
     call Abend()
   end if
-  call Use_Syms(iState,iSym,iSym)
+  call Use_Syms(iSym,iSym)
   nSpc = 1
   iSPC(1) = 1
   iSM(1) = iSym
   iAMCmp = 0
   ICISTR = 1
   i = 2
-  if (iSym == CI_St(iState)%STSym) i = 1
-  nSD = max(CI_St(iState)%nCSF(iSym),nint(XISPSM(iSym,1)))
+  if (iSym == L_STSym) i = 1
+  nSD = max(L_nCSF(iSym),nint(XISPSM(iSym,1)))
   call mma_allocate(DSD,nSD,Label='DSD')
   KAIN1(1:nInt1) => Int1(:)
   KINT2(1:nInt2) => Int2(:)
@@ -248,7 +277,8 @@ subroutine MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,I
   real(kind=wp), allocatable :: H0Scr(:), Vec2(:)
 
 #include "macros.fh"
-  call Use_Syms(iState,iSym,iSym)
+  unused_var(iState)
+  call Use_Syms(iSym,iSym)
   MxCSFC = max(0,maxval(NCSFTP(1:NTYP)))
   MxDTFC = max(0,maxval(NDPCNT(1:NTYP)))
   nActEl = NAELCI(1)+NBELCI(1)
@@ -286,7 +316,9 @@ subroutine MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
   real(kind=wp), intent(in) :: DetVec(nD)
   real(kind=wp), intent(out) :: CI(n)
   real(kind=wp), allocatable :: DW(:)
-  call Use_Syms(iState,iSym,iSym)
+#include "macros.fh"
+  unused_var(iState)
+  call Use_Syms(iSym,iSym)
   call mma_allocate(DW,nD,Label='DW')
   DW(:) = DetVec(:)
   call CSDTVC_dmrg(CI,DW,DTOC,IdxD,iSym,1)
@@ -300,7 +332,8 @@ subroutine MCLR_Lucia_Conv(iState,iSym,iMode,n,CI)
   real(kind=wp), intent(inout) :: CI(n)
 
 #include "macros.fh"
-  call Use_Syms(iState,iSym,iSym)
+  unused_var(iState)
+  call Use_Syms(iSym,iSym)
   call SG2SymG(CI,n,iMode,iSym)
 
 end subroutine MCLR_Lucia_Conv
@@ -310,7 +343,7 @@ end subroutine MCLR_Lucia_Conv
 !> one after the other in the order of iS (in MCLR: ipCM, ipMat)
 subroutine Int1_Offsets(iOp,pInt1)
   use Symmetry_Info, only: Mul
-  use Orbital_Spaces, only: nOrb, nSym
+  use MCLR_Lucia_Data, only: nOrb => L_nOrb, nSym => L_nSym
   integer(kind=iwp), intent(in) :: iOp
   integer(kind=iwp), intent(out) :: pInt1(:)
   integer(kind=iwp) :: iS

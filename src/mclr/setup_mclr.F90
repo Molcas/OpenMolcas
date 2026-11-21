@@ -12,7 +12,7 @@
 subroutine SetUp_MCLR(DSYM)
 ! Setup pointers and size of matrices
 
-use Index_Functions, only: iTri, nTri_Elem
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, ipMatBA, ipMatLT, ipMO, n1Dens, n2Dens, nA, nB, nCMO, nDens, nDensC, nMBA, nNA
 use Orbital_Spaces, only: nAsh, nIsh, nSym

@@ -14,10 +14,9 @@
 subroutine CSF2SD(CSF,SD,is)
 ! Transforms a CSF vector to slater determinants
 
-use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use Str_Info, only: CNSM, DTOC
-use MCLR_Lucia_Data, only: NDTASM
+use MCLR_Lucia_Data, only: L_nCSF, L_STSym, NDTASM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -25,17 +24,16 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: is
-real(kind=wp), intent(in) :: CSF(CI_St(iState)%nCSF(is))
+real(kind=wp), intent(in) :: CSF(L_nCSF(is))
 real(kind=wp), intent(_OUT_) :: SD(*)
 integer(kind=iwp) :: i, iiCOPY, iSym, nC, nConf
 real(kind=wp), allocatable :: CTM(:)
 
 iiCOPY = 0
-nC = CI_St(iState)%nCSF(is)
+nC = L_nCSF(is)
 nConf = max(nC,ndtasm(iS))
-isym = Mul(is,CI_St(iState)%STSym)
+isym = Mul(is,L_STSym)
 i = 2
 if (isym == 1) i = 1
 

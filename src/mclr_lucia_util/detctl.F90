@@ -11,16 +11,14 @@
 
 subroutine DetCtl()
 
-use CI_Info, only: CI_St
-use MCLR_Lucia_Data, only: FnCSF2SD, i12, ICISTR, idc, IDIAG, iST, LuCSF2SD, MS2, NOCSF, NOPART, pINT1, PSSIGN
-use Orbital_Spaces, only: nSym
-use CI_Input, only: nElec3, nHole1, nRs1, nRs2, nRs3
+use MCLR_Lucia_Data, only: FnCSF2SD, i12, ICISTR, idc, IDIAG, iST, L_iSpin, L_nActEl, L_STSym, LuCSF2SD, MS2, nElec3 => L_nElec3, &
+                           nHole1 => L_nHole1, NOCSF, NOPART, nRs1 => L_nRs1, nRs2 => L_nRs2, nRs3 => L_nRs3, nSym => L_nSym, &
+                           pINT1, PSSIGN
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: iTmp, MNRS10, MXR4TP, MXRS30, nTRas1, nTRas3
 
 call mma_Allocate(pINT1,nSym,Label='pInt1')
@@ -33,12 +31,12 @@ idiag = 1
 icistr = 1
 ist = 1
 i12 = 2
-MS2 = CI_St(iState)%iSpin-1
+MS2 = L_iSpin-1
 if (ms2 /= 0) then
   idc = 1
   pssign = Zero
 else
-  itmp = (CI_St(iState)%iSpin-1)/2
+  itmp = (L_iSpin-1)/2
   pssign = (-One)**itmp
   idc = 2
 end if
@@ -50,7 +48,7 @@ MXRS30 = max(0,min(2*ntRas3,nElec3))
 ! From shells to orbitals
 call ORBINF_MCLR(nSym,nRs1,nRs2,nRs3,mxr4tp) ! OK
 ! Number of string types
-call STRTYP(ms2,CI_St(iState)%nActEl,MNRS10,MXRS30)  ! looks alright
+call STRTYP(ms2,L_nActEl,MNRS10,MXRS30)  ! looks alright
 ! Internal string information
 call STRINF()  ! looks alright, no!
 ! Internal subspaces
@@ -58,6 +56,6 @@ call ICISPC(MNRS10,MXRS30)  ! looks alright
 call ICISPS()  ! looks alright
 ! CSF information
 call DANAME(LUCSF2SD,FNCSF2SD)
-call CSFINF(CI_St(iState)%STSym,CI_St(iState)%iSpin,1,nsym)
+call CSFINF(L_STSym,L_iSpin,1,nsym)
 
 end subroutine DetCtl

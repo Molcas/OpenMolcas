@@ -23,7 +23,7 @@ use Str_Info, only: CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP, STR
 use MCLR_Lucia_Data, only: i12, IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, ist, ITSOB, MAXI, MAXK, MNR1IC, MXINKA, MXR3IC, &
                            MXSB, MXSOOB, NOCSF, NOPART, NTSOB, PSSIGN, XISPSM
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
-use Orbital_Spaces, only: nSym
+use MCLR_Lucia_Data, only: nSym => L_nSym
 use MCLR_Lucia_Data, only: TimeDep => TD_Ints
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

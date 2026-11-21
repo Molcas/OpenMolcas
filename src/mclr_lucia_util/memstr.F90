@@ -33,8 +33,7 @@ subroutine MEMSTR()
 
 use Str_Info, only: ISTAC, ITYP_DUMMY, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP, NSTTYP, Str, &
                     Str_Hidden
-use MCLR_Lucia_Data, only: NACOB, NOBPT, NORB1, NORB2, NORB3
-use Orbital_Spaces, only: nSym
+use MCLR_Lucia_Data, only: NACOB, NOBPT, NORB1, NORB2, NORB3, nSym => L_nSym
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 

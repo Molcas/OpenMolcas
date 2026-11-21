@@ -11,15 +11,16 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use CI_Info, only: CI_St
 use CI_States, only: CI_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC, MINOP, NCNFTP, NCSFTP, NTYP
-use MCLR_Lucia_Data, only: MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, NTYP_MCLR => NTYP
+use MCLR_Lucia_Data, only: L_nCSF, L_STSym, MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, &
+                           NTYP_MCLR => NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use CI_States, only: CI_PrWF
+use MCLR_Lucia_Data, only: L_iSpin
 use Definitions, only: u6
 #endif
 
@@ -37,15 +38,15 @@ real(kind=wp), parameter :: PRWTHR = 0.05_wp
 
 ! (the CI state of the run, SG_Setup_MCLR in RdJobIph)
 
-nConf = CI_St(istate)%nCSF(pState_Sym)
+nConf = L_nCSF(pState_Sym)
 
 iss = 1
-if (pState_sym /= CI_St(iState)%STSym) iss = 2
+if (pState_sym /= L_STSym) iss = 2
 
 #ifdef _DEBUGPRINT_
 write(u6,101)
 write(u6,102) PRWTHR
-call CI_PrWF(istate,pState_sym,PRWTHR,CI_St(istate)%iSpin,CI,nConf,.false.,-99)
+call CI_PrWF(istate,pState_sym,PRWTHR,L_iSpin,CI,nConf,.false.,-99)
 write(u6,103)
 101 format(/,6X,100('-'),/,6X,29X,'Wave function printout: Split Graph format',/,6X,8X, &
            'in parenthesis: midvertex, upper-walk symmetry upper- and lower-walk serial numbers',/,6X,100('-'),/)
@@ -74,7 +75,7 @@ call mma_deallocate(Conf_Occ(pState_Sym)%A)
 call mma_deallocate(CINEW)
 
 #ifdef _DEBUGPRINT_
-call CI_PrWF(iState,pState_sym,PRWTHR,CI_St(istate)%iSpin,CI,nConf,.false.,-99)
+call CI_PrWF(iState,pState_sym,PRWTHR,L_iSpin,CI,nConf,.false.,-99)
 #endif
 
 end subroutine sg2symg

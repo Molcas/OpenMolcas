@@ -52,6 +52,13 @@ logical(kind=iwp) :: square
 ! TD_Ints: the two-body integrals of the run are in the square-pair layout
 ! (time-dependent response), set when the library is initialised
 logical(kind=iwp) :: TD_Ints = .false.
+! The CI space, the copies of the arguments of MCLR_Lucia_Init (the copy
+! of Lucia uses no data of the programs): symmetries, orbitals, inactive
+! and active orbitals and RAS spaces per symmetry, holes in RAS1 and
+! electrons in RAS3, active electrons, multiplicity, symmetry of the CI
+! state, CSFs per symmetry
+integer(kind=iwp) :: L_iSpin = 0, L_nActEl = 0, L_nAsh(8) = 0, L_nCSF(8) = 0, L_nElec3 = 0, L_nHole1 = 0, L_nIsh(8) = 0, &
+                     L_nOrb(8) = 0, L_nRs1(8) = 0, L_nRs2(8) = 0, L_nRs3(8) = 0, L_nSym = 0, L_STSym = 0
 character(len=8) :: FNCSF2SD = 'REORD'
 integer(kind=iwp), allocatable :: pINT1(:)
 real(kind=wp), pointer :: KAIN1(:), KINT2(:), KINT2A(:)
@@ -61,5 +68,6 @@ public :: FNCSF2SD, i1, I12, IACTI, iAllo, iAnders, IASTFI, IBSO, IBSTFI, IBTSOB
           MXINKA, MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, NACOB, NAELCI, NBELCI, NCNASM, NCNFTP, NCPCNT, NCSASM, NCSFTP, &
           NDPCNT, NDTASM, NELCI, NICISP, NOBPT, NOBPTS, NOCOB, NOCSF, NOPART, NORB1, NORB2, NORB3, NTOOB, NTSOB, NTYP, pINT1, &
           PSSIGN, square, TD_Ints, XISPSM
+public :: L_iSpin, L_nActEl, L_nAsh, L_nCSF, L_nElec3, L_nHole1, L_nIsh, L_nOrb, L_nRs1, L_nRs2, L_nRs3, L_nSym, L_STSym
 
 end module MCLR_Lucia_Data
