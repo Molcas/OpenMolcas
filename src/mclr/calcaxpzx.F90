@@ -109,7 +109,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipget, W
-use MCLR_Data, only: ipCI, nConf1, nDens, nNA, XISPSM
+use MCLR_Data, only: ipCI, nConf1, nDens, nNA
 use MCLR_procedures, only: CISigma_sa
 use Orbital_Spaces, only: nAsh, nSym
 use input_mclr, only: nRoots, ntAsh
@@ -138,7 +138,7 @@ do jSym=2,nSym
 end do
 
 ! Memory allocation
-nConf3 = nint(max(xispsm(CI_St(iState)%STSym,1),xispsm(CI_St(iState)%STSym,1)))
+nConf3 = CI_St(iState)%nDet(CI_St(iState)%STSym)
 ipwslam = ipGet(nConf3*nRoots)
 
 call mma_allocate(Wop,nDens)

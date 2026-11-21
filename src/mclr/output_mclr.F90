@@ -38,7 +38,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
-use MCLR_Data, only: Hss, lDisp, LuTEMP, nConf1, nDensC, nHess, XISPSM
+use MCLR_Data, only: Hss, lDisp, LuTEMP, nConf1, nDensC, nHess
 use Orbital_Spaces, only: nSym
 use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -103,7 +103,7 @@ do iSym=1,nSym
 
   call Setup_MCLR(iSym)
   PState_SYM = Mul(CI_St(iState)%STSym,iSym)
-  nconfM = max(ncsf(PState_Sym),nint(xispsm(Pstate_Sym,1)))
+  nconfM = max(ncsf(PState_Sym),CI_St(iState)%nDet(Pstate_Sym))
   nconf1 = ncsf(PState_Sym)
   CI = .false.
   if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
@@ -135,7 +135,7 @@ do iSym=1,nSym
     if (jspin == 0) then
       nconf1 = ncsf(Pstate_sym)
     else
-      nconf1 = nint(xispsm(Pstate_Sym,1))
+      nconf1 = CI_St(iState)%nDet(Pstate_Sym)
     end if
 
     !------------------------------------------------------------------*
@@ -230,7 +230,7 @@ do iSym=1,nSym
       if (kspin == 0) then
         nconf1 = ncsf(PState_Sym)
       else
-        nConf1 = nint(xispsm(Pstate_Sym,1))
+        nConf1 = CI_St(iState)%nDet(Pstate_Sym)
       end if
       if (.not. lCalc(kDisp+ksym)) cycle
 

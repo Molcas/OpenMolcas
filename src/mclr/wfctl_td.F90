@@ -21,7 +21,7 @@ subroutine WfCtl_td(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,con
 use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
-use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
+use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC
 use MCLR_procedures, only: CISigma_td
 use Orbital_Spaces, only: nSym
 use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lCalc, lSave, nCSF, nDisp, nIter, nTPert, Omega, PotNuc, &
@@ -97,9 +97,9 @@ do iSym=kksym,kkksym
   ! Output: Commonblocks (Pointers.fh)
 
   PState_SYM = Mul(CI_St(iState)%STSym,iSym)
-  !nConf2 = nint(xispsm(PState_SYM,1))
+  !nConf2 = CI_St(iState)%nDet(PState_SYM)
   !nConf2 = ndtasm(PState_SYM)
-  nconf3 = nint(max(xispsm(PState_SYM,1),xispsm(CI_St(iState)%STSym,1)))
+  nconf3 = max(CI_St(iState)%nDet(PState_SYM),CI_St(iState)%nDet(CI_St(iState)%STSym))
   !nconf3 = max(ndtasm(PState_SYM),ndtasm(STSym))
 
   ! Setup is realted to symmetry treatment
@@ -167,7 +167,7 @@ do iSym=kksym,kkksym
     if (jspin == 0) then
       nconf1 = ncsf(PState_Sym)
     else
-      nConf1 = nint(xispsm(Pstate_Sym,1))
+      nConf1 = CI_St(iState)%nDet(Pstate_Sym)
     end if
     if (.not. lCalc(iDisp)) then
       converged(isym) = .false.

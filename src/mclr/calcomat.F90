@@ -19,7 +19,7 @@ subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
 
 use CI_Info, only: CI_St
 use ipPage, only: ipget, W
-use MCLR_Data, only: ipCI, ipMat, nAcPr2, nConf1, nDens, XISPSM
+use MCLR_Data, only: ipCI, ipMat, nAcPr2, nConf1, nDens
 use MCLR_procedures, only: CISigma_sa
 use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, nRoots
@@ -37,7 +37,7 @@ real(kind=wp) :: rdum(1)
 real(kind=wp), allocatable :: FMO1(:)
 real(kind=wp), external :: DDot_
 
-nConf3 = nint(max(xispsm(CI_St(iState)%STSym,1),xispsm(CI_St(iState)%STSym,1)))
+nConf3 = CI_St(iState)%nDet(CI_St(iState)%STSym)
 iptmp = ipGet(nconf3*nRoots)
 CSFOK(:,:) = Zero
 W(iptmp)%A(1:nRoots*nConf3) = Zero

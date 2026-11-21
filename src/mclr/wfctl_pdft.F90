@@ -23,7 +23,7 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, ipCI, ipDia, ipMat, IRLXROOT, ISNAC, LuTemp, nAcPar, nAcPr2, NACSTATES, nConf1, nDens, nDensC, &
-                     nNA, PDFT_Ratio, WF_Ratio, XISPSM
+                     nNA, PDFT_Ratio, WF_Ratio
 use MCLR_procedures, only: CISigma_sa
 use Orbital_Spaces, only: nAsh, nSym
 use CI_Input, only: nRs2
@@ -95,7 +95,7 @@ call InCSFSD(Mul(iSym,CI_St(iState)%STSym),CI_St(iState)%STSym)
 !
 ! Output: Commonblocks (Pointers.fh)
 
-nConf3 = nint(max(xispsm(CI_St(iState)%STSym,1),xispsm(CI_St(iState)%STSym,1)))
+nConf3 = CI_St(iState)%nDet(CI_St(iState)%STSym)
 
 call Setup_MCLR(iSym)
 

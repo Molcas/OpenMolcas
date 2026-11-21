@@ -33,7 +33,7 @@ use Para_Info, only: Is_Real_Par
 use GA_Wrapper, only: GA_Create, MT_DBL
 #endif
 use Spool, only: LuWr
-use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
+use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC
 use MCLR_procedures, only: CISigma
 use Orbital_Spaces, only: nAsh, nSym
 use CI_Input, only: nRs2
@@ -208,9 +208,9 @@ do
     ! Output: Commonblocks (Pointers.fh)
 
     PState_SYM = Mul(CI_St(iState)%STSym,iSym)
-    !nConf2 = nint(xispsm(PState_SYM,1))
+    !nConf2 = CI_St(iState)%nDet(PState_SYM)
     !nConf2 = ndtasm(PState_SYM)
-    nconf3 = nint(max(xispsm(PState_SYM,1),xispsm(CI_St(iState)%STSym,1)))
+    nconf3 = max(CI_St(iState)%nDet(PState_SYM),CI_St(iState)%nDet(CI_St(iState)%STSym))
     !nconf3 = max(ndtasm(PState_SYM),ndtasm(STSym))
 
     if (doDMRG) then  ! yma
@@ -280,7 +280,7 @@ do
   if (jspin == 0) then
     nconf1 = ncsf(PState_Sym)
   else
-    nConf1 = nint(xispsm(Pstate_Sym,1))
+    nConf1 = CI_St(iState)%nDet(Pstate_Sym)
   end if
 
   ! Allocate areas for scratch and state variables
