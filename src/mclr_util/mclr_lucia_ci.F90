@@ -33,7 +33,7 @@ subroutine MCLR_Lucia_CI_Setup()
   use CI_Operations, only: CI_Lib_MCLR_Lucia, CI_Lib_Register, CI_Lib_Select
   call CI_Lib_Select(CI_Lib_MCLR_Lucia)
   call CI_Lib_Register(MCLR_Lucia_Init,MCLR_Lucia_Close,MCLR_Lucia_Sigma,MCLR_Lucia_TDens,MCLR_Lucia_Diag,MCLR_Lucia_PSpace, &
-                       MCLR_Lucia_Conv)
+                       MCLR_Lucia_Conv,MCLR_Lucia_Dets)
 end subroutine MCLR_Lucia_CI_Setup
 
 !> Set up the determinant tables for the CI state (State_Proc of
@@ -290,6 +290,22 @@ subroutine MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,I
   nullify(KAIN1,KINT2)
 
 end subroutine MCLR_Lucia_PSpace
+
+!> Determinants (of a DMRG reconstruction) into the CSF basis (Dets_Proc
+!> of CI_Operations)
+subroutine MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
+  use Str_Info, only: DTOC
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
+  real(kind=wp), intent(in) :: DetVec(nD)
+  real(kind=wp), intent(out) :: CI(n)
+  real(kind=wp), allocatable :: DW(:)
+  call Use_Syms(iState,iSym,iSym)
+  call mma_allocate(DW,nD,Label='DW')
+  DW(:) = DetVec(:)
+  call CSDTVC_dmrg(CI,DW,DTOC,IdxD,iSym,1)
+  call mma_deallocate(DW)
+end subroutine MCLR_Lucia_Dets
 
 !> Stored basis <-> the CSF basis of the MCLR copy of Lucia (Conv_Proc
 !> of CI_Operations; the reordering of CI_ReOrd_Orig, via sg2symg)

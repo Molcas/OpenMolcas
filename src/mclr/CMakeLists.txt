@@ -53,7 +53,6 @@ set (sources
      creqadd.F90
      creq.F90
      creq_td.F90
-     csdtvc_dmrg.F90
      dmat_mclr.F90
      dminvci.F90
      dminvci_sa.F90

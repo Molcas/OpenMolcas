@@ -33,6 +33,7 @@ set (sources
      crestr.F90
      csdiag_mclr.F90
      csdtmt.F90
+     csdtvc_dmrg.F90
      csdtvc_mclr_1.F90
      csdtvc_mclr_2.F90
      csf2sd.F90

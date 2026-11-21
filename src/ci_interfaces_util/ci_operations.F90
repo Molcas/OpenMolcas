@@ -52,6 +52,9 @@
 !>    configurations), its nP CSF indices IdxP and the block of H (plus
 !>    ECore on the diagonal, as Diag) packed as a lower triangle, HP(iTri(i,j))
 !>    = <IdxP(i)|H|IdxP(j)>; Int1 and Int2 as for CI_Diag.
+!>  - CI_Lib_Dets_To_Basis: a vector of nD determinants DetVec (IdxD: their
+!>    indices in the determinant space of the library) into the CSF basis
+!>    of symmetry iSym (used for CI vectors reconstructed from DMRG).
 !>  - CI_Lib_File_To_Basis, CI_Lib_Basis_To_File: a CI vector of symmetry
 !>    iSym between the stored basis (JobIph) and the CSF basis of the
 !>    selected library, in place.
@@ -114,6 +117,12 @@ abstract interface
     integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
     real(kind=wp), intent(out) :: HP(nHP)
   end subroutine PSpace_Proc
+  subroutine Dets_Proc(iState,iSym,nD,DetVec,IdxD,n,CI)
+    import :: wp, iwp
+    integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
+    real(kind=wp), intent(in) :: DetVec(nD)
+    real(kind=wp), intent(out) :: CI(n)
+  end subroutine Dets_Proc
   subroutine State_Proc(iState)
     import :: iwp
     integer(kind=iwp), intent(in) :: iState
@@ -132,11 +141,12 @@ procedure(Diag_Proc), pointer :: MCLR_Lucia_Diag => null()
 procedure(Conv_Proc), pointer :: MCLR_Lucia_Conv => null()
 procedure(State_Proc), pointer :: MCLR_Lucia_Init => null(), MCLR_Lucia_Close => null()
 procedure(PSpace_Proc), pointer :: MCLR_Lucia_PSpace => null()
+procedure(Dets_Proc), pointer :: MCLR_Lucia_Dets => null()
 
-public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Faroald, CI_Lib_File_To_Basis, &
-          CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_Op, CI_Lib_Register, CI_Lib_Select, &
-          CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens, Conv_Proc, Diag_Proc, PSpace_Proc, &
-          Sigma_Proc, State_Proc, TDens_Proc
+public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dets_To_Basis, CI_Lib_Faroald, &
+          CI_Lib_File_To_Basis, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_Op, CI_Lib_Register, &
+          CI_Lib_Select, CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens, Conv_Proc, Dets_Proc, &
+          Diag_Proc, PSpace_Proc, Sigma_Proc, State_Proc, TDens_Proc
 
 contains
 
@@ -156,7 +166,8 @@ subroutine CI_Lib_Select(iLib)
 end subroutine CI_Lib_Select
 
 !> MCLR registers the routines of its copy of Lucia
-subroutine CI_Lib_Register(Init,Close,Sigma,TDens,Diag,PSpace,Conv)
+subroutine CI_Lib_Register(Init,Close,Sigma,TDens,Diag,PSpace,Conv,Dets)
+  procedure(Dets_Proc) :: Dets
   procedure(PSpace_Proc) :: PSpace
   procedure(State_Proc) :: Init, Close
   procedure(Sigma_Proc) :: Sigma
@@ -170,6 +181,7 @@ subroutine CI_Lib_Register(Init,Close,Sigma,TDens,Diag,PSpace,Conv)
   MCLR_Lucia_Init => Init
   MCLR_Lucia_Close => Close
   MCLR_Lucia_PSpace => PSpace
+  MCLR_Lucia_Dets => Dets
 end subroutine CI_Lib_Register
 
 !> Set up the selected library for the CI state
@@ -191,6 +203,7 @@ subroutine CI_Lib_Close(iState)
   MCLR_Lucia_Init => null()
   MCLR_Lucia_Close => null()
   MCLR_Lucia_PSpace => null()
+  MCLR_Lucia_Dets => null()
   CI_Lib_Op = CI_Lib_None
 end subroutine CI_Lib_Close
 
@@ -246,6 +259,14 @@ subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,
   call Check_Lib('CI_PSpace',associated(MCLR_Lucia_PSpace))
   call MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
 end subroutine CI_PSpace
+
+subroutine CI_Lib_Dets_To_Basis(iState,iSym,nD,DetVec,IdxD,n,CI)
+  integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
+  real(kind=wp), intent(in) :: DetVec(nD)
+  real(kind=wp), intent(out) :: CI(n)
+  call Check_Lib('CI_Lib_Dets_To_Basis',associated(MCLR_Lucia_Dets))
+  call MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
+end subroutine CI_Lib_Dets_To_Basis
 
 subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, n

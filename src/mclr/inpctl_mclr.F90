@@ -20,7 +20,6 @@ subroutine InpCtl_MCLR(iPL)
 !                                                                      *
 !***********************************************************************
 
-use Str_Info, only: DTOC
 use ipPage, only: ipget, ipin, ipout, ipopen, W
 use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
@@ -31,13 +30,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-use CI_Operations, only: CI_Lib_File_To_Basis, CI_Lib_Initialize
+use CI_Operations, only: CI_Lib_Dets_To_Basis, CI_Lib_File_To_Basis, CI_Lib_Initialize
 use MCLR_Lucia_CI, only: MCLR_Lucia_CI_Setup
 implicit none
 integer(kind=iwp), intent(in) :: iPL
 ! the CI state of the run (SG_Setup_MCLR); ISTATE of MCLR_Data is the root
 integer(kind=iwp), parameter :: iState_CI = 1
-integer(kind=iwp) :: i, ii, ipCII, iSSM
+integer(kind=iwp) :: i, ii, ipCII
 character(len=8) :: Method
 integer(kind=iwp), allocatable :: index_SD(:) ! not final version
 real(kind=wp), allocatable :: CITmp(:), CIVec(:,:), vector_cidmrg(:)
@@ -118,7 +117,6 @@ if (iMethod == 2) then
 
     ! Here should be the position for introducing the CI(SR) coefficients
     !iSSM = 1     ! yma
-    !write(u6,*) 'Set ISSM == 1 ',ISSM
 
     if (doDMRG) then !yma
       call mma_allocate(index_SD,ndets_RGLR,label='index_SD')
@@ -127,7 +125,8 @@ if (iMethod == 2) then
       do ii=1,ndets_RGLR
         if (abs(vector_cidmrg(ii)) < Zero) vector_cidmrg(ii) = Zero
       end do
-      call CSDTVC_dmrg(CITmp,vector_cidmrg,DTOC,index_SD,ISSM,1)
+      ! (the symmetry of the CI state; ISSM was used uninitialized here)
+      call CI_Lib_Dets_To_Basis(iState_CI,STSym,ndets_RGLR,vector_cidmrg,index_SD,size(CITmp),CITmp)
       call mma_deallocate(index_SD)
       call mma_deallocate(vector_cidmrg)
     end if
