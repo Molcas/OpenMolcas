@@ -34,10 +34,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+use CI_Interfaces_MCLR, only: CI_MCLR_Basis_To_File
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
-integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iMode, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, nConfm, Pstate_sym
+integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, nConfm, Pstate_sym
 logical(kind=iwp) :: CI
 character(len=8) :: Label
 real(kind=wp), allocatable :: CIp1(:), Kap1(:), Kap2(:), Kap3(:)
@@ -113,8 +114,7 @@ do iSym=1,nSym
 
       if (btest(kprint,3)) write(u6,*) 'Perturbation ',ipert
       if (CI) then
-        iMode = 0
-        call SG2SymG(CIp1,nconfM,iMode,pState_Sym)
+        call CI_MCLR_Basis_To_File(iState,pState_Sym,nconfM,CIp1)
       end if
 
       if ((imethod == 2) .and. (.not. CI) .and. (nconfM == 1)) CIp1(1) = Zero

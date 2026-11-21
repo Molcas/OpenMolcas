@@ -31,9 +31,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+use CI_Interfaces_MCLR, only: CI_MCLR_File_To_Basis
+use MCLR_Lucia_CI, only: MCLR_Lucia_CI_Setup
 implicit none
 integer(kind=iwp), intent(in) :: iPL
-integer(kind=iwp) :: i, ii, iMode, ipCII, iSSM
+! the CI state of the run (SG_Setup_MCLR); ISTATE of MCLR_Data is the root
+integer(kind=iwp), parameter :: iState_CI = 1
+integer(kind=iwp) :: i, ii, ipCII, iSSM
 character(len=8) :: Method
 integer(kind=iwp), allocatable :: index_SD(:) ! not final version
 real(kind=wp), allocatable :: CITmp(:), CIVec(:,:), vector_cidmrg(:)
@@ -59,6 +63,8 @@ call RdInp_MCLR(iPL)  ! Read in input
 ! Default activate ippage utility
 
 call ipopen(.true.)
+! the CI library of MCLR: its copy of Lucia, through the CI interface
+call MCLR_Lucia_CI_Setup()
 
 PT2 = .false.
 call Get_cArray('Relax Method',Method,8)
@@ -107,8 +113,7 @@ if (iMethod == 2) then
     if (.not. (doDMRG .and. doMCLR)) then ! yma
       ! transform to sym. group
 
-      iMode = 1
-      call SG2SymG(CITmp,size(CITmp),iMode,STSym)
+      call CI_MCLR_File_To_Basis(iState_CI,STSym,size(CITmp),CITmp)
 
     end if
 

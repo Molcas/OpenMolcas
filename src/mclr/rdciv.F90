@@ -29,9 +29,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+use CI_Interfaces_MCLR, only: CI_MCLR_File_To_Basis
 implicit none
 integer(kind=iwp), parameter :: iState = 1
-integer(kind=iwp) :: i, iDisk, iDisk1, iMode, Iter
+integer(kind=iwp) :: i, iDisk, iDisk1, Iter
 real(kind=wp), allocatable :: OCIvec(:), Tmp(:,:)
 
 call DaName(LuCIV,'ROOTS')
@@ -46,8 +47,7 @@ iDisk = iToc(4)
 idisk1 = 0
 do i=1,lroots
   call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
-  iMode = 1
-  call SG2SymG(OCIvec,nConf,iMode,CI_St(iState)%STSym)
+  call CI_MCLR_File_To_Basis(iState,CI_St(iState)%STSym,nConf,OCIvec)
   call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
 end do
 

@@ -93,6 +93,7 @@ set (sources
      isrot.F90
      isymst_mclr.F90
      mclr_data.F90
+     mclr_lucia_ci.F90
      mclr_procedures.F90
      memstr.F90
      mkcipre.F90

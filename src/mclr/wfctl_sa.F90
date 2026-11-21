@@ -35,12 +35,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+use CI_Interfaces_MCLR, only: CI_MCLR_File_To_Basis
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp)
 logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
-integer(kind=iwp) :: iDis, iDisp, iLen, iMode, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, &
+integer(kind=iwp) :: iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, &
                      Lu_50, nConf3, niPre2, nPre2
 real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
 logical(kind=iwp) :: CI, cnvrgd, lPrint, Warm, WarmOK
@@ -199,8 +200,7 @@ else
       call mma_allocate(wrk,nConf1,Label='wrk')
       do iR=1,nRoots
         wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
-        iMode = 1
-        call SG2SymG(wrk,nConf1,iMode,CI_St(iState)%STSym)
+        call CI_MCLR_File_To_Basis(iState,CI_St(iState)%STSym,nConf1,wrk)
         W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
       end do
       call mma_deallocate(wrk)
