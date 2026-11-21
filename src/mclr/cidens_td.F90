@@ -15,7 +15,7 @@ subroutine CIDens_TD(iCI,iS,rP,rD)
 use CI_Info, only: CI_St
 use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1, NOCSF
-use CI_Interfaces_MCLR, only: CI_MCLR_TDens
+use CI_Operations, only: CI_Trans_Dens
 use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -86,13 +86,13 @@ if (nocsf == 0) then
   ! <0|E_pq|P> & <0|e_pqrs|P>: the bra is the reference
   call ipin(iCI)
   call ipin(ipCI)
-  call CI_MCLR_TDens(iState,2,iSy,iS,ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),ncsf(iS),W(iCI)%A(1:ncsf(iS)),n1Dens,De,n2Dens,Pe)
+  call CI_Trans_Dens(iState,2,0,iSy,iS,ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),ncsf(iS),W(iCI)%A(1:ncsf(iS)),n1Dens,De,n2Dens,Pe)
   rp(1:n2Dens) = Pe(:)
   rD(1:n1Dens) = De(:)
   ! minus <P'|E_pq|0> & <P'|e_pqrs|0>, P' the second half of iCI
   call ipin(iCI)
   call ipin(ipCI)
-  call CI_MCLR_TDens(iState,2,iS,iSy,ncsf(iS),W(iCI)%A(nconf1+1:nconf1+ncsf(iS)),ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),n1Dens,De, &
+  call CI_Trans_Dens(iState,2,0,iS,iSy,ncsf(iS),W(iCI)%A(nconf1+1:nconf1+ncsf(iS)),ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),n1Dens,De, &
                      n2Dens,Pe)
   rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
   rD(1:n1Dens) = rD(1:n1Dens)-De(:)

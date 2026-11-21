@@ -21,7 +21,7 @@ use input_mclr, only: nCSF, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
-use CI_Interfaces_MCLR, only: CI_MCLR_TDens
+use CI_Operations, only: CI_Trans_Dens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(out) :: GDMat(nTri_Elem(nRoots),nnA,nnA)
@@ -38,7 +38,7 @@ iL = CI_St(iState)%STSym
 iR = CI_St(iState)%STSym
 do I=1,nRoots
   do J=1,I
-    call CI_MCLR_TDens(iState,1,iL,iR,ncsf(iL),W(ipCI)%A(1+(I-1)*ncsf(iL):I*ncsf(iL)),ncsf(iR), &
+    call CI_Trans_Dens(iState,1,0,iL,iR,ncsf(iL),W(ipCI)%A(1+(I-1)*ncsf(iL):I*ncsf(iL)),ncsf(iR), &
                        W(ipCI)%A(1+(J-1)*ncsf(iR):J*ncsf(iR)),n1Dens,GDArray,n2Dens,rdum)
     NIJ = iTri(I,J)
     GDMat(NIJ,:,:) = GDArray(:,:)

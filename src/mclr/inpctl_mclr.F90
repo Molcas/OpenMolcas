@@ -31,7 +31,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-use CI_Interfaces_MCLR, only: CI_MCLR_File_To_Basis
+use CI_Operations, only: CI_Lib_File_To_Basis, CI_Lib_Initialize
 use MCLR_Lucia_CI, only: MCLR_Lucia_CI_Setup
 implicit none
 integer(kind=iwp), intent(in) :: iPL
@@ -85,9 +85,8 @@ if (iMethod == 2) then
   end if
 
   !write(u6,*) 'Setup of Determinant tables'
-  call DetCtl()   ! set up determinant tables
-  ! Read in tables from disk
-  call InCsfSD(STSym,STSym)
+  ! set up the CI library (determinant tables) for the CI state
+  call CI_Lib_Initialize(iState_CI)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -113,7 +112,7 @@ if (iMethod == 2) then
     if (.not. (doDMRG .and. doMCLR)) then ! yma
       ! transform to sym. group
 
-      call CI_MCLR_File_To_Basis(iState_CI,STSym,size(CITmp),CITmp)
+      call CI_Lib_File_To_Basis(iState_CI,STSym,size(CITmp),CITmp)
 
     end if
 

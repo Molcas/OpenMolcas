@@ -14,7 +14,7 @@ subroutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, W
 use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA
-use CI_Interfaces_MCLR, only: CI_MCLR_TDens
+use CI_Operations, only: CI_Trans_Dens
 use input_mclr, only: nCSF, nRoots, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use pcm_grad, only: do_RF, DZACTMO, iStpPCM
@@ -84,7 +84,7 @@ if (do_RF) DZACTMO(:,:) = Zero
 do i=1,nroots
   call ipin(iLS)
   call ipin(iRS)
-  call CI_MCLR_TDens(iState,2,iL,iR,ncsf(iL),W(iLS)%A(1+(i-1)*ncsf(iL):i*ncsf(iL)),ncsf(iR), &
+  call CI_Trans_Dens(iState,2,0,iL,iR,ncsf(iL),W(iLS)%A(1+(i-1)*ncsf(iL):i*ncsf(iL)),ncsf(iR), &
                      W(iRS)%A(1+(i-1)*ncsf(iR):i*ncsf(iR)),n1Dens,De,n2Dens,Pe)
 
   if (RSP) then
@@ -142,7 +142,7 @@ do i=1,nroots
       if ((iStpPCM /= 2) .and. (iStpPCM /= 3)) jR = i
       call ipin(ipVL)
       call ipin(ipVR)
-      call CI_MCLR_TDens(iState,2,iVL,iVR,ncsf(iVL),W(ipVL)%A(1+(i-1)*ncsf(iVL):i*ncsf(iVL)),ncsf(iVR), &
+      call CI_Trans_Dens(iState,2,0,iVL,iVR,ncsf(iVL),W(ipVL)%A(1+(i-1)*ncsf(iVL):i*ncsf(iVL)),ncsf(iVR), &
                          W(ipVR)%A(1+(jR-1)*ncsf(iVR):jR*ncsf(iVR)),n1Dens,De,n2Dens,Pe)
       De(1:n1dens) = scal*De(1:n1dens)
       Pe(1:n2dens) = scal*Pe(1:n2dens)

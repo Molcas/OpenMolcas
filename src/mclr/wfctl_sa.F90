@@ -35,7 +35,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-use CI_Interfaces_MCLR, only: CI_MCLR_File_To_Basis
+use CI_Operations, only: CI_Lib_File_To_Basis
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp)
@@ -200,7 +200,7 @@ else
       call mma_allocate(wrk,nConf1,Label='wrk')
       do iR=1,nRoots
         wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
-        call CI_MCLR_File_To_Basis(iState,CI_St(iState)%STSym,nConf1,wrk)
+        call CI_Lib_File_To_Basis(iState,CI_St(iState)%STSym,nConf1,wrk)
         W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
       end do
       call mma_deallocate(wrk)

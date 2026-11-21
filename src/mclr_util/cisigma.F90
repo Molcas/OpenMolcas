@@ -15,14 +15,14 @@
 #endif
 
 subroutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
-! sigma = H C through the CI interface (CI_MCLR_Sigma), for the vectors
+! sigma = H C through the CI interface (CI_Sigma_Op), for the vectors
 ! ipCI1 (symmetry iCSym) and ipCI2 (symmetry iSSym); iiSpin: 0 singlet,
 ! 1 triplet operator. Int2a is not used (it was for the retired spin
 ! polarization).
 
 use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: nConf1
-use CI_Interfaces_MCLR, only: CI_MCLR_Sigma
+use CI_Operations, only: CI_Sigma_Op
 use input_mclr, only: nCSF, Page
 use Definitions, only: wp, iwp
 
@@ -41,7 +41,7 @@ if (nconf1 == 0) return
 if (page) call ipnout(ipci2)
 call ipin(ipCI1)
 call ipin(ipci2)
-call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nCSF(iCSym),W(ipCI1)%A(1:nCSF(iCSym)), &
+call CI_Sigma_Op(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nCSF(iCSym),W(ipCI1)%A(1:nCSF(iCSym)), &
                    nCSF(iSSym),W(ipci2)%A(1:nCSF(iSSym)))
 if (page) call opout(ipci1)
 

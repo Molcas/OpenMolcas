@@ -13,7 +13,7 @@ set (sources
      ci_info.F90
      ci_input.F90
      ci_interfaces.F90
-     ci_interfaces_mclr.F90
+     ci_operations.F90
      ci_states.F90
      ci_verify_options.F90
      orbital_spaces.F90
@@ -28,7 +28,7 @@ set (modfile_list
      ci_info.F90
      ci_input.F90
      ci_interfaces.F90
-     ci_interfaces_mclr.F90
+     ci_operations.F90
      ci_states.F90
      ci_verify_options.F90
      orbital_spaces.F90

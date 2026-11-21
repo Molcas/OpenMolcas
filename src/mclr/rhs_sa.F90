@@ -15,7 +15,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use CI_Info, only: CI_St
 use MCLR_Data, only: Int1, ipCI, ipCM, ipMat, ISTATE, LuJob, n1Dens, n2Dens, nA, nConf1, nDens, nNA
-use CI_Interfaces_MCLR, only: CI_MCLR_TDens
+use CI_Operations, only: CI_Trans_Dens
 use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: Debug, iRoot, iTOC, nBas, nConf, nCSF, nOrb, nRoots, ntAsh, PT2
 use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
@@ -86,7 +86,7 @@ if (PT2 .or. (InvSCF .and. (.not. InvEne))) then
       vSLag = SLag(jR,kR)
       if (abs(vSLag) <= 1.0e-10_wp) cycle
 
-      call CI_MCLR_TDens(iState_CI,2,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
+      call CI_Trans_Dens(iState_CI,2,0,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
                          W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),n1Dens,G1r,n2Dens,G2r)
       ! For RDM1
       ij = 0

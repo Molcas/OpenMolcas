@@ -49,6 +49,7 @@ set (sources
      exphinvv.F90
      e2.F90
      e2_td.F90
+     freestr.F90
      frmdsc_mclr.F90
      gasdn2_mclr.F90
      gatrmt.F90

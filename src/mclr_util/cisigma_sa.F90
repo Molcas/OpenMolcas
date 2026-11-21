@@ -16,12 +16,12 @@
 
 subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
 ! sigma = H C for each root (weighted with the weight of the root) through
-! the CI interface (CI_MCLR_Sigma); see CISigma. With paging only the first
+! the CI interface (CI_Sigma_Op); see CISigma. With paging only the first
 ! root is done, unweighted, as before.
 
 use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: nConf1
-use CI_Interfaces_MCLR, only: CI_MCLR_Sigma
+use CI_Operations, only: CI_Sigma_Op
 use input_mclr, only: nCSF, nRoots, Page, Weight
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -48,7 +48,7 @@ if (.not. page) then
     if (weight(i) == Zero) then
       W(ipci2)%A((i-1)*nS+1:i*nS) = Zero
     else
-      call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A((i-1)*nC+1:i*nC),nS, &
+      call CI_Sigma_Op(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A((i-1)*nC+1:i*nC),nS, &
                          W(ipci2)%A((i-1)*nS+1:i*nS))
       W(ipci2)%A((i-1)*nS+1:i*nS) = weight(i)*W(ipci2)%A((i-1)*nS+1:i*nS)
     end if
@@ -57,7 +57,7 @@ else
   call ipnout(ipci2)
   call ipin(ipCI1)
   call ipin(ipci2)
-  call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
+  call CI_Sigma_Op(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
   call opout(ipci1)
 end if
 

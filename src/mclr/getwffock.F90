@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
-use CI_Interfaces_MCLR, only: CI_MCLR_TDens
+use CI_Operations, only: CI_Trans_Dens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: nTri, nG2
@@ -57,7 +57,7 @@ call mma_allocate(G2rt,nTri_Elem(ntash**2),Label='G2rt')
 NCSFs = NCSF(CI_St(iState)%STSym)
 call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%A,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
 I = IRlxRoot
-call CI_MCLR_TDens(iState,2,CI_St(iState)%STSym,CI_St(iState)%STSym,NCSFs,FinCI(1+(I-1)*NCSFs:I*NCSFs),NCSFs, &
+call CI_Trans_Dens(iState,2,0,CI_St(iState)%STSym,CI_St(iState)%STSym,NCSFs,FinCI(1+(I-1)*NCSFs:I*NCSFs),NCSFs, &
                    FinCI(1+(I-1)*NCSFs:I*NCSFs),ntash**2,G1r,nTri_Elem(ntash**2),G2rt)
 do iA=1,nnA
   do jA=1,nnA

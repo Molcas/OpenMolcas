@@ -66,7 +66,6 @@ set (sources
      fcoor.F90
      fockgen.F90
      fockgen_td.F90
-     freestr.F90
      freqanal.F90
      freq.F90
      g2qtog2r.F90

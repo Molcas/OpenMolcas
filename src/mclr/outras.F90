@@ -34,7 +34,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-use CI_Interfaces_MCLR, only: CI_MCLR_Basis_To_File
+use CI_Operations, only: CI_Lib_Basis_To_File
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
@@ -114,7 +114,7 @@ do iSym=1,nSym
 
       if (btest(kprint,3)) write(u6,*) 'Perturbation ',ipert
       if (CI) then
-        call CI_MCLR_Basis_To_File(iState,pState_Sym,nconfM,CIp1)
+        call CI_Lib_Basis_To_File(iState,pState_Sym,nconfM,CIp1)
       end if
 
       if ((imethod == 2) .and. (.not. CI) .and. (nconfM == 1)) CIp1(1) = Zero

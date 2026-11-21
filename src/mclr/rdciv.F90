@@ -29,7 +29,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
-use CI_Interfaces_MCLR, only: CI_MCLR_File_To_Basis
+use CI_Operations, only: CI_Lib_File_To_Basis
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: i, iDisk, iDisk1, Iter
@@ -47,7 +47,7 @@ iDisk = iToc(4)
 idisk1 = 0
 do i=1,lroots
   call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
-  call CI_MCLR_File_To_Basis(iState,CI_St(iState)%STSym,nConf,OCIvec)
+  call CI_Lib_File_To_Basis(iState,CI_St(iState)%STSym,nConf,OCIvec)
   call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
 end do
 

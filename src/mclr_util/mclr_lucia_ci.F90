@@ -10,17 +10,19 @@
 !***********************************************************************
 
 !> The MCLR copy of Lucia as a CI library of the CI interface
-!> (CI_Interfaces_MCLR): the CI operations of MCLR on top of the Lucia
+!> (CI_Operations): the CI operations of MCLR on top of the Lucia
 !> routines of mclr_util, which keep their data in MCLR_Data.
 !> MCLR_Lucia_CI_Setup selects this library and registers the routines.
 !> The vectors are CSF vectors of their natural length; the expansion in
 !> determinants and its work space stay here.
 module MCLR_Lucia_CI
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
+
+logical(kind=iwp) :: Initialized = .false.
 
 public :: MCLR_Lucia_CI_Setup
 
@@ -28,12 +30,34 @@ contains
 
 !> Select the MCLR copy of Lucia and register its routines
 subroutine MCLR_Lucia_CI_Setup()
-  use CI_Interfaces_MCLR, only: CI_Lib_MCLR_Lucia, CI_MCLR_Register, CI_MCLR_Select
-  call CI_MCLR_Select(CI_Lib_MCLR_Lucia)
-  call CI_MCLR_Register(MCLR_Lucia_Sigma,MCLR_Lucia_TDens,MCLR_Lucia_Diag,MCLR_Lucia_Conv)
+  use CI_Operations, only: CI_Lib_MCLR_Lucia, CI_Lib_Register, CI_Lib_Select
+  call CI_Lib_Select(CI_Lib_MCLR_Lucia)
+  call CI_Lib_Register(MCLR_Lucia_Init,MCLR_Lucia_Close,MCLR_Lucia_Sigma,MCLR_Lucia_TDens,MCLR_Lucia_Diag,MCLR_Lucia_Conv)
 end subroutine MCLR_Lucia_CI_Setup
 
-!> sigma = H C (Sigma_Proc of CI_Interfaces_MCLR)
+!> Set up the determinant tables for the CI state (State_Proc of
+!> CI_Operations) and publish the dimensions of the determinant space
+subroutine MCLR_Lucia_Init(iState)
+  use CI_Info, only: CI_St
+  use MCLR_Data, only: XISPSM
+  use Orbital_Spaces, only: nSym
+  integer(kind=iwp), intent(in) :: iState
+  call DetCtl()
+  call InCsfSD(CI_St(iState)%STSym,CI_St(iState)%STSym)
+  CI_St(iState)%nDet(1:nSym) = nint(XISPSM(1:nSym,1))
+  Initialized = .true.
+end subroutine MCLR_Lucia_Init
+
+!> Free the determinant tables (State_Proc of CI_Operations)
+subroutine MCLR_Lucia_Close(iState)
+  integer(kind=iwp), intent(in) :: iState
+#include "macros.fh"
+  unused_var(iState)
+  if (Initialized) call FreeStr()
+  Initialized = .false.
+end subroutine MCLR_Lucia_Close
+
+!> sigma = H C (Sigma_Proc of CI_Operations)
 subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
   use CI_Info, only: CI_St
   use Symmetry_Info, only: Mul
@@ -102,13 +126,13 @@ subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Hav
 
 end subroutine MCLR_Lucia_Sigma
 
-!> Transition densities between L and R (TDens_Proc of CI_Interfaces_MCLR)
-subroutine MCLR_Lucia_TDens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+!> Transition densities between L and R (TDens_Proc of CI_Operations)
+subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use CandS, only: ICSM, ISSM
   use MCLR_Data, only: NOCSF, XISPSM
   use input_mclr, only: nCSF
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, I12, iLSym, iRSym, nL, nR, n1, n2
+  integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   real(kind=wp), allocatable :: LDet(:), RDet(:)
@@ -116,6 +140,10 @@ subroutine MCLR_Lucia_TDens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
 #include "macros.fh"
   unused_var(iState)
 
+  if (iOpSpin /= 0) then
+    write(u6,'(A)') ' MCLR_Lucia_TDens: the MCLR copy of Lucia has spin-free densities only'
+    call Abend()
+  end if
   ! the determinant expansions (CSF2SD of the state of the run); without
   ! CSFs (NOCSF /= 0) the vectors are in determinants already
   call mma_allocate(LDet,max(nCSF(iLSym),nint(XISPSM(iLSym,1))),Label='LDet')
@@ -136,17 +164,18 @@ subroutine MCLR_Lucia_TDens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
 
 end subroutine MCLR_Lucia_TDens
 
-!> The CSF diagonal (Diag_Proc of CI_Interfaces_MCLR).
+!> The CSF diagonal (Diag_Proc of CI_Operations).
 !> IntDia reads the active integrals from MCLR (FIMO and the two-body
 !> integrals of MCLR_Data), which are those passed by MCLR; Int1 and Int2
 !> are not referenced here.
-subroutine MCLR_Lucia_Diag(iState,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
+subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   use CI_Info, only: CI_St
+  use CI_Operations, only: CI_Diag_Cnf_Avg
   use Str_Info, only: CNSM
   use MCLR_Data, only: ICISTR, NCNFTP, NCSFTP, NDPCNT, NOCSF, NTYP, XISPSM
   use input_mclr, only: nCSF
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n
+  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
   real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
   real(kind=wp), intent(in) :: ECore
   real(kind=wp), intent(out) :: Diag(n)
@@ -157,6 +186,10 @@ subroutine MCLR_Lucia_Diag(iState,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   unused_var(Int1)
   unused_var(Int2)
 
+  if (Mode /= CI_Diag_Cnf_Avg) then
+    write(u6,'(A)') ' MCLR_Lucia_Diag: the MCLR copy of Lucia has the configuration-averaged diagonal only'
+    call Abend()
+  end if
   nSpc = 1
   iSPC(1) = 1
   iSM(1) = iSym
@@ -177,7 +210,7 @@ subroutine MCLR_Lucia_Diag(iState,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
 end subroutine MCLR_Lucia_Diag
 
 !> Stored basis <-> the CSF basis of the MCLR copy of Lucia (Conv_Proc
-!> of CI_Interfaces_MCLR; the reordering of CI_ReOrd_Orig, via sg2symg)
+!> of CI_Operations; the reordering of CI_ReOrd_Orig, via sg2symg)
 subroutine MCLR_Lucia_Conv(iState,iSym,iMode,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, iMode, n
   real(kind=wp), intent(inout) :: CI(n)

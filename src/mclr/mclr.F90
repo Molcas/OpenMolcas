@@ -57,7 +57,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, RtoB
 
-use CI_Interfaces_MCLR, only: CI_MCLR_Free
+use CI_Operations, only: CI_Lib_Close
 implicit none
 ! the CI state of MCLR (SG_Setup_MCLR; MCLR_Data's istate is the root)
 integer(kind=iwp), parameter :: iState_CI = 1
@@ -331,7 +331,6 @@ do i=1,size(CNSM)
 end do
 
 ! Free arrays allocated by memstr.f
-if (iMethod == 2) call FreeStr()
 ! Arrays in inpone.f
 call mma_deallocate(INT1)
 ! Arrays in detctl.f
@@ -368,7 +367,7 @@ call mma_deallocate(SS,safe='*')
 
 ! The CI state of the run (SG_Setup_MCLR) and the files
 
-call CI_MCLR_Free()
+call CI_Lib_Close(iState_CI)
 call CI_Free_State(iState_CI)
 call ClsFls_MCLR()
 if (RF_On() .and. (SA .or. PT2)) then
