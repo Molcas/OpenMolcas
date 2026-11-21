@@ -26,33 +26,21 @@ private
 ! pages in every call for large CI spaces); freed by SG_Sigma_Free
 real(kind=wp), allocatable, target :: Wrk_S1(:), Wrk_S2(:)
 
-public :: SG_Check_HPsi_Op, SG_Sigma_Free, SG_Work_Need, sg_ci_full, sg_h_psi, sg_h_psi_op, sg_h_psi_ras, sg_hdiag_fast, &
-          sg_hdiag_ref, SG_Occ_Diag
+public :: SG_Check_HPsi_Op, SG_Sigma_Free, SG_Work_Need, sg_ci_full, sg_h_psi, sg_h_psi_op, sg_h_psi_ras, sg_h_psi_sq, &
+          sg_hdiag_fast, sg_hdiag_ref, SG_Occ_Diag
 
 contains
 
-!> Sigma = H Psi for a Hermitian spin-free operator of symmetry iOp (Psi of
-!> symmetry PsiSym, Sigma of symmetry Mul(PsiSym,iOp)), in a CAS or RAS
-!> split graph:
-!>   H = sum_ij h_ij E_ij + 1/2 sum_ijkl (ij|kl) (E_ij E_kl - delta_jk E_il),
-!> with h_ij = TU_Tri(iTri(i,j)) and (ij|kl) = TUVX_Tri(iTri(iTri(i,j),
-!> iTri(k,l))) over the active orbitals in symmetry-blocked order, as for
-!> sg_h_psi and sg_h_psi_ras (mapped to the levels here, SG_Level_Ints;
-!> zero unless of symmetry iOp). The products
-!> E_q E_p (p applied first) are summed over the CSFs of the graph; that is
-!> exact if p = (k,l) with k <= l or q = (i,j) with i >= j (always in CAS).
-!> Otherwise E_q E_p = E_p E_q + [E_q,E_p], which is exact then, and the
-!> commutator joins the one-body part. Per symmetry block of the first
-!> pairs: D(:,p) = E_p Psi, W = D G, Sigma += sum_q E_q W(:,q), in chunks
-!> of pairs if D and W do not fit.
+!> sg_h_op_core for a Hermitian operator of symmetry iOp given by
+!> h_ij = TU_Tri(iTri(i,j)) and (ij|kl) = TUVX_Tri(iTri(iTri(i,j),iTri(k,l)))
+!> over the active orbitals in symmetry-blocked order, as for sg_h_psi and
+!> sg_h_psi_ras (mapped to the levels here; zero unless of symmetry iOp).
 subroutine sg_h_psi_op(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
 
-  use Index_functions, only: iTri
-  use symmetry_info, only: MUL
-  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_Level_Ints, SG_New_Tag, SG_No_Reuse
-  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-  use Constants, only: Zero, One, Half
-  use Definitions, only: iwp, wp, u6
+  use Index_functions, only: iTri, nTri_Elem
+  use sguga, only: SGStruct, CIStruct, EXStruct, SG_Level_Ints
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: iwp, wp
 
   implicit none
   type(SGStruct), intent(in) :: SGS
@@ -61,24 +49,123 @@ subroutine sg_h_psi_op(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,TUVX_Tri,nTUVX
   integer(kind=iwp), intent(in) :: nPsi, PsiSym, nSig, iOp, nTUVX_Tri, nTU_Tri
   real(kind=wp), intent(in) :: Psi(nPsi), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
   real(kind=wp), intent(out) :: Sigma(nSig)
-  integer(kind=iwp) :: nL, SigSym, iT, iS, MidSym, nK, nP, nQ, nC, MaxMem, iP0, iQ0, cP, cQ, ip, iq, i, j, k, l, tPsi
-  integer(kind=iwp), allocatable :: PI(:), PJ(:), QI(:), QJ(:)
-  real(kind=wp) :: V
-  real(kind=wp), allocatable :: F(:,:), D(:,:), W(:,:), G(:,:), TU_L(:), TUVX_L(:)
+  integer(kind=iwp) :: nL, n2, i, j, k, l
+  real(kind=wp), allocatable :: TU_L(:), TUVX_L(:), H1(:,:), G2(:)
 
   nL = SGS%nLev
+  n2 = nTri_Elem(nL*nL)
+  call mma_allocate(TU_L,nTU_Tri,Label='HOp_TU_L')
+  call mma_allocate(TUVX_L,nTUVX_Tri,Label='HOp_TUVX_L')
+  call SG_Level_Ints(SGS,TU_Tri,nTU_Tri,TUVX_Tri,nTUVX_Tri,TU_L,TUVX_L)
+  call mma_allocate(H1,nL,nL,Label='HOp_H1')
+  call mma_allocate(G2,n2,Label='HOp_G2')
+  do j=1,nL
+    do i=1,nL
+      H1(i,j) = TU_L(iTri(i,j))
+      do l=1,nL
+        do k=1,nL
+          G2(iTri((j-1)*nL+i,(l-1)*nL+k)) = TUVX_L(iTri(iTri(i,j),iTri(k,l)))
+        end do
+      end do
+    end do
+  end do
+  call mma_deallocate(TUVX_L)
+  call mma_deallocate(TU_L)
+  call sg_h_op_core(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,nL,H1,n2,G2)
+  call mma_deallocate(G2)
+  call mma_deallocate(H1)
+
+end subroutine sg_h_psi_op
+
+!> sg_h_op_core for a general (not necessarily Hermitian) operator of
+!> symmetry iOp: H1(i,j) = h_ij (square) and G2(iTri(ij,kl)) = g(ij,kl)
+!> with the square pair index ij = (j-1)*nA+i (g symmetric only under
+!> (ij) <-> (kl)), over the nA active orbitals in symmetry-blocked order
+!> (mapped to the levels here). For the time-dependent response of MCLR.
+subroutine sg_h_psi_sq(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,nA,H1,n2,G2)
+
+  use Index_functions, only: iTri
+  use sguga, only: SGStruct, CIStruct, EXStruct, SG_Level_Map
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: iwp, wp, u6
+
+  implicit none
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(in) :: nPsi, PsiSym, nSig, iOp, nA, n2
+  real(kind=wp), intent(in) :: Psi(nPsi), H1(nA,nA), G2(n2)
+  real(kind=wp), intent(out) :: Sigma(nSig)
+  integer(kind=iwp) :: nL, i, j, k, l
+  integer(kind=iwp), allocatable :: L2O(:)
+  real(kind=wp), allocatable :: H1_L(:,:), G2_L(:)
+
+  nL = SGS%nLev
+  if ((nA /= nL) .or. (n2 /= nL*nL*(nL*nL+1)/2)) then
+    write(u6,*) 'sg_h_psi_sq: wrong dimensions',nA,nL,n2
+    call Abend()
+  end if
+  call mma_allocate(L2O,nL,Label='HSq_L2O')
+  call SG_Level_Map(SGS,L2O)
+  call mma_allocate(H1_L,nL,nL,Label='HSq_H1')
+  call mma_allocate(G2_L,n2,Label='HSq_G2')
+  do j=1,nL
+    do i=1,nL
+      H1_L(i,j) = H1(L2O(i),L2O(j))
+      do l=1,nL
+        do k=1,nL
+          G2_L(iTri((j-1)*nL+i,(l-1)*nL+k)) = G2(iTri((L2O(j)-1)*nL+L2O(i),(L2O(l)-1)*nL+L2O(k)))
+        end do
+      end do
+    end do
+  end do
+  call mma_deallocate(L2O)
+  call sg_h_op_core(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,nL,H1_L,n2,G2_L)
+  call mma_deallocate(G2_L)
+  call mma_deallocate(H1_L)
+
+end subroutine sg_h_psi_sq
+
+!> Sigma = H Psi for a spin-free operator of symmetry iOp (Psi of symmetry
+!> PsiSym, Sigma of symmetry Mul(PsiSym,iOp)), in a CAS or RAS split graph:
+!>   H = sum_ij h_ij E_ij + 1/2 sum_ijkl g(ij,kl) (E_ij E_kl - delta_jk E_il),
+!> with H1(i,j) = h_ij and G2(iTri(ij,kl)) = g(ij,kl) (square pair index
+!> ij = (j-1)*nL+i), all in level order; h need not be symmetric, g only
+!> under (ij) <-> (kl). The products E_q E_p (p applied first) are summed
+!> over the CSFs of the graph; that is exact if p = (k,l) with k <= l or
+!> q = (i,j) with i >= j (always in CAS). Otherwise E_q E_p = E_p E_q +
+!> [E_q,E_p], which is exact then, and the commutator joins the one-body
+!> part. Per symmetry block of the first pairs: D(:,p) = E_p Psi, W = D G,
+!> Sigma += sum_q E_q W(:,q), in chunks of pairs if D and W do not fit.
+subroutine sg_h_op_core(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,nL,H1,n2,G2)
+
+  use Index_functions, only: iTri
+  use symmetry_info, only: MUL
+  use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SG_No_Reuse
+  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+  use Constants, only: Zero, One, Half
+  use Definitions, only: iwp, wp, u6
+
+  implicit none
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(in) :: nPsi, PsiSym, nSig, iOp, nL, n2
+  real(kind=wp), intent(in) :: Psi(nPsi), H1(nL,nL), G2(n2)
+  real(kind=wp), intent(out) :: Sigma(nSig)
+  integer(kind=iwp) :: SigSym, iT, iS, MidSym, nK, nP, nQ, nC, MaxMem, iP0, iQ0, cP, cQ, ip, iq, i, j, k, l, tPsi
+  integer(kind=iwp), allocatable :: PI(:), PJ(:), QI(:), QJ(:)
+  real(kind=wp) :: V
+  real(kind=wp), allocatable :: F(:,:), D(:,:), W(:,:), G(:,:)
+
   SigSym = MUL(PsiSym,iOp)
   if ((nPsi < CIS%nCSF(PsiSym)) .or. (nSig < CIS%nCSF(SigSym))) then
-    write(u6,*) 'sg_h_psi_op: vectors shorter than the CSF spaces',nPsi,CIS%nCSF(PsiSym),nSig,CIS%nCSF(SigSym)
+    write(u6,*) 'sg_h_op_core: vectors shorter than the CSF spaces',nPsi,CIS%nCSF(PsiSym),nSig,CIS%nCSF(SigSym)
     call Abend()
   end if
   Sigma(:) = Zero
   if ((CIS%nCSF(PsiSym) == 0) .or. (CIS%nCSF(SigSym) == 0)) return
   tPsi = SG_New_Tag()
-  ! the integrals in level order
-  call mma_allocate(TU_L,nTU_Tri,Label='HOp_TU_L')
-  call mma_allocate(TUVX_L,nTUVX_Tri,Label='HOp_TUVX_L')
-  call SG_Level_Ints(SGS,TU_Tri,nTU_Tri,TUVX_Tri,nTUVX_Tri,TU_L,TUVX_L)
 
   ! the one-body part: h - 1/2 sum_j (ij|jl), plus the commutators of the
   ! products taken in the other order
@@ -87,9 +174,9 @@ subroutine sg_h_psi_op(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,TUVX_Tri,nTUVX
   do l=1,nL
     do i=1,nL
       if (MUL(SGS%ISm(i),SGS%ISm(l)) /= iOp) cycle
-      F(i,l) = TU_L(iTri(i,l))
+      F(i,l) = H1(i,l)
       do j=1,nL
-        F(i,l) = F(i,l)-Half*TUVX_L(iTri(iTri(i,j),iTri(j,l)))
+        F(i,l) = F(i,l)-Half*Gv(i,j,j,l)
       end do
     end do
   end do
@@ -98,7 +185,7 @@ subroutine sg_h_psi_op(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,TUVX_Tri,nTUVX
       do j=1,nL
         do i=1,nL
           if (Exact(i,j,k,l)) cycle
-          V = Half*TUVX_L(iTri(iTri(i,j),iTri(k,l)))
+          V = Half*Gv(i,j,k,l)
           if (V == Zero) cycle
           ! [E_ij,E_kl] = delta_jk E_il - delta_il E_kj
           if (j == k) F(i,l) = F(i,l)+V
@@ -166,8 +253,8 @@ subroutine sg_h_psi_op(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,TUVX_Tri,nTUVX
             k = PI(iP0+ip)
             l = PJ(iP0+ip)
             G(ip,iq) = Zero
-            if (Exact(i,j,k,l)) G(ip,iq) = G(ip,iq)+Half*TUVX_L(iTri(iTri(i,j),iTri(k,l)))
-            if (.not. Exact(k,l,i,j)) G(ip,iq) = G(ip,iq)+Half*TUVX_L(iTri(iTri(k,l),iTri(i,j)))
+            if (Exact(i,j,k,l)) G(ip,iq) = G(ip,iq)+Half*Gv(i,j,k,l)
+            if (.not. Exact(k,l,i,j)) G(ip,iq) = G(ip,iq)+Half*Gv(k,l,i,j)
           end do
         end do
         call DGEMM_('N','N',nK,cQ,cP,One,D,nK,G,size(G,1),One,W,nK)
@@ -184,10 +271,15 @@ subroutine sg_h_psi_op(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sigma,iOp,TUVX_Tri,nTUVX
   call mma_deallocate(QI)
   call mma_deallocate(PJ)
   call mma_deallocate(PI)
-  call mma_deallocate(TUVX_L)
-  call mma_deallocate(TU_L)
 
 contains
+
+  ! g(ij,kl), square pair indices
+  pure function Gv(i,j,k,l)
+    integer(kind=iwp), intent(in) :: i, j, k, l
+    real(kind=wp) :: Gv
+    Gv = G2(iTri((j-1)*nL+i,(l-1)*nL+k))
+  end function Gv
 
   ! E_ij E_kl (E_kl first) summed over the graph is exact
   pure function Exact(i,j,k,l)
@@ -196,7 +288,7 @@ contains
     Exact = (k <= l) .or. (i >= j)
   end function Exact
 
-end subroutine sg_h_psi_op
+end subroutine sg_h_op_core
 
 !> sg_h_psi_op for arbitrary Hermitian integrals of every operator
 !> symmetry iOp and every symmetry of Psi: Bra.(H Ket) against
@@ -221,10 +313,12 @@ subroutine SG_Check_HPsi_Op(SGS,CIS,EXS,nFail)
   integer(kind=iwp), intent(out) :: nFail
   integer(kind=iwp), parameter :: MxCSF = 20000
   real(kind=wp), parameter :: Tol = 1.0e-10_wp
-  integer(kind=iwp) :: nL, nL2, nTU, nTUVX, n2, iOp, PsiSym, SigSym, nPsi, nSig, i, j, k, l, ij, kl, nTest
+  integer(kind=iwp) :: nL, nL2, nTU, nTUVX, n2, iOp, PsiSym, SigSym, nPsi, nSig, i, j, k, l, ij, kl, nTest, ii, jj
   real(kind=wp) :: E1, E2, dMaxE, dMaxS, x
   integer(kind=iwp), allocatable :: L2O(:)
-  real(kind=wp), allocatable :: TU(:), TUVX(:), TU_O(:), TUVX_O(:), Psi(:), Sig(:), Ref(:), Bra(:), Rho1(:,:), Rho2(:)
+  real(kind=wp), allocatable :: TU(:), TUVX(:), TU_O(:), TUVX_O(:), Psi(:), Sig(:), Ref(:), Bra(:), Rho1(:,:), Rho2(:), &
+                                H1L(:,:), H1O(:,:), G2L(:), G2O(:)
+  real(kind=wp) :: dMaxQ
 
   nFail = 0
   nL = SGS%nLev
@@ -242,6 +336,11 @@ subroutine SG_Check_HPsi_Op(SGS,CIS,EXS,nFail)
   call mma_allocate(TUVX_O,nTUVX,Label='CO_TUVX_O')
   call mma_allocate(L2O,nL,Label='CO_L2O')
   call SG_Level_Map(SGS,L2O)
+  call mma_allocate(H1L,nL,nL,Label='CO_H1L')
+  call mma_allocate(H1O,nL,nL,Label='CO_H1O')
+  call mma_allocate(G2L,n2,Label='CO_G2L')
+  call mma_allocate(G2O,n2,Label='CO_G2O')
+  dMaxQ = Zero
   call mma_allocate(Rho1,nL,nL,Label='CO_Rho1')
   call mma_allocate(Rho2,n2,Label='CO_Rho2')
   nTest = 0
@@ -270,6 +369,27 @@ subroutine SG_Check_HPsi_Op(SGS,CIS,EXS,nFail)
         do k=1,nL
           do l=1,k
             TUVX_O(iTri(iTri(L2O(i),L2O(j)),iTri(L2O(k),L2O(l)))) = TUVX(iTri(iTri(i,j),iTri(k,l)))
+          end do
+        end do
+      end do
+    end do
+    ! arbitrary non-Hermitian integrals of symmetry iOp (sg_h_psi_sq): h
+    ! general, g(ij,kl) symmetric only under (ij) <-> (kl); level order
+    ! (H1L, G2L) and orbital order (H1O, G2O)
+    H1L(:,:) = Zero
+    G2L(:) = Zero
+    do j=1,nL
+      do i=1,nL
+        ij = (j-1)*nL+i
+        if (MUL(SGS%ISm(i),SGS%ISm(j)) == iOp) H1L(i,j) = sin(0.29_wp*real(i,kind=wp)+0.71_wp*real(j,kind=wp)+real(iOp,kind=wp))
+        H1O(L2O(i),L2O(j)) = H1L(i,j)
+        do l=1,nL
+          do k=1,nL
+            kl = (l-1)*nL+k
+            if (kl > ij) cycle
+            if (MUL(MUL(SGS%ISm(i),SGS%ISm(j)),MUL(SGS%ISm(k),SGS%ISm(l))) == iOp) &
+              G2L(iTri(ij,kl)) = Half*cos(0.0731_wp*real(iTri(ij,kl),kind=wp)-0.3_wp*real(iOp,kind=wp))
+            G2O(iTri((L2O(j)-1)*nL+L2O(i),(L2O(l)-1)*nL+L2O(k))) = G2L(iTri(ij,kl))
           end do
         end do
       end do
@@ -309,6 +429,51 @@ subroutine SG_Check_HPsi_Op(SGS,CIS,EXS,nFail)
         nFail = nFail+1
         write(u6,'(A,2I3,2ES22.14)') ' sg_h_psi_op mismatch: iOp, PsiSym, Bra.H Ket, from densities =',iOp,PsiSym,E1,E2
       end if
+      ! the general operator
+      call sg_h_psi_sq(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sig,iOp,nL,H1O,n2,G2O)
+      E1 = dot_product(Bra,Sig)
+      E2 = Zero
+      do l=1,nL
+        do k=1,nL
+          kl = (l-1)*nL+k
+          E2 = E2+H1L(k,l)*Rho1(k,l)
+          do j=1,nL
+            do i=1,nL
+              ij = (j-1)*nL+i
+              E2 = E2+Half*G2L(iTri(ij,kl))*Rho2(iTri(ij,kl))
+            end do
+          end do
+        end do
+      end do
+      dMaxQ = max(dMaxQ,abs(E1-E2))
+      if (abs(E1-E2) > Tol*max(One,abs(E2))) then
+        nFail = nFail+1
+        write(u6,'(A,2I3,2ES22.14)') ' sg_h_psi_sq mismatch: iOp, PsiSym, Bra.H Ket, from densities =',iOp,PsiSym,E1,E2
+      end if
+      ! the Hermitian operator through sg_h_psi_sq = sg_h_psi_op
+      do jj=1,nL
+        do ii=1,nL
+          H1O(L2O(ii),L2O(jj)) = TU(iTri(ii,jj))
+        end do
+      end do
+      call Sym_G2(G2O)
+      call mma_allocate(Ref,nSig,Label='CO_Ref')
+      call sg_h_psi_op(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Ref,iOp,TUVX_O,nTUVX,TU_O,nTU)
+      call sg_h_psi_sq(SGS,CIS,EXS,nPsi,Psi,PsiSym,nSig,Sig,iOp,nL,H1O,n2,G2O)
+      dMaxQ = max(dMaxQ,maxval(abs(Ref-Sig)))
+      if (maxval(abs(Ref-Sig)) > Tol) then
+        nFail = nFail+1
+        write(u6,'(A,2I3,ES12.4)') ' sg_h_psi_sq vs sg_h_psi_op (Hermitian): iOp, PsiSym, max. difference',iOp,PsiSym, &
+                                   maxval(abs(Ref-Sig))
+      end if
+      call mma_deallocate(Ref)
+      ! restore the non-Hermitian operator in orbital order
+      do jj=1,nL
+        do ii=1,nL
+          H1O(L2O(ii),L2O(jj)) = H1L(ii,jj)
+        end do
+      end do
+      call Map_G2(G2L,G2O)
       if (iOp == 1) then
         call mma_allocate(Ref,nSig,Label='CO_Ref')
         if (SGS%nRsPrt > 1) then
@@ -332,14 +497,52 @@ subroutine SG_Check_HPsi_Op(SGS,CIS,EXS,nFail)
   write(u6,'(/,A,I0,A)') ' sg_h_psi_op (sigma for operators of any symmetry): ',nTest,' (operator, CI) symmetry pairs'
   write(u6,'(A,ES10.3)') '   Bra.H Ket vs transition densities,  max. abs. difference ',dMaxE
   write(u6,'(A,ES10.3)') '   totally symmetric vs sg_h_psi(_ras), max. abs. difference ',dMaxS
+  write(u6,'(A,ES10.3)') '   non-Hermitian (sg_h_psi_sq) vs densities, Hermitian vs sg_h_psi_op ',dMaxQ
   write(u6,'(A,I0)') '   failures: ',nFail
   call mma_deallocate(Rho2)
   call mma_deallocate(Rho1)
+  call mma_deallocate(G2O)
+  call mma_deallocate(G2L)
+  call mma_deallocate(H1O)
+  call mma_deallocate(H1L)
   call mma_deallocate(L2O)
   call mma_deallocate(TUVX_O)
   call mma_deallocate(TU_O)
   call mma_deallocate(TUVX)
   call mma_deallocate(TU)
+
+contains
+
+  ! G(iTri(ij,kl)) = (ij|kl) of TUVX_O (orbital order, square pair index)
+  subroutine Sym_G2(G)
+    real(kind=wp), intent(out) :: G(n2)
+    integer(kind=iwp) :: a, bb, c, d
+    do bb=1,nL
+      do a=1,nL
+        do d=1,nL
+          do c=1,nL
+            G(iTri((bb-1)*nL+a,(d-1)*nL+c)) = TUVX_O(iTri(iTri(a,bb),iTri(c,d)))
+          end do
+        end do
+      end do
+    end do
+  end subroutine Sym_G2
+
+  ! G (orbital order) from GL (level order)
+  subroutine Map_G2(GL,G)
+    real(kind=wp), intent(in) :: GL(n2)
+    real(kind=wp), intent(out) :: G(n2)
+    integer(kind=iwp) :: a, bb, c, d
+    do bb=1,nL
+      do a=1,nL
+        do d=1,nL
+          do c=1,nL
+            G(iTri((L2O(bb)-1)*nL+L2O(a),(L2O(d)-1)*nL+L2O(c))) = GL(iTri((bb-1)*nL+a,(d-1)*nL+c))
+          end do
+        end do
+      end do
+    end do
+  end subroutine Map_G2
 
 end subroutine SG_Check_HPsi_Op
 
