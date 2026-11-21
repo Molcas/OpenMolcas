@@ -15,15 +15,14 @@
 #endif
 
 subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
+! sigma = H C for each root (weighted with the weight of the root) through
+! the CI interface (CI_MCLR_Sigma); see CISigma. With paging only the first
+! root is done, unweighted, as before.
 
-use CI_Info, only: CI_St
-use Symmetry_Info, only: Mul
-use ipPage, only: ipin, ipin1, ipnout, opout, W
-use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, iST, KAIN1, KINT2, KINT2A, nConf1, pInt1, Square, XISPSM
-use CandS, only: ICSM, ISSM
-use Orbital_Spaces, only: nSym
+use ipPage, only: ipin, ipnout, opout, W
+use MCLR_Data, only: nConf1
+use CI_Interfaces_MCLR, only: CI_MCLR_Sigma
 use input_mclr, only: nCSF, nRoots, Page, Weight
-use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -32,95 +31,33 @@ integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
 real(kind=wp), target, intent(in) :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
 logical(kind=iwp), intent(in) :: Have_2_el
-integer(kind=iwp) :: nDet, i, iOp, iS, kic(2)
-real(kind=wp), allocatable :: CIDET(:)
+integer(kind=iwp) :: i, nC, nS
 
-! Interface Anders to Jeppe
-! This interface initiates Jeppe's common block
-! and will make it easier to use Anders modifications
-! of the CI routines
-
-! OK first tell Jeppe where the integrals are.
+#include "macros.fh"
+unused_var(Int2a)
 
 ! yma: notice the nconf1 if DMRG
-
 if (nconf1 == 0) return
 
-! One electron integrals
-
-KAIN1(1:nInt1) => Int1(:)
-
-! Two electron integrals
-! symmetric in particle one and two
-
-KINT2(1:nInt2s) => Int2s(:)
-
-! Two electron integrals
-! anti symmetric in particle one and two
-
-KINT2A(1:nInt2a) => Int2a(:)
-
-irefsm = iCSym
-
-! Do we have any two-electron integrals?
-
-if (Have_2_el) then
-  i12 = 2
-else
-  i12 = 1
-end if
-
-! Symmetry of Sigma vector
-
-iSSM = iSSym
-kic(2) = 2
-if (issm == CI_St(iState)%STSym) kic(2) = 1
-
-! Symmetry of CI vector
-
-iCSM = iCSym
-kic(1) = 2
-if (icsm == CI_St(iState)%STSym) kic(1) = 1
-
-! Symmetry properties of operator
-
-ndet = nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
-ndet = max(ndet,ncsf(icsym),ncsf(issym))
-
-if (ndet == 0) return
-iOP = Mul(iCSM,iSSm)
-if (iOp == 1) then
-  pInt1(1:nSym) = ipCM(1:nSym)
-else
-  do iS=1,nSym
-    pInt1(is) = ipMat(is,Mul(iS,iOp))
-  end do
-end if
-
-! Triplet/Singlet operator
-
-ist = iispin+1
-square = .false.
-
+nC = nCSF(iCSym)
+nS = nCSF(iSSym)
 if (.not. page) then
-  call mma_allocate(CIDET,nDet,Label='CIDET')
   call ipin(ipCI1)
   call ipin(ipci2)
   do i=1,nroots
     if (weight(i) == Zero) then
-      W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm)) = Zero
+      W(ipci2)%A((i-1)*nS+1:i*nS) = Zero
     else
-      CIDET(1:nCSF(iCSM)) = W(ipCI1)%A((i-1)*ncsf(icsm)+1:i*ncsf(icsm))
-      call SigmaVec(CIDET,W(ipci2)%A(1+(i-1)*ncsf(issm)),kic)
-      W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm)) = weight(i)*W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm))
+      call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A((i-1)*nC+1:i*nC),nS, &
+                         W(ipci2)%A((i-1)*nS+1:i*nS))
+      W(ipci2)%A((i-1)*nS+1:i*nS) = weight(i)*W(ipci2)%A((i-1)*nS+1:i*nS)
     end if
   end do
-  call mma_deallocate(CIDET)
 else
   call ipnout(ipci2)
-  call ipin1(ipCI1,ndet)
+  call ipin(ipCI1)
   call ipin(ipci2)
-  call SigmaVec(W(ipCI1)%A,W(ipci2)%A,kic)
+  call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
   call opout(ipci1)
 end if
 

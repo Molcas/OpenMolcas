@@ -26,13 +26,18 @@
 #endif
 
 subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
+! sigma = H C through the CI interface (CI_MCLR_Sigma), see CISigma. For
+! time-dependent perturbations the vectors have two halves of length
+! nConf1: NT = 'N': only the first half; NT = 'S': symmetric operator,
+! both halves; otherwise the operator is not symmetric (square
+! integrals), and the second half is the transposed operator applied to
+! the first half. Int2a is not used.
 
-use CI_Info, only: CI_St
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use ipPage, only: ipin, ipin1, ipnout, opout, W
-use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, ist, KAIN1, KINT2, KINT2A, nConf1, nDens, pInt1, Square, XISPSM
-use CandS, only: ICSM, ISSM
+use ipPage, only: ipin, ipnout, opout, W
+use MCLR_Data, only: ipMat, nConf1, nDens
+use CI_Interfaces_MCLR, only: CI_MCLR_Sigma
 use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, nCSF, ntAsh, Page, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -44,119 +49,41 @@ integer(kind=iwp), intent(in) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ip
 real(kind=wp), target, intent(in) :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
 character, intent(in) :: NT
 logical(kind=iwp), intent(in) :: Have_2_el
-integer(kind=iwp) :: i, ij, ijkl, iOp, iS, j, ji, jilk, jS, k, kic(2), kl, l, lk, nDet
-real(kind=wp), allocatable :: CIDET(:)
-real(kind=wp), allocatable, target _SAVE_TARGET_ :: TI1(:), TI2(:)
+integer(kind=iwp) :: i, ij, ijkl, iS, j, ji, jilk, jS, k, kl, l, lk, nC, nS
+logical(kind=iwp) :: Square
+real(kind=wp), allocatable, target :: TI1(:), TI2(:)
 
-! For the timeindep case ipS1 and ipS2 will be half as long
-! Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
+#include "macros.fh"
+unused_var(Int2a)
 
-! Interface Anders to Jeppe
-! This interface initiates Jeppe's common block
-! and will make it easier to use Anders modifications
-! of the CI routines
-
-! OK first tell Jeppe where the integrals are.
-
+! yma: notice the nconf1 if DMRG
 if (nconf1 == 0) return
 
-! One electron integrals
-
-KAIN1(1:nInt1) => Int1(:)
-
-! Two electron integrals
-! symmetric in particle one and two
-
-KINT2(1:nInt2s) => Int2s(:)
-KINT2a(1:nInt2a) => Int2a(:)
-
-! Two electron integrals
-! anti symmetric in particle one and two
-
-irefsm = iCSym
-
-! Do we have any two-electron integrals?
-
-if (Have_2_el) then
-  i12 = 2
-else
-  i12 = 1
-end if
-
-! Symmetry of Sigma vector
-
-iSSM = iSSym
-kic(2) = 2
-if (issm == CI_St(iState)%STSym) kic(2) = 1
-
-! Symmetry of CI vector
-
-iCSM = iCSym
-kic(1) = 2
-if (icsm == CI_St(iState)%STSym) kic(1) = 1
-
-! Symmetry properties of operator
-
-ndet = nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
-ndet = max(ndet,ncsf(icsym),ncsf(issym))
-if (ndet == 0) return
-iOP = Mul(iCSM,iSSm)
-if (iOp == 1) then
-  pInt1(1:nSym) = ipCM(1:nSym)
-else
-  do iS=1,nSym
-    pInt1(is) = ipMat(is,Mul(iS,iOp))
-  end do
-end if
-
-! Triplet/Singlet operator
-
-ist = iispin+1
-square = .false.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+nC = nCSF(iCSym)
+nS = nCSF(iSSym)
 if (TIMEDEP) then
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  if (NT == 'T') square = .true.  ! The operator is not sym
-
+  Square = (NT == 'T')  ! The operator is not symmetric
   if (page) then
     write(u6,*) 'Page not implemented for Time-dependent perturbations'
     call Abend()
   end if
-
-  ! CIDET is here because sigmavec will destroy the first input vector.
-  call mma_allocate(CIDET,nDet,Label='CIDET')
   call ipin(ipCI1)
-  CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
-
   call ipin(ipci2)
-  call SigmaVec(CIDET,W(ipci2)%A,kic)
+  call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,Square,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
 
-  if (NT == 'N') then
-    call mma_deallocate(CIDET)
-    return
+  if (NT == 'N') return
 
-  else if (NT == 'S') then
+  if (NT == 'S') then
 
     ! Symmetric operator, no transpose of integrals needed!
-    call ipin(ipCI1)
-    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(nConf1+1:nConf1+nCSF(iCSM))
+    call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A(nConf1+1:nConf1+nC), &
+                       nS,W(ipci2)%A(nConf1+1:nConf1+nS))
 
-    call ipin(ipci2)
-    call SigmaVec(CIDET,W(ipci2)%A(1+nconf1),kic)
+  else
 
-  else  ! NT /= 'S'
-
-    ! The operator is not sym --> transpose integrals! NT /= S
-    call ipin(ipCI1)
-    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
-
+    ! The operator is not symmetric --> transpose the integrals
     call mma_allocate(TI1,nDens,Label='TI1')
     call mma_allocate(TI2,ntash**4,Label='TI2')
-
     do i=1,ntash
       do j=1,ntash
         ij = i+ntash*(j-1)
@@ -174,53 +101,27 @@ if (TIMEDEP) then
         end do
       end do
     end do
-
     do is=1,nSym
       js = Mul(Mul(icsym,issym),is)
       if (nbas(js)*nbas(is) /= 0) call DGETMO(Int1(ipmat(is,js)),nbas(is),nbas(is),nbas(js),TI1(ipmat(js,is)),nbas(js))
     end do
-
-    KAIN1 => TI1
-    KINT2 => TI2
-
+    call ipin(ipCI1)
     call ipin(ipci2)
-    call SigmaVec(CIDET,W(ipci2)%A(1+nconf1),kic)
-
-    nullify(KAIN1,KINT2)
+    call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,size(TI1),TI1,size(TI2),TI2,Have_2_el,Square,nC,W(ipCI1)%A(1:nC),nS, &
+                       W(ipci2)%A(nConf1+1:nConf1+nS))
     call mma_deallocate(TI1)
     call mma_deallocate(TI2)
 
-  end if  ! End the transpose of integrals.
-
-  call mma_deallocate(CIDET)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-else   ! If not timedep
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-
-  if (.not. page) then
-    call mma_allocate(CIDET,nDet,Label='CIDET')
-    call ipin(ipCI1)
-    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
-    call ipin(ipci2)
-    call SigmaVec(CIDET,W(ipci2)%A,kic)
-    call mma_deallocate(CIDET)
-  else
-    call ipnout(ipci2)
-    call ipin1(ipCI1,ndet)
-    call ipin(ipci2)
-    call SigmaVec(W(ipCI1)%A,W(ipci2)%A,kic)
-    call opout(ipci1)
   end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+
+else   ! If not timedep
+
+  if (page) call ipnout(ipci2)
+  call ipin(ipCI1)
+  call ipin(ipci2)
+  call CI_MCLR_Sigma(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
+  if (page) call opout(ipci1)
+
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
 end subroutine CISigma_td
