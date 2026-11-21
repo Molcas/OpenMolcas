@@ -58,7 +58,8 @@ if (NGP) call mkp1(nprciv,SBIDT,H0T,rdia)
 call square(H0T,H0S,1,NPRCIV,NPRCIV)
 call mma_deallocate(H0T)
 irc = 0
-call dgetrf_(NPRCIV,NPRCIV,H0S,NPRCIV,H0F,irc)
+! (no explicit P space with some CI libraries: the diagonal alone)
+if (NPRCIV > 0) call dgetrf_(NPRCIV,NPRCIV,H0S,NPRCIV,H0F,irc)
 if (irc /= 0) then
   write(u6,*) 'Sorry but you have an singular ci matrix'
   write(u6,*) 'Set ExpDimension and restart mclr'

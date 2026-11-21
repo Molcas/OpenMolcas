@@ -113,6 +113,7 @@ block
   call UpCase(EnvLib)
   CILib = 'LUCIA'
   if (EnvLib == 'SGUGA') CILib = 'SGUGA'
+  if (EnvLib == 'FAROALD') CILib = 'FAROALD'
 end block
 CGS = .false.
 RFPERT = .false.
@@ -482,8 +483,8 @@ outer: do
       end do
       read(Line,*,iostat=istatus) CILib
       if (istatus /= 0) call Error(istatus)
-      if ((CILib /= 'LUCIA') .and. (CILib /= 'SGUGA')) then
-        call WarningMessage(2,'CILIbrary: unknown CI library '//trim(CILib)//' (LUCIA or SGUGA)')
+      if ((CILib /= 'LUCIA') .and. (CILib /= 'SGUGA') .and. (CILib /= 'FAROALD')) then
+        call WarningMessage(2,'CILIbrary: unknown CI library '//trim(CILib)//' (LUCIA, SGUGA or FAROALD)')
         call Quit_OnUserError()
       end if
 

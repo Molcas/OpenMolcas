@@ -30,8 +30,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-use CI_Operations, only: CI_Lib_Dets_To_Basis, CI_Lib_File_To_Basis, CI_Lib_Initialize, CI_Lib_MCLR_Lucia, CI_Lib_Select, &
-                         CI_Lib_SGUGA
+use CI_Operations, only: CI_Lib_Dets_To_Basis, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Initialize, CI_Lib_MCLR_Lucia, &
+                         CI_Lib_Select, CI_Lib_SGUGA
 use MCLR_Lucia_CI, only: MCLR_Lucia_CI_Setup
 implicit none
 integer(kind=iwp), intent(in) :: iPL
@@ -64,10 +64,12 @@ call RdInp_MCLR(iPL)  ! Read in input
 
 call ipopen(.true.)
 ! the CI library of MCLR, through the CI interface (keyword CILIbrary):
-! its copy of Lucia (default) or SGUGA
+! its copy of Lucia (default), SGUGA or Faroald
 call MCLR_Lucia_CI_Setup()
 if (CILib == 'SGUGA') then
   call CI_Lib_Select(CI_Lib_SGUGA)
+else if (CILib == 'FAROALD') then
+  call CI_Lib_Select(CI_Lib_Faroald)
 else
   call CI_Lib_Select(CI_Lib_MCLR_Lucia)
 end if
