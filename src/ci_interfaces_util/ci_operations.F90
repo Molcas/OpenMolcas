@@ -256,8 +256,12 @@ subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_e
     call Abend()
   end if
   if (CI_Lib_Op == CI_Lib_SGUGA) then
-    if ((iOpSpin /= 0) .or. Square) call Not_Yet('CI_Sigma_Op','triplet or non-symmetric operators')
-    call SG_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+    if (iOpSpin /= 0) call Not_Yet('CI_Sigma_Op','triplet operators')
+    if (Square) then
+      call SG_Sigma_Sq(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+    else
+      call SG_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+    end if
     return
   end if
   if (CI_Lib_Op == CI_Lib_Faroald) then
@@ -459,6 +463,60 @@ subroutine SG_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,n
   call mma_deallocate(TUVX)
   call mma_deallocate(TU)
 end subroutine SG_Sigma_Op
+
+!> SGUGA: sigma of a non-Hermitian operator (Square: the time-dependent
+!> response): the active part of Int1 (square blocks (iS,Mul(iS,iOp)))
+!> as the full nA x nA matrix h(i,j), and Int2 as it is (g(ij,kl) at
+!> iTri(ij,kl), square pair index), over the symmetry-ordered active
+!> orbitals
+subroutine SG_Sigma_Sq(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+  use Symmetry_Info, only: Mul
+  use sguga, only: CIS, EXS, SGS
+  use SGUGA_Sigma, only: sg_h_psi_sq
+  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nInt1, nInt2, nC, nS
+  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), C(nC)
+  logical(kind=iwp), intent(in) :: Have_2_el
+  real(kind=wp), intent(out) :: S(nS)
+  integer(kind=iwp) :: iOff(8), iOp, iS, it, iu, jS, n2, nA, nAOff(8)
+  real(kind=wp), allocatable :: G2(:), H1(:,:)
+  iOp = Mul(iCSym,iSSym)
+  nA = 0
+  do iS=1,nSym
+    if (iS == 1) then
+      iOff(iS) = 0
+    else
+      iOff(iS) = iOff(iS-1)+nOrb(iS-1)*nOrb(Mul(iS-1,iOp))
+    end if
+    nAOff(iS) = nA
+    nA = nA+nAsh(iS)
+  end do
+  if (iOff(nSym)+nOrb(nSym)*nOrb(Mul(nSym,iOp)) > nInt1) call Abend()
+  call mma_allocate(H1,nA,nA,Label='H1')
+  H1(:,:) = Zero
+  do iS=1,nSym
+    jS = Mul(iS,iOp)
+    do iu=1,nAsh(jS)
+      do it=1,nAsh(iS)
+        H1(nAOff(iS)+it,nAOff(jS)+iu) = Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it)
+      end do
+    end do
+  end do
+  n2 = nTri_Elem(nA**2)
+  call mma_allocate(G2,n2,Label='G2')
+  if (Have_2_el) then
+    if (nInt2 < n2) call Abend()
+    G2(:) = Int2(1:n2)
+  else
+    G2(:) = Zero
+  end if
+  call sg_h_psi_sq(SGS(iState),CIS(iState),EXS(iState),nC,C,iCSym,nS,S,iOp,nA,H1,n2,G2)
+  call mma_deallocate(G2)
+  call mma_deallocate(H1)
+end subroutine SG_Sigma_Sq
 
 !> SGUGA: spin-free transition densities, mapped from the level order to
 !> the symmetry-ordered active orbitals

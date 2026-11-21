@@ -16,7 +16,7 @@ subroutine CIDIA_TD(iSym)
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use CI_Operations, only: CI_Diag, CI_Diag_Cnf_Avg
 use MCLR_Data, only: FIMO, INT2, ipDia, nexp, nexp_max
-use MCLR_Lucia_Data, only: NCSASM, XISPSM
+use CI_Info, only: CI_St
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use Definitions, only: iwp
 
@@ -35,11 +35,11 @@ integer(kind=iwp) :: ipDIAI, nD, nP1, nP2, nQ, nSD
 ! otherwise we will switch to SD representation in this routine
 
 ! The CSF diagonal through the CI interface (CI_Diag)
-nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
+nsd = max(ncsf(isym),CI_St(iState)%nDet(ISYM))
 ipdiai = ipget(nsd)
 call ipin(ipdiai)
 call CI_Diag(iState,CI_Diag_Cnf_Avg,iSym,size(FIMO),FIMO,size(INT2),INT2,rin_ene+potnuc,ncsf(iSym),W(ipdiai)%A(1:ncsf(iSym)))
-nD = NCSASM(ISYM)
+nD = nCSF(iSym)
 ! Calculate explicit part of hamiltonian
 
 np2 = min(nd,nexp_max)
