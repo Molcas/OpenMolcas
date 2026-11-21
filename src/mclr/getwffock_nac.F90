@@ -22,21 +22,22 @@ subroutine GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,nG2)
 use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use MCLR_Data, only: ipCI, LuJob, NACSTATES, nConf1, nDens, nNA, XISPSM
+use MCLR_Data, only: ipCI, LuJob, NACSTATES, nConf1, nDens, nNA
 use input_mclr, only: iTOC, nCSF, nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
+use CI_Interfaces_MCLR, only: CI_MCLR_TDens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: nTri, nG2
 real(kind=wp), intent(out) :: FOccMO(nDens), bk(nDens), P2MOt(nG2)
 real(kind=wp), intent(in) :: R(nRoots,nRoots)
 integer(kind=iwp) :: I, iB, iDij, iDkl, iIJKL, IJ, IJ2, IJKL, ijkl2, iRC, iRij, iRijkl, iRkl, J, jB, jDisk, K, kB, KL, KL2, lB, &
-                     LuDens, nConfL, nConfR, NCSFs, nG1
+                     LuDens, NCSFs, nG1
 real(kind=wp) :: Fact, factor, rdum(1)
-real(kind=wp), allocatable :: CIL(:), CIR(:), D5(:), D6(:), FinCI(:), Fock(:), G1m(:), G1q(:), G1qs(:,:), G1r(:), G2q(:), &
+real(kind=wp), allocatable :: D5(:), D6(:), FinCI(:), Fock(:), G1m(:), G1q(:), G1qs(:,:), G1r(:), G2q(:), &
                               G2qs(:,:), G2r(:), G2rt(:), T(:)
 
 ! FinCI: CI Vectors in final CMS state basis
@@ -59,17 +60,10 @@ call mma_allocate(G2rt,nTri_Elem(ntash**2),Label='G2rt')
 ! Rotate CI vectors back to those for reference states
 NCSFs = NCSF(CI_St(iState)%STSym)
 call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%A,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
-nConfL = max(ncsf(CI_St(iState)%STSym),nint(xispsm(CI_St(iState)%STSym,1)))
-nConfR = max(ncsf(CI_St(iState)%STSym),nint(xispsm(CI_St(iState)%STSym,1)))
-
-call mma_allocate(CIL,nConfL)
-call mma_allocate(CIR,nConfR)
-
 I = NACstates(1)
 J = NACstates(2)
-call CSF2SD(FinCI(1+(J-1)*NCSFs),CIL,CI_St(iState)%STSym)
-call CSF2SD(FinCI(1+(I-1)*NCSFs),CIR,CI_St(iState)%STSym)
-call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,nTri_Elem(ntash**2))
+call CI_MCLR_TDens(iState,2,CI_St(iState)%STSym,CI_St(iState)%STSym,NCSFs,FinCI(1+(J-1)*NCSFs:J*NCSFs),NCSFs, &
+                   FinCI(1+(I-1)*NCSFs:I*NCSFs),ntash**2,G1r,nTri_Elem(ntash**2),G2rt)
 
 ! Copied from rhs_nac
 ij = 0
@@ -270,8 +264,6 @@ call mma_deallocate(G2r)
 call mma_deallocate(G2rt)
 call mma_deallocate(G1q)
 call mma_deallocate(G2q)
-call mma_deallocate(CIL)
-call mma_deallocate(CIR)
 call mma_deallocate(FinCI)
 
 end subroutine GetWFFock_NAC

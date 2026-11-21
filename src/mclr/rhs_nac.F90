@@ -14,8 +14,7 @@ subroutine RHS_NAC(Fock,SLag,ipS2)
 use CI_Info, only: CI_St
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipnout, opout, W
-use MCLR_Data, only: ipCI, ipMat, n1Dens, n2Dens, nConf1, nDens, NSSA, XISPSM
-use CandS, only: ICSM, ISSM
+use MCLR_Data, only: ipCI, ipMat, n1Dens, n2Dens, nConf1, nDens, NSSA
 use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, nConf, nCSF, nRoots, ntAsh, PT2
 use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
@@ -24,14 +23,15 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
+use CI_Interfaces_MCLR, only: CI_MCLR_TDens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(out) :: Fock(nDens)
 real(kind=wp), intent(inout) :: SLag(nRoots,nRoots)
 integer(kind=iwp), intent(in) :: ipS2
-integer(kind=iwp) :: i, ij, ij2, ijkl, ijkl2, iRC, j, jR, k, kl, kl2, kR, l, LuDens, nConfL, nConfR, ng1, ng2
+integer(kind=iwp) :: i, ij, ij2, ijkl, ijkl2, iRC, iSy, j, jR, k, kl, kl2, kR, l, LuDens, ng1, ng2
 real(kind=wp) :: factor, vSLag
-real(kind=wp), allocatable :: CIL(:), CIR(:), F(:), G1m(:), G1q(:), G1r(:), G2q(:), G2r(:), T(:)
+real(kind=wp), allocatable :: F(:), G1m(:), G1q(:), G1r(:), G2q(:), G2r(:), T(:)
 
 !                                                                      *
 !***********************************************************************
@@ -55,10 +55,7 @@ G2r(:) = Zero
 ! from the CI vectors of the two NAC states
 ! (code copied from CIdens_SA, same symmetry)
 
-nConfL = max(nconf1,nint(xispsm(CI_St(iState)%STSym,1)))
-nConfR = max(nconf1,nint(xispsm(CI_St(iState)%STSym,1)))
-call mma_allocate(CIL,nConfL,Label='CIL')
-call mma_allocate(CIR,nConfR,Label='CIR')
+iSy = CI_St(iState)%STSym
 
 if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
   ! Almost the same as the code in rhs_sa, but slightly modified
@@ -68,16 +65,9 @@ if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
     do kR=1,jR
       vSLag = SLag(jR,kR)
 
-      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
-      !call opout(ipCI)
-      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,1)
-      !call opout(ipCI)
-      !call ipnout(-1)
-      !icsm = 1
-      !issm = 1
-
       if (abs(vSLag) > 1.0e-10_wp) then
-        call Densi2_mclr(2,G1q,G2q,CIL,CIR,0,0,0,n1Dens,n2Dens)
+        call CI_MCLR_TDens(iState,2,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
+                           W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),n1Dens,G1q,n2Dens,G2q)
         G1r(:) = G1r(:)+vSLag*G1q(:)
         G2r(:) = G2r(:)+vSLag*G2q(:)
       end if
@@ -85,7 +75,8 @@ if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
       if (kR /= jR) then
         vSLag = SLag(kR,jR)
         if (abs(vSLag) > 1.0e-10_wp) then
-          call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1Dens,n2Dens)
+          call CI_MCLR_TDens(iState,2,iSy,iSy,nconf1,W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),nconf1, &
+                             W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),n1Dens,G1q,n2Dens,G2q)
           G1r(:) = G1r(:)+vSLag*G1q(:)
           G2r(:) = G2r(:)+vSLag*G2q(:)
         end if
@@ -95,17 +86,11 @@ if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
   nConf = ncsf(1) !! nconf is overwritten somewhere in densi2_mclr
 else
   call ipIn(ipCI)
-  call CSF2SD(W(ipCI)%A(1+(NSSA(2)-1)*nconf1),CIL,CI_St(iState)%STSym)
-  call opout(ipCI)
-  call CSF2SD(W(ipCI)%A(1+(NSSA(1)-1)*nconf1),CIR,CI_St(iState)%STSym)
+  call CI_MCLR_TDens(iState,2,iSy,iSy,nconf1,W(ipCI)%A(1+(NSSA(2)-1)*nconf1:NSSA(2)*nconf1),nconf1, &
+                     W(ipCI)%A(1+(NSSA(1)-1)*nconf1:NSSA(1)*nconf1),n1Dens,G1r,n2Dens,G2r)
   call opout(ipCI)
   call ipnout(-1)
-  icsm = 1
-  issm = 1
-  call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1Dens,n2Dens)
 end if
-call mma_deallocate(CIL)
-call mma_deallocate(CIR)
 
 if (do_RF) then
   nconf = ncsf(CI_St(iState)%STSym)

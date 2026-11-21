@@ -12,9 +12,9 @@
 subroutine CIDens(response,iLS,iRS,iL,iR,rP,rD)
 
 use Index_Functions, only: iTri, nTri_Elem
-use ipPage, only: ipin, ipin1, ipnout, opout, W
-use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA, NOCSF, XISPSM
-use CandS, only: ICSM, ISSM
+use ipPage, only: ipin, W
+use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA
+use CI_Interfaces_MCLR, only: CI_MCLR_TDens
 use input_mclr, only: nCSF, TimeDep
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -27,8 +27,9 @@ implicit none
 logical(kind=iwp), intent(in) :: Response
 integer(kind=iwp), intent(in) :: iLS, iRS, iL, iR
 real(kind=wp), intent(_OUT_) :: rP(*), rD(*)
-integer(kind=iwp) :: IA, ij1, ij2, JA, KA, kl1, kl2, LA, nConfL, nConfR, nDim
-real(kind=wp), allocatable :: CIL(:), CIR(:), De(:), Pe(:)
+integer(kind=iwp), parameter :: iState = 1
+integer(kind=iwp) :: IA, ij1, ij2, JA, KA, kl1, kl2, LA, nDim
+real(kind=wp), allocatable :: De(:), Pe(:)
 
 ! LS = CI
 !
@@ -75,103 +76,44 @@ call mma_allocate(Pe,n2Dens,Label='Pe')
 De(:) = Zero
 Pe(:) = Zero
 
-if (nocsf == 0) then
-  nConfL = max(ncsf(il),nint(xispsm(il,1)))
-  nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
-  call mma_allocate(CIL,nConfL,Label='CIL')
-  call ipin1(iLS,nconfL)
-  call CSF2SD(W(iLS)%A,CIL,iL)
-  call opout(iLs)
-  call mma_allocate(CIR,nConfR,Label='CIR')
-  call ipin1(iRS,nconfR)
-  call CSF2SD(W(iRS)%A,CIR,iR)
-  call opout(irs)
-  call ipnout(-1)
-  icsm = iR
-  issm = iL
-  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)
-
-  if (.not. timedep) then
-    if (response) then
-      do iA=1,nnA
-        do jA=1,nnA
-          do kA=1,nnA
-            do la=1,nnA
-              ij1 = nnA*(iA-1)+ja
-              ij2 = nna*(ja-1)+ia
-              kl1 = nnA*(ka-1)+la
-              kl2 = nna*(la-1)+ka
-              rp(iTri(ij1,kl1)) = Pe(iTri(ij1,kl1))+Pe(iTri(ij2,kl2))
-            end do
+! (through the CI interface; L of symmetry iL, R of symmetry iR)
+call ipin(iLS)
+call ipin(iRS)
+call CI_MCLR_TDens(iState,2,iL,iR,nCSF(iL),W(iLS)%A(1:nCSF(iL)),nCSF(iR),W(iRS)%A(1:nCSF(iR)),n1Dens,De,n2Dens,Pe)
+if (.not. timedep) then
+  if (response) then
+    do iA=1,nnA
+      do jA=1,nnA
+        do kA=1,nnA
+          do la=1,nnA
+            ij1 = nnA*(iA-1)+ja
+            ij2 = nna*(ja-1)+ia
+            kl1 = nnA*(ka-1)+la
+            kl2 = nna*(la-1)+ka
+            rp(iTri(ij1,kl1)) = Pe(iTri(ij1,kl1))+Pe(iTri(ij2,kl2))
           end do
         end do
       end do
-      do iA=1,nnA
-        do jA=1,nnA
-          ij1 = nnA*(iA-1)+ja
-          ij2 = nna*(ja-1)+ia
-          rD(ij1) = De(ij1)+De(ij2)
-        end do
+    end do
+    do iA=1,nnA
+      do jA=1,nnA
+        ij1 = nnA*(iA-1)+ja
+        ij2 = nna*(ja-1)+ia
+        rD(ij1) = De(ij1)+De(ij2)
       end do
-
-    else
-      rp(1:n2Dens) = Pe(:)
-      rD(1:n1Dens) = De(:)
-    end if
+    end do
   else
     rp(1:n2Dens) = Pe(:)
     rD(1:n1Dens) = De(:)
-    iCSM = iL
-    iSSM = iR
-    call Densi2_mclr(2,De,Pe,CIR,CIL,0,0,0,n1Dens,n2Dens)
-    rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
-    rD(1:n1Dens) = rD(1:n1Dens)-De(:)
   end if
-  call mma_deallocate(CIL)
-  call mma_deallocate(CIR)
 else
-  issm = iL
-  icsm = iR
-  call ipin(iLS)
+  rp(1:n2Dens) = Pe(:)
+  rD(1:n1Dens) = De(:)
   call ipin(iRS)
-  call Densi2_mclr(2,De,Pe,W(iLS)%A,W(iRS)%A,0,0,0,n1Dens,n2Dens)
-  if (.not. timedep) then
-    if (response) then
-      do iA=1,nnA
-        do jA=1,nnA
-          do kA=1,nnA
-            do la=1,nnA
-              ij1 = nnA*(iA-1)+ja
-              ij2 = nna*(ja-1)+ia
-              kl1 = nnA*(ka-1)+la
-              kl2 = nna*(la-1)+ka
-              rp(iTri(ij1,kl1)) = Pe(iTri(ij1,kl1))+Pe(iTri(ij2,kl2))
-            end do
-          end do
-        end do
-      end do
-      do iA=1,nnA
-        do jA=1,nnA
-          ij1 = nnA*(iA-1)+ja
-          ij2 = nna*(ja-1)+ia
-          rD(ij1) = De(ij1)+De(ij2)
-        end do
-      end do
-    else
-      rp(1:n2Dens) = Pe(:)
-      rD(1:n1Dens) = De(:)
-    end if
-  else
-    rp(1:n2Dens) = Pe(:)
-    rD(1:n1Dens) = De(:)
-    iCSM = iL
-    iSSM = iR
-    call ipin(iRS)
-    call ipin(iLS)
-    call Densi2_mclr(2,De,Pe,W(iRS)%A,W(iLS)%A,0,0,0,n1Dens,n2Dens)
-    rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
-    rD(1:n1Dens) = rD(1:n1Dens)-De(:)
-  end if
+  call ipin(iLS)
+  call CI_MCLR_TDens(iState,2,iR,iL,nCSF(iR),W(iRS)%A(1:nCSF(iR)),nCSF(iL),W(iLS)%A(1:nCSF(iL)),n1Dens,De,n2Dens,Pe)
+  rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
+  rD(1:n1Dens) = rD(1:n1Dens)-De(:)
 end if
 call mma_deallocate(Pe)
 call mma_deallocate(De)

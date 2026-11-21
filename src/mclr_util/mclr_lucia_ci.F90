@@ -105,7 +105,7 @@ end subroutine MCLR_Lucia_Sigma
 !> Transition densities between L and R (TDens_Proc of CI_Interfaces_MCLR)
 subroutine MCLR_Lucia_TDens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use CandS, only: ICSM, ISSM
-  use MCLR_Data, only: XISPSM
+  use MCLR_Data, only: NOCSF, XISPSM
   use input_mclr, only: nCSF
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, I12, iLSym, iRSym, nL, nR, n1, n2
@@ -116,11 +116,17 @@ subroutine MCLR_Lucia_TDens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
 #include "macros.fh"
   unused_var(iState)
 
-  ! the determinant expansions (CSF2SD of the state of the run)
+  ! the determinant expansions (CSF2SD of the state of the run); without
+  ! CSFs (NOCSF /= 0) the vectors are in determinants already
   call mma_allocate(LDet,max(nCSF(iLSym),nint(XISPSM(iLSym,1))),Label='LDet')
   call mma_allocate(RDet,max(nCSF(iRSym),nint(XISPSM(iRSym,1))),Label='RDet')
-  call CSF2SD(L,LDet,iLSym)
-  call CSF2SD(R,RDet,iRSym)
+  if (NOCSF == 0) then
+    call CSF2SD(L,LDet,iLSym)
+    call CSF2SD(R,RDet,iRSym)
+  else
+    LDet(1:nL) = L(:)
+    RDet(1:nR) = R(:)
+  end if
   ! Densi2_MCLR takes L as the sigma (ISSM) and R as the C vector (ICSM)
   iCSM = iRSym
   iSSM = iLSym

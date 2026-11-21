@@ -404,28 +404,26 @@ end subroutine PrepPCM2
 subroutine PCM_grad_dens(mode)
 
   use ipPage, only: W
-  use MCLR_Data, only: ipCI, iRlxRoot, isNAC, NSSA, xispsm
+  use MCLR_Data, only: ipCI, iRlxRoot, isNAC, NSSA
+  use CI_Interfaces_MCLR, only: CI_MCLR_TDens
   use input_mclr, only: nConf, ncsf, nRoots, ntAsh
 
   integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: mode
-  integer(kind=iwp) :: i, j, jR, kR, nConf1, nConfL, nConfR, ng1, ng2
+  integer(kind=iwp) :: i, iSy, j, jR, kR, nConf1, ng1, ng2
   real(kind=wp), pointer :: G1q(:,:)
-  real(kind=wp), allocatable :: CIL(:), CIR(:), G1r(:,:), G2r(:)
+  real(kind=wp), allocatable :: G1r(:,:), G2r(:)
 
   ! Compute active density in MO
   ! mode=1: construct density used for PCM in SCF
   ! mode=2: mostly state-specific density
 
   nconf1 = ncsf(CI_St(iState)%STSym)
-  nConfL = max(nconf1,nint(xispsm(CI_St(iState)%STSym,1)))
-  nConfR = nConfL
+  iSy = CI_St(iState)%STSym
 
   ng1 = ntash*ntash
   ng2 = nTri_Elem(ng1)
 
-  call mma_allocate(CIL,nConfL,Label='CIL')
-  call mma_allocate(CIR,nConfR,Label='CIR')
   call mma_allocate(G1r,ntAsh,ntAsh,Label='G1r')
   call mma_allocate(G2r,ng2,Label='G2r') ! not used?
 
@@ -436,10 +434,9 @@ subroutine PCM_grad_dens(mode)
       G1q(:,:) = Zero
       do jR=1,nRoots
         if (W_SOLV(jR) <= 1.0e-10_wp) cycle
-        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,CI_St(iState)%STSym)
-        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIR,CI_St(iState)%STSym)
         G1r(:,:) = Zero
-        call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
+        call CI_MCLR_TDens(iState,1,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
+                           W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),ng1,G1r,ng2,G2r)
         !! For RDM1
         G1q(:,:) = G1q(:,:)+W_SOLV(jR)*G1r(:,:)
       end do
@@ -454,9 +451,8 @@ subroutine PCM_grad_dens(mode)
         jR = iRlxRoot
         kR = iRlxRoot
       end if
-      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,CI_St(iState)%STSym)
-      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,CI_St(iState)%STSym)
-      call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
+      call CI_MCLR_TDens(iState,1,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
+                         W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),ng1,G1r,ng2,G2r)
       !! For RDM1
       G1q(:,:) = G1q(:,:)+G1r(:,:)
       do i=1,ntAsh
@@ -470,8 +466,6 @@ subroutine PCM_grad_dens(mode)
       G1r(:,:) = Zero
   end select
 
-  call mma_deallocate(CIL)
-  call mma_deallocate(CIR)
   call mma_deallocate(G1r)
   call mma_deallocate(G2r)
 

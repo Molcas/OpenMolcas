@@ -13,9 +13,9 @@
 subroutine CIDens_TD(iCI,iS,rP,rD)
 
 use CI_Info, only: CI_St
-use ipPage, only: ipin, ipnout, W
-use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1, NOCSF, XISPSM
-use CandS, only: ICSM, ISSM
+use ipPage, only: ipin, W
+use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1, NOCSF
+use CI_Interfaces_MCLR, only: CI_MCLR_TDens
 use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -32,11 +32,11 @@ implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iCI, iS
 real(kind=wp), intent(_OUT_) :: rP(*), rD(*)
-integer(kind=iwp) :: nC, nConfL, nConfR
+integer(kind=iwp) :: iSy
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, ijkl, j, k, l
 #endif
-real(kind=wp), allocatable :: CIL(:), CIR(:), De(:), Pe(:)
+real(kind=wp), allocatable :: De(:), Pe(:)
 
 ! LS = CI
 !
@@ -81,75 +81,21 @@ rD(1:n1Dens) = Zero
 rP(1:n2Dens) = Zero
 
 if (nocsf == 0) then
-  nConfL = max(ncsf(iS),nint(xispsm(iS,1)))
-  nConfR = max(ncsf(CI_St(iState)%STSym),nint(xispsm(CI_St(iState)%STSym,1)))
-  nC = max(nconfL,nconfR)
-  call mma_allocate(CIL,nC,Label='CIL')
-  call mma_allocate(CIR,nC,Label='CIR')
-
-  ! iCI is as long as ipcid for the timedep case!
-
+  ! (through the CI interface) iCI is as long as ipcid for the timedep case!
+  iSy = CI_St(iState)%STSym
+  ! <0|E_pq|P> & <0|e_pqrs|P>: the bra is the reference
   call ipin(iCI)
   call ipin(ipCI)
-  call CSF2SD(W(iCI)%A,CIR,iS)
-  call CSF2SD(W(ipCI)%A,CIL,CI_St(iState)%STSym)
-
-  !write(u6,*) 'ipL*ipL',ddot_(nConfL,CIL,1,CIL,1)
-  !write(u6,*) 'ipR*ipR',ddot_(nConfR,CIR,1,CIR,1)
-  !call RecPrt('CIL',' ',CIL,nConfL,1)
-  !call RecPrt('CIR',' ',CIR,nConfR,1)
-
-  call ipnout(-1)
-  icsm = iS
-  issm = CI_St(iState)%STSym
-
-  ! <P|E_pq|0> & <P|e_pqrs|0> -> ipDe & ipP
-  ! ipL is the bra side vector
-  De(:) = Zero
-  Pe(:) = Zero
-  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)
-
-  !write(u6,*) 'De*De',ddot_(n1Dens,De,1,De,1)
-  !call RecPrt('De',' ',De,n1Dens,1)
-
+  call CI_MCLR_TDens(iState,2,iSy,iS,ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),ncsf(iS),W(iCI)%A(1:ncsf(iS)),n1Dens,De,n2Dens,Pe)
   rp(1:n2Dens) = Pe(:)
   rD(1:n1Dens) = De(:)
-
-  !write(u6,*) 'rD*rD',ddot_(n1Dens,rD,1,rD,1)
-  !call RecPrt('rD',' ',rD,n1Dens,1)
-
+  ! minus <P'|E_pq|0> & <P'|e_pqrs|0>, P' the second half of iCI
   call ipin(iCI)
   call ipin(ipCI)
-  call CSF2SD(W(iCI)%A(1+nconf1),CIL,iS)
-  call CSF2SD(W(ipci)%A,CIR,CI_St(iState)%STSym)
-
-  !write(u6,*) 'CIL*CIL',ddot_(nConfL,CIL,1,CIL,1)
-  !write(u6,*) 'CIR*CIR',ddot_(nConfR,CIR,1,CIR,1)
-  !call RecPrt('CIL',' ',CIL,nConfL,1)
-  !call RecPrt('CIR',' ',CIR,nConfR,1)
-
-  call ipnout(-1)
-  issm = iS
-  icsm = CI_St(iState)%STSym
-  De(:) = Zero
-  Pe(:) = Zero
-  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)
-
-  !write(u6,*) 'De*De',ddot_(n1Dens,De,1,De,1)
-  !Call RecPrt('De',' ',De,n1Dens,1)
-
+  call CI_MCLR_TDens(iState,2,iS,iSy,ncsf(iS),W(iCI)%A(nconf1+1:nconf1+ncsf(iS)),ncsf(iSy),W(ipCI)%A(1:ncsf(iSy)),n1Dens,De, &
+                     n2Dens,Pe)
   rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
   rD(1:n1Dens) = rD(1:n1Dens)-De(:)
-
-  !rP(1:n2Dens) = -rP(1:n2Dens)
-  !rD(1:n1Dens) = -rD(1:n1Dens)
-
-  !write(u6,*) 'rD*rD',ddot_(n1Dens,rD,1,rD,1)
-  !call RecPrt('rD',' ',rD,n1Dens,1)
-
-  call mma_deallocate(CIL)
-  call mma_deallocate(CIR)
-
 # ifdef _DEBUGPRINT_
   do i=1,ntash
     do j=1,ntash

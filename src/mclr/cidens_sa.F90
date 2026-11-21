@@ -12,9 +12,9 @@
 subroutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
 
 use Index_Functions, only: iTri, nTri_Elem
-use ipPage, only: ipin, ipnout, opout, W
-use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA, XISPSM
-use CandS, only: ICSM, ISSM
+use ipPage, only: ipin, W
+use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA
+use CI_Interfaces_MCLR, only: CI_MCLR_TDens
 use input_mclr, only: nCSF, nRoots, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use pcm_grad, only: do_RF, DZACTMO, iStpPCM
@@ -29,9 +29,10 @@ implicit none
 logical(kind=iwp), intent(in) :: RSP
 integer(kind=iwp), intent(in) :: iLS, iRS, iL, iR
 real(kind=wp), intent(_OUT_) :: rP(*), rD(*)
-integer(kind=iwp) :: i, IA, ij1, ij2, j, JA, KA, kl1, kl2, LA, nConfL, nConfR, nDim
+integer(kind=iwp), parameter :: iState = 1
+integer(kind=iwp) :: i, IA, ij1, ij2, ipVL, ipVR, iVL, iVR, j, JA, jR, KA, kl1, kl2, LA, nDim
 real(kind=wp) :: scal
-real(kind=wp), allocatable :: De(:), Pe(:), CIL(:), CIR(:)
+real(kind=wp), allocatable :: De(:), Pe(:)
 
 ! LS = CI
 !
@@ -79,23 +80,12 @@ rD(1:n1Dens) = Zero
 rP(1:n2Dens) = Zero
 if (do_RF) DZACTMO(:,:) = Zero
 
-nConfL = max(ncsf(il),nint(xispsm(il,1)))
-nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
-
-call mma_allocate(CIL,nConfL,Label='CIL')
-call mma_allocate(CIR,nConfR,Label='CIR')
 
 do i=1,nroots
   call ipin(iLS)
   call ipin(iRS)
-  call CSF2SD(W(iLS)%A(1+(i-1)*ncsf(il)),CIL,iL)
-  call opout(iLS)
-  call CSF2SD(W(iRS)%A(1+(i-1)*ncsf(ir)),CIR,iR)
-  call opout(iRS)
-  call ipnout(-1)
-  icsm = iR
-  issm = iL
-  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)
+  call CI_MCLR_TDens(iState,2,iL,iR,ncsf(iL),W(iLS)%A(1+(i-1)*ncsf(iL):i*ncsf(iL)),ncsf(iR), &
+                     W(iRS)%A(1+(i-1)*ncsf(iR):i*ncsf(iR)),n1Dens,De,n2Dens,Pe)
 
   if (RSP) then
     do iA=1,nnA
@@ -125,34 +115,35 @@ do i=1,nroots
 
   ! rotations between internal states if SCF energy is non-invariant wrt internal state rotations
   if (.not. InvSCF) then
+    ! the internal rotation between roots i and j: the vectors of iLS
+    ! (iStpPCM = 2) or iRS (iStpPCM = 3), otherwise L and R of root i
     select case (iStpPCM)
       case (2)
-        call ipin(iLS)
-        call CSF2SD(W(iLS)%A(1+(i-1)*ncsf(il)),CIL,iL)
-        call opout(iLS)
+        ipVL = iLS
+        ipVR = iLS
+        iVL = iL
+        iVR = iL
       case (3)
-        call ipin(iRS)
-        call CSF2SD(W(iRS)%A(1+(i-1)*ncsf(ir)),CIL,iR)
-        call opout(iRS)
+        ipVL = iRS
+        ipVR = iRS
+        iVL = iR
+        iVR = iR
+      case default
+        ipVL = iLS
+        ipVR = iRS
+        iVL = iL
+        iVR = iR
     end select
     do j=1,i
       scal = ISR%p(i,j)
       if (ScalWeight .and. (abs(Weight(i)-Weight(j)) > 1.0e-9_wp)) scal = scal*(Weight(i)-Weight(j))
       if (abs(scal) <= 1.0e-10_wp) cycle
-      select case (iStpPCM)
-        case (2)
-          call ipin(iLS)
-          call CSF2SD(W(iLS)%A(1+(j-1)*ncsf(il)),CIR,iL)
-          call opout(iLS)
-        case (3)
-          call ipin(iRS)
-          call CSF2SD(W(iRS)%A(1+(j-1)*ncsf(ir)),CIR,iR)
-          call opout(iRS)
-      end select
-      call ipnout(-1)
-      icsm = iR
-      issm = iL
-      call Densi2_MCLR(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+      jR = j
+      if ((iStpPCM /= 2) .and. (iStpPCM /= 3)) jR = i
+      call ipin(ipVL)
+      call ipin(ipVR)
+      call CI_MCLR_TDens(iState,2,iVL,iVR,ncsf(iVL),W(ipVL)%A(1+(i-1)*ncsf(iVL):i*ncsf(iVL)),ncsf(iVR), &
+                         W(ipVR)%A(1+(jR-1)*ncsf(iVR):jR*ncsf(iVR)),n1Dens,De,n2Dens,Pe)
       De(1:n1dens) = scal*De(1:n1dens)
       Pe(1:n2dens) = scal*Pe(1:n2dens)
       if (RSP) then
@@ -187,8 +178,6 @@ end do
 ! PCM: for implicit contributions
 if (do_RF) DZACTMO(:,:) = reshape(rD(1:n1dens),[nna,nna])
 
-call mma_deallocate(CIL)
-call mma_deallocate(CIR)
 call mma_deallocate(Pe)
 call mma_deallocate(De)
 

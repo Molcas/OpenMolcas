@@ -13,7 +13,9 @@ subroutine rhs_sa(Fock,SLag,ipS2)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use MCLR_Data, only: Int1, ipCI, ipCM, ipMat, ISTATE, LuJob, n1Dens, n2Dens, nA, nConf1, nDens, nNA, XISPSM
+use CI_Info, only: CI_St
+use MCLR_Data, only: Int1, ipCI, ipCM, ipMat, ISTATE, LuJob, n1Dens, n2Dens, nA, nConf1, nDens, nNA
+use CI_Interfaces_MCLR, only: CI_MCLR_TDens
 use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: Debug, iRoot, iTOC, nBas, nConf, nCSF, nOrb, nRoots, ntAsh, PT2
 use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
@@ -27,10 +29,12 @@ implicit none
 real(kind=wp), intent(out) :: Fock(nDens)
 real(kind=wp), intent(in) :: SLag(nRoots,nRoots)
 integer(kind=iwp), intent(in) :: ipS2
+! the CI state of the run (SG_Setup_MCLR); ISTATE of MCLR_Data is the root
+integer(kind=iwp), parameter :: iState_CI = 1
 integer(kind=iwp) :: i, iB, iDij, iDkl, ii, iiB, iIJ, iIJKL, ij, ij2, ijB, ijkl, iR, iRij, iRijkl, iRkl, iS, j, jB, jDisk, jj, jR, &
-                     k, kB, kl, kl2, kR, l, lB, nConfL, nConfR, nG1, nG2
+                     iSy, k, kB, kl, kl2, kR, l, lB, nG1, nG2
 real(kind=wp) :: Fact, Factor, rCoreA, rCoreI, rdum(1), rEnergy, vSLag
-real(kind=wp), allocatable :: CIL(:), CIR(:), F(:), G1q(:), G1r(:), G2q(:), G2r(:), T(:)
+real(kind=wp), allocatable :: F(:), G1q(:), G1r(:), G2q(:), G2r(:), T(:)
 
 !                                                                      *
 !***********************************************************************
@@ -75,25 +79,15 @@ if (PT2 .or. (InvSCF .and. (.not. InvEne))) then
     end do
   end do
 
-  nConfL = max(nconf1,nint(xispsm(1,1)))
-  nConfR = max(nconf1,nint(xispsm(1,1)))
-  call mma_allocate(CIL,nConfL,Label='CIL')
-  call mma_allocate(CIR,nConfR,Label='CIR')
+  iSy = CI_St(iState_CI)%STSym
   !iR = iRLXRoot
   do jR=1,nRoots
-    call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
     do kR=1,jR ! jR-1
       vSLag = SLag(jR,kR)
       if (abs(vSLag) <= 1.0e-10_wp) cycle
 
-      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
-      !call opout(ipCI)
-      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,1)
-      !call opout(ipCI)
-      !call ipnout(-1)
-      !icsm = 1
-      !issm = 1
-      call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1Dens,n2Dens)
+      call CI_MCLR_TDens(iState_CI,2,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
+                         W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),n1Dens,G1r,n2Dens,G2r)
       ! For RDM1
       ij = 0
       do i=0,ntAsh-1
@@ -160,8 +154,6 @@ if (PT2 .or. (InvSCF .and. (.not. InvEne))) then
       end do
     end do
   end do
-  call mma_deallocate(CIL)
-  call mma_deallocate(CIR)
   nConf = ncsf(1)
 end if
 
