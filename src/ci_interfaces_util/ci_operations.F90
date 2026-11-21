@@ -323,10 +323,7 @@ subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,
     return
   end if
   if (CI_Lib_Op == CI_Lib_Faroald) then
-    ! no explicit P space yet: the preconditioner is the diagonal alone
-    nP = 0
-    IdxP(:) = 0
-    HP(:) = 0.0_wp
+    call Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
     return
   end if
   call Check_Lib('CI_PSpace',associated(MCLR_Lucia_PSpace))
@@ -875,6 +872,90 @@ subroutine Faro_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   call mma_deallocate(Ph)
   call mma_deallocate(DC)
 end subroutine Faro_Diag
+
+!> Faroald: the explicit P space: whole configurations by increasing
+!> configuration average until nPMax CSFs (as SGUGA and the MCLR copy of
+!> Lucia), the block of the active Hamiltonian (no core energy) from the
+!> sigma vectors of the unit vectors of the P space
+subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
+  use citrans, only: citrans_conf_occ, citrans_sort
+  use Index_Functions, only: iTri, nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One
+  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP
+  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
+  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+  real(kind=wp), intent(out) :: HP(nHP)
+  integer(kind=iwp) :: i, ic, icMin, j, k, ncf
+  integer(kind=iwp), allocatable :: C2F(:), dco(:), kf(:), ncs(:), sco(:)
+  logical(kind=iwp), allocatable :: Used(:)
+  real(kind=wp) :: EMin
+  real(kind=wp), allocatable :: Diag(:), E(:), X(:), Y(:)
+  call Faro_Check_Sym('CI_PSpace',iSym,iSym)
+  nP = 0
+  IdxP(:) = 0
+  HP(:) = Zero
+  ! the configuration averages (file order) and the CSFs of each
+  ! configuration (citrans order -> file order)
+  call mma_allocate(Diag,n,Label='Diag')
+  call Faro_Diag(iState,CI_Diag_Cnf_Avg,iSym,nInt1,Int1,nInt2,Int2,Zero,n,Diag)
+  call mma_allocate(X,n,Label='X')
+  call mma_allocate(Y,n,Label='Y')
+  do k=1,n
+    X(k) = real(k,kind=wp)
+  end do
+  call citrans_sort('O',X,Y)
+  call mma_allocate(C2F,n,Label='C2F')
+  do i=1,n
+    C2F(nint(abs(Y(i)))) = i
+  end do
+  call citrans_conf_occ(ncf,kf,ncs,dco,sco)
+  call mma_allocate(E,ncf,Label='E')
+  call mma_allocate(Used,ncf,Label='Used')
+  do ic=1,ncf
+    E(ic) = Diag(C2F(kf(ic)))
+  end do
+  Used(:) = .false.
+  ! the configurations by increasing average, while they fit
+  do
+    icMin = 0
+    EMin = huge(EMin)
+    do ic=1,ncf
+      if (Used(ic)) cycle
+      if (E(ic) < EMin) then
+        EMin = E(ic)
+        icMin = ic
+      end if
+    end do
+    if (icMin == 0) exit
+    if (nP+ncs(icMin) > nPMax) exit
+    Used(icMin) = .true.
+    do k=kf(icMin),kf(icMin)+ncs(icMin)-1
+      nP = nP+1
+      IdxP(nP) = C2F(k)
+    end do
+  end do
+  if (nHP < nTri_Elem(nP)) call Abend()
+  ! the block: H(i,j) = (H e_j)(IdxP(i))
+  do j=1,nP
+    X(:) = Zero
+    X(IdxP(j)) = One
+    call Faro_Sigma_Op(iState,iSym,iSym,nInt1,Int1,nInt2,Int2,.true.,n,X,n,Y)
+    do i=j,nP
+      HP(iTri(i,j)) = Y(IdxP(i))
+    end do
+  end do
+  call mma_deallocate(Used)
+  call mma_deallocate(E)
+  call mma_deallocate(kf)
+  call mma_deallocate(ncs)
+  call mma_deallocate(dco)
+  call mma_deallocate(sco)
+  call mma_deallocate(C2F)
+  call mma_deallocate(Y)
+  call mma_deallocate(X)
+  call mma_deallocate(Diag)
+end subroutine Faro_PSpace
 
 !> Only the MCLR copy of Lucia is connected so far
 subroutine Check_Lib(Caller,Registered)
