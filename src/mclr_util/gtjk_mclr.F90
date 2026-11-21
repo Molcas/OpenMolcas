@@ -14,25 +14,29 @@ subroutine GTJK_MCLR(RJ,RK)
 !          WITH THE CHARGE DISTRIBUTION JK
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: Int2, NACOB
+use MCLR_Data, only: Int2, IREOTS, NACOB
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(out) :: RJ(NACOB,NACOB), RK(NACOB,NACOB)
-integer(kind=iwp) :: NT, NTUJ, NTUK, NU
+integer(kind=iwp) :: iT, iU, NT, NTUJ, NTUK, NU
 
 ! FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
 ! THE TWO-ELECTRON INTEGRAL LIST
 
-do NT=1,NACOB
-  do NU=1,NT
+! RJ, RK in Lucia's (type) order of the orbitals, in which CIDIA4
+! addresses them; INT2 is addressed with symmetry-ordered indices
+do iT=1,NACOB
+  NT = IREOTS(iT)
+  do iU=1,iT
+    NU = IREOTS(iU)
     NTUK = iTri(nTri_Elem(nt),nTri_Elem(nu))
-    RJ(NT,NU) = INT2(NTUK)
-    RJ(NU,NT) = INT2(NTUK)
+    RJ(iT,iU) = INT2(NTUK)
+    RJ(iU,iT) = INT2(NTUK)
 
     NTUJ = nTri_Elem(iTri(nt,nu))
-    RK(NT,NU) = INT2(NTUJ)
-    RK(NU,NT) = INT2(NTUJ)
+    RK(iT,iU) = INT2(NTUJ)
+    RK(iU,iT) = INT2(NTUJ)
   end do
 end do
 

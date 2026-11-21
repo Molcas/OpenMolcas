@@ -9,11 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! The diagonal one-electron integrals of the active orbitals, in Lucia's
+! (type) order of the orbitals, in which CIDIA4 addresses them (IREOTS:
+! type -> symmetry order)
 subroutine GT1DIA_MCLR(H1DIA)
 
-use MCLR_Data, only: FIMO, ipCM
+use MCLR_Data, only: FIMO, ipCM, IREOTS, NACOB
 use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -21,15 +25,21 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(_OUT_) :: H1DIA(*)
 integer(kind=iwp) :: i, iAsh, ii, iS
+real(kind=wp), allocatable :: HSym(:)
 
+call mma_allocate(HSym,NACOB,Label='HSym')
 i = 1
 do iS=1,nSym
   ii = ipCM(iS)+nOrb(iS)*(nIsh(iS)-1)+nIsh(iS)-1
   do iAsh=1,nAsh(iS)
     ii = ii+nOrb(iS)+1
-    H1DIA(i) = FIMO(ii)
+    HSym(i) = FIMO(ii)
     i = i+1
   end do
 end do
+do i=1,NACOB
+  H1DIA(i) = HSym(IREOTS(i))
+end do
+call mma_deallocate(HSym)
 
 end subroutine GT1DIA_MCLR
