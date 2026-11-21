@@ -49,6 +49,9 @@ integer(kind=iwp) :: i1, I12, IACTI(MXPICI), iAllo = 0, iAnders, IASTFI(MXPICI),
                      NOBPTS(MXPR4T+6,MXPOBS), NOCOB, NOCSF, NOPART, NORB1, NORB2, NORB3, NTOOB, NTSOB(3,MXPOBS), NTYP
 real(kind=wp) :: PSSIGN, XISPSM(MXPCSM,MXPICI) = Zero
 logical(kind=iwp) :: square
+! TD_Ints: the two-body integrals of the run are in the square-pair layout
+! (time-dependent response), set when the library is initialised
+logical(kind=iwp) :: TD_Ints = .false.
 character(len=8) :: FNCSF2SD = 'REORD'
 integer(kind=iwp), allocatable :: pINT1(:)
 real(kind=wp), pointer :: KAIN1(:), KINT2(:), KINT2A(:)
@@ -57,6 +60,6 @@ public :: FNCSF2SD, i1, I12, IACTI, iAllo, iAnders, IASTFI, IBSO, IBSTFI, IBTSOB
           IST, ITSOB, KAIN1, KINT2, KINT2A, lconf, lldet, LUCSF2SD, MAXI, MAXK, MAXOP, MINOP, MNR1IC, MNR3IC, MS2, MS2P, MULTSP, &
           MXINKA, MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, NACOB, NAELCI, NBELCI, NCNASM, NCNFTP, NCPCNT, NCSASM, NCSFTP, &
           NDPCNT, NDTASM, NELCI, NICISP, NOBPT, NOBPTS, NOCOB, NOCSF, NOPART, NORB1, NORB2, NORB3, NTOOB, NTSOB, NTYP, pINT1, &
-          PSSIGN, square, XISPSM
+          PSSIGN, square, TD_Ints, XISPSM
 
 end module MCLR_Lucia_Data

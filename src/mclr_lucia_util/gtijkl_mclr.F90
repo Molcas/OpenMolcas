@@ -14,8 +14,7 @@ function GTIJKL_MCLR(I,J,K,L)
 ! where I,J,K and l refers to active orbitals in type ordering
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: Int2
-use MCLR_Lucia_Data, only: IREOTS
+use MCLR_Lucia_Data, only: IREOTS, KINT2
 use Definitions, only: wp, iwp
 
 implicit none
@@ -34,6 +33,6 @@ L_ABS = IREOTS(L)
 IJ = iTri(I_ABS,J_ABS)
 KL = iTri(K_ABS,L_ABS)
 
-GTIJKL_MCLR = INT2(iTri(IJ,KL))
+GTIJKL_MCLR = KINT2(iTri(IJ,KL))
 
 end function GTIJKL_MCLR

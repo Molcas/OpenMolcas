@@ -23,7 +23,8 @@ use Str_Info, only: CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP, STR
 use MCLR_Lucia_Data, only: i12, IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, ist, ITSOB, MAXI, MAXK, MNR1IC, MXINKA, MXR3IC, &
                            MXSB, MXSOOB, NOCSF, NOPART, NTSOB, PSSIGN, XISPSM
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
-use input_mclr, only: nIrrep, TimeDep
+use Orbital_Spaces, only: nSym
+use MCLR_Lucia_Data, only: TimeDep => TD_Ints
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -70,26 +71,26 @@ NAEL = NELEC(IATP)
 NBEL = NELEC(IBTP)
 
 ! Largest block of strings in zero order space
-MAXA0 = IMNMX(Str(IATP)%NSTSO,nIrrep*NOCTYP(IATP),2)
-MAXB0 = IMNMX(Str(IBTP)%NSTSO,nIrrep*NOCTYP(IBTP),2)
+MAXA0 = IMNMX(Str(IATP)%NSTSO,nSym*NOCTYP(IATP),2)
+MAXB0 = IMNMX(Str(IBTP)%NSTSO,nSym*NOCTYP(IBTP),2)
 MXSTBL0 = max(MAXA0,MAXB0)
 ! Largest number of strings of given symmetry and type
 MAXA = 0
 if (NAEL >= 1) then
-  MAXA1 = IMNMX(Str(IATP+1)%NSTSO,nIrrep*NOCTYP(IATP+1),2)
+  MAXA1 = IMNMX(Str(IATP+1)%NSTSO,nSym*NOCTYP(IATP+1),2)
   MAXA = max(MAXA,MAXA1)
 end if
 if (NAEL >= 2) then
-  MAXA1 = IMNMX(Str(IATP+2)%NSTSO,nIrrep*NOCTYP(IATP+2),2)
+  MAXA1 = IMNMX(Str(IATP+2)%NSTSO,nSym*NOCTYP(IATP+2),2)
   MAXA = max(MAXA,MAXA1)
 end if
 MAXB = 0
 if (NBEL >= 1) then
-  MAXB1 = IMNMX(Str(IBTP+1)%NSTSO,nIrrep*NOCTYP(IBTP+1),2)
+  MAXB1 = IMNMX(Str(IBTP+1)%NSTSO,nSym*NOCTYP(IBTP+1),2)
   MAXB = max(MAXB,MAXB1)
 end if
 if (NBEL >= 2) then
-  MAXB1 = IMNMX(Str(IBTP+2)%NSTSO,nIrrep*NOCTYP(IBTP+2),2)
+  MAXB1 = IMNMX(Str(IBTP+2)%NSTSO,nSym*NOCTYP(IBTP+2),2)
   MAXB = max(MAXB,MAXB1)
 end if
 MXSTBL = max(MAXA,MAXB)
@@ -99,7 +100,7 @@ write(u6,*) ' Largest block of strings with given symmetry and type',MXSTBL
 MAXI = min(MXINKA,MXSTBL)
 MAXK = min(MXINKA,MXSTBL)
 ! Largest active orbital block belonging to given type and symmetry
-MXTSOB = IMNMX(NTSOB,3*nIrrep,2)
+MXTSOB = IMNMX(NTSOB,3*nSym,2)
 ! Local scratch arrays for blocks of C and sigma
 LSCR1 = 0
 if (ICISTR <= 2) then
@@ -132,11 +133,11 @@ call IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IAT
 call IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,CIOIO)
 
 ! Arrays giving block type
-call mma_allocate(SBLTP,nIrrep,Label='SBLTP')
-call mma_allocate(CBLTP,nIrrep,Label='CBLTP')
+call mma_allocate(SBLTP,nSym,Label='SBLTP')
+call mma_allocate(CBLTP,nSym,Label='CBLTP')
 ! Arrays for additional symmetry operation
 
-call mma_allocate(SVST,nIrrep,Label='SVST')
+call mma_allocate(SVST,nSym,Label='SVST')
 
 ! scratch space for projected matrices and a CI block
 
@@ -156,7 +157,7 @@ IATP1 = min(IATP+1,ITYP_DUMMY)
 IBTP1 = min(IbTP+1,ITYP_DUMMY)
 IATP2 = min(IATP+2,ITYP_DUMMY)
 IBTP2 = min(IbTP+2,ITYP_DUMMY)
-call MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nIrrep,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,Str(IATP1)%NSTSO,NOCTYP(IATP1),Str(IBTP1)%NSTSO, &
+call MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nSym,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,Str(IATP1)%NSTSO,NOCTYP(IATP1),Str(IBTP1)%NSTSO, &
             NOCTYP(IBTP1),NTSOB,MAXpK,Str(IATP2)%NSTSO,NOCTYP(IATP2),Str(IBTP2)%NSTSO,NOCTYP(IBTP2),Str(IATP)%EL123, &
             Str(IBTP)%EL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
 
@@ -217,12 +218,12 @@ end if
 
 ! Symmetry handling symmetry allowed/forbidden
 
-! Out KSBLTP [nIrrep]
+! Out KSBLTP [nSym]
 
-call ZBLTP(ISSM,nIrrep,IDC,SBLTP,SVST)
-call ZBLTP(ICSM,nIrrep,IDC,CBLTP,SVST)
+call ZBLTP(ISSM,nSym,IDC,SBLTP,SVST)
+call ZBLTP(ICSM,nSym,IDC,CBLTP,SVST)
 ! 10 OOS arrays
-nOOS = NOCTPA*NOCTPB*nIrrep
+nOOS = NOCTPA*NOCTPB*nSym
 call mma_allocate(OOS,nOOS,10,Label='OOS')
 
 iiCOPY = 1
@@ -234,7 +235,7 @@ end if
 
 ! Transform from combination scaling to determinant scaling
 if ((IDC /= 1) .and. (ICISTR == 1)) &
-  call SCDTC2_MCLR(C,ICSM,CBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,2,IDUMMY)
+  call SCDTC2_MCLR(C,ICSM,CBLTP,nSym,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,2,IDUMMY)
 
 if (I12 == 2) then
   IDOH2 = 1
@@ -252,7 +253,7 @@ end if
 
 if (ICISTR == 1) then
   call RASSG4(C,HC,CB,SB,pC2,CIOIO,SIOIO,ICSM,ISSM,CBLTP,SBLTP,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB, &
-              nIrrep,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LSCR1,LSCR1,INSCR,pCJRES,pSIRES,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1, &
+              nSym,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LSCR1,LSCR1,INSCR,pCJRES,pSIRES,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1, &
               Str(IBTP)%EL3,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7),OOS(:,8),OOS(:,9),OOS(:,10),I1, &
               XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,SVST,PSSIGN,LLUC,LLUHC,IST,pCJRES,pSIRES,NOPARt,TimeDep)
 
@@ -266,7 +267,7 @@ end if
 
 ! Transform from combination scaling to determinant scaling
 if ((IDC /= 1) .and. (ICISTR == 1)) &
-  call SCDTC2_MCLR(HC,ISSM,SBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY)
+  call SCDTC2_MCLR(HC,ISSM,SBLTP,nSym,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY)
 
 ! Transform HC vector from SD to CSF basis
 if (NOCSF == 0) call CSDTVC_MCLR_2(C,HC,DTOC,CNSM(kic(2))%ICTS,ISSM,1)

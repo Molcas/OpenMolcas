@@ -35,7 +35,7 @@ use CI_Info, only: CI_St
 use CI_Operations, only: CI_Lib_Graph_Mode
 use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
 use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iTOC, iTocIph, lRoots, McKinley, nBas, nCOnf, nCSF, &
-                      nDel, nFro, nOrb, nRoots, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, &
+                      nDel, nFro, nIrrep, nOrb, nRoots, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, &
                       TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
@@ -131,6 +131,7 @@ ntBsqr = sum(nBas(1:nSym)**2)
 nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
 ! the orbital spaces and CSF counts for the CI interface
 nOrb_CI(1:nSym) = nOrb(1:nSym)
+nIrrep = nSym
 nCSF(1:nSym) = CI_St(iState_CI)%nCSF(1:nSym)
 nConf = CI_St(iState_CI)%nCSF(STSym)
 Length = sum(nBas(1:nSym)*nOrb(1:nSym))

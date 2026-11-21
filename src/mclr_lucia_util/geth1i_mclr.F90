@@ -12,10 +12,8 @@
 function GETH1I_MCLR(I,J)
 ! Obtain one-electron integral H(IORB,JOB)
 
-use MCLR_Data, only: FIMO, ipCM
-use MCLR_Lucia_Data, only: IBSO, IREOTS, ISMFTO
-use Orbital_Spaces, only: nIsh
-use input_mclr, only: nOrb
+use MCLR_Lucia_Data, only: IBSO, IREOTS, ISMFTO, KAIN1, pInt1
+use Orbital_Spaces, only: nIsh, nOrb
 use Definitions, only: wp, iwp
 
 implicit none
@@ -28,8 +26,8 @@ JSM = ISMFTO(J)
 I1 = IREOTS(I)-IBSO(ISM)+nISH(ISM)+1
 J1 = IREOTS(J)-IBSO(JSM)+nISH(JSM)+1
 
-IJ = ipCM(iSM)-1+(J1-1)*NORB(ISM)+I1
+IJ = pInt1(iSM)-1+(J1-1)*NORB(ISM)+I1
 
-GETH1I_MCLR = FIMO(IJ)
+GETH1I_MCLR = KAIN1(IJ)
 
 end function GETH1I_MCLR

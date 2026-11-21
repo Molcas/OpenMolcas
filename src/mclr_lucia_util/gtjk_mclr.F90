@@ -14,8 +14,7 @@ subroutine GTJK_MCLR(RJ,RK)
 !          WITH THE CHARGE DISTRIBUTION JK
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: Int2
-use MCLR_Lucia_Data, only: IREOTS, NACOB
+use MCLR_Lucia_Data, only: IREOTS, KINT2, NACOB
 use Definitions, only: wp, iwp
 
 implicit none
@@ -32,12 +31,12 @@ do iT=1,NACOB
   do iU=1,iT
     NU = IREOTS(iU)
     NTUK = iTri(nTri_Elem(nt),nTri_Elem(nu))
-    RJ(iT,iU) = INT2(NTUK)
-    RJ(iU,iT) = INT2(NTUK)
+    RJ(iT,iU) = KINT2(NTUK)
+    RJ(iU,iT) = KINT2(NTUK)
 
     NTUJ = nTri_Elem(iTri(nt,nu))
-    RK(iT,iU) = INT2(NTUJ)
-    RK(iU,iT) = INT2(NTUJ)
+    RK(iT,iU) = KINT2(NTUJ)
+    RK(iU,iT) = KINT2(NTUJ)
   end do
 end do
 

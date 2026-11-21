@@ -18,7 +18,6 @@ use MCLR_Lucia_Data, only: i1, iAnders, IASTFI, IBSTFI, iDC, iRefSM, lConf, llDE
                            NELCI, NORB1, NORB2, NORB3, PSSIGN
 use MCLR_Lucia_Data, only: MINOP, NCNFTP
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
-use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
@@ -47,8 +46,8 @@ iRefSm = lsym
 ! Obtain OOS pointer array
 call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
 call IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,SIOIO)
-call mma_allocate(SBLTP,nIrrep,Label='SBLTP')
-NOOS = NOCTPA*NOCTPB*nIrrep
+call mma_allocate(SBLTP,nSym,Label='SBLTP')
+NOOS = NOCTPA*NOCTPB*nSym
 call mma_allocate(IOOS1,NOOS,Label='IOOS1')
 call mma_allocate(NOOS1,NOOS,Label='NOOS1')
 call INTCSF(NACOB,NEL,iSpin,MS2,NORB1,NORB2,NORB3,MNELR1,MXELR3,LLCSF,1,PSSIGN,lconf,lldet)
@@ -62,8 +61,8 @@ call CSDTMT(DFTP,CFTP,DTOC,PSSIGN)
 iA = 0
 do iSym=1,nSym
   !OOS arrayy
-  call ZBLTP(ISYM,nIrrep,IDC,SBLTP,idum)
-  call ZOOS(ISYM,SBLTP,nIrrep,SIOIO,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NOCTPA,NOCTPB,idc,IOOS1,NOOS1,NCOMB,0)
+  call ZBLTP(ISYM,nSym,IDC,SBLTP,idum)
+  call ZOOS(ISYM,SBLTP,nSym,SIOIO,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NOCTPA,NOCTPB,idc,IOOS1,NOOS1,NCOMB,0)
   !EAW call CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,iSym,NACOB,DFTP,NCNFTP(1,ISYM),NEL,0,IDUM,IDUM,IASTFI(ISPC),IBSTFI(ISPC),IOOS1, &
   !                NORB1,NORB2,NORB3,MNELR1,MXELR3,NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),MINOP,MAXOP)
   call CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,iSym,NACOB,DFTP,NCNFTP(1,ISYM),NEL,0,IDUM,IDUM,IASTFI(ISPC),IBSTFI(ISPC),IOOS1,NORB1, &

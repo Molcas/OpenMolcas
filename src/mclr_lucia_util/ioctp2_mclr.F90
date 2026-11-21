@@ -22,25 +22,11 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: IOCTP2_MCLR
 integer(kind=iwp), intent(in) :: NEL, STRING(NEL), ITYP
-integer(kind=iwp) :: iEl, iEL1, iEL3, iPL, iTyp2
-integer(kind=iwp), external :: iPrintLevel
-logical(kind=iwp), external :: Reduce_Prt
+integer(kind=iwp) :: iEl, iEL1, iEL3, iTyp2
 
 if (ITYP <= 0) then
   write(u6,*) 'IOCTP2: ITYP <= 0'
   write(u6,*) 'ITYP=',ITYP
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! The argument iPL was missing so I inserted this piece inside the
-  ! stars to calculate it the same way as in the start of mclr.f
-  ! //Jonas B
-  iPL = iPrintLevel(-1)
-  if (Reduce_Prt() .and. (iPL < 3)) iPL = iPL-1
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  call PrInp_MCLR(iPL)
   call Abend()
 end if
 ! Number of electrons in RAS1 and RAS 3

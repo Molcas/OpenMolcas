@@ -22,7 +22,7 @@ subroutine STRINF()
 
 use Str_Info, only: ISTAC, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP, STR
 use MCLR_Lucia_Data, only: NACOB, NORB1, NORB2, NORB3
-use input_mclr, only: nIrrep
+use Orbital_Spaces, only: nSym
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -63,11 +63,11 @@ end do
 do ITYP=1,NSTTYP
   if (IUNIQTP(ITYP) == ITYP) then
     call NSTRSO_MCLR(NELEC(ITYP),NORB1,NORB2,NORB3,MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),KFREEL,Str(ITYP)%NSTSO, &
-                     NOCTYP(ITYP),nIrrep,ITYP)
+                     NOCTYP(ITYP),nSym,ITYP)
     ! Corresponding offset array
-    call ZBASE(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,nIrrep*NOCTYP(ITYP))
+    call ZBASE(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,nSym*NOCTYP(ITYP))
     ! Symmetry and class index for each string
-    call ZSMCL(nIrrep,NOCTYP(ITYP),Str(ITYP)%NSTSO,Str(ITYP)%STSM,Str(ITYP)%STCL)
+    call ZSMCL(nSym,NOCTYP(ITYP),Str(ITYP)%NSTSO,Str(ITYP)%STSM,Str(ITYP)%STCL)
   end if
 end do
 
@@ -75,8 +75,8 @@ end do
 
 do ITYP=1,NSTTYP
   if (IUNIQTP(ITYP) == ITYP) &
-    call GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,NOCTYP(ITYP),nIrrep,Str(ITYP)%Z, &
-                     KFREEL,Str(ITYP)%STREO,Str(ITYP)%OCSTR,KFREEL(1+NOCTYP(ITYP)*nIrrep),ITYP)
+    call GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,NOCTYP(ITYP),nSym,Str(ITYP)%Z, &
+                     KFREEL,Str(ITYP)%STREO,Str(ITYP)%OCSTR,KFREEL(1+NOCTYP(ITYP)*nSym),ITYP)
 end do
 
 ! 8 Internal annihilation arrays between types of strings

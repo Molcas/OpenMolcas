@@ -14,10 +14,8 @@
 ! type -> symmetry order)
 subroutine GT1DIA_MCLR(H1DIA)
 
-use MCLR_Data, only: FIMO, ipCM
-use MCLR_Lucia_Data, only: IREOTS, NACOB
-use Orbital_Spaces, only: nAsh, nIsh, nSym
-use input_mclr, only: nOrb
+use MCLR_Lucia_Data, only: IREOTS, KAIN1, NACOB, pInt1
+use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -31,10 +29,10 @@ real(kind=wp), allocatable :: HSym(:)
 call mma_allocate(HSym,NACOB,Label='HSym')
 i = 1
 do iS=1,nSym
-  ii = ipCM(iS)+nOrb(iS)*(nIsh(iS)-1)+nIsh(iS)-1
+  ii = pInt1(iS)+nOrb(iS)*(nIsh(iS)-1)+nIsh(iS)-1
   do iAsh=1,nAsh(iS)
     ii = ii+nOrb(iS)+1
-    HSym(i) = FIMO(ii)
+    HSym(i) = KAIN1(ii)
     i = i+1
   end do
 end do

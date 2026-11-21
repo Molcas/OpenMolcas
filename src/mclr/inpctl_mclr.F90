@@ -32,7 +32,6 @@ use Definitions, only: wp, iwp, u6
 
 use CI_Operations, only: CI_Lib_Dets_To_Basis, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Initialize, CI_Lib_MCLR_Lucia, &
                          CI_Lib_Select, CI_Lib_SGUGA
-use MCLR_Lucia_CI, only: MCLR_Lucia_CI_Setup
 implicit none
 integer(kind=iwp), intent(in) :: iPL
 ! the CI state of the run (SG_Setup_MCLR); ISTATE of MCLR_Data is the root
@@ -65,7 +64,6 @@ call RdInp_MCLR(iPL)  ! Read in input
 call ipopen(.true.)
 ! the CI library of MCLR, through the CI interface (keyword CILIbrary):
 ! its copy of Lucia (default), SGUGA or Faroald
-call MCLR_Lucia_CI_Setup()
 if (CILib == 'SGUGA') then
   call CI_Lib_Select(CI_Lib_SGUGA)
 else if (CILib == 'FAROALD') then
@@ -94,7 +92,7 @@ if (iMethod == 2) then
 
   !write(u6,*) 'Setup of Determinant tables'
   ! set up the CI library (determinant tables) for the CI state
-  call CI_Lib_Initialize(iState_CI)
+  call CI_Lib_Initialize(iState_CI,TimeDep)
   !                                                                    *
   !*********************************************************************
   !                                                                    *

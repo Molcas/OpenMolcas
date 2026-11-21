@@ -35,9 +35,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: MS2, NACTEL, MNRS10, MXRS30
-integer(kind=iwp) :: IPL, ITYP, ITYPE, MNRS30, MXRS10, NAEL, NBEL, NSTTYP_Max
-integer(kind=iwp), external :: iPrintLevel
-logical(kind=iwp), external :: Reduce_Prt
+integer(kind=iwp) :: ITYP, ITYPE, MNRS30, MXRS10, NAEL, NBEL, NSTTYP_Max
 
 ISTAC(:,:) = 0
 ! Number of alpha and beta electrons
@@ -46,14 +44,6 @@ NBEL = (NACTEL-MS2)/2
 if (NAEL+NBEL /= NACTEL) then
   write(u6,*) 'STRTYP: NAEL + NBEL /= NACTEL'
   write(u6,*) 'NAEL,NBEL,NACTEL=',NAEL,NBEL,NACTEL
-  !*********************************************************************
-  ! The argument iPL was missing so I inserted this piece inside the
-  ! stars to calculate it the same way as in the start of mclr.f
-  ! //Jonas B
-  iPL = iPrintLevel(-1)
-  if (Reduce_Prt() .and. (iPL < 3)) iPL = iPL-1
-  !*********************************************************************
-  call PrInp_MCLR(iPL)
   call Abend()
 end if
 ! Default on alternatice RAS limits

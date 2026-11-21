@@ -62,95 +62,36 @@
 !> library, with their natural length (nCSF of their symmetry); each
 !> library keeps its own internal basis, ordering and work space.
 !>
-!> Libraries: the MCLR copy of Lucia (all operations); SGUGA (CAS/RAS,
-!> singlet operators between vectors of the same symmetry, no Square; the split graph has to be set up with the coupling tables,
-!> CI_Lib_Graph_Mode() = 'FULL'). The orbital spaces are taken from
-!> Orbital_Spaces (nSym, nOrb, nIsh, nAsh), the active orbitals in symmetry
-!> order. SGUGA takes the integrals in that order and maps them to the
-!> levels of its graph itself; its densities come in level order and are
-!> mapped back here (SG_Level_Map).
-!>
-!> The MCLR copy of Lucia still keeps its data in MCLR (MCLR_Data), which
-!> the gateway must not use; MCLR registers its routines with
-!> CI_Lib_Register (procedure pointers) until that library is
-!> self-contained. The other libraries are connected behind the same
-!> interfaces.
+!> Libraries, all with every operation except the triplet operator
+!> (iOpSpin = 1, the MCLR copy of Lucia only):
+!> - the MCLR copy of Lucia (mclr_lucia_util, MCLR_Lucia_CI; its own data
+!>   in MCLR_Lucia_Data and Str_Info);
+!> - SGUGA (CAS/RAS; the split graph has to be set up with the coupling
+!>   tables, CI_Lib_Graph_Mode() = 'FULL'). It takes the integrals in
+!>   symmetry order and maps them to the levels of its graph itself; its
+!>   densities come in level order and are mapped back here
+!>   (SG_Level_Map);
+!> - Faroald (CAS/RAS; the string-driven RAS CI in the symmetry of the CI
+!>   state, the full determinant space for other symmetries and
+!>   non-Hermitian operators).
+!> The orbital spaces are taken from Orbital_Spaces (nSym, nOrb, nIsh,
+!> nAsh) and CI_Input, the active orbitals in symmetry order; the
+!> integrals come with each operation.
 module CI_Operations
 
 use CI_Info, only: CI_St
+use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_SGUGA, &
+                      CI_To_Basis, CI_To_File
+use MCLR_Lucia_CI, only: MCLR_Lucia_Close, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, MCLR_Lucia_Init, MCLR_Lucia_PSpace, &
+                         MCLR_Lucia_Sigma, MCLR_Lucia_TDens
 use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
-!> The CI libraries (Lucia, SGUGA and Faroald with the values of RASSCF's
-!> CI_Basis(); always compare against these names)
-integer(kind=iwp), parameter :: CI_Lib_None = 0, CI_Lib_Lucia = 1, CI_Lib_SGUGA = 2, CI_Lib_Faroald = 3, CI_Lib_MCLR_Lucia = 4
-
-!> Kinds of diagonal (CI_Diag)
-integer(kind=iwp), parameter :: CI_Diag_Cnf_Avg = 1, CI_Diag_Exact = 2
-
-!> Directions of the basis conversion (Conv_Proc)
-integer(kind=iwp), parameter :: CI_To_File = 0, CI_To_Basis = 1
-
 !> The selected library (changed only by CI_Lib_Select)
 integer(kind=iwp), protected :: CI_Lib_Op = CI_Lib_None
 
-abstract interface
-  subroutine Sigma_Proc(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nInt1, nInt2, nC, nS
-    real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
-    logical(kind=iwp), intent(in) :: Have_2_el, Square
-    real(kind=wp), intent(in) :: C(nC)
-    real(kind=wp), intent(out) :: S(nS)
-  end subroutine Sigma_Proc
-  subroutine TDens_Proc(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
-    real(kind=wp), intent(in) :: L(nL), R(nR)
-    real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
-  end subroutine TDens_Proc
-  subroutine Diag_Proc(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
-    real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
-    real(kind=wp), intent(in) :: ECore
-    real(kind=wp), intent(out) :: Diag(n)
-  end subroutine Diag_Proc
-  subroutine PSpace_Proc(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP
-    real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
-    real(kind=wp), intent(in) :: Diag(n)
-    integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
-    real(kind=wp), intent(out) :: HP(nHP)
-  end subroutine PSpace_Proc
-  subroutine Dets_Proc(iState,iSym,nD,DetVec,IdxD,n,CI)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
-    real(kind=wp), intent(in) :: DetVec(nD)
-    real(kind=wp), intent(out) :: CI(n)
-  end subroutine Dets_Proc
-  subroutine State_Proc(iState)
-    import :: iwp
-    integer(kind=iwp), intent(in) :: iState
-  end subroutine State_Proc
-  !> iMode = CI_To_Basis: stored basis -> library basis; CI_To_File: the reverse
-  subroutine Conv_Proc(iState,iSym,iMode,n,CI)
-    import :: wp, iwp
-    integer(kind=iwp), intent(in) :: iState, iSym, iMode, n
-    real(kind=wp), intent(inout) :: CI(n)
-  end subroutine Conv_Proc
-end interface
-
-procedure(Sigma_Proc), pointer :: MCLR_Lucia_Sigma => null()
-procedure(TDens_Proc), pointer :: MCLR_Lucia_TDens => null()
-procedure(Diag_Proc), pointer :: MCLR_Lucia_Diag => null()
-procedure(Conv_Proc), pointer :: MCLR_Lucia_Conv => null()
-procedure(State_Proc), pointer :: MCLR_Lucia_Init => null(), MCLR_Lucia_Close => null()
-procedure(PSpace_Proc), pointer :: MCLR_Lucia_PSpace => null()
-procedure(Dets_Proc), pointer :: MCLR_Lucia_Dets => null()
 
 ! Faroald: its orbitals are the levels of the split graph (by RAS
 ! partition, within each by symmetry); Faro_Lev(iLev) is the
@@ -164,8 +105,7 @@ integer(kind=iwp), allocatable :: Faro_Lev(:), Faro_OrbRas(:), Faro_OrbSym(:)
 
 public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dets_To_Basis, CI_Lib_Faroald, &
           CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_Op, &
-          CI_Lib_Register, CI_Lib_Select, CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens, &
-          Conv_Proc, Dets_Proc, Diag_Proc, PSpace_Proc, Sigma_Proc, State_Proc, TDens_Proc
+          CI_Lib_Select, CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens
 
 contains
 
@@ -184,28 +124,13 @@ subroutine CI_Lib_Select(iLib)
   end select
 end subroutine CI_Lib_Select
 
-!> MCLR registers the routines of its copy of Lucia
-subroutine CI_Lib_Register(Init,Close,Sigma,TDens,Diag,PSpace,Conv,Dets)
-  procedure(Dets_Proc) :: Dets
-  procedure(PSpace_Proc) :: PSpace
-  procedure(State_Proc) :: Init, Close
-  procedure(Sigma_Proc) :: Sigma
-  procedure(TDens_Proc) :: TDens
-  procedure(Diag_Proc) :: Diag
-  procedure(Conv_Proc) :: Conv
-  MCLR_Lucia_Sigma => Sigma
-  MCLR_Lucia_TDens => TDens
-  MCLR_Lucia_Diag => Diag
-  MCLR_Lucia_Conv => Conv
-  MCLR_Lucia_Init => Init
-  MCLR_Lucia_Close => Close
-  MCLR_Lucia_PSpace => PSpace
-  MCLR_Lucia_Dets => Dets
-end subroutine CI_Lib_Register
-
-!> Set up the selected library for the CI state
-subroutine CI_Lib_Initialize(iState)
+!> Set up the selected library for the CI state. TD (default .false.): the
+!> two-body integrals of all later operations are in the square-pair
+!> layout (time-dependent response of MCLR)
+subroutine CI_Lib_Initialize(iState,TD)
   integer(kind=iwp), intent(in) :: iState
+  logical(kind=iwp), intent(in), optional :: TD
+  logical(kind=iwp) :: TD_
   if (CI_Lib_Op == CI_Lib_SGUGA) then
     ! the split graph is the state of the CI interface (set up by the
     ! program with CI_Lib_Graph_Mode()); no determinants
@@ -216,31 +141,25 @@ subroutine CI_Lib_Initialize(iState)
     call Faro_Init(iState)
     return
   end if
-  call Check_Lib('CI_Lib_Initialize',associated(MCLR_Lucia_Init))
-  call MCLR_Lucia_Init(iState)
+  call Check_Lib('CI_Lib_Initialize')
+  TD_ = .false.
+  if (present(TD)) TD_ = TD
+  call MCLR_Lucia_Init(iState,TD_)
 end subroutine CI_Lib_Initialize
 
-!> Free the library of the CI state, forget the registered routines and
-!> the selection (safe to call in any case)
+!> Free the library of the CI state and forget the selection (safe to call
+!> in any case)
 subroutine CI_Lib_Close(iState)
   use SGUGA_Sigma, only: SG_Sigma_Free
   use SGUGA_Densities, only: SG_Densities_Free
   integer(kind=iwp), intent(in) :: iState
-  if ((CI_Lib_Op == CI_Lib_MCLR_Lucia) .and. associated(MCLR_Lucia_Close)) call MCLR_Lucia_Close(iState)
+  if (CI_Lib_Op == CI_Lib_MCLR_Lucia) call MCLR_Lucia_Close(iState)
   ! the work space of SGUGA (safe to call in any case, as in CI_Close)
   if (CI_Lib_Op == CI_Lib_SGUGA) then
     call SG_Sigma_Free()
     call SG_Densities_Free()
   end if
   if (CI_Lib_Op == CI_Lib_Faroald) call Faro_Close()
-  MCLR_Lucia_Sigma => null()
-  MCLR_Lucia_TDens => null()
-  MCLR_Lucia_Diag => null()
-  MCLR_Lucia_Conv => null()
-  MCLR_Lucia_Init => null()
-  MCLR_Lucia_Close => null()
-  MCLR_Lucia_PSpace => null()
-  MCLR_Lucia_Dets => null()
   CI_Lib_Op = CI_Lib_None
 end subroutine CI_Lib_Close
 
@@ -272,7 +191,7 @@ subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_e
     call Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S,Square)
     return
   end if
-  call Check_Lib('CI_Sigma_Op',associated(MCLR_Lucia_Sigma))
+  call Check_Lib('CI_Sigma_Op')
   call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
 end subroutine CI_Sigma_Op
 
@@ -294,7 +213,7 @@ subroutine CI_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho
     call Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     return
   end if
-  call Check_Lib('CI_Trans_Dens',associated(MCLR_Lucia_TDens))
+  call Check_Lib('CI_Trans_Dens')
   call MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
 end subroutine CI_Trans_Dens
 
@@ -315,7 +234,7 @@ subroutine CI_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
     call Faro_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
     return
   end if
-  call Check_Lib('CI_Diag',associated(MCLR_Lucia_Diag))
+  call Check_Lib('CI_Diag')
   call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
 end subroutine CI_Diag
 
@@ -333,7 +252,7 @@ subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,
     call Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
     return
   end if
-  call Check_Lib('CI_PSpace',associated(MCLR_Lucia_PSpace))
+  call Check_Lib('CI_PSpace')
   call MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
 end subroutine CI_PSpace
 
@@ -343,7 +262,7 @@ subroutine CI_Lib_Dets_To_Basis(iState,iSym,nD,DetVec,IdxD,n,CI)
   real(kind=wp), intent(out) :: CI(n)
   if ((CI_Lib_Op == CI_Lib_SGUGA) .or. (CI_Lib_Op == CI_Lib_Faroald)) &
     call Not_Yet('CI_Lib_Dets_To_Basis','determinant vectors (DMRG)')
-  call Check_Lib('CI_Lib_Dets_To_Basis',associated(MCLR_Lucia_Dets))
+  call Check_Lib('CI_Lib_Dets_To_Basis')
   call MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
 end subroutine CI_Lib_Dets_To_Basis
 
@@ -352,7 +271,7 @@ subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
   real(kind=wp), intent(inout) :: CI(n)
   ! SGUGA, Faroald: the split-graph basis is the stored one
   if ((CI_Lib_Op == CI_Lib_SGUGA) .or. (CI_Lib_Op == CI_Lib_Faroald)) return
-  call Check_Lib('CI_Lib_File_To_Basis',associated(MCLR_Lucia_Conv))
+  call Check_Lib('CI_Lib_File_To_Basis')
   call MCLR_Lucia_Conv(iState,iSym,CI_To_Basis,n,CI)
 end subroutine CI_Lib_File_To_Basis
 
@@ -361,7 +280,7 @@ subroutine CI_Lib_Basis_To_File(iState,iSym,n,CI)
   real(kind=wp), intent(inout) :: CI(n)
   ! SGUGA, Faroald: the split-graph basis is the stored one
   if ((CI_Lib_Op == CI_Lib_SGUGA) .or. (CI_Lib_Op == CI_Lib_Faroald)) return
-  call Check_Lib('CI_Lib_Basis_To_File',associated(MCLR_Lucia_Conv))
+  call Check_Lib('CI_Lib_Basis_To_File')
   call MCLR_Lucia_Conv(iState,iSym,CI_To_File,n,CI)
 end subroutine CI_Lib_Basis_To_File
 
@@ -1193,16 +1112,11 @@ subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
   call mma_deallocate(Diag)
 end subroutine Faro_PSpace
 
-!> Only the MCLR copy of Lucia is connected so far
-subroutine Check_Lib(Caller,Registered)
+!> The remaining case of the operations is the MCLR copy of Lucia
+subroutine Check_Lib(Caller)
   character(len=*), intent(in) :: Caller
-  logical(kind=iwp), intent(in) :: Registered
   if (CI_Lib_Op /= CI_Lib_MCLR_Lucia) then
-    write(u6,'(1X,A,A,I2)') Caller,': no CI library selected for MCLR, or not connected yet:',CI_Lib_Op
-    call Abend()
-  end if
-  if (.not. Registered) then
-    write(u6,'(1X,A,A)') Caller,': the routines of the MCLR copy of Lucia are not registered'
+    write(u6,'(1X,A,A,I2)') Caller,': no CI library selected, or not available:',CI_Lib_Op
     call Abend()
   end if
 end subroutine Check_Lib

@@ -34,7 +34,7 @@ subroutine MEMSTR()
 use Str_Info, only: ISTAC, ITYP_DUMMY, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP, NSTTYP, Str, &
                     Str_Hidden
 use MCLR_Lucia_Data, only: NACOB, NOBPT, NORB1, NORB2, NORB3
-use input_mclr, only: nIrrep
+use Orbital_Spaces, only: nSym
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
@@ -71,9 +71,9 @@ do ITYP=1,NSTTYP
     call mma_allocate(Str_Hidden(ITYP)%STCL,NSTRIN,Label='STCL')
 
     ! Number of strings per symmetry and occupation
-    call mma_allocate(Str_Hidden(ITYP)%NSTSO,NOCTYP(ITYP)*nIrrep,Label='NSTSO')
+    call mma_allocate(Str_Hidden(ITYP)%NSTSO,NOCTYP(ITYP)*nSym,Label='NSTSO')
     ! Offset of strings per symmetry and occupation
-    call mma_allocate(Str_Hidden(ITYP)%ISTSO,NOCTYP(ITYP)*nIrrep,Label='ISTSO')
+    call mma_allocate(Str_Hidden(ITYP)%ISTSO,NOCTYP(ITYP)*nSym,Label='ISTSO')
     ! Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
     call mma_allocate(Str_Hidden(ITYP)%EL1,NOCTYP(ITYP),Label='EL1')
     call mma_allocate(Str_Hidden(ITYP)%EL3,NOCTYP(ITYP),Label='EL3')
@@ -186,11 +186,11 @@ end do
 ! Symmetry of conjugated orbitals and orbital excitations
 !    COBSM,NIFSJ,IFSJ,IFSJO
 !call mma_allocate(COBSM,NACOB,Label='COBSM')
-!call mma_allocate(NIFSJ,NACOB*nIrrep,Label='NIFSJ')
+!call mma_allocate(NIFSJ,NACOB*nSym,Label='NIFSJ')
 !call mma_allocate(IFSJ,NACOB**2,Label='IFSJ')
-!call mma_allocate(IFSJO,NACOB*nIrrep,Label='IFSJO')
+!call mma_allocate(IFSJO,NACOB*nSym,Label='IFSJO')
 ! Symmetry of excitation connecting  strings of given symmetry
-!call mma_allocate(STSTX,nIrrep*nIrrep,Label='STSTX')
+!call mma_allocate(STSTX,nSym*nSym,Label='STSTX')
 
 ! Some dummy allocations
 

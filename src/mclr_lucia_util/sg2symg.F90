@@ -16,8 +16,6 @@ use CI_States, only: CI_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC, MINOP, NCNFTP, NCSFTP, NTYP
 use MCLR_Lucia_Data, only: MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, NTYP_MCLR => NTYP
-use Orbital_Spaces, only: nSym
-use input_mclr, only: NCSF, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -28,7 +26,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: lCI, imode, pState_Sym
 real(kind=wp), intent(inout) :: CI(lCI)
-integer(kind=iwp) :: iss
+integer(kind=iwp) :: iss, nConf
 real(kind=wp), allocatable :: CINEW(:)
 integer(kind=iwp), parameter :: istate = 1
 #ifdef _DEBUGPRINT_
@@ -39,8 +37,7 @@ real(kind=wp), parameter :: PRWTHR = 0.05_wp
 
 ! (the CI state of the run, SG_Setup_MCLR in RdJobIph)
 
-NCSF(1:nSym) = CI_St(istate)%nCSF(1:nSym)
-NCONF = CI_St(istate)%nCSF(pState_Sym)
+nConf = CI_St(istate)%nCSF(pState_Sym)
 
 iss = 1
 if (pState_sym /= CI_St(iState)%STSym) iss = 2

@@ -21,7 +21,7 @@ subroutine INTDIA(DIAG,NSPC,ISPC,ISM,IAMCMP,ecore)
 use Str_Info, only: NELEC, NOCTYP, STR
 use MCLR_Lucia_Data, only: IASTFI, IBSTFI, ICISTR, iDC, MNR1IC, MXR3IC, NACOB, NTOOB, PSSIGN
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
-use input_mclr, only: nIrrep
+use Orbital_Spaces, only: nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -55,7 +55,7 @@ if (doDMRG) then !yma
 else
   call mma_allocate(H1D,NACOB,Label='H1D')
 end if
-call mma_allocate(BLTP,nIrrep,Label='BLTP')
+call mma_allocate(BLTP,nSym,Label='BLTP')
 
 ! Largest NOCTPA*NOCTPB block
 MXOCOC = 0
@@ -91,11 +91,11 @@ do ILOOP=1,NLOOP
     MNRS1C = MNR1IC(ISPC(IISPC))
     MXRS3C = MXR3IC(ISPC(IISPC))
 
-    call ZBLTP(ISM(IISPC),nIrrep,IDC,BLTP,idum)
+    call ZBLTP(ISM(IISPC),nSym,IDC,BLTP,idum)
     call IAIBCM_MCLR(MNRS1C,MXRS3C,NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,IOIO)
 
     LLUDIA = 0
-    call CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,NACOB,DIAG,nIrrep,H1D,ISM(IISPC),BLTP,XB,JA,KA,Str(IATP)%NSTSO, &
+    call CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,NACOB,DIAG,nSym,H1D,ISM(IISPC),BLTP,XB,JA,KA,Str(IATP)%NSTSO, &
                 Str(IBTP)%NSTSO,IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,Str(IBTP)%ISTSO,LLUDIA,ECORE,PSSIGN,NTOOB,ICISTR)
 
   end do
