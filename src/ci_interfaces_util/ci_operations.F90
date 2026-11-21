@@ -154,10 +154,13 @@ procedure(Dets_Proc), pointer :: MCLR_Lucia_Dets => null()
 
 ! Faroald: its orbitals are the levels of the split graph (by RAS
 ! partition, within each by symmetry); Faro_Lev(iLev) is the
-! symmetry-ordered active orbital of level iLev. Faroald (citrans) holds
-! the CSF space of one symmetry, Faro_Sym.
-integer(kind=iwp) :: Faro_Sym = 0
-integer(kind=iwp), allocatable :: Faro_Lev(:)
+! symmetry-ordered active orbital of level iLev. Faro_Sym is the symmetry
+! of the CI state, the space of the string-driven RAS CI (faroald_ras);
+! citrans holds the CSF space of one symmetry at a time, Faro_Cur, set up
+! again from the stored description (Faro_OrbSym, ...) when another one
+! is needed (Faro_Set_Sym).
+integer(kind=iwp) :: Faro_Cur = 0, Faro_MaxEl(3) = 0, Faro_MinEl(3) = 0, Faro_nAct = 0, Faro_nPrt = 0, Faro_Sym = 0
+integer(kind=iwp), allocatable :: Faro_Lev(:), Faro_OrbRas(:), Faro_OrbSym(:)
 
 public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dets_To_Basis, CI_Lib_Faroald, &
           CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_Op, &
@@ -265,8 +268,8 @@ subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_e
     return
   end if
   if (CI_Lib_Op == CI_Lib_Faroald) then
-    if ((iOpSpin /= 0) .or. Square) call Not_Yet('CI_Sigma_Op','triplet or non-symmetric operators')
-    call Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+    if (iOpSpin /= 0) call Not_Yet('CI_Sigma_Op','triplet operators')
+    call Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S,Square)
     return
   end if
   call Check_Lib('CI_Sigma_Op',associated(MCLR_Lucia_Sigma))
@@ -710,6 +713,18 @@ subroutine Faro_Init(iState)
   call faroald_init(nActEl,nAct,iSpin,.false.)
   call citrans_init(nActEl,nAct,iSpin,nSym,OrbSym,Faro_Sym,nPrt,OrbRas,MinEl(1:nPrt),MaxEl(1:nPrt))
   call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP(1:nPrt),MinEl(1:nPrt),MaxEl(1:nPrt),nSym,OrbSym(1:nAct),Faro_Sym,iSpin == 1)
+  ! the description of the CSF spaces, for the other symmetries
+  call mma_deallocate(Faro_OrbSym,safe='*')
+  call mma_deallocate(Faro_OrbRas,safe='*')
+  call mma_allocate(Faro_OrbSym,max(1,nAct),Label='Faro_OrbSym')
+  call mma_allocate(Faro_OrbRas,max(1,nAct),Label='Faro_OrbRas')
+  Faro_OrbSym(:) = OrbSym(:)
+  Faro_OrbRas(:) = OrbRas(:)
+  Faro_nAct = nAct
+  Faro_nPrt = nPrt
+  Faro_MinEl(:) = MinEl(:)
+  Faro_MaxEl(:) = MaxEl(:)
+  Faro_Cur = Faro_Sym
   call mma_deallocate(OrbSym)
   call mma_deallocate(OrbRas)
   if (citrans_ncsf() /= CI_St(iState)%nCSF(Faro_Sym)) then
@@ -727,23 +742,49 @@ subroutine Faro_Close()
   call citrans_free()
   call faroald_free()
   call mma_deallocate(Faro_Lev,safe='*')
+  call mma_deallocate(Faro_OrbSym,safe='*')
+  call mma_deallocate(Faro_OrbRas,safe='*')
   Faro_Sym = 0
+  Faro_Cur = 0
 end subroutine Faro_Close
 
-!> Faroald: only the CSF space of the CI state
-subroutine Faro_Check_Sym(Caller,iSym1,iSym2)
-  character(len=*), intent(in) :: Caller
-  integer(kind=iwp), intent(in) :: iSym1, iSym2
-  if ((iSym1 /= Faro_Sym) .or. (iSym2 /= Faro_Sym)) call Not_Yet(Caller,'vectors of another symmetry than the CI state')
-end subroutine Faro_Check_Sym
+!> Faroald: citrans for the CSF space of symmetry iSym (the configuration
+!> lists; the graph of the file order is common to all symmetries)
+subroutine Faro_Set_Sym(iState,iSym)
+  use CI_Input, only: nActEl
+  use Orbital_Spaces, only: nSym
+  use citrans, only: citrans_ncsf, citrans_sym_init
+  integer(kind=iwp), intent(in) :: iState, iSym
+  if (iSym == Faro_Cur) return
+  call citrans_sym_init(nActEl,Faro_nAct,nSym,Faro_OrbSym,iSym,Faro_nPrt,Faro_OrbRas,Faro_MinEl(1:Faro_nPrt), &
+                        Faro_MaxEl(1:Faro_nPrt))
+  Faro_Cur = iSym
+  if (citrans_ncsf() /= CI_St(iState)%nCSF(iSym)) then
+    write(u6,*) 'Faro_Set_Sym: CSFs of Faroald and of the split graph',iSym,citrans_ncsf(),CI_St(iState)%nCSF(iSym)
+    call Abend()
+  end if
+end subroutine Faro_Set_Sym
+
+!> Faroald: the tables of the full determinant space (sigma_update and the
+!> transition densities over determinant matrices), for the vectors of
+!> other symmetries than the CI state; set up on first use
+subroutine Faro_Full_Init()
+  use CI_Input, only: iSpin, nActEl
+  use faroald, only: faroald_full, ndeta, ndetb
+  if (faroald_full) return
+  call faroald_free()
+  call faroald_init(nActEl,Faro_nAct,iSpin,.true.)
+  if (real(ndeta,kind=wp)*real(ndetb,kind=wp) > 2.0e8_wp) &
+    call Not_Yet('Faroald','vectors of other symmetries than the CI state in this large a determinant space')
+end subroutine Faro_Full_Init
 
 !> Faroald: its integrals htu, gtuvx (over the levels) from Int1/Int2 of
-!> a totally symmetric operator
-subroutine Faro_Ints(iState,nInt1,Int1,nInt2,Int2,Have_2_el)
+!> an Hermitian operator of symmetry iOp
+subroutine Faro_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
   use faroald, only: gtuvx, htu, my_norb
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, nInt1, nInt2
+  integer(kind=iwp), intent(in) :: iState, iOp, nInt1, nInt2
   real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
   logical(kind=iwp), intent(in) :: Have_2_el
   integer(kind=iwp) :: it, iu, iv, ix, nTU, nTUVX, otu, ovx
@@ -752,7 +793,7 @@ subroutine Faro_Ints(iState,nInt1,Int1,nInt2,Int2,Have_2_el)
   nTUVX = nTri_Elem(nTU)
   call mma_allocate(TU,nTU,Label='TU')
   call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
+  call SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
   do iu=1,my_norb
     do it=1,my_norb
       otu = iTri(Faro_Lev(it),Faro_Lev(iu))
@@ -769,20 +810,131 @@ subroutine Faro_Ints(iState,nInt1,Int1,nInt2,Int2,Have_2_el)
   call mma_deallocate(TU)
 end subroutine Faro_Ints
 
-!> Faroald: S = H C in the CSF space of the CI state
-subroutine Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
-  use faroald, only: gtuvx, htu
-  use faroald_ras, only: n_ras, ras_sigma
-  use citrans, only: citrans_csf2ras, citrans_ras2csf, citrans_sort
+!> Faroald: htu, gtuvx (over the levels) of a non-Hermitian operator of
+!> symmetry iOp (Square): h(t,u) from the blocks (iS,Mul(iS,iOp)) of Int1,
+!> g(tu,vx) from Int2 at iTri(tu,vx), square pair index tu = (u-1)*N+t
+!> over the symmetry-ordered active orbitals
+subroutine Faro_Ints_Sq(iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
+  use Symmetry_Info, only: Mul
+  use faroald, only: gtuvx, htu, my_norb
+  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
+  use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, Half
+  integer(kind=iwp), intent(in) :: iOp, nInt1, nInt2
+  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
+  logical(kind=iwp), intent(in) :: Have_2_el
+  integer(kind=iwp) :: iOff(8), iS, it, iu, iv, ix, jS, N, nAOff(8), otu, ovx
+  real(kind=wp), allocatable :: G(:,:,:,:), H1(:,:)
+  N = my_norb
+  call mma_allocate(H1,N,N,Label='H1')
+  H1(:,:) = Zero
+  nAOff(1) = 0
+  iOff(1) = 0
+  do iS=2,nSym
+    iOff(iS) = iOff(iS-1)+nOrb(iS-1)*nOrb(Mul(iS-1,iOp))
+    nAOff(iS) = nAOff(iS-1)+nAsh(iS-1)
+  end do
+  if (iOff(nSym)+nOrb(nSym)*nOrb(Mul(nSym,iOp)) > nInt1) call Abend()
+  do iS=1,nSym
+    jS = Mul(iS,iOp)
+    do iu=1,nAsh(jS)
+      do it=1,nAsh(iS)
+        H1(nAOff(iS)+it,nAOff(jS)+iu) = Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it)
+      end do
+    end do
+  end do
+  if (Have_2_el .and. (nInt2 < nTri_Elem(N**2))) call Abend()
+  ! sigma_update applies sum_tu h(t,u) <J|E_tu|I> to C(J), i.e. E_ut with
+  ! h(t,u), and likewise within each pair of g (harmless for Hermitian
+  ! operators): pass g'(t,u,v,x) = g(u,t,x,v) and h transposed, and correct
+  ! h for the effective one-electron term that sigma_update forms itself,
+  ! k(t,u) = h'(t,u)-1/2 sum_v g'(v,t,v,u), which must be
+  ! h(u,t)-1/2 sum_v g(u,v,v,t) (g over the levels in G)
+  call mma_allocate(G,N,N,N,N,Label='G')
+  do ix=1,N
+    do iv=1,N
+      ovx = Faro_Lev(iv)+(Faro_Lev(ix)-1)*N
+      do iu=1,N
+        do it=1,N
+          otu = Faro_Lev(it)+(Faro_Lev(iu)-1)*N
+          if (Have_2_el) then
+            G(it,iu,iv,ix) = Int2(iTri(otu,ovx))
+          else
+            G(it,iu,iv,ix) = Zero
+          end if
+        end do
+      end do
+    end do
+  end do
+  do ix=1,N
+    do iv=1,N
+      do iu=1,N
+        do it=1,N
+          gtuvx(it,iu,iv,ix) = G(iu,it,ix,iv)
+        end do
+      end do
+    end do
+  end do
+  do iu=1,N
+    do it=1,N
+      htu(it,iu) = H1(Faro_Lev(iu),Faro_Lev(it))
+      do iv=1,N
+        htu(it,iu) = htu(it,iu)+Half*(gtuvx(iv,it,iv,iu)-G(iu,iv,iv,it))
+      end do
+    end do
+  end do
+  call mma_deallocate(G)
+  call mma_deallocate(H1)
+end subroutine Faro_Ints_Sq
+
+!> Faroald: S = H C in the CSF space of the CI state
+subroutine Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S,Square)
+  use Symmetry_Info, only: Mul
+  use faroald, only: gtuvx, htu, ndeta, ndetb, sigma_update
+  use faroald_ras, only: n_ras, ras_sigma
+  use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
   integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nInt1, nInt2, nC, nS
   real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), C(nC)
   logical(kind=iwp), intent(in) :: Have_2_el
   real(kind=wp), intent(out) :: S(nS)
-  real(kind=wp), allocatable :: V(:), VR(:), W(:), WR(:)
-  call Faro_Check_Sym('CI_Sigma_Op',iCSym,iSSym)
+  logical(kind=iwp), intent(in), optional :: Square
+  logical(kind=iwp) :: Sq
+  real(kind=wp), allocatable :: PC(:,:), PS(:,:), V(:), VR(:), W(:), WR(:)
+  Sq = .false.
+  if (present(Square)) Sq = Square
+  if ((iCSym /= Faro_Sym) .or. (iSSym /= Faro_Sym) .or. Sq) then
+    ! other symmetries or a non-Hermitian operator: in the full determinant
+    ! space, P_S H P_C exactly
+    call Faro_Full_Init()
+    if (Sq) then
+      call Faro_Ints_Sq(Mul(iCSym,iSSym),nInt1,Int1,nInt2,Int2,Have_2_el)
+    else
+      call Faro_Ints(iState,Mul(iCSym,iSSym),nInt1,Int1,nInt2,Int2,Have_2_el)
+    end if
+    call mma_allocate(PC,ndeta,ndetb,Label='PC')
+    call mma_allocate(PS,ndeta,ndetb,Label='PS')
+    call mma_allocate(V,nC,Label='V')
+    call mma_allocate(W,nS,Label='W')
+    call Faro_Set_Sym(iState,iCSym)
+    call citrans_sort('C',C,V)
+    call citrans_csf2sd(V,PC)
+    PS(:,:) = Zero
+    call sigma_update(htu,gtuvx,PS,PC)
+    call Faro_Set_Sym(iState,iSSym)
+    call citrans_sd2csf(PS,W)
+    call citrans_sort('O',W,S)
+    call mma_deallocate(W)
+    call mma_deallocate(V)
+    call mma_deallocate(PS)
+    call mma_deallocate(PC)
+    return
+  end if
   if (nS /= nC) call Abend()
-  call Faro_Ints(iState,nInt1,Int1,nInt2,Int2,Have_2_el)
+  call Faro_Set_Sym(iState,Faro_Sym)
+  call Faro_Ints(iState,1,nInt1,Int1,nInt2,Int2,Have_2_el)
   call mma_allocate(V,nC,Label='V')
   call mma_allocate(W,nC,Label='W')
   call mma_allocate(VR,max(1,n_ras),Label='VR')
@@ -801,9 +953,9 @@ end subroutine Faro_Sigma_Op
 !> Faroald: the spin-free transition densities (as SG_Trans_Dens), mapped
 !> from the levels to the symmetry-ordered active orbitals
 subroutine Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
-  use faroald, only: my_norb
+  use faroald, only: my_norb, ndeta, ndetb, transition_one_pdm, transition_two_pdm
   use faroald_ras, only: n_ras, ras_trans_one_pdm, ras_trans_two_pdm
-  use citrans, only: citrans_csf2ras, citrans_sort
+  use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_sort
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
@@ -811,22 +963,39 @@ subroutine Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   integer(kind=iwp) :: ij, it, iu, iv, ix, kl, N
-  real(kind=wp), allocatable :: BR(:), D(:,:), KR(:), P2(:,:,:,:), SD(:,:), V(:)
-#include "macros.fh"
-  unused_var(iState)
-  call Faro_Check_Sym('CI_Trans_Dens',iLSym,iRSym)
+  logical(kind=iwp) :: Full
+  real(kind=wp), allocatable :: BR(:), D(:,:), KR(:), P2(:,:,:,:), PL(:,:), PR(:,:), SD(:,:), V(:)
   N = my_norb
   if (n1 < N**2) call Abend()
+  ! other symmetries: in the full determinant space
+  Full = (iLSym /= Faro_Sym) .or. (iRSym /= Faro_Sym)
   call mma_allocate(V,max(nL,nR),Label='V')
-  call mma_allocate(BR,max(1,n_ras),Label='BR')
-  call mma_allocate(KR,max(1,n_ras),Label='KR')
-  call citrans_sort('C',L,V(1:nL))
-  call citrans_csf2ras(V(1:nL),BR)
-  call citrans_sort('C',R,V(1:nR))
-  call citrans_csf2ras(V(1:nR),KR)
+  if (Full) then
+    call Faro_Full_Init()
+    call mma_allocate(PL,ndeta,ndetb,Label='PL')
+    call mma_allocate(PR,ndeta,ndetb,Label='PR')
+    call Faro_Set_Sym(iState,iLSym)
+    call citrans_sort('C',L,V(1:nL))
+    call citrans_csf2sd(V(1:nL),PL)
+    call Faro_Set_Sym(iState,iRSym)
+    call citrans_sort('C',R,V(1:nR))
+    call citrans_csf2sd(V(1:nR),PR)
+  else
+    call Faro_Set_Sym(iState,Faro_Sym)
+    call mma_allocate(BR,max(1,n_ras),Label='BR')
+    call mma_allocate(KR,max(1,n_ras),Label='KR')
+    call citrans_sort('C',L,V(1:nL))
+    call citrans_csf2ras(V(1:nL),BR)
+    call citrans_sort('C',R,V(1:nR))
+    call citrans_csf2ras(V(1:nR),KR)
+  end if
   call mma_allocate(D,N,N,Label='D')
   call mma_allocate(SD,N,N,Label='SD')
-  call ras_trans_one_pdm(BR,KR,D,SD)
+  if (Full) then
+    call transition_one_pdm(PL,PR,D,SD)
+  else
+    call ras_trans_one_pdm(BR,KR,D,SD)
+  end if
   Rho1(:) = Zero
   do iu=1,N
     do it=1,N
@@ -838,7 +1007,11 @@ subroutine Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   if (I12 == 2) then
     if (n2 < nTri_Elem(N**2)) call Abend()
     call mma_allocate(P2,N,N,N,N,Label='P2')
-    call ras_trans_two_pdm(BR,KR,P2)
+    if (Full) then
+      call transition_two_pdm(PL,PR,P2)
+    else
+      call ras_trans_two_pdm(BR,KR,P2)
+    end if
     Rho2(:) = Zero
     do iu=1,N
       do it=1,N
@@ -854,8 +1027,13 @@ subroutine Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     end do
     call mma_deallocate(P2)
   end if
-  call mma_deallocate(KR)
-  call mma_deallocate(BR)
+  if (Full) then
+    call mma_deallocate(PR)
+    call mma_deallocate(PL)
+  else
+    call mma_deallocate(KR)
+    call mma_deallocate(BR)
+  end if
   call mma_deallocate(V)
 end subroutine Faro_Trans_Dens
 
@@ -875,8 +1053,8 @@ subroutine Faro_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   real(kind=wp) :: E, ni, nj, P
   real(kind=wp), allocatable :: DC(:), Ph(:)
   if (Mode /= CI_Diag_Cnf_Avg) call Not_Yet('CI_Diag','the exact CSF diagonal')
-  call Faro_Check_Sym('CI_Diag',iSym,iSym)
-  call Faro_Ints(iState,nInt1,Int1,nInt2,Int2,.true.)
+  call Faro_Set_Sym(iState,iSym)
+  call Faro_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.)
   call mma_allocate(DC,n,Label='DC')
   call mma_allocate(Ph,n,Label='Ph')
   call citrans_conf_occ(ncf,kf,ncs,dco,sco)
@@ -949,7 +1127,6 @@ subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
   logical(kind=iwp), allocatable :: Used(:)
   real(kind=wp) :: EMin
   real(kind=wp), allocatable :: Diag(:), E(:), X(:), Y(:)
-  call Faro_Check_Sym('CI_PSpace',iSym,iSym)
   nP = 0
   IdxP(:) = 0
   HP(:) = Zero
@@ -967,6 +1144,7 @@ subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
   do i=1,n
     C2F(nint(abs(Y(i)))) = i
   end do
+  call Faro_Set_Sym(iState,iSym)
   call citrans_conf_occ(ncf,kf,ncs,dco,sco)
   call mma_allocate(E,ncf,Label='E')
   call mma_allocate(Used,ncf,Label='Used')
