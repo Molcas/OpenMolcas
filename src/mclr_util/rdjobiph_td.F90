@@ -28,10 +28,12 @@ subroutine RdJobIph_td(CIVec)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, FnJob, G1t, G2sq, G2t, LuJob, nA, nNA
-use Orbital_Spaces, only: nAsh, nIsh, nSym
+use Orbital_Spaces, only: nAsh, nIsh, nOrb_CI => nOrb, nSym
+use CI_Info, only: CI_St
+use CI_Operations, only: CI_Lib_Graph_Mode
 use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
-use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iTOC, iTocIph, lRoots, nBas, nCOnf, nDel, nFro, nOrb, nRoots, ntAsh, ntASqr, &
-                      ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, TitleJP, Weight
+use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iTOC, iTocIph, lRoots, nBas, nCOnf, nCSF, nDel, nFro, nOrb, nRoots, ntAsh, &
+                      ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, TitleJP, Weight
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -41,6 +43,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), allocatable, intent(out) :: CIVec(:,:)
+! the CI state of the run (SG_Setup_MCLR); ISTATE of MCLR_Data is the root
+integer(kind=iwp), parameter :: iState_CI = 1
 integer(kind=iwp) :: i, iB, iDij, iDij2, iDisk, iDkl, iDkl2, iIJKL, iIJKL2, iS, iSym, Iter, jB, jS, kB, kRoots, kS, lB, Length, &
                      lS, nAct, nAct2, nAct4, nG1, nG2
 real(kind=wp) :: Fact, Fact2, Factij, Factkl, PotNuc0, rdum(1), Temp
@@ -71,7 +75,7 @@ call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,STSym,nFro,nIsh,nAsh,nDel,nB
                     144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
 call mma_deallocate(TempTxt)
 ! the CI state of MCLR for the whole run (CI_Info)
-call SG_Setup_MCLR('GRAPH')
+call SG_Setup_MCLR(CI_Lib_Graph_Mode())
 !----------------------------------------------------------------------*
 !     Overwrite the variable lroots if approriate                      *
 !----------------------------------------------------------------------*
@@ -105,6 +109,10 @@ ntAsqr = sum(nAsh(1:nSym)**2)
 ntBas = sum(nBas(1:nSym))
 ntBsqr = sum(nBas(1:nSym)**2)
 nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
+! the orbital spaces and CSF counts for the CI interface
+nOrb_CI(1:nSym) = nOrb(1:nSym)
+nCSF(1:nSym) = CI_St(iState_CI)%nCSF(1:nSym)
+nConf = CI_St(iState_CI)%nCSF(STSym)
 Length = sum(nBas(1:nSym)*nOrb(1:nSym))
 ntItri = 0
 ntAtri = 0

@@ -25,8 +25,9 @@ use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
 use MCLR_Data, only: DspVec, ESTERR, FANCY_PRECONDITIONER, ISMECIMSPD, ISNAC, ISTATE, lDisp, NACSTATES, NewPre, nexp_max, nGP, &
                      NoFile, NSSA, OVERRIDE, SA, SwLbl
 use Orbital_Spaces, only: nSym
-use input_mclr, only: CasInt, ColdStart, Debug, double, Eps, iBreak, kPrint, lCalc, lRoots, lSave, mTit, nAtoms, nDisp, NewCho, &
-                      nIter, nsRot, ntPert, nUserPT, Omega, Page, RASSI, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
+use input_mclr, only: CILib, CasInt, ColdStart, Debug, double, Eps, iBreak, kPrint, lCalc, lRoots, lSave, mTit, nAtoms, nDisp, &
+                      NewCho, nIter, nsRot, ntPert, nUserPT, Omega, Page, RASSI, StepType, TimeDep, TitleIn, TwoStep, UserP, &
+                      UserT
 use PCM_grad, only: RFPERT
 use cgs_mod, only: CGS
 use Molcas, only: MxAtom
@@ -45,11 +46,11 @@ character(len=4) :: Command
 character(len=2) :: Element(MxAtom)
 real(kind=wp), allocatable :: umass(:)
 character(len=3), allocatable :: cmass(:)
-integer(kind=iwp), parameter :: nCom = 39
+integer(kind=iwp), parameter :: nCom = 40
 character(len=*), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','CGS ','RFPE','ITER','THRE','END ','TIME', &
                                                '    ','NOFI','SEWA','NOCO','NOTW','SPIN','PRIN','PCGD','RESI','NOTO', &
                                                'EXPD','NEGP','LOWM','    ','SAVE','RASS','DISO','CASI','SALA','NODE', &
-                                               'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS','COLD']
+                                               'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS','COLD','CILI']
 
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
@@ -102,6 +103,17 @@ Estimate = .false.
 TwoStep = .false.
 StepType = 'xxxx'
 ColdStart = .false.
+! the CI library: LUCIA unless the keyword CILIbrary is given (for
+! comparisons the default can be set with the environment variable
+! MCLR_CILIB)
+block
+  character(len=8) :: EnvLib
+  EnvLib = ' '
+  call get_environment_variable('MCLR_CILIB',EnvLib)
+  call UpCase(EnvLib)
+  CILib = 'LUCIA'
+  if (EnvLib == 'SGUGA') CILib = 'SGUGA'
+end block
 CGS = .false.
 RFPERT = .false.
 !----------------------------------------------------------------------*
@@ -458,6 +470,22 @@ outer: do
     case (39)
       !---- COLD ------------------------------------------------------*
       ColdStart = .true.
+
+    case (40)
+      !---- CILI ------------------------------------------------------*
+      do
+        read(u5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        call UpCase(Line)
+        Line = adjustl(Line)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) CILib
+      if (istatus /= 0) call Error(istatus)
+      if ((CILib /= 'LUCIA') .and. (CILib /= 'SGUGA')) then
+        call WarningMessage(2,'CILIbrary: unknown CI library '//trim(CILib)//' (LUCIA or SGUGA)')
+        call Quit_OnUserError()
+      end if
 
     case default
       jCom = 0

@@ -82,9 +82,11 @@ character(len=72) :: Header1I(2), HeaderJP(2), TitleJp(mxTit)
 character(len=16) :: Perturbation
 character(len=8) :: TitleIN(180)
 character(len=4) :: StepType
+! the CI library (keyword CILIbrary): LUCIA (MCLR's copy of Lucia) or SGUGA
+character(len=8) :: CILib = 'LUCIA'
 character(len=3) :: chirr(8)
 
-public :: AtLbl, CASINT, chirr, ColdStart, Coor, debug, double, Eps, ERASSCF, ESCF, fail, Header1I, HeaderJP, iaddressQDAT, &
+public :: AtLbl, CASINT, chirr, CILib, ColdStart, Coor, debug, double, Eps, ERASSCF, ESCF, fail, Header1I, HeaderJP, iaddressQDAT, &
           iBreak, iMCPD, iMethod, iMSPD, iPt2, iRoot, iToc, itociph, kprint, lCalc, lRoots, LuAChoVec, LuChoInt, LuIChoVec, &
           McKinley, mTit, nAtoms, nBas, nConf, nCSF, nDel, nDisp, newCho, nFro, NIRREP, niter, nOrb, nRoots, nSkip, nsRot, ntAsh, &
           ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, &

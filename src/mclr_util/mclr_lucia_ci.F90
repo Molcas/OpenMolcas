@@ -28,10 +28,9 @@ public :: MCLR_Lucia_CI_Setup
 
 contains
 
-!> Select the MCLR copy of Lucia and register its routines
+!> Register the routines of the MCLR copy of Lucia with the CI interface
 subroutine MCLR_Lucia_CI_Setup()
-  use CI_Operations, only: CI_Lib_MCLR_Lucia, CI_Lib_Register, CI_Lib_Select
-  call CI_Lib_Select(CI_Lib_MCLR_Lucia)
+  use CI_Operations, only: CI_Lib_Register
   call CI_Lib_Register(MCLR_Lucia_Init,MCLR_Lucia_Close,MCLR_Lucia_Sigma,MCLR_Lucia_TDens,MCLR_Lucia_Diag,MCLR_Lucia_PSpace, &
                        MCLR_Lucia_Conv,MCLR_Lucia_Dets)
 end subroutine MCLR_Lucia_CI_Setup
@@ -52,13 +51,14 @@ end subroutine MCLR_Lucia_Init
 !> Free the determinant tables (State_Proc of CI_Operations)
 subroutine MCLR_Lucia_Close(iState)
   use Str_Info, only: CFTP, CNSM, DFTP, DTOC
-  use MCLR_Lucia_Data, only: pInt1
+  use MCLR_Lucia_Data, only: LuCSF2SD, pInt1
   use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: i
 #include "macros.fh"
   unused_var(iState)
   if (Initialized) then
+    call DaClos(LuCSF2SD)
     call FreeStr()
     call mma_deallocate(DTOC)
     call mma_deallocate(CFTP)

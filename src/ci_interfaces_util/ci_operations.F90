@@ -62,6 +62,15 @@
 !> library, with their natural length (nCSF of their symmetry); each
 !> library keeps its own internal basis, ordering and work space.
 !>
+!> Libraries: the MCLR copy of Lucia (all operations); SGUGA (CAS/RAS,
+!> singlet operators between vectors of the same symmetry, no Square, no P
+!> space; the split graph has to be set up with the coupling tables,
+!> CI_Lib_Graph_Mode() = 'FULL'). The orbital spaces are taken from
+!> Orbital_Spaces (nSym, nOrb, nIsh, nAsh), the active orbitals in symmetry
+!> order. SGUGA takes the integrals in that order and maps them to the
+!> levels of its graph itself; its densities come in level order and are
+!> mapped back here (SG_Level_Map).
+!>
 !> The MCLR copy of Lucia still keeps its data in MCLR (MCLR_Data), which
 !> the gateway must not use; MCLR registers its routines with
 !> CI_Lib_Register (procedure pointers) until that library is
@@ -69,6 +78,7 @@
 !> interfaces.
 module CI_Operations
 
+use CI_Info, only: CI_St
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -144,9 +154,9 @@ procedure(PSpace_Proc), pointer :: MCLR_Lucia_PSpace => null()
 procedure(Dets_Proc), pointer :: MCLR_Lucia_Dets => null()
 
 public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dets_To_Basis, CI_Lib_Faroald, &
-          CI_Lib_File_To_Basis, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_Op, CI_Lib_Register, &
-          CI_Lib_Select, CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens, Conv_Proc, Dets_Proc, &
-          Diag_Proc, PSpace_Proc, Sigma_Proc, State_Proc, TDens_Proc
+          CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_Op, &
+          CI_Lib_Register, CI_Lib_Select, CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens, &
+          Conv_Proc, Dets_Proc, Diag_Proc, PSpace_Proc, Sigma_Proc, State_Proc, TDens_Proc
 
 contains
 
@@ -154,9 +164,9 @@ contains
 subroutine CI_Lib_Select(iLib)
   integer(kind=iwp), intent(in) :: iLib
   select case (iLib)
-    case (CI_Lib_MCLR_Lucia)
+    case (CI_Lib_MCLR_Lucia,CI_Lib_SGUGA)
       CI_Lib_Op = iLib
-    case (CI_Lib_Lucia,CI_Lib_SGUGA,CI_Lib_Faroald)
+    case (CI_Lib_Lucia,CI_Lib_Faroald)
       write(u6,'(A,I2,A)') ' CI_Lib_Select: CI library',iLib,' is not available for MCLR yet'
       call Abend()
     case default
@@ -187,6 +197,12 @@ end subroutine CI_Lib_Register
 !> Set up the selected library for the CI state
 subroutine CI_Lib_Initialize(iState)
   integer(kind=iwp), intent(in) :: iState
+  if (CI_Lib_Op == CI_Lib_SGUGA) then
+    ! the split graph is the state of the CI interface (set up by the
+    ! program with CI_Lib_Graph_Mode()); no determinants
+    CI_St(iState)%nDet(:) = CI_St(iState)%nCSF(:)
+    return
+  end if
   call Check_Lib('CI_Lib_Initialize',associated(MCLR_Lucia_Init))
   call MCLR_Lucia_Init(iState)
 end subroutine CI_Lib_Initialize
@@ -194,8 +210,15 @@ end subroutine CI_Lib_Initialize
 !> Free the library of the CI state, forget the registered routines and
 !> the selection (safe to call in any case)
 subroutine CI_Lib_Close(iState)
+  use SGUGA_Sigma, only: SG_Sigma_Free
+  use SGUGA_Densities, only: SG_Densities_Free
   integer(kind=iwp), intent(in) :: iState
   if ((CI_Lib_Op == CI_Lib_MCLR_Lucia) .and. associated(MCLR_Lucia_Close)) call MCLR_Lucia_Close(iState)
+  ! the work space of SGUGA (safe to call in any case, as in CI_Close)
+  if (CI_Lib_Op == CI_Lib_SGUGA) then
+    call SG_Sigma_Free()
+    call SG_Densities_Free()
+  end if
   MCLR_Lucia_Sigma => null()
   MCLR_Lucia_TDens => null()
   MCLR_Lucia_Diag => null()
@@ -213,7 +236,6 @@ subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_e
   logical(kind=iwp), intent(in) :: Have_2_el, Square
   real(kind=wp), intent(in) :: C(nC)
   real(kind=wp), intent(out) :: S(nS)
-  call Check_Lib('CI_Sigma_Op',associated(MCLR_Lucia_Sigma))
   if ((iOpSpin /= 0) .and. (iOpSpin /= 1)) then
     write(u6,'(A,I4)') ' CI_Sigma_Op: invalid operator spin iOpSpin =',iOpSpin
     call Abend()
@@ -222,6 +244,13 @@ subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_e
     write(u6,'(A)') ' CI_Sigma_Op: the operator with iOpSpin = 1 is one-body only'
     call Abend()
   end if
+  if (CI_Lib_Op == CI_Lib_SGUGA) then
+    if ((iOpSpin /= 0) .or. (iCSym /= iSSym) .or. Square) &
+      call Not_Yet('CI_Sigma_Op','triplet, non-symmetric or symmetry-changing operators')
+    call SG_Sigma_Op(iState,iCSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+    return
+  end if
+  call Check_Lib('CI_Sigma_Op',associated(MCLR_Lucia_Sigma))
   call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
 end subroutine CI_Sigma_Op
 
@@ -229,11 +258,16 @@ subroutine CI_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
-  call Check_Lib('CI_Trans_Dens',associated(MCLR_Lucia_TDens))
   if ((iOpSpin /= 0) .and. (iOpSpin /= 1)) then
     write(u6,'(A,I4)') ' CI_Trans_Dens: invalid operator spin iOpSpin =',iOpSpin
     call Abend()
   end if
+  if (CI_Lib_Op == CI_Lib_SGUGA) then
+    if (iOpSpin /= 0) call Not_Yet('CI_Trans_Dens','spin densities')
+    call SG_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+    return
+  end if
+  call Check_Lib('CI_Trans_Dens',associated(MCLR_Lucia_TDens))
   call MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
 end subroutine CI_Trans_Dens
 
@@ -242,11 +276,15 @@ subroutine CI_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
   real(kind=wp), intent(in) :: ECore
   real(kind=wp), intent(out) :: Diag(n)
-  call Check_Lib('CI_Diag',associated(MCLR_Lucia_Diag))
   if ((Mode /= CI_Diag_Cnf_Avg) .and. (Mode /= CI_Diag_Exact)) then
     write(u6,'(A,I4)') ' CI_Diag: invalid Mode =',Mode
     call Abend()
   end if
+  if (CI_Lib_Op == CI_Lib_SGUGA) then
+    call SG_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
+    return
+  end if
+  call Check_Lib('CI_Diag',associated(MCLR_Lucia_Diag))
   call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
 end subroutine CI_Diag
 
@@ -256,6 +294,7 @@ subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,
   real(kind=wp), intent(in) :: Diag(n)
   integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
   real(kind=wp), intent(out) :: HP(nHP)
+  if (CI_Lib_Op == CI_Lib_SGUGA) call Not_Yet('CI_PSpace','the explicit P space')
   call Check_Lib('CI_PSpace',associated(MCLR_Lucia_PSpace))
   call MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
 end subroutine CI_PSpace
@@ -264,6 +303,7 @@ subroutine CI_Lib_Dets_To_Basis(iState,iSym,nD,DetVec,IdxD,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
   real(kind=wp), intent(in) :: DetVec(nD)
   real(kind=wp), intent(out) :: CI(n)
+  if (CI_Lib_Op == CI_Lib_SGUGA) call Not_Yet('CI_Lib_Dets_To_Basis','determinant vectors (DMRG)')
   call Check_Lib('CI_Lib_Dets_To_Basis',associated(MCLR_Lucia_Dets))
   call MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
 end subroutine CI_Lib_Dets_To_Basis
@@ -271,6 +311,7 @@ end subroutine CI_Lib_Dets_To_Basis
 subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, n
   real(kind=wp), intent(inout) :: CI(n)
+  if (CI_Lib_Op == CI_Lib_SGUGA) return  ! the split-graph basis is the stored one
   call Check_Lib('CI_Lib_File_To_Basis',associated(MCLR_Lucia_Conv))
   call MCLR_Lucia_Conv(iState,iSym,CI_To_Basis,n,CI)
 end subroutine CI_Lib_File_To_Basis
@@ -278,9 +319,179 @@ end subroutine CI_Lib_File_To_Basis
 subroutine CI_Lib_Basis_To_File(iState,iSym,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, n
   real(kind=wp), intent(inout) :: CI(n)
+  if (CI_Lib_Op == CI_Lib_SGUGA) return  ! the split-graph basis is the stored one
   call Check_Lib('CI_Lib_Basis_To_File',associated(MCLR_Lucia_Conv))
   call MCLR_Lucia_Conv(iState,iSym,CI_To_File,n,CI)
 end subroutine CI_Lib_Basis_To_File
+
+!> The setup of the split graph that the selected library needs ('FULL':
+!> with the coupling tables, for SGUGA; 'GRAPH': graph and walks only)
+function CI_Lib_Graph_Mode() result(Mode)
+  character(len=5) :: Mode
+  if (CI_Lib_Op == CI_Lib_SGUGA) then
+    Mode = 'FULL'
+  else
+    Mode = 'GRAPH'
+  end if
+end function CI_Lib_Graph_Mode
+
+subroutine Not_Yet(Caller,What)
+  character(len=*), intent(in) :: Caller, What
+  write(u6,'(1X,A,A,A)') Caller,': not available with SGUGA yet: ',What
+  call Abend()
+end subroutine Not_Yet
+
+!> The active integrals for SGUGA: the active diagonal blocks of Int1
+!> (square blocks of the totally symmetric operator, nOrb x nOrb) packed
+!> triangularly and Int2 (zero without two-body part), both over the
+!> symmetry-ordered active orbitals. The SGUGA sigma and diagonal routines
+!> map them to the levels themselves (do not map them here).
+subroutine SG_Ints(iState,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
+  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
+  use Index_Functions, only: iTri, nTri_Elem
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, nInt1, nInt2, nTU, nTUVX
+  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
+  logical(kind=iwp), intent(in) :: Have_2_el
+  real(kind=wp), intent(out) :: TU(nTU), TUVX(nTUVX)
+  integer(kind=iwp) :: iOff, iS, it, iu, nAOff
+#include "macros.fh"
+  unused_var(iState)
+  TU(:) = Zero
+  iOff = 0
+  nAOff = 0
+  do iS=1,nSym
+    do iu=1,nAsh(iS)
+      do it=1,iu
+        TU(iTri(nAOff+it,nAOff+iu)) = Int1(iOff+(nIsh(iS)+iu-1)*nOrb(iS)+nIsh(iS)+it)
+      end do
+    end do
+    iOff = iOff+nOrb(iS)**2
+    nAOff = nAOff+nAsh(iS)
+  end do
+  if (iOff > nInt1) call Abend()
+  if (Have_2_el) then
+    if (nInt2 < nTUVX) call Abend()
+    TUVX(:) = Int2(1:nTUVX)
+  else
+    TUVX(:) = Zero
+  end if
+  if (nTU /= nTri_Elem(nAOff)) call Abend()
+end subroutine SG_Ints
+
+!> SGUGA: sigma for a singlet operator between vectors of symmetry iSym
+subroutine SG_Sigma_Op(iState,iSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+  use sguga, only: CIS, EXS, SGS
+  use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras
+  use Orbital_Spaces, only: nAsh, nSym
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, nC, nS
+  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), C(nC)
+  logical(kind=iwp), intent(in) :: Have_2_el
+  real(kind=wp), intent(out) :: S(nS)
+  integer(kind=iwp) :: nTU, nTUVX
+  real(kind=wp), allocatable :: TU(:), TUVX(:)
+  nTU = nTri_Elem(sum(nAsh(1:nSym)))
+  nTUVX = nTri_Elem(nTU)
+  call mma_allocate(TU,nTU,Label='TU')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX')
+  call SG_Ints(iState,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
+  if (CI_St(iState)%nRsPrt > 1) then
+    call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C,nC,iSym,S,TUVX,nTUVX,TU,nTU)
+  else
+    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C,nC,iSym,S,TUVX,nTUVX,TU,nTU)
+  end if
+  if (nS /= nC) call Abend()
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
+end subroutine SG_Sigma_Op
+
+!> SGUGA: spin-free transition densities, mapped from the level order to
+!> the symmetry-ordered active orbitals
+subroutine SG_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+  use sguga, only: CIS, EXS, SGS, SG_Level_Map
+  use SGUGA_Densities, only: sg_trans_two_pdm
+  use Orbital_Spaces, only: nAsh, nSym
+  use Index_Functions, only: iTri, nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, I12, iLSym, iRSym, nL, nR, n1, n2
+  real(kind=wp), intent(in) :: L(nL), R(nR)
+  real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
+  integer(kind=iwp) :: a, b, c, d, i, ij, ijL, j, k, kl, klL, l_, N
+  integer(kind=iwp), allocatable :: L2O(:)
+  real(kind=wp), allocatable :: R1(:,:), R2(:)
+  N = sum(nAsh(1:nSym))
+  if (SGS(iState)%nLev /= N) call Abend()
+  if (n1 < N**2) call Abend()
+  call mma_allocate(L2O,N,Label='L2O')
+  call mma_allocate(R1,N,N,Label='R1')
+  call mma_allocate(R2,nTri_Elem(N**2),Label='R2')
+  call SG_Level_Map(SGS(iState),L2O)
+  call sg_trans_two_pdm(SGS(iState),CIS(iState),EXS(iState),nL,L,iLSym,nR,R,iRSym,N,R1,size(R2),R2)
+  Rho1(:) = Zero
+  do b=1,N
+    do a=1,N
+      Rho1(L2O(a)+(L2O(b)-1)*N) = R1(a,b)
+    end do
+  end do
+  if (I12 == 2) then
+    if (n2 < nTri_Elem(N**2)) call Abend()
+    Rho2(:) = Zero
+    do b=1,N
+      do a=1,N
+        ijL = a+(b-1)*N
+        i = L2O(a)
+        j = L2O(b)
+        ij = i+(j-1)*N
+        do d=1,N
+          do c=1,N
+            klL = c+(d-1)*N
+            if (klL > ijL) cycle
+            k = L2O(c)
+            l_ = L2O(d)
+            kl = k+(l_-1)*N
+            Rho2(iTri(ij,kl)) = R2(iTri(ijL,klL))
+          end do
+        end do
+      end do
+    end do
+  end if
+  call mma_deallocate(R2)
+  call mma_deallocate(R1)
+  call mma_deallocate(L2O)
+end subroutine SG_Trans_Dens
+
+!> SGUGA: the CSF diagonal (exact or configuration average) + ECore
+subroutine SG_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
+  use sguga, only: CIS, EXS, SGCnfList, SGS, SG_Cnf_Avg_Diag, SG_Free_Cnf_List, SG_Mk_Cnf_List
+  use SGUGA_Sigma, only: sg_hdiag_fast
+  use Orbital_Spaces, only: nAsh, nSym
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
+  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), ECore
+  real(kind=wp), intent(out) :: Diag(n)
+  integer(kind=iwp) :: nTU, nTUVX
+  real(kind=wp), allocatable :: TU(:), TUVX(:)
+  type(SGCnfList) :: Cnf
+  nTU = nTri_Elem(sum(nAsh(1:nSym)))
+  nTUVX = nTri_Elem(nTU)
+  call mma_allocate(TU,nTU,Label='TU')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX')
+  call SG_Ints(iState,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
+  if (Mode == CI_Diag_Exact) then
+    call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),n,iSym,TUVX,nTUVX,TU,nTU,Diag)
+  else
+    call SG_Mk_Cnf_List(iState,iSym,Cnf)
+    call SG_Cnf_Avg_Diag(iState,Cnf,TU,nTU,TUVX,nTUVX,Diag)
+    call SG_Free_Cnf_List(Cnf)
+  end if
+  Diag(:) = Diag(:)+ECore
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
+end subroutine SG_Diag
 
 !> Only the MCLR copy of Lucia is connected so far
 subroutine Check_Lib(Caller,Registered)

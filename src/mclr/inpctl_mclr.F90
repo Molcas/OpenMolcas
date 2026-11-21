@@ -24,13 +24,14 @@ use ipPage, only: ipget, ipin, ipout, ipopen, W
 use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
 use CI_Input, only: iSpin, nActEl, STSym
-use input_mclr, only: iMCPD, iMethod, iRoot, nConf, nDisp, nRoots, Page, PT2, TimeDep
+use input_mclr, only: CILib, iMCPD, iMethod, iRoot, nConf, nDisp, nRoots, Page, PT2, TimeDep
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-use CI_Operations, only: CI_Lib_Dets_To_Basis, CI_Lib_File_To_Basis, CI_Lib_Initialize
+use CI_Operations, only: CI_Lib_Dets_To_Basis, CI_Lib_File_To_Basis, CI_Lib_Initialize, CI_Lib_MCLR_Lucia, CI_Lib_Select, &
+                         CI_Lib_SGUGA
 use MCLR_Lucia_CI, only: MCLR_Lucia_CI_Setup
 implicit none
 integer(kind=iwp), intent(in) :: iPL
@@ -62,8 +63,14 @@ call RdInp_MCLR(iPL)  ! Read in input
 ! Default activate ippage utility
 
 call ipopen(.true.)
-! the CI library of MCLR: its copy of Lucia, through the CI interface
+! the CI library of MCLR, through the CI interface (keyword CILIbrary):
+! its copy of Lucia (default) or SGUGA
 call MCLR_Lucia_CI_Setup()
+if (CILib == 'SGUGA') then
+  call CI_Lib_Select(CI_Lib_SGUGA)
+else
+  call CI_Lib_Select(CI_Lib_MCLR_Lucia)
+end if
 
 PT2 = .false.
 call Get_cArray('Relax Method',Method,8)

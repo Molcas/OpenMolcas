@@ -26,7 +26,6 @@ subroutine ClsFls_MCLR()
 !***********************************************************************
 
 use MCLR_Data, only: FnMck, LuJob, LuMck, LuQDat, LuTemp, LuTri1, SA
-use MCLR_Lucia_Data, only: LuCSF2SD
 use input_mclr, only: iMethod, RASSI, TwoStep
 use Definitions, only: iwp, u6
 
@@ -39,7 +38,7 @@ integer(kind=iwp), external :: AixRm
 !     Start                                                            *
 !----------------------------------------------------------------------*
 if (iMethod == 2) then
-  call DaClos(LuCSF2sd)
+  ! (the CSF <-> SD file of MCLR's copy of Lucia is closed by the CI library)
   !---  close the JOBIPH file -----------------------------------------*
   call DaClos(LuJob)
 end if
