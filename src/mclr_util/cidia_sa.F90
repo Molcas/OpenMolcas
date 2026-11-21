@@ -14,10 +14,9 @@
 subroutine CIDIA_sa(iSym,ralp,S)
 
 use CI_Info, only: CI_St
-use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, W
-use MCLR_Data, only: FANCY_PRECONDITIONER, ICISTR, ipCI, ipDia, NDPCNT, NOCSF, XISPSM
-use MCLR_Data, only: NCNFTP, NCSFTP, NTYP
+use CI_Interfaces_MCLR, only: CI_MCLR_Diag
+use MCLR_Data, only: FANCY_PRECONDITIONER, FIMO, INT2, ipCI, ipDia, XISPSM
 use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, Weight
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -26,7 +25,7 @@ implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iSym
 real(kind=wp), intent(inout) :: ralp(nRoots), S(*)
-integer(kind=iwp) :: i, iAMCmp, iP2, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), J, nSD, nSpc
+integer(kind=iwp) :: iP2, ipDIAI, J, nSD
 real(kind=wp) :: rTmp
 
 ! This is just a interface to hide Jeppe from the rest of the world
@@ -38,36 +37,11 @@ real(kind=wp) :: rTmp
 ! SD in all parts of the program,
 ! otherwise we will switch to SD representation in this routine
 
-NSPC = 1
-ISPC(1) = 1
-iSM(1) = iSym
-IAMCMP = 0
-ICISTR = 1
-i = 2
-if (isym == CI_St(iState)%STSym) i = 1
-if (NOCSF == 0) then
-  nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
-  ipdcsfi = ipget(nsd)
-  call ipin(ipdcsfi)
-  ipDSDi = ipGet(nSD)
-else
-  nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
-  ipDSDi = ipGet(nsd)
-  call ipin(ipdsdi)
-end if
-
-if (nocsf == 0) then
-  ipdiai = ipdcsfi
-else
-  ipdiai = ipdsdi
-end if
-
-call ipin(ipDSDi)
-call IntDia(W(ipDSDi)%A,NSPC,ISPC,ISM,IAMCMP,rin_ene+potnuc)
-
-if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNFTP(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCSFTP)
-
-if (nocsf == 0) call ipClose(ipDSDi)
+! The CSF diagonal through the CI interface (CI_MCLR_Diag)
+nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
+ipdiai = ipget(nsd)
+call ipin(ipdiai)
+call CI_MCLR_Diag(iState,iSym,size(FIMO),FIMO,size(INT2),INT2,rin_ene+potnuc,ncsf(iSym),W(ipdiai)%A(1:ncsf(iSym)))
 ! Calculate explicit part of hamiltonian
 
 ipdia = ipdiai

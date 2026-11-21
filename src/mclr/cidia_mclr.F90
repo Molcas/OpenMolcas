@@ -13,11 +13,9 @@
 
 subroutine CIDIA_MCLR(iSym,ralp)
 
-use CI_Info, only: CI_St
-use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
-use MCLR_Data, only: ICISTR, ipCI, ipDia, NCSASM, NDPCNT, nexp, nexp_max, nGP, NOCSF, XISPSM
-use MCLR_Data, only: NCNFTP, NCSFTP, NTYP
+use CI_Interfaces_MCLR, only: CI_MCLR_Diag
+use MCLR_Data, only: FIMO, INT2, ipCI, ipDia, NCSASM, nexp, nexp_max, nGP, XISPSM
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -27,7 +25,7 @@ implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iSym
 real(kind=wp), intent(out) :: ralp
-integer(kind=iwp) :: i, iAMCmp, iC, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), nD, nP1, nP2, nQ, nSD, nSpc
+integer(kind=iwp) :: iC, ipDIAI, nD, nP1, nP2, nQ, nSD
 real(kind=wp) :: ECAS
 real(kind=wp), allocatable :: Q(:)
 real(kind=wp), external :: DDot_
@@ -41,38 +39,12 @@ real(kind=wp), external :: DDot_
 ! SD in all parts of the program,
 ! otherwise we will switch to SD representation in this routine
 
-NSPC = 1
-ISPC(1) = 1
-iSM(1) = iSym
-IAMCMP = 0
-ICISTR = 1
-i = 2
-if (isym == CI_St(iState)%STSym) i = 1
-
-if (NOCSF == 0) then
-  nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
-  ipdcsfi = ipget(nsd)
-  call ipin(ipdcsfi)
-  ipDSDi = ipGet(nSD)
-else
-  nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
-  ipDSDi = ipGet(nsd)
-  call ipin(ipdsdi)
-end if
-
-if (NOCSF == 0) then
-  nD = NCSASM(ISYM)
-  ipdiai = ipdcsfi
-else
-  nD = int(XISPSM(ISYM,ISPC(1)))
-  ipdiai = ipdsdi
-end if
-
-call ipin(ipDSDi)
-call IntDia(W(ipDSDi)%A,NSPC,ISPC,ISM,IAMCMP,rin_ene+potnuc)
-if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNFTP(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCSFTP)
-
-if (NOCSF == 0) call ipclose(ipDSDi)
+! The CSF diagonal through the CI interface (CI_MCLR_Diag)
+nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
+ipdiai = ipget(nsd)
+call ipin(ipdiai)
+call CI_MCLR_Diag(iState,iSym,size(FIMO),FIMO,size(INT2),INT2,rin_ene+potnuc,ncsf(iSym),W(ipdiai)%A(1:ncsf(iSym)))
+nD = NCSASM(ISYM)
 
 ! Calculate explicit part of hamiltonian
 
