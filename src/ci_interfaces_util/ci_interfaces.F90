@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use SGUGA_Sigma, only: SG_Sigma_Free, SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
+use SGUGA_Sigma, only: SG_Check_HPsi_Op, SG_Sigma_Free, SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
 use SGUGA_Densities, only: SG_Check_Trans_Two_PDM, SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
 use CI_Input, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
@@ -1905,6 +1905,12 @@ If (Do_SGUGA) Then
       call SG_Check_Trans_Two_PDM(SGS(iState),CIS(iState),EXS(iState),nFail_TT)
       if (nFail_TT > 0) then
         write(u6,'(1X,A,I0)') 'CI_Initialize: sg_trans_two_pdm check failed: ',nFail_TT
+        call Abend()
+      end if
+      ! sigma for operators of any symmetry
+      call SG_Check_HPsi_Op(SGS(iState),CIS(iState),EXS(iState),nFail_TT)
+      if (nFail_TT > 0) then
+        write(u6,'(1X,A,I0)') 'CI_Initialize: sg_h_psi_op check failed: ',nFail_TT
         call Abend()
       end if
    else if (CI_Verify('YES') .or. CI_Verify('EPQ')) then
