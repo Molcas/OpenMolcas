@@ -15,9 +15,13 @@ set (sources
      sguga_cnf.F90
      sguga_core.F90
      sguga_densities.F90
+     sguga_dets.F90
+     sguga_epq.F90
      sguga_matel.F90
      sguga_print.F90
+     sguga_setup.F90
      sguga_sigma.F90
+     sguga_tables.F90
      sguga_transform.F90
      sguga_triplet.F90
 )
@@ -29,9 +33,13 @@ set (modfile_list
      sguga_cnf.F90
      sguga_core.F90
      sguga_densities.F90
+     sguga_dets.F90
+     sguga_epq.F90
      sguga_matel.F90
      sguga_print.F90
+     sguga_setup.F90
      sguga_sigma.F90
+     sguga_tables.F90
      sguga_transform.F90
      sguga_triplet.F90
 )

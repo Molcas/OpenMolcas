@@ -21,6 +21,9 @@ use SGUGA_Core
 use SGUGA_MatEl
 use SGUGA_Triplet
 use SGUGA_Cnf
+use SGUGA_Dets
+use SGUGA_Epq
+use SGUGA_Tables
 
 implicit none
 

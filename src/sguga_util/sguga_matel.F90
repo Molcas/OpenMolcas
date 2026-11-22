@@ -19,6 +19,7 @@
 module SGUGA_MatEl
 
 use SGUGA_Core
+use SGUGA_Epq
 
 implicit none
 

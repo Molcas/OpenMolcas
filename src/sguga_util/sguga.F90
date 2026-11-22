@@ -13,12 +13,16 @@
 !***********************************************************************
 
 ! The interface of the SGUGA library: re-exports the public entities of
-! its modules (SGUGA_Core, SGUGA_MatEl, SGUGA_Triplet, SGUGA_Cnf,
-! SGUGA_Checks).
+! its modules (SGUGA_Core, SGUGA_Tables, SGUGA_Dets, SGUGA_Epq,
+! SGUGA_Setup, SGUGA_MatEl, SGUGA_Triplet, SGUGA_Cnf, SGUGA_Checks).
 !#define _TEST_CSFDET_
 module SGUGA
 
 use SGUGA_Core
+use SGUGA_Tables
+use SGUGA_Dets
+use SGUGA_Epq
+use SGUGA_Setup
 use SGUGA_MatEl
 use SGUGA_Triplet
 use SGUGA_Cnf

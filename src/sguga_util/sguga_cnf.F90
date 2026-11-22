@@ -20,6 +20,7 @@ module SGUGA_Cnf
 
 use SGUGA_Core
 use SGUGA_MatEl
+use SGUGA_Tables
 
 implicit none
 
