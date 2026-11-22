@@ -15,7 +15,7 @@ subroutine PutRlx(D,DS,P,DAO,C)
 
 use spin_correlation, only: tRootGrad
 use rasscf_global, only: CBLBM, ENER, ExFac, iAdr15, iBLBM, IPCMROOT, iPr, iRLXRoot, IROOT, ISTORP, iSymBB, ITER, JBLBM, lRoots, &
-                         lSquare, NACPAR, NACPR2, NewFock, nFint, nRoots, NTOT4, RlxGrd
+                         lSquare, NACPAR, NACPR2, NewFock, nFint, nRoots, NTOT4, RFpert, RlxGrd
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
@@ -182,7 +182,7 @@ call TraCtl2(C,PUVX,TUVX,DI,FI,DA,FA,ipr,lsquare,ExFac)
 ! We should reconstruct the AO density matrix to prevent the
 ! mismatch of states for reaction field and geometry optimization
 ! It seems that IPCMROOT may not be defined sometimes
-if (lRF .and. PCM_On()) then
+if (lRF .and. (.not.RFPert) .and. PCM_On()) then
   if ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= Zero)) then
     ! Polarize PCM etc with weighted density
     call mma_allocate(DA_ave,max(NACPAR,NZ),Label='DA_ave')
@@ -252,7 +252,7 @@ B(1:ntot4) = Zero
 iTmp = newfock
 newFock = -99999
 
-if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= Zero))) then
+if (lRF .and. (.not.RFpert) .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= Zero))) then
   ! The rest of the RASSCF program uses state-specific density
   ! (note that, it is iRlxRoot!), so restore the one constructed
   ! above, before TraCtl2
