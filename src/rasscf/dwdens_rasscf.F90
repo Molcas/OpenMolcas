@@ -16,8 +16,8 @@
 subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
 
 use ci_interfaces, only: Mk_pdms
-use rasscf_global, only: DoDMRG, Ener, IADR15, ITER, NAC, NACPAR, NACPR2, nRoots
-use DWSol, only: DWSol_wgt, W_SOLV
+use rasscf_global, only: DoDMRG, Ener, IADR15, IROOT, ITER, lRoots, NAC, NACPAR, NACPR2, nRoots
+use DWSol, only: DWSol_pos, DWSol_wgt, W_SOLV
 use CI_Input, only: iDoGAS
 use rasscf_files, only: JOBIPH
 use CI_Input, only: NACTEL
@@ -35,7 +35,7 @@ implicit none
 real(kind=wp), intent(in) :: CMO(*)
 real(kind=wp), intent(out) :: D1A(NACPAR), RCT_FS(NACPAR)
 integer(kind=iwp), intent(in) :: IFINAL
-integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
+integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, j, jDisk
 real(kind=wp) :: rdum(1), wgt
 real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DStmp(:), Dtmp(:), DX(:), PAtmp(:), PTmp(:)
 integer(kind=iwp), parameter :: istate = 1
@@ -48,16 +48,18 @@ DS_ave(:) = Zero
 
 ITERcurr = 1
 if (ITER /= 1) ITERcurr = ITER-1
-call DWSol_wgt(2,ENER(:,ITERcurr))
+call DWSol_wgt(2,ENER(IROOT(1:nRoots),ITERcurr))
 
 if ((iFinal == 0) .or. (iFinal == 1)) then
   jDisk = IADR15(3)
-  do i=1,nRoots
-    wgt = W_SOLV(i)
+  do i=1,lRoots
     call DDaFile(JOBIPH,2,DX,NACPAR,jDisk)
     call DDaFile(JOBIPH,2,RCT_FS,NACPAR,jDisk)
     call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
     call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
+    j = DWSol_pos(i,IROOT)
+    if (j == 0) cycle
+    wgt = W_SOLV(j)
     if (wgt < 1.0e-10_wp) cycle
     DA_ave(:) = DA_ave(:)+wgt*DX(:)
     DS_ave(:) = DS_ave(:)+wgt*RCT_FS(:)
@@ -69,8 +71,8 @@ else if (iFinal == 2) then
   call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
 
   iDisk = IADR15(4)
-  do i=1,nRoots
-    wgt = W_SOLV(i)
+  do i=1,lRoots
+    j = DWSol_pos(i,IROOT)
     if (NACTEL == 0) then
       CIVEC(1) = One
     else
@@ -80,6 +82,8 @@ else if (iFinal == 2) then
         call DDafile(JOBIPH,iOpt,CIVEC,nConf,iDisk)
       end if
     end if
+    if (j == 0) cycle
+    wgt = W_SOLV(j)
 
     ! compute density matrices
 

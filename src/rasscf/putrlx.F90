@@ -14,13 +14,13 @@
 subroutine PutRlx(D,DS,P,DAO,C)
 
 use spin_correlation, only: tRootGrad
-use rasscf_global, only: CBLBM, ENER, ExFac, iAdr15, iBLBM, IPCMROOT, iPr, iRLXRoot, ISTORP, iSymBB, ITER, JBLBM, lRoots, lSquare, &
-                         NACPAR, NACPR2, NewFock, nFint, nRoots, NTOT4, RlxGrd
+use rasscf_global, only: CBLBM, ENER, ExFac, iAdr15, iBLBM, IPCMROOT, iPr, iRLXRoot, IROOT, ISTORP, iSymBB, ITER, JBLBM, lRoots, &
+                         lSquare, NACPAR, NACPR2, NewFock, nFint, nRoots, NTOT4, RlxGrd
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
 use Orbital_Spaces, only: NBAS, NSYM, NTOT1, NTOT2, NISH, NASH, NSSH
-use DWSol, only: DWSol_wgt, DWSolv, W_SOLV
+use DWSol, only: DWSol_pos, DWSol_wgt, DWSolv, W_SOLV
 use rctfld_module, only: lRF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -31,9 +31,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(_OUT_) :: D(*), DS(*), P(*), DAO(*)
 real(kind=wp), intent(in) :: C(*)
-integer(kind=iwp) :: i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk, left, NFSize, NZ, NSXS
+integer(kind=iwp) :: i, iFinal, iPrLev, istmp, itmp, j, jDisk, jPCMRoot, jtmp, kDisk, left, NFSize, NZ, NSXS
 real(kind=wp) :: rdum(1), rTmp, wgt
 character(len=8) :: Fmt2
+logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: B(:), DA(:), DA_ave(:), DI(:), DS_ave(:), DSX(:), DX(:), F(:), FA(:), FI(:), PUVX(:), PX(:), Q(:), &
                               TUVX(:), WRK1(:), WRK2(:)
 real(kind=wp), external :: DNRM2_
@@ -181,49 +182,64 @@ call TraCtl2(C,PUVX,TUVX,DI,FI,DA,FA,ipr,lsquare,ExFac)
 ! We should reconstruct the AO density matrix to prevent the
 ! mismatch of states for reaction field and geometry optimization
 ! It seems that IPCMROOT may not be defined sometimes
-if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= Zero))) then
-  !! Polarize PCM etc with weighted density
-  call mma_allocate(DA_ave,max(NACPAR,NZ),Label='DA_ave')
-  call mma_allocate(DS_ave,max(NACPAR,NZ),Label='DS_ave')
-  call mma_allocate(WRK1,max(NACPAR,NZ),Label='WRK1')
-  call mma_allocate(WRK2,max(NACPAR,NZ),Label='WRK2')
+if (lRF .and. PCM_On()) then
+  if ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= Zero)) then
+    ! Polarize PCM etc with weighted density
+    call mma_allocate(DA_ave,max(NACPAR,NZ),Label='DA_ave')
+    call mma_allocate(DS_ave,max(NACPAR,NZ),Label='DS_ave')
+    call mma_allocate(WRK1,max(NACPAR,NZ),Label='WRK1')
+    call mma_allocate(WRK2,max(NACPAR,NZ),Label='WRK2')
 
-  DA_ave(:) = Zero
-  DS_ave(:) = Zero
+    DA_ave(:) = Zero
+    DS_ave(:) = Zero
 
-  call DWSol_wgt(2,ENER(:,ITER))
-  kDisk = IADR15(3)
-  do i=1,nRoots
-    wgt = W_SOLV(i)
-    call DDaFile(JOBIPH,2,WRK1,NACPAR,kDisk)
-    call DDaFile(JOBIPH,2,WRK2,NACPAR,kDisk)
-    call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
-    call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
-    if (wgt < 1.0e-09_wp) cycle
-    DA_ave(1:NACPAR) = DA_ave(1:NACPAR)+wgt*WRK1(1:NACPAR)
-    DS_ave(1:NACPAR) = DS_ave(1:NACPAR)+wgt*WRK2(1:NACPAR)
-  end do
+    call DWSol_wgt(2,ENER(IROOT(1:nRoots),ITER))
+    kDisk = IADR15(3)
+    do i=1,lRoots
+      call DDaFile(JOBIPH,2,WRK1,NACPAR,kDisk)
+      call DDaFile(JOBIPH,2,WRK2,NACPAR,kDisk)
+      call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
+      call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
+      j = DWSol_pos(i,IROOT)
+      if (j == 0) cycle
+      wgt = W_SOLV(j)
+      if (wgt < 1.0e-09_wp) cycle
+      DA_ave(1:NACPAR) = DA_ave(1:NACPAR)+wgt*WRK1(1:NACPAR)
+      DS_ave(1:NACPAR) = DS_ave(1:NACPAR)+wgt*WRK2(1:NACPAR)
+    end do
 
-  ! Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
+    ! Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
 
-  DX(:) = DS_ave(1:NACPAR)
-  DS_ave(1:NZ) = DSX(:)
-  call DBLOCK(DX)
-  call Get_D1A_RASSCF(C,DX,DSX)
+    DX(:) = DS_ave(1:NACPAR)
+    DS_ave(1:NZ) = DSX(:)
+    call DBLOCK(DX)
+    call Get_D1A_RASSCF(C,DX,DSX)
 
-  DX(:) = DA_ave(1:NACPAR)
-  DA_ave(1:NZ) = DA(:)
-  call DBLOCK(DX)
-  call Get_D1A_RASSCF(C,DX,DA)
+    DX(:) = DA_ave(1:NACPAR)
+    DA_ave(1:NZ) = DA(:)
+    call DBLOCK(DX)
+    call Get_D1A_RASSCF(C,DX,DA)
 
-  call mma_deallocate(WRK1)
-  call mma_deallocate(WRK2)
-  if ((IPRLEV >= USUAL) .and. (DWSolv%DWZeta > Zero)) then
-    left = 6
-    write(u6,*)
-    write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-    write(u6,Fmt2//'A)') 'Dynamically weighted solvation has been employed'
-    write(u6,Fmt2//'A,(T45,10F6.3))') 'Final weights for the reaction field:',(W_SOLV(i),i=1,nRoots)
+    call mma_deallocate(WRK1)
+    call mma_deallocate(WRK2)
+    if ((IPRLEV >= USUAL) .and. (DWSolv%DWZeta > Zero)) then
+      left = 6
+      write(u6,*)
+      write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+      write(u6,Fmt2//'A)') 'Dynamically weighted solvation has been employed'
+      write(u6,Fmt2//'A,(T45,10F6.3))') 'Final weights for the reaction field:',(W_SOLV(i),i=1,nRoots)
+    end if
+  end if
+  if ((IPRLEV >= USUAL) .and. (DWSolv%DWZeta == Zero) .and. (IPCMROOT > 0)) then
+    call Qpg_iScalar('RF0CASSCF root',Found)
+    if (Found) then
+      call Get_iScalar('RF0CASSCF root',jPCMRoot)
+      if (IPCMROOT /= jPCMRoot) then
+        write(u6,*)
+        write(u6,'(6X,A,I3,A,I3,A)') 'The reaction field passed to the next modules is that of state',IPCMROOT, &
+                               ' (state',jPCMRoot,' at the start)'
+      end if
+    end if
   end if
 end if
 

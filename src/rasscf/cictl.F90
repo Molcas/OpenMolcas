@@ -771,6 +771,6 @@ else if (lRF .and. (IPCMROOT > 0)) then
 end if
 
 ! Update W_SOLV
-if (lRF .and. (IPCMROOT > 0)) call DWSol_root(IPCMROOT)
+if (lRF .and. (IPCMROOT > 0)) call DWSol_root(IPCMROOT,IROOT)
 
 end subroutine CICtl

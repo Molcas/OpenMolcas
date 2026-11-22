@@ -249,7 +249,7 @@ if (iRc /= _RC_ALL_IS_WELL_) then
   call Finalize()
   return
 end if
-if (lRF) call DWSol_init(IPCMROOT,nRoots,NonEq)
+if (lRF) call DWSol_init(IPCMROOT,IROOT,nRoots,NonEq)
 !call DWSCF_init(1,nRoots)
 
 ! Local print level may have changed:
