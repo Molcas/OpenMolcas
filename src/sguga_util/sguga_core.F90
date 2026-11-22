@@ -578,34 +578,6 @@ if (SG_Tag_Last >= huge(SG_Tag_Last)) SG_Tag_Last = 1
 iTag = SG_Tag_Last
 end function SG_New_Tag
 
-#ifdef _NOT_USED_
-subroutine build_trow_operator(T,k,tkk,H1)
-
-  use constants, only: Zero
-  implicit none
-
-  integer(kind=iwp),intent(in) :: k
-  real(kind=wp) ,intent(in) :: T(:,:)
-  real(kind=wp) ,intent(out):: tkk
-  real(kind=wp) ,intent(out):: H1(:,:)
-
-  integer(kind=iwp) :: p, nLev
-
-  nLev = size(T,1)
-  H1(:,:)=Zero
-
-  tkk = T(k,k)
-
-  do p=1,nLev
-     If (p == k) Cycle
-     H1(p,k) = T(p,k)/tkk
-  end do
-
-end subroutine build_trow_operator
-#endif
-
-
-
 !> The binomial coefficient (n over k), the number of k-subsets of n
 !> elements (as binom_coef of Faroald's second_quantization; SGUGA keeps its
 !> own copy).
@@ -704,35 +676,6 @@ do LEV=1,SGS%NLEV
 end do
 
 end function SG_PHASE
-
-#ifdef _NOT_USED_
-subroutine Encode_CSF( &
-           CIS,ISYCI, &
-           MV,ISYUP,IUP,IDWN, &
-           iCSF )
-
-use Definitions, only: iwp
-
-type(CIStruct), intent(in) :: CIS
-
-integer(kind=iwp), intent(in)  :: ISYCI
-integer(kind=iwp), intent(in)  :: MV
-integer(kind=iwp), intent(in)  :: ISYUP
-integer(kind=iwp), intent(in)  :: IUP
-integer(kind=iwp), intent(in)  :: IDWN
-
-integer(kind=iwp), intent(out) :: iCSF
-
-integer(kind=iwp) :: NUP
-integer(kind=iwp) :: IOFF
-
-NUP  = CIS%NOW(1,ISYUP,MV)
-IOFF = CIS%IOCSF(ISYUP,MV,ISYCI)
-
-iCSF = IOFF + IUP + (IDWN-1)*NUP
-
-end subroutine Encode_CSF
-#endif
 
 !> Decode_CSF for CIS(ME_iState), remembering the last two CSFs (least
 !> recently used slot replaced): the matrix-element routines decode the same

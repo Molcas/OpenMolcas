@@ -542,58 +542,6 @@ SubRoutine SG_Apply_Ak_Psi(iState,LSM,T,k,Scale,CI,Sigma)
   EXS(istate)%ReUse_SGTMP=Save_reuse
 End SubRoutine SG_Apply_Ak_Psi
 
-#ifdef _NOT_USED_
-subroutine SG_Sum_Hpq_Epq_Psi(iState,LSM,Hpq,nLev,CI,Sigma)
-
-  use Constants, only: Zero, One
-  use stdalloc,  only: mma_allocate,mma_deallocate
-
-  implicit none
-
-  integer(kind=iwp), intent(in) :: iState
-  integer(kind=iwp), intent(in) :: LSM
-  integer(kind=iwp), intent(in) :: nLev
-
-  real(kind=wp), intent(in)  :: Hpq(nLev,nLev)
-  real(kind=wp), intent(in)  :: CI(:)
-  real(kind=wp), intent(out) :: Sigma(:)
-
-  integer(kind=iwp) :: ip,iq
-  real(kind=wp)  :: Factor
-  real(kind=wp), Parameter :: Thr = 1.0d-14
-
-  real(kind=wp), allocatable :: Tmp(:)
-
-  call mma_allocate(Tmp,size(CI),Label='Tmp')
-
-  Sigma(:)=Zero
-
-  do iq=1,nLev
-    do ip=1,nLev
-
-      ! Epq may only connect orbitals of the same irrep
-      If (SGS(iState)%ISM(ip) /= SGS(iState)%ISM(iq)) Cycle
-
-      Factor = Hpq(ip,iq)
-
-      if(abs(Factor) < Thr) cycle
-
-      call SG_Epq_Psi( SGS(iState), &
-                       CIS(iState), &
-                       EXS(iState), &
-                       ip, iq, One, LSM, &
-                       CI, Tmp )
-
-      Sigma(:)=Sigma(:)+Factor*Tmp(:)
-
-    end do
-  end do
-
-  call mma_deallocate(Tmp)
-
-end subroutine SG_Sum_Hpq_Epq_Psi
-#endif
-
 subroutine SG_EpqEqp_Diag(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,DIAG)
 
 use Symmetry_Info, only: Mul
@@ -905,50 +853,6 @@ vTab => Null()
 end subroutine apply_colY
 
 end subroutine SG_EpqEqp_Diag
-
-#ifdef _NOT_USED_
-Subroutine SG_Multiply_By_Nk(iState,LSM,k,tkk,CI)
-
-  use Constants, only: Zero, One, Half, Three, Four
-  use stdalloc,  only: mma_allocate,mma_deallocate
-
-  Integer(kind=iwp), Intent(In)    :: iState
-  Integer(kind=iwp), Intent(In)    :: LSM
-  Integer(kind=iwp), Intent(In)    :: k
-  Real(kind=wp) , Intent(In)    :: tkk
-  Real(kind=wp) , Intent(InOut) :: CI(:)
-
-  Real(kind=wp) :: b,c
-
-  Real(kind=wp), Allocatable :: N1(:),N2(:)
-  Logical(kind=iwp) :: ReUse_Save
-
-  ReUse_Save=EXS(istate)%ReUse_SGTMP
-  EXS(istate)%ReUse_SGTMP=.False.
-
-  Call mma_allocate(N1,size(CI),Label='N1')
-  Call mma_allocate(N2,size(CI),Label='N2')
-
-  b = Half*(-tkk*tkk + Four*tkk - Three)
-  c = Half*(tkk-One)*(tkk-One)
-
-  ! N1 = Ekk Psi
-
-  Call SG_Epq_Psi(SGS(iState),CIS(iState),EXS(iState),k,k,One,LSM,CI,N1)
-
-  ! N2 = Ekk^2 Psi
-
-  Call SG_Epq_Psi(SGS(iState),CIS(iState),EXS(iState),k,k,One,LSM,N1,N2)
-
-  CI(:)=CI(:)+b*N1(:)+c*N2(:)
-
-  Call mma_deallocate(N1)
-  Call mma_deallocate(N2)
-
-  EXS(istate)%ReUse_SGTMP=ReUse_Save
-
-End Subroutine SG_Multiply_By_Nk
-#endif
 
 SubRoutine SG_TRACI(iState,LSM,T,nT,CI,nCSF)
 
