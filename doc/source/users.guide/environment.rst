@@ -307,6 +307,40 @@ The complete list of |molcas|-related environment variables:
 
 .. class:: variablelist
 
+:variable:`MOLCAS_CI_VERIFY`
+  Development and verification options of the CI interface used by the
+  RASSCF CI (the back ends Lucia, SGUGA and Faroald). A comma-separated list of:
+
+  * ``NO`` (or unset) --- production: no cross-checks (default).
+  * ``YES`` --- test of the SGUGA coupling coefficients :math:`\langle I|E_{pq}|J\rangle` and
+    :math:`\langle I|E_{pq}E_{rs}|J\rangle` against a reference.
+  * ``EPQ`` --- the same test for :math:`\langle I|E_{pq}|J\rangle` only.
+  * ``SIGMA`` --- compare the sigma vectors, the CI transformation and the density
+    matrices of the CI back end with those of SGUGA in every call.
+  * ``FARO`` --- use Faroald for C1 CASSCF (as the RASSCF keyword :kword:`FARO`),
+    compared with Lucia.
+  * ``HDIAG`` --- give the CI solver the exact diagonal :math:`\langle I|H|I\rangle` from SGUGA
+    instead of the configuration average (experimental).
+  * ``SGEX`` --- as the RASSCF keyword :kword:`SGEX`.
+  * ``ALL`` --- ``YES``, ``SIGMA`` and ``FARO``.
+
+  Any of ``YES``, ``EPQ``, ``SIGMA`` and ``FARO`` also switches on internal sanity checks.
+  The checks are expensive (they scale steeply with the number of CSFs) and are meant
+  for small test cases; tests that sample matrix elements at random print their seed,
+  which can be fixed with :variable:`MOLCAS_RANDOM_SEED`.
+
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_CI_VERIFY" APPEAR="CI interface verification" KIND="STRING" LEVEL="ADVANCED">
+              %%Keyword: MOLCAS_CI_VERIFY <advanced>
+              <HELP>
+              Development and verification options of the CI interface (RASSCF CI back ends
+              Lucia, SGUGA and Faroald), a comma-separated list of NO (default), YES (SGUGA
+              coupling-coefficient test), EPQ (one-operator part only), SIGMA (cross-check of
+              sigma vectors, CI transformation and densities against SGUGA), FARO (Faroald for
+              C1 CASSCF), HDIAG (exact SGUGA diagonal for the CI solver), SGEX (as the RASSCF
+              keyword SGEX) and ALL (YES, SIGMA and FARO). Expensive; for small test cases only.
+              </HELP>
+              </KEYWORD>
+
 :variable:`MOLCAS_COLOR`
   By default molcas uses markup characters in the output. To overwrite, set the key to NO.
 
