@@ -10,20 +10,30 @@
 #***********************************************************************
 
 set (sources
+     sguga.F90
+     sguga_checks.F90
+     sguga_cnf.F90
      sguga_core.F90
      sguga_densities.F90
+     sguga_matel.F90
      sguga_print.F90
      sguga_sigma.F90
      sguga_transform.F90
+     sguga_triplet.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     sguga.F90
+     sguga_checks.F90
+     sguga_cnf.F90
      sguga_core.F90
      sguga_densities.F90
+     sguga_matel.F90
      sguga_print.F90
      sguga_sigma.F90
      sguga_transform.F90
+     sguga_triplet.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
