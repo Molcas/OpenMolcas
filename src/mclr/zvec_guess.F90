@@ -110,7 +110,8 @@ end subroutine Make_Key
 subroutine ZG_Save(Kappa,CIT,Xvec,CI,Method)
   use MCLR_Data, only: CMO, nConf1, nDensC, nCMO
   use input_mclr, only: nRoots
-  real(kind=wp), intent(in) :: Kappa(nDensC), CIT(nConf1*nRoots), Xvec(nRoots**2), CI(nConf1*nRoots)
+  ! inout because dDaFile's buffer is intent(inout) (read and write); the arrays are only written to disk
+  real(kind=wp), intent(inout) :: Kappa(nDensC), CIT(nConf1*nRoots), Xvec(nRoots**2), CI(nConf1*nRoots)
   integer(kind=iwp), intent(in), optional :: Method
   integer(kind=iwp) :: iDisk, iMeth, Key(nKey), Lu
   iMeth = 0
