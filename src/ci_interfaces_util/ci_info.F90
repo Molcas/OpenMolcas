@@ -47,6 +47,10 @@ type CI_State_Info
   ! symmetry (Lucia: determinants or spin combinations; without Lucia
   ! nCSF); nCSF_Kept: CSFs of the CI symmetry kept by HEXS/DEXS
   integer(kind=iwp) :: nDet(MxSym) = 0, nCSF_Kept = 0
+  ! nSD(iSym): Slater determinants per symmetry (Lucia only, for the
+  ! output); Spin_Comb: nDet counts spin combinations (Lucia's IDC = 2)
+  integer(kind=iwp) :: nSD(MxSym) = 0
+  logical(kind=iwp) :: Spin_Comb = .false.
   ! STSym: the symmetry of the CI state (CI_Setup_SG; one graph covers all
   ! symmetries)
   integer(kind=iwp) :: STSym = 0
