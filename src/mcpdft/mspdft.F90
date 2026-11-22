@@ -227,7 +227,7 @@ end subroutine mspdft_finalize
 !> @param[out] k            the RF root
 subroutine lpdft_rf_step(nroots,e_states,d_rf,k)
 
-  use general_data, only: ntot1
+  use Orbital_Spaces, only: ntot1
   use Constants, only: Two
   use mcpdft_input, only: mcpdft_options
 
@@ -277,7 +277,8 @@ end subroutine lpdft_rf_step
 
 subroutine lpdft_rf_scf(nroots)
 
-  use general_data, only: ntot1, ispin
+  use CI_Info, only: CI_St
+  use Orbital_Spaces, only: ntot1
   use rasscf_global, only: potnuc, exfac, weight
   use Constants, only: Zero
   use mcpdft_input, only: mcpdft_options
@@ -286,6 +287,7 @@ subroutine lpdft_rf_scf(nroots)
 
 
   integer(kind=iwp), intent(in) :: nroots
+  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), parameter :: maxit = 50
   real(kind=wp), parameter :: thr = 1.0e-8_wp
   integer(kind=iwp) :: it, iroot, iPair, ir, jr, k, icharge
@@ -398,7 +400,7 @@ subroutine lpdft_rf_scf(nroots)
     repnuc = potnuc
     exf = exfac
     icharge = get_charge()
-    call DrvXV(h1d,g2d,d_rf,repnuc,ntot1,lFirst,lDff,lNonEq,lRFon,'SCF',exf,icharge,ispin,dftfock,lDoDFT)
+    call DrvXV(h1d,g2d,d_rf,repnuc,ntot1,lFirst,lDff,lNonEq,lRFon,'SCF',exf,icharge,CI_St(iState)%iSpin,dftfock,lDoDFT)
 
     call get_dArray('Reaction field',v,ntot1)
     e_rf_core = dDot_(ntot1,v,1,dao_core,1)
