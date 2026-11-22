@@ -85,7 +85,7 @@ use rasscf_files, only: ITERFILE, JOBIPH
 use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM, NTOT, NTOT1, NTOT2
 use CI_Input, only: iDOGAS, ISPIN, NRS1, NRS2, NRS3
 use rasscf_global, only: NCONF
-use DWSol, only: DWSol_final, DWSol_init, DWSolv
+use DWSol, only: DWSol_final, DWSol_init
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
 use rasscf_global, only: DOBLOCKDMRG
 #endif
@@ -1516,10 +1516,13 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     else
       call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,size(TUVX),TUVX,IFINAL)
     end if
-    if (lRF .and. ((iPCMRoot <= 0) .or. (DWSolv%DWZeta /= Zero))) then
+    if (lRF) then
       IAD15 = IADR15(6)
       call DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
     end if
+#   ifdef _HDF5_
+    call mh5_put_dset(wfn_energy,ENER(1,Iter))
+#   endif
 
     EAV = Zero
     do KROOT=1,NROOTS
