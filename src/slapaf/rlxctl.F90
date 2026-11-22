@@ -155,6 +155,8 @@ if ((allocated(mRowH) .and. (iter < NmIter)) .or. (lNmHss .and. (iter < NmIter))
     UpMeth = 'NumHss'
   end if
 
+  ! The next geometry is a displacement: tell e.g. MCLR not to use the previous solution as a guess
+  call Put_iScalar('Slapaf NumDiff',1)
   call MxLbls(nQQ,dqInt(:,iter),Shift(:,iter),Lbl)
   iNeg(:) = -99
   HUpMet = ' None '
@@ -177,6 +179,7 @@ else
   !                                                                    *
   ! Compute updated geometry in Internal coordinates
 
+  call Put_iScalar('Slapaf NumDiff',0)
   Step_Trunc = ' '
   E_Delta = zero
   if (allocated(mRowH) .or. lNmHss) kIter = iter-(NmIter-1)

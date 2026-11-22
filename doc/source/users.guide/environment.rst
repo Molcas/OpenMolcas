@@ -512,6 +512,21 @@ The complete list of |molcas|-related environment variables:
               </HELP>
               </KEYWORD>
 
+:variable:`MOLCAS_MCLR_WARM`
+  Inside a geometry loop (:command:`Do while`) and in molecular dynamics, :program:`MCLR` starts the
+  SA-MCSCF and MC-PDFT Z-vector equations from the solution of the previous geometry with the same target
+  (root or NAC pair), mapped onto the current orbitals and reference states. This reduces the number of iterations.
+  The displaced geometries of a numerical differentiation in :program:`SLAPAF` always start from zero.
+  If set to ``0``, the warm start is switched off.
+
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_MCLR_WARM" APPEAR="MCLR warm start" KIND="CHOICE" LIST="----,0" LEVEL="ADVANCED">
+              %%Keyword: MOLCAS_MCLR_WARM <advanced>
+              <HELP>
+              If set to 0, MCLR does not start the Z-vector equations from the solution
+              at the previous geometry in geometry loops and molecular dynamics.
+              </HELP>
+              </KEYWORD>
+
 :variable:`MOLCAS_MEM`
   See above.
 

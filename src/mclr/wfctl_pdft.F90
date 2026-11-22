@@ -29,6 +29,7 @@ use Orbital_Spaces, only: nAsh, nSym
 use CI_Input, only: nRs2
 use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nBas, nCSF, nDisp, nIter, nRoots, ntAsh, Weight
 use dmrginfo, only: DoDMRG, RGRAS2
+use ZVec_Guess, only: ZG_Active, ZG_Load, ZG_Save
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -40,14 +41,14 @@ logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: i, iDis, iDisp, ij, iLen, iOff, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iS, iSym, Iter, j, ji, jS, jSpin, &
                      kSym, Left, lLine, lPaper, Lu_50, nConf3, nG1, nG2, nOrbAct, nPre2, nTri
-real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, Diff, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), rE, ReCo, Res, rEsci, &
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, Diff, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), rE, ReCo, Res, rEsci, &
                  rEsk, TRoot, WScale
-logical(kind=iwp) :: CI, cnvrgd, lPrint
+logical(kind=iwp) :: CI, cnvrgd, lPrint, Warm, WarmOK
 character(len=8) :: Fmt2
 integer(kind=iwp), allocatable :: iPre(:)
 real(kind=wp), allocatable :: dKappa(:), Fancy(:), FMO1(:), FMO1t(:), FMO2t(:), FOSq(:), FOTr(:), FT99(:), Kap_New(:), &
                               Kap_New_Temp(:), Kappa(:), lmroots(:), lmroots_new(:), P2PDFT(:), P2WF(:), rCHC(:), Sc1(:), Sc2(:), &
-                              Sigma(:), Temp4(:), Temp5(:), WFOrb(:)
+                              Sigma(:), Temp4(:), Temp5(:), WFOrb(:), X0c(:), X0k(:), X0s(:)
 real(kind=wp), external :: DDot_
 integer(kind=iwp), external :: niPre, nPre
 
@@ -435,6 +436,42 @@ do iDisp=1,nDisp
   call ipIn(ipCIT)
   W(ipCIT)%A(1:nConf1*nroots) = W(ipCIT)%A(1:nConf1*nroots)+W(ipCId)%A(1:nConf1*nroots)
 
+  ! Warm start from the solution at the previous geometry: add x0 to the
+  ! solution and subtract A*x0 from the residual. The stored CI part has the
+  ! reference space projected out; that part is set analytically above.
+  WarmOK = ZG_Active() .and. (nDisp == 1) .and. (iSym == 1) .and. CI .and. (.not. doDMRG)
+  Warm = .false.
+  if (WarmOK) then
+    call mma_allocate(X0k,nDensC,Label='X0k')
+    call mma_allocate(X0c,nConf1*nRoots,Label='X0c')
+    call mma_allocate(X0s,nRoots**2,Label='X0s')
+    call ipIn(ipCI)
+    call ZG_Load(X0k,X0c,X0s,W(ipCI)%A,Warm,1)
+    if (Warm) then
+      dKappa(:) = X0k(:)
+      call ipIn(ipCId)
+      W(ipCId)%A(1:nConf1*nroots) = X0c(:)
+      call TimesE2_(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
+      ! keep the guess only if it lowers the residual (it need not after a large step)
+      call ipIn(ipS1)
+      call ipIn(ipST)
+      R1 = ddot_(nDensC,Sigma,1,Sigma,1)+ddot_(nConf1*nroots,W(ipST)%A,1,W(ipST)%A,1)
+      R2 = ddot_(nDensC,Sigma-Temp4,1,Sigma-Temp4,1)+ &
+           ddot_(nConf1*nroots,W(ipST)%A-W(ipS1)%A,1,W(ipST)%A-W(ipS1)%A,1)
+      Warm = R2 < R1
+      write(u6,'(A,2ES12.4,A)') ' ZVec_Guess: |r0|, |r0-Ax0|:',sqrt(R1),sqrt(R2),merge(' warm start ',' cold start ',Warm)
+      if (Warm) then
+        Sigma(:) = Sigma(:)-Temp4(:)
+        W(ipST)%A(1:nConf1*nroots) = W(ipST)%A(1:nConf1*nroots)-W(ipS1)%A(1:nConf1*nroots)
+        call ipIn(ipCIT)
+        W(ipCIT)%A(1:nConf1*nroots) = W(ipCIT)%A(1:nConf1*nroots)+X0c(:)
+        Kappa(:) = X0k(:)
+      end if
+    end if
+  end if
+
+  call ipIn(ipST)
+  call ipIn(ipCId)
   W(ipCId)%A(1:nconf1*nroots) = W(ipST)%A(1:nconf1*nroots)
 
   call opOut(ipci)
@@ -645,6 +682,17 @@ do iDisp=1,nDisp
 
   call ipin(ipCIT)
   call dDaFile(LuTemp,1,W(ipCIT)%A,iLen,iDis)
+
+  if (WarmOK) then
+    if (cnvrgd) then
+      X0s(:) = Zero
+      call ipIn(ipCI)
+      call ZG_Save(Kappa,W(ipCIT)%A,X0s,W(ipCI)%A,1)
+    end if
+    call mma_deallocate(X0s)
+    call mma_deallocate(X0c)
+    call mma_deallocate(X0k)
+  end if
 
   !MGD This last call seems unused, so I comment it
 

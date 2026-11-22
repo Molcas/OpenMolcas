@@ -358,6 +358,7 @@ character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
 !> - '``Relax Original root``'
 !> - '``NCONF``'                      For MS-PDFT gradient
 !> - '``nPtDisp``'                    Number of displaced geometries per degree of freedom in numerical gradients
+!> - '``Slapaf NumDiff``'             1 if the current geometry is a displacement of a numerical differentiation in Slapaf
 
 character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'Multiplicity    ','nMEP            ','No of Internal c','nSym            ', & !   1-  4
@@ -380,7 +381,7 @@ character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'nEFP_Coor       ','Relax Original r','Unique centers  ','nXF             ', & !  69- 72
                                 'CSPF            ','NCONF           ','SH RASSI run    ','isCMSNAC        ', & !  73- 76
                                 'isMECIMSPD      ','CalcNAC_Opt     ','MECI_via_SLAPAF ','nPtDisp         ', & !  77- 80
-                                '                ','                ','                ','                ', & !  81- 84
+                                'Slapaf NumDiff  ','                ','                ','                ', & !  81- 84
                                 '                ','                ','                ','                ', & !  85- 88
                                 '                ','                ','                ','                ', & !  89- 92
                                 '                ','                ','                ','                ', & !  93- 96
