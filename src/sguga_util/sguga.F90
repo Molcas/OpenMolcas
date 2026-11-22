@@ -345,12 +345,23 @@ integer(kind=iwp), allocatable :: ME_HD_Occ(:), ME_HW_Occ(:)
 real(kind=wp) :: ME_HD = Zero, ME_HW = Zero
 ! Coup_Value, Path_Value: blocks up to this size are scanned, not searched
 integer(kind=iwp), parameter :: nCoup_Lin = 16
+! MatEl_EpqErs_OO: the partial sums over the upper and the lower half of the
+! intermediate walks (OO_Half). They are coupling coefficients only (no
+! integrals) and recur for many CSF pairs, so they are kept in a
+! direct-mapped cache, valid as long as the graph of ME_iState: the key
+! (bra walk, ket walk, packed levels/orientations/bands/symmetry/half/state,
+! bra midvertex) in OO_Key, the sum in OO_Val; cleared by Reset_Decode_ME,
+! freed by SG_Free. Empty slot: OO_Key(4,:) = 0. Only sums with a coupling
+! block of more than OO_MinN transitions are kept (see OO_Half).
+integer(kind=iwp), parameter :: OO_MinN = 4, nOO_Cache = 8192, OO_MaxLev = 127, OO_MaxState = 511
+integer(kind=iwp), allocatable :: OO_Key(:,:)
+real(kind=wp), allocatable :: OO_Val(:)
 
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
 public :: SG_Map_CSFs, SG_Num_Setup
 public :: SGCnfList, SG_Mk_Cnf_List, SG_Free_Cnf_List, SG_Cnf_Occ, SG_Select_Explicit, SG_Block_H, SG_Explicit_Block
 public :: SG_Cnf_Avg_Diag
-public :: SG_CSF_StepVec, SG_MatEl_Tpq, SG_Tpq_Psi, SG_Tpq_Psi_Ref, SG_Xpq_Psi
+public :: CSF_Det_Expand, SG_CSF_StepVec, SG_MatEl_Tpq, SG_Tpq_Psi, SG_Tpq_Psi_Ref, SG_Xpq_Psi
 
 ! The split-graph coupling tables of the triplet operator (TRP_Setup): the
 ! tuples (key, left/right half walk, their symmetries, right midvertex,
@@ -613,6 +624,8 @@ call mma_deallocate(ME_Blk,safe='*')
 call mma_deallocate(ME_nBlk,safe='*')
 call mma_deallocate(ME_HD_Occ,safe='*')
 call mma_deallocate(ME_HW_Occ,safe='*')
+call mma_deallocate(OO_Key,safe='*')
+call mma_deallocate(OO_Val,safe='*')
 call Reset_MatEl_H()
 call mma_deallocate(CIS%ICase,safe='*')
 call mma_deallocate(CIS%VSGM,safe='*')
@@ -3965,260 +3978,68 @@ end subroutine Contract_Crossing_Temporary
 
 subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
+  ! SIGMA(:,I2) = SIGMA(:,I2) + CPQ*V*CI(:,I1) for every coupling (I1,I2,V)
+  ! of the lower half (columns of the CSF block). One contiguous column update
+  ! per coupling: the blocks are small, so gathering the columns for a GEMM
+  ! cost more (copies, temporaries, call overhead) than it gained.
   integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
-  integer(kind=iwp), parameter :: KBLOCK = 16
-  integer(kind=iwp) :: blck, finish, finish2, i, I1a(KBLOCK), I1b(KBLOCK), I2, I2b, ICP, nk, nk2, offset, start, start2
-  real(kind=wp) :: Xa(KBLOCK), Xb(KBLOCK), ABLOCK(NUP,KBLOCK), W(KBLOCK,2), TEMP(NUP,2)
-  real(kind=wp), pointer :: VTAB(:)
+  integer(kind=iwp) :: I1, I2, ICP, iFrom, iTo
+  real(kind=wp) :: X
 
-  VTAB => EXS%VTab
-
-  ICP = 1
-  start2=0
-  i2b=0
-  finish2=0
-
-  if (swap) then
-
-  do while (ICP <= NCP)
-
-    I2 = ICOUP(1,ICP)
-    start = ICP
-    finish = ICP
-    do
-      if (finish > NCP) exit
-      if (ICOUP(1,finish)/=I2) exit
-      finish = finish + 1
-    end do
-
-    nk = finish-start
-
-    if (finish <= NCP) then
-      I2b = ICOUP(1,finish)
-      start2 = finish
-      finish2 = start2
-      do
-        if (finish2 > NCP) exit
-        if (ICOUP(1,finish2)/=I2b) exit
-        finish2 = finish2 + 1
-      end do
-      nk2 = finish2-start2
-    else
-      nk2 = -1
-    end if
-
-    ! structural GEMM only if perfectly safe AND fits buffers
-    if ((nk == nk2) .and. (nk > 0) .and. (nk <= KBLOCK)) then
-      do i=1,nk
-        I1a(i)=ICOUP(2,start+i-1)
-        I1b(i)=ICOUP(2,start2+i-1)
-      end do
-      if (all(I1a(1:nk)==I1b(1:nk))) then
-        do i=1,nk
-          Xa(i)=CPQ*VTAB(ICOUP(3,start+i-1))
-          Xb(i)=CPQ*VTAB(ICOUP(3,start2+i-1))
-          ABLOCK(:,i)=CI(:,I1a(i))
-          W(i,1)=Xa(i)
-          W(i,2)=Xb(i)
-        end do
-
-        call DGEMM_('N','N',NUP,2,nk,One,ABLOCK,NUP,W,KBLOCK,Zero,TEMP,NUP)
-
-        SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
-        SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
-
-        ICP = finish2
-        cycle
-      end if
-    end if
-
-    ! fallback blocked GEMV
-    do offset = 1, nk, KBLOCK
-      blck = min(KBLOCK,nk-offset+1)
-
-      do i=1,blck
-        I1a(i)=ICOUP(2,start+offset+i-2)
-        Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
-        ABLOCK(:,i)=CI(:,I1a(i))
-      end do
-
-      call DGEMM_('N','N', NUP, 1, blck, 1.0_wp, ABLOCK, NUP, Xa, KBLOCK, 0.0_wp, TEMP, NUP)
-
-      SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
-    end do
-
-    ICP = finish
-
+  ! with swap the roles of the walk indices are exchanged
+  iTo = merge(1,2,swap)
+  iFrom = merge(2,1,swap)
+  do ICP=1,NCP
+    I2 = ICOUP(iTo,ICP)
+    I1 = ICOUP(iFrom,ICP)
+    X = CPQ*EXS%VTab(ICOUP(3,ICP))
+    SIGMA(:,I2) = SIGMA(:,I2)+X*CI(:,I1)
   end do
-
-  else
-
-  do while (ICP <= NCP)
-
-    I2 = ICOUP(2,ICP)
-    start = ICP
-    finish = ICP
-    do
-      if (finish > NCP) exit
-      if (ICOUP(2,finish)/=I2) exit
-      finish = finish + 1
-    end do
-
-    nk = finish-start
-
-    if (finish <= NCP) then
-      I2b = ICOUP(2,finish)
-      start2 = finish
-      finish2 = start2
-      do
-        if (finish2 > NCP) exit
-        if (ICOUP(2,finish2)/=I2b) exit
-        finish2 = finish2 + 1
-      end do
-      nk2 = finish2-start2
-    else
-      nk2 = -1
-    end if
-
-    if ((nk == nk2) .and. (nk > 0) .and. (nk <= KBLOCK)) then
-      do i=1,nk
-        I1a(i)=ICOUP(1,start+i-1)
-        I1b(i)=ICOUP(1,start2+i-1)
-      end do
-      if (all(I1a(1:nk)==I1b(1:nk))) then
-        do i=1,nk
-          Xa(i)=CPQ*VTAB(ICOUP(3,start+i-1))
-          Xb(i)=CPQ*VTAB(ICOUP(3,start2+i-1))
-          ABLOCK(:,i)=CI(:,I1a(i))
-          W(i,1)=Xa(i)
-          W(i,2)=Xb(i)
-        end do
-
-        call DGEMM_('N','N',NUP,2,nk,One,ABLOCK,NUP,W,KBLOCK,Zero,TEMP,NUP)
-
-        SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
-        SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
-
-        ICP = finish2
-        cycle
-      end if
-    end if
-
-    do offset = 1, nk, KBLOCK
-      blck = min(KBLOCK,nk-offset+1)
-
-      do i=1,blck
-        I1a(i)=ICOUP(1,start+offset+i-2)
-        Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
-        ABLOCK(:,i)=CI(:,I1a(i))
-      end do
-
-      call DGEMM_('N','N',NUP,1,blck,One,ABLOCK,NUP,Xa,KBLOCK,Zero,TEMP,NUP)
-
-      SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
-    end do
-
-    ICP = finish
-
-  end do
-
-  end if
-
-  nullify(VTAB)
 
 end subroutine apply_col
 
   subroutine apply_row(CPQ,NDWN,NUPC,CI,NUPSG,SIGMA,NCP,ICOUP,swap)
 
-    integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
+  ! SIGMA(I2,:) = SIGMA(I2,:) + CPQ*V*CI(I1,:) for every coupling (I1,I2,V)
+  ! of the upper half (rows of the CSF block). Columns outside, couplings
+  ! inside: every access stays within one column of CI and of SIGMA (no
+  ! strided rows, no tile copies).
+  integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUPC,NDWN)
   real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
   logical(kind=iwp), intent(in) :: swap
-  integer(kind=iwp), parameter :: KBLOCK=16
-    integer(kind=iwp) :: blk, i, ICP, IDWN, j, nblk
-    real(kind=wp) :: CI_blk(KBLOCK,KBLOCK), X
-    integer(kind=iwp), pointer :: I1LIST(:), I2LIST(:)
-    real(kind=wp), pointer :: VTAB(:), XLIST(:)
-  logical, parameter :: USE_OPT=.true.
+  integer(kind=iwp) :: ICP, IDWN
+  integer(kind=iwp), pointer :: I1LIST(:), I2LIST(:)
+  real(kind=wp), pointer :: XLIST(:)
 
-  VTAB => EXS%VTab
   XLIST => EXS%XLIST
   I1LIST => EXS%I1LIST
   I2LIST => EXS%I2LIST
 
-  if (.not. USE_OPT) then
-
-    if (swap) then
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(2,ICP)
-        I2list(ICP)=ICOUP(1,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    else
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(1,ICP)
-        I2list(ICP)=ICOUP(2,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    end if
-
-
+  if (swap) then
     do ICP=1,NCP
-!$OMP SIMD
-      do IDWN=1,NDWN
-        SIGMA(I2list(ICP),IDWN)=SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
-      end do
+      I1list(ICP) = ICOUP(2,ICP)
+      I2list(ICP) = ICOUP(1,ICP)
+      Xlist(ICP) = CPQ*EXS%VTab(ICOUP(3,ICP))
     end do
-
   else
-
-    ! sorted input improves locality (optional external sort)
-    if (swap) then
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(2,ICP)
-        I2list(ICP)=ICOUP(1,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    else
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(1,ICP)
-        I2list(ICP)=ICOUP(2,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    end if
-
-    ! tiled processing
-    do j=1,NDWN,KBLOCK
-      nblk = min(KBLOCK, NDWN-j+1)
-
-      do i=1,NCP,KBLOCK
-        blk = min(KBLOCK, NCP-i+1)
-
-        ! pack tile (transpose-like)
-        do ICP=1,blk
-          do IDWN=1,nblk
-            CI_blk(IDWN,ICP)=CI(I1list(i+ICP-1), j+IDWN-1)
-          end do
-        end do
-
-        ! compute
-        do ICP=1,blk
-          X = Xlist(i+ICP-1)
-!$OMP SIMD
-          do IDWN=1,nblk
-            SIGMA(I2list(i+ICP-1), j+IDWN-1) =               SIGMA(I2list(i+ICP-1), j+IDWN-1) + X*CI_blk(IDWN,ICP)
-          end do
-        end do
-
-      end do
+    do ICP=1,NCP
+      I1list(ICP) = ICOUP(1,ICP)
+      I2list(ICP) = ICOUP(2,ICP)
+      Xlist(ICP) = CPQ*EXS%VTab(ICOUP(3,ICP))
     end do
-
   end if
 
-    nullify(VTAB)
+  do IDWN=1,NDWN
+    do ICP=1,NCP
+      SIGMA(I2list(ICP),IDWN) = SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
+    end do
+  end do
+
+  nullify(XLIST,I1LIST,I2LIST)
 
 end subroutine apply_row
 
@@ -5003,6 +4824,7 @@ integer(kind=iwp) :: nSy, nMV, ISYC, ISYU, MV, n, k, Tmp(3)
 ME_Dec(:,:) = 0
 ME_DecNext = 1
 call Reset_MatEl_H()
+if (allocated(OO_Key)) OO_Key(4,:) = 0
 call mma_deallocate(ME_Blk,safe='*')
 call mma_deallocate(ME_nBlk,safe='*')
 if (.not. allocated(CIS(ME_iState)%NOCSF)) return
@@ -6047,6 +5869,12 @@ Do ISYCI=1, SGS(istate)%nSym
   Call Print_CSF_Walks(SGS(iState),CIS(iState),ISYCI)
 End Do
 #endif
+
+! Nothing to test without active levels (e.g. RASSCF with an empty active space)
+if (SGS(iState)%nLev == 0) then
+  write(u6,'(1X,A)') 'SG_Test_EpqErs_Ref: no active levels, nothing to test'
+  return
+end if
 
 ! State and symmetry of the module-level matrix-element routines
 ME_iState = iState
@@ -9491,8 +9319,6 @@ integer(kind=iwp) :: MVI,MVJ,MVK,MV1,MV2
 integer(kind=iwp) :: ISYUI,ISYUJ,ISYUK,ISYDI,ISYDJ,ISYDK
 integer(kind=iwp) :: IUI,IUJ,IDI,IDJ
 integer(kind=iwp) :: U1,L1,U2,L2
-integer(kind=iwp) :: INDEO
-integer(kind=iwp) :: N1,Off1,N2,Off2
 integer(kind=iwp) :: iK
 logical(kind=iwp) :: Swap1, Swap2
 
@@ -9539,41 +9365,74 @@ do MV1 = 1, 2
    end do
    if (MV2 == 0) cycle
 
-   ! ------------------------------------------------------------
    ! Upper half: XU = Sum_Ku A_pq(Iu,Ku) A_rs(Ku,Ju)
-   ! ------------------------------------------------------------
-   INDEO = (MV2-1)*nLev+U2
-   N2   = merge(EXS(ME_iState)%NOCP(INDEO,ISYUK,MVK),EXS(ME_iState)%NOCP(INDEO,ISYUJ,MVJ),Swap2)
-   Off2 = merge(EXS(ME_iState)%IOCP(INDEO,ISYUK,MVK),EXS(ME_iState)%IOCP(INDEO,ISYUJ,MVJ),Swap2)
-   if (N2 == 0) cycle
-   INDEO = (MV1-1)*nLev+U1
-   N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYUK,MVK),Swap1)
-   Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYUI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYUK,MVK),Swap1)
-   if (N1 == 0) cycle
-   ! Walk index (Path_Value): only the transitions of E_rs starting at the
-   ! ket walk IUJ and of E_pq starting at K.
-   XU = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IUJ,Off1,N1,merge(2,1,Swap1),IUI)
+   XU = OO_Half(0,U1,U2,ISYUI,ISYUK,ISYUJ,MVI,MVK,MVJ,MV1,MV2,Swap1,Swap2,IUI,IUJ)
    if (XU == Zero) cycle
-
-   ! ------------------------------------------------------------
    ! Lower half: XL = Sum_Kl A_pq(Il,Kl) A_rs(Kl,Jl)
-   ! ------------------------------------------------------------
-   INDEO = (MV2-1)*nLev+L2
-   N2   = merge(EXS(ME_iState)%NOCP(INDEO,ISYDK,MVK),EXS(ME_iState)%NOCP(INDEO,ISYDJ,MVJ),Swap2)
-   Off2 = merge(EXS(ME_iState)%IOCP(INDEO,ISYDK,MVK),EXS(ME_iState)%IOCP(INDEO,ISYDJ,MVJ),Swap2)
-   if (N2 == 0) cycle
-   INDEO = (MV1-1)*nLev+L1
-   N1   = merge(EXS(ME_iState)%NOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYDK,MVK),Swap1)
-   Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYDI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYDK,MVK),Swap1)
-   if (N1 == 0) cycle
-   ! Walk index (Path_Value): only the transitions of E_rs starting at the
-   ! ket walk IDJ and of E_pq starting at K.
-   XL = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IDJ,Off1,N1,merge(2,1,Swap1),IDI)
+   XL = OO_Half(1,L1,L2,ISYDI,ISYDK,ISYDJ,MVI,MVK,MVJ,MV1,MV2,Swap1,Swap2,IDI,IDJ)
 
    Value = Value+XU*XL
 end do
 
 end function MatEl_EpqErs_OO
+
+!
+! One half of MatEl_EpqErs_OO, X = Sum_K A_pq(I,K) A_rs(K,J) over the half
+! walks K (upper half iHalf = 0 with the upper levels A1 = max(p,q),
+! A2 = max(r,s), lower half iHalf = 1 with the lower levels), for the bra and
+! ket half walks IWI, IWJ of symmetries ISYI, ISYJ (ISYK for K), the
+! midvertices MVI, MVK, MVJ reached through the bands MV1 (E_pq) and MV2
+! (E_rs), and the orientations Swap1, Swap2 of the operators. X depends on
+! the graph only and is kept in the cache OO_Key/OO_Val.
+!
+function OO_Half(iHalf,A1,A2,ISYI,ISYK,ISYJ,MVI,MVK,MVJ,MV1,MV2,Swap1,Swap2,IWI,IWJ) result(X)
+
+use stdalloc, only: mma_allocate
+use, intrinsic :: iso_fortran_env, only: int64
+
+integer(kind=iwp), intent(in) :: iHalf, A1, A2, ISYI, ISYK, ISYJ, MVI, MVK, MVJ, MV1, MV2, IWI, IWJ
+logical(kind=iwp), intent(in) :: Swap1, Swap2
+real(kind=wp) :: X
+integer(kind=iwp) :: nLev, INDEO, N1, Off1, N2, Off2, Pack, h
+
+X = Zero
+nLev = SGS(ME_iState)%nLev
+INDEO = (MV2-1)*nLev+A2
+N2 = merge(EXS(ME_iState)%NOCP(INDEO,ISYK,MVK),EXS(ME_iState)%NOCP(INDEO,ISYJ,MVJ),Swap2)
+if (N2 <= 0) return
+INDEO = (MV1-1)*nLev+A1
+N1 = merge(EXS(ME_iState)%NOCP(INDEO,ISYI,MVI),EXS(ME_iState)%NOCP(INDEO,ISYK,MVK),Swap1)
+if (N1 <= 0) return
+Off2 = merge(EXS(ME_iState)%IOCP((MV2-1)*nLev+A2,ISYK,MVK),EXS(ME_iState)%IOCP((MV2-1)*nLev+A2,ISYJ,MVJ),Swap2)
+Off1 = merge(EXS(ME_iState)%IOCP(INDEO,ISYI,MVI),EXS(ME_iState)%IOCP(INDEO,ISYK,MVK),Swap1)
+
+! For small coupling blocks (at most OO_MinN transitions each) Path_Value
+! costs about as much as a cache lookup.
+if ((max(N1,N2) <= OO_MinN) .or. (nLev > OO_MaxLev) .or. (ME_iState > OO_MaxState)) then
+  ! Walk index (Path_Value): only the transitions of E_rs starting at the
+  ! ket walk IWJ and of E_pq starting at K.
+  X = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IWJ,Off1,N1,merge(2,1,Swap1),IWI)
+  return
+end if
+
+Pack = A1+128*(A2+128*(merge(1,0,Swap1)+2*(merge(1,0,Swap2)+2*((MV1-1)+2*((MV2-1)+2*((ISYI-1)+8*(iHalf+2*ME_iState)))))))
+! hash in 64-bit arithmetic (no overflow: each term < 2**54)
+h = int(mod(int(IWI,kind=int64)*40503_int64+int(IWJ,kind=int64)*65599_int64+int(Pack,kind=int64)*2654435_int64+ &
+            int(MVI,kind=int64)*97_int64,int(nOO_Cache,kind=int64)),kind=iwp)+1
+if (.not. allocated(OO_Key)) then
+  call mma_allocate(OO_Key,4,nOO_Cache,Label='OO_Key')
+  call mma_allocate(OO_Val,nOO_Cache,Label='OO_Val')
+  OO_Key(:,:) = 0
+  OO_Val(:) = Zero
+else if ((OO_Key(4,h) == MVI) .and. (OO_Key(1,h) == IWI) .and. (OO_Key(2,h) == IWJ) .and. (OO_Key(3,h) == Pack)) then
+  X = OO_Val(h)
+  return
+end if
+X = Path_Value(EXS(ME_iState),Off2,N2,merge(2,1,Swap2),IWJ,Off1,N1,merge(2,1,Swap1),IWI)
+OO_Key(:,h) = [IWI,IWJ,Pack,MVI]
+OO_Val(h) = X
+
+end function OO_Half
 
 !
 ! <I|E_pq E_rs|J> for I and J of symmetry LSM, by topology: each operator is

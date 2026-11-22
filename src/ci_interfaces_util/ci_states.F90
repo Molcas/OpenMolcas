@@ -19,7 +19,7 @@
 
 module CI_States
 
-use sguga, only: CIS, EXS, SG_Checks, SG_Epq_Psi, SG_Free, SG_Init, SG_Init_Light, SGS, StepVec
+use sguga, only: CIS, EXS, SG_Checks, SG_Epq_Psi, SG_Free, SG_Init, SG_Init_Light, SG_New_Tag, SG_No_Reuse, SGS, StepVec
 use SG_Lucia_Bridge, only: SG_ReOrd, SG_ReOrd_Orig
 use SGUGA_Sigma, only: SG_Occ_Diag
 use SGUGA_Print, only: SG_Print, SG_PRWF
@@ -36,10 +36,16 @@ private
 
 public :: CI_CITRA, CI_Epq_Psi, CI_Free_State, CI_Occ_Diag, CI_Print_Graph, CI_PrWF, CI_ReOrd, CI_ReOrd_Orig, CI_Setup_RAS, &
           CI_Setup_SG, CI_StepVec, CI_SYG2SGU, CI_Walk_Next, RAS_Partitions
-public :: CI_No_GAS, CI_Space_Free, CI_Space_From_Rec, CI_Space_Rd_H5, CI_Space_Rd_JobIph, CI_Space_Rec_Len, CI_Space_To_Rec
+public :: CI_New_Tag, CI_No_GAS, CI_No_Reuse, CI_Space_Free, CI_Space_From_Rec, CI_Space_Rd_H5, CI_Space_Rd_JobIph, &
+          CI_Space_Rec_Len, CI_Space_To_Rec
 
 ! length of the CI-space record of JobIph (IADR15(19)) and HDF5 (CI_SPACE)
 integer(kind=iwp), parameter :: CI_Space_Rec_Len = Space_Rec_Len
+!> Tag of a CI vector for CI_Epq_Psi: a caller that applies several E_pq to
+!> the same vector passes the same tag (a new one, from CI_New_Tag, whenever
+!> the vector changes), so that intermediates can be reused without a pass
+!> over the vector. CI_No_Reuse: the vector is used only once.
+integer(kind=iwp), parameter :: CI_No_Reuse = SG_No_Reuse
 
 contains
 
@@ -163,13 +169,21 @@ subroutine CI_Free_State(iState)
   CI_St(iState)%STSym = 0
 end subroutine CI_Free_State
 
-!> SGM = SGM + CPQ E_pq CI for state iState (CI of symmetry ISYCI).
-subroutine CI_Epq_Psi(iState,IP,IQ,CPQ,ISYCI,CI,SGM)
+!> SGM = SGM + CPQ E_pq CI for state iState (CI of symmetry ISYCI); CI_Tag:
+!> see CI_New_Tag (without it the vector is recognized by its contents).
+subroutine CI_Epq_Psi(iState,IP,IQ,CPQ,ISYCI,CI,SGM,CI_Tag)
   integer(kind=iwp), intent(in) :: iState, IP, IQ, ISYCI
   real(kind=wp), intent(in) :: CPQ, CI(*)
   real(kind=wp), intent(inout) :: SGM(*)
-  call SG_Epq_Psi(SGS(iState),CIS(iState),EXS(iState),IP,IQ,CPQ,ISYCI,CI,SGM)
+  integer(kind=iwp), intent(in), optional :: CI_Tag
+  call SG_Epq_Psi(SGS(iState),CIS(iState),EXS(iState),IP,IQ,CPQ,ISYCI,CI,SGM,CI_Tag)
 end subroutine CI_Epq_Psi
+
+!> A new tag for a CI vector (see CI_Epq_Psi).
+function CI_New_Tag() result(iTag)
+  integer(kind=iwp) :: iTag
+  iTag = SG_New_Tag()
+end function CI_New_Tag
 
 !> The CSFs of symmetry LSM of state iState one by one in the order of the
 !> CI vectors: it(1:4) = (MV, ISYUP, IDWN, IUP) of the next CSF (start with

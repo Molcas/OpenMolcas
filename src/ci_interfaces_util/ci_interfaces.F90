@@ -27,8 +27,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use SGUGA_Sigma, only: SG_Sigma_Free, SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
-use SGUGA_Densities, only: SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
+use SGUGA_Sigma, only: SG_Check_HPsi_Op, SG_Sigma_Free, SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
+use SGUGA_Densities, only: SG_Check_Trans_Two_PDM, SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
 use CI_Input, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
 use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
@@ -1836,7 +1836,7 @@ use Molcas, only: MxSym
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
 integer(kind=iwp), parameter :: iState=1
-integer(kind=iwp) :: nAct, k, iSym, iLev, nPrt, nCSF_Lucia
+integer(kind=iwp) :: nAct, k, iSym, iLev, nPrt, nCSF_Lucia, nFail_TT
 integer(kind=iwp), allocatable :: nOrbP(:)
 logical(kind=iwp) :: Full
 integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
@@ -1901,6 +1901,18 @@ If (Do_SGUGA) Then
    ! under SIGMA against Lucia and Faroald).
    if (CI_Verify('YES') .and. (.not. iDoGAS)) then
       call SG_Test_EpqErs_Ref(iState,STSym,sg_h_psi,sg_h_psi_ras)
+      ! the 2-body transition densities (bra /= ket, any symmetries)
+      call SG_Check_Trans_Two_PDM(SGS(iState),CIS(iState),EXS(iState),nFail_TT)
+      if (nFail_TT > 0) then
+        write(u6,'(1X,A,I0)') 'CI_Initialize: sg_trans_two_pdm check failed: ',nFail_TT
+        call Abend()
+      end if
+      ! sigma for operators of any symmetry
+      call SG_Check_HPsi_Op(SGS(iState),CIS(iState),EXS(iState),nFail_TT)
+      if (nFail_TT > 0) then
+        write(u6,'(1X,A,I0)') 'CI_Initialize: sg_h_psi_op check failed: ',nFail_TT
+        call Abend()
+      end if
    else if (CI_Verify('YES') .or. CI_Verify('EPQ')) then
       call SG_Test_EpqErs_Ref(iState,STSym,sg_h_psi,sg_h_psi_ras,Epq_Only=.true.)
    end if

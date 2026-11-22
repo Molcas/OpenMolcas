@@ -99,12 +99,12 @@ use CI_Input, only: NACTEL
 #ifdef _FDE_
 use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, embWriteDens, embWriteEsp
 #endif
-#ifdef _HDF5_
-use mh5, only: mh5_put_attr, mh5_put_dset
 use ci_interfaces, only: CI_File_To_Basis, Mk_T1DM
-use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
 use CI_Input, only: STSYM
+#ifdef _HDF5_
+use mh5, only: mh5_put_attr, mh5_put_dset
+use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -125,9 +125,10 @@ character :: CTHRE, CTHRSX, CTHRTE
 class(CI_solver_t), allocatable :: CI_solver
 real(kind=wp), allocatable :: CMON(:), Dens(:), EDUM(:), Fock(:), folded_Fock(:), OCCX(:), orbital_E(:), PUVX(:), QMat(:), &
                               Scr1(:), Scr2(:), SMat(:), Tmp1(:), TmpD1S(:), TmpDMat(:), TmpDS(:)
-#ifdef _HDF5_
-integer(kind=iwp) :: iDX, jDisk, jRoot, kDisk
+integer(kind=iwp) :: jDisk, jRoot, kDisk
 real(kind=wp), allocatable :: DStmp(:), Dtmp(:), Tmp(:), VecL(:), VecR(:), XTmp(:)
+#ifdef _HDF5_
+integer(kind=iwp) :: iDX
 #endif
 #ifdef _FDE_
 integer(kind=iwp) :: iDummyEmb, iEmb, iUnit, nNuc
@@ -1577,8 +1578,8 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     call mma_deallocate(OCCX)
 
     ! Compute transition density matrices
+    ! (recorded with Add_Info always, stored on the HDF5 file when available)
     if (Key('TDM')) then
-#     ifdef _HDF5_
       call mma_allocate(Tmp,NConf,Label='Tmp')
       call mma_allocate(VecL,NConf,Label='VecL')
       call mma_allocate(VecR,NConf,Label='VecR')
@@ -1606,9 +1607,11 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
             call add_info('TSDM',XTMP,NAC**2,6)
           end if
           call mma_deallocate(XTmp)
+#         ifdef _HDF5_
           idx = (jRoot-2)*(jRoot-1)/2+kRoot
           call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),[NAC,NAC,1],[0,0,idx-1])
           if (iSpin > 1) call mh5_put_dset(wfn_transsdens,DStmp(1:NAC**2),[NAC,NAC,1],[0,0,idx-1])
+#         endif
         end do
       end do
       call mma_deallocate(TMP)
@@ -1616,9 +1619,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       call mma_deallocate(VecR)
       call mma_deallocate(Dtmp)
       call mma_deallocate(DStmp)
-#     else
-      call WarningMessage(1,'HDF5 support disabled, TDM keyword ignored.')
-#     endif
     end if
 
     if (Key('SSCR')) then

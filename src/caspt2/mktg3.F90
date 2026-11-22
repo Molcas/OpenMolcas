@@ -34,7 +34,7 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi
+use CI_States, only: CI_Epq_Psi, CI_New_Tag
 use caspt2_module, only: IASYM, ISCF, NASHT, MxCI
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs, MyRank
@@ -49,9 +49,9 @@ real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI)
 real(kind=wp), intent(out) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 integer(kind=iwp) :: IL, IND1, IND2, IND3, IP, IP1, IP1END, IP1STA, IP1STAU, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, &
                      ISSG2, ISTAU, IT, IT1, IT2, IT3, ITG3, ITS, IU, IU1, IU2, IU3, IUS, IV, IVS, IX, IXS, IY, IYS, IZ, IZS, JL, &
-                     jtuvxyz, L, LFROM, LSGM1, LSGM2, LTAU, LTO, NB, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
+                     jtuvxyz, L, LFROM, LSGM1, LSGM2, LTAU, LTO, NB, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF, TAG1, TAG2
 real(kind=wp) :: OCC, VAL
-integer(kind=iwp), allocatable :: P2LEV(:,:)
+integer(kind=iwp), allocatable :: P2LEV(:,:), TAG_S2(:)
 real(kind=wp), allocatable :: TG3BUF(:), TG3WRK(:)
 real(kind=wp), external :: DDot_
 integer(kind=iwp), parameter :: istate = 1
@@ -105,6 +105,11 @@ if (ISCF == 0) then
   ! Wishful thinking:
   NVECS = 2*NASHT**2+1
   ! But what is really available?
+  ! tags of the CI vectors for CI_Epq_Psi: CI1, CI2 and each buffered
+  ! Sigma2 = E(YZ) Psi2 (applied for every IP2)
+  call mma_allocate(TAG_S2,NASHT**2,Label='TAG_S2')
+  TAG1 = CI_New_Tag()
+  TAG2 = CI_New_Tag()
   call mma_MaxDBLE(NTG3WRK)
   NTG3WRK = min(MXCI*NVECS,NTG3WRK)
   NVECS = NTG3WRK/MXCI
@@ -146,7 +151,8 @@ if (ISCF == 0) then
       ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
       TG3WRK(LTO:LTO+MXCI-1) = Zero
       ! LTO is first element of Sigma2 = E(YZ) Psi2
-      call CI_Epq_Psi(istate,IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
+      call CI_Epq_Psi(istate,IL,JL,One,LSYM2,CI2,TG3WRK(LTO),TAG2)
+      TAG_S2(IP3-IP3STA+1) = CI_New_Tag()
       if (ISSG2 == LSYM1) TG1(IY,IZ) = DDOT_(NCI1,CI1,1,TG3WRK(LTO),1)
       LTO = LTO+MXCI
     end do
@@ -165,7 +171,7 @@ if (ISCF == 0) then
         IUS = IASYM(IU)
         ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
         TG3WRK(LTO:LTO+MXCI-1) = Zero
-        call CI_Epq_Psi(istate,IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
+        call CI_Epq_Psi(istate,IL,JL,One,LSYM1,CI1,TG3WRK(LTO),TAG1)
         LTO = LTO+MXCI
       end do
       ! Now compute as many elements as possible:
@@ -194,7 +200,7 @@ if (ISCF == 0) then
           NTAU = CI_St(istate)%nCSF(ISTAU)
           TG3WRK(LTAU:LTAU+MXCI-1) = Zero
           ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
-          call CI_Epq_Psi(istate,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
+          call CI_Epq_Psi(istate,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU),TAG_S2(IP3-IP3STA+1))
           if (ISTAU == LSYM1) TG2(IV,IX,IY,IZ) = DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           IP1STAU = max(IP2,IP1STA)
           NB = IP1END-IP1STAU+1
@@ -227,6 +233,7 @@ if (ISCF == 0) then
     ! End of IP3STA sectioning loop
   end do
   call mma_deallocate(TG3WRK)
+  call mma_deallocate(TAG_S2)
   ! Now the computed elements of TG2 contain <PSI1|E(IT1,IU1)E(IT2,IU2)|PSI2>
   ! and TG3 contains <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
   ! Add here the necessary Kronecker deltas times 2-body matrix

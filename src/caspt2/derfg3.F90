@@ -18,7 +18,7 @@ use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi
+use CI_States, only: CI_Epq_Psi, CI_New_Tag, CI_No_Reuse
 use caspt2_global, only: iPrGlb, nbuf1_grad
 use caspt2_module, only: EPSA, MxCI, nSym
 #ifdef _MOLCAS_MPP_
@@ -39,7 +39,7 @@ integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3BK, IG3OFF
                      IP1STA, IP2, IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, iTask_loc, ITLEV, &
                      IU, IULEV, IVEC, IVLEV, IXLEV, IXLEV0, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MXTASK, MYBUFFER, MyRank, &
                      MYTASK, NB, NBTOT, NBUF1, NBUFX, NDAB, NDTU, nFlushed, NLEV2, nProcs, NSGM1, NSGM2, NSUBTASKS, NTASKS, &
-                     NTRI1, NTRI2, NVEC
+                     NTRI1, NTRI2, NVEC, TAG_BUF2, TAG_CI, TAG_DAB
 real(kind=wp) :: SCAL, ScalF, ScalG
 integer(kind=iwp), allocatable :: ib_tmp(:,:), ICNJ(:), IDX2IJ(:,:), iG3Off_tmp(:), IJ2IDX(:,:), IP1_BUF(:), IVLEV_tmp(:), &
                                   TASKLIST(:,:)
@@ -51,6 +51,10 @@ integer(kind=iwp), parameter :: iState = 1
 
 ! Put in zeroes. Recognize special cases:
 if (nlev == 0) return
+
+! tags of the CI vectors for CI_Epq_Psi (CI is fixed, BUF2 changes per ip3)
+TAG_CI = CI_New_Tag()
+TAG_BUF2 = CI_No_Reuse
 if (CI_St(iState)%nActEl == 0) return
 
 ! This should not happen, but...
@@ -415,7 +419,7 @@ do issg1=1,nsym
         ibuf1 = ibuf1+1
         ip1_buf(ibuf1) = ip1loc
         BUF1(1:nsgm1,ibuf1) = Zero
-        call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibuf1))
+        call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibuf1),TAG_CI)
       end do
       myBuffer = iTask
       DTU(1:MXCI,1:ibuf1) = Zero
@@ -482,7 +486,8 @@ do issg1=1,nsym
     iy = CI_St(istate)%L2Act(iylev)
     iz = CI_St(istate)%L2Act(izlev)
     buf2(1:nsgm2) = Zero
-    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(iState)%STSym,CI,BUF2)
+    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(iState)%STSym,CI,BUF2,TAG_CI)
+    TAG_BUF2 = CI_New_Tag()
     DYZ(1:nsgm1) = Zero
     if (issg2 == issg1) then
       do ib=1,ibuf1
@@ -560,7 +565,7 @@ do issg1=1,nsym
       ! BUFX(I,a) = <I|EaxEyz|0>
       BUFX(1:nsgm1,1:nlev) = Zero
       do ivlev=1,nlev
-        call CI_Epq_Psi(istate,IVLEV,IXLEV0,One,CI_St(iState)%STSym,BUF2,BUFX(:,ivlev))
+        call CI_Epq_Psi(istate,IVLEV,IXLEV0,One,CI_St(iState)%STSym,BUF2,BUFX(:,ivlev),TAG_BUF2)
       end do
 
       ! Construct DG3 and DF3 matrices that are convenient for DGEMM
@@ -614,13 +619,13 @@ do issg1=1,nsym
 
       !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
       do IVEC=1,NVEC
-        call CI_Epq_Psi(istate,IXLEV0,IVLEV_tmp(IVEC),One,CI_St(iState)%STSym,BUFX(:,IVLEV_tmp(IVEC)),DYZ)
+        call CI_Epq_Psi(istate,IXLEV0,IVLEV_tmp(IVEC),One,CI_St(iState)%STSym,BUFX(:,IVLEV_tmp(IVEC)),DYZ,CI_No_Reuse)
       end do
     end do !! end of ixlev0 loop
 
     !! Complete the right derivative contribution:
     !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
-    call CI_Epq_Psi(istate,IZLEV,IYLEV,One,CI_St(iState)%STSym,DYZ,CLAG)
+    call CI_Epq_Psi(istate,IZLEV,IYLEV,One,CI_St(iState)%STSym,DYZ,CLAG,CI_No_Reuse)
 
     if (iPrGlb >= DEBUG) then
       write(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)') iSubTask,ip1sta,ip1end,ip3,nbtot
@@ -723,7 +728,7 @@ subroutine LEFT_DEPSA(have_task)
       iulev = idx2ij(2,idx)
       !! left derivative
       if (IFF == 1) DTU(1:nsgm1,ibloc) = DTU(1:nsgm1,ibloc)+DAB(1:nsgm1,ibloc)*BUFD(1:nsgm1)
-      call CI_Epq_Psi(istate,ITLEV,IULEV,One,CI_St(iState)%STSym,DTU(1,ibloc),CLAG)
+      call CI_Epq_Psi(istate,ITLEV,IULEV,One,CI_St(iState)%STSym,DTU(1,ibloc),CLAG,CI_No_Reuse)
     end do
   end if
   if (IFF /= 1) return
@@ -739,12 +744,13 @@ subroutine LEFT_DEPSA(have_task)
     iulev = idx2ij(2,idx)
     if (.not. have_task) then
       BUF1(1:nsgm1,ibloc) = Zero
-      call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibloc))
+      call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibloc),TAG_CI)
     end if
+    TAG_DAB = CI_New_Tag()
     do IALEVloc=1,NLEV
       do IBLEVloc=1,NLEV
         BUF2(1:nsgm1) = Zero
-        call CI_Epq_Psi(istate,IALEVloc,IBLEVloc,One,CI_St(iState)%STSym,DAB(1,ibloc),BUF2)
+        call CI_Epq_Psi(istate,IALEVloc,IBLEVloc,One,CI_St(iState)%STSym,DAB(1,ibloc),BUF2,TAG_DAB)
         DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)+dot_product(BUF1(1:nsgm1,IBloc),BUF2(1:nsgm1))
       end do
     end do

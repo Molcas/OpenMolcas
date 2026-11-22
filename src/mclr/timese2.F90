@@ -83,7 +83,7 @@ call opOut(ipCId)
 
 if (unequal_SA .and. (.not. do_RF)) call ISR_TimesE2(1,W(ipCI)%A,W(ipCIOUT)%A)
 !! Project out the internal rotation contribution
-if ((.not. InvSCF) .or. do_RF) call ISR_projection(W(ipCI)%A,W(ipCIOUT)%A)
+call ISR_projection(W(ipCI)%A,W(ipCIOUT)%A)
 
 call mma_deallocate(Temp4)
 call mma_deallocate(Temp3)
