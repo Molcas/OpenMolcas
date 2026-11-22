@@ -84,7 +84,7 @@ use rasscf_global, only: NCONF
 use CI_Info, only: CI_St
 use CI_States, only: CI_PrWF
 use ci_interfaces, only: CI_Basis_To_File
-use DWSol, only: DWSolv
+use DWSol, only: DWSol_root, DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -769,5 +769,8 @@ else if (lRF .and. (IPCMROOT > 0)) then
   call Put_dArray('RF CASSCF Vector',RF,nConf)
   call mma_deallocate(RF)
 end if
+
+! Update W_SOLV
+if (lRF .and. (IPCMROOT > 0)) call DWSol_root(IPCMROOT)
 
 end subroutine CICtl

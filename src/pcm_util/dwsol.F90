@@ -129,6 +129,24 @@ end subroutine DWSol_init
 
 !-----------------------------------------------------------------------
 
+subroutine DWSol_root(IPCMROOT_)
+
+  integer(kind=iwp), intent(in) :: IPCMROOT_
+
+  ! Update the RF root to be followed when root flipping occurs
+  ! Additionally, update W_SOLV
+
+  DWSolv%DWRoot = IPCMROOT_
+  if (DWSolv%DWZeta == Zero) then
+    W_SOLV(:) = Zero
+    ! The tracked root can be outside the state average when lRoots > nRoots.
+    if (IPCMROOT_ <= nRoots) W_SOLV(IPCMROOT_) = One
+  end if
+
+end subroutine DWSol_root
+
+!-----------------------------------------------------------------------
+
 ! should be called somewhere in RASSCF or MCLR after nRoots and
 ! IPCMROOT are determined
 subroutine DWSCF_init(mode,nRoots_)
