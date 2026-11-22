@@ -575,7 +575,7 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
   integer(kind=iwp), intent(in) :: nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
   real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
   real(kind=wp), intent(out) :: Sigma(nCSFs)
-  integer(kind=iwp) :: nOrb, iOrb, jOrb, kOrb, ijSym, SigmaSym, mCSFs, nP, p, q, q0, nB, MaxMem, tPsi
+  integer(kind=iwp) :: nOrb, iOrb, jOrb, kOrb, ijSym, SigmaSym, mCSFs, nP, p, q, q0, nB, nC, MaxMem, tPsi
   integer(kind=iwp), allocatable :: PI(:), PJ(:)
   real(kind=wp) :: TwoInt
   real(kind=wp), allocatable :: G(:,:)
@@ -605,11 +605,18 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
     call mma_maxDBLE(MaxMem)
     MaxMem = MaxMem+Wrk_Held(1)
     if (real(mCSFs,kind=wp)*real(nP+1,kind=wp)+real(nP,kind=wp)**2 > 0.8_wp*real(MaxMem,kind=wp)) then
-      if (.not. Warned) write(u6,'(1X,A,I0,A,I0,A,ES10.3,A,ES10.3,A)') 'sg_h_psi: the block of ',nP,' pairs x ',mCSFs, &
+      ! D and W in chunks of nC pairs (both buffers and G in 80% of the memory)
+      MaxMem = MaxMem+Wrk_Held(2)
+      nC = int(0.8_wp*real(MaxMem,kind=wp)/real(2*mCSFs+nP,kind=wp),kind=iwp)
+      if (.not. Warned) write(u6,'(1X,A,I0,A,I0,A,ES10.3,A,ES10.3,A,I0,A)') 'sg_h_psi: the block of ',nP,' pairs x ',mCSFs, &
         ' CSFs does not fit (',real(mCSFs,kind=wp)*real(nP+1,kind=wp),' words needed, ',real(MaxMem,kind=wp), &
-        ' available); evaluated directly'
+        ' available); done in chunks of ',max(1,nC),' pairs'
       Warned = .true.
-      call Block_Direct()
+      if (nC >= 1) then
+        call Block_Chunked()
+      else
+        call Block_Direct()
+      end if
       cycle
     end if
     ! D(:,p) = S_p|Psi>, and the one-electron part (totally symmetric pairs)
@@ -657,6 +664,60 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
   call mma_deallocate(PI)
 
 contains
+
+  ! the block ijSym in chunks of nC pairs: D(:,p) = S_p|Psi> for the pairs p
+  ! of a chunk, then for every chunk of pairs q W = D G(q,p)^T and
+  ! H|Psi> += S_q W(:,q): 2 n_pair (1 + n_chunk) applications of S instead of
+  ! the n_pair**2 of Block_Direct, the same result.
+  subroutine Block_Chunked()
+    ! (local loop indices and work arrays; the host's are not touched)
+    integer(kind=iwp) :: iP0, iQ0, cP, cQ, ip, iq, kk
+    real(kind=wp) :: T2
+    real(kind=wp), allocatable :: GC(:,:)
+    real(kind=wp), pointer :: DC(:,:), WC(:,:)
+    nC = min(nC,nP)
+    call Get_Wrk(Wrk_S1,mCSFs*nC,'SG_Wrk_S1')
+    call Get_Wrk(Wrk_S2,mCSFs*nC,'SG_Wrk_S2')
+    DC(1:mCSFs,1:nC) => Wrk_S1(1:mCSFs*nC)
+    WC(1:mCSFs,1:nC) => Wrk_S2(1:mCSFs*nC)
+    call mma_allocate(GC,nC,nC,Label='GC_HPsi')
+    do iP0=0,nP-1,nC
+      cP = min(nC,nP-iP0)
+      DC(:,1:cP) = Zero
+      do ip=1,cP
+        p = iP0+ip
+        call SG_Epq_Psi(SGS,CIS,EXS,PI(p),PJ(p),One,PsiSym,Psi,DC(:,ip),CI_Tag=tPsi)
+        if (PI(p) /= PJ(p)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(p),PI(p),One,PsiSym,Psi,DC(:,ip),CI_Tag=tPsi)
+        if (ijSym == 1) then
+          T2 = Zero
+          do kk=1,nOrb
+            T2 = T2+TUVX_Tri(iTri(iTri(PI(p),kk),iTri(kk,PJ(p))))
+          end do
+          Sigma(:) = Sigma(:)+(TU_Tri(iTri(PI(p),PJ(p)))-Half*T2)*DC(:,ip)
+        end if
+      end do
+      do iQ0=0,nP-1,nC
+        cQ = min(nC,nP-iQ0)
+        ! GC(ip,iq) = 1/2 (q|p)
+        do iq=1,cQ
+          q = iQ0+iq
+          do ip=1,cP
+            p = iP0+ip
+            GC(ip,iq) = Half*TUVX_Tri(iTri(iTri(PI(q),PJ(q)),iTri(PI(p),PJ(p))))
+          end do
+        end do
+        call DGEMM_('N','N',mCSFs,cQ,cP,One,DC,mCSFs,GC,nC,Zero,WC,mCSFs)
+        do iq=1,cQ
+          q = iQ0+iq
+          call SG_Epq_Psi(SGS,CIS,EXS,PI(q),PJ(q),One,SigmaSym,WC(:,iq),Sigma,CI_Tag=SG_No_Reuse)
+          if (PI(q) /= PJ(q)) call SG_Epq_Psi(SGS,CIS,EXS,PJ(q),PI(q),One,SigmaSym,WC(:,iq),Sigma,CI_Tag=SG_No_Reuse)
+        end do
+      end do
+    end do
+    call mma_deallocate(GC)
+    nullify(WC)
+    nullify(DC)
+  end subroutine Block_Chunked
 
   ! the block ijSym directly: S_kl S_ij|Psi> for every pair of pairs
   subroutine Block_Direct()
@@ -714,8 +775,9 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
   ! block of the ordered level pairs: D(:,p) = E_ij|Psi> (restricted to the
   ! space, as there), W = D G^T with G(kl,ij) = f (kl|ij) for the allowed
   ! pairs and zero otherwise, H|Psi> += E_kl W(:,kl): 2 n_pair applications
-  ! of E per block instead of n_pair**2/2. Falls back to
-  ! sg_h_psi_ras_direct if the vectors of a block do not fit in memory.
+  ! of E per block instead of n_pair**2/2. A block whose vectors do not fit
+  ! is done in chunks of pairs (Block_Chunked); sg_h_psi_ras_direct only if
+  ! not even two vectors fit.
   use Index_functions, only: iTri
   use symmetry_info, only: MUL
   use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi, SG_Level_Map, SG_New_Tag, SG_No_Reuse
@@ -748,10 +810,11 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
         if (MUL(SGS%ISM(iLev),SGS%ISM(jLev)) == ijSym) nP = nP+1
       end do
     end do
-    MaxNeed = max(MaxNeed,(CIS%nCSF(MUL(PsiSym,ijSym))+1)*nP+nP**2)
+    ! (the least: two chunks of one pair, D and W)
+    MaxNeed = max(MaxNeed,2*CIS%nCSF(MUL(PsiSym,ijSym))+nP**2)
   end do
   call mma_maxDBLE(MaxMem)
-  MaxMem = MaxMem+Wrk_Held(1)
+  MaxMem = MaxMem+Wrk_Held(1)+Wrk_Held(2)
   if (real(MaxNeed,kind=wp) > 0.8_wp*real(MaxMem,kind=wp)) then
     call sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
     return
@@ -779,6 +842,12 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
     SigmaSym = MUL(PsiSym,ijSym)
     mCSFs = CIS%nCSF(SigmaSym)
     if ((nP == 0) .or. (mCSFs == 0)) cycle
+    call mma_maxDBLE(MaxMem)
+    MaxMem = MaxMem+Wrk_Held(1)
+    if (real(mCSFs,kind=wp)*real(nP+1,kind=wp)+real(nP,kind=wp)**2 > 0.8_wp*real(MaxMem,kind=wp)) then
+      call Block_Chunked()
+      cycle
+    end if
     ! D(:,p) = E_ij|Psi> (restricted to the CSF space), and the one-electron part h'_ij E_ij
     call Get_Wrk(Wrk_S1,mCSFs*nP,'SG_Wrk_S1')
     D(1:mCSFs,1:nP) => Wrk_S1(1:mCSFs*nP)
@@ -843,6 +912,90 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
   call mma_deallocate(PJ)
   call mma_deallocate(PI)
   call mma_deallocate(L2Orb)
+
+contains
+
+  ! the block ijSym in chunks of nC pairs (D and W do not fit): D(:,p) for
+  ! the pairs p of a chunk, then for every chunk of pairs q W = D G(q,p)^T
+  ! and H|Psi> += E_q W(:,q); the same result with n_pair (1 + n_chunk)
+  ! applications of E.
+  subroutine Block_Chunked()
+    ! (local loop indices and work arrays; the host's are not touched)
+    integer(kind=iwp) :: nC, iP0, iQ0, cP, cQ, jp, jq, i_, j_, k_, l_, m_
+    real(kind=wp) :: F_, H1
+    real(kind=wp), allocatable :: GC(:,:)
+    real(kind=wp), pointer :: DC(:,:), WC(:,:)
+    logical(kind=iwp) :: Any_
+    logical(kind=iwp), allocatable :: UsedC(:)
+    MaxMem = MaxMem+Wrk_Held(2)
+    nC = int(0.8_wp*real(MaxMem,kind=wp)/real(2*mCSFs+nP,kind=wp),kind=iwp)
+    nC = max(1,min(nC,nP))
+    call Get_Wrk(Wrk_S1,mCSFs*nC,'SG_Wrk_S1')
+    call Get_Wrk(Wrk_S2,mCSFs*nC,'SG_Wrk_S2')
+    DC(1:mCSFs,1:nC) => Wrk_S1(1:mCSFs*nC)
+    WC(1:mCSFs,1:nC) => Wrk_S2(1:mCSFs*nC)
+    call mma_allocate(GC,nC,nC,Label='GC_HPsi')
+    call mma_allocate(UsedC,nP,Label='UsedC')
+    ! E_kl is applied only if some (kl|ij) term has kl >= ij and k >= i
+    UsedC(:) = .false.
+    do jp=1,nP
+      do jq=jp,nP
+        if (PI(jq) >= PI(jp)) UsedC(jq) = .true.
+      end do
+    end do
+    do iP0=0,nP-1,nC
+      cP = min(nC,nP-iP0)
+      DC(:,1:cP) = Zero
+      do jp=1,cP
+        i_ = PI(iP0+jp)
+        j_ = PJ(iP0+jp)
+        call SG_Epq_Psi(SGS,CIS,EXS,i_,j_,One,PsiSym,Psi,DC(:,jp),CI_Tag=tPsi)
+        if (ijSym == 1) then
+          H1 = TU_Tri(iTri(L2Orb(i_),L2Orb(j_)))
+          do m_=1,i_-1
+            iA = L2Orb(m_)
+            H1 = H1-TUVX_Tri(iTri(iTri(L2Orb(i_),iA),iTri(iA,L2Orb(j_))))
+          end do
+          if (i_ > j_) then
+            H1 = H1-TUVX_Tri(iTri(iTri(L2Orb(i_),L2Orb(i_)),iTri(L2Orb(i_),L2Orb(j_))))
+          else if (i_ == j_) then
+            H1 = H1-Half*TUVX_Tri(iTri(iTri(L2Orb(i_),L2Orb(i_)),iTri(L2Orb(i_),L2Orb(i_))))
+          end if
+          Sigma(:) = Sigma(:)+H1*DC(:,jp)
+        end if
+      end do
+      do iQ0=0,nP-1,nC
+        cQ = min(nC,nP-iQ0)
+        ! GC(jp,jq) = f (kl|ij) for kl >= ij and k >= i, zero otherwise
+        GC(:,:) = Zero
+        Any_ = .false.
+        do jq=1,cQ
+          k_ = PI(iQ0+jq)
+          l_ = PJ(iQ0+jq)
+          do jp=1,cP
+            if (iQ0+jq < iP0+jp) cycle
+            i_ = PI(iP0+jp)
+            j_ = PJ(iP0+jp)
+            if (k_ < i_) cycle
+            F_ = One
+            if (iQ0+jq == iP0+jp) F_ = Half
+            GC(jp,jq) = F_*TUVX_Tri(iTri(iTri(L2Orb(k_),L2Orb(l_)),iTri(L2Orb(i_),L2Orb(j_))))
+            Any_ = .true.
+          end do
+        end do
+        if (.not. Any_) cycle
+        call DGEMM_('N','N',mCSFs,cQ,cP,One,DC,mCSFs,GC,nC,Zero,WC,mCSFs)
+        do jq=1,cQ
+          if (UsedC(iQ0+jq)) call SG_Epq_Psi(SGS,CIS,EXS,PI(iQ0+jq),PJ(iQ0+jq),One,SigmaSym,WC(:,jq),Sigma,CI_Tag=SG_No_Reuse)
+        end do
+      end do
+    end do
+    call mma_deallocate(UsedC)
+    call mma_deallocate(GC)
+    nullify(WC)
+    nullify(DC)
+  end subroutine Block_Chunked
+
 end subroutine sg_h_psi_ras
 
 subroutine sg_h_psi_ras_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
