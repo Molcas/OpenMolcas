@@ -53,7 +53,7 @@ integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDis
 logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp) :: iD, iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iRank, istatus, iSym, iSym_Old, Iter, jDisp, &
                      jSpin, kkkSym, kkSym, Left, lLine, lPaper, LuWR_Save, nConf3, nPre2, pstate_sym
-real(kind=wp) :: Clock(4), D_0, Delta, Delta0, DeltaC, DeltaK, EC, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rCHC, rdum(1), ReCo, &
+real(kind=wp) :: Clock(4), D_0, Delta, Delta0, DeltaC, DeltaK, EC, rAlpha, rAlphaC, rAlphaK, rBeta, rCHC, rdum(1), ReCo, &
                  Res, res_tmp, rEsci, rEsk, rGrad, Tim2, Tim3, Tim4
 logical(kind=iwp) :: CI, cnvrgd, lPrint, Orb, Response
 character(len=132) :: Line
@@ -351,7 +351,6 @@ do
   iLen = nDensC
   iRHSDisp(iDisp) = iDis
   call Compress(Temp4,Sigma,iSym)
-  r1 = ddot_(nDensC,Sigma,1,Sigma,1)
   call UnCompress(Sigma,Temp4,iSym)
   call dDaFile(LuTemp,1,Sigma,iLen,iDis)
   if (CI) then
@@ -365,6 +364,13 @@ do
     call ipin(ipST)
     call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
     W(ipST)%A(1:nConf1) = -W(ipST)%A(1:nConf1)
+    ! The CI preconditioner cannot see the reference component, so it
+    ! must not enter the residual (the solution is orthogonal to |0>).
+    if (isym == 1) then
+      call ipin(ipCI)
+      rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipST)%A,1)
+      W(ipST)%A(1:nConf1) = W(ipST)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+    end if
   end if
 
   Sigma(:) = -Sigma(:)
@@ -381,13 +387,11 @@ do
   call ipin(ipPre2)
   call DMInvKap(W(ipPre2)%A,iPre,Sigma,Kappa,Temp3,isym,iter)
   call opout(ippre2)
-  r2 = ddot_(nDensC,Kappa,1,Kappa,1)
 # ifdef _DEBUGPRINT_
   write(LuWr,*) 'DMinvKap'
   write(LuWr,*) 'Kap=',DDot_(nDensC,Kappa,1,Kappa,1)
   write(LuWr,*) 'End DMinvKap'
 # endif
-  if (r2 > r1) write(LuWr,Fmt2//'A,I3,A)') 'Warning  perturbation number ',idisp,' might diverge!'
   call UnCompress(Kappa,dKappa,iSym)
 
   if (CI) then
@@ -489,11 +493,6 @@ do
         ! when the wavefunction is converged.
 
         call ipin(ipS1)
-        if (isym == 1) then
-          call ipin(ipCI)
-          rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipS1)%A,1)
-          W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)-rgrad*W(ipCI)%A(1:nConf1)
-        end if
         W(ipS1)%A(1:nConf1) = Two*W(ipS1)%A(1:nConf1)
 
         call opout(ipCI)
@@ -620,6 +619,15 @@ do
       call ipin1(ipS2,nconf1)
       W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)+W(ipS2)%A(1:nConf1)
       call opout(ipS2)
+      ! Project the reference state out of the CI part of the Hessian
+      ! product: the CI preconditioner maps that component to zero, and
+      ! with an incompletely converged |0> (<0|H-E|d> /= 0) it would
+      ! accumulate in the CI residual and stall the PCG.
+      if (isym == 1) then
+        call ipin(ipCI)
+        rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipS1)%A,1)
+        W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+      end if
     end if
     !                                                                  *
     !*******************************************************************

@@ -63,7 +63,7 @@ module NEVPT2_E4
 use Index_Functions, only: iTri, nTri_Elem
 use caspt2_module, only: MXCI, NTUVES
 use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi
+use CI_States, only: CI_Epq_Psi, CI_New_Tag
 use SUPERINDEX, only: KTUV
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
@@ -396,6 +396,7 @@ subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUF
                        ixlev, iy, iylev, iz, izlev, JSUP, nbufxy, nlev2, nsgm1, nsgm2, nTask, nxy
   real(kind=wp) :: tmp1, tmp2
   logical(kind=iwp) :: do_dgemm
+  integer(kind=iwp) :: iTag_E4 ! tag of the reused CI vector for CI_Epq_Psi
 
   if (NXY_work == NLEV) then
     nxy = ipxyend-ipxysta+1
@@ -418,6 +419,7 @@ subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUF
     iz = CI_St(istate)%L2Act(izlev)
     BUFT(1:nsgm1) = Zero
     call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(istate)%STSym,CI,BUFT(:))
+    iTag_E4 = CI_New_Tag()
 
     if (NXY_work == NLEV) then
       Zvec(1:MXCI,1:nlev2-ip1+1) = Zero
@@ -456,9 +458,9 @@ subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUF
       iv = CI_St(istate)%L2Act(ivlev)
       ix = CI_St(istate)%L2Act(ixlev)
       if (NXY_work == NLEV) then
-        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg1,BUFT(:),ZVEC(1:nsgm2,ip2-ip1+1))
+        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg1,BUFT(:),ZVEC(1:nsgm2,ip2-ip1+1),iTag_E4)
       else
-        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg1,BUFT(:),ZVEC(1:nsgm2,nbufxy))
+        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg1,BUFT(:),ZVEC(1:nsgm2,nbufxy),iTag_E4)
         !if (do_xvec .and. do_yvec) then
         !  call dgemv_('T',nsgm2,nxy,One,XYvec(:,:,1),mxci,ZVEC(:,1),1,Zero,XYtmp(:,ip2-ip1+1,1),1)
         !  call dgemv_('T',nsgm2,nxy,One,XYvec(:,:,2),mxci,ZVEC(:,1),1,Zero,XYtmp(:,ip2-ip1+1,2),1)
@@ -778,6 +780,7 @@ end subroutine NEVPT2_E4_derivative1
 
 subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,BDERA,BDERC,XYcont,XYcontder,XYder,ZVEC, &
                                  XYtmp)
+  integer(kind=iwp) :: iTag_E4 ! tag of the reused CI vector for CI_Epq_Psi
 
   integer(kind=iwp), intent(in) :: iSym0, iSym, NLEV, idx2ij(2,NLEV**2), ij2idx(NLEV,NLEV), ipxysta, ipxyend
   real(kind=wp), intent(inout) :: BUFT(:), XYcont(:,:,:), XYcontder(:,:,:), XYder(:,:,:), ZVEC(:,:), XYtmp(:,:,:)
@@ -901,6 +904,7 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
 
     BUFT(1:nsgm3) = Zero
     call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(istate)%STSym,CI,BUFT(:))
+    iTag_E4 = CI_New_Tag()
 
     if (NXY_work == NLEV) then
       Zvec(1:MXCI,1:nlev2-ip3+1) = Zero
@@ -921,9 +925,9 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
       iv = CI_St(istate)%L2Act(ivlev)
       ix = CI_St(istate)%L2Act(ixlev)
       if (NXY_work == NLEV) then
-        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg3,BUFT(:),ZVEC(1:nsgm2,ip2-ip3+1))
+        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg3,BUFT(:),ZVEC(1:nsgm2,ip2-ip3+1),iTag_E4)
       else
-        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg3,BUFT(:),ZVEC(1:nsgm2,nbufxy))
+        call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg3,BUFT(:),ZVEC(1:nsgm2,nbufxy),iTag_E4)
         if (nbufxy == nlev) then
           if (do_xvec .and. do_yvec) then
             call dgemm_('N','T',MXCI,nxy,nbufxy,One,ZVEC(:,:),MXCI,XYtmp(:,ibufxy-ip3+1,1),NXYVEC,One,XYder(:,:,1),MXCI)
@@ -1101,6 +1105,7 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
                        locy, nlev2, nsgm1, nsgm2, nTask, nxy
   real(kind=wp), allocatable :: BUF1(:), BUF2(:)
   real(kind=wp), external :: ddot_
+  integer(kind=iwp) :: iTag_E4 ! tag of the reused CI vector for CI_Epq_Psi
 
   locx = 1
   locy = 1
@@ -1188,6 +1193,7 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
       ix = CI_St(istate)%L2Act(ixlev)
       buf1(1:nsgm2) = Zero
       call CI_Epq_Psi(istate,IVLEV,IXLEV,One,CI_St(istate)%STSym,CI,buf1(:))
+      iTag_E4 = CI_New_Tag()
       !! electron repulsion terms
       do ip1=ip2,nlev2
         itlev = idx2ij(1,ip1)
@@ -1199,7 +1205,7 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
         it = CI_St(istate)%L2Act(itlev)
         iu = CI_St(istate)%L2Act(iulev)
         buf2(1:nsgm1) = Zero
-        call CI_Epq_Psi(istate,ITLEV,IULEV,One,issg2,buf1(:),BUF2(:))
+        call CI_Epq_Psi(istate,ITLEV,IULEV,One,issg2,buf1(:),BUF2(:),iTag_E4)
         do iylev=1,nlev
           iy = CI_St(istate)%L2Act(iylev)
           ! Etu Evx * (at|vx) -> Xau
