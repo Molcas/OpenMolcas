@@ -35,16 +35,21 @@ public :: ZG_Active, ZG_Load, ZG_Save
 contains
 
 function ZG_Active()
+  use input_mclr, only: ColdStart
   logical(kind=iwp) :: ZG_Active
   integer(kind=iwp) :: iErr, Iter
   character(len=80) :: Val
   logical(kind=iwp) :: MD
   ! Only inside a geometry loop (MOLCAS_ITER >= 1) or a molecular dynamics run
-  ! (Dynamix has stored 'MD_Time'); MOLCAS_MCLR_WARM=0 switches it off
+  ! (Dynamix has stored 'MD_Time'); the keyword COLD or MOLCAS_MCLR_WARM=0 switches it off
   ZG_Active = .false.
+  if (ColdStart) then
+    write(u6,*) 'ZVec_Guess: keyword COLD, cold start'
+    return
+  end if
   Val = ' '
   call get_environment_variable('MOLCAS_MCLR_WARM',Val)
-  if (Val(1:1) == '0') return
+  if (trim(adjustl(Val)) == '0') return
   Val = ' '
   call get_environment_variable('MOLCAS_ITER',Val)
   read(Val,*,iostat=iErr) Iter
@@ -156,7 +161,10 @@ subroutine ZG_Load(Kappa,CIT,Xvec,CI,Found,Method)
   CIT(:) = Zero
   Xvec(:) = Zero
   inquire(file=trim(FName(iMeth)),exist=Exists)
-  if (.not. Exists) return
+  if (.not. Exists) then
+    call WarningMessage(1,'ZVec_Guess: no stored Z-vector solution to restart from; cold start')
+    return
+  end if
 
   Lu = 21
   call DaName(Lu,FName(iMeth))
