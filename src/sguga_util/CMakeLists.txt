@@ -10,7 +10,7 @@
 #***********************************************************************
 
 set (sources
-     sguga.F90
+     sguga_core.F90
      sguga_densities.F90
      sguga_print.F90
      sguga_sigma.F90
@@ -19,7 +19,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     sguga.F90
+     sguga_core.F90
      sguga_densities.F90
      sguga_print.F90
      sguga_sigma.F90
