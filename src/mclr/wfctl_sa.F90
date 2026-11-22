@@ -21,7 +21,7 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 use CI_Info, only: CI_St
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
-use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
+use MCLR_Data, only: FANCY_PRECONDITIONER, ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
 use Orbital_Spaces, only: nAsh
 use CI_Input, only: nRS2
 use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, NROOTS, PT2, STEPTYPE, &
@@ -41,7 +41,7 @@ logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: iDis, iDisp, iLen, iMode, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, &
                      Lu_50, nConf3, niPre2, nPre2
-real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
 logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=8) :: Fmt2
 integer(kind=iwp), allocatable :: iPre(:)
@@ -261,9 +261,6 @@ else
     iLen = nDensC
     iRHSDisp(iDisp) = iDis
     call Compress(Temp3,Sigma,iSym)
-    r1 = ddot_(nDensC,Sigma,1,Sigma,1)
-    if (PT2 .or. do_RF) R1 = R1+DDot_(nConf1*nRoots,W(ipST)%A,1,W(ipST)%A,1)
-    if (debug) write(u6,*) 'Hi how about r1',r1
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
     if (PT2 .or. do_RF) then !! .or. unequal_SA) then
@@ -274,6 +271,8 @@ else
           W(ipS2)%A(1:nConf1*nRoots) = W(ipST)%A(1:nConf1*nRoots)
         else
           call DMinvCI_sa(ipST,W(ipS2)%A,fancy)
+          ! (see below)
+          if (.not. FANCY_PRECONDITIONER) call ISR_Projection(W(ipCI)%A,W(ipS2)%A)
         end if
         call opOut(ipci)
         call opOut(ipdia)
@@ -300,10 +299,6 @@ else
     end if
 
     call opOut(ippre2)
-    r2 = ddot_(nDensC,Kappa,1,Kappa,1)
-    if (PT2) R2 = R2+DDot_(nConf1*nRoots,W(ipS2)%A,1,W(ipS2)%A,1)
-    if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
-    if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     dKappa(:) = Kappa(:)
 
@@ -394,6 +389,12 @@ else
 
         call ipIn(ipS2)
         call DMinvCI_SA(ipST,W(ipS2)%A,Fancy)
+        ! Without the "fancy" preconditioner each root is projected only
+        ! against its own reference vector; TimesE2 projects all reference
+        ! states out of the Hessian product, so the direction must be
+        ! projected the same way, or its components along the other
+        ! reference states are never corrected
+        if (.not. FANCY_PRECONDITIONER) call ISR_Projection(W(ipCI)%A,W(ipS2)%A)
         call opOut(ipci)
         call opOut(ipdia)
 

@@ -24,7 +24,7 @@ private
 ! pages in every call for large CI spaces); freed by SG_Densities_Free
 real(kind=wp), allocatable, target :: Wrk_D1(:), Wrk_D2(:)
 
-public :: SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
+public :: SG_Check_Trans_Two_PDM, SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_trans_two_pdm, sg_two_pdm
 
 contains
 
@@ -247,6 +247,374 @@ subroutine sg_trans_pdm(SGS,CIS,EXS,Bra,Ket,lCI,ISYCI,nL,T1DM,T1SDM,Spin)
   call mma_deallocate(AB)
 
 end subroutine sg_trans_pdm
+
+!> The spin-free 1- and 2-body transition densities between Bra (symmetry
+!> BraSym) and Ket (symmetry KetSym), in level order:
+!>   Rho1(i,l) = <Bra|E_il|Ket>,
+!>   Rho2(iTri(ij,kl)) = <Bra|E_ij E_kl - delta_jk E_il|Ket>,
+!> with the square pair index ij = (j-1)*nL+i and the packing over
+!> ij >= kl (e_ijkl = e_klij). Neither is symmetric for Bra /= Ket. The
+!> operator symmetry is Mul(BraSym,KetSym).
+!> The products are overlaps M(ij,kl) = (E_ji Bra).(E_kl Ket), summed over
+!> the CSFs of the graph; for each symmetry block of pairs the vectors are
+!> computed once (in chunks if they do not fit) and all overlaps come from
+!> one DGEMM. The sum over the graph is exact for <E_ij E_kl> if k <= l or
+!> i >= j (CAS: always; RAS: levels RAS1 < RAS2 < RAS3). Otherwise
+!> e_ijkl = e_klij = <E_kl E_ij> - delta_il <E_kj>, which is exact then.
+!> Not for GAS graphs (the products are not exact there).
+subroutine sg_trans_two_pdm(SGS,CIS,EXS,nBra,Bra,BraSym,nKet,Ket,KetSym,nL,Rho1,n2,Rho2)
+
+  use Index_functions, only: iTri
+  use Symmetry_Info, only: Mul
+  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SGStruct
+  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+  use Constants, only: Zero, One
+  use Definitions, only: wp, iwp, u6
+
+  implicit none
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(in) :: nBra, BraSym, nKet, KetSym, nL, n2
+  real(kind=wp), intent(in) :: Bra(nBra), Ket(nKet)
+  real(kind=wp), intent(out) :: Rho1(nL,nL), Rho2(n2)
+  integer(kind=iwp) :: nL2, OpSym, iS, iT, KSym, nK, nX, nY, nC, MaxMem, iX0, iY0, cX, cY, ip, iq, i, j, k, l, ij, kl, tB, tK, &
+                       MidSym
+  integer(kind=iwp), allocatable :: PX(:), PY(:)
+  real(kind=wp), allocatable :: M(:,:), X(:,:), Y(:,:), G(:,:), Sgm(:)
+
+  nL2 = nL*nL
+  if (n2 /= nL2*(nL2+1)/2) then
+    write(u6,*) 'sg_trans_two_pdm: wrong size of Rho2',n2,nL2*(nL2+1)/2
+    call Abend()
+  end if
+  if ((nBra < CIS%nCSF(BraSym)) .or. (nKet < CIS%nCSF(KetSym))) then
+    write(u6,*) 'sg_trans_two_pdm: vectors shorter than the CSF spaces',nBra,CIS%nCSF(BraSym),nKet,CIS%nCSF(KetSym)
+    call Abend()
+  end if
+  tB = SG_New_Tag()
+  tK = SG_New_Tag()
+  OpSym = Mul(BraSym,KetSym)
+  Rho1(:,:) = Zero
+  Rho2(:) = Zero
+
+  ! Rho1(i,l) = Bra.(E_il Ket), E_il Ket in symmetry BraSym
+  call mma_allocate(Sgm,max(1,CIS%nCSF(BraSym)),Label='TT_Sgm')
+  do l=1,nL
+    do i=1,nL
+      if (Mul(SGS%ISm(i),SGS%ISm(l)) /= OpSym) cycle
+      Sgm(:) = Zero
+      call SG_Epq_Psi(SGS,CIS,EXS,i,l,One,KetSym,Ket,Sgm,CI_Tag=tK)
+      Rho1(i,l) = dot_product(Bra(1:CIS%nCSF(BraSym)),Sgm(1:CIS%nCSF(BraSym)))
+    end do
+  end do
+  call mma_deallocate(Sgm)
+
+  call mma_allocate(M,nL2,nL2,Label='TT_M')
+  M(:,:) = Zero
+  call mma_allocate(PX,nL2,Label='TT_PX')
+  call mma_allocate(PY,nL2,Label='TT_PY')
+  do iS=1,SGS%nSym
+    ! X(:,ij) = E_ji Bra (pairs ij of symmetry iS), Y(:,kl) = E_kl Ket
+    ! (symmetry iT); both in the symmetry MidSym of the intermediate CSFs
+    iT = Mul(iS,OpSym)
+    MidSym = Mul(BraSym,iS)
+    KSym = MidSym
+    nK = CIS%nCSF(KSym)
+    if (nK == 0) cycle
+    nX = 0
+    nY = 0
+    do j=1,nL
+      do i=1,nL
+        if (Mul(SGS%ISm(i),SGS%ISm(j)) == iS) then
+          nX = nX+1
+          PX(nX) = (j-1)*nL+i
+        end if
+        if (Mul(SGS%ISm(i),SGS%ISm(j)) == iT) then
+          nY = nY+1
+          PY(nY) = (j-1)*nL+i
+        end if
+      end do
+    end do
+    if ((nX == 0) .or. (nY == 0)) cycle
+    ! chunks: X and Y of nC columns each in at most half of the memory
+    call mma_maxDBLE(MaxMem)
+    nC = int(0.5_wp*real(MaxMem,kind=wp)/real(2*nK+nL2,kind=wp),kind=iwp)
+    nC = max(1,min(nC,max(nX,nY)))
+    call mma_allocate(X,nK,min(nC,nX),Label='TT_X')
+    call mma_allocate(Y,nK,min(nC,nY),Label='TT_Y')
+    call mma_allocate(G,min(nC,nX),min(nC,nY),Label='TT_G')
+    do iX0=0,nX-1,nC
+      cX = min(nC,nX-iX0)
+      do ip=1,cX
+        ij = PX(iX0+ip)
+        i = mod(ij-1,nL)+1
+        j = (ij-1)/nL+1
+        X(:,ip) = Zero
+        call SG_Epq_Psi(SGS,CIS,EXS,j,i,One,BraSym,Bra,X(:,ip),CI_Tag=tB)
+      end do
+      do iY0=0,nY-1,nC
+        cY = min(nC,nY-iY0)
+        do iq=1,cY
+          kl = PY(iY0+iq)
+          k = mod(kl-1,nL)+1
+          l = (kl-1)/nL+1
+          Y(:,iq) = Zero
+          call SG_Epq_Psi(SGS,CIS,EXS,k,l,One,KetSym,Ket,Y(:,iq),CI_Tag=tK)
+        end do
+        call DGEMM_('T','N',cX,cY,nK,One,X,nK,Y,nK,Zero,G,size(G,1))
+        do iq=1,cY
+          do ip=1,cX
+            M(PX(iX0+ip),PY(iY0+iq)) = G(ip,iq)
+          end do
+        end do
+      end do
+    end do
+    call mma_deallocate(G)
+    call mma_deallocate(Y)
+    call mma_deallocate(X)
+  end do
+  call mma_deallocate(PY)
+  call mma_deallocate(PX)
+
+  ! e_ijkl from the product order that is exact in the graph
+  do ij=1,nL2
+    i = mod(ij-1,nL)+1
+    j = (ij-1)/nL+1
+    do kl=1,ij
+      k = mod(kl-1,nL)+1
+      l = (kl-1)/nL+1
+      if ((k <= l) .or. (i >= j)) then
+        Rho2(iTri(ij,kl)) = M(ij,kl)
+        if (j == k) Rho2(iTri(ij,kl)) = Rho2(iTri(ij,kl))-Rho1(i,l)
+      else
+        Rho2(iTri(ij,kl)) = M(kl,ij)
+        if (i == l) Rho2(iTri(ij,kl)) = Rho2(iTri(ij,kl))-Rho1(k,j)
+      end if
+    end do
+  end do
+  call mma_deallocate(M)
+
+end subroutine sg_trans_two_pdm
+
+!> sg_trans_two_pdm against the determinant expansion of the CSFs
+!> (CSF_Det_Expand), for two arbitrary vectors of every pair of symmetries
+!> (bra /= ket, also of different symmetry): Rho1 and Rho2 from
+!> sum_{st} a+_is a+_kt a_lt a_js in the canonical operator order of
+!> CSF_Det_Expand. Only for at most 10 levels and small CSF spaces
+!> (dense determinant tables).
+subroutine SG_Check_Trans_Two_PDM(SGS,CIS,EXS,nFail)
+
+  use Index_functions, only: iTri
+  use sguga, only: CIStruct, CSF_Det_Expand, EXStruct, SG_CSF_StepVec, SGStruct
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One
+  use Definitions, only: wp, iwp, u6
+
+  implicit none
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(out) :: nFail
+  integer(kind=iwp), parameter :: MxLev = 10, MxCSF = 2000
+  real(kind=wp), parameter :: Tol = 1.0e-11_wp
+  integer(kind=iwp) :: nL, nL2, n2, nS, BraSym, KetSym, nB, nK, nTest, i, j, k, l, ij, kl, ia, ib, a, b, sj, sl, s1, &
+                       nSgn, nDim, a1, b1, n1, a2, b2, n2s, a3, b3, n3
+  integer(kind=iwp), allocatable :: Step(:), DA(:), DB(:)
+  real(kind=wp), allocatable :: Bra(:), Ket(:), Rho1(:,:), Rho2(:), R1(:,:), R2(:,:), CB(:,:), CK(:,:), DC(:)
+  real(kind=wp) :: d1, d2, dMax1, dMax2
+
+  nFail = 0
+  nL = SGS%nLev
+  nS = SGS%nSym
+  if ((nL == 0) .or. (nL > MxLev) .or. (maxval(CIS%nCSF(1:nS)) > MxCSF)) then
+    write(u6,'(A,I0,A,I0,A)') ' sg_trans_two_pdm check skipped (',nL,' levels, ',maxval(CIS%nCSF(1:nS)),' CSFs)'
+    return
+  end if
+  nL2 = nL*nL
+  n2 = nL2*(nL2+1)/2
+  nDim = 2**nL
+  call mma_allocate(Step,nL,Label='TC_Step')
+  call mma_allocate(Rho1,nL,nL,Label='TC_Rho1')
+  call mma_allocate(Rho2,n2,Label='TC_Rho2')
+  call mma_allocate(R1,nL,nL,Label='TC_R1')
+  call mma_allocate(R2,nL2,nL2,Label='TC_R2')
+  call mma_allocate(CB,[0,nDim-1],[0,nDim-1],Label='TC_CB')
+  call mma_allocate(CK,[0,nDim-1],[0,nDim-1],Label='TC_CK')
+  nTest = 0
+  dMax1 = Zero
+  dMax2 = Zero
+  do BraSym=1,nS
+    nB = CIS%nCSF(BraSym)
+    if (nB == 0) cycle
+    do KetSym=1,nS
+      nK = CIS%nCSF(KetSym)
+      if (nK == 0) cycle
+      ! two arbitrary vectors
+      call mma_allocate(Bra,nB,Label='TC_Bra')
+      call mma_allocate(Ket,nK,Label='TC_Ket')
+      do i=1,nB
+        Bra(i) = sin(0.731_wp*real(i,kind=wp)+0.37_wp*real(BraSym,kind=wp))
+      end do
+      do i=1,nK
+        Ket(i) = cos(1.217_wp*real(i,kind=wp)-0.53_wp*real(KetSym,kind=wp))
+      end do
+      call sg_trans_two_pdm(SGS,CIS,EXS,nB,Bra,BraSym,nK,Ket,KetSym,nL,Rho1,n2,Rho2)
+      ! determinant coefficients of both vectors
+      call Det_Coef(BraSym,nB,Bra,CB)
+      call Det_Coef(KetSym,nK,Ket,CK)
+      ! reference: R1(i,j) = sum_s <B|a+_is a_js|K>,
+      ! R2(ij,kl) = sum_st <B|a+_is a+_kt a_lt a_js|K>
+      R1(:,:) = Zero
+      R2(:,:) = Zero
+      do ib=0,nDim-1
+        do ia=0,nDim-1
+          if (CK(ia,ib) == Zero) cycle
+          do j=1,nL
+            do sj=1,2
+              ! a_js
+              a = ia
+              b = ib
+              nSgn = 0
+              if (.not. Apply(j,sj,.false.)) cycle
+              a1 = a
+              b1 = b
+              n1 = nSgn
+              do i=1,nL
+                a = a1
+                b = b1
+                nSgn = n1
+                if (.not. Apply(i,sj,.true.)) cycle
+                R1(i,j) = R1(i,j)+Sgn_Of(nSgn)*CK(ia,ib)*CB(a,b)
+              end do
+              do l=1,nL
+                do sl=1,2
+                  ! a_lt a_js
+                  a = a1
+                  b = b1
+                  nSgn = n1
+                  if (.not. Apply(l,sl,.false.)) cycle
+                  a2 = a
+                  b2 = b
+                  n2s = nSgn
+                  do k=1,nL
+                    ! a+_kt a_lt a_js
+                    a = a2
+                    b = b2
+                    nSgn = n2s
+                    if (.not. Apply(k,sl,.true.)) cycle
+                    a3 = a
+                    b3 = b
+                    n3 = nSgn
+                    kl = (l-1)*nL+k
+                    do i=1,nL
+                      a = a3
+                      b = b3
+                      nSgn = n3
+                      if (.not. Apply(i,sj,.true.)) cycle
+                      ij = (j-1)*nL+i
+                      R2(ij,kl) = R2(ij,kl)+Sgn_Of(nSgn)*CK(ia,ib)*CB(a,b)
+                    end do
+                  end do
+                end do
+              end do
+            end do
+          end do
+        end do
+      end do
+      do ij=1,nL2
+        do kl=1,ij
+          d2 = abs(Rho2(iTri(ij,kl))-R2(ij,kl))
+          dMax2 = max(dMax2,d2)
+          if (d2 > Tol) then
+            nFail = nFail+1
+            if (nFail <= 20) write(u6,'(A,4I4,2ES20.12)') ' sg_trans_two_pdm mismatch: BraSym,KetSym,ij,kl, value, reference =', &
+                                                        BraSym,KetSym,ij,kl,Rho2(iTri(ij,kl)),R2(ij,kl)
+          end if
+        end do
+      end do
+      d1 = maxval(abs(Rho1(:,:)-R1(:,:)))
+      dMax1 = max(dMax1,d1)
+      if (d1 > Tol) nFail = nFail+1
+      nTest = nTest+1
+      call mma_deallocate(Bra)
+      call mma_deallocate(Ket)
+    end do
+  end do
+  write(u6,'(/,A,I0,A)') ' sg_trans_two_pdm (2-body transition densities) vs determinants: ',nTest,' pairs of symmetries'
+  write(u6,'(A,2ES10.3)') '   max. abs. difference Rho1, Rho2 ',dMax1,dMax2
+  write(u6,'(A,I0)') '   failures: ',nFail
+  call mma_deallocate(Step)
+  call mma_deallocate(Rho1)
+  call mma_deallocate(Rho2)
+  call mma_deallocate(R1)
+  call mma_deallocate(R2)
+  call mma_deallocate(CB)
+  call mma_deallocate(CK)
+
+contains
+
+  ! the coefficients of the determinants (alpha string, beta string) of
+  ! the vector V of symmetry iSym
+  subroutine Det_Coef(iSym,n,V,C)
+    integer(kind=iwp), intent(in) :: iSym, n
+    real(kind=wp), intent(in) :: V(n)
+    real(kind=wp), intent(out) :: C(0:nDim-1,0:nDim-1)
+    integer(kind=iwp) :: I, iD, nD
+    C(:,:) = Zero
+    do I=1,n
+      call SG_CSF_StepVec(SGS,CIS,iSym,I,Step)
+      call CSF_Det_Expand(nL,Step,nD,DA,DB,DC)
+      do iD=1,nD
+        C(DA(iD),DB(iD)) = C(DA(iD),DB(iD))+V(I)*DC(iD)
+      end do
+      call mma_deallocate(DA)
+      call mma_deallocate(DB)
+      call mma_deallocate(DC)
+    end do
+  end subroutine Det_Coef
+
+  ! a+ (Create) or a of level p, spin s (1 alpha, 2 beta) on (a,b); the
+  ! operators left of it are those of the levels above p and, for alpha,
+  ! the beta of level p (canonical order of CSF_Det_Expand)
+  function Apply(p,s,Create) result(Ok)
+    integer(kind=iwp), intent(in) :: p, s
+    logical(kind=iwp), intent(in) :: Create
+    logical(kind=iwp) :: Ok
+    logical(kind=iwp) :: Occ
+    if (s == 1) then
+      Occ = btest(a,p-1)
+    else
+      Occ = btest(b,p-1)
+    end if
+    Ok = (Occ .neqv. Create)
+    if (.not. Ok) return
+    s1 = popcnt(ishft(a,-p))+popcnt(ishft(b,-p))
+    if ((s == 1) .and. btest(b,p-1)) s1 = s1+1
+    nSgn = nSgn+s1
+    if (s == 1) then
+      if (Create) then
+        a = ibset(a,p-1)
+      else
+        a = ibclr(a,p-1)
+      end if
+    else
+      if (Create) then
+        b = ibset(b,p-1)
+      else
+        b = ibclr(b,p-1)
+      end if
+    end if
+  end function Apply
+
+  function Sgn_Of(n) result(f)
+    integer(kind=iwp), intent(in) :: n
+    real(kind=wp) :: f
+    f = One
+    if (mod(n,2) == 1) f = -One
+  end function Sgn_Of
+
+end subroutine SG_Check_Trans_Two_PDM
 
 !#define _DEBUGPRINT_
 subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)

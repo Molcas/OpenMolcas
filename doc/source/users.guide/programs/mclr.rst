@@ -299,12 +299,12 @@ A list of these keywords is given below:
               Marks the end of perturbation specifications read from SEWARD ONEINT file.
 
 :kword:`THREshold`
-  Specify the convergence threshold for the PCG. Default is 1.0e-4.
+  Specify the convergence threshold for the PCG (norm of the residual). Default is 1.0e-6.
 
-  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="THRE" APPEAR="PCG Threshold" KIND="REAL" DEFAULT_VALUE="1.0D-4" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="THRE" APPEAR="PCG Threshold" KIND="REAL" DEFAULT_VALUE="1.0D-6" LEVEL="BASIC">
               %%Keyword: THREshold <advanced>
               <HELP>
-              Specify the convergence threshold for the PCG. Default is 1.0e-4.
+              Specify the convergence threshold for the PCG (norm of the residual). Default is 1.0e-6.
               </HELP>
               </KEYWORD>
 

@@ -59,7 +59,6 @@ use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
 use rasscf_global, only: NSEL
 use CI_Info, only: CI_St, Space_Inp
 use CI_Space_Def, only: Space_Removals
-use lucia_data, only: IDC, NCNFTP, NDTFTP
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use RASDim, only: MxRef
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
@@ -289,11 +288,11 @@ if (IPRLEV > SILENT) then
         if (Space_Removals(Space_Inp)) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',CI_St(iState)%nCSF_Kept
         ! (no determinants without Lucia, SGCI)
         if (.not. CI_Lucia_Active()) then
-        else if (IDC == 2) then
+        else if (CI_St(iState)%Spin_Comb) then
           write(u6,Fmt2//'A,T40,I11)') 'Number of spin combinations',CI_St(iState)%nDet(STSYM)
-          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',2*CI_St(iState)%nDet(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
+          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(iState)%nSD(STSYM)
         else
-          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(iState)%nDet(STSYM)
+          write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',CI_St(iState)%nSD(STSYM)
         end if
       end if
       n_Det = 2

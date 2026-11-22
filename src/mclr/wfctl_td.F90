@@ -37,7 +37,7 @@ integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDis
 logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp) :: iDEnd, iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iSym, Iter, jDisp, jSpin, kkkSym, kkSym, &
                      Left, lLine, lPaper, Lu_50, nConf3, niPre2, nPre2, pstate_sym
-real(kind=wp) :: Clock(4), D_0, D_1, D_2, Delta, Delta0, DeltaC, DeltaK, EC, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), &
+real(kind=wp) :: Clock(4), D_0, D_1, D_2, Delta, Delta0, DeltaC, DeltaK, EC, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), &
                  ReCo, Res, rEsci, rEsk, rGrad, Tim2, Tim3, Tim4
 logical(kind=iwp) :: CI, cnvrgd, lPrint, Orb
 character(len=8) :: Fmt2
@@ -226,7 +226,6 @@ do iSym=kksym,kkksym
     iLen = nDensC
     iRHSDisp(iDisp) = iDis
     call Compress(Temp4,Sigma,iSym)
-    r1 = Half*ddot_(nDensC,Sigma,1,Sigma,1)
 
     call UnCompress(Sigma,Temp4,iSym)
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
@@ -241,14 +240,21 @@ do iSym=kksym,kkksym
       call ipin(ipST)
       call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
       W(ipST)%A(1:2*nConf1) = -W(ipST)%A(1:2*nConf1)
+      ! The CI preconditioner cannot see the reference component, so it
+      ! must not enter the residual (the solution is orthogonal to |0>).
+      if (isym == 1) then
+        call ipin(ipCI)
+        rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipST)%A,1)
+        W(ipST)%A(1:nConf1) = W(ipST)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+        rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipST)%A(1+nConf1),1)
+        W(ipST)%A(nConf1+1:2*nConf1) = W(ipST)%A(nConf1+1:2*nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+      end if
     end if
 
     call DMInvKap_td(DigPrec,Sigma,Kappa)
 
     call opout(ippre2)
     ! kap:kap
-    r2 = Half*ddot_(nDensC,Kappa,1,Kappa,1)
-    if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     call mma_deallocate(Temp1)
     call mma_allocate(Temp1,nDensC,Label='Temp1')
@@ -474,6 +480,15 @@ do iSym=kksym,kkksym
         call ipin1(ipS2,2*nconf1)
         W(ipS1)%A(1:2*nConf1) = W(ipS1)%A(1:2*nConf1)+W(ipS2)%A(1:2*nConf1)
         call opout(ips2)
+        ! Project the reference state out of the CI part of the Hessian
+        ! product (see wfctl_hess).
+        if (isym == 1) then
+          call ipin(ipCI)
+          rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipS1)%A,1)
+          W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+          rGrad = DDot_(nconf1,W(ipCI)%A,1,W(ipS1)%A(1+nConf1),1)
+          W(ipS1)%A(nConf1+1:2*nConf1) = W(ipS1)%A(nConf1+1:2*nConf1)-rGrad*W(ipCI)%A(1:nConf1)
+        end if
       end if
 
       !-----------------------------------------------------------------
