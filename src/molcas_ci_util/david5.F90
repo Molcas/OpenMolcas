@@ -18,6 +18,7 @@ use rasscf_files, only: ITERFILE, LUDAVID
 use CI_Info, only: CI_St
 use rasscf_global, only: NCONF, NSEL
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
+use Rank0_Sync, only: Rank0_Bcast
 use output_ras, only: IPRLOC, RC_CI
 use PrintLevel, only: DEBUG, USUAL
 use Molcas, only: MxRoot
@@ -166,6 +167,10 @@ do it_ci=1,mxItr
   ! nBasVec returned as nr of orthonormal solutions to HC=SCE
   nBasVec = nConf
   call HCSCE(ntrial,Hs,Ss,Cs,Es,nBasVec)
+  ! all processes use rank 0's subspace solution (see Rank0_Sync)
+  call Rank0_Bcast(nBasVec)
+  call Rank0_Bcast(Es(1:ntrial))
+  call Rank0_Bcast(Cs(1:ntrial*ntrial))
   if (nBasVec < lRoots) then
     write(u6,*) 'David: nBasVec less than lRoots'
     write(u6,*) 'nBasvec, lRoots = ',nBasVec,lRoots
@@ -290,6 +295,9 @@ do it_ci=1,mxItr
       if (jRoot == nconverged+1) nconverged = nconverged+1
     end if
   end do
+  ! the same decision on all processes
+  call Rank0_Bcast(iConv)
+  call Rank0_Bcast(nconverged)
   if (iskipconv == 0) nconverged = 0
   if (iConv >= lRoots-hroots) then
     Skip = .true.
@@ -415,6 +423,9 @@ do it_ci=1,mxItr
       Vec3(:) = Vec3(:)-ovl*Vec2(:)
     end do
     updsiz = dnrm2_(nconf,Vec3,1)
+    ! the same decision on all processes (it sets the number of sigma
+    ! vectors, and so of global sums, in the next iteration)
+    call Rank0_Bcast(updsiz)
     if (updsiz > 1.0e-6_wp) then
       Vec3(:) = Vec3(:)/updsiz
       nnew = nnew+1

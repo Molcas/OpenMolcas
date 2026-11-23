@@ -71,6 +71,7 @@ use OFembed, only: Do_OFemb, FMaux
 use UnixInfo, only: ProgName
 use rctfld_module, only: lRF
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FockOcc, OccN, PA, PMAT, TUVX
+use Rank0_Sync, only: Rank0_Bcast
 use input_ras, only: Key, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID
 use timers, only: TimeCIOpt, TimeInput, TimeOrb, TimeOutput, TimeRelax, TimeTotal, TimeTrans, TimeWfn
@@ -814,6 +815,8 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         call mma_allocate(SMAT,NTOT1,Label='SMAT')
         call NATORB_RASSCF(CMO,scr1,scr2,SMAT,CMON,OCCX)
         CMO(:) = CMON(:)
+        ! rank 0's natural orbitals (degenerate occupations, see Rank0_Sync)
+        call Rank0_Bcast(CMO)
         call Put_dArray('Last orbitals',CMO,ntot2)
         call mma_deallocate(scr1)
         call mma_deallocate(scr2)
@@ -1127,6 +1130,14 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       call TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',' ',PA,NACPAR)
     end if
     call SXCTL(CMO,OCCN,DMAT,PMAT,PA,FI,FA,D1A,THMAX,IFINAL)
+    ! Under MPI all processes continue with rank 0's orbitals and take
+    ! rank 0's convergence decision (see Rank0_Sync)
+    call Rank0_Bcast(CMO)
+    call Rank0_Bcast(OCCN)
+    call Rank0_Bcast(ECAS)
+    call Rank0_Bcast(ROTMAX)
+    call Rank0_Bcast(CBLBM)
+    call Rank0_Bcast(THMAX)
 
     if (IPRLEV >= DEBUG) then
       write(u6,*)

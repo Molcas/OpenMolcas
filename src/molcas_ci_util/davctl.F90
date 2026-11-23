@@ -54,6 +54,7 @@ use rasscf_files, only: JOBIPH, LUDAVID
 use rasscf_global, only: NCONF, NDET, NSEL
 use CI_Info, only: CI_St, Space_Inp
 use CI_Space_Def, only: Space_Removals
+use Rank0_Sync, only: Rank0_Active, Rank0_Bcast
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
@@ -66,7 +67,7 @@ integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: iDisk, ItLimit, jRoot, m_Sel, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule
 integer(kind=iwp), allocatable :: iSel(:)
-real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
+real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:), Vec(:)
 
 !-----------------------------------------------------------------------
 ! INITIALIZE THE DAVIDSON DIAGONALIZATION
@@ -99,6 +100,36 @@ nMaxSel = nConf
 if (Space_Removals(Space_Inp)) nMaxSel = CI_St(iState)%nCSF_Kept
 
 call CStart(CIVEC,FMO,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
+
+! Under MPI all processes start from rank 0's explicit Hamiltonian, H
+! diagonal and start vectors: their own diagonalizations need not agree
+! (degenerate states), nor the CI vectors on their own JOBIPH, which
+! were transformed with their own orbitals (see Rank0_Sync)
+call Rank0_Bcast(nSel)
+if (m_Sel > 0) then
+  call Rank0_Bcast(iSel)
+  call Rank0_Bcast(ExplE)
+  call Rank0_Bcast(ExplV)
+end if
+if ((NAC > 0) .and. Rank0_Active()) then
+  call mma_allocate(Vec,nConf,label='Vec')
+  call Load_H_diag(nConf,Vec,LuDavid)
+  call Rank0_Bcast(Vec)
+  call Save_H_diag(nConf,Vec,LuDavid)
+  ! (CStart leaves them in the tmp slots if nSel = nMaxSel)
+  do jRoot=1,lRoots
+    if (nSel == nMaxSel) then
+      call Load_tmp_CI_vec(jRoot,nConf,Vec,LuDavid)
+      call Rank0_Bcast(Vec)
+      call Save_tmp_CI_vec(jRoot,nConf,Vec,LuDavid)
+    else
+      call Load_CI_vec(jRoot,nConf,Vec,LuDavid)
+      call Rank0_Bcast(Vec)
+      call Save_CI_vec(jRoot,nConf,Vec,LuDavid)
+    end if
+  end do
+  call mma_deallocate(Vec)
+end if
 
 !-----------------------------------------------------------------------
 ! DIAGONALIZATION SECTION

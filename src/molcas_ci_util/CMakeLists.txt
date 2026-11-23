@@ -64,6 +64,7 @@ set (sources
      pageno.F90
      phpcsf.F90
      pmat_rasscf.F90
+     rank0_sync.F90
      rasscf_files.F90
      rasscf_global.F90
      rassi_data.F90
@@ -96,6 +97,7 @@ set (modfile_list
      csfbas.F90
      dmrginfo.F90
      output_ras.F90
+     rank0_sync.F90
      rasdim.F90
      rasscf_files.F90
      rasscf_global.F90
