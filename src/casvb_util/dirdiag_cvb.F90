@@ -204,7 +204,7 @@ outer: do imacro=1,mxiter
     end if
   end do
   if (iter >= mxiter) then
-    if (ip >= 0) write(u6,'(2a,i5,a)') ' Davidson optimization not converged in ',mxiter,' iterations'
+    if (ip >= 0) write(u6,'(a,i5,a)') ' Davidson optimization not converged in ',mxiter,' iterations'
     ioptc = -1
     exit outer
   end if
