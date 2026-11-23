@@ -82,13 +82,15 @@ private
 ! citrans holds the CSF space of one symmetry at a time, Faro_Cur, set up
 ! again from the stored description (Faro_OrbSym, ...) when another one
 ! is needed (Faro_Set_Sym).
-integer(kind=iwp) :: Faro_Cur = 0, Faro_MaxEl(3) = 0, Faro_MinEl(3) = 0, Faro_nAct = 0, Faro_nPrt = 0, Faro_Sym = 0
-integer(kind=iwp), allocatable :: Faro_Lev(:), Faro_OrbRas(:), Faro_OrbSym(:)
+integer(kind=iwp) :: Faro_Cur = 0, Faro_nAct = 0, Faro_nPrt = 0, Faro_Sym = 0
+integer(kind=iwp), allocatable :: Faro_MaxEl(:), Faro_MinEl(:), Faro_OrbRas(:), Faro_OrbSym(:)
+!> (public, read-only: the level map for the programs' Faroald paths)
+integer(kind=iwp), allocatable, protected :: Faro_Lev(:)
 
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSpace, CI_Lib_Select, &
-          CI_Lib_SGUGA, CI_Lib_Sigma, CI_To_Basis, CI_To_File
+          CI_Lib_SGUGA, CI_Lib_Sigma, CI_To_Basis, CI_To_File, Faro_Lev
 
 contains
 
@@ -727,54 +729,76 @@ end subroutine SG_Diag
 ! symmetry of the CI state.
 !***********************************************************************
 
-!> Faroald: the CSF space of the CI state (RAS partitions of CI_Input)
+!> Faroald: the setup for the CI state iState, for every program. The
+!> partitions (CAS, RAS, GAS) and their cumulative electron bounds come
+!> from the CI space Space_CI when the program has it (RASSCF; MCLR from the
+!> CI-space record of the JobIph), otherwise from the RAS input (CI_Input).
+!> The orbitals of Faroald are the levels: partition by partition, within
+!> each by symmetry; Faro_Lev(iLev) is the symmetry-ordered active orbital
+!> of level iLev. The full determinant space is set up here only as the
+!> reference of MOLCAS_CI_VERIFY=SIGMA, otherwise later on demand
+!> (Faro_Full_Init: other symmetries, non-Hermitian operators).
 subroutine Faro_Init(iState)
   use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3
+  use CI_Info, only: Space_CI
   use CI_States, only: RAS_Partitions
+  use CI_Verify_Options, only: CI_Verify
   use Orbital_Spaces, only: nAsh, nSym
   use faroald, only: nela, nelb
-  use faroald_ras, only: faroald_ras_init
+  use faroald_ras, only: faroald_ras_init, n_ras
   use citrans, only: citrans_ncsf
+  use second_quantization, only: binom_coef
   use Molcas, only: MxSym
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState
-  integer(kind=iwp) :: i, iLev, iSym, k, MaxEl(3), MinEl(3), nAbove, nAct, nBelow, nOff(MxSym), nOrbP(3), nPrt, nRas(MxSym,3), &
-                       nRasEl(3)
-  integer(kind=iwp), allocatable :: OrbRas(:), OrbSym(:)
+  integer(kind=iwp) :: i, iLev, iSym, k, nAbove, nAct, nBelow, nOff(MxSym), nPrt, nRas(MxSym,3), nRasEl(3)
+  integer(kind=iwp), allocatable :: MaxEl(:), MinEl(:), nOrbP(:), OrbRas(:), OrbSym(:)
+  logical(kind=iwp) :: Full
   Faro_Sym = CI_St(iState)%STSym
   nAct = sum(nAsh(1:nSym))
-  call RAS_Partitions(nSym,nActEl,nRs1,nRs2,nRs3,nHole1,nElec3,.false.,nPrt,nRas,nRasEl)
   call mma_allocate(OrbSym,max(1,nAct),Label='OrbSym')
   call mma_allocate(OrbRas,max(1,nAct),Label='OrbRas')
-  call mma_deallocate(Faro_Lev,safe='*')
-  call mma_allocate(Faro_Lev,max(1,nAct),Label='Faro_Lev')
-  ! the levels: partition by partition, within each by symmetry
-  iLev = 0
-  do k=1,nPrt
-    do iSym=1,nSym
-      do i=1,nRas(iSym,k)
-        iLev = iLev+1
-        OrbSym(iLev) = iSym
-        OrbRas(iLev) = k
+  if ((Space_CI%nLev == nAct) .and. (Space_CI%nPart >= 1)) then
+    ! the CI space of the program (also GAS)
+    nPrt = Space_CI%nPart
+    OrbSym(1:nAct) = Space_CI%LevSym(1:nAct)
+    OrbRas(1:nAct) = Space_CI%LevPart(1:nAct)
+    call mma_allocate(MinEl,nPrt,Label='MinEl')
+    call mma_allocate(MaxEl,nPrt,Label='MaxEl')
+    MinEl(:) = Space_CI%MinEl(1:nPrt)
+    MaxEl(:) = Space_CI%MaxEl(1:nPrt)
+  else
+    ! the RAS input
+    call RAS_Partitions(nSym,nActEl,nRs1,nRs2,nRs3,nHole1,nElec3,.false.,nPrt,nRas,nRasEl)
+    iLev = 0
+    do k=1,nPrt
+      do iSym=1,nSym
+        do i=1,nRas(iSym,k)
+          iLev = iLev+1
+          OrbSym(iLev) = iSym
+          OrbRas(iLev) = k
+        end do
       end do
     end do
-  end do
-  if (iLev /= nAct) then
-    write(u6,*) 'Faro_Init: the RAS partitions do not hold the active orbitals',iLev,nAct
-    call Abend()
+    if (iLev /= nAct) then
+      write(u6,*) 'Faro_Init: the RAS partitions do not hold the active orbitals',iLev,nAct
+      call Abend()
+    end if
+    call mma_allocate(MinEl,nPrt,Label='MinEl')
+    call mma_allocate(MaxEl,nPrt,Label='MaxEl')
+    nBelow = 0
+    do k=1,nPrt
+      nBelow = nBelow+sum(nRas(1:nSym,k))
+      nAbove = nAct-nBelow
+      MinEl(k) = max(nRasEl(k),0,nActEl-2*nAbove)
+      MaxEl(k) = min(nActEl,2*nBelow)
+    end do
+    MinEl(nPrt) = nActEl
+    MaxEl(nPrt) = nActEl
   end if
-  ! cumulative electron bounds of the partitions 1..k
-  nBelow = 0
-  do k=1,nPrt
-    nOrbP(k) = sum(nRas(1:nSym,k))
-    nBelow = nBelow+nOrbP(k)
-    nAbove = nAct-nBelow
-    MinEl(k) = max(nRasEl(k),0,nActEl-2*nAbove)
-    MaxEl(k) = min(nActEl,2*nBelow)
-  end do
-  MinEl(nPrt) = nActEl
-  MaxEl(nPrt) = nActEl
   ! levels -> symmetry-ordered active orbitals
+  call mma_deallocate(Faro_Lev,safe='*')
+  call mma_allocate(Faro_Lev,max(1,nAct),Label='Faro_Lev')
   nOff(1) = 0
   do iSym=2,nSym
     nOff(iSym) = nOff(iSym-1)+nAsh(iSym-1)
@@ -783,29 +807,56 @@ subroutine Faro_Init(iState)
     nOff(OrbSym(iLev)) = nOff(OrbSym(iLev))+1
     Faro_Lev(iLev) = nOff(OrbSym(iLev))
   end do
-  call faroald_init(nActEl,nAct,iSpin,.false.)
-  call citrans_init(nActEl,nAct,iSpin,nSym,OrbSym,Faro_Sym,nPrt,OrbRas,MinEl(1:nPrt),MaxEl(1:nPrt))
-  call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP(1:nPrt),MinEl(1:nPrt),MaxEl(1:nPrt),nSym,OrbSym(1:nAct),Faro_Sym,iSpin == 1)
+  ! the tables of the full (C1) determinant space up front only as the
+  ! reference of MOLCAS_CI_VERIFY=SIGMA (for CAS always, for RAS/GAS for
+  ! small spaces)
+  Full = .false.
+  if (CI_Verify('SIGMA')) then
+    Full = (nPrt == 1)
+    if (.not. Full) &
+      Full = real(binom_coef((nActEl+iSpin-1)/2,nAct),kind=wp)*real(binom_coef((nActEl-iSpin+1)/2,nAct),kind=wp) <= 1.0e6_wp
+  end if
+  call faroald_init(nActEl,nAct,iSpin,Full)
+  call citrans_init(nActEl,nAct,iSpin,nSym,OrbSym,Faro_Sym,nPrt,OrbRas,MinEl,MaxEl)
+  ! the string-driven CI (faroald_ras): the determinant blocks of the CI
+  ! symmetry, for singlets with the spin-flip symmetry
+  if (nAct > 0) then
+    call mma_allocate(nOrbP,nPrt,Label='nOrbP')
+    do k=1,nPrt
+      nOrbP(k) = count(OrbRas(1:nAct) == k)
+    end do
+    call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP,MinEl,MaxEl,nSym,OrbSym(1:nAct),Faro_Sym,iSpin == 1)
+    call mma_deallocate(nOrbP)
+    write(u6,'(1X,A,I0,A,I0,A)') 'Faroald: string-driven CI, ',nPrt,' partition(s), ',n_ras,' determinants of the CI symmetry'
+    if (iSpin == 1) write(u6,'(1X,A)') 'Faroald: singlet, spin-flip symmetry C(Ib,Ia) = C(Ia,Ib) used'
+  end if
   ! the description of the CSF spaces, for the other symmetries
   call mma_deallocate(Faro_OrbSym,safe='*')
   call mma_deallocate(Faro_OrbRas,safe='*')
+  call mma_deallocate(Faro_MinEl,safe='*')
+  call mma_deallocate(Faro_MaxEl,safe='*')
   call mma_allocate(Faro_OrbSym,max(1,nAct),Label='Faro_OrbSym')
   call mma_allocate(Faro_OrbRas,max(1,nAct),Label='Faro_OrbRas')
+  call mma_allocate(Faro_MinEl,nPrt,Label='Faro_MinEl')
+  call mma_allocate(Faro_MaxEl,nPrt,Label='Faro_MaxEl')
   Faro_OrbSym(:) = OrbSym(:)
   Faro_OrbRas(:) = OrbRas(:)
-  Faro_nAct = nAct
-  Faro_nPrt = nPrt
   Faro_MinEl(:) = MinEl(:)
   Faro_MaxEl(:) = MaxEl(:)
+  Faro_nAct = nAct
+  Faro_nPrt = nPrt
   Faro_Cur = Faro_Sym
+  call mma_deallocate(MaxEl)
+  call mma_deallocate(MinEl)
   call mma_deallocate(OrbSym)
   call mma_deallocate(OrbRas)
-  if (citrans_ncsf() /= CI_St(iState)%nCSF(Faro_Sym)) then
+  if ((citrans_ncsf() /= CI_St(iState)%nCSF(Faro_Sym)) .and. (nActEl > 0)) then
     write(u6,*) 'Faro_Init: CSFs of Faroald and of the split graph',citrans_ncsf(),CI_St(iState)%nCSF(Faro_Sym)
     call Abend()
   end if
-  ! no determinants
-  CI_St(iState)%nDet(:) = CI_St(iState)%nCSF(:)
+  ! no determinant vectors outside the library (a larger dimension of
+  ! another library initialized as a reference is kept)
+  CI_St(iState)%nDet(:) = max(CI_St(iState)%nDet(:),CI_St(iState)%nCSF(:))
 end subroutine Faro_Init
 
 subroutine Faro_Close()
@@ -817,6 +868,8 @@ subroutine Faro_Close()
   call mma_deallocate(Faro_Lev,safe='*')
   call mma_deallocate(Faro_OrbSym,safe='*')
   call mma_deallocate(Faro_OrbRas,safe='*')
+  call mma_deallocate(Faro_MinEl,safe='*')
+  call mma_deallocate(Faro_MaxEl,safe='*')
   Faro_Sym = 0
   Faro_Cur = 0
 end subroutine Faro_Close
@@ -829,8 +882,8 @@ subroutine Faro_Set_Sym(iState,iSym)
   use citrans, only: citrans_ncsf, citrans_sym_init
   integer(kind=iwp), intent(in) :: iState, iSym
   if (iSym == Faro_Cur) return
-  call citrans_sym_init(nActEl,Faro_nAct,nSym,Faro_OrbSym,iSym,Faro_nPrt,Faro_OrbRas,Faro_MinEl(1:Faro_nPrt), &
-                        Faro_MaxEl(1:Faro_nPrt))
+  call citrans_sym_init(nActEl,Faro_nAct,nSym,Faro_OrbSym,iSym,Faro_nPrt,Faro_OrbRas,Faro_MinEl, &
+                        Faro_MaxEl)
   Faro_Cur = iSym
   if (citrans_ncsf() /= CI_St(iState)%nCSF(iSym)) then
     write(u6,*) 'Faro_Set_Sym: CSFs of Faroald and of the split graph',iSym,citrans_ncsf(),CI_St(iState)%nCSF(iSym)

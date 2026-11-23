@@ -22,6 +22,13 @@ use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ra
                        ras_trans_two_pdm
 use rasscf_global, only: DoSGEx
 use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_SGUGA
+! FARO: Faroald works with the active orbitals in the order of the levels
+! of the split graph (by partition, within each by symmetry), so that its
+! CSFs couple the spins in the order of the file basis. Faro_L2O(lev) is
+! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
+! up by the one Faroald setup of CI_Operations; the densities are in level
+! order (as Lucia's and SGUGA's).
+use CI_Operations, only: CI_Lib_Close, CI_Lib_Initialize, Faro_L2O => Faro_Lev
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -75,13 +82,6 @@ logical(kind=iwp) :: HPsi_Faro_Verified = .false., PDM_Faro_Verified = .false., 
                      TraPsi_Faro_Verified = .false., IHI_Faro_SG_Verified = .false.
 ! Lucia has been initialized (not for SGCI, except as the SIGMA reference)
 logical(kind=iwp) :: Lucia_Active = .true.
-! FARO: Faroald works with the active orbitals in the order of the levels
-! of the split graph (by RAS partition, within each by symmetry), so that
-! its CSFs couple the spins in the order of the file basis. Faro_L2O(lev)
-! is the active orbital (symmetry-blocked order of TU/TUVX) of level lev;
-! the identity for CAS. The densities are in level order (as Lucia's and
-! SGUGA's).
-integer(kind=iwp), allocatable :: Faro_L2O(:)
 ! FARO with RAS: the string-driven sigma (faroald_ras) checked once against
 ! the sigma of the full determinant space (SIGMA)
 logical(kind=iwp) :: HPsi_FaroRAS_Verified = .false.
@@ -1828,21 +1828,16 @@ end subroutine CI_Space_Setup
 
 subroutine CI_Initialize(DO_SGUGA)
 ! (the input values: the CI state is set up here)
-use CI_Input, only: ISPIN, NACTEL, STSYM
+use CI_Input, only: NACTEL, STSYM
 use sguga, only: SG_Test_EpqErs_Ref
-use faroald, only: nela, nelb
 use second_quantization, only: binom_coef
 use Orbital_Spaces, only: nSym
-use CI_Input, only: STSym
 use Molcas, only: MxSym
 
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA
 integer(kind=iwp), parameter :: iState=1
-integer(kind=iwp) :: nAct, k, iSym, iLev, nPrt, nCSF_Lucia, nFail_TT
-integer(kind=iwp), allocatable :: nOrbP(:)
-logical(kind=iwp) :: Full
-integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
+integer(kind=iwp) :: nCSF_Lucia, nFail_TT
 
 nCSF_Lucia = 0
 ! SGCI does not need Lucia; it is set up only as the reference of
@@ -1926,63 +1921,12 @@ if (Faro_CI()) then
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
   write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
-  ! the orbitals of Faroald = the levels of the split graph: by partition
-  ! (RAS/GAS), within each by symmetry (Space_CI%LevSym);
-  ! Faro_L2O maps them to the symmetry-blocked order of RASSCF (within one
-  ! symmetry the orbitals keep the order of their levels)
-  nAct = sum(NASH(1:nSym))
-  call mma_allocate(OrbSym,max(1,nAct),Label='OrbSym')
-  call mma_allocate(OrbRas,max(1,nAct),Label='OrbRas')
-  call mma_deallocate(Faro_L2O,safe='*')
-  call mma_allocate(Faro_L2O,max(1,nAct),Label='Faro_L2O')
-  iLev = Space_CI%nLev
-  if (iLev == nAct) then
-    OrbSym(1:nAct) = Space_CI%LevSym(1:nAct)
-    OrbRas(1:nAct) = Space_CI%LevPart(1:nAct)
-  end if
-  nPrt = Space_CI%nPart
-  if ((iLev /= nAct) .or. (NAC /= nAct)) then
-    write(u6,*) 'CI_Initialize: inconsistent active levels for Faroald',iLev,nAct,NAC
+  ! the one Faroald setup (CI_Operations), from Space_CI
+  if (NAC /= sum(NASH(1:nSym))) then
+    write(u6,*) 'CI_Initialize: inconsistent active orbitals for Faroald',NAC,sum(NASH(1:nSym))
     call Abend()
   end if
-  call mma_allocate(nOff,nSym,Label='nOff')
-  nOff(1) = 0
-  do iSym=2,nSym
-    nOff(iSym) = nOff(iSym-1)+NASH(iSym-1)
-  end do
-  do iLev=1,nAct
-    nOff(OrbSym(iLev)) = nOff(OrbSym(iLev))+1
-    Faro_L2O(iLev) = nOff(OrbSym(iLev))
-  end do
-  call mma_deallocate(nOff)
-  ! the tables of the full (C1) determinant space: only as the reference of
-  ! MOLCAS_CI_VERIFY=SIGMA (Faroald_Sigma compares the string-driven sigma
-  ! with it), for CAS always, for RAS/GAS for small CAS spaces
-  Full = .false.
-  if (CI_Verify('SIGMA')) then
-    Full = (nPrt == 1)
-    if (.not. Full) &
-      Full = real(binom_coef((NACTEL+ISPIN-1)/2,nAct),kind=wp)*real(binom_coef((NACTEL-ISPIN+1)/2,nAct),kind=wp) <= 1.0e6_wp
-  end if
-  call FAROALD_INIT(NACTEL,nAct,ISPIN,Full)
-  call CITRANS_INIT(NACTEL,nAct,ISPIN,nSym,OrbSym,STSym,nPrt,OrbRas,Space_CI%MinEl(1:nPrt),Space_CI%MaxEl(1:nPrt))
-  ! CAS, RAS and GAS: the string-driven CI (faroald_ras): only the
-  ! determinant blocks of the CI symmetry, and for singlets the spin-flip
-  ! symmetry C(Ib,Ia) = C(Ia,Ib) (CAS is one partition)
-  if ((nPrt >= 1) .and. (nAct > 0)) then
-    call mma_allocate(nOrbP,nPrt,Label='nOrbP')
-    do k=1,nPrt
-      nOrbP(k) = count(OrbRas(1:nAct) == k)
-    end do
-    call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP,Space_CI%MinEl(1:nPrt),Space_CI%MaxEl(1:nPrt),nSym,OrbSym(1:nAct),STSym, &
-                          ISPIN == 1)
-    call mma_deallocate(nOrbP)
-    write(u6,'(1X,A,I0,A,I0,A)') 'Faroald: string-driven CI, ',nPrt,' partition(s), ',n_ras, &
-                                 ' determinants of the CI symmetry'
-    if (ISPIN == 1) write(u6,'(1X,A)') 'Faroald: singlet, spin-flip symmetry C(Ib,Ia) = C(Ia,Ib) used'
-  end if
-  call mma_deallocate(OrbSym)
-  call mma_deallocate(OrbRas)
+  call CI_Lib_Initialize(iState)
   if ((citrans_ncsf() /= nConf) .and. (nActEl > 0)) then
     write(u6,*) 'CI_Initialize: number of CSFs, Faroald and RASSCF:',citrans_ncsf(),nConf
     call Abend()
@@ -2004,10 +1948,8 @@ integer(kind=iwp), Intent(in):: iState
 
 if (Lucia_Active) Call Lucia_Util('Close')
 
-call faroald_free()
-call faroald_ras_free()
-call citrans_free()
-call mma_deallocate(Faro_L2O,safe='*')
+! (Faroald: its data in CI_Operations; the selection is kept)
+if (Faro_CI()) call CI_Lib_Close(iState)
 
 if (CI_St(iState)%iRel > 0) then
   call SG_Free(CI_St(iState)%iRel)
