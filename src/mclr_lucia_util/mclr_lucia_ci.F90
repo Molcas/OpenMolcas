@@ -311,14 +311,13 @@ subroutine MCLR_Lucia_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP
   use Constants, only: Zero
   integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nPMax, nHP
   real(kind=wp), intent(in) :: TU(nTU), ECore
-  real(kind=wp), target, intent(in) :: TUVX(nTUVX)
+  real(kind=wp), intent(in) :: TUVX(nTUVX)
   integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
   real(kind=wp), intent(out) :: HP(nHP)
-  integer(kind=iwp) :: i, iCnf, iComb, iEaw, iTyp, j, k, lScr, MxCSFC, MxDTFC, nActEl, nCnf, nInt1
+  integer(kind=iwp) :: i, iCnf, iComb, iEaw, iTyp, j, k, nCnf, nInt1
   real(kind=wp) :: PSign
   integer(kind=iwp), allocatable :: iOffCnf(:), nCSFCnf(:)
-  real(kind=wp), allocatable :: Scr(:)
-  real(kind=wp), allocatable, target :: Int1(:)
+  real(kind=wp), allocatable :: Int1(:)
 #include "macros.fh"
   unused_var(iState)
   call Use_Syms(iSym,iSym)
@@ -373,22 +372,36 @@ subroutine MCLR_Lucia_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP
   end if
   ! the integrals of the totally symmetric Hamiltonian
   call Expand_TU(1,.false.,nTU,TU,nInt1,Int1)
-  KAIN1(1:nInt1) => Int1(:)
-  KINT2(1:nTUVX) => TUVX(:)
-  call Int1_Offsets(1,pInt1)
-  ! scratch of CNHCNM (its header)
-  MxCSFC = max(0,maxval(NCSFTP(1:NTYP)))
-  MxDTFC = max(0,maxval(NDPCNT(1:NTYP)))
-  nActEl = NAELCI(1)+NBELCI(1)
-  lScr = MxCSFC**2+2*MxDTFC+MxDTFC**2+MxDTFC+MxCSFC+max(MxDTFC*nActEl+2*nActEl,4*NACOB+2*nActEl)
-  call mma_allocate(Scr,lScr,Label='Scr')
-  call CNHCNM(HP,1,IPC,nPC,IPC,nPC,nP,Scr,CNSM(iEaw)%ICONF,nActEl,iSym,NAELCI(1),NBELCI(1),NACOB,DFTP,DTOC,1,iComb,PSign)
-  call mma_deallocate(Scr)
-  nullify(KAIN1,KINT2)
+  call Block_Ints(nInt1,Int1,nTUVX,TUVX)
   call mma_deallocate(Int1)
   do i=1,nP
     HP(nTri_Elem(i)) = HP(nTri_Elem(i))+ECore
   end do
+
+contains
+
+  !> The block with the integrals Int1 (full-orbital blocks) and TUVX
+  !> (target dummies: the module pointers KAIN1/KINT2 point at them only
+  !> during this call)
+  subroutine Block_Ints(nI1,I1,nI2,I2)
+    integer(kind=iwp), intent(in) :: nI1, nI2
+    real(kind=wp), target, intent(in) :: I1(nI1), I2(nI2)
+    integer(kind=iwp) :: lScr, MxCSFC, MxDTFC, nActEl
+    real(kind=wp), allocatable :: Scr(:)
+    KAIN1(1:nI1) => I1(:)
+    KINT2(1:nI2) => I2(:)
+    call Int1_Offsets(1,pInt1)
+    ! scratch of CNHCNM (its header)
+    MxCSFC = max(0,maxval(NCSFTP(1:NTYP)))
+    MxDTFC = max(0,maxval(NDPCNT(1:NTYP)))
+    nActEl = NAELCI(1)+NBELCI(1)
+    lScr = MxCSFC**2+2*MxDTFC+MxDTFC**2+MxDTFC+MxCSFC+max(MxDTFC*nActEl+2*nActEl,4*NACOB+2*nActEl)
+    call mma_allocate(Scr,lScr,Label='Scr')
+    call CNHCNM(HP,1,IPC,nPC,IPC,nPC,nP,Scr,CNSM(iEaw)%ICONF,nActEl,iSym,NAELCI(1),NBELCI(1),NACOB,DFTP,DTOC,1,iComb,PSign)
+    call mma_deallocate(Scr)
+    nullify(KAIN1,KINT2)
+  end subroutine Block_Ints
+
 end subroutine MCLR_Lucia_Block
 
 !> Transition densities between L and R (TDens_Proc of CI_Operations)
