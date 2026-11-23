@@ -105,9 +105,9 @@ private
 integer(kind=iwp) :: Faro_Cur = 0, Faro_MaxEl(3) = 0, Faro_MinEl(3) = 0, Faro_nAct = 0, Faro_nPrt = 0, Faro_Sym = 0
 integer(kind=iwp), allocatable :: Faro_Lev(:), Faro_OrbRas(:), Faro_OrbSym(:)
 
-public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dets_To_Basis, &
+public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Dets_To_Basis, &
           CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, &
-          CI_Lib_None, CI_Lib_Select, CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens
+          CI_Lib_None, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens
 
 contains
 
@@ -157,59 +157,222 @@ subroutine CI_Lib_Close(iState)
   if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
 end subroutine CI_Lib_Close
 
+!> Old name of CI_Lib_Sigma with the integrals of MCLR (kept until MCLR
+!> calls CI_Lib_Sigma): Int1 over all orbitals in square symmetry blocks
+!> (block (iS,Mul(iS,iOp)), nOrb(iS) x nOrb(Mul(iS,iOp)), column-major, in
+!> the order of iS; only the active part is used), Int2 as TUVX of
+!> CI_Lib_Sigma. Converted once here; the MCLR copy of Lucia takes Int1 as
+!> it is.
 subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
+  use Symmetry_Info, only: Mul
+  use Orbital_Spaces, only: nAsh, nSym
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nInt1, nInt2, nC, nS
   real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
   logical(kind=iwp), intent(in) :: Have_2_el, Square
   real(kind=wp), intent(in) :: C(nC)
   real(kind=wp), intent(out) :: S(nS)
-  if ((iOpSpin /= 0) .and. (iOpSpin /= 1)) then
-    write(u6,'(A,I4)') ' CI_Sigma_Op: invalid operator spin iOpSpin =',iOpSpin
-    call Abend()
+  integer(kind=iwp) :: iOp, nA, nTU, nTUVX
+  real(kind=wp), allocatable :: TU(:), TUVX(:)
+  if (CI_Lib == CI_Lib_MCLR_Lucia) then
+    call Check_Op('CI_Sigma_Op',iOpSpin,Have_2_el,Square)
+    call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
+    return
   end if
-  if ((iOpSpin == 1) .and. Have_2_el) then
-    write(u6,'(A)') ' CI_Sigma_Op: the operator with iOpSpin = 1 is one-body only'
-    call Abend()
+  iOp = Mul(iCSym,iSSym)
+  nA = sum(nAsh(1:nSym))
+  if (Square) then
+    nTU = nA**2
+    nTUVX = nTri_Elem(nA**2)
+  else
+    nTU = nTri_Elem(nA)
+    nTUVX = nTri_Elem(nTU)
   end if
-  if (CI_Lib == CI_Lib_SGUGA) then
-    if (iOpSpin /= 0) call Not_Yet('CI_Sigma_Op','triplet operators')
-    if (Square) then
-      call SG_Sigma_Sq(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
-    else
-      call SG_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+  call mma_allocate(TU,nTU,Label='TU')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX')
+  if (Square) then
+    call Int1_To_Sq(iOp,nInt1,Int1,nA,TU)
+    if (Have_2_el) then
+      if (nInt2 < nTUVX) call Abend()
+      TUVX(:) = Int2(1:nTUVX)
     end if
-    return
+  else
+    call SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
   end if
-  if (CI_Lib == CI_Lib_Faroald) then
-    if (iOpSpin /= 0) call Not_Yet('CI_Sigma_Op','triplet operators')
-    call Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S,Square)
-    return
-  end if
-  call Check_Lib('CI_Sigma_Op')
-  call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
+  call CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
 end subroutine CI_Sigma_Op
 
+!> S = H C (S is overwritten, never accumulated) for the CI state iState
+!> (its CI space, CI_St(iState)), C of symmetry iCSym (nC = nCSF(iCSym)),
+!> S of symmetry iSSym (nS = nCSF(iSSym)), both in the CSF basis of the
+!> selected library (CI_Lib). That basis is the library's own and differs
+!> between the libraries; only CI_Lib_File_To_Basis and
+!> CI_Lib_Basis_To_File map it to the order of the files. H is an
+!> active-space operator of symmetry iOp = Mul(iCSym,iSSym), with no core
+!> energy:
+!>   H = sum_tu h_tu E_tu + 1/2 sum_tuvx g_tuvx (E_tu E_vx - delta_uv E_tx)
+!> h_tu are the one-body integrals of H as written (for RASSCF the active
+!> block of the inactive Fock matrix); the libraries form
+!> k_tu = h_tu - 1/2 sum_v g_tvvu themselves.
+!> iOpSpin = 0: singlet E_tu; iOpSpin = 1: a+_ta a_ua - a+_tb a_ub
+!> (one-body only, Have_2_el = .false., not with Square).
+!> Active orbitals: nAct = sum(nAsh), in symmetry order (all active
+!> orbitals of irrep 1, then irrep 2, ...; RAS1, RAS2, RAS3 inside each
+!> irrep).
+!> Square = .false. (H Hermitian):
+!>   TU(iTri(t,u)) = h_tu, the full triangle, nTU = nTri(nAct), not
+!>   symmetry-compressed; elements outside the operator symmetry
+!>   (Mul(Sym(t),Sym(u)) /= iOp) are set to zero by the caller.
+!>   TUVX(iTri(iTri(t,u),iTri(v,x))) = g_tuvx = (tu|vx), the full
+!>   triangle, nTUVX = nTri(nTri(nAct)), not symmetry-compressed; zero
+!>   outside the operator symmetry likewise.
+!> Square = .true. (H not Hermitian; time-dependent response):
+!>   TU((u-1)*nAct+t) = h_tu, the full square matrix, nTU = nAct**2;
+!>   TUVX(iTri(tu,vx)) = g_tuvx with the square pair index
+!>   tu = (u-1)*nAct+t, nTUVX = nTri(nAct**2); g(tu,vx) = g(vx,tu) is
+!>   assumed (the iTri packing).
+!> Have_2_el = .false.: one-body operator only, TUVX not referenced (a
+!> dummy of size 1 may be passed).
+!> HEXS/DEXS: projected only if the program set up HEXS/DEXS for iState
+!> (RASSCF input); otherwise no projection. (Not yet: RASSCF still calls
+!> Mk_H_Psi, which projects.)
+!> Scratch: the libraries keep their own work space (freed by
+!> CI_Lib_Close).
+subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
+  real(kind=wp), intent(out) :: S(nS)
+  call Check_Op('CI_Lib_Sigma',iOpSpin,Have_2_el,Square)
+  select case (CI_Lib)
+    case (CI_Lib_SGUGA)
+      if (iOpSpin /= 0) call Not_Yet('CI_Lib_Sigma','triplet operators')
+      call SG_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+    case (CI_Lib_Faroald)
+      if (iOpSpin /= 0) call Not_Yet('CI_Lib_Sigma','triplet operators')
+      call Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+    case (CI_Lib_MCLR_Lucia)
+      call MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+    case default
+      call Check_Lib('CI_Lib_Sigma')
+  end select
+end subroutine CI_Lib_Sigma
+
+!> The checks of the operator arguments of CI_Lib_Sigma
+subroutine Check_Op(Caller,iOpSpin,Have_2_el,Square)
+  character(len=*), intent(in) :: Caller
+  integer(kind=iwp), intent(in) :: iOpSpin
+  logical(kind=iwp), intent(in) :: Have_2_el, Square
+  if ((iOpSpin /= 0) .and. (iOpSpin /= 1)) then
+    write(u6,'(1X,A,A,I4)') Caller,': invalid operator spin iOpSpin =',iOpSpin
+    call Abend()
+  end if
+  if ((iOpSpin == 1) .and. (Have_2_el .or. Square)) then
+    write(u6,'(1X,A,A)') Caller,': the operator with iOpSpin = 1 is one-body and Hermitian only'
+    call Abend()
+  end if
+end subroutine Check_Op
+
+!> The MCLR copy of Lucia with the integrals of CI_Lib_Sigma (temporary:
+!> the active integrals expanded to the full-orbital blocks of MCLR, zero
+!> outside the active part; to be replaced by the adapter in
+!> mclr_lucia_util)
+subroutine MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  use Symmetry_Info, only: Mul
+  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
+  use Index_Functions, only: iTri
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
+  real(kind=wp), intent(out) :: S(nS)
+  integer(kind=iwp) :: iOff(8), iOp, iS, it, iu, jS, nA, nAOff(8), nInt1, t, u
+  real(kind=wp), allocatable :: Int1(:)
+  iOff(:) = 0
+  nAOff(:) = 0
+  iOp = Mul(iCSym,iSSym)
+  nA = 0
+  nInt1 = 0
+  do iS=1,nSym
+    iOff(iS) = nInt1
+    nInt1 = nInt1+nOrb(iS)*nOrb(Mul(iS,iOp))
+    nAOff(iS) = nA
+    nA = nA+nAsh(iS)
+  end do
+  call mma_allocate(Int1,max(1,nInt1),Label='Int1')
+  Int1(:) = Zero
+  do iS=1,nSym
+    jS = Mul(iS,iOp)
+    do iu=1,nAsh(jS)
+      do it=1,nAsh(iS)
+        t = nAOff(iS)+it
+        u = nAOff(jS)+iu
+        if (Square) then
+          Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it) = TU((u-1)*nA+t)
+        else
+          Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it) = TU(iTri(t,u))
+        end if
+      end do
+    end do
+  end do
+  call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nTUVX,TUVX,Have_2_el,Square,nC,C,nS,S)
+  call mma_deallocate(Int1)
+end subroutine MCLR_Lucia_Sigma_Act
+
+!> Old name of CI_Lib_Dens (kept until MCLR calls CI_Lib_Dens)
 subroutine CI_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
+  call CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+end subroutine CI_Trans_Dens
+
+!> The (transition) densities between the bra L (symmetry iLSym, nL =
+!> nCSF(iLSym)) and the ket R (symmetry iRSym, nR = nCSF(iRSym)) of the CI
+!> state iState, both in the CSF basis of the selected library (as in
+!> CI_Lib_Sigma). L and R may be the same state (the same array may be
+!> passed twice): then they are the densities of that state.
+!> iOpSpin = 0: spin-free, Rho1(i+(j-1)*nAct) = <L|E_ij|R>, the full
+!>   square nAct x nAct (n1 >= nAct**2), sum_i Rho1(i,i) = N_act <L|R>;
+!>   I12 = 2 also Rho2(iTri(ij,kl)) = <L|E_ij E_kl - delta_jk E_il|R>
+!>   with the square pair index ij = (j-1)*nAct+i, packed over ij >= kl
+!>   (n2 >= nTri(nAct**2)); for I12 = 1, Rho2 is not referenced (a dummy of
+!>   size 1 may be passed).
+!> iOpSpin = 1: spin density, Rho1(i,j) = <L|a+_ia a_ja - a+_ib a_jb|R>,
+!>   one-body only (I12 = 1), for M_S = S (the CI vectors are the high-spin
+!>   components; the spin-adapted libraries use that convention).
+!> Active orbitals in symmetry order, as in CI_Lib_Sigma. The densities
+!> are the elements of the operators as written: not symmetrized, not
+!> folded (the callers symmetrize where they need it). Programs that need
+!> other layouts (RASSCF: D, SD, P, PA, triangular, in its level order)
+!> convert after the call.
+subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+  integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
+  real(kind=wp), intent(in) :: L(nL), R(nR)
+  real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   if ((iOpSpin /= 0) .and. (iOpSpin /= 1)) then
-    write(u6,'(A,I4)') ' CI_Trans_Dens: invalid operator spin iOpSpin =',iOpSpin
+    write(u6,'(A,I4)') ' CI_Lib_Dens: invalid operator spin iOpSpin =',iOpSpin
+    call Abend()
+  end if
+  if ((iOpSpin == 1) .and. (I12 /= 1)) then
+    write(u6,'(A)') ' CI_Lib_Dens: the spin density is one-body only (I12 = 1)'
     call Abend()
   end if
   if (CI_Lib == CI_Lib_SGUGA) then
-    if (iOpSpin /= 0) call Not_Yet('CI_Trans_Dens','spin densities')
-    call SG_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+    call SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     return
   end if
   if (CI_Lib == CI_Lib_Faroald) then
-    if (iOpSpin /= 0) call Not_Yet('CI_Trans_Dens','spin densities')
-    call Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+    call Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     return
   end if
-  call Check_Lib('CI_Trans_Dens')
+  call Check_Lib('CI_Lib_Dens')
   call MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
-end subroutine CI_Trans_Dens
+end subroutine CI_Lib_Dens
 
 subroutine CI_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
@@ -313,6 +476,8 @@ subroutine SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
   integer(kind=iwp) :: iOff(8), iS, it, iu, jS, nAOff(8), nAct
 #include "macros.fh"
   unused_var(iState)
+  iOff(:) = 0
+  nAOff(:) = 0
   TU(:) = Zero
   ! offsets of the Int1 blocks (iS,Mul(iS,iOp)) and of the active orbitals
   iOff(:) = 0
@@ -348,74 +513,84 @@ subroutine SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
   if (nTU /= nTri_Elem(nAct)) call Abend()
 end subroutine SG_Ints
 
-!> SGUGA: sigma for a singlet operator between vectors of symmetry iSym
-subroutine SG_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+!> SGUGA: sigma for a singlet operator (CI_Lib_Sigma; TU, TUVX in its
+!> layout)
+subroutine SG_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
   use Symmetry_Info, only: Mul
-  use sguga, only: CIS, EXS, SGS
-  use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_op, sg_h_psi_ras
   use Orbital_Spaces, only: nAsh, nSym
   use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nInt1, nInt2, nC, nS
-  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), C(nC)
-  logical(kind=iwp), intent(in) :: Have_2_el
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
   real(kind=wp), intent(out) :: S(nS)
-  integer(kind=iwp) :: iOp, nTU, nTUVX
-  real(kind=wp), allocatable :: TU(:), TUVX(:)
-  nTU = nTri_Elem(sum(nAsh(1:nSym)))
-  nTUVX = nTri_Elem(nTU)
-  call mma_allocate(TU,nTU,Label='TU')
-  call mma_allocate(TUVX,nTUVX,Label='TUVX')
+  integer(kind=iwp) :: iOp, nA, n2
+  real(kind=wp), allocatable :: G0(:)
   iOp = Mul(iCSym,iSSym)
-  call SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
-  if (iOp /= 1) then
+  nA = sum(nAsh(1:nSym))
+  if (Square) then
+    if (nTU /= nA**2) call Abend()
+    n2 = nTri_Elem(nA**2)
+  else
+    if (nTU /= nTri_Elem(nA)) call Abend()
+    n2 = nTri_Elem(nTU)
+  end if
+  if (Have_2_el) then
+    if (nTUVX < n2) call Abend()
+    call SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,TUVX,nC,C,nS,S)
+  else
+    call mma_allocate(G0,n2,Label='G0')
+    G0(:) = Zero
+    call SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G0,nC,C,nS,S)
+    call mma_deallocate(G0)
+  end if
+
+end subroutine SG_Sigma_Act
+
+!> SGUGA: the sigma routine for the operator of SG_Sigma_Act (G: the
+!> two-body integrals, n2 elements)
+subroutine SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G,nC,C,nS,S)
+  use sguga, only: CIS, EXS, SGS
+  use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_op, sg_h_psi_ras, sg_h_psi_sq
+  integer(kind=iwp), intent(in) :: iState, iCSym, iOp, nA, nTU, n2, nC, nS
+  logical(kind=iwp), intent(in) :: Square
+  real(kind=wp), intent(in) :: TU(nTU), G(n2), C(nC)
+  real(kind=wp), intent(out) :: S(nS)
+  if (Square) then
+    call sg_h_psi_sq(SGS(iState),CIS(iState),EXS(iState),nC,C,iCSym,nS,S,iOp,nA,TU,n2,G)
+  else if (iOp /= 1) then
     ! operator of non-total symmetry (perturbations)
-    call sg_h_psi_op(SGS(iState),CIS(iState),EXS(iState),nC,C,iCSym,nS,S,iOp,TUVX,nTUVX,TU,nTU)
+    call sg_h_psi_op(SGS(iState),CIS(iState),EXS(iState),nC,C,iCSym,nS,S,iOp,G,n2,TU,nTU)
   else if (CI_St(iState)%nRsPrt > 1) then
     if (nS /= nC) call Abend()
-    call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,TUVX,nTUVX,TU,nTU)
+    call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,G,n2,TU,nTU)
   else
     if (nS /= nC) call Abend()
-    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,TUVX,nTUVX,TU,nTU)
+    call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,G,n2,TU,nTU)
   end if
-  call mma_deallocate(TUVX)
-  call mma_deallocate(TU)
-end subroutine SG_Sigma_Op
+end subroutine SG_Sigma_Run
 
-!> SGUGA: sigma of a non-Hermitian operator (Square: the time-dependent
-!> response): the active part of Int1 (square blocks (iS,Mul(iS,iOp)))
-!> as the full nA x nA matrix h(i,j), and Int2 as it is (g(ij,kl) at
-!> iTri(ij,kl), square pair index), over the symmetry-ordered active
-!> orbitals
-subroutine SG_Sigma_Sq(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
+!> The active part of MCLR's Int1 (square blocks (iS,Mul(iS,iOp)) over
+!> all orbitals) as the full nA x nA matrix H1(t,u) over the
+!> symmetry-ordered active orbitals (zero outside the operator symmetry)
+subroutine Int1_To_Sq(iOp,nInt1,Int1,nA,H1)
   use Symmetry_Info, only: Mul
-  use sguga, only: CIS, EXS, SGS
-  use SGUGA_Sigma, only: sg_h_psi_sq
   use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
-  use Index_Functions, only: nTri_Elem
-  use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nInt1, nInt2, nC, nS
-  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), C(nC)
-  logical(kind=iwp), intent(in) :: Have_2_el
-  real(kind=wp), intent(out) :: S(nS)
-  integer(kind=iwp) :: iOff(8), iOp, iS, it, iu, jS, n2, nA, nAOff(8)
-  real(kind=wp), allocatable :: G2(:), H1(:,:)
+  integer(kind=iwp), intent(in) :: iOp, nInt1, nA
+  real(kind=wp), intent(in) :: Int1(nInt1)
+  real(kind=wp), intent(out) :: H1(nA,nA)
+  integer(kind=iwp) :: iOff(8), iS, it, iu, jS, nAOff(8)
   iOff(:) = 0
   nAOff(:) = 0
-  iOp = Mul(iCSym,iSSym)
-  nA = 0
-  do iS=1,nSym
-    if (iS == 1) then
-      iOff(iS) = 0
-    else
-      iOff(iS) = iOff(iS-1)+nOrb(iS-1)*nOrb(Mul(iS-1,iOp))
-    end if
-    nAOff(iS) = nA
-    nA = nA+nAsh(iS)
+  nAOff(1) = 0
+  iOff(1) = 0
+  do iS=2,nSym
+    iOff(iS) = iOff(iS-1)+nOrb(iS-1)*nOrb(Mul(iS-1,iOp))
+    nAOff(iS) = nAOff(iS-1)+nAsh(iS-1)
   end do
   if (iOff(nSym)+nOrb(nSym)*nOrb(Mul(nSym,iOp)) > nInt1) call Abend()
-  call mma_allocate(H1,nA,nA,Label='H1')
   H1(:,:) = Zero
   do iS=1,nSym
     jS = Mul(iS,iOp)
@@ -425,42 +600,40 @@ subroutine SG_Sigma_Sq(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,n
       end do
     end do
   end do
-  n2 = nTri_Elem(nA**2)
-  call mma_allocate(G2,n2,Label='G2')
-  if (Have_2_el) then
-    if (nInt2 < n2) call Abend()
-    G2(:) = Int2(1:n2)
-  else
-    G2(:) = Zero
-  end if
-  call sg_h_psi_sq(SGS(iState),CIS(iState),EXS(iState),nC,C,iCSym,nS,S,iOp,nA,H1,n2,G2)
-  call mma_deallocate(G2)
-  call mma_deallocate(H1)
-end subroutine SG_Sigma_Sq
+end subroutine Int1_To_Sq
 
 !> SGUGA: spin-free transition densities, mapped from the level order to
 !> the symmetry-ordered active orbitals
-subroutine SG_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+subroutine SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use sguga, only: CIS, EXS, SGS, SG_Level_Map
-  use SGUGA_Densities, only: sg_trans_two_pdm
+  use SGUGA_Densities, only: sg_trans_pdm, sg_trans_two_pdm
   use Orbital_Spaces, only: nAsh, nSym
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, I12, iLSym, iRSym, nL, nR, n1, n2
+  integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   integer(kind=iwp) :: a, b, c, d, i, ij, ijL, j, k, kl, klL, l_, N
   integer(kind=iwp), allocatable :: L2O(:)
-  real(kind=wp), allocatable :: R1(:,:), R2(:)
+  real(kind=wp), allocatable :: R1(:,:), R2(:), RS(:,:)
   N = sum(nAsh(1:nSym))
   if (SGS(iState)%nLev /= N) call Abend()
   if (n1 < N**2) call Abend()
   call mma_allocate(L2O,N,Label='L2O')
   call mma_allocate(R1,N,N,Label='R1')
-  call mma_allocate(R2,nTri_Elem(N**2),Label='R2')
   call SG_Level_Map(SGS(iState),L2O)
-  call sg_trans_two_pdm(SGS(iState),CIS(iState),EXS(iState),nL,L,iLSym,nR,R,iRSym,N,R1,size(R2),R2)
+  if (iOpSpin == 1) then
+    ! the spin density (M_S = S, Wigner-Eckart form, sg_trans_pdm), the
+    ! states of the same symmetry
+    if ((iLSym /= iRSym) .or. (nL /= nR)) call Not_Yet('CI_Lib_Dens','spin densities between symmetries')
+    call mma_allocate(RS,N,N,Label='RS')
+    call sg_trans_pdm(SGS(iState),CIS(iState),EXS(iState),L,R,nL,iLSym,N,RS,R1,.true.)
+    call mma_deallocate(RS)
+  else
+    call mma_allocate(R2,nTri_Elem(N**2),Label='R2')
+    call sg_trans_two_pdm(SGS(iState),CIS(iState),EXS(iState),nL,L,iLSym,nR,R,iRSym,N,R1,size(R2),R2)
+  end if
   Rho1(:) = Zero
   do b=1,N
     do a=1,N
@@ -489,7 +662,7 @@ subroutine SG_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
       end do
     end do
   end if
-  call mma_deallocate(R2)
+  call mma_deallocate(R2,safe='*')
   call mma_deallocate(R1)
   call mma_deallocate(L2O)
 end subroutine SG_Trans_Dens
@@ -698,29 +871,44 @@ end subroutine Faro_Full_Init
 !> Faroald: its integrals htu, gtuvx (over the levels) from Int1/Int2 of
 !> an Hermitian operator of symmetry iOp
 subroutine Faro_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
-  use faroald, only: gtuvx, htu, my_norb
-  use Index_Functions, only: iTri, nTri_Elem
+  use faroald, only: my_norb
+  use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
-  use Constants, only: Zero
   integer(kind=iwp), intent(in) :: iState, iOp, nInt1, nInt2
   real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
   logical(kind=iwp), intent(in) :: Have_2_el
-  integer(kind=iwp) :: it, iu, iv, ix, nTU, nTUVX, otu, ovx
+  integer(kind=iwp) :: nTU, nTUVX
   real(kind=wp), allocatable :: TU(:), TUVX(:)
   nTU = nTri_Elem(my_norb)
   nTUVX = nTri_Elem(nTU)
   call mma_allocate(TU,nTU,Label='TU')
   call mma_allocate(TUVX,nTUVX,Label='TUVX')
   call SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
-  ! (only the elements allowed by symmetry are taken; the programs need
-  ! not define the others)
+  call Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
+end subroutine Faro_Ints
+
+!> Faroald: htu, gtuvx over the levels from the integrals of CI_Lib_Sigma
+!> (Hermitian, full triangles over the symmetry-ordered active orbitals);
+!> only the elements allowed by the operator symmetry iOp are taken
+subroutine Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
+  use faroald, only: gtuvx, htu, my_norb
+  use Index_Functions, only: iTri, nTri_Elem
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iOp, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  logical(kind=iwp), intent(in) :: Have_2_el
+  integer(kind=iwp) :: it, iu, iv, ix, otu, ovx
+  if (nTU /= nTri_Elem(my_norb)) call Abend()
+  if (Have_2_el .and. (nTUVX < nTri_Elem(nTU))) call Abend()
   do iu=1,my_norb
     do it=1,my_norb
       otu = iTri(Faro_Lev(it),Faro_Lev(iu))
       htu(it,iu) = TU(otu)
       do ix=1,my_norb
         do iv=1,my_norb
-          if (Faro_Sym4(it,iu,iv,ix) == iOp) then
+          if (Have_2_el .and. (Faro_Sym4(it,iu,iv,ix) == iOp)) then
             ovx = iTri(Faro_Lev(iv),Faro_Lev(ix))
             gtuvx(it,iu,iv,ix) = TUVX(iTri(otu,ovx))
           else
@@ -730,47 +918,24 @@ subroutine Faro_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
       end do
     end do
   end do
-  call mma_deallocate(TUVX)
-  call mma_deallocate(TU)
-end subroutine Faro_Ints
+end subroutine Faro_Ints_Act
 
 !> Faroald: htu, gtuvx (over the levels) of a non-Hermitian operator of
-!> symmetry iOp (Square): h(t,u) from the blocks (iS,Mul(iS,iOp)) of Int1,
-!> g(tu,vx) from Int2 at iTri(tu,vx), square pair index tu = (u-1)*N+t
-!> over the symmetry-ordered active orbitals
-subroutine Faro_Ints_Sq(iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
-  use Symmetry_Info, only: Mul
+!> symmetry iOp (Square): H1 = h(t,u), the full nA x nA matrix, G2 =
+!> g(tu,vx) at iTri(tu,vx), square pair index tu = (u-1)*N+t, both over
+!> the symmetry-ordered active orbitals (the layout of CI_Lib_Sigma)
+subroutine Faro_Ints_Sq_Act(iOp,N,H1,nG2,G2,Have_2_el)
   use faroald, only: gtuvx, htu, my_norb
-  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, Half
-  integer(kind=iwp), intent(in) :: iOp, nInt1, nInt2
-  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
+  integer(kind=iwp), intent(in) :: iOp, N, nG2
+  real(kind=wp), intent(in) :: H1(N,N), G2(nG2)
   logical(kind=iwp), intent(in) :: Have_2_el
-  integer(kind=iwp) :: iOff(8), iS, it, iu, iv, ix, jS, N, nAOff(8), otu, ovx
-  real(kind=wp), allocatable :: G(:,:,:,:), H1(:,:)
-  iOff(:) = 0
-  nAOff(:) = 0
-  N = my_norb
-  call mma_allocate(H1,N,N,Label='H1')
-  H1(:,:) = Zero
-  nAOff(1) = 0
-  iOff(1) = 0
-  do iS=2,nSym
-    iOff(iS) = iOff(iS-1)+nOrb(iS-1)*nOrb(Mul(iS-1,iOp))
-    nAOff(iS) = nAOff(iS-1)+nAsh(iS-1)
-  end do
-  if (iOff(nSym)+nOrb(nSym)*nOrb(Mul(nSym,iOp)) > nInt1) call Abend()
-  do iS=1,nSym
-    jS = Mul(iS,iOp)
-    do iu=1,nAsh(jS)
-      do it=1,nAsh(iS)
-        H1(nAOff(iS)+it,nAOff(jS)+iu) = Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it)
-      end do
-    end do
-  end do
-  if (Have_2_el .and. (nInt2 < nTri_Elem(N**2))) call Abend()
+  integer(kind=iwp) :: it, iu, iv, ix, otu, ovx
+  real(kind=wp), allocatable :: G(:,:,:,:)
+  if (N /= my_norb) call Abend()
+  if (Have_2_el .and. (nG2 < nTri_Elem(N**2))) call Abend()
   ! sigma_update applies sum_tu h(t,u) <J|E_tu|I> to C(J), i.e. E_ut with
   ! h(t,u), and likewise within each pair of g (harmless for Hermitian
   ! operators): pass g'(t,u,v,x) = g(u,t,x,v) and h transposed, and correct
@@ -785,7 +950,7 @@ subroutine Faro_Ints_Sq(iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
         do it=1,N
           otu = Faro_Lev(it)+(Faro_Lev(iu)-1)*N
           if (Have_2_el .and. (Faro_Sym4(it,iu,iv,ix) == iOp)) then
-            G(it,iu,iv,ix) = Int2(iTri(otu,ovx))
+            G(it,iu,iv,ix) = G2(iTri(otu,ovx))
           else
             G(it,iu,iv,ix) = Zero
           end if
@@ -811,8 +976,7 @@ subroutine Faro_Ints_Sq(iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
     end do
   end do
   call mma_deallocate(G)
-  call mma_deallocate(H1)
-end subroutine Faro_Ints_Sq
+end subroutine Faro_Ints_Sq_Act
 
 !> Faroald: the symmetry of the product of the orbitals of levels t, u,
 !> v, x
@@ -823,31 +987,28 @@ function Faro_Sym4(it,iu,iv,ix) result(iS)
   iS = Mul(Mul(Faro_OrbSym(it),Faro_OrbSym(iu)),Mul(Faro_OrbSym(iv),Faro_OrbSym(ix)))
 end function Faro_Sym4
 
-!> Faroald: S = H C in the CSF space of the CI state
-subroutine Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S,Square)
+!> Faroald: S = H C in the CSF space of the CI state (CI_Lib_Sigma; TU,
+!> TUVX in its layout)
+subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
   use Symmetry_Info, only: Mul
-  use faroald, only: gtuvx, htu, ndeta, ndetb, sigma_update
+  use faroald, only: gtuvx, htu, my_norb, ndeta, ndetb, sigma_update
   use faroald_ras, only: n_ras, ras_sigma
   use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nInt1, nInt2, nC, nS
-  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), C(nC)
-  logical(kind=iwp), intent(in) :: Have_2_el
+  integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
   real(kind=wp), intent(out) :: S(nS)
-  logical(kind=iwp), intent(in), optional :: Square
-  logical(kind=iwp) :: Sq
   real(kind=wp), allocatable :: PC(:,:), PS(:,:), V(:), VR(:), W(:), WR(:)
-  Sq = .false.
-  if (present(Square)) Sq = Square
-  if ((iCSym /= Faro_Sym) .or. (iSSym /= Faro_Sym) .or. Sq) then
+  if ((iCSym /= Faro_Sym) .or. (iSSym /= Faro_Sym) .or. Square) then
     ! other symmetries or a non-Hermitian operator: in the full determinant
     ! space, P_S H P_C exactly
     call Faro_Full_Init()
-    if (Sq) then
-      call Faro_Ints_Sq(Mul(iCSym,iSSym),nInt1,Int1,nInt2,Int2,Have_2_el)
+    if (Square) then
+      call Faro_Ints_Sq_Act(Mul(iCSym,iSSym),my_norb,TU,nTUVX,TUVX,Have_2_el)
     else
-      call Faro_Ints(iState,Mul(iCSym,iSSym),nInt1,Int1,nInt2,Int2,Have_2_el)
+      call Faro_Ints_Act(Mul(iCSym,iSSym),nTU,TU,nTUVX,TUVX,Have_2_el)
     end if
     call mma_allocate(PC,ndeta,ndetb,Label='PC')
     call mma_allocate(PS,ndeta,ndetb,Label='PS')
@@ -869,7 +1030,7 @@ subroutine Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C
   end if
   if (nS /= nC) call Abend()
   call Faro_Set_Sym(iState,Faro_Sym)
-  call Faro_Ints(iState,1,nInt1,Int1,nInt2,Int2,Have_2_el)
+  call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,Have_2_el)
   call mma_allocate(V,nC,Label='V')
   call mma_allocate(W,nC,Label='W')
   call mma_allocate(VR,max(1,n_ras),Label='VR')
@@ -883,18 +1044,18 @@ subroutine Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C
   call mma_deallocate(VR)
   call mma_deallocate(W)
   call mma_deallocate(V)
-end subroutine Faro_Sigma_Op
+end subroutine Faro_Sigma_Act
 
 !> Faroald: the spin-free transition densities (as SG_Trans_Dens), mapped
 !> from the levels to the symmetry-ordered active orbitals
-subroutine Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use faroald, only: my_norb, ndeta, ndetb, transition_one_pdm, transition_two_pdm
   use faroald_ras, only: n_ras, ras_trans_one_pdm, ras_trans_two_pdm
   use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_sort
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, I12, iLSym, iRSym, nL, nR, n1, n2
+  integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   integer(kind=iwp) :: ij, it, iu, iv, ix, kl, N
@@ -931,10 +1092,15 @@ subroutine Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   else
     call ras_trans_one_pdm(BR,KR,D,SD)
   end if
+  ! spin-free D = da+db or the spin density SD = da-db (M_S = S)
   Rho1(:) = Zero
   do iu=1,N
     do it=1,N
-      Rho1(Faro_Lev(it)+(Faro_Lev(iu)-1)*N) = D(it,iu)
+      if (iOpSpin == 1) then
+        Rho1(Faro_Lev(it)+(Faro_Lev(iu)-1)*N) = SD(it,iu)
+      else
+        Rho1(Faro_Lev(it)+(Faro_Lev(iu)-1)*N) = D(it,iu)
+      end if
     end do
   end do
   call mma_deallocate(SD)
@@ -1049,6 +1215,7 @@ end subroutine Faro_Diag
 !> Lucia), the block of the active Hamiltonian (no core energy) from the
 !> sigma vectors of the unit vectors of the P space
 subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
+  use faroald, only: my_norb
   use citrans, only: citrans_conf_occ, citrans_sort
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -1057,11 +1224,11 @@ subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
   real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
   integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
   real(kind=wp), intent(out) :: HP(nHP)
-  integer(kind=iwp) :: i, ic, icMin, j, k, ncf
+  integer(kind=iwp) :: i, ic, icMin, j, k, ncf, nTU, nTUVX
   integer(kind=iwp), allocatable :: C2F(:), dco(:), kf(:), ncs(:), sco(:)
   logical(kind=iwp), allocatable :: Used(:)
   real(kind=wp) :: EMin
-  real(kind=wp), allocatable :: Diag(:), E(:), X(:), Y(:)
+  real(kind=wp), allocatable :: Diag(:), E(:), TU(:), TUVX(:), X(:), Y(:)
   nP = 0
   IdxP(:) = 0
   HP(:) = Zero
@@ -1107,15 +1274,22 @@ subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
     end do
   end do
   if (nHP < nTri_Elem(nP)) call Abend()
-  ! the block: H(i,j) = (H e_j)(IdxP(i))
+  ! the block: H(i,j) = (H e_j)(IdxP(i)), the integrals converted once
+  nTU = nTri_Elem(my_norb)
+  nTUVX = nTri_Elem(nTU)
+  call mma_allocate(TU,nTU,Label='TU')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX')
+  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
   do j=1,nP
     X(:) = Zero
     X(IdxP(j)) = One
-    call Faro_Sigma_Op(iState,iSym,iSym,nInt1,Int1,nInt2,Int2,.true.,n,X,n,Y)
+    call Faro_Sigma_Act(iState,iSym,iSym,.false.,.true.,nTU,TU,nTUVX,TUVX,n,X,n,Y)
     do i=j,nP
       HP(iTri(i,j)) = Y(IdxP(i))
     end do
   end do
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
   call mma_deallocate(Used)
   call mma_deallocate(E)
   call mma_deallocate(kf)
