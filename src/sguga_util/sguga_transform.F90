@@ -68,7 +68,7 @@ subroutine SG_CITRA(WFTP,iState,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
   implicit none
   character(len=8), intent(in) :: WFTP
   integer(kind=iwp), intent(in) :: iState, LSM, NCO, NTRA
-  integer(kind=iwp), intent(in) :: NOSH(MxSym) ,NISH(MxSym) ,NASH(MxSym)
+  integer(kind=iwp), intent(in) :: NOSH(MxSym), NISH(MxSym), NASH(MxSym)
   real(kind=wp), intent(in) :: TRA(NTRA)
   real(kind=wp), intent(inout) :: CI(NCO)
   integer(kind=iwp) :: I, II, ISTA, ISYM, NA, NI, NO
@@ -99,9 +99,9 @@ subroutine SG_CITRA(WFTP,iState,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
   FAC = FAC**2
   CI(:) = FAC*CI(:)
   ! THEN THE ACTIVE ONES:
-  Select Case(WFTP)
+  select case (WFTP)
 
-    Case ('HISPIN','CLOSED')
+    case ('HISPIN','CLOSED')
       ! The HISPIN case may be buggy and is not presently used.
       ISTA = 1
       do ISYM=1,nIrrep
@@ -118,9 +118,9 @@ subroutine SG_CITRA(WFTP,iState,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
       if (WFTP == 'CLOSED') FAC = FAC**2
       CI(:) = FAC*CI(:)
 
-    Case ('EMPTY')
+    case ('EMPTY')
 
-    Case ('GENERAL')
+    case ('GENERAL')
       ! The general case:
       call mma_allocate(TMP,NCO,Label='TMP')
       ISTA = 1
@@ -132,81 +132,81 @@ subroutine SG_CITRA(WFTP,iState,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
       end do
       call mma_deallocate(TMP)
 
-    Case Default
-      Write (u6,'(A)') ' RASSI_CITRA: Illegal WFTP value'
-      Write (u6,'(2A)')'WFTP=',WFTP
-      Call Abend()
+    case Default
+      write(u6,'(A)') ' RASSI_CITRA: Illegal WFTP value'
+      write(u6,'(2A)') 'WFTP=',WFTP
+      call Abend()
 
-  End Select
+  end select
 # ifdef _DEBUGPRINT_
-    write(u6,*) ' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
+  write(u6,*) ' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
 # endif
 
-  contains
+contains
 
   ! Performs the single-orbital transformations
   subroutine SG_SSOTRA(iState,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
 
-  use sguga, only: SGS, CIS, EXS
-  use sguga, only: sg_epq_psi
-  implicit none
-  integer(kind=iwp), intent(in) :: iState, ISYM, LSM, NA, NO, NCO
-  real(kind=wp), intent(in) :: TRA(NO,NO)
-  real(kind=wp), intent(inout) :: CI(NCO)
-  real(kind=wp), intent(out) :: TMP(NCO)
-  integer(kind=iwp) :: IK, IKLEV, IL, IP, IPLEV, NI
-  real(kind=wp) :: CKK, CPK, X
-  integer(kind=iwp), allocatable :: ILEV(:)
+    use sguga, only: SGS, CIS, EXS
+    use sguga, only: sg_epq_psi
+    implicit none
+    integer(kind=iwp), intent(in) :: iState, ISYM, LSM, NA, NO, NCO
+    real(kind=wp), intent(in) :: TRA(NO,NO)
+    real(kind=wp), intent(inout) :: CI(NCO)
+    real(kind=wp), intent(out) :: TMP(NCO)
+    integer(kind=iwp) :: IK, IKLEV, IL, IP, IPLEV, NI
+    real(kind=wp) :: CKK, CPK, X
+    integer(kind=iwp), allocatable :: ILEV(:)
 
-  ! ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
-  ! OF SYMMETRY ISYM.
+    ! ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
+    ! OF SYMMETRY ISYM.
 
-  call mma_allocate(ILEV,NA,Label='ILEV')
+    call mma_allocate(ILEV,NA,Label='ILEV')
 
-  NI = NO-NA
-  IL = 0
-  do IP=1,NA
-    do
-      IL = IL+1
-      if (SGS(istate)%ISM(IL) == ISYM) exit
-    end do
-    ILEV(IP) = IL
-  end do
-  !Call RecPrt('SG_SSOTRA: CI',' ',CI,1,NCO)
-  !Call RecPrt('TRA',' ',Tra,NO,NO)
-  do IK=1,NA
-
-  !   Write (6,*) 'ik=',ik
-
-    IKLEV = ILEV(IK)
-    TMP(:) = Zero
+    NI = NO-NA
+    IL = 0
     do IP=1,NA
-      IPLEV = ILEV(IP)
-      CPK = TRA(NI+IP,NI+IK)
-      if (IP == IK) CPK = CPK-One
-      X = Half*CPK
-      if (abs(X) < 1.0e-14_wp) cycle
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,X,LSM,CI,TMP)
+      do
+        IL = IL+1
+        if (SGS(istate)%ISM(IL) == ISYM) exit
+      end do
+      ILEV(IP) = IL
     end do
-  !  Call RecPrt('TMP',' ',TMP,1,NCO)
+    !Call RecPrt('SG_SSOTRA: CI',' ',CI,1,NCO)
+    !Call RecPrt('TRA',' ',Tra,NO,NO)
+    do IK=1,NA
 
-    CKK = TRA(NI+IK,NI+IK)
-    X = Three-CKK
-  !  Write (6,*) 'CKK, X=',CKK, X
-    CI(:) = CI(:)+X*TMP(:)
-  !  Call RecPrt('CI',' ',CI,1,NCO)
+      !   Write (6,*) 'ik=',ik
 
-    do IP=1,NA
-      IPLEV = ILEV(IP)
-      CPK = TRA(NI+IP,NI+IK)
-      if (IP == IK) CPK = CPK-One
-      if (abs(CPK) < 1.0e-14_wp) cycle
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,CPK,LSM,TMP,CI)
+      IKLEV = ILEV(IK)
+      TMP(:) = Zero
+      do IP=1,NA
+        IPLEV = ILEV(IP)
+        CPK = TRA(NI+IP,NI+IK)
+        if (IP == IK) CPK = CPK-One
+        X = Half*CPK
+        if (abs(X) < 1.0e-14_wp) cycle
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,X,LSM,CI,TMP)
+      end do
+      !  Call RecPrt('TMP',' ',TMP,1,NCO)
+
+      CKK = TRA(NI+IK,NI+IK)
+      X = Three-CKK
+      !  Write (6,*) 'CKK, X=',CKK, X
+      CI(:) = CI(:)+X*TMP(:)
+      !  Call RecPrt('CI',' ',CI,1,NCO)
+
+      do IP=1,NA
+        IPLEV = ILEV(IP)
+        CPK = TRA(NI+IP,NI+IK)
+        if (IP == IK) CPK = CPK-One
+        if (abs(CPK) < 1.0e-14_wp) cycle
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,CPK,LSM,TMP,CI)
+      end do
+      !  Call RecPrt('CI',' ',CI,1,NCO)
+
     end do
-  !  Call RecPrt('CI',' ',CI,1,NCO)
-
-  end do
-  call mma_deallocate(ILEV)
+    call mma_deallocate(ILEV)
 
   end subroutine SG_SSOTRA
 
@@ -220,12 +220,11 @@ subroutine SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,IPGLOB)
   ! ...Configuration and Spin Coupling tables, fill this in later.
   ! CIOLD and CINEW are obvious.
 
-  use sguga, only: CIS_All=>CIS, SGS_All=>SGS
+  use sguga, only: CIS_All => CIS, SGS_All => SGS
   use Molcas, only: MxLev
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: One
   use Definitions, only: wp, iwp, u6
-
 
   implicit none
   integer(kind=iwp), intent(in) :: IMODE, iState, LSYM, ICNFTAB(*), ISPNTAB(*), IPGLOB
@@ -239,418 +238,418 @@ subroutine SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,IPGLOB)
   real(kind=wp) :: PHASE(NBUFFER), PHS
   integer(kind=iwp), allocatable :: MWS2W(:), OrbArr(:)
 
-  associate (SGS=>SGS_All(iState),CIS=>CIS_All(iState))
+  associate(SGS => SGS_All(iState),CIS => CIS_All(iState))
 
-  ! Dereference CIS and SGS       for some data:
-  NCONF = CIS%NCSF(LSYM)
-  NWALK = CIS%nWalk
-  call mma_allocate(MWS2W,NWALK,Label='MWS2W')
-  NSYM = ICNFTAB(7)
-  call SG_MSTOW(SGS,CIS,MWS2W,NSYM)
-  ! MWS2W is a table which gives the upper or lower walk
-  ! index as function of the MAW sum.
+    ! Dereference CIS and SGS       for some data:
+    NCONF = CIS%NCSF(LSYM)
+    NWALK = CIS%nWalk
+    call mma_allocate(MWS2W,NWALK,Label='MWS2W')
+    NSYM = ICNFTAB(7)
+    call SG_MSTOW(SGS,CIS,MWS2W,NSYM)
+    ! MWS2W is a table which gives the upper or lower walk
+    ! index as function of the MAW sum.
 
-  ! Inspect the top row of the DRT to find NACTEL and spin:
-  NLEV = SGS%DRT(1,1)
-  if (NLEV > MXLEV) then
-    write(u6,*) ' SYG2SGU: error: number of levels exceeds MXLEV'
-    write(u6,'(1X,2(A,I4))') ' NLEV = ',NLEV,' MXLEV = ',MXLEV
-    call AbEnd()
-  end if
-  NACTEL = SGS%DRT(1,2)
-
-  ! Now a good bound on MINOP, the minimum number of open
-  ! shells, would be MLTPLC-1. This is the best bound, and it
-  ! does not depend on any assumed Ms.
-
-  ! A buffer of packed walks is used:
-  NWLKLST = 0
-  IWLKPOS = 1
-  ! Nr of integers used to store each total walk:
-  MIPWLK = 1+(NLEV-1)/MXCPI
-  ! Max nr of Split-Graph CSF's, stored as walks in the
-  ! buffer KWALK
-  MXWLK = NBUFFER/MIPWLK
-  ! Pick up various data from conf and spin tables
-  ! Unbutton Configuration table:
-
-  MINOP = ICNFTAB(5)
-  MAXOP = ICNFTAB(6)
-  NSYM = ICNFTAB(7)
-  if (LSYM /= ICNFTAB(8)) call abend()
-  NAPART = ICNFTAB(9)
-  IFORM = ICNFTAB(10)
-  !PAM07 Statement to fool intel 10.1 compiler do do the right thing:
-  if (MINOP > MAXOP) write(u6,*) MINOP,MAXOP
-
-  NHEAD = 10
-  KGSORB = NHEAD+1
-  KGSLIM = KGSORB+(NSYM+1)*(NAPART+1)
-  KCNFINF = KGSLIM+2*NAPART
-  ! Unbutton Spin table:
-  KSPNINF = 9
-  call mma_allocate(ORBARR,NACTEL,Label='OrbArr')
-
-  ! Loop over nr of open shells
-  ! NCSYMG=Nr of Symmetric-Group CSF's treated so far.
-  NCSYMG = 0
-  do NOPEN=MINOP,MAXOP
-    NCLSD = (NACTEL-NOPEN)/2
-    if (NCLSD < 0) cycle
-    if (2*NCLSD+NOPEN /= NACTEL) cycle
-    NOCC = NCLSD+NOPEN
-    if (NOCC > NLEV) cycle
-    NCNF = ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP)))
-    KCNF = ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+1)
-    NWRD = ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+2)
-    NCPL = ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+1)
-    KCPL = ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+3)
-
-    ! Here follows four if-clauses on the cases of IFORM=1..4.
-    ! The contents in all four cases is almost the same, but it is
-    ! *DELIBERATE* that it has not been rewritten as one single piece of code
-    ! with a few IF statement inside. It seems that some compilers do not
-    ! optimize the code correctly then.
-    ! Also, a number of IF-clauses have been replaced by arithmetic computation
-    ! for the same reason. Pardon the clumsy result...
-    IWORD = 0 ! dummy initialize
-    if (IFORM == 1) then
-      !*******************************************************************
-      ! The IFORM=1 case:
-      ! Long loop over configurations
-      do ICNF=1,NCNF
-        ORBARR(1:NOCC) = ICNFTAB(KCNF+NWRD*(ICNF-1):KCNF+NWRD*(ICNF-1)+NOCC-1)
-        ! Loop over spin couplings
-        do ICPL=1,NCPL
-          ICASE(1:NLEV) = 0
-          do I=1,NCLSD
-            ICASE(ORBARR(I)) = 3
-          end do
-          do I=1,NOPEN
-            IORB = ORBARR(NCLSD+I)
-            IFUP = ISPNTAB(KCPL-1+I+NOPEN*(ICPL-1))
-            !ICASE(IORB) = 1
-            !if (IFUP /= 1) ICASE(IORB) = 2
-            ICASE(IORB) = IFUP2CS(IFUP)
-
-          end do
-          ! A phase factor will be induced by the reordering.
-          PHS = One
-          NODD = 0
-          do LEV=1,NLEV
-            I = ICASE(LEV)
-            !if (I == 1) NODD = 1-NODD
-            !if (I == 2) NODD = 1-NODD
-            NODD = (2*NODD-1)*I*(I-3)/2+NODD
-            !if (NODD == 1) then
-            !  IF(I == 2) PHS = -PHS
-            !  IF(I == 3) PHS = -PHS
-            !end if
-            PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
-          end do
-          ! Pack the walk and add it to the list.
-          call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
-          IWLKPOS = IWLKPOS+MIPWLK
-          NWLKLST = NWLKLST+1
-          PHASE(NWLKLST) = PHS
-          if (NWLKLST == MXWLK) then
-            ! Translate the packed walks to a list of CSF ID-numbers
-            call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
-            IWLKPOS = 1
-            ! Loop over this list.
-            ICSYMG = NCSYMG
-            if (IMODE == 0) then
-              do I=1,NWLKLST
-                ICSPLT = ICNUM(I)
-                ICSYMG = NCSYMG+I
-                CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
-              end do
-            else
-              do I=1,NWLKLST
-                ICSPLT = ICNUM(I)
-                ICSYMG = NCSYMG+I
-                CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
-              end do
-            end if
-            NCSYMG = ICSYMG
-            NWLKLST = 0
-          end if
-
-          ! End of loop over spin couplings
-        end do
-        ! End of loop over configurations
-      end do
-    else if (IFORM == 2) then
-      !*******************************************************************
-      ! The IFORM=2 case:
-      ! Long loop over configurations
-      do ICNF=1,NCNF
-        IEL2 = 0
-        IEL1 = NCLSD
-        do IORB=1,NLEV
-          IOCC = ICNFTAB(KCNF-1+IORB+NWRD*(ICNF-1))
-          if (IOCC == 1) then
-            IEL1 = IEL1+1
-            ORBARR(IEL1) = IORB
-          else
-            IEL2 = IEL2+1
-            ORBARR(IEL2) = IORB
-          end if
-        end do
-        ! Loop over spin couplings
-        do ICPL=1,NCPL
-          ICASE(1:NLEV) = 0
-          do I=1,NCLSD
-            ICASE(ORBARR(I)) = 3
-          end do
-          do I=1,NOPEN
-            IORB = ORBARR(NCLSD+I)
-            IFUP = ISPNTAB(KCPL-1+I+NOPEN*(ICPL-1))
-            !ICASE(IORB) = 1
-            !if (IFUP /= 1) ICASE(IORB) = 2
-            ICASE(IORB) = IFUP2CS(IFUP)
-          end do
-          ! A phase factor will be induced by the reordering.
-          PHS = One
-          NODD = 0
-          do LEV=1,NLEV
-            I = ICASE(LEV)
-            !if (I == 1) NODD = 1-NODD
-            !if (I == 2) NODD = 1-NODD
-            NODD = (2*NODD-1)*I*(I-3)/2+NODD
-            !if (NODD == 1) then
-            !  if (I == 2) PHS = -PHS
-            !  if (I == 3) PHS = -PHS
-            !end if
-            PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
-          end do
-          ! Pack the walk and add it to the list.
-          call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
-          IWLKPOS = IWLKPOS+MIPWLK
-          NWLKLST = NWLKLST+1
-          PHASE(NWLKLST) = PHS
-          if (NWLKLST == MXWLK) then
-            ! Translate the packed walks to a list of CSF ID-numbers
-            call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
-            IWLKPOS = 1
-            ! Loop over this list.
-            ICSYMG = NCSYMG
-            if (IMODE == 0) then
-              do I=1,NWLKLST
-                ICSPLT = ICNUM(I)
-                ICSYMG = NCSYMG+I
-                CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
-              end do
-            else
-              do I=1,NWLKLST
-                ICSPLT = ICNUM(I)
-                ICSYMG = NCSYMG+I
-                CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
-              end do
-            end if
-            NCSYMG = ICSYMG
-            NWLKLST = 0
-          end if
-
-          ! End of loop over spin couplings
-        end do
-        ! End of loop over configurations
-      end do
-    else if (IFORM == 3) then
-      !*******************************************************************
-      ! The IFORM=3 case:
-      ! Long loop over configurations
-      do ICNF=1,NCNF
-        do IEL=1,NOCC
-          IWRD = (3+IEL)/4
-          IREST = (3+IEL)-4*IWRD
-          if (IREST == 0) IWORD = ICNFTAB(KCNF-1+IWRD+NWRD*(ICNF-1))
-          IORB = mod(IWORD,256)
-          IWORD = IWORD/256
-          ORBARR(IEL) = IORB
-        end do
-        ! Loop over spin couplings
-        do ICPL=1,NCPL
-          ICASE(1:NLEV) = 0
-          do I=1,NCLSD
-            ICASE(ORBARR(I)) = 3
-          end do
-          do I=1,NOPEN
-            IORB = ORBARR(NCLSD+I)
-            IFUP = ISPNTAB(KCPL-1+I+NOPEN*(ICPL-1))
-            !ICASE(IORB) = 1
-            !if (IFUP /= 1) ICASE(IORB) = 2
-            ICASE(IORB) = IFUP2CS(IFUP)
-          end do
-          ! A phase factor will be induced by the reordering.
-          PHS = One
-          NODD = 0
-          do LEV=1,NLEV
-            I = ICASE(LEV)
-            !if (I == 1) NODD = 1-NODD
-            !if (I == 2) NODD = 1-NODD
-            NODD = (2*NODD-1)*I*(I-3)/2+NODD
-            !if (NODD == 1) then
-            !  if (I == 2) PHS = -PHS
-            !  if (I == 3) PHS = -PHS
-            !end if
-            PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
-          end do
-          ! Pack the walk and add it to the list.
-          call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
-          IWLKPOS = IWLKPOS+MIPWLK
-          NWLKLST = NWLKLST+1
-          PHASE(NWLKLST) = PHS
-          if (NWLKLST == MXWLK) then
-            ! Translate the packed walks to a list of CSF ID-numbers
-            call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
-            IWLKPOS = 1
-            ! Loop over this list.
-            ICSYMG = NCSYMG
-            if (IMODE == 0) then
-              do I=1,NWLKLST
-                ICSPLT = ICNUM(I)
-                ICSYMG = NCSYMG+I
-                CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
-              end do
-            else
-              do I=1,NWLKLST
-                ICSPLT = ICNUM(I)
-                ICSYMG = NCSYMG+I
-                CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
-              end do
-            end if
-            NCSYMG = ICSYMG
-            NWLKLST = 0
-          end if
-
-          ! End of loop over spin couplings
-        end do
-        ! End of loop over configurations
-      end do
-    else if (IFORM == 4) then
-      !*******************************************************************
-      ! The IFORM=4 case:
-      ! Long loop over configurations
-      do ICNF=1,NCNF
-        IEL2 = 0
-        IEL1 = NCLSD
-        do IORB=1,NLEV
-          IWRD = (IORB+14)/15
-          IREST = IORB+14-15*IWRD
-          if (IREST == 0) IWORD = ICNFTAB(KCNF-1+IWRD+NWRD*(ICNF-1))
-          IOCC = mod(IWORD,4)
-          IWORD = IWORD/4
-          if (IOCC == 1) then
-            IEL1 = IEL1+1
-            ORBARR(IEL1) = IORB
-          else
-            IEL2 = IEL2+1
-            ORBARR(IEL2) = IORB
-          end if
-        end do
-        ! Loop over spin couplings
-        do ICPL=1,NCPL
-          ICASE(1:NLEV) = 0
-          do I=1,NCLSD
-            ICASE(ORBARR(I)) = 3
-          end do
-          do I=1,NOPEN
-            IORB = ORBARR(NCLSD+I)
-            IFUP = ISPNTAB(KCPL-1+I+NOPEN*(ICPL-1))
-            !ICASE(IORB) = 1
-            !if (IFUP /= 1) ICASE(IORB) = 2
-            ICASE(IORB) = IFUP2CS(IFUP)
-          end do
-          ! A phase factor will be induced by the reordering.
-          PHS = One
-          NODD = 0
-          do LEV=1,NLEV
-            I = ICASE(LEV)
-            !if (I == 1) NODD = 1-NODD
-            !if (I == 2) NODD = 1-NODD
-            NODD = (2*NODD-1)*I*(I-3)/2+NODD
-            !if (NODD == 1) then
-            !  if (I == 2) PHS = -PHS
-            !  if (I == 3) PHS = -PHS
-            !end if
-            PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
-          end do
-          ! Pack the walk and add it to the list.
-          call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
-          IWLKPOS = IWLKPOS+MIPWLK
-          NWLKLST = NWLKLST+1
-          PHASE(NWLKLST) = PHS
-          if (NWLKLST == MXWLK) then
-            ! Translate the packed walks to a list of CSF ID-numbers
-            call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
-            IWLKPOS = 1
-            ! Loop over this list.
-            ICSYMG = NCSYMG
-            if (IMODE == 0) then
-              do I=1,NWLKLST
-                ICSPLT = ICNUM(I)
-                ICSYMG = NCSYMG+I
-                CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
-              end do
-            else
-              do I=1,NWLKLST
-                ICSPLT = ICNUM(I)
-                ICSYMG = NCSYMG+I
-                CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
-              end do
-            end if
-            NCSYMG = ICSYMG
-            NWLKLST = 0
-          end if
-
-          ! End of loop over spin couplings
-        end do
-        ! End of loop over configurations
-      end do
+    ! Inspect the top row of the DRT to find NACTEL and spin:
+    NLEV = SGS%DRT(1,1)
+    if (NLEV > MXLEV) then
+      write(u6,*) ' SYG2SGU: error: number of levels exceeds MXLEV'
+      write(u6,'(1X,2(A,I4))') ' NLEV = ',NLEV,' MXLEV = ',MXLEV
+      call AbEnd()
     end if
-    !*********************************************************************
+    NACTEL = SGS%DRT(1,2)
 
-    ! End of loop over NOPEN
-  end do
+    ! Now a good bound on MINOP, the minimum number of open
+    ! shells, would be MLTPLC-1. This is the best bound, and it
+    ! does not depend on any assumed Ms.
 
-  ! As above, processing what remains in the KWALK buffer.
-  call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
-  IWLKPOS = 1
-  if (IMODE == 0) then
-    do I=1,NWLKLST
-      ICSPLT = ICNUM(I)
-      ICSYMG = NCSYMG+I
-      CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
+    ! A buffer of packed walks is used:
+    NWLKLST = 0
+    IWLKPOS = 1
+    ! Nr of integers used to store each total walk:
+    MIPWLK = 1+(NLEV-1)/MXCPI
+    ! Max nr of Split-Graph CSF's, stored as walks in the
+    ! buffer KWALK
+    MXWLK = NBUFFER/MIPWLK
+    ! Pick up various data from conf and spin tables
+    ! Unbutton Configuration table:
+
+    MINOP = ICNFTAB(5)
+    MAXOP = ICNFTAB(6)
+    NSYM = ICNFTAB(7)
+    if (LSYM /= ICNFTAB(8)) call abend()
+    NAPART = ICNFTAB(9)
+    IFORM = ICNFTAB(10)
+    !PAM07 Statement to fool intel 10.1 compiler do do the right thing:
+    if (MINOP > MAXOP) write(u6,*) MINOP,MAXOP
+
+    NHEAD = 10
+    KGSORB = NHEAD+1
+    KGSLIM = KGSORB+(NSYM+1)*(NAPART+1)
+    KCNFINF = KGSLIM+2*NAPART
+    ! Unbutton Spin table:
+    KSPNINF = 9
+    call mma_allocate(ORBARR,NACTEL,Label='OrbArr')
+
+    ! Loop over nr of open shells
+    ! NCSYMG=Nr of Symmetric-Group CSF's treated so far.
+    NCSYMG = 0
+    do NOPEN=MINOP,MAXOP
+      NCLSD = (NACTEL-NOPEN)/2
+      if (NCLSD < 0) cycle
+      if (2*NCLSD+NOPEN /= NACTEL) cycle
+      NOCC = NCLSD+NOPEN
+      if (NOCC > NLEV) cycle
+      NCNF = ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP)))
+      KCNF = ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+1)
+      NWRD = ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+2)
+      NCPL = ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+1)
+      KCPL = ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+3)
+
+      ! Here follows four if-clauses on the cases of IFORM=1..4.
+      ! The contents in all four cases is almost the same, but it is
+      ! *DELIBERATE* that it has not been rewritten as one single piece of code
+      ! with a few IF statement inside. It seems that some compilers do not
+      ! optimize the code correctly then.
+      ! Also, a number of IF-clauses have been replaced by arithmetic computation
+      ! for the same reason. Pardon the clumsy result...
+      IWORD = 0 ! dummy initialize
+      if (IFORM == 1) then
+        !*******************************************************************
+        ! The IFORM=1 case:
+        ! Long loop over configurations
+        do ICNF=1,NCNF
+          ORBARR(1:NOCC) = ICNFTAB(KCNF+NWRD*(ICNF-1):KCNF+NWRD*(ICNF-1)+NOCC-1)
+          ! Loop over spin couplings
+          do ICPL=1,NCPL
+            ICASE(1:NLEV) = 0
+            do I=1,NCLSD
+              ICASE(ORBARR(I)) = 3
+            end do
+            do I=1,NOPEN
+              IORB = ORBARR(NCLSD+I)
+              IFUP = ISPNTAB(KCPL-1+I+NOPEN*(ICPL-1))
+              !ICASE(IORB) = 1
+              !if (IFUP /= 1) ICASE(IORB) = 2
+              ICASE(IORB) = IFUP2CS(IFUP)
+
+            end do
+            ! A phase factor will be induced by the reordering.
+            PHS = One
+            NODD = 0
+            do LEV=1,NLEV
+              I = ICASE(LEV)
+              !if (I == 1) NODD = 1-NODD
+              !if (I == 2) NODD = 1-NODD
+              NODD = (2*NODD-1)*I*(I-3)/2+NODD
+              !if (NODD == 1) then
+              !  IF(I == 2) PHS = -PHS
+              !  IF(I == 3) PHS = -PHS
+              !end if
+              PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
+            end do
+            ! Pack the walk and add it to the list.
+            call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
+            IWLKPOS = IWLKPOS+MIPWLK
+            NWLKLST = NWLKLST+1
+            PHASE(NWLKLST) = PHS
+            if (NWLKLST == MXWLK) then
+              ! Translate the packed walks to a list of CSF ID-numbers
+              call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
+              IWLKPOS = 1
+              ! Loop over this list.
+              ICSYMG = NCSYMG
+              if (IMODE == 0) then
+                do I=1,NWLKLST
+                  ICSPLT = ICNUM(I)
+                  ICSYMG = NCSYMG+I
+                  CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
+                end do
+              else
+                do I=1,NWLKLST
+                  ICSPLT = ICNUM(I)
+                  ICSYMG = NCSYMG+I
+                  CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
+                end do
+              end if
+              NCSYMG = ICSYMG
+              NWLKLST = 0
+            end if
+
+            ! End of loop over spin couplings
+          end do
+          ! End of loop over configurations
+        end do
+      else if (IFORM == 2) then
+        !*******************************************************************
+        ! The IFORM=2 case:
+        ! Long loop over configurations
+        do ICNF=1,NCNF
+          IEL2 = 0
+          IEL1 = NCLSD
+          do IORB=1,NLEV
+            IOCC = ICNFTAB(KCNF-1+IORB+NWRD*(ICNF-1))
+            if (IOCC == 1) then
+              IEL1 = IEL1+1
+              ORBARR(IEL1) = IORB
+            else
+              IEL2 = IEL2+1
+              ORBARR(IEL2) = IORB
+            end if
+          end do
+          ! Loop over spin couplings
+          do ICPL=1,NCPL
+            ICASE(1:NLEV) = 0
+            do I=1,NCLSD
+              ICASE(ORBARR(I)) = 3
+            end do
+            do I=1,NOPEN
+              IORB = ORBARR(NCLSD+I)
+              IFUP = ISPNTAB(KCPL-1+I+NOPEN*(ICPL-1))
+              !ICASE(IORB) = 1
+              !if (IFUP /= 1) ICASE(IORB) = 2
+              ICASE(IORB) = IFUP2CS(IFUP)
+            end do
+            ! A phase factor will be induced by the reordering.
+            PHS = One
+            NODD = 0
+            do LEV=1,NLEV
+              I = ICASE(LEV)
+              !if (I == 1) NODD = 1-NODD
+              !if (I == 2) NODD = 1-NODD
+              NODD = (2*NODD-1)*I*(I-3)/2+NODD
+              !if (NODD == 1) then
+              !  if (I == 2) PHS = -PHS
+              !  if (I == 3) PHS = -PHS
+              !end if
+              PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
+            end do
+            ! Pack the walk and add it to the list.
+            call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
+            IWLKPOS = IWLKPOS+MIPWLK
+            NWLKLST = NWLKLST+1
+            PHASE(NWLKLST) = PHS
+            if (NWLKLST == MXWLK) then
+              ! Translate the packed walks to a list of CSF ID-numbers
+              call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
+              IWLKPOS = 1
+              ! Loop over this list.
+              ICSYMG = NCSYMG
+              if (IMODE == 0) then
+                do I=1,NWLKLST
+                  ICSPLT = ICNUM(I)
+                  ICSYMG = NCSYMG+I
+                  CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
+                end do
+              else
+                do I=1,NWLKLST
+                  ICSPLT = ICNUM(I)
+                  ICSYMG = NCSYMG+I
+                  CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
+                end do
+              end if
+              NCSYMG = ICSYMG
+              NWLKLST = 0
+            end if
+
+            ! End of loop over spin couplings
+          end do
+          ! End of loop over configurations
+        end do
+      else if (IFORM == 3) then
+        !*******************************************************************
+        ! The IFORM=3 case:
+        ! Long loop over configurations
+        do ICNF=1,NCNF
+          do IEL=1,NOCC
+            IWRD = (3+IEL)/4
+            IREST = (3+IEL)-4*IWRD
+            if (IREST == 0) IWORD = ICNFTAB(KCNF-1+IWRD+NWRD*(ICNF-1))
+            IORB = mod(IWORD,256)
+            IWORD = IWORD/256
+            ORBARR(IEL) = IORB
+          end do
+          ! Loop over spin couplings
+          do ICPL=1,NCPL
+            ICASE(1:NLEV) = 0
+            do I=1,NCLSD
+              ICASE(ORBARR(I)) = 3
+            end do
+            do I=1,NOPEN
+              IORB = ORBARR(NCLSD+I)
+              IFUP = ISPNTAB(KCPL-1+I+NOPEN*(ICPL-1))
+              !ICASE(IORB) = 1
+              !if (IFUP /= 1) ICASE(IORB) = 2
+              ICASE(IORB) = IFUP2CS(IFUP)
+            end do
+            ! A phase factor will be induced by the reordering.
+            PHS = One
+            NODD = 0
+            do LEV=1,NLEV
+              I = ICASE(LEV)
+              !if (I == 1) NODD = 1-NODD
+              !if (I == 2) NODD = 1-NODD
+              NODD = (2*NODD-1)*I*(I-3)/2+NODD
+              !if (NODD == 1) then
+              !  if (I == 2) PHS = -PHS
+              !  if (I == 3) PHS = -PHS
+              !end if
+              PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
+            end do
+            ! Pack the walk and add it to the list.
+            call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
+            IWLKPOS = IWLKPOS+MIPWLK
+            NWLKLST = NWLKLST+1
+            PHASE(NWLKLST) = PHS
+            if (NWLKLST == MXWLK) then
+              ! Translate the packed walks to a list of CSF ID-numbers
+              call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
+              IWLKPOS = 1
+              ! Loop over this list.
+              ICSYMG = NCSYMG
+              if (IMODE == 0) then
+                do I=1,NWLKLST
+                  ICSPLT = ICNUM(I)
+                  ICSYMG = NCSYMG+I
+                  CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
+                end do
+              else
+                do I=1,NWLKLST
+                  ICSPLT = ICNUM(I)
+                  ICSYMG = NCSYMG+I
+                  CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
+                end do
+              end if
+              NCSYMG = ICSYMG
+              NWLKLST = 0
+            end if
+
+            ! End of loop over spin couplings
+          end do
+          ! End of loop over configurations
+        end do
+      else if (IFORM == 4) then
+        !*******************************************************************
+        ! The IFORM=4 case:
+        ! Long loop over configurations
+        do ICNF=1,NCNF
+          IEL2 = 0
+          IEL1 = NCLSD
+          do IORB=1,NLEV
+            IWRD = (IORB+14)/15
+            IREST = IORB+14-15*IWRD
+            if (IREST == 0) IWORD = ICNFTAB(KCNF-1+IWRD+NWRD*(ICNF-1))
+            IOCC = mod(IWORD,4)
+            IWORD = IWORD/4
+            if (IOCC == 1) then
+              IEL1 = IEL1+1
+              ORBARR(IEL1) = IORB
+            else
+              IEL2 = IEL2+1
+              ORBARR(IEL2) = IORB
+            end if
+          end do
+          ! Loop over spin couplings
+          do ICPL=1,NCPL
+            ICASE(1:NLEV) = 0
+            do I=1,NCLSD
+              ICASE(ORBARR(I)) = 3
+            end do
+            do I=1,NOPEN
+              IORB = ORBARR(NCLSD+I)
+              IFUP = ISPNTAB(KCPL-1+I+NOPEN*(ICPL-1))
+              !ICASE(IORB) = 1
+              !if (IFUP /= 1) ICASE(IORB) = 2
+              ICASE(IORB) = IFUP2CS(IFUP)
+            end do
+            ! A phase factor will be induced by the reordering.
+            PHS = One
+            NODD = 0
+            do LEV=1,NLEV
+              I = ICASE(LEV)
+              !if (I == 1) NODD = 1-NODD
+              !if (I == 2) NODD = 1-NODD
+              NODD = (2*NODD-1)*I*(I-3)/2+NODD
+              !if (NODD == 1) then
+              !  if (I == 2) PHS = -PHS
+              !  if (I == 3) PHS = -PHS
+              !end if
+              PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
+            end do
+            ! Pack the walk and add it to the list.
+            call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
+            IWLKPOS = IWLKPOS+MIPWLK
+            NWLKLST = NWLKLST+1
+            PHASE(NWLKLST) = PHS
+            if (NWLKLST == MXWLK) then
+              ! Translate the packed walks to a list of CSF ID-numbers
+              call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
+              IWLKPOS = 1
+              ! Loop over this list.
+              ICSYMG = NCSYMG
+              if (IMODE == 0) then
+                do I=1,NWLKLST
+                  ICSPLT = ICNUM(I)
+                  ICSYMG = NCSYMG+I
+                  CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
+                end do
+              else
+                do I=1,NWLKLST
+                  ICSPLT = ICNUM(I)
+                  ICSYMG = NCSYMG+I
+                  CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
+                end do
+              end if
+              NCSYMG = ICSYMG
+              NWLKLST = 0
+            end if
+
+            ! End of loop over spin couplings
+          end do
+          ! End of loop over configurations
+        end do
+      end if
+      !*********************************************************************
+
+      ! End of loop over NOPEN
     end do
-  else
-    do I=1,NWLKLST
-      ICSPLT = ICNUM(I)
-      ICSYMG = NCSYMG+I
-      CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
-    end do
-  end if
-  NCSYMG = NCSYMG+NWLKLST
-  NWLKLST = 0
 
-  if (IPGLOB >= 5) then
-    write(u6,*)
-    write(u6,*) ' CI vector reordered in SYG2SGU'
+    ! As above, processing what remains in the KWALK buffer.
+    call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
+    IWLKPOS = 1
     if (IMODE == 0) then
-      write(u6,*) ' OLD CI vector in SYMMETRIC GROUP order'
-      write(u6,'(10F12.8)') (CIOLD(I),I=1,NCONF)
-      write(u6,*) ' NEW CI vector in SPLIT GRAPH UGA order'
-      write(u6,'(10F12.8)') (CINEW(I),I=1,NCONF)
+      do I=1,NWLKLST
+        ICSPLT = ICNUM(I)
+        ICSYMG = NCSYMG+I
+        CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
+      end do
     else
-      write(u6,*) ' OLD CI vector in SPLIT GRAPH UGA order'
-      write(u6,'(10F12.8)') (CIOLD(I),I=1,NCONF)
-      write(u6,*) ' NEW CI vector in SYMMETRIC GROUP order'
-      write(u6,'(10F12.8)') (CINEW(I),I=1,NCONF)
+      do I=1,NWLKLST
+        ICSPLT = ICNUM(I)
+        ICSYMG = NCSYMG+I
+        CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
+      end do
     end if
-  end if
+    NCSYMG = NCSYMG+NWLKLST
+    NWLKLST = 0
 
-  call mma_deallocate(OrbArr)
-  call mma_deallocate(MWS2W)
+    if (IPGLOB >= 5) then
+      write(u6,*)
+      write(u6,*) ' CI vector reordered in SYG2SGU'
+      if (IMODE == 0) then
+        write(u6,*) ' OLD CI vector in SYMMETRIC GROUP order'
+        write(u6,'(10F12.8)')(CIOLD(I),I=1,NCONF)
+        write(u6,*) ' NEW CI vector in SPLIT GRAPH UGA order'
+        write(u6,'(10F12.8)')(CINEW(I),I=1,NCONF)
+      else
+        write(u6,*) ' OLD CI vector in SPLIT GRAPH UGA order'
+        write(u6,'(10F12.8)')(CIOLD(I),I=1,NCONF)
+        write(u6,*) ' NEW CI vector in SYMMETRIC GROUP order'
+        write(u6,'(10F12.8)')(CINEW(I),I=1,NCONF)
+      end if
+    end if
+
+    call mma_deallocate(OrbArr)
+    call mma_deallocate(MWS2W)
 
   end associate
 
@@ -664,7 +663,6 @@ subroutine SG_MSTOW(SGS,CIS,MWS2W,nSym)
   use sguga, only: CIStruct, SGStruct
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: iwp
-
 
   implicit none
   type(SGStruct), intent(in) :: SGS
@@ -811,7 +809,6 @@ subroutine SG_PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 
   use sguga, only: nPack
   use Definitions, only: iwp
-
 
   implicit none
   integer(kind=iwp), intent(in) :: N, IPWLK, NWALK, ICASE(N,NWALK)

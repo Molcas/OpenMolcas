@@ -468,7 +468,7 @@ subroutine SG_Check_HPsi_Op(SGS,CIS,EXS,nFail)
       if (maxval(abs(Ref-Sig)) > Tol) then
         nFail = nFail+1
         write(u6,'(A,2I3,ES12.4)') ' sg_h_psi_sq vs sg_h_psi_op (Hermitian): iOp, PsiSym, max. difference',iOp,PsiSym, &
-                                   maxval(abs(Ref-Sig))
+          maxval(abs(Ref-Sig))
       end if
       call mma_deallocate(Ref)
       ! restore the non-Hermitian operator in orbital order
@@ -1106,133 +1106,133 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   !#define _TEST_
 #ifdef _TEST_
-    use sguga, only: sg_Epq_Psi, sg_EpqEqp_diag
-    use Definitions, only: u6
+  use sguga, only: sg_Epq_Psi, sg_EpqEqp_diag
+  use Definitions, only: u6
 #endif
-    use sguga, only: SGStruct, CIStruct, EXStruct
-    use stdalloc, only: mma_allocate, mma_deallocate
-    use Constants, only: Zero, One
-    use Definitions, only: wp, iwp
+  use sguga, only: SGStruct, CIStruct, EXStruct
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One
+  use Definitions, only: wp, iwp
 
-    implicit none
+  implicit none
 
-    type(SGStruct), intent(in)    :: SGS
-    type(CIStruct), intent(in)    :: CIS
-    type(EXStruct), intent(inout) :: EXS
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
 
-    integer(kind=iwp), intent(in) :: nCSFs
-    integer(kind=iwp), intent(in) :: CSFSym
+  integer(kind=iwp), intent(in) :: nCSFs
+  integer(kind=iwp), intent(in) :: CSFSym
 
-    integer(kind=iwp), intent(in) :: nTUVX_Tri
-    integer(kind=iwp), intent(in) :: nTU_Tri
+  integer(kind=iwp), intent(in) :: nTUVX_Tri
+  integer(kind=iwp), intent(in) :: nTU_Tri
 
-    real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri)
-    real(kind=wp), intent(in) :: TU_Tri(nTU_Tri)
+  real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri)
+  real(kind=wp), intent(in) :: TU_Tri(nTU_Tri)
 
-    real(kind=wp), intent(out) :: Diag(nCSFs)
+  real(kind=wp), intent(out) :: Diag(nCSFs)
 
-    real(kind=wp), allocatable :: Psi(:)
-    real(kind=wp), allocatable :: Sigma(:)
+  real(kind=wp), allocatable :: Psi(:)
+  real(kind=wp), allocatable :: Sigma(:)
 
-    integer(kind=iwp) :: iCSF, mCSFs
+  integer(kind=iwp) :: iCSF, mCSFs
 
 #ifdef _TEST_
-    logical(kind=iwp) :: ReUse_Save
-    integer(kind=iwp) :: p, q
-    real(kind=wp), allocatable :: Epq(:), Eqp(:)
+  logical(kind=iwp) :: ReUse_Save
+  integer(kind=iwp) :: p, q
+  real(kind=wp), allocatable :: Epq(:), Eqp(:)
 #endif
 
   ! Note, the sigma vector might be of a different length than Psi. For safty measurers allocate the largest possible size.
-    mCSFs=MaxVal(CIS%nCSF)
-    call mma_allocate(Psi,nCSFs,Label='Psi')
-    call mma_allocate(Sigma,mCSFs,Label='Sigma')
+  mCSFs = maxval(CIS%nCSF)
+  call mma_allocate(Psi,nCSFs,Label='Psi')
+  call mma_allocate(Sigma,mCSFs,Label='Sigma')
 
 #ifdef _TEST_
   ! turn off reuse of SGTMP
-  ReUse_Save=EXS%Reuse_SGTMP
-  EXS%Reuse_SGTMP=.False.
+  ReUse_Save = EXS%Reuse_SGTMP
+  EXS%Reuse_SGTMP = .false.
   call mma_allocate(Epq,nCSFs,Label='Epq')
   call mma_allocate(Eqp,nCSFs,Label='Eqp')
 
   do p=1,SGS%nLev
-  do q=1,SGS%nLev
-  !Write (u6,*) 'p,q=',p,q
+    do q=1,SGS%nLev
+      !Write (u6,*) 'p,q=',p,q
 
-  do iCSF=1,nCSFs
-    Psi(:) = Zero
-    Psi(iCSF) = One
-    Sigma(:) = Zero
-    call SG_Epq_Psi(SGS,CIS,EXS, &
-                    p,q, &
-                    One, &
-                    CSFSym, &
-                    Psi, &
-                    Sigma)
-  ! Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
-    Epq(iCSF)=Dot_product(Sigma,Sigma)
-  end do
-  !Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
+      do iCSF=1,nCSFs
+        Psi(:) = Zero
+        Psi(iCSF) = One
+        Sigma(:) = Zero
+        call SG_Epq_Psi(SGS,CIS,EXS, &
+                        p,q, &
+                        One, &
+                        CSFSym, &
+                        Psi, &
+                        Sigma)
+        ! Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
+        Epq(iCSF) = dot_product(Sigma,Sigma)
+      end do
+      !Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
 
-  call SG_EpqEqp_Diag(SGS,CIS,EXS, &
-                      p,q, &
-                      One, &
-                      CSFSym, &
-                      Psi, &
-                      Sigma)
-  !Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
+      call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                          p,q, &
+                          One, &
+                          CSFSym, &
+                          Psi, &
+                          Sigma)
+      !Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
 
-  Do iCSF=1,nCSFs
-  If (Abs(Epq(iCSF)-Sigma(iCSF))>1.0e-10_wp) Then
-     Write (u6,*) 'p, q, iCSF=',p, q, iCSF
-     Write (u6,*) 'MidLev=',SGS%MidLev
-     Write (u6,*) 'Level=',SGS%Level(1:SGS%nLev)
-     Write (u6,*) 'L2Act=',SGS%L2Act(1:SGS%nLev)
-     Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
-     Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
-     Call Abend()
-  End If
-  End Do
+      do iCSF=1,nCSFs
+        if (abs(Epq(iCSF)-Sigma(iCSF)) > 1.0e-10_wp) then
+          write(u6,*) 'p, q, iCSF=',p,q,iCSF
+          write(u6,*) 'MidLev=',SGS%MidLev
+          write(u6,*) 'Level=',SGS%Level(1:SGS%nLev)
+          write(u6,*) 'L2Act=',SGS%L2Act(1:SGS%nLev)
+          call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
+          call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
+          call Abend()
+        end if
+      end do
 
-  end do
+    end do
   end do
 
   call mma_deallocate(Eqp)
   call mma_deallocate(Epq)
 
-  EXS%Reuse_SGTMP=ReUse_Save
-  Write (u6,*)
-  Write (u6,*) 'Test passed!'
-  Write (u6,*)
+  EXS%Reuse_SGTMP = ReUse_Save
+  write(u6,*)
+  write(u6,*) 'Test passed!'
+  write(u6,*)
   !Call Abend()
 #endif
 
-    do iCSF=1,nCSFs
+  do iCSF=1,nCSFs
 
-       Psi(:)   = Zero
-       Sigma(:) = Zero
+    Psi(:) = Zero
+    Sigma(:) = Zero
 
-       Psi(iCSF) = One
+    Psi(iCSF) = One
 
-       ! sg_h_psi needs intermediate states outside a RAS space; there the
-       ! operator-ordered sg_h_psi_ras is used (both read TU/TUVX in the
-       ! symmetry-blocked orbital order)
-       if (SGS%nRsPrt == 1) then
-         call sg_h_psi(SGS,CIS,EXS, &
-                       Psi,nCSFs,CSFSym, &
-                       Sigma, &
-                       TUVX_Tri,nTUVX_Tri, &
-                       TU_Tri,nTU_Tri)
-       else
-         call sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,CSFSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
-       end if
+    ! sg_h_psi needs intermediate states outside a RAS space; there the
+    ! operator-ordered sg_h_psi_ras is used (both read TU/TUVX in the
+    ! symmetry-blocked orbital order)
+    if (SGS%nRsPrt == 1) then
+      call sg_h_psi(SGS,CIS,EXS, &
+                    Psi,nCSFs,CSFSym, &
+                    Sigma, &
+                    TUVX_Tri,nTUVX_Tri, &
+                    TU_Tri,nTU_Tri)
+    else
+      call sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,CSFSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
+    end if
 
-       Diag(iCSF) = Sigma(iCSF)
+    Diag(iCSF) = Sigma(iCSF)
 
-    end do
+  end do
   !  call RecPrt('Diag',' ',Diag,1,nCSFs)
 
-    call mma_deallocate(Sigma)
-    call mma_deallocate(Psi)
+  call mma_deallocate(Sigma)
+  call mma_deallocate(Psi)
 
 end subroutine sg_hdiag_ref
 
@@ -1249,8 +1249,8 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   implicit none
 
-  type(SGStruct), intent(in)    :: SGS
-  type(CIStruct), intent(in)    :: CIS
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
   type(EXStruct), intent(inout) :: EXS
 
   integer(kind=iwp), intent(in) :: nCSFs
@@ -1259,8 +1259,8 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
   integer(kind=iwp), intent(in) :: nTUVX_Tri
   integer(kind=iwp), intent(in) :: nTU_Tri
 
-  real(kind=wp), intent(in)  :: TUVX_Tri(nTUVX_Tri)
-  real(kind=wp), intent(in)  :: TU_Tri(nTU_Tri)
+  real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri)
+  real(kind=wp), intent(in) :: TU_Tri(nTU_Tri)
 
   real(kind=wp), intent(out) :: Diag(nCSFs)
 
@@ -1272,7 +1272,7 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
   ! the integrals indexed by graph level (TU/TUVX: symmetry-blocked orbitals)
   real(kind=wp), allocatable :: TU_L(:), TUVX_L(:)
 
-  integer(kind=iwp) :: p,q
+  integer(kind=iwp) :: p, q
   integer(kind=iwp) :: ppTri
   integer(kind=iwp) :: ppqqTri
   integer(kind=iwp) :: pqqpTri
@@ -1301,25 +1301,25 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
   !
   Psi(:) = One
 
-do p=1,SGS%nLev
+  do p=1,SGS%nLev
 
-   Epp(:) = Zero
+    Epp(:) = Zero
 
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   p,p, &
-                   One, &
-                   CSFSym, &
-                   Psi, &
-                   Epp)
+    call SG_Epq_Psi(SGS,CIS,EXS, &
+                    p,p, &
+                    One, &
+                    CSFSym, &
+                    Psi, &
+                    Epp)
 
 !
 ! One-electron contribution
 !
-   ppTri = iTri(p,p)
+    ppTri = iTri(p,p)
 
-   OneInt = TU_L(ppTri)
+    OneInt = TU_L(ppTri)
 
-   Diag(:) = Diag(:) + OneInt*Epp(:)
+    Diag(:) = Diag(:)+OneInt*Epp(:)
 
 !
 !-------------------------------------------------------
@@ -1328,16 +1328,16 @@ do p=1,SGS%nLev
 ! 1/2 (pp|pp) [Epp*Epp - Epp]
 !-------------------------------------------------------
 !
-   ppqqTri = iTri(iTri(p,p),iTri(p,p))
-   Coul    = Half*TUVX_L(ppqqTri)
+    ppqqTri = iTri(iTri(p,p),iTri(p,p))
+    Coul = Half*TUVX_L(ppqqTri)
 
-   Diag(:)=Diag(:) + Coul*(Epp(:)**2 - Epp(:))
+    Diag(:) = Diag(:)+Coul*(Epp(:)**2-Epp(:))
 
 ! PPQQ and PQQP contributions
 
-   do q=p+1,SGS%nLev
+    do q=p+1,SGS%nLev
 
-      EqqEpp(:)=Zero
+      EqqEpp(:) = Zero
       call SG_Epq_Psi(SGS,CIS,EXS, &
                       q,q, &
                       One, &
@@ -1353,7 +1353,7 @@ do p=1,SGS%nLev
 !
       ppqqTri = iTri(iTri(p,p),iTri(q,q))
 
-      Diag(:)=Diag(:) + TUVX_L(ppqqTri)*EqqEpp(:)
+      Diag(:) = Diag(:)+TUVX_L(ppqqTri)*EqqEpp(:)
 
 !
 !-------------------------------------------------------
@@ -1363,7 +1363,7 @@ do p=1,SGS%nLev
 ! [ <EpqEqp> + <EqpEpq> - Epp - Eqq ]
 !-------------------------------------------------------
 !
-      Eqq(:)=Zero
+      Eqq(:) = Zero
       call SG_Epq_Psi(SGS,CIS,EXS, &
                       q,q, &
                       One, &
@@ -1371,7 +1371,7 @@ do p=1,SGS%nLev
                       Psi, &
                       Eqq)
 
-      EpqEqp(:)=Zero
+      EpqEqp(:) = Zero
       call SG_EpqEqp_Diag(SGS,CIS,EXS, &
                           p,q, &
                           One, &
@@ -1384,11 +1384,11 @@ do p=1,SGS%nLev
       ! |E_qp e_I|**2 would need intermediate states outside a RAS space),
       ! so <E_pq E_qp> + <E_qp E_pq> - n_p - n_q = 2 (<E_qp E_pq> - n_q).
       pqqpTri = iTri(iTri(q,p),iTri(q,p))
-      Exch    = Half*TUVX_L(pqqpTri)
+      Exch = Half*TUVX_L(pqqpTri)
 
-      Diag(:)=Diag(:) + Exch * Two * ( EpqEqp(:) - Eqq(:) )
-   end do
-end do
+      Diag(:) = Diag(:)+Exch*Two*(EpqEqp(:)-Eqq(:))
+    end do
+  end do
 
   call mma_deallocate(EpqEqp)
   call mma_deallocate(TUVX_L)
@@ -1412,8 +1412,8 @@ subroutine sg_ci_full(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   implicit none
 
-  type(SGStruct), intent(in)    :: SGS
-  type(CIStruct), intent(in)    :: CIS
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
   type(EXStruct), intent(inout) :: EXS
 
   integer(kind=iwp), intent(in) :: nCSFs
@@ -1437,22 +1437,22 @@ subroutine sg_ci_full(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   do iCSF=1,nCSFs
 
-     Psi(:)   = Zero
-     Sigma(:) = Zero
+    Psi(:) = Zero
+    Sigma(:) = Zero
 
-     Psi(iCSF) = One
+    Psi(iCSF) = One
 
-     ! Construct H|I> = Sum_J <J|H|I> |J>
+    ! Construct H|I> = Sum_J <J|H|I> |J>
 
-     call sg_h_psi(SGS,CIS,EXS, &
-                   Psi,nCSFs,CSFSym, &
-                   Sigma, &
-                   TUVX_Tri,nTUVX_Tri, &
-                   TU_Tri,nTU_Tri)
+    call sg_h_psi(SGS,CIS,EXS, &
+                  Psi,nCSFs,CSFSym, &
+                  Sigma, &
+                  TUVX_Tri,nTUVX_Tri, &
+                  TU_Tri,nTU_Tri)
 
-     Do jCSF=1,nCSFs
-        Full(jCSF,iCSF) = Sigma(jCSF)
-     End Do
+    do jCSF=1,nCSFs
+      Full(jCSF,iCSF) = Sigma(jCSF)
+    end do
 
   end do
   call RecPrt('CI matrix in CSF basis',' ',Full,nCSFs,nCSFs)
@@ -1496,55 +1496,54 @@ subroutine SG_Occ_Diag(iState,ISYCI,ETA,DIAG,nDiag)
     end do
   end do
 
-  contains
+contains
 
-    subroutine Block_Diag(ICS,JCS,NUP,NDWN,EMU)
-      integer(kind=iwp), intent(in) :: ICS, JCS, NUP, NDWN
-      real(kind=wp), intent(inout) :: EMU(NUP,NDWN)
-      integer(kind=iwp) :: I, IC, IC1, II, IOC, ISTEP, LEV, LV1, nIpWlk, nLev, MidLev
-      real(kind=wp) :: rSum
+  subroutine Block_Diag(ICS,JCS,NUP,NDWN,EMU)
+    integer(kind=iwp), intent(in) :: ICS, JCS, NUP, NDWN
+    real(kind=wp), intent(inout) :: EMU(NUP,NDWN)
+    integer(kind=iwp) :: I, IC, IC1, II, IOC, ISTEP, LEV, LV1, nIpWlk, nLev, MidLev
+    real(kind=wp) :: rSum
 
-      nIpWlk = CIS(iState)%nIpWlk
-      nLev = SGS(iState)%nLev
-      MidLev = SGS(iState)%MidLev
-      ! the upper half walks
-      do I=1,NUP
-        II = ICS-1+NIPWLK*(I-1)
-        rSum = Zero
-        do LV1=MidLev+1,nLev,nPack
-          II = II+1
-          IC = CIS(iState)%ICase(II)
-          do LEV=LV1,min(LV1+(nPack-1),nLev)
-            IC1 = IC/4
-            ISTEP = IC-4*IC1
-            IOC = (ISTEP+1)/2
-            rSum = rSum+real(IOC,kind=wp)*ETA(LEV)
-            IC = IC1
-          end do
+    nIpWlk = CIS(iState)%nIpWlk
+    nLev = SGS(iState)%nLev
+    MidLev = SGS(iState)%MidLev
+    ! the upper half walks
+    do I=1,NUP
+      II = ICS-1+NIPWLK*(I-1)
+      rSum = Zero
+      do LV1=MidLev+1,nLev,nPack
+        II = II+1
+        IC = CIS(iState)%ICase(II)
+        do LEV=LV1,min(LV1+(nPack-1),nLev)
+          IC1 = IC/4
+          ISTEP = IC-4*IC1
+          IOC = (ISTEP+1)/2
+          rSum = rSum+real(IOC,kind=wp)*ETA(LEV)
+          IC = IC1
         end do
-        EMU(I,:) = EMU(I,:)+rSum
       end do
-      ! the lower half walks
-      do I=1,NDWN
-        II = JCS-1+NIPWLK*(I-1)
-        rSum = Zero
-        do LV1=1,MidLev,nPack
-          II = II+1
-          IC = CIS(iState)%ICase(II)
-          do LEV=LV1,min(LV1+(nPack-1),MidLev)
-            IC1 = IC/4
-            ISTEP = IC-4*IC1
-            IOC = (ISTEP+1)/2
-            rSum = rSum+real(IOC,kind=wp)*ETA(LEV)
-            IC = IC1
-          end do
+      EMU(I,:) = EMU(I,:)+rSum
+    end do
+    ! the lower half walks
+    do I=1,NDWN
+      II = JCS-1+NIPWLK*(I-1)
+      rSum = Zero
+      do LV1=1,MidLev,nPack
+        II = II+1
+        IC = CIS(iState)%ICase(II)
+        do LEV=LV1,min(LV1+(nPack-1),MidLev)
+          IC1 = IC/4
+          ISTEP = IC-4*IC1
+          IOC = (ISTEP+1)/2
+          rSum = rSum+real(IOC,kind=wp)*ETA(LEV)
+          IC = IC1
         end do
-        EMU(:,I) = EMU(:,I)+rSum
       end do
-    end subroutine Block_Diag
+      EMU(:,I) = EMU(:,I)+rSum
+    end do
+  end subroutine Block_Diag
 
 end subroutine SG_Occ_Diag
-
 
 !> The memory (words) the sigma (sg_h_psi, or sg_h_psi_ras with Ordered)
 !> and the 2-RDM (sg_two_pdm) of CI vectors of symmetry PsiSym need for

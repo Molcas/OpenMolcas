@@ -31,14 +31,14 @@ subroutine SG_Print(iState)
   write(u6,*) ' Split-Graph UGA. Graph description:'
   write(u6,*) ' Nr of levels:',SGS%nLev
   write(u6,*) ' Orbital symmetry labels:'
-  write(u6,'(1x,30i2)') (SGS(istate)%ISm(i),i=1,SGS(istate)%nLev)
+  write(u6,'(1x,30i2)')(SGS(istate)%ISm(i),i=1,SGS(istate)%nLev)
   write(u6,*) ' Nr of vertices:',SGS(istate)%nVert
   write(u6,*)
   write(u6,*) ' Vertex    L  N    A  B  C      Downchain table        Upchain table'
   write(u6,*)
   do iv=1,SGS(istate)%nVert
     write(u6,'(1x,i4,5x,2i3,2x,3i3,5x,4i4,5x,4i4)') iv,(SGS(istate)%DRT(iv,i-1),i=1,5),(SGS(istate)%Down(iv,ic),ic=0,3), &
-         (SGS(istate)%Up(iv,ic),ic=0,3)
+      (SGS(istate)%Up(iv,ic),ic=0,3)
   end do
   write(u6,*)
   write(u6,*) ' Mid Level:',SGS(istate)%MidLev
@@ -230,7 +230,7 @@ subroutine SG_PRWF(iState,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
   ! free memory for determinant expansion
   if (KeyPRSD) call mma_deallocate(LEX)
 
-  100 format(6x,a)
+100 format(6x,a)
 
 end subroutine SG_PRWF
 

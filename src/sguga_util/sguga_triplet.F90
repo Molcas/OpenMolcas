@@ -24,7 +24,6 @@ implicit none
 
 contains
 
-
 !> <I|E_pq|J> (Triplet = .false.) or <I|a+_pa a_qa - a+_pb a_qb|J>
 !> (Triplet = .true.) of the CSFs with step vectors SI (bra) and SJ (ket)
 !> of the same graph, as the product of ASTA segment values.
@@ -926,7 +925,6 @@ subroutine SG_Tpq_Psi(iState,p,q,X,ISYCI,CI,Sigma)
       end do
     end if
   end do
-
 
 end subroutine SG_Tpq_Psi
 

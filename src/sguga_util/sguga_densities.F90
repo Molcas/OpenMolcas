@@ -529,7 +529,7 @@ subroutine SG_Check_Trans_Two_PDM(SGS,CIS,EXS,nFail)
           if (d2 > Tol) then
             nFail = nFail+1
             if (nFail <= 20) write(u6,'(A,4I4,2ES20.12)') ' sg_trans_two_pdm mismatch: BraSym,KetSym,ij,kl, value, reference =', &
-                                                        BraSym,KetSym,ij,kl,Rho2(iTri(ij,kl)),R2(ij,kl)
+              BraSym,KetSym,ij,kl,Rho2(iTri(ij,kl)),R2(ij,kl)
           end if
         end do
       end do
@@ -896,7 +896,6 @@ subroutine sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
   PA = Half*PA
 
 end subroutine sg_two_pdm_direct
-
 
 !> Free the work arrays kept between the calls.
 subroutine SG_Densities_Free()

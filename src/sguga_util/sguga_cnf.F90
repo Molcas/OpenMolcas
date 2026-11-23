@@ -26,7 +26,6 @@ implicit none
 
 contains
 
-
 !> The configurations of the CSFs of symmetry LSM of state iState, from the
 !> occupations of their walks (see SGCnfList); independent of any other CI
 !> library. Also sets up the single-CSF matrix elements (SG_MatEl_Init).

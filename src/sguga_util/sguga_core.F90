@@ -35,41 +35,41 @@ integer(kind=iwp) :: iq, NCP_Max
 ! Slater Determinant reordering to fit the Lucia machinary
 ! This might actually get redundant once the Lucia codes have been removed!
 type :: SDReoInfo
-   integer(kind=iwp), allocatable :: List(:)
+  integer(kind=iwp), allocatable :: List(:)
 end type SDReoInfo
 
 ! Configuration-to-Determinant transformation informtion
 
 type CDCInfo
-   integer(kind=iwp) :: nDet = 0
-   integer(kind=iwp) :: nCSF = 0
-   ! Lucia spin-combination dimension
-   integer(kind=iwp) :: nDetSC = 0
+  integer(kind=iwp) :: nDet = 0
+  integer(kind=iwp) :: nCSF = 0
+  ! Lucia spin-combination dimension
+  integer(kind=iwp) :: nDetSC = 0
 
-   integer(kind=iwp) :: nClosed = 0
-   integer(kind=iwp) :: nClosedOCP = 0
+  integer(kind=iwp) :: nClosed = 0
+  integer(kind=iwp) :: nClosedOCP = 0
 
-   integer(kind=iwp), allocatable :: DOC(:,:)
-   integer(kind=iwp), allocatable :: SOC(:,:)
-   integer(kind=iwp), allocatable :: SOCSym(:)
-   integer(kind=iwp), allocatable :: nOCSym(:)
-   integer(kind=iwp), allocatable :: OCDOC(:,:)
-   integer(kind=iwp), allocatable :: OCSOC(:,:)
-   integer(kind=iwp), Allocatable :: OCReverse(:,:,:)
+  integer(kind=iwp), allocatable :: DOC(:,:)
+  integer(kind=iwp), allocatable :: SOC(:,:)
+  integer(kind=iwp), allocatable :: SOCSym(:)
+  integer(kind=iwp), allocatable :: nOCSym(:)
+  integer(kind=iwp), allocatable :: OCDOC(:,:)
+  integer(kind=iwp), allocatable :: OCSOC(:,:)
+  integer(kind=iwp), allocatable :: OCReverse(:,:,:)
 
-   integer(kind=iwp), allocatable :: nOpenOCP(:)
-   integer(kind=iwp), allocatable :: nOCP(:)
-   integer(kind=iwp), allocatable :: DetSpin(:,:)
-   integer(kind=iwp), allocatable :: Twos(:,:)
+  integer(kind=iwp), allocatable :: nOpenOCP(:)
+  integer(kind=iwp), allocatable :: nOCP(:)
+  integer(kind=iwp), allocatable :: DetSpin(:,:)
+  integer(kind=iwp), allocatable :: Twos(:,:)
 
-   ! Full determinant representation
-   real(kind=wp), allocatable :: CDC(:,:)
+  ! Full determinant representation
+  real(kind=wp), allocatable :: CDC(:,:)
 
-   ! Lucia spin-combination representation
-   real(kind=wp), allocatable :: DTOC(:,:)
+  ! Lucia spin-combination representation
+  real(kind=wp), allocatable :: DTOC(:,:)
 
-   ! Pairing information
-   integer(kind=iwp), allocatable :: Pair(:)
+  ! Pairing information
+  integer(kind=iwp), allocatable :: Pair(:)
 
 end type CDCInfo
 
@@ -93,7 +93,7 @@ end type CDCInfo
 ! The graph (SG_Graph of CSF_Graph) and the parts of SGUGA (CSF/SD codec)
 type, extends(SG_Graph) :: SGStruct
   type(CDCInfo), allocatable :: CDCInfo(:,:)
-  integer(kind=iwp), Allocatable :: OC(:)
+  integer(kind=iwp), allocatable :: OC(:)
   type(SDReoInfo), allocatable :: SDREO(:)
 end type SGStruct
 
@@ -149,8 +149,8 @@ type EXStruct
   ! the symmetry for which USGN and LSGN (MkSgNum) were built (0: none)
   integer(kind=iwp) :: Num_Sym = 0
   real(kind=wp) :: Save_ID(2) = 0.0_wp
-  integer(kind=iwp), allocatable:: I1list(:), I2list(:)
-  real(kind=wp), allocatable:: XList(:)
+  integer(kind=iwp), allocatable :: I1list(:), I2list(:)
+  real(kind=wp), allocatable :: XList(:)
 end type EXStruct
 
 ! Configurations (orbital occupations) of the CSFs of one symmetry, built
@@ -169,9 +169,9 @@ end type SGCnfList
 
 type TRStruct
   ! Metadata
-  integer(kind=iwp) :: nClass    = 0   ! number of topological classes
+  integer(kind=iwp) :: nClass = 0   ! number of topological classes
   integer(kind=iwp) :: nOpenBand = 0   ! number of open-family bands
-  integer(kind=iwp) :: nTrans    = 0   ! total number of transitions
+  integer(kind=iwp) :: nTrans = 0   ! total number of transitions
 
   ! Bucket structure:
   !   NTR(IVLT,ICLASS) = number of transitions from source vertex IVLT
@@ -250,10 +250,10 @@ end type TRStruct
 integer(kind=iwp), parameter :: nSegBase = 26, nSegWeight = 8, nSegTot = nSegBase+nSegWeight, nSeg = nSegBase
 
 ! Offsets for diagonal segments  (27:30) and (31:34)
-integer(kind=iwp), parameter :: iSegWUpBeg = nSegBase + 1
-integer(kind=iwp), parameter :: iSegWUpEnd = nSegBase + 4
-integer(kind=iwp), parameter :: iSegWLoBeg = nSegBase + 5
-integer(kind=iwp), parameter :: iSegWLoEnd = nSegBase + 8
+integer(kind=iwp), parameter :: iSegWUpBeg = nSegBase+1
+integer(kind=iwp), parameter :: iSegWUpEnd = nSegBase+4
+integer(kind=iwp), parameter :: iSegWLoBeg = nSegBase+5
+integer(kind=iwp), parameter :: iSegWLoEnd = nSegBase+8
 
 ! The segments of the triplet operator T_pq = a+_pa a_qa - a+_pb a_qb (ASTA,
 ! paper II), appended to the catalog (35:62). Three further classes of the
@@ -271,40 +271,38 @@ integer(kind=iwp), parameter :: nSegTrip = 28, nSegCat = nSegTot+nSegTrip
 integer(kind=iwp), parameter :: iSegTHeadBeg = nSegTot+1, iSegTHeadEnd = nSegTot+8, iSegTTopBeg = nSegTot+9, &
                                 iSegTTopEnd = nSegTot+24, iSegTWBeg = nSegTot+25, iSegTWEnd = nSegCat
 
-integer(kind=iwp), parameter ::                                                                                                    &
-                                ITVPT(nSegCat) =  &
-[ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3, &
-  4, 4, 4, 4,  5, 5, 6, 6,  4, 4, 4, 4, 4, 4,  5, 5, 5, 5, 5,  6, 6, 6, 6, 6,  4, 4, 5, 6],&
-                                IBVPT(nSegCat) =  &
-[ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3, &
-  1, 2, 2, 1,  1, 1, 2, 2,  4, 4, 4, 4, 6, 5,  5, 5, 5, 5, 4,  6, 6, 6, 6, 4,  3, 3, 3, 3],&
-                                IC1(nSegCat)   =  &
-[ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3, &
-  0, 0, 1, 2,  1, 0, 2, 0,  0, 1, 2, 3, 1, 2,  0, 1, 2, 3, 1,  0, 1, 2, 3, 2,  1, 2, 1, 2],&
-                                IC2(nSegCat)   =  &
-[ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3, &
-  1, 2, 3, 3,  3, 2, 3, 1,  0, 1, 2, 3, 2, 1,  0, 1, 2, 3, 2,  0, 1, 2, 3, 1,  1, 2, 2, 1],&
-                                ISVC(nSegCat)  =  &
-[ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1,  0, 1, 1,13,  0, 1, 1,13, &
-  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,  0, 0, 0, 0, 0,  0, 0, 0, 0]
+integer(kind=iwp), parameter :: &
+  ITVPT(nSegCat) = &
+  [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3,0,0,0,0,3,3,3,3, &
+   4,4,4,4,5,5,6,6,4,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,4,4,5,6], &
+  IBVPT(nSegCat) = &
+  [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3,0,0,0,0,3,3,3,3, &
+   1,2,2,1,1,1,2,2,4,4,4,4,6,5,5,5,5,5,4,6,6,6,6,4,3,3,3,3], &
+  IC1(nSegCat) = &
+  [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3,0,1,2,3,0,1,2,3, &
+   0,0,1,2,1,0,2,0,0,1,2,3,1,2,0,1,2,3,1,0,1,2,3,2,1,2,1,2], &
+  IC2(nSegCat) = &
+  [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3,0,1,2,3,0,1,2,3, &
+   1,2,3,3,3,2,3,1,0,1,2,3,2,1,0,1,2,3,2,0,1,2,3,1,1,2,2,1], &
+  ISVC(nSegCat) = &
+  [1,1,1,1,1,7,8,4,1,2,9,10,2,1,2,11,12,2,1,5,6,3,1,1,1,1,0,1,1,13,0,1,1,13, &
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-integer(kind=iwp), parameter :: TR_WALK  = 1
-integer(kind=iwp), parameter :: TR_OPEN  = 2
-integer(kind=iwp), parameter :: TR_MID   = 4
+integer(kind=iwp), parameter :: TR_WALK = 1
+integer(kind=iwp), parameter :: TR_OPEN = 2
+integer(kind=iwp), parameter :: TR_MID = 4
 integer(kind=iwp), parameter :: TR_CLOSE = 8
-integer(kind=iwp), parameter :: TR_TAIL  = 16
+integer(kind=iwp), parameter :: TR_TAIL = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 !#define _TEST_CSFDET_
 
 ! nPack (cases per integer of the packed walks) comes from CSF_Graph
 
-
-Type (SGStruct), target :: SGS(4)
-Type (CIStruct) :: CIS(4)
-Type (EXStruct) :: EXS(4)
-Logical(kind=iwp) :: State_is_used(4)=.False.
-
+type(SGStruct), target :: SGS(4)
+type(CIStruct) :: CIS(4)
+type(EXStruct) :: EXS(4)
+logical(kind=iwp) :: State_is_used(4) = .false.
 
 ! Sanity checks of the SGUGA tables and coupling coefficients (CI
 ! development); set by the CI interface before the initialization.
@@ -349,7 +347,6 @@ integer(kind=iwp), parameter :: OO_MinN = 4, nOO_Cache = 8192, OO_MaxLev = 127, 
 integer(kind=iwp), allocatable :: OO_Key(:,:)
 real(kind=wp), allocatable :: OO_Val(:)
 
-
 ! The split-graph coupling tables of the triplet operator (TRP_Setup): the
 ! tuples (key, left/right half walk, their symmetries, right midvertex,
 ! value), the half-walk lookup and the work variables of TRP_Gen.
@@ -381,9 +378,9 @@ end interface
 
 contains
 
-subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
-                          nRas,nRasEl,nRsPrt,                     &
-                          xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA,xnRasMx)
+subroutine SG_Init_Light(iState,nSym,nActEl,iSpin, &
+                         nRas,nRasEl,nRsPrt, &
+                         xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA,xnRasMx)
 
   integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt)
@@ -392,27 +389,27 @@ subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
   integer(kind=iwp) :: iSym
 
-  If (State_is_used(iState)) Then
-     Write (u6,*) 'SG_Init_Light: State is already initiated'
-     Write (u6,*) 'iState: ',iState
-     Call abend()
-  End If
+  if (State_is_used(iState)) then
+    write(u6,*) 'SG_Init_Light: State is already initiated'
+    write(u6,*) 'iState: ',iState
+    call abend()
+  end if
 
-  SGS(istate)%IFRAS=0
-  If (nRsPrt==3) SGS(istate)%IFRAS=1
-  Do iSym = 1, nSym
-     If (Sum(nRas(iSym,1:nRsPrt))/=0) SGS(istate)%IFRAS=SGS(istate)%IFRAS+1
-  End Do
-  SGS(istate)%nRasEL(1:nRsPrt)=nRasEl(1:nRsPrt)
-  SGS(istate)%nRas(1:MxSym,1:nRsPrt)=nRas(1:MxSym,1:nRsPrt)
-  SGS(istate)%nRsPrt=nRsPrt
+  SGS(istate)%IFRAS = 0
+  if (nRsPrt == 3) SGS(istate)%IFRAS = 1
+  do iSym=1,nSym
+    if (sum(nRas(iSym,1:nRsPrt)) /= 0) SGS(istate)%IFRAS = SGS(istate)%IFRAS+1
+  end do
+  SGS(istate)%nRasEL(1:nRsPrt) = nRasEl(1:nRsPrt)
+  SGS(istate)%nRas(1:MxSym,1:nRsPrt) = nRas(1:MxSym,1:nRsPrt)
+  SGS(istate)%nRsPrt = nRsPrt
   ! GAS: upper bounds on the electrons in the partitions 1..k
-  SGS(istate)%nRasMx(:)=-1
-  if (present(xnRasMx)) SGS(istate)%nRasMx(1:nRsPrt)=xnRasMx(1:nRsPrt)
+  SGS(istate)%nRasMx(:) = -1
+  if (present(xnRasMx)) SGS(istate)%nRasMx(1:nRsPrt) = xnRasMx(1:nRsPrt)
 
   ! Make sure that we start from a clean slate.
   call SG_Free(istate)
-  State_is_used(iState)=.True.
+  State_is_used(iState) = .true.
 
   if ((nSym < 1) .or. (nSym > 8)) then
     write(u6,*) ' SG_Init_Light: illegal nSym value:',nSym
@@ -427,9 +424,9 @@ subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
     call Abend()
   end if
 
-  SGS(istate)%nSym=nSym
-  SGS(istate)%iSpin=iSpin
-  SGS(istate)%nActEl=nActEl
+  SGS(istate)%nSym = nSym
+  SGS(istate)%iSpin = iSpin
+  SGS(istate)%nActEl = nActEl
 
   if (present(xLevel)) SGS(istate)%Level(:) = xLevel(:)
   if (present(xL2Act)) SGS(istate)%L2Act(:) = xL2Act(:)
@@ -445,17 +442,17 @@ subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
   SGS(istate)%ISM(1:SGS(istate)%nLev) = xNSM(1:SGS(istate)%nLev)
 
   if (present(Do_MkSGUGA)) then
-    if (Do_MkSGUGA) Then
-       call MkSGUGA(SGS(istate),CIS(istate))
+    if (Do_MkSGUGA) then
+      call MkSGUGA(SGS(istate),CIS(istate))
 
-  else
-       SGS(istate)%iSpin = 0
-       SGS(istate)%nActEl = 0
+    else
+      SGS(istate)%iSpin = 0
+      SGS(istate)%nActEl = 0
 
-       ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
-       call mma_allocate(CIS(istate)%NCSF,SGS(istate)%nSym,Label='CIS%NCSF')
-       CIS(istate)%NCSF(:) = 0
-    endif
+      ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
+      call mma_allocate(CIS(istate)%NCSF,SGS(istate)%nSym,Label='CIS%NCSF')
+      CIS(istate)%NCSF(:) = 0
+    end if
   else
     call MkSGUGA(SGS(istate),CIS(istate))
   end if
@@ -467,115 +464,114 @@ end subroutine SG_Init_Light
 subroutine SG_Free(iState)
 ! PURPOSE: FREE THE SGUGA TABLES
 
-integer(kind=iwp), intent(in):: iState
+  integer(kind=iwp), intent(in) :: iState
 
-integer(kind=iwp) :: iOpen, mult, iRefSm
+  integer(kind=iwp) :: iOpen, mult, iRefSm
 
-If (.Not.State_is_used(iState)) Return
-if (ASTA_iState == iState) call ASTA_Free()
-if (TRP_iState == iState) call TRP_Free()
+  if (.not. State_is_used(iState)) return
+  if (ASTA_iState == iState) call ASTA_Free()
+  if (TRP_iState == iState) call TRP_Free()
 
-Associate (SGS=>SGS(iState),CIS=>CIS(iState),EXS=>EXS(iState))
+  associate(SGS => SGS(iState),CIS => CIS(iState),EXS => EXS(iState))
 
-call mma_deallocate(SGS%ISM,safe='*')
-call mma_deallocate(SGS%DRT0,safe='*')
-call mma_deallocate(SGS%DOWN0,safe='*')
-call mma_deallocate(SGS%DRT,safe='*')
-call mma_deallocate(SGS%DOWN,safe='*')
-call mma_deallocate(SGS%UP,safe='*')
-call mma_deallocate(SGS%MAW,safe='*')
-call mma_deallocate(SGS%LTV,safe='*')
-call mma_deallocate(SGS%DAW,safe='*')
-call mma_deallocate(SGS%RAW,safe='*')
-call mma_deallocate(SGS%Ver,safe='*')
+    call mma_deallocate(SGS%ISM,safe='*')
+    call mma_deallocate(SGS%DRT0,safe='*')
+    call mma_deallocate(SGS%DOWN0,safe='*')
+    call mma_deallocate(SGS%DRT,safe='*')
+    call mma_deallocate(SGS%DOWN,safe='*')
+    call mma_deallocate(SGS%UP,safe='*')
+    call mma_deallocate(SGS%MAW,safe='*')
+    call mma_deallocate(SGS%LTV,safe='*')
+    call mma_deallocate(SGS%DAW,safe='*')
+    call mma_deallocate(SGS%RAW,safe='*')
+    call mma_deallocate(SGS%Ver,safe='*')
 
-Call mma_deallocate(SGS%OC,safe='*')
-if (allocated(SGS%CDCInfo)) then
+    call mma_deallocate(SGS%OC,safe='*')
+    if (allocated(SGS%CDCInfo)) then
 
+      do iOpen=lbound(SGS%CDCInfo,1),ubound(SGS%CDCInfo,1)
 
-   do iOpen = lbound(SGS%CDCInfo,1), ubound(SGS%CDCInfo,1)
+        do mult=lbound(SGS%CDCInfo,2),ubound(SGS%CDCInfo,2)
 
-      do mult = lbound(SGS%CDCInfo,2), ubound(SGS%CDCInfo,2)
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOpenOCP,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCP,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%DOC,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOC,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCReverse,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOCSym,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCSym,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCDOC,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCSOC,safe='*')
 
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOpenOCP,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCP,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%DOC,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOC,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCReverse,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOCSym,safe='*')
-         Call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCSym,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCDOC,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCSOC,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%detspin,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%twos,safe='*')
 
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%detspin,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%twos,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%cdc,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%dtoc,safe='*')
+          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%pair,safe='*')
 
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%cdc,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%dtoc,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%pair,safe='*')
+        end do
 
       end do
 
-   end do
+      deallocate(SGS%CDCInfo)
 
-   deallocate(SGS%CDCInfo)
+    end if
 
-endif
+    if (allocated(SGS%SDREO)) then
+      do iRefSm=1,size(SGS%SDREO)
+        call mma_deallocate(SGS%SDREO(iRefSm)%List,Safe='*')
+      end do
+      deallocate(SGS%SDREO)
+    end if
 
-if (allocated(SGS%SDREO)) then
-   do iRefSm = 1, size(SGS%SDREO)
-      call mma_deallocate(SGS%SDREO(iRefSm)%List,Safe='*')
-   end do
-   deallocate(SGS%SDREO)
-end if
+    nullify(SGS%DRTP,SGS%DOWNP)
 
-nullify(SGS%DRTP,SGS%DOWNP)
+    call mma_deallocate(CIS%NOW,safe='*')
+    call mma_deallocate(CIS%IOW,safe='*')
+    call mma_deallocate(CIS%NCSF,safe='*')
+    call mma_deallocate(CIS%NOCSF,safe='*')
+    call mma_deallocate(CIS%IOCSF,safe='*')
+    call mma_deallocate(ME_Blk,safe='*')
+    call mma_deallocate(ME_nBlk,safe='*')
+    call mma_deallocate(ME_HD_Occ,safe='*')
+    call mma_deallocate(ME_HW_Occ,safe='*')
+    call mma_deallocate(OO_Key,safe='*')
+    call mma_deallocate(OO_Val,safe='*')
+    call Reset_MatEl_H()
+    call mma_deallocate(CIS%ICase,safe='*')
+    call mma_deallocate(CIS%VSGM,safe='*')
+    call mma_deallocate(CIS%IVR,safe='*')
+    call mma_deallocate(CIS%ISGM,safe='*')
 
-call mma_deallocate(CIS%NOW,safe='*')
-call mma_deallocate(CIS%IOW,safe='*')
-call mma_deallocate(CIS%NCSF,safe='*')
-call mma_deallocate(CIS%NOCSF,safe='*')
-call mma_deallocate(CIS%IOCSF,safe='*')
-call mma_deallocate(ME_Blk,safe='*')
-call mma_deallocate(ME_nBlk,safe='*')
-call mma_deallocate(ME_HD_Occ,safe='*')
-call mma_deallocate(ME_HW_Occ,safe='*')
-call mma_deallocate(OO_Key,safe='*')
-call mma_deallocate(OO_Val,safe='*')
-call Reset_MatEl_H()
-call mma_deallocate(CIS%ICase,safe='*')
-call mma_deallocate(CIS%VSGM,safe='*')
-call mma_deallocate(CIS%IVR,safe='*')
-call mma_deallocate(CIS%ISGM,safe='*')
+    call mma_deallocate(EXS%NOCP,safe='*')
+    call mma_deallocate(EXS%IOCP,safe='*')
+    call mma_deallocate(EXS%ICoup,safe='*')
+    call mma_deallocate(EXS%IOrd,safe='*')
+    call mma_deallocate(EXS%VTab,safe='*')
+    call mma_deallocate(EXS%SGTMP,safe='*')
+    EXS%Save_Valid = .false.
+    call mma_deallocate(EXS%MVL,safe='*')
+    call mma_deallocate(EXS%MVR,safe='*')
+    call mma_deallocate(EXS%USGN,safe='*')
+    call mma_deallocate(EXS%LSGN,safe='*')
+    EXS%Num_Sym = 0
+    call mma_deallocate(EXS%I1list,safe='*')
+    call mma_deallocate(EXS%I2list,safe='*')
+    call mma_deallocate(EXS%Xlist,safe='*')
 
- call mma_deallocate(EXS%NOCP,safe='*')
- call mma_deallocate(EXS%IOCP,safe='*')
- call mma_deallocate(EXS%ICoup,safe='*')
- call mma_deallocate(EXS%IOrd,safe='*')
- call mma_deallocate(EXS%VTab,safe='*')
- call mma_deallocate(EXS%SGTMP,safe='*')
- EXS%Save_Valid = .false.
- call mma_deallocate(EXS%MVL,safe='*')
- call mma_deallocate(EXS%MVR,safe='*')
- call mma_deallocate(EXS%USGN,safe='*')
- call mma_deallocate(EXS%LSGN,safe='*')
- EXS%Num_Sym = 0
- call mma_deallocate(EXS%I1list,safe='*')
- call mma_deallocate(EXS%I2list,safe='*')
- call mma_deallocate(EXS%Xlist,safe='*')
+  end associate
 
-End Associate
-
-State_is_used(iState)=.False.
+  State_is_used(iState) = .false.
 
 end subroutine SG_Free
 
 !> A new tag for a CI vector (see SG_Epq_Psi, CI_Tag).
 function SG_New_Tag() result(iTag)
-integer(kind=iwp) :: iTag
-SG_Tag_Last = SG_Tag_Last+1
-if (SG_Tag_Last >= huge(SG_Tag_Last)) SG_Tag_Last = 1
-iTag = SG_Tag_Last
+  integer(kind=iwp) :: iTag
+  SG_Tag_Last = SG_Tag_Last+1
+  if (SG_Tag_Last >= huge(SG_Tag_Last)) SG_Tag_Last = 1
+  iTag = SG_Tag_Last
 end function SG_New_Tag
 
 !> The binomial coefficient (n over k), the number of k-subsets of n
@@ -599,81 +595,80 @@ function SG_NUM(SGS,EXS,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
-use Definitions, only: iwp
+  use Definitions, only: iwp
 
-implicit none
-integer(kind=iwp) :: SG_NUM
-type(SGStruct), intent(in) :: SGS
-type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: IWALK(SGS%nLev)
-integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV
+  implicit none
+  integer(kind=iwp) :: SG_NUM
+  type(SGStruct), intent(in) :: SGS
+  type(EXStruct), intent(in) :: EXS
+  integer(kind=iwp), intent(in) :: IWALK(SGS%nLev)
+  integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
 
-MIDV = 1
-do LEV=SGS%nLev,(SGS%MidLev+1),-1
-  ICASE = IWALK(LEV)
-  MIDV = SGS%DOWN(MIDV,ICASE)
-end do
-MIDV = MIDV-SGS%MVSta+1
+  MIDV = 1
+  do LEV=SGS%nLev,(SGS%MidLev+1),-1
+    ICASE = IWALK(LEV)
+    MIDV = SGS%DOWN(MIDV,ICASE)
+  end do
+  MIDV = MIDV-SGS%MVSta+1
 
 ! FIND REVERSE ARC WEIGHT FOR THE UPPER WALK
 
-IRAWSUM = 1
-LV = 1
-do LEV=SGS%nLev,(SGS%MidLev+1),-1
-  IC = IWALK(LEV)
-  LV = SGS%DOWN(LV,IC)
-  IRAWSUM = IRAWSUM+SGS%RAW(LV,IC)
-end do
-IUW = EXS%USGN(IRAWSUM,MIDV)
+  IRAWSUM = 1
+  LV = 1
+  do LEV=SGS%nLev,(SGS%MidLev+1),-1
+    IC = IWALK(LEV)
+    LV = SGS%DOWN(LV,IC)
+    IRAWSUM = IRAWSUM+SGS%RAW(LV,IC)
+  end do
+  IUW = EXS%USGN(IRAWSUM,MIDV)
 
 ! FIND DIRECT ARC WEIGHT FOR THE LOWER WALK
 
-IDAWSUM = 1
-LV = SGS%nVert
-do LEV=1,SGS%MidLev
-  IC = IWALK(LEV)
-  LV = SGS%UP(LV,IC)
-  IDAWSUM = IDAWSUM+SGS%DAW(LV,IC)
-end do
-ICONF = EXS%LSGN(IDAWSUM,MIDV)
+  IDAWSUM = 1
+  LV = SGS%nVert
+  do LEV=1,SGS%MidLev
+    IC = IWALK(LEV)
+    LV = SGS%UP(LV,IC)
+    IDAWSUM = IDAWSUM+SGS%DAW(LV,IC)
+  end do
+  ICONF = EXS%LSGN(IDAWSUM,MIDV)
 
 ! COMPUTE LEXICAL ORDERING NUMBER
 
-SG_NUM = IUW+ICONF
+  SG_NUM = IUW+ICONF
 
 end function SG_NUM
-
 
 function SG_PHASE(SGS,IWALK)
 ! PURPOSE: THE SYMMETRIC GROUP APPROACH AND THE UNITARY GROUP
 !          APPROACH DIFFER IN THE PHASE CONVENTION. FIND THE
 !          PHASE FACTOR RELATING THE CSFS IN EITHER BASIS.
 
-use Definitions, only: iwp
+  use Definitions, only: iwp
 
-implicit none
-integer(kind=iwp) :: SG_PHASE
-type(SGStruct), intent(in) :: SGS
-integer(kind=iwp), intent(in) :: IWALK(SGS%NLEV)
-integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
+  implicit none
+  integer(kind=iwp) :: SG_PHASE
+  type(SGStruct), intent(in) :: SGS
+  integer(kind=iwp), intent(in) :: IWALK(SGS%NLEV)
+  integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
 
-SG_PHASE = 1
-IVERT = SGS%NVERT
-do LEV=1,SGS%NLEV
-  ICASE = IWALK(LEV)
-  IVERT = SGS%UP(IVERT,ICASE)
-  select case (iCase)
-    case (2,3)
-      ISGN = (-1)**SGS%DRT(IVERT,4)
-    case default
-      ISGN = 1
-  end select
-  SG_PHASE = SG_PHASE*ISGN
-end do
+  SG_PHASE = 1
+  IVERT = SGS%NVERT
+  do LEV=1,SGS%NLEV
+    ICASE = IWALK(LEV)
+    IVERT = SGS%UP(IVERT,ICASE)
+    select case (iCase)
+      case (2,3)
+        ISGN = (-1)**SGS%DRT(IVERT,4)
+      case default
+        ISGN = 1
+    end select
+    SG_PHASE = SG_PHASE*ISGN
+  end do
 
 end function SG_PHASE
 
@@ -683,159 +678,159 @@ end function SG_PHASE
 !> located by a binary search over the sorted block offsets ME_Blk.
 subroutine Decode_ME(ISYCI,iCSF,MV,ISYUP,IUP,IDWN)
 
-use Definitions, only: iwp
+  use Definitions, only: iwp
 
-integer(kind=iwp), intent(in)  :: ISYCI, iCSF
-integer(kind=iwp), intent(out) :: MV, ISYUP, IUP, IDWN
-integer(kind=iwp) :: k, iLo, iHi, iMid, ILOC, NUP
+  integer(kind=iwp), intent(in) :: ISYCI, iCSF
+  integer(kind=iwp), intent(out) :: MV, ISYUP, IUP, IDWN
+  integer(kind=iwp) :: k, iLo, iHi, iMid, ILOC, NUP
 
-do k=1,2
-  if ((ME_Dec(1,k) == ISYCI) .and. (ME_Dec(2,k) == iCSF)) then
-    MV = ME_Dec(3,k)
-    ISYUP = ME_Dec(4,k)
-    IUP = ME_Dec(5,k)
-    IDWN = ME_Dec(6,k)
-    ME_DecNext = 3-k
-    return
-  end if
-end do
-if (.not. allocated(ME_Blk)) call Reset_Decode_ME()
+  do k=1,2
+    if ((ME_Dec(1,k) == ISYCI) .and. (ME_Dec(2,k) == iCSF)) then
+      MV = ME_Dec(3,k)
+      ISYUP = ME_Dec(4,k)
+      IUP = ME_Dec(5,k)
+      IDWN = ME_Dec(6,k)
+      ME_DecNext = 3-k
+      return
+    end if
+  end do
+  if (.not. allocated(ME_Blk)) call Reset_Decode_ME()
 ! last block with offset < iCSF
-iLo = 1
-iHi = ME_nBlk(ISYCI)
-if (iHi < 1) call Abend()
-do while (iLo < iHi)
-  iMid = (iLo+iHi+1)/2
-  if (ME_Blk(1,iMid,ISYCI) < iCSF) then
-    iLo = iMid
-  else
-    iHi = iMid-1
-  end if
-end do
-ISYUP = ME_Blk(2,iLo,ISYCI)
-MV = ME_Blk(3,iLo,ISYCI)
-ILOC = iCSF-ME_Blk(1,iLo,ISYCI)
-if ((ILOC < 1) .or. (ILOC > CIS(ME_iState)%NOCSF(ISYUP,MV,ISYCI))) call Abend()
-NUP = CIS(ME_iState)%NOW(1,ISYUP,MV)
-IDWN = (ILOC-1)/NUP+1
-IUP = ILOC-(IDWN-1)*NUP
-k = ME_DecNext
-ME_Dec(:,k) = [ISYCI,iCSF,MV,ISYUP,IUP,IDWN]
-ME_DecNext = 3-k
+  iLo = 1
+  iHi = ME_nBlk(ISYCI)
+  if (iHi < 1) call Abend()
+  do while (iLo < iHi)
+    iMid = (iLo+iHi+1)/2
+    if (ME_Blk(1,iMid,ISYCI) < iCSF) then
+      iLo = iMid
+    else
+      iHi = iMid-1
+    end if
+  end do
+  ISYUP = ME_Blk(2,iLo,ISYCI)
+  MV = ME_Blk(3,iLo,ISYCI)
+  ILOC = iCSF-ME_Blk(1,iLo,ISYCI)
+  if ((ILOC < 1) .or. (ILOC > CIS(ME_iState)%NOCSF(ISYUP,MV,ISYCI))) call Abend()
+  NUP = CIS(ME_iState)%NOW(1,ISYUP,MV)
+  IDWN = (ILOC-1)/NUP+1
+  IUP = ILOC-(IDWN-1)*NUP
+  k = ME_DecNext
+  ME_Dec(:,k) = [ISYCI,iCSF,MV,ISYUP,IUP,IDWN]
+  ME_DecNext = 3-k
 
 end subroutine Decode_ME
 
 !> Forget the decoded CSFs and rebuild ME_Blk for CIS(ME_iState).
 subroutine Reset_Decode_ME()
 
-integer(kind=iwp) :: nSy, nMV, ISYC, ISYU, MV, n, k, Tmp(3)
+  integer(kind=iwp) :: nSy, nMV, ISYC, ISYU, MV, n, k, Tmp(3)
 
-ME_Dec(:,:) = 0
-ME_DecNext = 1
-call Reset_MatEl_H()
-if (allocated(OO_Key)) OO_Key(4,:) = 0
-call mma_deallocate(ME_Blk,safe='*')
-call mma_deallocate(ME_nBlk,safe='*')
-if (.not. allocated(CIS(ME_iState)%NOCSF)) return
-nSy = size(CIS(ME_iState)%NOCSF,1)
-nMV = CIS(ME_iState)%nMidV
-call mma_allocate(ME_Blk,3,max(1,nSy*nMV),size(CIS(ME_iState)%NOCSF,3),Label='ME_Blk')
-call mma_allocate(ME_nBlk,size(CIS(ME_iState)%NOCSF,3),Label='ME_nBlk')
-do ISYC=1,size(CIS(ME_iState)%NOCSF,3)
-  n = 0
-  do MV=1,nMV
-    do ISYU=1,nSy
-      if (CIS(ME_iState)%NOCSF(ISYU,MV,ISYC) <= 0) cycle
-      n = n+1
-      ME_Blk(:,n,ISYC) = [CIS(ME_iState)%IOCSF(ISYU,MV,ISYC),ISYU,MV]
-      ! insertion sort by offset
-      k = n
-      do while (k > 1)
-        if (ME_Blk(1,k-1,ISYC) <= ME_Blk(1,k,ISYC)) exit
-        Tmp(:) = ME_Blk(:,k,ISYC)
-        ME_Blk(:,k,ISYC) = ME_Blk(:,k-1,ISYC)
-        ME_Blk(:,k-1,ISYC) = Tmp(:)
-        k = k-1
+  ME_Dec(:,:) = 0
+  ME_DecNext = 1
+  call Reset_MatEl_H()
+  if (allocated(OO_Key)) OO_Key(4,:) = 0
+  call mma_deallocate(ME_Blk,safe='*')
+  call mma_deallocate(ME_nBlk,safe='*')
+  if (.not. allocated(CIS(ME_iState)%NOCSF)) return
+  nSy = size(CIS(ME_iState)%NOCSF,1)
+  nMV = CIS(ME_iState)%nMidV
+  call mma_allocate(ME_Blk,3,max(1,nSy*nMV),size(CIS(ME_iState)%NOCSF,3),Label='ME_Blk')
+  call mma_allocate(ME_nBlk,size(CIS(ME_iState)%NOCSF,3),Label='ME_nBlk')
+  do ISYC=1,size(CIS(ME_iState)%NOCSF,3)
+    n = 0
+    do MV=1,nMV
+      do ISYU=1,nSy
+        if (CIS(ME_iState)%NOCSF(ISYU,MV,ISYC) <= 0) cycle
+        n = n+1
+        ME_Blk(:,n,ISYC) = [CIS(ME_iState)%IOCSF(ISYU,MV,ISYC),ISYU,MV]
+        ! insertion sort by offset
+        k = n
+        do while (k > 1)
+          if (ME_Blk(1,k-1,ISYC) <= ME_Blk(1,k,ISYC)) exit
+          Tmp(:) = ME_Blk(:,k,ISYC)
+          ME_Blk(:,k,ISYC) = ME_Blk(:,k-1,ISYC)
+          ME_Blk(:,k-1,ISYC) = Tmp(:)
+          k = k-1
+        end do
       end do
     end do
+    ME_nBlk(ISYC) = n
   end do
-  ME_nBlk(ISYC) = n
-end do
 
 end subroutine Reset_Decode_ME
 
 !> Invalidate the occupation-only parts kept by MatEl_H_Direct.
 subroutine Reset_MatEl_H()
-ME_HD_Valid = .false.
-ME_HW_Valid = .false.
+  ME_HD_Valid = .false.
+  ME_HW_Valid = .false.
 end subroutine Reset_MatEl_H
 
 subroutine Keep_Occ(Kept,Occ,nL)
-integer(kind=iwp), allocatable, intent(inout) :: Kept(:)
-integer(kind=iwp), intent(in) :: Occ(:), nL
-if (allocated(Kept)) then
-  if (size(Kept) < nL) call mma_deallocate(Kept)
-end if
-if (.not. allocated(Kept)) call mma_allocate(Kept,nL,Label='ME_H_Occ')
-Kept(1:nL) = Occ(1:nL)
+  integer(kind=iwp), allocatable, intent(inout) :: Kept(:)
+  integer(kind=iwp), intent(in) :: Occ(:), nL
+  if (allocated(Kept)) then
+    if (size(Kept) < nL) call mma_deallocate(Kept)
+  end if
+  if (.not. allocated(Kept)) call mma_allocate(Kept,nL,Label='ME_H_Occ')
+  Kept(1:nL) = Occ(1:nL)
 end subroutine Keep_Occ
 
 subroutine Decode_CSF( &
-           CIS,ISYCI, &
-           iCSF, &
-           MV,ISYUP,IUP,IDWN )
+  CIS,ISYCI, &
+  iCSF, &
+  MV,ISYUP,IUP,IDWN)
 
-use Definitions, only: iwp,u6
+  use Definitions, only: iwp, u6
 
-type(CIStruct), intent(in) :: CIS
+  type(CIStruct), intent(in) :: CIS
 
-integer(kind=iwp), intent(in)  :: ISYCI
-integer(kind=iwp), intent(in)  :: iCSF
+  integer(kind=iwp), intent(in) :: ISYCI
+  integer(kind=iwp), intent(in) :: iCSF
 
-integer(kind=iwp), intent(out) :: MV
-integer(kind=iwp), intent(out) :: ISYUP
-integer(kind=iwp), intent(out) :: IUP
-integer(kind=iwp), intent(out) :: IDWN
+  integer(kind=iwp), intent(out) :: MV
+  integer(kind=iwp), intent(out) :: ISYUP
+  integer(kind=iwp), intent(out) :: IUP
+  integer(kind=iwp), intent(out) :: IDWN
 
-integer(kind=iwp) :: IOFF
-integer(kind=iwp) :: NCI
-integer(kind=iwp) :: NUP
-integer(kind=iwp) :: ILOC
+  integer(kind=iwp) :: IOFF
+  integer(kind=iwp) :: NCI
+  integer(kind=iwp) :: NUP
+  integer(kind=iwp) :: ILOC
 
-do MV=1,CIS%nMidV
+  do MV=1,CIS%nMidV
 
-   do ISYUP=1,size(CIS%NOCSF,1)
+    do ISYUP=1,size(CIS%NOCSF,1)
 
       IOFF = CIS%IOCSF(ISYUP,MV,ISYCI)
-      NCI  = CIS%NOCSF(ISYUP,MV,ISYCI)
+      NCI = CIS%NOCSF(ISYUP,MV,ISYCI)
 
       ! CSF iCSF lies in this (MV,ISYUP) block
       if ((NCI > 0) .and. (iCSF > IOFF) .and. (iCSF <= IOFF+NCI)) then
 
-         ILOC = iCSF-IOFF
+        ILOC = iCSF-IOFF
 
-         NUP = CIS%NOW(1,ISYUP,MV)
+        NUP = CIS%NOW(1,ISYUP,MV)
 
-         IDWN = (ILOC-1)/NUP + 1
-         IUP  = ILOC - (IDWN-1)*NUP
+        IDWN = (ILOC-1)/NUP+1
+        IUP = ILOC-(IDWN-1)*NUP
 
-         return
+        return
 
       end if
 
-   end do
+    end do
 
-end do
+  end do
 
-write(u6,*) 'Decode_CSF failed'
-write(u6,*) 'iCSF=',iCSF
-call Abend()
+  write(u6,*) 'Decode_CSF failed'
+  write(u6,*) 'iCSF=',iCSF
+  call Abend()
 
 end subroutine Decode_CSF
 
 subroutine MK_FLAT_Epq(SGS)
-integer(kind=iwp) p, q, iSym
-type(SGStruct), intent(inout) :: SGS
+  integer(kind=iwp) p, q, iSym
+  type(SGStruct), intent(inout) :: SGS
 
 ! The purpose of this routine is to remove all the logic from sg_Epq_Psi.
 ! We note that there are two modes in which the routine is used:
@@ -844,17 +839,16 @@ type(SGStruct), intent(inout) :: SGS
 ! This results in two different sequences of calls, due to different logic.
 ! We have to set up flat tables corresponding to both of these cases.
 ! ToDo: Develop this further.
-Return
-Do iSym = 1, SGS%nSym
-Do p = 1, SGS%nLev
-Do q = 1, SGS%nLev
+  return
+  do iSym=1,SGS%nSym
+    do p=1,SGS%nLev
+      do q=1,SGS%nLev
 
-End Do
-End Do
-End Do
+      end do
+    end do
+  end do
 
 end subroutine MK_FLAT_Epq
-
 
 ! PURPOSE: A SPIN-COUPLED CSF IS SPECIFIED BY NCL CLOSED SHELL
 !          AND NOP OPEN SHELL AND OCCUPATION VECTORS ICL AND IOP,
@@ -863,36 +857,36 @@ end subroutine MK_FLAT_Epq
 !          CORRESPONDING STEP VECTOR.
 subroutine STEPVEC(ICL,IOP,NCL,NOP,ISPIN,NORB,IWALK)
 
-use Definitions, only: iwp
+  use Definitions, only: iwp
 
-implicit none
+  implicit none
 
-integer(iwp), intent(in)  :: NCL, NOP, NORB
-integer(iwp), intent(in)  :: ICL(NCL), IOP(NOP)
-integer(iwp), intent(in)  :: ISPIN(NOP)
-integer(iwp), intent(out) :: IWALK(NORB)
+  integer(iwp), intent(in) :: NCL, NOP, NORB
+  integer(iwp), intent(in) :: ICL(NCL), IOP(NOP)
+  integer(iwp), intent(in) :: ISPIN(NOP)
+  integer(iwp), intent(out) :: IWALK(NORB)
 
-integer(iwp) :: iClosed, iOpen
+  integer(iwp) :: iClosed, iOpen
 !
 !  Start from an empty occupation pattern
 !
-IWALK(:) = 0
+  IWALK(:) = 0
 !
 !  Mark doubly occupied orbitals
 !
-do iClosed=1,NCL
-   IWALK(ICL(iClosed)) = 3
-enddo
+  do iClosed=1,NCL
+    IWALK(ICL(iClosed)) = 3
+  end do
 !
 !  Mark singly occupied orbitals
 !
-do iOpen=1,NOP
-   if (ISPIN(iOpen) == 1) then
+  do iOpen=1,NOP
+    if (ISPIN(iOpen) == 1) then
       IWALK(IOP(iOpen)) = 1
-   else
+    else
       IWALK(IOP(iOpen)) = 2
-   endif
-enddo
+    end if
+  end do
 
 end subroutine STEPVEC
 
@@ -914,20 +908,20 @@ end function Tri_SG
 ! integer. Same layout as read in the diagonal case of MatEl_Epq.
 !
 subroutine CSF_Occupation(ISY,I,OccVec)
-  integer(kind=iwp), intent(in)  :: ISY, I
+  integer(kind=iwp), intent(in) :: ISY, I
   integer(kind=iwp), intent(out) :: OccVec(:)
   integer(kind=iwp) :: MV, ISYU, ISYD, IUP, IDN, iLev, IOW0, IPSHFT, IC, ICS
   call Decode_ME(ISY,I,MV,ISYU,IUP,IDN)
   ISYD = Mul(ISY,ISYU)
-  do iLev = 1, SGS(ME_iState)%nLev
+  do iLev=1,SGS(ME_iState)%nLev
     if (iLev > SGS(ME_iState)%MidLev) then
-      IOW0   = CIS(ME_iState)%IOW(1,ISYU,MV)
+      IOW0 = CIS(ME_iState)%IOW(1,ISYU,MV)
       IPSHFT = 2*(iLev-1-SGS(ME_iState)%MidLev)
-      IC     = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*nPack)+IUP*CIS(ME_iState)%nIpWlk)
+      IC = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*nPack)+IUP*CIS(ME_iState)%nIpWlk)
     else
-      IOW0   = CIS(ME_iState)%IOW(2,ISYD,MV)
+      IOW0 = CIS(ME_iState)%IOW(2,ISYD,MV)
       IPSHFT = 2*(iLev-1)
-      IC     = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*nPack)+IDN*CIS(ME_iState)%nIpWlk)
+      IC = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*nPack)+IDN*CIS(ME_iState)%nIpWlk)
     end if
     IPSHFT = mod(IPSHFT,2*nPack)
     ICS = mod(IC/2**IPSHFT,4)

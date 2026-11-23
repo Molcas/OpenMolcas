@@ -39,7 +39,7 @@ public :: SG_Mk_SDREO
 public :: test_sg_csfdet
 #endif
 public :: nPack
-Public:: SGS, CIS, EXS, State_is_used
+public :: SGS, CIS, EXS, State_is_used
 public :: SG_Checks
 public :: SG_New_Tag, SG_No_Reuse
 public :: SG_CSF_Occ, SG_MatEl_H, SG_MatEl_Init, SG_Level_Map, SG_Level_Ints
