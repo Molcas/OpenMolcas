@@ -28,8 +28,8 @@ private
 
 logical(kind=iwp) :: Initialized = .false.
 
-public :: MCLR_Lucia_Close, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, MCLR_Lucia_Init, MCLR_Lucia_PSpace, &
-          MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
+public :: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, &
+          MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_PSpace, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 
 contains
 
@@ -177,26 +177,25 @@ subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Hav
 
 end subroutine MCLR_Lucia_Sigma
 
-!> sigma = H C with the active integrals of CI_Lib_Sigma (TU, TUVX; see
-!> there). The copy of Lucia addresses the one-body integrals over all
-!> orbitals (square symmetry blocks (iS,Mul(iS,iOp)), nOrb(iS) x
-!> nOrb(Mul(iS,iOp)), Int1_Offsets), so TU is expanded into these blocks,
-!> zero outside the active part; TUVX is used as it is.
-subroutine MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+!> The one-body integrals of CI_Lib_Sigma (TU, active, symmetry order; for
+!> Square the full square matrix, otherwise the triangle) as the copy of
+!> Lucia addresses them: over all orbitals in square symmetry blocks
+!> (iS,Mul(iS,iOp)), nOrb(iS) x nOrb(Mul(iS,iOp)) (Int1_Offsets), zero
+!> outside the active part. Int1 is allocated here (nInt1 >= 1).
+subroutine Expand_TU(iOp,Square,nTU,TU,nInt1,Int1)
   use Symmetry_Info, only: Mul
   use MCLR_Lucia_Data, only: L_nAsh, L_nIsh, L_nOrb, L_nSym
   use Index_Functions, only: iTri
-  use stdalloc, only: mma_allocate, mma_deallocate
+  use stdalloc, only: mma_allocate
   use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
-  logical(kind=iwp), intent(in) :: Square, Have_2_el
-  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
-  real(kind=wp), intent(out) :: S(nS)
-  integer(kind=iwp) :: iOff(8), iOp, iS, it, iu, jS, nA, nAOff(8), nInt1, t, u
-  real(kind=wp), allocatable, target :: Int1(:)
+  integer(kind=iwp), intent(in) :: iOp, nTU
+  logical(kind=iwp), intent(in) :: Square
+  real(kind=wp), intent(in) :: TU(nTU)
+  integer(kind=iwp), intent(out) :: nInt1
+  real(kind=wp), allocatable, intent(inout) :: Int1(:)
+  integer(kind=iwp) :: iOff(8), iS, it, iu, jS, nA, nAOff(8), t, u
   iOff(:) = 0
   nAOff(:) = 0
-  iOp = Mul(iCSym,iSSym)
   nA = 0
   nInt1 = 0
   do iS=1,L_nSym
@@ -210,7 +209,8 @@ subroutine MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,
   else
     if (nTU < iTri(nA,nA)) call Abend()
   end if
-  call mma_allocate(Int1,max(1,nInt1),Label='Int1')
+  nInt1 = max(1,nInt1)
+  call mma_allocate(Int1,nInt1,Label='Int1')
   Int1(:) = Zero
   do iS=1,L_nSym
     jS = Mul(iS,iOp)
@@ -226,9 +226,156 @@ subroutine MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,
       end do
     end do
   end do
-  call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,max(1,nInt1),Int1,nTUVX,TUVX,Have_2_el,Square,nC,C,nS,S)
+end subroutine Expand_TU
+
+!> sigma = H C with the active integrals of CI_Lib_Sigma (TU, TUVX; see
+!> there): TU expanded by Expand_TU, TUVX used as it is
+subroutine MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  use Symmetry_Info, only: Mul
+  use stdalloc, only: mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
+  real(kind=wp), intent(out) :: S(nS)
+  integer(kind=iwp) :: nInt1
+  real(kind=wp), allocatable, target :: Int1(:)
+  call Expand_TU(Mul(iCSym,iSSym),Square,nTU,TU,nInt1,Int1)
+  call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nTUVX,TUVX,Have_2_el,Square,nC,C,nS,S)
   call mma_deallocate(Int1)
 end subroutine MCLR_Lucia_Sigma_Act
+
+!> The number of configurations of symmetry iSym in the CSF basis of the
+!> copy of Lucia (CI_Lib_nCnf)
+function MCLR_Lucia_nCnf(iState,iSym) result(nCnf)
+  use MCLR_Lucia_Data, only: NCNFTP, NTYP
+  integer(kind=iwp), intent(in) :: iState, iSym
+  integer(kind=iwp) :: nCnf
+#include "macros.fh"
+  unused_var(iState)
+  nCnf = sum(NCNFTP(1:NTYP,iSym))
+end function MCLR_Lucia_nCnf
+
+!> The configurations of symmetry iSym in the CSF basis of the copy of
+!> Lucia (CI_Lib_Cnf_Layout): by open-shell type, within each type in the
+!> order of the configuration list; the CSFs of a configuration are
+!> consecutive. nCSFCnf(i): the CSFs of configuration i; iCSFCnf: the CSF
+!> indices, configuration by configuration.
+subroutine MCLR_Lucia_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
+  use MCLR_Lucia_Data, only: NCNFTP, NCSFTP, NTYP
+  integer(kind=iwp), intent(in) :: iState, iSym, nCnf, n
+  integer(kind=iwp), intent(out) :: nCSFCnf(nCnf), iCSFCnf(n)
+  integer(kind=iwp) :: i, iCnf, iTyp, k
+#include "macros.fh"
+  unused_var(iState)
+  iCnf = 0
+  do iTyp=1,NTYP
+    do i=1,NCNFTP(iTyp,iSym)
+      iCnf = iCnf+1
+      if (iCnf > nCnf) call Abend()
+      nCSFCnf(iCnf) = NCSFTP(iTyp)
+    end do
+  end do
+  if ((iCnf /= nCnf) .or. (sum(nCSFCnf(:)) /= n)) then
+    write(u6,'(A,4I9)') ' MCLR_Lucia_Cnf_Layout: configurations and CSFs',iCnf,nCnf,sum(nCSFCnf(:)),n
+    call Abend()
+  end if
+  do k=1,n
+    iCSFCnf(k) = k
+  end do
+end subroutine MCLR_Lucia_Cnf_Layout
+
+!> The block of H (CI_Lib_Block) over the CSFs of the configurations
+!> IPC(1:nPC) (indices in the order of MCLR_Lucia_Cnf_Layout) of symmetry
+!> iSym, for the totally symmetric operator of CI_Lib_Sigma (TU, TUVX):
+!> IdxP(1:nP) their CSFs, configuration by configuration in the order of
+!> IPC; HP(iTri(i,j)) = <IdxP(i)|H|IdxP(j)> + ECore delta_ij.
+subroutine MCLR_Lucia_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
+  use Str_Info, only: CNSM, DFTP, DTOC
+  use MCLR_Lucia_Data, only: IDC, KAIN1, KINT2, NACOB, NAELCI, NBELCI, NCNFTP, NCSFTP, NDPCNT, NTYP, pInt1, PSSIGN
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nPMax, nHP
+  real(kind=wp), intent(in) :: TU(nTU), ECore
+  real(kind=wp), target, intent(in) :: TUVX(nTUVX)
+  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+  real(kind=wp), intent(out) :: HP(nHP)
+  integer(kind=iwp) :: i, iCnf, iComb, iEaw, iTyp, j, k, lScr, MxCSFC, MxDTFC, nActEl, nCnf, nInt1
+  real(kind=wp) :: PSign
+  integer(kind=iwp), allocatable :: iOffCnf(:), nCSFCnf(:)
+  real(kind=wp), allocatable :: Scr(:)
+  real(kind=wp), allocatable, target :: Int1(:)
+#include "macros.fh"
+  unused_var(iState)
+  call Use_Syms(iSym,iSym)
+  ! the configuration tables: slot 1 for the symmetry of the CI state,
+  ! slot 2 for the other one in use (InCsfSD)
+  if (iSym == L_STSym) then
+    iEaw = 1
+  else
+    iEaw = 2
+  end if
+  ! first CSF and CSFs of each configuration
+  nCnf = sum(NCNFTP(1:NTYP,iSym))
+  call mma_allocate(iOffCnf,max(1,nCnf),Label='iOffCnf')
+  call mma_allocate(nCSFCnf,max(1,nCnf),Label='nCSFCnf')
+  iCnf = 0
+  k = 0
+  do iTyp=1,NTYP
+    do i=1,NCNFTP(iTyp,iSym)
+      iCnf = iCnf+1
+      iOffCnf(iCnf) = k
+      nCSFCnf(iCnf) = NCSFTP(iTyp)
+      k = k+NCSFTP(iTyp)
+    end do
+  end do
+  nP = 0
+  do i=1,nPC
+    if ((IPC(i) < 1) .or. (IPC(i) > nCnf)) then
+      write(u6,'(A,2I9)') ' MCLR_Lucia_Block: configuration out of range',IPC(i),nCnf
+      call Abend()
+    end if
+    if (nP+nCSFCnf(IPC(i)) > nPMax) then
+      write(u6,'(A,2I9)') ' MCLR_Lucia_Block: more CSFs than nPMax',nP+nCSFCnf(IPC(i)),nPMax
+      call Abend()
+    end if
+    do j=1,nCSFCnf(IPC(i))
+      IdxP(nP+j) = iOffCnf(IPC(i))+j
+    end do
+    nP = nP+nCSFCnf(IPC(i))
+  end do
+  call mma_deallocate(nCSFCnf)
+  call mma_deallocate(iOffCnf)
+  if (nHP < nTri_Elem(nP)) call Abend()
+  HP(:) = Zero
+  if (nP == 0) return
+  ! spin combinations as in H0MAT_MCLR
+  if (IDC == 1) then
+    iComb = 0
+    PSign = Zero
+  else
+    iComb = 1
+    PSign = PSSIGN
+  end if
+  ! the integrals of the totally symmetric Hamiltonian
+  call Expand_TU(1,.false.,nTU,TU,nInt1,Int1)
+  KAIN1(1:nInt1) => Int1(:)
+  KINT2(1:nTUVX) => TUVX(:)
+  call Int1_Offsets(1,pInt1)
+  ! scratch of CNHCNM (its header)
+  MxCSFC = max(0,maxval(NCSFTP(1:NTYP)))
+  MxDTFC = max(0,maxval(NDPCNT(1:NTYP)))
+  nActEl = NAELCI(1)+NBELCI(1)
+  lScr = MxCSFC**2+2*MxDTFC+MxDTFC**2+MxDTFC+MxCSFC+max(MxDTFC*nActEl+2*nActEl,4*NACOB+2*nActEl)
+  call mma_allocate(Scr,lScr,Label='Scr')
+  call CNHCNM(HP,1,IPC,nPC,IPC,nPC,nP,Scr,CNSM(iEaw)%ICONF,nActEl,iSym,NAELCI(1),NBELCI(1),NACOB,DFTP,DTOC,1,iComb,PSign)
+  call mma_deallocate(Scr)
+  nullify(KAIN1,KINT2)
+  call mma_deallocate(Int1)
+  do i=1,nP
+    HP(nTri_Elem(i)) = HP(nTri_Elem(i))+ECore
+  end do
+end subroutine MCLR_Lucia_Block
 
 !> Transition densities between L and R (TDens_Proc of CI_Operations)
 subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
