@@ -25,19 +25,15 @@
 !>  - CI_Lib_Dens: the 1- and 2-particle (transition) densities between
 !>    two CI vectors, the same one allowed, spin-free or spin (layout in the
 !>    comment of the routine).
-!>  - CI_Diag: the diagonal of H + ECore (ECore added to every element) in
-!>    the CSF basis of symmetry iSym, for the symmetric active Hamiltonian;
-!>    Int1: the one-body integrals over all orbitals in square symmetry
-!>    blocks (MCLR's layout; only the active part is used), Int2 as TUVX of
-!>    CI_Lib_Sigma (old name of CI_Lib_Diag, until MCLR has switched).
-!>    Mode = CI_Diag_Cnf_Avg: averaged over the CSFs of each configuration
-!>    (Lucia's CSDIAG); CI_Diag_Exact: the exact CSF diagonal.
-!>  - CI_PSpace: the explicit part of the Hamiltonian for the
-!>    preconditioner: a P space of at most nPMax CSFs of symmetry iSym,
-!>    selected by the library from the diagonal Diag (lowest first, complete
-!>    configurations), its nP CSF indices IdxP and the block of H (plus
-!>    ECore on the diagonal, as Diag) packed as a lower triangle, HP(iTri(i,j))
-!>    = <IdxP(i)|H|IdxP(j)>; Int1 and Int2 as for CI_Diag.
+!>  - CI_Lib_Diag: the diagonal of H + ECore, configuration average or
+!>    exact.
+!>  - CI_Lib_nCnf, CI_Lib_Cnf_Layout: the configurations of a symmetry in
+!>    the library's own order and their CSFs.
+!>  - CI_Lib_Block: the explicit block of H + ECore for configurations
+!>    chosen by the caller; CI_Lib_PSpace: the P space of the
+!>    preconditioner (the configurations chosen from the diagonal by one
+!>    rule for every library), then its block.
+!>    (Integrals of all of them: those of CI_Lib_Sigma.)
 !>  - CI_Lib_Dets_To_Basis: a vector of nD determinants DetVec (IdxD: their
 !>    indices in the determinant space of the library) into the CSF basis
 !>    of symmetry iSym (used for CI vectors reconstructed from DMRG).
@@ -90,10 +86,10 @@ private
 integer(kind=iwp) :: Faro_Cur = 0, Faro_MaxEl(3) = 0, Faro_MinEl(3) = 0, Faro_nAct = 0, Faro_nPrt = 0, Faro_Sym = 0
 integer(kind=iwp), allocatable :: Faro_Lev(:), Faro_OrbRas(:), Faro_OrbSym(:)
 
-public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
+public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSpace, CI_Lib_Select, &
-          CI_Lib_SGUGA, CI_Lib_Sigma, CI_PSpace, CI_To_Basis, CI_To_File
+          CI_Lib_SGUGA, CI_Lib_Sigma, CI_To_Basis, CI_To_File
 
 contains
 
@@ -251,31 +247,6 @@ subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   call MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
 end subroutine CI_Lib_Dens
 
-subroutine CI_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
-  use Orbital_Spaces, only: nAsh, nSym
-  use Index_Functions, only: nTri_Elem
-  use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
-  real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
-  real(kind=wp), intent(in) :: ECore
-  real(kind=wp), intent(out) :: Diag(n)
-  integer(kind=iwp) :: nTU, nTUVX
-  real(kind=wp), allocatable :: TU(:), TUVX(:)
-  if (CI_Lib == CI_Lib_MCLR_Lucia) then
-    call Check_Diag_Mode('CI_Diag',Mode)
-    call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
-    return
-  end if
-  nTU = nTri_Elem(sum(nAsh(1:nSym)))
-  nTUVX = nTri_Elem(nTU)
-  call mma_allocate(TU,nTU,Label='TU')
-  call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
-  call CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
-  call mma_deallocate(TUVX)
-  call mma_deallocate(TU)
-end subroutine CI_Diag
-
 !> The diagonal of H + ECore (ECore added to every element) in the CSF
 !> basis of symmetry iSym (n = nCSF(iSym)) of the selected library, for
 !> the active Hamiltonian of total symmetry with the integrals of
@@ -310,32 +281,6 @@ subroutine Check_Diag_Mode(Caller,Mode)
     call Abend()
   end if
 end subroutine Check_Diag_Mode
-
-subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
-  use Orbital_Spaces, only: nAsh, nSym
-  use Index_Functions, only: nTri_Elem
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP
-  real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
-  real(kind=wp), intent(in) :: Diag(n)
-  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
-  real(kind=wp), intent(out) :: HP(nHP)
-  integer(kind=iwp) :: nTU, nTUVX
-  real(kind=wp), allocatable :: TU(:), TUVX(:)
-  if (CI_Lib == CI_Lib_MCLR_Lucia) then
-    call MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
-    return
-  end if
-  nTU = nTri_Elem(sum(nAsh(1:nSym)))
-  nTUVX = nTri_Elem(nTU)
-  call mma_allocate(TU,nTU,Label='TU')
-  call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
-  call CI_Lib_PSpace(iState,iSym,nTU,TU,nTUVX,TUVX,Zero,n,Diag,nPMax,nP,IdxP,nHP,HP)
-  call mma_deallocate(TUVX)
-  call mma_deallocate(TU)
-end subroutine CI_PSpace
 
 !> The number of configurations of symmetry iSym of the CI state iState in
 !> the library's own configuration order (CI_Lib_Cnf_Layout)
@@ -629,61 +574,6 @@ subroutine Not_Yet(Caller,What)
   write(u6,'(1X,A,A,A)') Caller,': not available with this CI library yet: ',What
   call Abend()
 end subroutine Not_Yet
-
-!> The active integrals for SGUGA, for an operator of symmetry iOp: the
-!> active part of Int1 (square blocks (iS,Mul(iS,iOp)), nOrb(iS) x
-!> nOrb(jS), one after the other in the order of iS) packed triangularly
-!> and Int2 (zero without two-body part), both over the symmetry-ordered
-!> active orbitals. The SGUGA sigma and diagonal routines
-!> map them to the levels themselves (do not map them here).
-subroutine SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
-  use Symmetry_Info, only: Mul
-  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
-  use Index_Functions, only: iTri, nTri_Elem
-  use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, iOp, nInt1, nInt2, nTU, nTUVX
-  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
-  logical(kind=iwp), intent(in) :: Have_2_el
-  real(kind=wp), intent(out) :: TU(nTU), TUVX(nTUVX)
-  integer(kind=iwp) :: iOff(8), iS, it, iu, jS, nAOff(8), nAct
-#include "macros.fh"
-  unused_var(iState)
-  iOff(:) = 0
-  nAOff(:) = 0
-  TU(:) = Zero
-  ! offsets of the Int1 blocks (iS,Mul(iS,iOp)) and of the active orbitals
-  iOff(:) = 0
-  nAOff(:) = 0
-  nAct = 0
-  do iS=1,nSym
-    jS = Mul(iS,iOp)
-    if (iS == 1) then
-      iOff(iS) = 0
-    else
-      iOff(iS) = iOff(iS-1)+nOrb(iS-1)*nOrb(Mul(iS-1,iOp))
-    end if
-    nAOff(iS) = nAct
-    nAct = nAct+nAsh(iS)
-  end do
-  if (iOff(nSym)+nOrb(nSym)*nOrb(Mul(nSym,iOp)) > nInt1) call Abend()
-  do iS=1,nSym
-    jS = Mul(iS,iOp)
-    ! element (t,u), t of symmetry iS, u of symmetry jS (Hermitian: once)
-    do iu=1,nAsh(jS)
-      do it=1,nAsh(iS)
-        if (nAOff(iS)+it < nAOff(jS)+iu) cycle
-        TU(iTri(nAOff(iS)+it,nAOff(jS)+iu)) = Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it)
-      end do
-    end do
-  end do
-  if (Have_2_el) then
-    if (nInt2 < nTUVX) call Abend()
-    TUVX(:) = Int2(1:nTUVX)
-  else
-    TUVX(:) = Zero
-  end if
-  if (nTU /= nTri_Elem(nAct)) call Abend()
-end subroutine SG_Ints
 
 !> SGUGA: sigma for a singlet operator (CI_Lib_Sigma; TU, TUVX in its
 !> layout)
