@@ -87,10 +87,26 @@ integer(kind=iwp), allocatable :: Faro_MaxEl(:), Faro_MinEl(:), Faro_OrbRas(:), 
 !> (public, read-only: the level map for the programs' Faroald paths)
 integer(kind=iwp), allocatable, protected :: Faro_Lev(:)
 
+! GAS: SGUGA evaluates products of excitation operators (H, 2-RDM, spin and
+! transition densities, diagonal, explicit block) in the relaxed space of
+! the state (CI_St(iState)%iRel, see SG_Rel_State), which holds all their
+! intermediate states; Rel_Map(LSM)%M(I) is the index there of the CSF I of
+! symmetry LSM (SG_Rel_Map).
+type Rel_Map_Type
+  integer(kind=iwp), allocatable :: M(:)
+end type Rel_Map_Type
+type(Rel_Map_Type) :: Rel_Map(8)
+
+! RASSCF's Lucia: the determinant scratch of its sigma (Lucia1_Sigma)
+real(kind=wp), allocatable :: Lucia1_C(:), Lucia1_S(:)
+! Faroald: its string-driven sigma checked once against the full space
+logical(kind=iwp) :: Faro_RAS_Verified = .false.
+
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSpace, CI_Lib_Select, &
-          CI_Lib_SGUGA, CI_Lib_Sigma, CI_To_Basis, CI_To_File, Faro_Lev
+          CI_Lib_SGUGA, CI_Lib_Sigma, CI_To_Basis, CI_To_File, Faro_Lev, Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, &
+          SG_Rel_Map, SG_Rel_Project
 
 contains
 
@@ -132,6 +148,7 @@ subroutine CI_Lib_Close(iState)
     call SG_Densities_Free()
   end if
   if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
+  if (CI_Lib == CI_Lib_Lucia) call Lucia1_Free()
 end subroutine CI_Lib_Close
 
 !> S = H C (S is overwritten, never accumulated) for the CI state iState
@@ -185,10 +202,62 @@ subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX
       call Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
     case (CI_Lib_MCLR_Lucia)
       call MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+    case (CI_Lib_Lucia)
+      if ((iOpSpin /= 0) .or. Square .or. (.not. Have_2_el) .or. (iCSym /= iSSym) .or. (iCSym /= CI_St(iState)%STSym)) &
+        call Not_Yet('CI_Lib_Sigma','RASSCF''s Lucia for other operators than H in the symmetry of the state')
+      call Lucia1_Sigma(iState,iCSym,nTU,TU,nTUVX,TUVX,nC,C,S)
     case default
       call Check_Lib('CI_Lib_Sigma')
   end select
 end subroutine CI_Lib_Sigma
+
+!> RASSCF's Lucia (CI_Lib_Lucia): S = H C in the symmetry of the state, via
+!> its determinant basis (csdtvc); the determinant scratch is kept between
+!> calls (Lucia1_Free, CI_Lib_Close)
+subroutine Lucia1_Sigma(iState,iSym,nTU,TU,nTUVX,TUVX,n,C,S)
+  use lucia_data, only: IREFSM, Sigma_on_disk
+  use cands, only: ICSM, ISSM
+  use Lucia_Interface, only: Lucia_Util
+  use stdalloc, only: mma_allocate
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, n
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(n)
+  real(kind=wp), intent(out) :: S(n)
+  integer(kind=iwp) :: IREFSM_Keep, nD, nW
+  nD = CI_St(iState)%nDet(iSym)
+  nW = max(n,nD)
+  if (allocated(Lucia1_C)) then
+    if (size(Lucia1_C) < nW) call Lucia1_Free()
+  end if
+  if (.not. allocated(Lucia1_C)) then
+    call mma_allocate(Lucia1_C,nW,Label='Lucia1_C')
+    call mma_allocate(Lucia1_S,nW,Label='Lucia1_S')
+  end if
+  IREFSM_Keep = IREFSM
+  IREFSM = iSym
+  ICSM = iSym
+  ISSM = iSym
+  ! CSFs -> determinants (Lucia1_S is the scratch of the conversion)
+  Lucia1_C(1:n) = C(1:n)
+  Lucia1_S(:) = Zero
+  call csdtvc(Lucia1_C,Lucia1_S,1,iSym,0)
+  Lucia1_C(1:nD) = Lucia1_S(1:nD)
+  call Lucia_Util('Sigma',CI_Vector=Lucia1_C,Sigma_Vector=Lucia1_S,nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+  ! the sigma vector exists on disk (densi_master)
+  Sigma_on_disk = .true.
+  ! determinants -> CSFs
+  call csdtvc(S,Lucia1_S,2,iSym,0)
+  IREFSM = IREFSM_Keep
+  ICSM = IREFSM
+  ISSM = IREFSM
+end subroutine Lucia1_Sigma
+
+!> RASSCF's Lucia: free the determinant scratch of Lucia1_Sigma
+subroutine Lucia1_Free()
+  use stdalloc, only: mma_deallocate
+  call mma_deallocate(Lucia1_C,safe='*')
+  call mma_deallocate(Lucia1_S,safe='*')
+end subroutine Lucia1_Free
 
 !> The checks of the operator arguments of CI_Lib_Sigma
 subroutine Check_Op(Caller,iOpSpin,Have_2_el,Square)
@@ -621,11 +690,27 @@ end subroutine SG_Sigma_Act
 subroutine SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G,nC,C,nS,S)
   use sguga, only: CIS, EXS, SGS
   use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_op, sg_h_psi_ras, sg_h_psi_sq
+  use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iCSym, iOp, nA, nTU, n2, nC, nS
   logical(kind=iwp), intent(in) :: Square
   real(kind=wp), intent(in) :: TU(nTU), G(n2), C(nC)
   real(kind=wp), intent(out) :: S(nS)
-  if (Square) then
+  integer(kind=iwp) :: iR, nR
+  real(kind=wp), allocatable :: PR(:), SR(:)
+  iR = CI_St(iState)%iRel
+  if ((iR > 0) .and. (Square .or. (iOp /= 1))) call Not_Yet('CI_Lib_Sigma','GAS with other operators than H')
+  if (iR > 0) then
+    ! GAS: in the relaxed space of the state (it holds all intermediate
+    ! states of the products)
+    nR = CIS(iR)%NCSF(iCSym)
+    call mma_allocate(PR,nR,Label='PR')
+    call mma_allocate(SR,nR,Label='SR')
+    call SG_Rel_Embed(iState,iCSym,nC,C,PR)
+    call sg_h_psi_ras(SGS(iR),CIS(iR),EXS(iR),PR,nR,iCSym,SR,G,n2,TU,nTU)
+    call SG_Rel_Project(iState,iCSym,nS,SR,S)
+    call mma_deallocate(SR)
+    call mma_deallocate(PR)
+  else if (Square) then
     call sg_h_psi_sq(SGS(iState),CIS(iState),EXS(iState),nC,C,iCSym,nS,S,iOp,nA,TU,n2,G)
   else if (iOp /= 1) then
     ! operator of non-total symmetry (perturbations)
@@ -1006,11 +1091,12 @@ end function Faro_Sym4
 !> TUVX in its layout)
 subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
   use Symmetry_Info, only: Mul
-  use faroald, only: gtuvx, htu, my_norb, ndeta, ndetb, sigma_update
+  use faroald, only: faroald_full, gtuvx, htu, my_norb, ndeta, ndetb, sigma_update
+  use CI_Verify_Options, only: CI_Verify
   use faroald_ras, only: n_ras, ras_sigma
   use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf
   use stdalloc, only: mma_allocate, mma_deallocate
-  use Constants, only: Zero
+  use Constants, only: Zero, One
   integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nTU, nTUVX, nC, nS
   logical(kind=iwp), intent(in) :: Square, Have_2_el
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
@@ -1047,6 +1133,22 @@ subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,
   call citrans_ras2csf(WR,S)
   call mma_deallocate(WR)
   call mma_deallocate(VR)
+  ! CI development (MOLCAS_CI_VERIFY=SIGMA): once against the sigma of the
+  ! full determinant space (P H P), if its tables are set up
+  if ((.not. Faro_RAS_Verified) .and. CI_Verify('SIGMA') .and. faroald_full) then
+    call mma_allocate(PC,ndeta,ndetb,Label='PC')
+    call mma_allocate(PS,ndeta,ndetb,Label='PS')
+    call mma_allocate(VR,nC,Label='SF')
+    call citrans_csf2sd(C,PC)
+    PS(:,:) = Zero
+    call sigma_update(htu,gtuvx,PS,PC)
+    call citrans_sd2csf(PS,VR)
+    call Report_Dev('Faroald: string-driven sigma vs full determinant space',maxval(abs(VR(:)-S(:))), &
+                    1.0e-10_wp*max(One,maxval(abs(VR(:)))),Faro_RAS_Verified)
+    call mma_deallocate(VR)
+    call mma_deallocate(PS)
+    call mma_deallocate(PC)
+  end if
 end subroutine Faro_Sigma_Act
 
 !> Faroald: the spin-free transition densities (as SG_Trans_Dens), mapped
@@ -1201,6 +1303,65 @@ subroutine Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   Diag(:) = DC(:)+ECore
   call mma_deallocate(DC)
 end subroutine Faro_Diag
+
+!> GAS: the CSF map of symmetry LSM of state iState into its relaxed space.
+subroutine SG_Rel_Map(iState,LSM)
+use sguga, only: CIS, SG_Map_CSFs
+use stdalloc, only: mma_allocate
+integer(kind=iwp), intent(in) :: iState, LSM
+integer(kind=iwp) :: n
+if (allocated(Rel_Map(LSM)%M)) return
+n = CIS(iState)%NCSF(LSM)
+call mma_allocate(Rel_Map(LSM)%M,max(1,n),Label='Rel_Map')
+Rel_Map(LSM)%M(:) = 0
+call SG_Map_CSFs(iState,CI_St(iState)%iRel,LSM,n,Rel_Map(LSM)%M)
+if (any(Rel_Map(LSM)%M(1:n) == 0)) then
+  write(u6,*) 'SG_Rel_Map: a CSF of the GAS space is missing in the relaxed space'
+  call Abend()
+end if
+end subroutine SG_Rel_Map
+
+subroutine SG_Rel_Free()
+use stdalloc, only: mma_deallocate
+integer(kind=iwp) :: k
+do k=1,size(Rel_Map)
+  call mma_deallocate(Rel_Map(k)%M,safe='*')
+end do
+end subroutine SG_Rel_Free
+
+!> GAS: X (n CSFs of symmetry LSM of iState) into the relaxed space (XR,
+!> zero elsewhere), and back (the components of the GAS CSFs).
+subroutine SG_Rel_Embed(iState,LSM,n,X,XR)
+use Constants, only: Zero
+integer(kind=iwp), intent(in) :: iState, LSM, n
+real(kind=wp), intent(in) :: X(n)
+real(kind=wp), intent(out) :: XR(:)
+call SG_Rel_Map(iState,LSM)
+XR(:) = Zero
+XR(Rel_Map(LSM)%M(1:n)) = X(1:n)
+end subroutine SG_Rel_Embed
+
+subroutine SG_Rel_Project(iState,LSM,n,XR,X)
+integer(kind=iwp), intent(in) :: iState, LSM, n
+real(kind=wp), intent(in) :: XR(:)
+real(kind=wp), intent(out) :: X(n)
+call SG_Rel_Map(iState,LSM)
+X(1:n) = XR(Rel_Map(LSM)%M(1:n))
+end subroutine SG_Rel_Project
+
+!> Report (once, Done) and check a maximal deviation of a verification.
+subroutine Report_Dev(Text,Dev,Thr,Done)
+character(len=*), intent(in) :: Text
+real(kind=wp), intent(in) :: Dev, Thr
+logical(kind=iwp), intent(inout) :: Done
+if (.not. Done) write(u6,'(1X,2A,ES10.3)') Text,', max. abs. difference',Dev
+Done = .true.
+if (Dev > Thr) then
+  write(u6,'(1X,3A,ES10.3)') 'Verification failed: ',Text,', max. abs. difference',Dev
+  call Abend()
+end if
+end subroutine Report_Dev
+
 
 !> The remaining case of the operations is the MCLR copy of Lucia (also the
 !> stop for RASSCF's Lucia, CI_Lib_Lucia, not available for MCLR)

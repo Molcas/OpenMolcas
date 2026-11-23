@@ -28,7 +28,8 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_SGUGA
 ! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
-use CI_Operations, only: CI_Lib_Close, CI_Lib_Initialize, Faro_L2O => Faro_Lev
+use CI_Operations, only: CI_Lib_Close, CI_Lib_Initialize, CI_Lib_Sigma, Faro_L2O => Faro_Lev, Rel_Map, Report_Dev, &
+                         SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -98,15 +99,6 @@ logical(kind=iwp) :: SD_ASTA_Verified = .false.
 ! itself); HEXS_Keep_SG: in the split-graph basis (the SGUGA references).
 logical(kind=iwp), allocatable :: HEXS_Keep(:), HEXS_Keep_SG(:)
 
-! GAS: SGUGA evaluates products of excitation operators (H, 2-RDM, spin and
-! transition densities, diagonal, explicit block) in the relaxed space of
-! the state (CI_St(iState)%iRel, see SG_Rel_State), which holds all their
-! intermediate states; Rel_Map(LSM)%M(I) is the index there of the CSF I of
-! symmetry LSM (SG_Rel_Map).
-type Rel_Map_Type
-  integer(kind=iwp), allocatable :: M(:)
-end type Rel_Map_Type
-type(Rel_Map_Type) :: Rel_Map(8)
 
 ! CPU and wall time and number of calls of the operations of the CI
 ! interface, for every back end (CI_Timer: 'Init' resets, 'Print' prints)
@@ -315,19 +307,6 @@ call mma_deallocate(C2)
 call mma_deallocate(C1)
 end subroutine Ref_Sigma
 
-!> Report (once, Done) and check a maximal deviation of a verification.
-subroutine Report_Dev(Text,Dev,Thr,Done)
-character(len=*), intent(in) :: Text
-real(kind=wp), intent(in) :: Dev, Thr
-logical(kind=iwp), intent(inout) :: Done
-if (.not. Done) write(u6,'(1X,2A,ES10.3)') Text,', max. abs. difference',Dev
-Done = .true.
-if (Dev > Thr) then
-  write(u6,'(1X,3A,ES10.3)') 'Verification failed: ',Text,', max. abs. difference',Dev
-  call Abend()
-end if
-end subroutine Report_Dev
-
 !> Index and phase in the basis of the CI back end of the CSF iFile of the
 !> split-graph order of the files (e.g. the reference CSFs of CIRO).
 subroutine CI_File_Index_To_Basis(iState,LSM,n,iFile,iBasis,iPhase)
@@ -345,47 +324,6 @@ call mma_deallocate(F)
 call mma_deallocate(E)
 end subroutine CI_File_Index_To_Basis
 
-!> GAS: the CSF map of symmetry LSM of state iState into its relaxed space.
-subroutine SG_Rel_Map(iState,LSM)
-use sguga, only: SG_Map_CSFs
-integer(kind=iwp), intent(in) :: iState, LSM
-integer(kind=iwp) :: n
-if (allocated(Rel_Map(LSM)%M)) return
-n = CIS(iState)%NCSF(LSM)
-call mma_allocate(Rel_Map(LSM)%M,max(1,n),Label='Rel_Map')
-Rel_Map(LSM)%M(:) = 0
-call SG_Map_CSFs(iState,CI_St(iState)%iRel,LSM,n,Rel_Map(LSM)%M)
-if (any(Rel_Map(LSM)%M(1:n) == 0)) then
-  write(u6,*) 'SG_Rel_Map: a CSF of the GAS space is missing in the relaxed space'
-  call Abend()
-end if
-end subroutine SG_Rel_Map
-
-subroutine SG_Rel_Free()
-integer(kind=iwp) :: k
-do k=1,size(Rel_Map)
-  call mma_deallocate(Rel_Map(k)%M,safe='*')
-end do
-end subroutine SG_Rel_Free
-
-!> GAS: X (n CSFs of symmetry LSM of iState) into the relaxed space (XR,
-!> zero elsewhere), and back (the components of the GAS CSFs).
-subroutine SG_Rel_Embed(iState,LSM,n,X,XR)
-integer(kind=iwp), intent(in) :: iState, LSM, n
-real(kind=wp), intent(in) :: X(n)
-real(kind=wp), intent(out) :: XR(:)
-call SG_Rel_Map(iState,LSM)
-XR(:) = Zero
-XR(Rel_Map(LSM)%M(1:n)) = X(1:n)
-end subroutine SG_Rel_Embed
-
-subroutine SG_Rel_Project(iState,LSM,n,XR,X)
-integer(kind=iwp), intent(in) :: iState, LSM, n
-real(kind=wp), intent(in) :: XR(:)
-real(kind=wp), intent(out) :: X(n)
-call SG_Rel_Map(iState,LSM)
-X(1:n) = XR(Rel_Map(LSM)%M(1:n))
-end subroutine SG_Rel_Project
 
 !> SGUGA sigma vector of state iState: sg_h_psi_ras (RAS, or Use_RAS) or
 !> sg_h_psi (CAS); for GAS sg_h_psi_ras in the relaxed space.
@@ -660,7 +598,6 @@ real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
 integer(kind=iwp), intent(in):: nTU, nTUVX
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
-integer(kind=iwp) :: IREFSM_SAVE, nDet
 
 real(kind=wp) :: Check_Href, Check_H, DMax
 logical(kind=iwp) :: Lucia_Done, SG_Done
@@ -670,7 +607,7 @@ real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:), SG_RAS(:)
 ! MOLCAS_CI_VERIFY=SIGMA the sigma vector is compared with that of Lucia
 ! (vector reordered to the Lucia basis and the result back).
 if (SG_CI()) then
-  call SG_HPsi(iState,CI_Vec,nCSF,STSYM,Sigma_Vec,TUVX,nTUVX,TU,nTU,CI_St(iState)%nRsPrt /= 1)
+  call CI_Lib_Sigma(iState,0,STSYM,STSYM,.false.,.true.,nTU,TU,nTUVX,TUVX,nCSF,CI_Vec,nCSF,Sigma_Vec)
   call HEXS_Proj(HEXS_Keep,Sigma_Vec)
   if (CI_Verify('SIGMA')) then
     call mma_allocate(SG_PSI,max(nCSF,CI_St(iState)%nDet(STSYM)),Label='SG_PSI')
@@ -695,8 +632,7 @@ end if
 
 if (Faro_CI()) then
 
-  call Faroald_Ints(TU,TUVX)
-  call Faroald_Sigma(nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+  call CI_Lib_Sigma(iState,0,STSYM,STSYM,.false.,.true.,nTU,TU,nTUVX,TUVX,nCSF,CI_Vec,nCSF,Sigma_Vec)
   call HEXS_Proj(HEXS_Keep,Sigma_Vec)
   ! CI development (MOLCAS_CI_VERIFY=SIGMA): the Faroald sigma vector
   ! against Lucia (and below against SGUGA)
@@ -711,39 +647,8 @@ if (Faro_CI()) then
 
 else
 
-  IREFSM_SAVE=IREFSM
-  IREFSM=STSYM
-  ICSM=STSYM
-  ISSM=STSYM
-
-  nDET = CI_St(iState)%nDet(IREFSM)
-
-  ! Convert the CI-vector from CSF to Det. basis
-  ! sigtemp is scratch, converted vector is stored in ctemp.
-  ! Note that ctemp is of the size of the nDet. basis
-
-  ctemp(1:nCSF) = CI_Vec(1:nCSF)
-  sigtemp(:) = Zero
-  call csdtvc(ctemp,sigtemp,1,STSym,0)
-  ctemp(1:nDet)=sigtemp(1:nDet)
-
-  ! Calling Lucia to determine the sigma vector
-  call Lucia_Util('Sigma',                   &
-                  CI_Vector=ctemp(:),        &
-                  Sigma_Vector=sigtemp(:),   &
-                  nTU=Size(TU),TU=TU,        &
-                  nTUVX=Size(TUVX),TUVX=TUVX)
-
-  ! Set mark so densi_master knows that the Sigma-vector exists on disk.
-  Sigma_on_disk = .true.
-  ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
-  ! stored in Sigma_vec.
-  call CSDTVC(Sigma_Vec,sigtemp,2,STSym,0)
-  sigtemp(1:nCSF)=Sigma_Vec(1:nCSF)
-
-  IREFSM=IREFSM_SAVE
-  ICSM=IREFSM
-  ISSM=IREFSM
+  ! RASSCF's Lucia (its determinant basis inside CI_Lib)
+  call CI_Lib_Sigma(iState,0,STSYM,STSYM,.false.,.true.,nTU,TU,nTUVX,TUVX,nCSF,CI_Vec,nCSF,Sigma_Vec)
 
 end if
 
@@ -1948,8 +1853,8 @@ integer(kind=iwp), Intent(in):: iState
 
 if (Lucia_Active) Call Lucia_Util('Close')
 
-! (Faroald: its data in CI_Operations; the selection is kept)
-if (Faro_CI()) call CI_Lib_Close(iState)
+! (the selected library frees its data in CI_Operations; the selection is kept)
+call CI_Lib_Close(iState)
 
 if (CI_St(iState)%iRel > 0) then
   call SG_Free(CI_St(iState)%iRel)
