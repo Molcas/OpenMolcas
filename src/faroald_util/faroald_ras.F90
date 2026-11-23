@@ -1453,6 +1453,10 @@ subroutine opposite_spin(g,vec,sgm)
     call cpu_time(c1)
     res_tim(m) = c1-c0
     if (res_itry == res_ntry) then
+      ! every process computes the whole sigma: all must take the same path
+      ! (different paths differ by round-off, and the processes would then
+      ! hold different CI vectors), so the choice uses the sum of the timings
+      call gadgop(res_tim,3_iwp,'+')
       res_mode = res_try(1)
       do k=2,res_ntry
         if (res_tim(res_try(k)) < res_tim(res_mode)) res_mode = res_try(k)
