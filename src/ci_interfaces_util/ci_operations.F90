@@ -19,33 +19,17 @@
 !>    library for the CI state (CI_Lib_Close is safe to call in any case).
 !>    The library publishes its dimensions in CI_St(iState) (nCSF; nDet: the
 !>    dimension of its determinant space per symmetry).
-!>  - CI_Sigma_Op: sigma = H C for one CI vector. H is a Hermitian
-!>    operator of symmetry Mul(iCSym,iSSym) (C of symmetry iCSym, sigma of
-!>    symmetry iSSym); iOpSpin (the spin of the operator, not the
-!>    multiplicity of the state) = 0: singlet E_pq = a+_pa a_qa + a+_pb a_qb,
-!>    iOpSpin = 1: a+_pa a_qa - a+_pb a_qb (= sqrt(2) T^{1,0}_pq, one-body
-!>    only). S is always overwritten (no accumulation).
-!>    Int1: one-body integrals over all orbitals, in square symmetry blocks
-!>    (block (iS,jS), jS = Mul(iS,iOp), nOrb(iS) x nOrb(jS), column-major,
-!>    one after the other in the order of iS); only the active part is
-!>    used. Int2: two-body integrals over the active orbitals,
-!>    symmetry-ordered active indices (all active orbitals of irrep 1, then
-!>    irrep 2, ...; RAS1, RAS2, RAS3 inside each irrep), (ij|kl) at
-!>    iTri(iTri(i,j),iTri(k,l)). Have_2_el = .false.: one-body operator
-!>    only. Square = .true.: the operator is not symmetric (time-dependent
-!>    response): Int1 is a general (non-symmetric) matrix and (ij|kl) is at
-!>    iTri(ij,kl) with the square pair index ij = (j-1)*nAct+i.
-!>  - CI_Trans_Dens: transition densities between the bra L (symmetry
-!>    iLSym) and the ket R (symmetry iRSym); iOpSpin = 0: spin-free,
-!>    iOpSpin = 1: spin densities (a+_a a_a - a+_b a_b). rho1(i,j) =
-!>    <L|E_ij|R>, full square nAct x nAct; for I12 = 2 also rho2(iTri(ij,kl))
-!>    = <L|E_ij E_kl - delta_jk E_il|R> with the square pair index
-!>    ij = (j-1)*nAct+i (packed over ij >= kl); symmetry-ordered active
-!>    indices. Spin-free normalisation: sum_i rho1(i,i) = N_act*<L|R>.
-!>    Rho2 is not referenced for I12 = 1.
+!>  - CI_Lib_Sigma: sigma = H C for one CI vector, H an active-space
+!>    operator of any symmetry, Hermitian or not (layout of the integrals
+!>    in the comment of the routine).
+!>  - CI_Lib_Dens: the 1- and 2-particle (transition) densities between
+!>    two CI vectors, the same one allowed, spin-free or spin (layout in the
+!>    comment of the routine).
 !>  - CI_Diag: the diagonal of H + ECore (ECore added to every element) in
 !>    the CSF basis of symmetry iSym, for the symmetric active Hamiltonian;
-!>    Int1 and Int2 as for the sigma with iOp = 1 and Square = .false..
+!>    Int1: the one-body integrals over all orbitals in square symmetry
+!>    blocks (MCLR's layout; only the active part is used), Int2 as TUVX of
+!>    CI_Lib_Sigma (to become CI_Lib_Diag with the integrals of CI_Lib_Sigma).
 !>    Mode = CI_Diag_Cnf_Avg: averaged over the CSFs of each configuration
 !>    (Lucia's CSDIAG); CI_Diag_Exact: the exact CSF diagonal.
 !>  - CI_PSpace: the explicit part of the Hamiltonian for the
@@ -85,7 +69,7 @@ use CI_Info, only: CI_St
 use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, &
                       CI_Lib_Select, CI_Lib_SGUGA, CI_To_Basis, CI_To_File
 use MCLR_Lucia_CI, only: MCLR_Lucia_Close, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, MCLR_Lucia_Init, MCLR_Lucia_PSpace, &
-                         MCLR_Lucia_Sigma, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
+                         MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -107,7 +91,7 @@ integer(kind=iwp), allocatable :: Faro_Lev(:), Faro_OrbRas(:), Faro_OrbSym(:)
 
 public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Dets_To_Basis, &
           CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, &
-          CI_Lib_None, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens
+          CI_Lib_None, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_PSpace, CI_To_Basis, CI_To_File
 
 contains
 
@@ -150,54 +134,6 @@ subroutine CI_Lib_Close(iState)
   end if
   if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
 end subroutine CI_Lib_Close
-
-!> Old name of CI_Lib_Sigma with the integrals of MCLR (kept until MCLR
-!> calls CI_Lib_Sigma): Int1 over all orbitals in square symmetry blocks
-!> (block (iS,Mul(iS,iOp)), nOrb(iS) x nOrb(Mul(iS,iOp)), column-major, in
-!> the order of iS; only the active part is used), Int2 as TUVX of
-!> CI_Lib_Sigma. Converted once here; the MCLR copy of Lucia takes Int1 as
-!> it is.
-subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
-  use Symmetry_Info, only: Mul
-  use Orbital_Spaces, only: nAsh, nSym
-  use Index_Functions, only: nTri_Elem
-  use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nInt1, nInt2, nC, nS
-  real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
-  logical(kind=iwp), intent(in) :: Have_2_el, Square
-  real(kind=wp), intent(in) :: C(nC)
-  real(kind=wp), intent(out) :: S(nS)
-  integer(kind=iwp) :: iOp, nA, nTU, nTUVX
-  real(kind=wp), allocatable :: TU(:), TUVX(:)
-  if (CI_Lib == CI_Lib_MCLR_Lucia) then
-    call Check_Op('CI_Sigma_Op',iOpSpin,Have_2_el,Square)
-    call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
-    return
-  end if
-  iOp = Mul(iCSym,iSSym)
-  nA = sum(nAsh(1:nSym))
-  if (Square) then
-    nTU = nA**2
-    nTUVX = nTri_Elem(nA**2)
-  else
-    nTU = nTri_Elem(nA)
-    nTUVX = nTri_Elem(nTU)
-  end if
-  call mma_allocate(TU,nTU,Label='TU')
-  call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  if (Square) then
-    call Int1_To_Sq(iOp,nInt1,Int1,nA,TU)
-    if (Have_2_el) then
-      if (nInt2 < nTUVX) call Abend()
-      TUVX(:) = Int2(1:nTUVX)
-    end if
-  else
-    call SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
-  end if
-  call CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
-  call mma_deallocate(TUVX)
-  call mma_deallocate(TU)
-end subroutine CI_Sigma_Op
 
 !> S = H C (S is overwritten, never accumulated) for the CI state iState
 !> (its CI space, CI_St(iState)), C of symmetry iCSym (nC = nCSF(iCSym)),
@@ -269,14 +205,6 @@ subroutine Check_Op(Caller,iOpSpin,Have_2_el,Square)
     call Abend()
   end if
 end subroutine Check_Op
-
-!> Old name of CI_Lib_Dens (kept until MCLR calls CI_Lib_Dens)
-subroutine CI_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
-  integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
-  real(kind=wp), intent(in) :: L(nL), R(nR)
-  real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
-  call CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
-end subroutine CI_Trans_Dens
 
 !> The (transition) densities between the bra L (symmetry iLSym, nL =
 !> nCSF(iLSym)) and the ket R (symmetry iRSym, nR = nCSF(iRSym)) of the CI
@@ -517,37 +445,6 @@ subroutine SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G,nC,C,nS,S)
     call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,G,n2,TU,nTU)
   end if
 end subroutine SG_Sigma_Run
-
-!> The active part of MCLR's Int1 (square blocks (iS,Mul(iS,iOp)) over
-!> all orbitals) as the full nA x nA matrix H1(t,u) over the
-!> symmetry-ordered active orbitals (zero outside the operator symmetry)
-subroutine Int1_To_Sq(iOp,nInt1,Int1,nA,H1)
-  use Symmetry_Info, only: Mul
-  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
-  use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iOp, nInt1, nA
-  real(kind=wp), intent(in) :: Int1(nInt1)
-  real(kind=wp), intent(out) :: H1(nA,nA)
-  integer(kind=iwp) :: iOff(8), iS, it, iu, jS, nAOff(8)
-  iOff(:) = 0
-  nAOff(:) = 0
-  nAOff(1) = 0
-  iOff(1) = 0
-  do iS=2,nSym
-    iOff(iS) = iOff(iS-1)+nOrb(iS-1)*nOrb(Mul(iS-1,iOp))
-    nAOff(iS) = nAOff(iS-1)+nAsh(iS-1)
-  end do
-  if (iOff(nSym)+nOrb(nSym)*nOrb(Mul(nSym,iOp)) > nInt1) call Abend()
-  H1(:,:) = Zero
-  do iS=1,nSym
-    jS = Mul(iS,iOp)
-    do iu=1,nAsh(jS)
-      do it=1,nAsh(iS)
-        H1(nAOff(iS)+it,nAOff(jS)+iu) = Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it)
-      end do
-    end do
-  end do
-end subroutine Int1_To_Sq
 
 !> SGUGA: spin-free transition densities, mapped from the level order to
 !> the symmetry-ordered active orbitals
