@@ -189,6 +189,21 @@ $MOLCAS_NPROCS` command line option. They use mpiexec instead of mpirun.
 
   and continuing as usual.
 
+.. compound::
+
+  Parallel runs with the Intel MKL as linear algebra library should set
+  MKL's conditional numerical reproducibility mode, for example: ::
+
+    export MKL_CBWR=AUTO,STRICT
+
+  or the line ``MKL_CBWR=AUTO,STRICT`` in :file:`~/.Molcas/molcasrc`.
+  |molcas| does parts of the work redundantly on every process and
+  assumes that these results are bitwise identical on all processes. With
+  MKL's default settings they can differ in the last bits, because MKL
+  chooses its code path depending on, e.g., the memory alignment. The
+  processes then drift apart, and SCF or RASSCF calculations may diverge
+  or hang. Other BLAS/LAPACK libraries ignore the variable.
+
 In this section, we assume you will be using PBS on a cluster in order to
 submit jobs. If you don't use PBS, please ask your system administrator or
 consult the cluster documentation for equivalent functionality.
