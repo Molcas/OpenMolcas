@@ -70,7 +70,9 @@ do ICASE=1,13
     NIS = NISUP(ISYM,ICASE)
     HEBLK = Zero
 
-    if (NAS*NIS /= 0) then
+    ! NIN = 0: no FIC contribution (and no IVEC block on disk), only the
+    ! SC-NEVPT2 part needs the block
+    if ((NAS*NIS /= 0) .and. ((NIN /= 0) .or. ((HZERO == 'DYALL') .and. Do_SC))) then
 
       call RHS_ALLO(NAS,NIS,lg_V1)
       call RHS_ALLO(NAS,NIS,lg_V2)
