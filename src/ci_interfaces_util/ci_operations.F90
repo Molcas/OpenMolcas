@@ -68,7 +68,8 @@ module CI_Operations
 use CI_Info, only: CI_St
 use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, &
                       CI_Lib_Select, CI_Lib_SGUGA, CI_To_Basis, CI_To_File
-use MCLR_Lucia_CI, only: MCLR_Lucia_Close, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, MCLR_Lucia_Init, MCLR_Lucia_PSpace, &
+use MCLR_Lucia_CI, only: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_Conv, MCLR_Lucia_Dets, &
+                         MCLR_Lucia_Diag, MCLR_Lucia_Diag_Act, MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_PSpace, &
                          MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 use Definitions, only: wp, iwp, u6
 
@@ -294,7 +295,7 @@ subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case (CI_Lib_Faroald)
       call Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case (CI_Lib_MCLR_Lucia)
-      call Lucia4_Diag_Act(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+      call MCLR_Lucia_Diag_Act(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case default
       call Check_Lib('CI_Lib_Diag')
   end select
@@ -309,37 +310,6 @@ subroutine Check_Diag_Mode(Caller,Mode)
     call Abend()
   end if
 end subroutine Check_Diag_Mode
-
-!> The MCLR copy of Lucia with the integrals of CI_Lib_Diag (temporary,
-!> until mclr_lucia_util takes them: TU expanded to MCLR's full-orbital
-!> blocks of total symmetry, zero outside the active part)
-subroutine Lucia4_Diag_Act(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
-  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
-  use Index_Functions, only: iTri
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
-  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
-  real(kind=wp), intent(out) :: Diag(n)
-  integer(kind=iwp) :: iOff, iS, it, iu, nA, nInt1
-  real(kind=wp), allocatable :: Int1(:)
-  nInt1 = sum(nOrb(1:nSym)**2)
-  call mma_allocate(Int1,max(1,nInt1),Label='Int1')
-  Int1(:) = Zero
-  iOff = 0
-  nA = 0
-  do iS=1,nSym
-    do iu=1,nAsh(iS)
-      do it=1,nAsh(iS)
-        Int1(iOff+(nIsh(iS)+iu-1)*nOrb(iS)+nIsh(iS)+it) = TU(iTri(nA+it,nA+iu))
-      end do
-    end do
-    iOff = iOff+nOrb(iS)**2
-    nA = nA+nAsh(iS)
-  end do
-  call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nTUVX,TUVX,ECore,n,Diag)
-  call mma_deallocate(Int1)
-end subroutine Lucia4_Diag_Act
 
 subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
   use Orbital_Spaces, only: nAsh, nSym
@@ -391,7 +361,7 @@ function CI_Lib_nCnf(iState,iSym) result(nCnf)
       call mma_deallocate(dco)
       call mma_deallocate(sco)
     case (CI_Lib_MCLR_Lucia)
-      call Not_Yet('CI_Lib_nCnf','the MCLR copy of Lucia')
+      nCnf = MCLR_Lucia_nCnf(iState,iSym)
     case default
       call Check_Lib('CI_Lib_nCnf')
   end select
@@ -437,7 +407,7 @@ subroutine CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
       call mma_deallocate(sco)
       call mma_deallocate(C2F)
     case (CI_Lib_MCLR_Lucia)
-      call Not_Yet('CI_Lib_Cnf_Layout','the MCLR copy of Lucia')
+      call MCLR_Lucia_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
     case default
       call Check_Lib('CI_Lib_Cnf_Layout')
   end select
@@ -480,7 +450,10 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
     call SG_Free_Cnf_List(Cnf)
     return
   end if
-  if (CI_Lib == CI_Lib_MCLR_Lucia) call Not_Yet('CI_Lib_Block','the MCLR copy of Lucia')
+  if (CI_Lib == CI_Lib_MCLR_Lucia) then
+    call MCLR_Lucia_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
+    return
+  end if
   if (CI_Lib /= CI_Lib_Faroald) call Check_Lib('CI_Lib_Block')
   ! Faroald: the columns H e_j of the CSFs of the configurations
   nCnf = CI_Lib_nCnf(iState,iSym)

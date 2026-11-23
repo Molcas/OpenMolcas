@@ -29,7 +29,7 @@ private
 logical(kind=iwp) :: Initialized = .false.
 
 public :: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, &
-          MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_PSpace, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
+          MCLR_Lucia_Diag_Act, MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_PSpace, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 
 contains
 
@@ -243,6 +243,20 @@ subroutine MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,
   call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nTUVX,TUVX,Have_2_el,Square,nC,C,nS,S)
   call mma_deallocate(Int1)
 end subroutine MCLR_Lucia_Sigma_Act
+
+!> The CSF diagonal (CI_Lib_Diag) with the active integrals of the totally
+!> symmetric operator of CI_Lib_Sigma (TU expanded by Expand_TU)
+subroutine MCLR_Lucia_Diag_Act(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+  use stdalloc, only: mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(out) :: Diag(n)
+  integer(kind=iwp) :: nInt1
+  real(kind=wp), allocatable, target :: Int1(:)
+  call Expand_TU(1,.false.,nTU,TU,nInt1,Int1)
+  call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nTUVX,TUVX,ECore,n,Diag)
+  call mma_deallocate(Int1)
+end subroutine MCLR_Lucia_Diag_Act
 
 !> The number of configurations of symmetry iSym in the CSF basis of the
 !> copy of Lucia (CI_Lib_nCnf)

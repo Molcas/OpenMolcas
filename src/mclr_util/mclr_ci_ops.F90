@@ -107,3 +107,63 @@ call CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,Int2(
 call mma_deallocate(TU)
 
 end subroutine MCLR_CI_Sigma
+
+!> The CSF diagonal of symmetry iSym (CI_Lib_Diag, Mode as there) with the
+!> integrals of MCLR (Int1 as for MCLR_CI_Ints, Int2 the active triangle)
+subroutine MCLR_CI_Diag(Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
+
+use CI_Operations, only: CI_Lib_Diag
+use Orbital_Spaces, only: nAsh, nSym
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: Mode, iSym, nInt1, nInt2, n
+real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), ECore
+real(kind=wp), intent(out) :: Diag(n)
+integer(kind=iwp), parameter :: iState = 1
+integer(kind=iwp) :: nTU, nTUVX
+real(kind=wp), allocatable :: TU(:)
+
+nTU = max(1,nTri_Elem(sum(nAsh(1:nSym))))
+nTUVX = nTri_Elem(nTri_Elem(sum(nAsh(1:nSym))))
+if (nInt2 < nTUVX) call Abend()
+nTUVX = max(1,nTUVX)
+call mma_allocate(TU,nTU,Label='TU')
+call MCLR_CI_Ints(1,.false.,nInt1,Int1,nTU,TU)
+call CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,Int2(1:nTUVX),ECore,n,Diag)
+call mma_deallocate(TU)
+
+end subroutine MCLR_CI_Diag
+
+!> The P space of the CI preconditioner (CI_Lib_PSpace; no core energy in
+!> the block) with the integrals of MCLR (as for MCLR_CI_Diag)
+subroutine MCLR_CI_PSpace(iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
+
+use CI_Operations, only: CI_Lib_PSpace
+use Orbital_Spaces, only: nAsh, nSym
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iSym, nInt1, nInt2, n, nPMax, nHP
+real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), Diag(n)
+integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+real(kind=wp), intent(out) :: HP(nHP)
+integer(kind=iwp), parameter :: iState = 1
+integer(kind=iwp) :: nTU, nTUVX
+real(kind=wp), allocatable :: TU(:)
+
+nTU = max(1,nTri_Elem(sum(nAsh(1:nSym))))
+nTUVX = nTri_Elem(nTri_Elem(sum(nAsh(1:nSym))))
+if (nInt2 < nTUVX) call Abend()
+nTUVX = max(1,nTUVX)
+call mma_allocate(TU,nTU,Label='TU')
+call MCLR_CI_Ints(1,.false.,nInt1,Int1,nTU,TU)
+call CI_Lib_PSpace(iState,iSym,nTU,TU,nTUVX,Int2(1:nTUVX),Zero,n,Diag,nPMax,nP,IdxP,nHP,HP)
+call mma_deallocate(TU)
+
+end subroutine MCLR_CI_PSpace

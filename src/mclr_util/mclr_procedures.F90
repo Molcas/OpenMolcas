@@ -15,7 +15,7 @@ module MCLR_procedures
 implicit none
 private
 
-public :: CISigma, CISigma_sa, CISigma_td, RdJobIph, RdJobIph_td
+public :: CISigma, CISigma_sa, CISigma_td, MCLR_CI_Diag, MCLR_CI_PSpace, RdJobIph, RdJobIph_td
 
 contains
 

@@ -14,11 +14,12 @@
 subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
 ! The explicit part of the Hamiltonian for the CI preconditioner: the P
 ! space of at most MP2 CSFs and its block of H from the CI library
-! (CI_PSpace), shifted by the energy, squared and factorized (H0S, H0F;
-! SBIDT: the CSFs of the P space). Only a P2 space (MP1 = MQ = 0).
+! (MCLR_CI_PSpace -> CI_Lib_PSpace), shifted by the energy, squared and
+! factorized (H0S, H0F; SBIDT: the CSFs of the P space). Only a P2 space
+! (MP1 = MQ = 0).
 
 use Index_Functions, only: nTri_Elem
-use CI_Operations, only: CI_PSpace
+use MCLR_procedures, only: MCLR_CI_PSpace
 use MCLR_Data, only: FIMO, H0F, H0S, Int2, nGP, SBIDT
 use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -29,7 +30,6 @@ real(kind=wp), intent(in) :: rdia(*)
 integer(kind=iwp), intent(in) :: MP1, MP2, MQ, iSym
 integer(kind=iwp), intent(out) :: nprciv
 logical(kind=iwp), intent(in) :: TimeDep
-integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: i, iRC, MXP
 real(kind=wp) :: ENA
 real(kind=wp), allocatable :: H0T(:)
@@ -50,7 +50,7 @@ call mma_allocate(SBIDT,MXP,Label='SBIDT')
 call mma_allocate(H0S,MXP**2,Label='H0S')
 call mma_allocate(H0F,MXP,Label='H0F')
 call mma_allocate(H0T,nTri_Elem(MXP),Label='H0T')
-call CI_PSpace(iState,iSym,size(FIMO),FIMO,size(Int2),Int2,nCSF(iSym),rdia,MXP,nprciv,SBIDT,size(H0T),H0T)
+call MCLR_CI_PSpace(iSym,size(FIMO),FIMO,size(Int2),Int2,nCSF(iSym),rdia,MXP,nprciv,SBIDT,size(H0T),H0T)
 do i=1,nprciv
   H0T(nTri_Elem(i)) = H0T(nTri_Elem(i))-ENA
 end do
