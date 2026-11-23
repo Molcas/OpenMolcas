@@ -21,15 +21,15 @@ use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_n
 use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma, ras_traci, ras_trans_one_pdm, &
                        ras_trans_two_pdm
 use rasscf_global, only: DoSGEx
-use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_SGUGA
+use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SGUGA
 ! FARO: Faroald works with the active orbitals in the order of the levels
 ! of the split graph (by partition, within each by symmetry), so that its
 ! CSFs couple the spins in the order of the file basis. Faro_L2O(lev) is
 ! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
-use CI_Operations, only: CI_Lib_Close, CI_Lib_Initialize, CI_Lib_Sigma, Faro_L2O => Faro_Lev, Rel_Map, Report_Dev, &
-                         SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+use CI_Operations, only: CI_Lib_Close, CI_Lib_Dens, CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Sigma, Faro_L2O => Faro_Lev, &
+                         Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1266,160 +1266,143 @@ call mma_deallocate(Sgm)
 end subroutine SG_Spin_Density_ASTA
 
 Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
+! The densities of the state CIVec (basis of the selected library) in the
+! layout of RASSCF: D, SD (triangular), P, PA (packed pairs), in level
+! order. Computed by CI_Lib_Dens (any library) and converted here
+! (Rho_To_Packed). Under MOLCAS_CI_VERIFY=SIGMA compared with Lucia and
+! SGUGA (those not in use).
 use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
 use rasscf_global, only: NACPAR, NACPR2
+use Index_Functions, only: nTri_Elem
+implicit none
+integer(kind=iwp), intent(in) :: nCIVEC
+real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
+real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
+integer(kind=iwp), intent(in) :: nD, nP
+integer(kind=iwp), parameter :: iState = 1
+integer(kind=iwp) :: I12, LSM, N
+integer(kind=iwp), allocatable :: L2O(:)
+real(kind=wp), allocatable :: D_loc(:), P_loc(:), PA_loc(:), R1(:), R2(:), SD_loc(:)
+real(kind=wp) :: TimT(2)
 
- implicit none
- integer(kind=iwp), intent(in) :: nCIVEC
- real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
- real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
- integer(kind=iwp), intent(in) :: nD, nP
+call Tim_On(TimT)
+N = NAC
+LSM = CI_St(iState)%STSym
+I12 = 1
+if (Present(P) .or. Present(PA)) I12 = 2
+call mma_allocate(L2O,max(1,N),Label='L2O')
+call CI_Lib_Level_Map(iState,N,L2O)
+call mma_allocate(R1,max(1,N**2),Label='R1')
+if (I12 == 2) then
+  call mma_allocate(R2,max(1,nTri_Elem(N**2)),Label='R2')
+else
+  call mma_allocate(R2,1,Label='R2')
+end if
+call mma_allocate(D_loc,max(1,NACPAR),Label='D_loc')
+call mma_allocate(SD_loc,max(1,NACPAR),Label='SD_loc')
+call mma_allocate(P_loc,max(1,NACPR2),Label='P_loc')
+call mma_allocate(PA_loc,max(1,NACPR2),Label='PA_loc')
+SD_loc(:) = Zero
+P_loc(:) = Zero
+PA_loc(:) = Zero
+call CI_Lib_Dens(iState,I12,0,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(R1),R1,size(R2),R2)
+call Rho_To_Packed(N,L2O,R1,I12,R2,D_loc,P_loc,PA_loc)
+if (Present(SD)) then
+  call CI_Lib_Dens(iState,1,1,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(R1),R1,size(R2),R2)
+  call Rho_To_Packed(N,L2O,R1,1,R2,SD_loc,P_loc,PA_loc)
+end if
+if (Present(D)) then
+  D(1:nD) = Zero
+  D(1:NACPAR) = D_loc(1:NACPAR)
+end if
+if (Present(SD)) then
+  SD(1:nD) = Zero
+  SD(1:NACPAR) = SD_loc(1:NACPAR)
+end if
+if (Present(P)) P(1:nP) = P_loc(1:nP)
+if (Present(PA)) PA(1:nP) = PA_loc(1:nP)
 
- real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:), PA_loc(:)
- real(kind=wp), allocatable :: D_FAROALD(:,:)
- real(kind=wp), allocatable :: SD_FAROALD(:,:)
- real(kind=wp), allocatable :: Faroald_Psi(:,:)
- real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
- real(kind=wp), allocatable :: CIV(:)
- integer(kind=iwp), parameter :: iState=1
+! CI development (MOLCAS_CI_VERIFY=SIGMA): against the other libraries
+if (CI_Verify('SIGMA')) call Check_Densities()
 
-real(kind=wp) :: Check_D1, Check_P, Check_PA
-real(kind=wp), allocatable :: D_Sguga(:)
-real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
-
- ! SGCI: the densities from SGUGA in its basis (D, SD in the triangular
- ! packing of the levels, P and PA as sg_two_pdm); under SIGMA compared
- ! with those of Lucia for the vector reordered to the Lucia basis.
- real(kind=wp) :: TimT(2)
- call Tim_On(TimT)
- if (SG_CI()) then
-   call SGCI_Densities()
-   call Tim_Off(Tim_PDM,TimT)
-   return
- end if
-
- If (Faro_CI()) Then
-   call mma_allocate(D_loc,nD,Label='D_loc')
-   call mma_allocate(SD_loc,nD,Label='SD_loc')
-   call mma_allocate(P_loc,nP,Label='P_loc')
-   call mma_allocate(PA_loc,nP,Label='PA_loc')
-
-   Call mma_allocate(D_Faroald,NAC,NAC)
-   Call mma_allocate(SD_Faroald,NAC,NAC)
-   Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
-   If (ras_active) Then
-     ! RAS: in the RAS string classes (faroald_ras)
-     Call mma_allocate(Faroald_Psi,max(1,n_ras),1,Label='Psi')
-     call CITRANS_CSF2RAS(CIVEC,Faroald_Psi(:,1))
-     Call RAS_Trans_One_PDM(Faroald_Psi(:,1),Faroald_Psi(:,1),D_Faroald,SD_Faroald)
-     Call RAS_Trans_Two_PDM(Faroald_Psi(:,1),Faroald_Psi(:,1),P_Faroald)
-   Else
-     Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
-
-     ! (the CI vector is in the configuration order of Faroald, citrans)
-     Faroald_Psi(:,:)=Zero
-     call CITRANS_CSF2SD(CIVEC,Faroald_PSI)
-
-     Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
-     Call two_pdm(Faroald_psi,P_Faroald)
-   End If
-   Call Fold2(1,[NAC],D_faroald,D_loc)
-   Call Fold2(1,[NAC],SD_faroald,SD_loc)
-   Call Fold_Two_pdm(P_Faroald,P_loc,PA_loc)
-
-   Call mma_deallocate(Faroald_Psi)
-   Call mma_deallocate(P_faroald)
-   Call mma_deallocate(D_faroald)
-   Call mma_deallocate(SD_faroald)
-
-   If (Present(D)) D(1:nD)=D_loc(1:nD)
-   If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
-   If (Present(P)) P(1:nP)=P_loc(1:nP)
-   If (Present(PA)) PA(1:nP)=PA_loc(1:nP)
-
-   If (CI_Verify('SIGMA')) call Faroald_Check_Densities()
-
-   call mma_deallocate(D_loc)
-   call mma_deallocate(SD_loc)
-   call mma_deallocate(P_loc)
-   call mma_deallocate(PA_loc)
- Else
-   Call mma_allocate(DTMP,nD,Label='DTMP')
-   Call mma_allocate(DSTMP,nD,Label='DSTMP')
-   Call mma_allocate(PTMP,nP,Label='PTMP')
-   Call mma_allocate(PATMP,nP,Label='PATMP')
-   call Lucia_Util('Densi',CI_Vector=CIVEC)
-   If (Present(D)) D(1:nD)=DTMP(1:nD)
-   If (Present(SD)) SD(1:nD)=DSTMP(1:nD)
-   If (Present(P)) P(1:nP)=PTMP(1:nP)
-   If (Present(PA)) PA(1:nP)=PATMP(1:nP)
-   Call mma_deallocate(DTMP)
-   Call mma_deallocate(DSTMP)
-   Call mma_deallocate(PTMP)
-   Call mma_deallocate(PATMP)
- End If
-
-! CI development (MOLCAS_CI_VERIFY=SIGMA): verify the SGUGA density matrices
-! against the CI back end. D, P and PA are optional, so only those present
-! are compared.
-        If (CI_Verify('SIGMA') .and. (.NOT.iDoGAS) .and. (.NOT.Faro_CI())) Then
-
-          Call mma_allocate(CIV,nCIVEC,Label='CIV')
-          call CI_Basis_To_File(iState,CI_St(iState)%STSym,nCIVEC,CIVEC,CIV)
-
-!         Test the one-particle density matrix
-          If (Present(D)) Then
-          Check_D1=CheckSum(D,NACPAR)
-          Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
-
-          call sg_one_pdm(SGS(istate),CIS(istate),EXS(istate),CIV,SIZE(CIV),CI_St(iState)%STSym,D_sguga,Size(D_sguga))
-          If (ABS(CheckSum(D_sguga,NACPAR)-Check_D1)/SIZE(D_sguga)>1.0e-12_wp) Then
-             Check_D1=CheckSum(D_sguga,NACPAR)
-             Write (u6,*) 'SGUGA error in D1Mat'
-             Call Abend()
-          End If
-          Call mma_deallocate(D_sguga)
-          End If
-
-!         Test the one-particle spin-density matrix
-!         This option is not yet developed for the SGUGA code. To come...
-
-!         Test the symmetric two-particle density matrix.
-          If (Present(P) .and. Present(PA)) Then
-          Check_P=CheckSum(P,NACPR2)
-          Check_PA=CheckSum(PA,NACPR2)
-
-          Call mma_allocate(P_sguga,NACPR2,Label='P')
-          Call mma_allocate(PA_sguga,NACPR2,Label='PA')
-
-          call SG_Two_PDM_G(iState,CIV,SIZE(CIV),CI_St(iState)%STSym,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
-
-          If (ABS(CheckSum(P_sguga,NACPR2)-Check_P)/SIZE(p_sguga)>1.0e-12_wp) Then
-             Check_P=CheckSum(P_sguga,NACPR2)
-             Write (u6,*) 'SGUGA error in P'
-             Call Abend()
-          End If
-
-          If (ABS(CheckSum(PA_sguga,NACPR2)-Check_PA)/SIZE(p_sguga)>1.0e-12_wp) Then
-             Check_PA=CheckSum(PA_sguga,NACPR2)
-             Write (6,*) 'SGUGA error in PA'
-             Call Abend()
-          End If
-
-          Call mma_deallocate(PA_sguga)
-          Call mma_deallocate(P_sguga)
-          End If
-          Call mma_deallocate(CIV)
-
-        END IF
-
+call mma_deallocate(PA_loc)
+call mma_deallocate(P_loc)
+call mma_deallocate(SD_loc)
+call mma_deallocate(D_loc)
+call mma_deallocate(R2)
+call mma_deallocate(R1)
+call mma_deallocate(L2O)
 call Tim_Off(Tim_PDM,TimT)
+
 contains
 
-  ! FARO (CI development, SIGMA): the Faroald densities D, SD, P, PA against
-  ! Lucia (vector in the Lucia basis; no spin density for singlets) and
-  ! SGUGA (vector in the split-graph order), element by element.
-  ! CI development (SIGMA): the spin density from the ASTA triplet operator
+  ! The densities of the libraries not in use: Lucia (vector in its basis;
+  ! its spin density only for S > 0) and SGUGA (split-graph order; not for
+  ! GAS with Lucia, as before), and the ASTA spin density for SGUGA and
+  ! Faroald.
+  subroutine Check_Densities()
+    real(kind=wp), allocatable :: CIL(:), DS(:), SDS(:), PS(:), PAS(:)
+    real(kind=wp) :: Dev(4)
+    logical(kind=iwp) :: Done
+    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
+    call mma_allocate(CIL,nCIVEC,Label='CIL')
+    if (CI_Lib /= CI_Lib_Lucia) then
+      call CI_Basis_To_Lucia(iState,LSM,nCIVEC,CIVEC,CIL)
+      call mma_allocate(DTMP,nD,Label='DTMP')
+      call mma_allocate(DSTMP,nD,Label='DSTMP')
+      call mma_allocate(PTMP,nP,Label='PTMP')
+      call mma_allocate(PATMP,nP,Label='PATMP')
+      call Lucia_Util('Densi',CI_Vector=CIL)
+      ! (only the triangles are defined; no spin density for singlets)
+      Dev(1) = maxval(abs(DTMP(1:NACPAR)-D_loc(1:NACPAR)))
+      Dev(2) = Zero
+      if (Present(SD) .and. (CI_St(iState)%iSpin > 1)) Dev(2) = maxval(abs(DSTMP(1:NACPAR)-SD_loc(1:NACPAR)))
+      Dev(3) = Zero
+      Dev(4) = Zero
+      if (I12 == 2) then
+        Dev(3) = maxval(abs(PTMP(1:nP)-P_loc(1:nP)))
+        Dev(4) = maxval(abs(PATMP(1:nP)-PA_loc(1:nP)))
+      end if
+      Done = PDM_SG_Verified
+      call Report_Dev('Mk_pdms: D, SD, P, PA vs Lucia',maxval(Dev),ThrD,Done)
+      call mma_deallocate(PATMP)
+      call mma_deallocate(PTMP)
+      call mma_deallocate(DSTMP)
+      call mma_deallocate(DTMP)
+    end if
+    if ((CI_Lib /= CI_Lib_SGUGA) .and. SG_Avail() .and. ((CI_Lib /= CI_Lib_Lucia) .or. (.not. iDoGAS))) then
+      call CI_Basis_To_File(iState,LSM,nCIVEC,CIVEC,CIL)
+      call mma_allocate(DS,NACPAR,Label='DS')
+      call mma_allocate(SDS,NACPAR,Label='SDS')
+      call mma_allocate(PS,NACPR2,Label='PS')
+      call mma_allocate(PAS,NACPR2,Label='PAS')
+      call sg_one_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,LSM,DS,NACPAR)
+      Dev(:) = Zero
+      Dev(1) = maxval(abs(DS(:)-D_loc(1:NACPAR)))
+      if (Present(SD) .and. (CI_Lib /= CI_Lib_Lucia)) then
+        call SG_Spin_PDM_G(iState,CIL,nCIVEC,LSM,DS,SDS,NACPAR)
+        Dev(2) = maxval(abs(SDS(:)-SD_loc(1:NACPAR)))
+      end if
+      if (I12 == 2) then
+        call SG_Two_PDM_G(iState,CIL,nCIVEC,LSM,PS,PAS,NACPR2)
+        Dev(3) = maxval(abs(PS(1:nP)-P_loc(1:nP)))
+        Dev(4) = maxval(abs(PAS(1:nP)-PA_loc(1:nP)))
+      end if
+      Done = PDM_Faro_Verified
+      call Report_Dev('Mk_pdms: D, SD, P, PA vs SGUGA',maxval(Dev),ThrD,Done)
+      call mma_deallocate(PAS)
+      call mma_deallocate(PS)
+      call mma_deallocate(SDS)
+      call mma_deallocate(DS)
+    end if
+    if (Present(SD) .and. (CI_Lib /= CI_Lib_Lucia) .and. SG_Avail()) then
+      call CI_Basis_To_File(iState,LSM,nCIVEC,CIVEC,CIL)
+      call Check_SD_ASTA(CIL,SD_loc(1:NACPAR),'Mk_pdms: spin density, ASTA T_pq vs the CI library')
+    end if
+    call mma_deallocate(CIL)
+  end subroutine Check_Densities
+
+  ! CI development: the ASTA spin density of the state
   ! (SG_Spin_Density_ASTA, vector CIS in the split-graph order) against SDRef.
   subroutine Check_SD_ASTA(CIS_,SDRef,Text)
     real(kind=wp), intent(in) :: CIS_(:), SDRef(:)
@@ -1427,131 +1410,61 @@ contains
     real(kind=wp), allocatable :: SDA(:)
     logical(kind=iwp) :: Done
     call mma_allocate(SDA,NACPAR,Label='SDA')
-    call SG_Spin_Density_ASTA(iState,CI_St(iState)%STSym,nCIVEC,CIS_,NACPAR,SDA)
+    call SG_Spin_Density_ASTA(iState,LSM,nCIVEC,CIS_,NACPAR,SDA)
     Done = SD_ASTA_Verified
     call Report_Dev(Text,maxval(abs(SDA(:)-SDRef(1:NACPAR))),1.0e-10_wp,Done)
     SD_ASTA_Verified = .true.
     call mma_deallocate(SDA)
   end subroutine Check_SD_ASTA
 
-  subroutine Faroald_Check_Densities()
-    real(kind=wp), allocatable :: CIL(:), DS(:), SDS(:), PS(:), PAS(:)
-    real(kind=wp) :: Dev(4)
-    logical(kind=iwp) :: Done
-    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
+End Subroutine Mk_pdms
 
-    call mma_allocate(CIL,nCIVEC,Label='CIL')
-    call CI_Basis_To_Lucia(iState,CI_St(iState)%STSym,nCIVEC,CIVEC,CIL)
-    call mma_allocate(DTMP,nD,Label='DTMP')
-    call mma_allocate(DSTMP,nD,Label='DSTMP')
-    call mma_allocate(PTMP,nP,Label='PTMP')
-    call mma_allocate(PATMP,nP,Label='PATMP')
-    call Lucia_Util('Densi',CI_Vector=CIL)
-    Dev(1) = maxval(abs(DTMP(1:NACPAR)-D_loc(1:NACPAR)))
-    Dev(2) = Zero
-    if (CI_St(iState)%iSpin > 1) Dev(2) = maxval(abs(DSTMP(1:NACPAR)-SD_loc(1:NACPAR)))
-    Dev(3) = maxval(abs(PTMP(1:nP)-P_loc(1:nP)))
-    Dev(4) = maxval(abs(PATMP(1:nP)-PA_loc(1:nP)))
-    Done = PDM_Faro_Verified
-    call Report_Dev('Mk_pdms (FARO): Faroald D, SD, P, PA vs Lucia',maxval(Dev),ThrD,Done)
-    call mma_deallocate(PATMP)
-    call mma_deallocate(PTMP)
-    call mma_deallocate(DSTMP)
-    call mma_deallocate(DTMP)
-    if (SG_Avail()) then
-      call CI_Basis_To_File(iState,CI_St(iState)%STSym,nCIVEC,CIVEC,CIL)
-      call mma_allocate(DS,NACPAR,Label='DS')
-      call mma_allocate(SDS,NACPAR,Label='SDS')
-      call mma_allocate(PS,NACPR2,Label='PS')
-      call mma_allocate(PAS,NACPR2,Label='PAS')
-      call sg_one_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,CI_St(iState)%STSym,DS,NACPAR)
-      call SG_Spin_PDM_G(iState,CIL,nCIVEC,CI_St(iState)%STSym,DS,SDS,NACPAR)
-      call SG_Two_PDM_G(iState,CIL,nCIVEC,CI_St(iState)%STSym,PS,PAS,NACPR2)
-      Dev(1) = maxval(abs(DS(:)-D_loc(1:NACPAR)))
-      Dev(2) = maxval(abs(SDS(:)-SD_loc(1:NACPAR)))
-      call Check_SD_ASTA(CIL,SD_loc(1:NACPAR),'Mk_pdms (FARO): spin density, ASTA T_pq vs Faroald')
-      Dev(3) = maxval(abs(PS(1:nP)-P_loc(1:nP)))
-      Dev(4) = maxval(abs(PAS(1:nP)-PA_loc(1:nP)))
-      Done = PDM_Faro_Verified
-      call Report_Dev('Mk_pdms (FARO): Faroald D, SD, P, PA vs SGUGA',maxval(Dev),ThrD,Done)
-      call mma_deallocate(PAS)
-      call mma_deallocate(PS)
-      call mma_deallocate(SDS)
-      call mma_deallocate(DS)
-    end if
-    PDM_Faro_Verified = .true.
-    call mma_deallocate(CIL)
-  end subroutine Faroald_Check_Densities
+!> The densities of CI_Lib_Dens (symmetry-ordered orbitals: Rho1 square,
+!> Rho2 at iTri(ij,kl), square pair index) in the layout of RASSCF, in
+!> level order (L2O, CI_Lib_Level_Map): D(iTri(a,b)) = Rho1(b,a) for
+!> a >= b; for I12 = 2 also P(tuvx) = 1/2 (p(tuvx)+p(tuxv)) (1/2 p(tuvv)
+!> for v = x) and PA(tuvx) = 1/2 (p(tuvx)-p(tuxv)) (zero for t = u or
+!> v = x), t >= u, v >= x, tu >= vx (the packing of fold_two_pdm).
+subroutine Rho_To_Packed(N,L2O,Rho1,I12,Rho2,D,P,PA)
+use Index_Functions, only: iTri
+use Constants, only: Half
+integer(kind=iwp), intent(in) :: N, L2O(N), I12
+real(kind=wp), intent(in) :: Rho1(N,N), Rho2(*)
+real(kind=wp), intent(out) :: D(*)
+real(kind=wp), intent(inout) :: P(*), PA(*)
+integer(kind=iwp) :: t, tu, tuvx, u, v, vx, x, x_max
+real(kind=wp) :: A, B
+do t=1,N
+  do u=1,t
+    D(iTri(t,u)) = Rho1(L2O(u),L2O(t))
+  end do
+end do
+if (I12 /= 2) return
+do t=1,N
+  do u=1,t
+    tu = iTri(t,u)
+    do v=1,t
+      x_max = v
+      if (v == t) x_max = u
+      do x=1,x_max
+        vx = iTri(v,x)
+        tuvx = iTri(tu,vx)
+        A = Rho2(iTri(L2O(t)+(L2O(u)-1)*N,L2O(v)+(L2O(x)-1)*N))
+        if (v == x) then
+          P(tuvx) = Half*A
+          PA(tuvx) = Zero
+        else
+          B = Rho2(iTri(L2O(t)+(L2O(u)-1)*N,L2O(x)+(L2O(v)-1)*N))
+          P(tuvx) = Half*(A+B)
+          PA(tuvx) = Zero
+          if (t /= u) PA(tuvx) = Half*(A-B)
+        end if
+      end do
+    end do
+  end do
+end do
 
-  subroutine SGCI_Densities()
-    real(kind=wp), allocatable :: DS(:), SDS(:), PS(:), PAS(:), CIL(:)
-    real(kind=wp) :: Dev(4)
-    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
-
-    call mma_allocate(DS,NACPAR,Label='DS')
-    call mma_allocate(SDS,NACPAR,Label='SDS')
-    call mma_allocate(PS,NACPR2,Label='PS')
-    call mma_allocate(PAS,NACPR2,Label='PAS')
-    call sg_one_pdm(SGS(iState),CIS(iState),EXS(iState),CIVEC,nCIVEC,CI_St(iState)%STSym,DS,NACPAR)
-    SDS(:) = Zero
-    if (Present(SD)) call SG_Spin_PDM_G(iState,CIVEC,nCIVEC,CI_St(iState)%STSym,DS,SDS,NACPAR)
-    PS(:) = Zero
-    PAS(:) = Zero
-    if (Present(P) .or. Present(PA)) call SG_Two_PDM_G(iState,CIVEC,nCIVEC,CI_St(iState)%STSym,PS,PAS,NACPR2)
-    if (Present(D)) then
-      D(1:nD) = Zero
-      D(1:NACPAR) = DS(:)
-    end if
-    if (Present(SD)) then
-      SD(1:nD) = Zero
-      SD(1:NACPAR) = SDS(:)
-    end if
-    if (Present(P)) P(1:nP) = PS(1:nP)
-    if (Present(PA)) PA(1:nP) = PAS(1:nP)
-
-    if (CI_Verify('SIGMA')) then
-      ! Lucia densities of the vector in the Lucia basis
-      call mma_allocate(CIL,nCIVEC,Label='CIL')
-      call SG_Reord(iState,CI_St(iState)%STSym,1,nCIVEC,CIVEC,CIL)
-      call mma_allocate(DTMP,nD,Label='DTMP')
-      call mma_allocate(DSTMP,nD,Label='DSTMP')
-      call mma_allocate(PTMP,nP,Label='PTMP')
-      call mma_allocate(PATMP,nP,Label='PATMP')
-      call Lucia_Util('Densi',CI_Vector=CIL)
-      ! Only the triangles are defined (DTMP and DSTMP are not initialized
-      ! behind them), and Lucia computes no spin density for singlets.
-      Dev(1) = maxval(abs(DTMP(1:NACPAR)-DS(:)))
-      Dev(2) = Zero
-      if (Present(SD) .and. (SGS(iState)%iSpin > 1)) Dev(2) = maxval(abs(DSTMP(1:NACPAR)-SDS(:)))
-      if (Present(SD)) call Check_SD_ASTA(CIVEC,SDS,'Mk_pdms (SGCI): spin density, ASTA T_pq vs sg_spin_pdm')
-      Dev(3) = Zero
-      Dev(4) = Zero
-      if (Present(P) .or. Present(PA)) then
-        Dev(3) = maxval(abs(PTMP(1:nP)-PS(1:nP)))
-        Dev(4) = maxval(abs(PATMP(1:nP)-PAS(1:nP)))
-      end if
-      if (.not. PDM_SG_Verified) then
-        write(u6,'(1X,A,4ES10.3)') 'Mk_pdms (SGCI): SGUGA D, SD, P, PA vs Lucia, max. abs. differences',Dev(:)
-        PDM_SG_Verified = .true.
-      end if
-      if (any(Dev(:) > ThrD)) then
-        write(u6,'(1X,A,4ES10.3)') 'SGUGA error in the density matrices (SGCI), max. abs. differences',Dev(:)
-        call Abend()
-      end if
-      call mma_deallocate(PATMP)
-      call mma_deallocate(PTMP)
-      call mma_deallocate(DSTMP)
-      call mma_deallocate(DTMP)
-      call mma_deallocate(CIL)
-    end if
-
-    call mma_deallocate(PAS)
-    call mma_deallocate(PS)
-    call mma_deallocate(SDS)
-    call mma_deallocate(DS)
-  end subroutine SGCI_Densities
-
- End Subroutine Mk_pdms
+end subroutine Rho_To_Packed
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
