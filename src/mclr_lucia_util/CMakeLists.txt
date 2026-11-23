@@ -39,7 +39,6 @@ set (sources
      csf2sd.F90
      csfdet_mclr.F90
      csfinf.F90
-     degvec.F90
      densi2_mclr.F90
      detctl.F90
      detstr_mclr.F90
@@ -72,8 +71,6 @@ set (sources
      gtsttp_2.F90
      gtsttps_1.F90
      gtsttps_2.F90
-     h0csf.F90
-     h0mat_mclr.F90
      iabnum.F90
      iabnus.F90
      iaibcm_mclr.F90

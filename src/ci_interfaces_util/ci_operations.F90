@@ -65,8 +65,7 @@ use CI_Info, only: CI_St
 use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, &
                       CI_Lib_Select, CI_Lib_SGUGA, CI_To_Basis, CI_To_File
 use MCLR_Lucia_CI, only: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_Conv, MCLR_Lucia_Dets, &
-                         MCLR_Lucia_Diag, MCLR_Lucia_Diag_Act, MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_PSpace, &
-                         MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
+                         MCLR_Lucia_Diag_Act, MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 use Definitions, only: wp, iwp, u6
 
 implicit none

@@ -28,8 +28,8 @@ private
 
 logical(kind=iwp) :: Initialized = .false.
 
-public :: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, &
-          MCLR_Lucia_Diag_Act, MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_PSpace, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
+public :: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag_Act, &
+          MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 
 contains
 
@@ -362,7 +362,7 @@ subroutine MCLR_Lucia_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP
   if (nHP < nTri_Elem(nP)) call Abend()
   HP(:) = Zero
   if (nP == 0) return
-  ! spin combinations as in H0MAT_MCLR
+  ! spin combinations (IDC = 2: M_S = 0 combinations with the sign PSSIGN)
   if (IDC == 1) then
     iComb = 0
     PSign = Zero
@@ -484,52 +484,6 @@ subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
   call mma_deallocate(DSD)
 
 end subroutine MCLR_Lucia_Diag
-
-!> The explicit P space (PSpace_Proc of CI_Operations): H0MAT_MCLR with
-!> a P2 space of at most nPMax CSFs (no P1 and Q spaces)
-subroutine MCLR_Lucia_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
-  use Index_Functions, only: nTri_Elem
-  use MCLR_Lucia_Data, only: IDC, iRefSM, KAIN1, KINT2, NACOB, NAELCI, NBELCI, NCSFTP, NDPCNT, NOCOB, NTYP, pInt1, PSSIGN, XISPSM
-  use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP
-  real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
-  real(kind=wp), intent(in) :: Diag(n)
-  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
-  real(kind=wp), intent(out) :: HP(nHP)
-  integer(kind=iwp) :: ieaw, lH0Scr, lVec2, MxCSFC, MxDTFC, nActEl
-  integer(kind=iwp), allocatable :: SBCnf(:)
-  real(kind=wp), allocatable :: H0Scr(:), Vec2(:)
-
-#include "macros.fh"
-  unused_var(iState)
-  call Use_Syms(iSym,iSym)
-  MxCSFC = max(0,maxval(NCSFTP(1:NTYP)))
-  MxDTFC = max(0,maxval(NDPCNT(1:NTYP)))
-  nActEl = NAELCI(1)+NBELCI(1)
-  lH0Scr = max(6*nPMax,4*nPMax+4*NOCOB)
-  lVec2 = MxCSFC**2+2*MxDTFC+2*MxDTFC**2+MxDTFC*nActEl
-  lVec2 = max(lVec2,nint(XISPSM(iSym,1)))
-  ! (iRefSM is the symmetry of the last sigma vector, as before)
-  if (iSym == iRefSM) then
-    ieaw = 1
-  else
-    ieaw = 2
-  end if
-  if (nHP < nTri_Elem(nPMax)) call Abend()
-  ! the integrals of the (totally symmetric) Hamiltonian, as for sigma
-  KAIN1(1:nInt1) => Int1(:)
-  KINT2(1:nInt2) => Int2(:)
-  call Int1_Offsets(1,pInt1)
-  call mma_allocate(SBCnf,nPMax,Label='SBCnf')
-  call mma_allocate(H0Scr,lH0Scr,Label='H0Scr')
-  call mma_allocate(Vec2,lVec2,Label='Vec2')
-  call H0MAT_MCLR(HP,IdxP,SBCnf,0,nPMax,0,NACOB,nP,iSym,IDC,PSSIGN,Diag,Vec2,H0Scr,ieaw)
-  call mma_deallocate(Vec2)
-  call mma_deallocate(H0Scr)
-  call mma_deallocate(SBCnf)
-  nullify(KAIN1,KINT2)
-
-end subroutine MCLR_Lucia_PSpace
 
 !> Determinants (of a DMRG reconstruction) into the CSF basis (Dets_Proc
 !> of CI_Operations)
