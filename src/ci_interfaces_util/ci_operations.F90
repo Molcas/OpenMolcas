@@ -111,17 +111,13 @@ public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File,
 
 contains
 
-!> Set up the selected library for the CI state. TD (default .false.): the
-!> two-body integrals of all later operations are in the square-pair
-!> layout (time-dependent response of MCLR)
-subroutine CI_Lib_Initialize(iState,TD)
+!> Set up the selected library for the CI state
+subroutine CI_Lib_Initialize(iState)
   use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRs1, nRs2, nRs3
   use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
   use Molcas, only: MxSym
   integer(kind=iwp), intent(in) :: iState
-  logical(kind=iwp), intent(in), optional :: TD
   integer(kind=iwp) :: nDet(MxSym)
-  logical(kind=iwp) :: TD_
   if (CI_Lib == CI_Lib_SGUGA) then
     ! the split graph is the state of the CI interface (set up by the
     ! program with CI_Lib_Graph_Mode()); no determinants
@@ -133,11 +129,9 @@ subroutine CI_Lib_Initialize(iState,TD)
     return
   end if
   call Check_Lib('CI_Lib_Initialize')
-  TD_ = .false.
-  if (present(TD)) TD_ = TD
   ! the CI space as arguments: the library keeps its own copies
   call MCLR_Lucia_Init(nSym,nOrb(1:nSym),nIsh(1:nSym),nAsh(1:nSym),nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,nActEl, &
-                       iSpin,CI_St(iState)%STSym,CI_St(iState)%nCSF(1:nSym),TD_,nDet(1:nSym))
+                       iSpin,CI_St(iState)%STSym,CI_St(iState)%nCSF(1:nSym),nDet(1:nSym))
   CI_St(iState)%nDet(:) = 0
   CI_St(iState)%nDet(1:nSym) = nDet(1:nSym)
 end subroutine CI_Lib_Initialize

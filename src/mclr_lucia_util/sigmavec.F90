@@ -24,7 +24,7 @@ use MCLR_Lucia_Data, only: i12, IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, ist,
                            MXSB, MXSOOB, NOCSF, NOPART, NTSOB, PSSIGN, XISPSM
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use MCLR_Lucia_Data, only: nSym => L_nSym
-use MCLR_Lucia_Data, only: TimeDep => TD_Ints
+use MCLR_Lucia_Data, only: TimeDep => Square
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

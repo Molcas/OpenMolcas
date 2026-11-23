@@ -92,7 +92,7 @@ if (iMethod == 2) then
 
   !write(u6,*) 'Setup of Determinant tables'
   ! set up the CI library (determinant tables) for the CI state
-  call CI_Lib_Initialize(iState_CI,TimeDep)
+  call CI_Lib_Initialize(iState_CI)
   !                                                                    *
   !*********************************************************************
   !                                                                    *

@@ -35,17 +35,15 @@ contains
 
 !> Set up the determinant tables for the CI state (State_Proc of
 !> CI_Operations) and publish the dimensions of the determinant space
-subroutine MCLR_Lucia_Init(nSym,nOrb,nIsh,nAsh,nRs1,nRs2,nRs3,nHole1,nElec3,nActEl,iSpin,STSym,nCSF,TD,nDet)
+subroutine MCLR_Lucia_Init(nSym,nOrb,nIsh,nAsh,nRs1,nRs2,nRs3,nHole1,nElec3,nActEl,iSpin,STSym,nCSF,nDet)
   use MCLR_Lucia_Data, only: L_iSpin, L_nActEl, L_nAsh, L_nElec3, L_nHole1, L_nIsh, L_nOrb, L_nRs1, L_nRs2, L_nRs3, L_nSym, &
-                             TD_Ints, XISPSM
+                             XISPSM
   ! the CI space: symmetries; orbitals, inactive and active orbitals, RAS1,
   ! RAS2 and RAS3 orbitals per symmetry; holes in RAS1, electrons in RAS3;
   ! active electrons, multiplicity, symmetry of the CI state, CSFs per
   ! symmetry
   integer(kind=iwp), intent(in) :: nSym, nOrb(nSym), nIsh(nSym), nAsh(nSym), nRs1(nSym), nRs2(nSym), nRs3(nSym), nHole1, nElec3, &
                                    nActEl, iSpin, STSym, nCSF(nSym)
-  ! TD: the two-body integrals of the run are in the square-pair layout
-  logical(kind=iwp), intent(in) :: TD
   ! the dimensions of the determinant spaces per symmetry
   integer(kind=iwp), intent(out) :: nDet(nSym)
   L_nSym = nSym
@@ -68,7 +66,6 @@ subroutine MCLR_Lucia_Init(nSym,nOrb,nIsh,nAsh,nRs1,nRs2,nRs3,nHole1,nElec3,nAct
   L_iSpin = iSpin
   L_STSym = STSym
   L_nCSF(1:nSym) = nCSF(:)
-  TD_Ints = TD
   call DetCtl()
   call InCsfSD(STSym,STSym)
   nDet(:) = nint(XISPSM(1:nSym,1))
