@@ -7,6 +7,8 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
 !> Generic CI operations of the CI interface, for any program, and the
@@ -80,8 +82,8 @@
 module CI_Operations
 
 use CI_Info, only: CI_St
-use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_SGUGA, &
-                      CI_To_Basis, CI_To_File
+use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, &
+                      CI_Lib_Select, CI_Lib_SGUGA, CI_To_Basis, CI_To_File
 use MCLR_Lucia_CI, only: MCLR_Lucia_Close, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, MCLR_Lucia_Init, MCLR_Lucia_PSpace, &
                          MCLR_Lucia_Sigma, MCLR_Lucia_TDens
 use Definitions, only: wp, iwp, u6
@@ -89,8 +91,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-!> The selected library (changed only by CI_Lib_Select)
-integer(kind=iwp), protected :: CI_Lib_Op = CI_Lib_None
+!> The selected library is CI_Lib of CI_Op_Defs (set by CI_Lib_Select, one
+!> selection for every program; re-exported here)
 
 
 ! Faroald: its orbitals are the levels of the split graph (by RAS
@@ -103,26 +105,11 @@ integer(kind=iwp), protected :: CI_Lib_Op = CI_Lib_None
 integer(kind=iwp) :: Faro_Cur = 0, Faro_MaxEl(3) = 0, Faro_MinEl(3) = 0, Faro_nAct = 0, Faro_nPrt = 0, Faro_Sym = 0
 integer(kind=iwp), allocatable :: Faro_Lev(:), Faro_OrbRas(:), Faro_OrbSym(:)
 
-public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dets_To_Basis, CI_Lib_Faroald, &
-          CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, CI_Lib_Op, &
-          CI_Lib_Select, CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens
+public :: CI_Diag, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Close, CI_Lib_Dets_To_Basis, &
+          CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, CI_Lib_Initialize, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, &
+          CI_Lib_None, CI_Lib_Select, CI_Lib_SGUGA, CI_PSpace, CI_Sigma_Op, CI_To_Basis, CI_To_File, CI_Trans_Dens
 
 contains
-
-!> Select the CI library for MCLR (CI_Lib_*)
-subroutine CI_Lib_Select(iLib)
-  integer(kind=iwp), intent(in) :: iLib
-  select case (iLib)
-    case (CI_Lib_MCLR_Lucia,CI_Lib_SGUGA,CI_Lib_Faroald)
-      CI_Lib_Op = iLib
-    case (CI_Lib_Lucia)
-      write(u6,'(A,I2,A)') ' CI_Lib_Select: CI library',iLib,' is not available for MCLR yet'
-      call Abend()
-    case default
-      write(u6,'(A,I4)') ' CI_Lib_Select: unknown CI library',iLib
-      call Abend()
-  end select
-end subroutine CI_Lib_Select
 
 !> Set up the selected library for the CI state. TD (default .false.): the
 !> two-body integrals of all later operations are in the square-pair
@@ -135,13 +122,13 @@ subroutine CI_Lib_Initialize(iState,TD)
   logical(kind=iwp), intent(in), optional :: TD
   integer(kind=iwp) :: nDet(MxSym)
   logical(kind=iwp) :: TD_
-  if (CI_Lib_Op == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_SGUGA) then
     ! the split graph is the state of the CI interface (set up by the
     ! program with CI_Lib_Graph_Mode()); no determinants
     CI_St(iState)%nDet(:) = CI_St(iState)%nCSF(:)
     return
   end if
-  if (CI_Lib_Op == CI_Lib_Faroald) then
+  if (CI_Lib == CI_Lib_Faroald) then
     call Faro_Init(iState)
     return
   end if
@@ -155,20 +142,19 @@ subroutine CI_Lib_Initialize(iState,TD)
   CI_St(iState)%nDet(1:nSym) = nDet(1:nSym)
 end subroutine CI_Lib_Initialize
 
-!> Free the library of the CI state and forget the selection (safe to call
-!> in any case)
+!> Free the library of the CI state (safe to call in any case); the
+!> selection is kept (CI_Op_Defs: other code of the program may still read it)
 subroutine CI_Lib_Close(iState)
   use SGUGA_Sigma, only: SG_Sigma_Free
   use SGUGA_Densities, only: SG_Densities_Free
   integer(kind=iwp), intent(in) :: iState
-  if (CI_Lib_Op == CI_Lib_MCLR_Lucia) call MCLR_Lucia_Close(iState)
+  if (CI_Lib == CI_Lib_MCLR_Lucia) call MCLR_Lucia_Close(iState)
   ! the work space of SGUGA (safe to call in any case, as in CI_Close)
-  if (CI_Lib_Op == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_SGUGA) then
     call SG_Sigma_Free()
     call SG_Densities_Free()
   end if
-  if (CI_Lib_Op == CI_Lib_Faroald) call Faro_Close()
-  CI_Lib_Op = CI_Lib_None
+  if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
 end subroutine CI_Lib_Close
 
 subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
@@ -185,7 +171,7 @@ subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_e
     write(u6,'(A)') ' CI_Sigma_Op: the operator with iOpSpin = 1 is one-body only'
     call Abend()
   end if
-  if (CI_Lib_Op == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_SGUGA) then
     if (iOpSpin /= 0) call Not_Yet('CI_Sigma_Op','triplet operators')
     if (Square) then
       call SG_Sigma_Sq(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S)
@@ -194,7 +180,7 @@ subroutine CI_Sigma_Op(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_e
     end if
     return
   end if
-  if (CI_Lib_Op == CI_Lib_Faroald) then
+  if (CI_Lib == CI_Lib_Faroald) then
     if (iOpSpin /= 0) call Not_Yet('CI_Sigma_Op','triplet operators')
     call Faro_Sigma_Op(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,nS,S,Square)
     return
@@ -211,12 +197,12 @@ subroutine CI_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho
     write(u6,'(A,I4)') ' CI_Trans_Dens: invalid operator spin iOpSpin =',iOpSpin
     call Abend()
   end if
-  if (CI_Lib_Op == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_SGUGA) then
     if (iOpSpin /= 0) call Not_Yet('CI_Trans_Dens','spin densities')
     call SG_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     return
   end if
-  if (CI_Lib_Op == CI_Lib_Faroald) then
+  if (CI_Lib == CI_Lib_Faroald) then
     if (iOpSpin /= 0) call Not_Yet('CI_Trans_Dens','spin densities')
     call Faro_Trans_Dens(iState,I12,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     return
@@ -234,11 +220,11 @@ subroutine CI_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
     write(u6,'(A,I4)') ' CI_Diag: invalid Mode =',Mode
     call Abend()
   end if
-  if (CI_Lib_Op == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_SGUGA) then
     call SG_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
     return
   end if
-  if (CI_Lib_Op == CI_Lib_Faroald) then
+  if (CI_Lib == CI_Lib_Faroald) then
     call Faro_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
     return
   end if
@@ -252,11 +238,11 @@ subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,
   real(kind=wp), intent(in) :: Diag(n)
   integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
   real(kind=wp), intent(out) :: HP(nHP)
-  if (CI_Lib_Op == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_SGUGA) then
     call SG_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,nPMax,nP,IdxP,nHP,HP)
     return
   end if
-  if (CI_Lib_Op == CI_Lib_Faroald) then
+  if (CI_Lib == CI_Lib_Faroald) then
     call Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
     return
   end if
@@ -268,7 +254,7 @@ subroutine CI_Lib_Dets_To_Basis(iState,iSym,nD,DetVec,IdxD,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
   real(kind=wp), intent(in) :: DetVec(nD)
   real(kind=wp), intent(out) :: CI(n)
-  if ((CI_Lib_Op == CI_Lib_SGUGA) .or. (CI_Lib_Op == CI_Lib_Faroald)) &
+  if ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald)) &
     call Not_Yet('CI_Lib_Dets_To_Basis','determinant vectors (DMRG)')
   call Check_Lib('CI_Lib_Dets_To_Basis')
   call MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
@@ -278,7 +264,7 @@ subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, n
   real(kind=wp), intent(inout) :: CI(n)
   ! SGUGA, Faroald: the split-graph basis is the stored one
-  if ((CI_Lib_Op == CI_Lib_SGUGA) .or. (CI_Lib_Op == CI_Lib_Faroald)) return
+  if ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald)) return
   call Check_Lib('CI_Lib_File_To_Basis')
   call MCLR_Lucia_Conv(iState,iSym,CI_To_Basis,n,CI)
 end subroutine CI_Lib_File_To_Basis
@@ -287,7 +273,7 @@ subroutine CI_Lib_Basis_To_File(iState,iSym,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, n
   real(kind=wp), intent(inout) :: CI(n)
   ! SGUGA, Faroald: the split-graph basis is the stored one
-  if ((CI_Lib_Op == CI_Lib_SGUGA) .or. (CI_Lib_Op == CI_Lib_Faroald)) return
+  if ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald)) return
   call Check_Lib('CI_Lib_Basis_To_File')
   call MCLR_Lucia_Conv(iState,iSym,CI_To_File,n,CI)
 end subroutine CI_Lib_Basis_To_File
@@ -296,7 +282,7 @@ end subroutine CI_Lib_Basis_To_File
 !> with the coupling tables, for SGUGA; 'GRAPH': graph and walks only)
 function CI_Lib_Graph_Mode() result(Mode)
   character(len=5) :: Mode
-  if (CI_Lib_Op == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_SGUGA) then
     Mode = 'FULL'
   else
     Mode = 'GRAPH'
@@ -1136,11 +1122,12 @@ subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
   call mma_deallocate(Diag)
 end subroutine Faro_PSpace
 
-!> The remaining case of the operations is the MCLR copy of Lucia
+!> The remaining case of the operations is the MCLR copy of Lucia (also the
+!> stop for RASSCF's Lucia, CI_Lib_Lucia, not available for MCLR)
 subroutine Check_Lib(Caller)
   character(len=*), intent(in) :: Caller
-  if (CI_Lib_Op /= CI_Lib_MCLR_Lucia) then
-    write(u6,'(1X,A,A,I2)') Caller,': no CI library selected, or not available:',CI_Lib_Op
+  if (CI_Lib /= CI_Lib_MCLR_Lucia) then
+    write(u6,'(1X,A,A,I2)') Caller,': no CI library selected, or not available:',CI_Lib
     call Abend()
   end if
 end subroutine Check_Lib
