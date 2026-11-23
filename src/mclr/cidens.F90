@@ -14,7 +14,7 @@ subroutine CIDens(response,iLS,iRS,iL,iR,rP,rD)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, W
 use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA
-use CI_Operations, only: CI_Trans_Dens
+use CI_Operations, only: CI_Lib_Dens
 use input_mclr, only: nCSF, TimeDep
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -79,7 +79,7 @@ Pe(:) = Zero
 ! (through the CI interface; L of symmetry iL, R of symmetry iR)
 call ipin(iLS)
 call ipin(iRS)
-call CI_Trans_Dens(iState,2,0,iL,iR,nCSF(iL),W(iLS)%A(1:nCSF(iL)),nCSF(iR),W(iRS)%A(1:nCSF(iR)),n1Dens,De,n2Dens,Pe)
+call CI_Lib_Dens(iState,2,0,iL,iR,nCSF(iL),W(iLS)%A(1:nCSF(iL)),nCSF(iR),W(iRS)%A(1:nCSF(iR)),n1Dens,De,n2Dens,Pe)
 if (.not. timedep) then
   if (response) then
     do iA=1,nnA
@@ -111,7 +111,7 @@ else
   rD(1:n1Dens) = De(:)
   call ipin(iRS)
   call ipin(iLS)
-  call CI_Trans_Dens(iState,2,0,iR,iL,nCSF(iR),W(iRS)%A(1:nCSF(iR)),nCSF(iL),W(iLS)%A(1:nCSF(iL)),n1Dens,De,n2Dens,Pe)
+  call CI_Lib_Dens(iState,2,0,iR,iL,nCSF(iR),W(iRS)%A(1:nCSF(iR)),nCSF(iL),W(iLS)%A(1:nCSF(iL)),n1Dens,De,n2Dens,Pe)
   rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
   rD(1:n1Dens) = rD(1:n1Dens)-De(:)
 end if

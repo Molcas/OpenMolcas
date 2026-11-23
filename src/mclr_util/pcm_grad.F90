@@ -405,7 +405,7 @@ subroutine PCM_grad_dens(mode)
 
   use ipPage, only: W
   use MCLR_Data, only: ipCI, iRlxRoot, isNAC, NSSA
-  use CI_Operations, only: CI_Trans_Dens
+  use CI_Operations, only: CI_Lib_Dens
   use input_mclr, only: nConf, ncsf, nRoots, ntAsh
 
   integer(kind=iwp), parameter :: iState = 1
@@ -435,7 +435,7 @@ subroutine PCM_grad_dens(mode)
       do jR=1,nRoots
         if (W_SOLV(jR) <= 1.0e-10_wp) cycle
         G1r(:,:) = Zero
-        call CI_Trans_Dens(iState,1,0,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
+        call CI_Lib_Dens(iState,1,0,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
                            W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),ng1,G1r,ng2,G2r)
         !! For RDM1
         G1q(:,:) = G1q(:,:)+W_SOLV(jR)*G1r(:,:)
@@ -451,7 +451,7 @@ subroutine PCM_grad_dens(mode)
         jR = iRlxRoot
         kR = iRlxRoot
       end if
-      call CI_Trans_Dens(iState,1,0,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
+      call CI_Lib_Dens(iState,1,0,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
                          W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),ng1,G1r,ng2,G2r)
       !! For RDM1
       G1q(:,:) = G1q(:,:)+G1r(:,:)

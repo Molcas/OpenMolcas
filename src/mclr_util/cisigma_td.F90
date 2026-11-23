@@ -26,8 +26,8 @@
 #endif
 
 subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
-! sigma = H C through the CI interface (CI_Sigma_Op), see CISigma. For
-! time-dependent perturbations the vectors have two halves of length
+! sigma = H C through the CI interface (MCLR_CI_Sigma -> CI_Lib_Sigma), see
+! CISigma. For time-dependent perturbations the vectors have two halves of length
 ! nConf1: NT = 'N': only the first half; NT = 'S': symmetric operator,
 ! both halves; otherwise the operator is not symmetric (square
 ! integrals), and the second half is the transposed operator applied to
@@ -37,14 +37,12 @@ use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: ipMat, nConf1, nDens
-use CI_Operations, only: CI_Sigma_Op
 use Orbital_Spaces, only: nSym
 use input_mclr, only: nBas, nCSF, ntAsh, Page, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
 real(kind=wp), target, intent(in) :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
 character, intent(in) :: NT
@@ -69,15 +67,15 @@ if (TIMEDEP) then
   end if
   call ipin(ipCI1)
   call ipin(ipci2)
-  call CI_Sigma_Op(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,Square,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
+  call MCLR_CI_Sigma(iiSpin,iCSym,iSSym,Square,Have_2_el,nInt1,Int1,nInt2s,Int2s,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
 
   if (NT == 'N') return
 
   if (NT == 'S') then
 
     ! Symmetric operator, no transpose of integrals needed!
-    call CI_Sigma_Op(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A(nConf1+1:nConf1+nC), &
-                       nS,W(ipci2)%A(nConf1+1:nConf1+nS))
+    call MCLR_CI_Sigma(iiSpin,iCSym,iSSym,.false.,Have_2_el,nInt1,Int1,nInt2s,Int2s,nC,W(ipCI1)%A(nConf1+1:nConf1+nC),nS, &
+                       W(ipci2)%A(nConf1+1:nConf1+nS))
 
   else
 
@@ -107,7 +105,7 @@ if (TIMEDEP) then
     end do
     call ipin(ipCI1)
     call ipin(ipci2)
-    call CI_Sigma_Op(iState,iiSpin,iCSym,iSSym,size(TI1),TI1,size(TI2),TI2,Have_2_el,Square,nC,W(ipCI1)%A(1:nC),nS, &
+    call MCLR_CI_Sigma(iiSpin,iCSym,iSSym,Square,Have_2_el,size(TI1),TI1,size(TI2),TI2,nC,W(ipCI1)%A(1:nC),nS, &
                        W(ipci2)%A(nConf1+1:nConf1+nS))
     call mma_deallocate(TI1)
     call mma_deallocate(TI2)
@@ -119,7 +117,7 @@ else   ! If not timedep
   if (page) call ipnout(ipci2)
   call ipin(ipCI1)
   call ipin(ipci2)
-  call CI_Sigma_Op(iState,iiSpin,iCSym,iSSym,nInt1,Int1,nInt2s,Int2s,Have_2_el,.false.,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
+  call MCLR_CI_Sigma(iiSpin,iCSym,iSSym,.false.,Have_2_el,nInt1,Int1,nInt2s,Int2s,nC,W(ipCI1)%A(1:nC),nS,W(ipci2)%A(1:nS))
   if (page) call opout(ipci1)
 
 end if

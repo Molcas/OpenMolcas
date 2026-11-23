@@ -29,7 +29,7 @@ private
 logical(kind=iwp) :: Initialized = .false.
 
 public :: MCLR_Lucia_Close, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, MCLR_Lucia_Init, MCLR_Lucia_PSpace, &
-          MCLR_Lucia_Sigma, MCLR_Lucia_TDens
+          MCLR_Lucia_Sigma, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 
 contains
 
@@ -179,6 +179,59 @@ subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Hav
   nullify(KAIN1,KINT2)
 
 end subroutine MCLR_Lucia_Sigma
+
+!> sigma = H C with the active integrals of CI_Lib_Sigma (TU, TUVX; see
+!> there). The copy of Lucia addresses the one-body integrals over all
+!> orbitals (square symmetry blocks (iS,Mul(iS,iOp)), nOrb(iS) x
+!> nOrb(Mul(iS,iOp)), Int1_Offsets), so TU is expanded into these blocks,
+!> zero outside the active part; TUVX is used as it is.
+subroutine MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  use Symmetry_Info, only: Mul
+  use MCLR_Lucia_Data, only: L_nAsh, L_nIsh, L_nOrb, L_nSym
+  use Index_Functions, only: iTri
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
+  real(kind=wp), intent(out) :: S(nS)
+  integer(kind=iwp) :: iOff(8), iOp, iS, it, iu, jS, nA, nAOff(8), nInt1, t, u
+  real(kind=wp), allocatable, target :: Int1(:)
+  iOff(:) = 0
+  nAOff(:) = 0
+  iOp = Mul(iCSym,iSSym)
+  nA = 0
+  nInt1 = 0
+  do iS=1,L_nSym
+    iOff(iS) = nInt1
+    nInt1 = nInt1+L_nOrb(iS)*L_nOrb(Mul(iS,iOp))
+    nAOff(iS) = nA
+    nA = nA+L_nAsh(iS)
+  end do
+  if (Square) then
+    if (nTU < nA**2) call Abend()
+  else
+    if (nTU < iTri(nA,nA)) call Abend()
+  end if
+  call mma_allocate(Int1,max(1,nInt1),Label='Int1')
+  Int1(:) = Zero
+  do iS=1,L_nSym
+    jS = Mul(iS,iOp)
+    do iu=1,L_nAsh(jS)
+      u = nAOff(jS)+iu
+      do it=1,L_nAsh(iS)
+        t = nAOff(iS)+it
+        if (Square) then
+          Int1(iOff(iS)+(L_nIsh(jS)+iu-1)*L_nOrb(iS)+L_nIsh(iS)+it) = TU((u-1)*nA+t)
+        else
+          Int1(iOff(iS)+(L_nIsh(jS)+iu-1)*L_nOrb(iS)+L_nIsh(iS)+it) = TU(iTri(t,u))
+        end if
+      end do
+    end do
+  end do
+  call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,max(1,nInt1),Int1,nTUVX,TUVX,Have_2_el,Square,nC,C,nS,S)
+  call mma_deallocate(Int1)
+end subroutine MCLR_Lucia_Sigma_Act
 
 !> Transition densities between L and R (TDens_Proc of CI_Operations)
 subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)

@@ -23,7 +23,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
-use CI_Operations, only: CI_Trans_Dens
+use CI_Operations, only: CI_Lib_Dens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(out) :: Fock(nDens)
@@ -66,7 +66,7 @@ if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
       vSLag = SLag(jR,kR)
 
       if (abs(vSLag) > 1.0e-10_wp) then
-        call CI_Trans_Dens(iState,2,0,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
+        call CI_Lib_Dens(iState,2,0,iSy,iSy,nconf1,W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),nconf1, &
                            W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),n1Dens,G1q,n2Dens,G2q)
         G1r(:) = G1r(:)+vSLag*G1q(:)
         G2r(:) = G2r(:)+vSLag*G2q(:)
@@ -75,7 +75,7 @@ if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
       if (kR /= jR) then
         vSLag = SLag(kR,jR)
         if (abs(vSLag) > 1.0e-10_wp) then
-          call CI_Trans_Dens(iState,2,0,iSy,iSy,nconf1,W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),nconf1, &
+          call CI_Lib_Dens(iState,2,0,iSy,iSy,nconf1,W(ipCI)%A(1+(kR-1)*nconf1:kR*nconf1),nconf1, &
                              W(ipCI)%A(1+(jR-1)*nconf1:jR*nconf1),n1Dens,G1q,n2Dens,G2q)
           G1r(:) = G1r(:)+vSLag*G1q(:)
           G2r(:) = G2r(:)+vSLag*G2q(:)
@@ -86,7 +86,7 @@ if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
   nConf = ncsf(1) !! nconf is overwritten somewhere in densi2_mclr
 else
   call ipIn(ipCI)
-  call CI_Trans_Dens(iState,2,0,iSy,iSy,nconf1,W(ipCI)%A(1+(NSSA(2)-1)*nconf1:NSSA(2)*nconf1),nconf1, &
+  call CI_Lib_Dens(iState,2,0,iSy,iSy,nconf1,W(ipCI)%A(1+(NSSA(2)-1)*nconf1:NSSA(2)*nconf1),nconf1, &
                      W(ipCI)%A(1+(NSSA(1)-1)*nconf1:NSSA(1)*nconf1),n1Dens,G1r,n2Dens,G2r)
   call opout(ipCI)
   call ipnout(-1)

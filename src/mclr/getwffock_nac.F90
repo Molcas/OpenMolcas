@@ -28,7 +28,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
-use CI_Operations, only: CI_Trans_Dens
+use CI_Operations, only: CI_Lib_Dens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: nTri, nG2
@@ -62,7 +62,7 @@ NCSFs = NCSF(CI_St(iState)%STSym)
 call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%A,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
 I = NACstates(1)
 J = NACstates(2)
-call CI_Trans_Dens(iState,2,0,CI_St(iState)%STSym,CI_St(iState)%STSym,NCSFs,FinCI(1+(J-1)*NCSFs:J*NCSFs),NCSFs, &
+call CI_Lib_Dens(iState,2,0,CI_St(iState)%STSym,CI_St(iState)%STSym,NCSFs,FinCI(1+(J-1)*NCSFs:J*NCSFs),NCSFs, &
                    FinCI(1+(I-1)*NCSFs:I*NCSFs),ntash**2,G1r,nTri_Elem(ntash**2),G2rt)
 
 ! Copied from rhs_nac

@@ -85,7 +85,7 @@ use CI_Info, only: CI_St
 use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, &
                       CI_Lib_Select, CI_Lib_SGUGA, CI_To_Basis, CI_To_File
 use MCLR_Lucia_CI, only: MCLR_Lucia_Close, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, MCLR_Lucia_Init, MCLR_Lucia_PSpace, &
-                         MCLR_Lucia_Sigma, MCLR_Lucia_TDens
+                         MCLR_Lucia_Sigma, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -275,53 +275,6 @@ subroutine Check_Op(Caller,iOpSpin,Have_2_el,Square)
     call Abend()
   end if
 end subroutine Check_Op
-
-!> The MCLR copy of Lucia with the integrals of CI_Lib_Sigma (temporary:
-!> the active integrals expanded to the full-orbital blocks of MCLR, zero
-!> outside the active part; to be replaced by the adapter in
-!> mclr_lucia_util)
-subroutine MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
-  use Symmetry_Info, only: Mul
-  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
-  use Index_Functions, only: iTri
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use Constants, only: Zero
-  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
-  logical(kind=iwp), intent(in) :: Square, Have_2_el
-  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
-  real(kind=wp), intent(out) :: S(nS)
-  integer(kind=iwp) :: iOff(8), iOp, iS, it, iu, jS, nA, nAOff(8), nInt1, t, u
-  real(kind=wp), allocatable :: Int1(:)
-  iOff(:) = 0
-  nAOff(:) = 0
-  iOp = Mul(iCSym,iSSym)
-  nA = 0
-  nInt1 = 0
-  do iS=1,nSym
-    iOff(iS) = nInt1
-    nInt1 = nInt1+nOrb(iS)*nOrb(Mul(iS,iOp))
-    nAOff(iS) = nA
-    nA = nA+nAsh(iS)
-  end do
-  call mma_allocate(Int1,max(1,nInt1),Label='Int1')
-  Int1(:) = Zero
-  do iS=1,nSym
-    jS = Mul(iS,iOp)
-    do iu=1,nAsh(jS)
-      do it=1,nAsh(iS)
-        t = nAOff(iS)+it
-        u = nAOff(jS)+iu
-        if (Square) then
-          Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it) = TU((u-1)*nA+t)
-        else
-          Int1(iOff(iS)+(nIsh(jS)+iu-1)*nOrb(iS)+nIsh(iS)+it) = TU(iTri(t,u))
-        end if
-      end do
-    end do
-  end do
-  call MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nTUVX,TUVX,Have_2_el,Square,nC,C,nS,S)
-  call mma_deallocate(Int1)
-end subroutine MCLR_Lucia_Sigma_Act
 
 !> Old name of CI_Lib_Dens (kept until MCLR calls CI_Lib_Dens)
 subroutine CI_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
