@@ -322,8 +322,8 @@ subroutine CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
   use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym, nCnf, n
   integer(kind=iwp), intent(out) :: nCSFCnf(nCnf), iCSFCnf(n)
-  integer(kind=iwp) :: k, m, ncf
-  integer(kind=iwp), allocatable :: C2F(:), dco(:), kf(:), ncs(:), sco(:)
+  integer(kind=iwp) :: i, k, m, ncf
+  integer(kind=iwp), allocatable :: dco(:), kf(:), ncs(:), sco(:)
   type(SGCnfList) :: Cnf
   select case (CI_Lib)
     case (CI_Lib_SGUGA)
@@ -335,13 +335,16 @@ subroutine CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
       iCSFCnf(1:n) = Cnf%iCSF(1:n)
       call SG_Free_Cnf_List(Cnf)
     case (CI_Lib_Faroald)
-      call Faro_C2F(iState,iSym,n,C2F)
+      ! (the library basis is the configuration order of citrans)
+      call Faro_Set_Sym(iState,iSym)
       call citrans_conf_occ(ncf,kf,ncs,dco,sco)
       if (ncf /= nCnf) call Abend()
       m = 0
       do k=1,nCnf
         nCSFCnf(k) = ncs(k)
-        iCSFCnf(m+1:m+ncs(k)) = C2F(kf(k):kf(k)+ncs(k)-1)
+        do i=1,ncs(k)
+          iCSFCnf(m+i) = kf(k)+i-1
+        end do
         m = m+ncs(k)
       end do
       if (m /= n) call Abend()
@@ -349,7 +352,6 @@ subroutine CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
       call mma_deallocate(ncs)
       call mma_deallocate(dco)
       call mma_deallocate(sco)
-      call mma_deallocate(C2F)
     case (CI_Lib_MCLR_Lucia)
       call MCLR_Lucia_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
     case default
@@ -505,29 +507,22 @@ subroutine CI_Lib_PSpace(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag,nPMax,nP,Idx
   call mma_deallocate(nCSFCnf)
 end subroutine CI_Lib_PSpace
 
-!> Faroald: C2F(i) = the index in the library basis (the order of the
-!> files) of CSF i of citrans (symmetry iSym)
-subroutine Faro_C2F(iState,iSym,n,C2F)
+!> Faroald: a CI vector of symmetry iSym between the order of the files
+!> and the configuration order of citrans, in place (Dir = 'C': to citrans,
+!> 'O': back; citrans_sort)
+subroutine Faro_Sort(iState,iSym,Dir,n,CI)
   use citrans, only: citrans_sort
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym, n
-  integer(kind=iwp), allocatable, intent(out) :: C2F(:)
-  integer(kind=iwp) :: i, k
-  real(kind=wp), allocatable :: X(:), Y(:)
+  character, intent(in) :: Dir
+  real(kind=wp), intent(inout) :: CI(n)
+  real(kind=wp), allocatable :: V(:)
   call Faro_Set_Sym(iState,iSym)
-  call mma_allocate(X,n,Label='X')
-  call mma_allocate(Y,n,Label='Y')
-  do k=1,n
-    X(k) = real(k,kind=wp)
-  end do
-  call citrans_sort('O',X,Y)
-  call mma_allocate(C2F,n,Label='C2F')
-  do i=1,n
-    C2F(nint(abs(Y(i)))) = i
-  end do
-  call mma_deallocate(Y)
-  call mma_deallocate(X)
-end subroutine Faro_C2F
+  call mma_allocate(V,n,Label='V')
+  call citrans_sort(Dir,CI,V)
+  CI(:) = V(:)
+  call mma_deallocate(V)
+end subroutine Faro_Sort
 
 subroutine CI_Lib_Dets_To_Basis(iState,iSym,nD,DetVec,IdxD,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
@@ -542,8 +537,13 @@ end subroutine CI_Lib_Dets_To_Basis
 subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, n
   real(kind=wp), intent(inout) :: CI(n)
-  ! SGUGA, Faroald: the split-graph basis is the stored one
-  if ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald)) return
+  ! SGUGA: the split-graph basis is the stored one; Faroald: the
+  ! configuration order of citrans (a signed permutation)
+  if (CI_Lib == CI_Lib_SGUGA) return
+  if (CI_Lib == CI_Lib_Faroald) then
+    call Faro_Sort(iState,iSym,'C',n,CI)
+    return
+  end if
   call Check_Lib('CI_Lib_File_To_Basis')
   call MCLR_Lucia_Conv(iState,iSym,CI_To_Basis,n,CI)
 end subroutine CI_Lib_File_To_Basis
@@ -551,8 +551,13 @@ end subroutine CI_Lib_File_To_Basis
 subroutine CI_Lib_Basis_To_File(iState,iSym,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, n
   real(kind=wp), intent(inout) :: CI(n)
-  ! SGUGA, Faroald: the split-graph basis is the stored one
-  if ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald)) return
+  ! SGUGA: the split-graph basis is the stored one; Faroald: back from
+  ! the configuration order of citrans
+  if (CI_Lib == CI_Lib_SGUGA) return
+  if (CI_Lib == CI_Lib_Faroald) then
+    call Faro_Sort(iState,iSym,'O',n,CI)
+    return
+  end if
   call Check_Lib('CI_Lib_Basis_To_File')
   call MCLR_Lucia_Conv(iState,iSym,CI_To_File,n,CI)
 end subroutine CI_Lib_Basis_To_File
@@ -950,14 +955,14 @@ subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,
   use Symmetry_Info, only: Mul
   use faroald, only: gtuvx, htu, my_norb, ndeta, ndetb, sigma_update
   use faroald_ras, only: n_ras, ras_sigma
-  use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
+  use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
   integer(kind=iwp), intent(in) :: iState, iCSym, iSSym, nTU, nTUVX, nC, nS
   logical(kind=iwp), intent(in) :: Square, Have_2_el
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
   real(kind=wp), intent(out) :: S(nS)
-  real(kind=wp), allocatable :: PC(:,:), PS(:,:), V(:), VR(:), W(:), WR(:)
+  real(kind=wp), allocatable :: PC(:,:), PS(:,:), VR(:), WR(:)
   if ((iCSym /= Faro_Sym) .or. (iSSym /= Faro_Sym) .or. Square) then
     ! other symmetries or a non-Hermitian operator: in the full determinant
     ! space, P_S H P_C exactly
@@ -969,18 +974,12 @@ subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,
     end if
     call mma_allocate(PC,ndeta,ndetb,Label='PC')
     call mma_allocate(PS,ndeta,ndetb,Label='PS')
-    call mma_allocate(V,nC,Label='V')
-    call mma_allocate(W,nS,Label='W')
     call Faro_Set_Sym(iState,iCSym)
-    call citrans_sort('C',C,V)
-    call citrans_csf2sd(V,PC)
+    call citrans_csf2sd(C,PC)
     PS(:,:) = Zero
     call sigma_update(htu,gtuvx,PS,PC)
     call Faro_Set_Sym(iState,iSSym)
-    call citrans_sd2csf(PS,W)
-    call citrans_sort('O',W,S)
-    call mma_deallocate(W)
-    call mma_deallocate(V)
+    call citrans_sd2csf(PS,S)
     call mma_deallocate(PS)
     call mma_deallocate(PC)
     return
@@ -988,19 +987,13 @@ subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,
   if (nS /= nC) call Abend()
   call Faro_Set_Sym(iState,Faro_Sym)
   call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,Have_2_el)
-  call mma_allocate(V,nC,Label='V')
-  call mma_allocate(W,nC,Label='W')
   call mma_allocate(VR,max(1,n_ras),Label='VR')
   call mma_allocate(WR,max(1,n_ras),Label='WR')
-  call citrans_sort('C',C,V)
-  call citrans_csf2ras(V,VR)
+  call citrans_csf2ras(C,VR)
   call ras_sigma(htu,gtuvx,VR,WR)
-  call citrans_ras2csf(WR,W)
-  call citrans_sort('O',W,S)
+  call citrans_ras2csf(WR,S)
   call mma_deallocate(WR)
   call mma_deallocate(VR)
-  call mma_deallocate(W)
-  call mma_deallocate(V)
 end subroutine Faro_Sigma_Act
 
 !> Faroald: the spin-free transition densities (as SG_Trans_Dens), mapped
@@ -1008,7 +1001,7 @@ end subroutine Faro_Sigma_Act
 subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use faroald, only: my_norb, ndeta, ndetb, transition_one_pdm, transition_two_pdm
   use faroald_ras, only: n_ras, ras_trans_one_pdm, ras_trans_two_pdm
-  use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_sort
+  use citrans, only: citrans_csf2ras, citrans_csf2sd
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
@@ -1017,30 +1010,25 @@ subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,R
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   integer(kind=iwp) :: ij, it, iu, iv, ix, kl, N
   logical(kind=iwp) :: Full
-  real(kind=wp), allocatable :: BR(:), D(:,:), KR(:), P2(:,:,:,:), PL(:,:), PR(:,:), SD(:,:), V(:)
+  real(kind=wp), allocatable :: BR(:), D(:,:), KR(:), P2(:,:,:,:), PL(:,:), PR(:,:), SD(:,:)
   N = my_norb
   if (n1 < N**2) call Abend()
   ! other symmetries: in the full determinant space
   Full = (iLSym /= Faro_Sym) .or. (iRSym /= Faro_Sym)
-  call mma_allocate(V,max(nL,nR),Label='V')
   if (Full) then
     call Faro_Full_Init()
     call mma_allocate(PL,ndeta,ndetb,Label='PL')
     call mma_allocate(PR,ndeta,ndetb,Label='PR')
     call Faro_Set_Sym(iState,iLSym)
-    call citrans_sort('C',L,V(1:nL))
-    call citrans_csf2sd(V(1:nL),PL)
+    call citrans_csf2sd(L,PL)
     call Faro_Set_Sym(iState,iRSym)
-    call citrans_sort('C',R,V(1:nR))
-    call citrans_csf2sd(V(1:nR),PR)
+    call citrans_csf2sd(R,PR)
   else
     call Faro_Set_Sym(iState,Faro_Sym)
     call mma_allocate(BR,max(1,n_ras),Label='BR')
     call mma_allocate(KR,max(1,n_ras),Label='KR')
-    call citrans_sort('C',L,V(1:nL))
-    call citrans_csf2ras(V(1:nL),BR)
-    call citrans_sort('C',R,V(1:nR))
-    call citrans_csf2ras(V(1:nR),KR)
+    call citrans_csf2ras(L,BR)
+    call citrans_csf2ras(R,KR)
   end if
   call mma_allocate(D,N,N,Label='D')
   call mma_allocate(SD,N,N,Label='SD')
@@ -1092,7 +1080,6 @@ subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,R
     call mma_deallocate(KR)
     call mma_deallocate(BR)
   end if
-  call mma_deallocate(V)
 end subroutine Faro_Trans_Dens
 
 !> Faroald: the configuration average of the CSF diagonal (as for RASSCF
@@ -1100,7 +1087,7 @@ end subroutine Faro_Trans_Dens
 !> configuration, from its occupations) + ECore
 subroutine Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   use faroald, only: gtuvx, htu, my_norb, nela, nelb
-  use citrans, only: citrans_conf_occ, citrans_sort
+  use citrans, only: citrans_conf_occ
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Two
   integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
@@ -1109,12 +1096,11 @@ subroutine Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   integer(kind=iwp) :: i, ic, j, na, nb, ncf, nd2, no
   integer(kind=iwp), allocatable :: dco(:), kf(:), ncs(:), sco(:)
   real(kind=wp) :: E, ni, nj, P
-  real(kind=wp), allocatable :: DC(:), Ph(:)
+  real(kind=wp), allocatable :: DC(:)
   if (Mode /= CI_Diag_Cnf_Avg) call Not_Yet('CI_Lib_Diag','the exact CSF diagonal')
   call Faro_Set_Sym(iState,iSym)
   call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,.true.)
   call mma_allocate(DC,n,Label='DC')
-  call mma_allocate(Ph,n,Label='Ph')
   call citrans_conf_occ(ncf,kf,ncs,dco,sco)
   do ic=1,ncf
     nd2 = popcnt(dco(ic))
@@ -1159,11 +1145,7 @@ subroutine Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   call mma_deallocate(dco)
   call mma_deallocate(sco)
   ! to the file order (the sort carries the CSF phases: undo them)
-  call citrans_sort('O',DC,Diag)
-  DC(:) = One
-  call citrans_sort('O',DC,Ph)
-  Diag(:) = Diag(:)*Ph(:)+ECore
-  call mma_deallocate(Ph)
+  Diag(:) = DC(:)+ECore
   call mma_deallocate(DC)
 end subroutine Faro_Diag
 
