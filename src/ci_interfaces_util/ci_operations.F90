@@ -250,25 +250,95 @@ subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
 end subroutine CI_Lib_Dens
 
 subroutine CI_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
+  use Orbital_Spaces, only: nAsh, nSym
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
   real(kind=wp), target, intent(in) :: Int1(nInt1), Int2(nInt2)
   real(kind=wp), intent(in) :: ECore
   real(kind=wp), intent(out) :: Diag(n)
+  integer(kind=iwp) :: nTU, nTUVX
+  real(kind=wp), allocatable :: TU(:), TUVX(:)
+  if (CI_Lib == CI_Lib_MCLR_Lucia) then
+    call Check_Diag_Mode('CI_Diag',Mode)
+    call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
+    return
+  end if
+  nTU = nTri_Elem(sum(nAsh(1:nSym)))
+  nTUVX = nTri_Elem(nTU)
+  call mma_allocate(TU,nTU,Label='TU')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX')
+  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
+  call CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+  call mma_deallocate(TUVX)
+  call mma_deallocate(TU)
+end subroutine CI_Diag
+
+!> The diagonal of H + ECore (ECore added to every element) in the CSF
+!> basis of symmetry iSym (n = nCSF(iSym)) of the selected library, for
+!> the active Hamiltonian of total symmetry with the integrals of
+!> CI_Lib_Sigma (Square = .false., iOp = 1: TU, TUVX full triangles over
+!> the symmetry-ordered active orbitals).
+!> Mode = CI_Diag_Cnf_Avg: the average over the CSFs of each configuration
+!> (Lucia's CSDIAG; every CSF of a configuration gets the same value);
+!> Mode = CI_Diag_Exact: the exact CSF diagonal.
+subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(out) :: Diag(n)
+  call Check_Diag_Mode('CI_Lib_Diag',Mode)
+  select case (CI_Lib)
+    case (CI_Lib_SGUGA)
+      call SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+    case (CI_Lib_Faroald)
+      call Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+    case (CI_Lib_MCLR_Lucia)
+      call Lucia4_Diag_Act(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+    case default
+      call Check_Lib('CI_Lib_Diag')
+  end select
+end subroutine CI_Lib_Diag
+
+!> The check of the Mode of CI_Lib_Diag
+subroutine Check_Diag_Mode(Caller,Mode)
+  character(len=*), intent(in) :: Caller
+  integer(kind=iwp), intent(in) :: Mode
   if ((Mode /= CI_Diag_Cnf_Avg) .and. (Mode /= CI_Diag_Exact)) then
-    write(u6,'(A,I4)') ' CI_Diag: invalid Mode =',Mode
+    write(u6,'(1X,A,A,I4)') Caller,': invalid Mode =',Mode
     call Abend()
   end if
-  if (CI_Lib == CI_Lib_SGUGA) then
-    call SG_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
-    return
-  end if
-  if (CI_Lib == CI_Lib_Faroald) then
-    call Faro_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
-    return
-  end if
-  call Check_Lib('CI_Diag')
-  call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
-end subroutine CI_Diag
+end subroutine Check_Diag_Mode
+
+!> The MCLR copy of Lucia with the integrals of CI_Lib_Diag (temporary,
+!> until mclr_lucia_util takes them: TU expanded to MCLR's full-orbital
+!> blocks of total symmetry, zero outside the active part)
+subroutine Lucia4_Diag_Act(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+  use Orbital_Spaces, only: nAsh, nIsh, nOrb, nSym
+  use Index_Functions, only: iTri
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(out) :: Diag(n)
+  integer(kind=iwp) :: iOff, iS, it, iu, nA, nInt1
+  real(kind=wp), allocatable :: Int1(:)
+  nInt1 = sum(nOrb(1:nSym)**2)
+  call mma_allocate(Int1,max(1,nInt1),Label='Int1')
+  Int1(:) = Zero
+  iOff = 0
+  nA = 0
+  do iS=1,nSym
+    do iu=1,nAsh(iS)
+      do it=1,nAsh(iS)
+        Int1(iOff+(nIsh(iS)+iu-1)*nOrb(iS)+nIsh(iS)+it) = TU(iTri(nA+it,nA+iu))
+      end do
+    end do
+    iOff = iOff+nOrb(iS)**2
+    nA = nA+nAsh(iS)
+  end do
+  call MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nTUVX,TUVX,ECore,n,Diag)
+  call mma_deallocate(Int1)
+end subroutine Lucia4_Diag_Act
 
 subroutine CI_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
   integer(kind=iwp), intent(in) :: iState, iSym, nInt1, nInt2, n, nPMax, nHP
@@ -552,23 +622,13 @@ subroutine SG_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,nPMax,nP,IdxP,nHP,HP)
 end subroutine SG_PSpace
 
 !> SGUGA: the CSF diagonal (exact or configuration average) + ECore
-subroutine SG_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
+subroutine SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   use sguga, only: CIS, EXS, SGCnfList, SGS, SG_Cnf_Avg_Diag, SG_Free_Cnf_List, SG_Mk_Cnf_List
   use SGUGA_Sigma, only: sg_hdiag_fast
-  use Orbital_Spaces, only: nAsh, nSym
-  use Index_Functions, only: nTri_Elem
-  use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
-  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), ECore
+  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
   real(kind=wp), intent(out) :: Diag(n)
-  integer(kind=iwp) :: nTU, nTUVX
-  real(kind=wp), allocatable :: TU(:), TUVX(:)
   type(SGCnfList) :: Cnf
-  nTU = nTri_Elem(sum(nAsh(1:nSym)))
-  nTUVX = nTri_Elem(nTU)
-  call mma_allocate(TU,nTU,Label='TU')
-  call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
   if (Mode == CI_Diag_Exact) then
     call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),n,iSym,TUVX,nTUVX,TU,nTU,Diag)
   else
@@ -577,8 +637,6 @@ subroutine SG_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
     call SG_Free_Cnf_List(Cnf)
   end if
   Diag(:) = Diag(:)+ECore
-  call mma_deallocate(TUVX)
-  call mma_deallocate(TU)
 end subroutine SG_Diag
 
 !***********************************************************************
@@ -711,27 +769,6 @@ subroutine Faro_Full_Init()
   if (real(ndeta,kind=wp)*real(ndetb,kind=wp) > 2.0e8_wp) &
     call Not_Yet('Faroald','vectors of other symmetries than the CI state in this large a determinant space')
 end subroutine Faro_Full_Init
-
-!> Faroald: its integrals htu, gtuvx (over the levels) from Int1/Int2 of
-!> an Hermitian operator of symmetry iOp
-subroutine Faro_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
-  use faroald, only: my_norb
-  use Index_Functions, only: nTri_Elem
-  use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, iOp, nInt1, nInt2
-  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2)
-  logical(kind=iwp), intent(in) :: Have_2_el
-  integer(kind=iwp) :: nTU, nTUVX
-  real(kind=wp), allocatable :: TU(:), TUVX(:)
-  nTU = nTri_Elem(my_norb)
-  nTUVX = nTri_Elem(nTU)
-  call mma_allocate(TU,nTU,Label='TU')
-  call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
-  call Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
-  call mma_deallocate(TUVX)
-  call mma_deallocate(TU)
-end subroutine Faro_Ints
 
 !> Faroald: htu, gtuvx over the levels from the integrals of CI_Lib_Sigma
 !> (Hermitian, full triangles over the symmetry-ordered active orbitals);
@@ -985,21 +1022,21 @@ end subroutine Faro_Trans_Dens
 !> Faroald: the configuration average of the CSF diagonal (as for RASSCF
 !> with Faroald: the average of the determinant energies of each
 !> configuration, from its occupations) + ECore
-subroutine Faro_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
+subroutine Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   use faroald, only: gtuvx, htu, my_norb, nela, nelb
   use citrans, only: citrans_conf_occ, citrans_sort
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Two
-  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nInt1, nInt2, n
-  real(kind=wp), intent(in) :: Int1(nInt1), Int2(nInt2), ECore
+  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
   real(kind=wp), intent(out) :: Diag(n)
   integer(kind=iwp) :: i, ic, j, na, nb, ncf, nd2, no
   integer(kind=iwp), allocatable :: dco(:), kf(:), ncs(:), sco(:)
   real(kind=wp) :: E, ni, nj, P
   real(kind=wp), allocatable :: DC(:), Ph(:)
-  if (Mode /= CI_Diag_Cnf_Avg) call Not_Yet('CI_Diag','the exact CSF diagonal')
+  if (Mode /= CI_Diag_Cnf_Avg) call Not_Yet('CI_Lib_Diag','the exact CSF diagonal')
   call Faro_Set_Sym(iState,iSym)
-  call Faro_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.)
+  call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,.true.)
   call mma_allocate(DC,n,Label='DC')
   call mma_allocate(Ph,n,Label='Ph')
   call citrans_conf_occ(ncf,kf,ncs,dco,sco)
@@ -1078,8 +1115,14 @@ subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
   HP(:) = Zero
   ! the configuration averages (file order) and the CSFs of each
   ! configuration (citrans order -> file order)
+  ! the integrals converted once
+  nTU = nTri_Elem(my_norb)
+  nTUVX = nTri_Elem(nTU)
+  call mma_allocate(TU,nTU,Label='TU')
+  call mma_allocate(TUVX,nTUVX,Label='TUVX')
+  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
   call mma_allocate(Diag,n,Label='Diag')
-  call Faro_Diag(iState,CI_Diag_Cnf_Avg,iSym,nInt1,Int1,nInt2,Int2,Zero,n,Diag)
+  call Faro_Diag(iState,CI_Diag_Cnf_Avg,iSym,nTU,TU,nTUVX,TUVX,Zero,n,Diag)
   call mma_allocate(X,n,Label='X')
   call mma_allocate(Y,n,Label='Y')
   do k=1,n
@@ -1118,12 +1161,7 @@ subroutine Faro_PSpace(iState,iSym,nInt1,Int1,nInt2,Int2,n,nPMax,nP,IdxP,nHP,HP)
     end do
   end do
   if (nHP < nTri_Elem(nP)) call Abend()
-  ! the block: H(i,j) = (H e_j)(IdxP(i)), the integrals converted once
-  nTU = nTri_Elem(my_norb)
-  nTUVX = nTri_Elem(nTU)
-  call mma_allocate(TU,nTU,Label='TU')
-  call mma_allocate(TUVX,nTUVX,Label='TUVX')
-  call SG_Ints(iState,1,nInt1,Int1,nInt2,Int2,.true.,nTU,TU,nTUVX,TUVX)
+  ! the block: H(i,j) = (H e_j)(IdxP(i))
   do j=1,nP
     X(:) = Zero
     X(IdxP(j)) = One
