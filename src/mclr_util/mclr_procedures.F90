@@ -20,7 +20,7 @@ public :: CISigma, CISigma_sa, CISigma_td, RdJobIph, RdJobIph_td
 contains
 
 #define _IN_MODULE_
-#include "mclr_ci_sigma.F90"
+#include "mclr_ci_ops.F90"
 #include "cisigma.F90"
 #include "cisigma_sa.F90"
 #include "cisigma_td.F90"

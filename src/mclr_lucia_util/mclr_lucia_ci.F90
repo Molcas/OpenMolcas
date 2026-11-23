@@ -29,7 +29,7 @@ private
 logical(kind=iwp) :: Initialized = .false.
 
 public :: MCLR_Lucia_Close, MCLR_Lucia_Conv, MCLR_Lucia_Dets, MCLR_Lucia_Diag, MCLR_Lucia_Init, MCLR_Lucia_PSpace, &
-          MCLR_Lucia_Sigma, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
+          MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
 
 contains
 
