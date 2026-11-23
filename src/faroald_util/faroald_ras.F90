@@ -1151,6 +1151,29 @@ end subroutine transpose_blocks
 !> normal-ordered two-electron same-spin terms), then
 !> sgm(:,I) += f(J) vec(:,J) over the row classes of both blocks. off are
 !> the block offsets (row class, column class).
+!> comp(cj,ci): some row class cr is allowed (off >= 0) with both column
+!> classes ci and cj, i.e. an excitation between strings of ci and cj of
+!> the column spin can contribute; the rest is skipped by the same-spin
+!> loops (RAS: most pairs of occupation classes have no common partner).
+subroutine col_pairs(r,c,off,comp)
+  type(ras_spin), intent(in) :: r, c
+  integer(kind=iwp), intent(in) :: off(:,:)
+  logical(kind=iwp), allocatable, intent(out) :: comp(:,:)
+  integer(kind=iwp) :: ci, cj, cr
+  call mma_allocate(comp,max(1,c%ncls),max(1,c%ncls),label='ras_comp')
+  comp(:,:) = .false.
+  do ci=1,c%ncls
+    do cj=1,c%ncls
+      do cr=1,r%ncls
+        if ((off(cr,ci) >= 0) .and. (off(cr,cj) >= 0)) then
+          comp(cj,ci) = .true.
+          exit
+        end if
+      end do
+    end do
+  end do
+end subroutine col_pairs
+
 subroutine same_spin(r,c,off,h,g,vec,sgm)
   type(ras_spin), intent(in) :: r, c
   integer(kind=iwp), intent(in) :: off(:,:)
@@ -1159,8 +1182,9 @@ subroutine same_spin(r,c,off,h,g,vec,sgm)
   integer(kind=iwp) :: gi, gj, ci, cj, cr, e, nl, il, nr, oi, oj, t, u, v, x, d, dd, ii, ij
   integer(kind=iwp), allocatable :: lst(:)
   real(kind=wp), allocatable :: f(:)
-  logical(kind=iwp), allocatable :: used(:)
+  logical(kind=iwp), allocatable :: used(:), comp(:,:)
 
+  call col_pairs(r,c,off,comp)
   call mma_allocate(f,max(1,c%nstr),label='ras_f')
   call mma_allocate(lst,max(1,c%nstr),label='ras_lst')
   call mma_allocate(used,max(1,c%nstr),label='ras_used')
@@ -1169,16 +1193,21 @@ subroutine same_spin(r,c,off,h,g,vec,sgm)
   do gi=1,c%nstr
     ci = c%str_cls(gi)
     nl = 0
+    ! (no row class allowed with the class of I: no contribution)
+    if (.not. any(comp(:,ci))) cycle
     ! one-electron: J = a+_p a_q I
     do e=c%ex_off(gi)+1,c%ex_off(gi+1)
       gj = c%ex_j(e)
+      if (.not. comp(c%str_cls(gj),ci)) cycle
       call add(gj,c%ex_sgn(e)*h(c%ex_p(e),c%ex_q(e)))
     end do
     ! two-electron, same spin: J = a+_t a+_v a_x a_u I, t > v, u > x
     if (c%has_dex) then
       do e=c%dex_off(gi)+1,c%dex_off(gi+1)
+        gj = c%dex_j(e)
+        if (.not. comp(c%str_cls(gj),ci)) cycle
         call unpack4(c%dex_tuvx(e),t,u,v,x)
-        call add(c%dex_j(e),c%dex_sgn(e)*(g(t,u,v,x)-g(t,x,v,u)))
+        call add(gj,c%dex_sgn(e)*(g(t,u,v,x)-g(t,x,v,u)))
       end do
     else
       do u=2,ras_norb
@@ -1193,6 +1222,7 @@ subroutine same_spin(r,c,off,h,g,vec,sgm)
               if (dd == -1) cycle
               gj = str_index(c,ibits(dd,0,31))
               if (gj == 0) cycle
+              if (.not. comp(c%str_cls(gj),ci)) cycle
               call add(gj,fase(dd)*(g(t,u,v,x)-g(t,x,v,u)))
             end do
           end do
@@ -1221,6 +1251,7 @@ subroutine same_spin(r,c,off,h,g,vec,sgm)
   call mma_deallocate(f)
   call mma_deallocate(lst)
   call mma_deallocate(used)
+  call mma_deallocate(comp)
 
 contains
 
@@ -1402,14 +1433,16 @@ subroutine opposite_spin(g,vec,sgm)
   real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
   real(kind=wp), intent(inout) :: sgm(n_ras)
   integer(kind=iwp) :: m, k
-  real(kind=wp) :: c0, w0, c1, w1
+  real(kind=wp) :: c0, c1
   logical(kind=iwp) :: done
 
   ! the method: chosen (res_mode >= 0), or the next candidate to be timed
+  ! (CPU time of the intrinsic clock: CWTime has a resolution of 10 ms,
+  ! too coarse for small CI spaces)
   if (res_mode < 0) then
     res_itry = res_itry+1
     m = res_try(res_itry)
-    call CWTime(c0,w0)
+    call cpu_time(c0)
   else
     m = res_mode
   end if
@@ -1417,14 +1450,14 @@ subroutine opposite_spin(g,vec,sgm)
   if (m > 0) call opposite_spin_res(m,g,vec,sgm,done)
   if (.not. done) call opposite_spin_dir(g,vec,sgm)
   if (res_mode < 0) then
-    call CWTime(c1,w1)
+    call cpu_time(c1)
     res_tim(m) = c1-c0
     if (res_itry == res_ntry) then
       res_mode = res_try(1)
       do k=2,res_ntry
         if (res_tim(res_try(k)) < res_tim(res_mode)) res_mode = res_try(k)
       end do
-      write(u6,'(1X,A,3F10.3)') 'Faroald alpha-beta sigma, s per call (direct, resolution fine, coarse; 0 = not tried):', &
+      write(u6,'(1X,A,3ES11.3)') 'Faroald alpha-beta sigma, s per call (direct, resolution fine, coarse; 0 = not tried):', &
                                 res_tim(0:2)
       if (res_mode == 0) then
         write(u6,'(1X,A)') 'Faroald alpha-beta sigma uses: direct loops'
@@ -1811,11 +1844,16 @@ subroutine col_two_pdm(r,c,off,bra,ket,p2)
   real(kind=wp), intent(in) :: bra(:), ket(:)
   real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
   integer(kind=iwp) :: gi, e, t, u, v, x, d, dd, gj
+  logical(kind=iwp), allocatable :: comp(:,:)
+  call col_pairs(r,c,off,comp)
   do gi=1,c%nstr
+    if (.not. any(comp(:,c%str_cls(gi)))) cycle
     if (c%has_dex) then
       do e=c%dex_off(gi)+1,c%dex_off(gi+1)
+        gj = c%dex_j(e)
+        if (.not. comp(c%str_cls(gj),c%str_cls(gi))) cycle
         call unpack4(c%dex_tuvx(e),t,u,v,x)
-        call put(gi,c%dex_j(e),c%dex_sgn(e),t,u,v,x)
+        call put(gi,gj,c%dex_sgn(e),t,u,v,x)
       end do
     else
       do u=2,ras_norb
@@ -1830,6 +1868,7 @@ subroutine col_two_pdm(r,c,off,bra,ket,p2)
               if (dd == -1) cycle
               gj = str_index(c,ibits(dd,0,31))
               if (gj == 0) cycle
+              if (.not. comp(c%str_cls(gj),c%str_cls(gi))) cycle
               call put(gi,gj,fase(dd),t,u,v,x)
             end do
           end do
@@ -1837,6 +1876,7 @@ subroutine col_two_pdm(r,c,off,bra,ket,p2)
       end do
     end if
   end do
+  call mma_deallocate(comp)
 
 contains
 

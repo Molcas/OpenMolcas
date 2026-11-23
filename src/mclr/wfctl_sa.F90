@@ -30,6 +30,7 @@ use PCM_grad, only: def_solv, do_RF, iStpPCM, PCM_grad_CLag, PCM_grad_PT2
 use ISRotation, only: DMInvISR, InvSCF, ISR, ISR_final, ISR_init, ISR_projection, ISR_RHS
 use cgs_mod, only: CGS, CGS_init, CGS_final
 use dmrginfo, only: DoDMRG, RGRAS2
+use ZVec_Guess, only: ZG_Active, ZG_Load, ZG_Save
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -41,10 +42,11 @@ logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: iDis, iDisp, iLen, iMode, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, &
                      Lu_50, nConf3, niPre2, nPre2
-real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
-logical(kind=iwp) :: CI, cnvrgd, lPrint
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
+logical(kind=iwp) :: CI, cnvrgd, lPrint, Warm, WarmOK
 character(len=8) :: Fmt2
 integer(kind=iwp), allocatable :: iPre(:)
+real(kind=wp), allocatable :: X0c(:), X0k(:), X0s(:)
 real(kind=wp), allocatable :: dKappa(:), Fancy(:), Kappa(:), rCHC(:), Sc1(:), Sc2(:), Sigma(:), SLag(:,:), Temp3(:), Temp4(:), &
                               wrk(:)
 integer(kind=iwp), external :: niPre, nPre
@@ -263,7 +265,47 @@ else
     call Compress(Temp3,Sigma,iSym)
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
-    if (PT2 .or. do_RF) then !! .or. unequal_SA) then
+    ! Warm start from the solution of the previous call (previous geometry, same target)
+    WarmOK = ZG_Active() .and. (nDisp == 1) .and. (iSym == 1) .and. CI .and. (.not. (CGS .or. do_RF .or. doDMRG))
+    Warm = .false.
+    if (WarmOK) then
+      call mma_allocate(X0k,nDensC,Label='X0k')
+      call mma_allocate(X0c,nConf1*nRoots,Label='X0c')
+      call mma_allocate(X0s,nRoots**2,Label='X0s')
+      call ipIn(ipCI)
+      call ZG_Load(X0k,X0c,X0s,W(ipCI)%A,Warm)
+      if (Warm) then
+        if (.not. PT2) then
+          call ipIn(ipST)
+          W(ipST)%A(1:nConf1*nRoots) = Zero
+        end if
+        dKappa(:) = X0k(:)
+        call ipIn(ipCId)
+        W(ipCId)%A(1:nConf1*nRoots) = X0c(:)
+        if (.not. InvSCF) ISR%p(:,:) = reshape(X0s,[nRoots,nRoots])
+        call TimesE2(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
+        ! Sigma, ipST and ISR%Rvec hold -b at this point: the residual is A*x0-b.
+        ! Keep the guess only if it lowers the residual (it need not after a large step).
+        call ipIn(ipS1)
+        call ipIn(ipST)
+        R1 = ddot_(nDensC,Sigma,1,Sigma,1)+ddot_(nConf1*nRoots,W(ipST)%A,1,W(ipST)%A,1)
+        R2 = ddot_(nDensC,Sigma+Temp4,1,Sigma+Temp4,1)+ &
+             ddot_(nConf1*nRoots,W(ipST)%A+W(ipS1)%A,1,W(ipST)%A+W(ipS1)%A,1)
+        if (.not. InvSCF) then
+          R1 = R1+sum(ISR%Rvec**2)
+          R2 = R2+sum((ISR%Rvec+ISR%Ap)**2)
+        end if
+        Warm = R2 < R1
+        write(u6,'(A,2ES12.4,A)') ' ZVec_Guess: |b|, |b-Ax0|:',sqrt(R1),sqrt(R2),merge(' warm start ',' cold start ',Warm)
+        if (Warm) then
+          Sigma(:) = Sigma(:)+Temp4(:)
+          W(ipST)%A(1:nConf1*nRoots) = W(ipST)%A(1:nConf1*nRoots)+W(ipS1)%A(1:nConf1*nRoots)
+          if (.not. InvSCF) ISR%Rvec(:,:) = ISR%Rvec(:,:)+ISR%Ap(:,:)
+        end if
+      end if
+    end if
+
+    if (PT2 .or. do_RF .or. Warm) then !! .or. unequal_SA) then
       W(ipST)%A(1:nConf1*nRoots) = -W(ipST)%A(1:nConf1*nRoots)
       if (CI) then
         ! precondition (z0 = M^{-1}*r0)
@@ -314,11 +356,18 @@ else
       call cgs_pre(nDensC,nConf1,nRoots,Kappa,dKappa,Sigma,Fancy,Sc1,ipCI,ipCId,ipDia,ipPre2,iPre,ipST,ipS1,delta,iSym,iter)
     else
       deltaC = Zero
-      if (PT2) deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
+      if (PT2 .or. Warm) deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
       call ipOut(ipcid)
       deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
       Kappa(:) = Zero
       delta = deltac+deltaK
+    end if
+    if (Warm) then
+      Kappa(:) = X0k(:)
+      call ipIn(ipCIT)
+      W(ipCIT)%A(1:nConf1*nRoots) = X0c(:)
+      call ipOut(ipCIT)
+      if (.not. InvSCF) ISR%Xvec(:,:) = reshape(X0s,[nRoots,nRoots])
     end if
     delta0 = delta
     iter = 1
@@ -484,6 +533,18 @@ else
 
     call ipin(ipCIT)
     call dDaFile(LuTemp,1,W(ipCIT)%A,iLen,iDis)
+
+    if (WarmOK) then
+      if (cnvrgd) then
+        X0s(:) = Zero
+        if (.not. InvSCF) X0s(:) = reshape(ISR%Xvec,[nRoots**2])
+        call ipIn(ipCI)
+        call ZG_Save(Kappa,W(ipCIT)%A,X0s,W(ipCI)%A)
+      end if
+      call mma_deallocate(X0s)
+      call mma_deallocate(X0c)
+      call mma_deallocate(X0k)
+    end if
 
     !MGD This last call seems unused, so I comment it
 

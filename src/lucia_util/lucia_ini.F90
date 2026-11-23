@@ -299,7 +299,7 @@ end if
 PLSIGN = Zero
 #endif
 
-! IDC = 2: spin combinations (tested as such by RASSCF's inppri)
+! IDC = 2: spin combinations (lucia2molcas sets CI_St%Spin_Comb from it)
 if (PSSIGN == Zero) then
   IDC = 1
 else

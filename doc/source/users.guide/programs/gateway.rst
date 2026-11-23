@@ -1130,7 +1130,7 @@ Configurational Self Consistent Reaction Field (MCSCRF) calculations within
 the framework of the :program:`SCF` and the :program:`RASSCF` programs.
 The reaction field, computed in a self-consistent fashion, can be
 later added as a constant perturbation for the remaining programs, as
-for example :program:`CASPT2`.
+for example :program:`CASPT2` and :program:`MCPDFT`.
 
 The purpose of this facility is to incorporate
 the effect of the environment (a solvent or a solid matrix) on the studied molecule.
@@ -1217,7 +1217,7 @@ program:
 they refer to the CI root selected for the calculation of the reaction field (RFROOT), and
 to the possibility to perform a non-equilibrium calculation (NONEQ) when vertical electronic
 transitions are studied in solution. These keywords are referenced in the
-:program:`RASSCF` section. To include the reaction field perturbation in a :program:`SCF`, :program:`RASSCF`, :program:`CASPT2` or :program:`RASSI`
+:program:`RASSCF` section. To include the reaction field perturbation in a :program:`SCF`, :program:`RASSCF`, :program:`CASPT2`, :program:`MCPDFT` or :program:`RASSI`
 calculation, another keyword must be specified (RFPERT), as explained in the
 respective program sections.
 
@@ -1385,7 +1385,7 @@ Optional keywords for the PCM Model
 :kword:`PCM-model`
   If no other keywords are specified, the program will execute a standard PCM calculation
   with water as solvent. The solvent reaction field will be included in all the
-  programs (:program:`SCF`, :program:`RASSCF`, :program:`CASPT2`, etc.)
+  programs (:program:`SCF`, :program:`RASSCF`, :program:`MCPDFT`, :program:`CASPT2`, etc.)
   invoked after :program:`SEWARD`: note that in some cases additional keywords are required
   in the corresponding program sections. Some PCM parameters can be changed through the following
   keywords.

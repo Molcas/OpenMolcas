@@ -27,8 +27,10 @@ subroutine Prec(rpre,ipre,idsym)
 !
 !  Anders Bernhardsson 96
 !
-!     active; active,general is needed for rasscf calculation
-!     and is not coded yet (ugly bastard) (970109, AB)
+!  For an active orbital i the block spans the rotations with all
+!  orbitals outside its RAS space; only those with orbitals of a higher
+!  space (higher RAS, secondary) belong to the block, the others are
+!  decoupled so that the preconditioner is symmetric.
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
@@ -182,14 +184,9 @@ do iS=1,nSym
 
       else
 
-        if (nish(js) > 0) &
-          call Precaii(ib,is,js,nd,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb),FIMO(ipCM(js)), &
-                       FAMO(ipCM(js)),Sgn,JA,KA,Scr,n2) ! OK
-        !call Precaai(ib,nd,ir,rpre(ip))
-        !call Precaaa(ib,nd,ir,rpre(ip))
-        if (nish(js)*nOrb(js) > 0) &
-          call Precabi(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),Sgn,JA,KA,Temp1(:,2),n2)!+/-?
-        !call Precaba(ib,nd,ir,rpre(ip))
+        ! The rows of the inactive orbitals are decoupled below, so the
+        ! inactive-inactive (Precaii) and inactive-virtual (Precabi)
+        ! parts of this block are not needed.
         if (nOrb(js) > 0) &
           call Precabb_2(ib,is,js,nd,nOrb(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)),Sgn)
 
@@ -202,6 +199,14 @@ do iS=1,nSym
       !                                                                *
       !*****************************************************************
       !                                                                *
+
+      ! The block of active orbital ib spans all orbitals outside its RAS
+      ! space, but the rotations with the inactive orbitals and with the
+      ! active orbitals of lower RAS spaces belong to the blocks of those
+      ! orbitals (Compress2 takes them from there). Coupling these rows to
+      ! the others makes the preconditioner non-symmetric, which slows
+      ! down or spoils the PCG; decouple them.
+      call Decouple_Dup(Temp3,nD,nIsh(js)+nLow(ir,js))
 
       call SQM(Temp3,rpre(ip),nD)
       irc = 0
@@ -229,5 +234,36 @@ call mma_deallocate(JA)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
+contains
+
+! number of active orbitals of symmetry jSym in RAS spaces below iRas
+function nLow(iRas,jSym)
+  integer(kind=iwp) :: nLow
+  integer(kind=iwp), intent(in) :: iRas, jSym
+  select case (iRas)
+    case (1)
+      nLow = 0
+    case (2)
+      nLow = nRs1(jSym)
+    case default
+      nLow = nRs1(jSym)+nRs2(jSym)
+  end select
+end function nLow
+
+! decouple the rows/columns 1..nDup of the packed block (unit matrix there)
+subroutine Decouple_Dup(T,n,nDup)
+  use Index_Functions, only: iTri, nTri_Elem
+  integer(kind=iwp), intent(in) :: n, nDup
+  real(kind=wp), intent(inout) :: T(nTri_Elem(n))
+  integer(kind=iwp) :: g, h, nT
+  nT = nTri_Elem(n)
+  do g=1,nDup
+    do h=1,n
+      T(nT-iTri(n-g+1,n-h+1)+1) = Zero
+    end do
+    T(nT-iTri(n-g+1,n-g+1)+1) = One
+  end do
+end subroutine Decouple_Dup
 
 end subroutine Prec

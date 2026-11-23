@@ -31,7 +31,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: iState = 1
-integer(kind=iwp) :: i, iPrLev, iSym, left, lPaper
+integer(kind=iwp) :: i, iPrLev, iSym, left, lPaper, k_rf
 character(len=120) :: Line
 character(len=8) :: Fmt1, Fmt2
 character(len=3) :: lIrrep(8)
@@ -157,6 +157,34 @@ if (iPrLev >= TERSE) then
 
   ! Print out grid information
   call Funi_Print()
+
+  ! Print reaction field information
+  if (mcpdft_options%rfpert .or. mcpdft_options%rf_on) then
+    write(u6,*)
+    write(u6,fmt1) 'Reaction field specifications:'
+    write(u6,fmt1) '------------------------------'
+    if (mcpdft_options%rf_scf) then
+      if (mcpdft_options%noneq) then
+        write(u6,Fmt2//'A)') 'Calculation type: non-equilibrium (slow component from previous equilibrium LPDFT)'
+      else
+        write(u6,Fmt2//'A)') 'Calculation type: equilibrium'
+      end if
+      k_rf = mcpdft_options%rfroot
+      if (k_rf <= 0) then
+        write(u6,Fmt2//'A,T44,A)') 'Reaction field from state:',' State-Averaged'
+      else
+        write(u6,Fmt2//'A,T44,I2)') 'Reaction field from state:',k_rf
+      end if
+    else if (mcpdft_options%lpdft) then
+      write(u6,'(6X,A)') 'The reaction field of a previous calculation is added to the one-electron part'
+      write(u6,'(6X,A)') 'of the L-PDFT Hamiltonian. It is not reevaluated.'
+    else
+      write(u6,'(6X,A)') 'The reaction field of a previous calculation is used. It is not'
+      write(u6,'(6X,A)') 'reevaluated as MC-PDFT has no Hamiltonian.'
+    end if
+    write(u6,*)
+  end if
+
 end if
 
 if (iPrLev >= USUAL) then

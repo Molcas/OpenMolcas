@@ -33,8 +33,8 @@ and there are a number of approaches :cite:`Cossi:98,Cossi:01,Karlstroem:88,Serr
 based on the classical reaction field concept.
 
 |molcas| can model the solvent
-within the framework of SCF, RASSCF and CASPT2 programs, for the calculation of energies
-and properties and also for geometry optimizations. The reaction field formalism
+within the framework of SCF, RASSCF, CASPT2 and MCPDFT programs, for the calculation of energies
+and properties and also for geometry optimizations (properties and geometry optimization are not available for MCPDFT). The reaction field formalism
 is based on a sharp partition of the system: the solute molecule (possibly
 supplemented by some explicit solvent molecules) is placed in a cavity
 surrounded by a polarizable dielectric.
@@ -52,7 +52,7 @@ as a perturbation to the one-electron Hamiltonian; in the latter case the reacti
 field is expressed in terms of a collection of apparent charges (solvation charges)
 spread on the cavity surface: the PCM reaction field perturbs both one- and
 two-electron Hamiltonian operators. In both cases, the solvent effects can be
-added to the Hamiltonian at any level of theory, including MRCI and CASPT2.
+added to the Hamiltonian at any level of theory, including MRCI, CASPT2 and MCPDFT.
 
 .. index::
    single: Kirkwood model
@@ -143,6 +143,13 @@ to break the molecular symmetry. If the symmetry was explicitly requested in
 presence of the solvent, otherwise the convergence could be more difficult, and
 the final geometry could result of a lower symmetry.
 
+:program:`MCPDFT` calculations in the presence of a reaction field are
+performed in the same way, specifying the keyword :kword:`RFPErt`. The
+reaction field is taken from the preceding :program:`RASSCF` calculation and
+is not reevaluated, since MC-PDFT does not relax the reference wave function.
+Gradients in the presence of a reaction field are not available 
+in this case, so geometry optimizations cannot be performed.
+
 .. index::
    single: Solvent
    single: Solvent; Ground state
@@ -186,7 +193,7 @@ coordinate origin, thus the molecule must be placed accordingly.
 If we want to include the reaction field (either PCM or Kirkwood
 model)
 at other levels of theory the keyword :kword:`RFPErt` must be
-added to the :program:`MOTRA` or :program:`CASPT2` inputs.
+added to the :program:`MOTRA`, :program:`CASPT2` or :program:`MCPDFT` inputs.
 
 We are, however, going to explain the more complicated situation where
 a repulsive well potential has to be added to the model. In this case
@@ -1240,3 +1247,15 @@ the :math:`n\pi^*` and :math:`\pi\pi^*` may occur more favorable in solution.
 .. [#a] Ref. :cite:`Forbes:59`
 .. [#b] Solvatochromic shifts derived by comparison of the
         absorption wave lengths in water and isooctane
+
+Similarly, for the ground state as well as nonequilibrium excited state calculation with MCPDFT,
+the input remains same but instead of the CASPT2 block, the following input is given ::
+
+
+  &MCPDFT
+  FUNC=T:PBE
+  RFPErt
+  End of input
+
+
+

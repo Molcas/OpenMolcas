@@ -29,7 +29,7 @@ use mcpdft_output, only: iPrLoc
 use mcpdft_input, only: mcpdft_options, parse_input
 use lpdft, only: lpdft_kernel
 use mspdft_util, only: replace_diag
-use mspdft, only: heff, mspdft_init, mspdft_finalize
+use mspdft, only: heff, mspdft_init, mspdft_finalize, lpdft_rf_scf
 use wadr, only: FockOcc
 use Orbital_Spaces, only: ntot1, ntot2
 use CI_Input, only: nelec3, nhole1
@@ -119,7 +119,10 @@ call mma_allocate(e_mcscf,lroots,Label='e_mcscf')
 e_mcscf(:) = Zero
 call ref_energy(e_mcscf,lroots)
 
-if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) call lpdft_kernel(CMO,e_mcscf)
+if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) then
+  call lpdft_kernel(CMO,e_mcscf)
+  if (mcpdft_options%rf_scf) call lpdft_rf_scf(lroots)
+end if
 
 call Timing(dum1,dum2,time1(1),dum3)
 TimeInput = time1(1)
