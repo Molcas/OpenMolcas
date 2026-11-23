@@ -20,7 +20,8 @@ use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
 use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort
 use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma, ras_traci, ras_trans_one_pdm, &
                        ras_trans_two_pdm
-use rasscf_global, only: DoFaro, DoSGEx, DoSGCI
+use rasscf_global, only: DoSGEx
+use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_SGUGA
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -42,7 +43,7 @@ Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
 Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, CI_Initialize, &
-          CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_nTmp, SG_CI
+          CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_CI, Faro_nTmp, SG_CI
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
@@ -120,11 +121,18 @@ contains
 
 !> SGCI: the whole CI (diagonal, explicit subspace, sigma vectors, density
 !> matrices) is done by SGUGA in its own split-graph CSF basis, without
-!> Lucia (RASSCF keyword SGCI, only where SGUGA covers the CI space).
+!> Lucia (RASSCF keyword SGCI: SGUGA is the selected CI library, CI_Op_Defs).
 function SG_CI() result(SGMode)
 logical(kind=iwp) :: SGMode
-SGMode = DoSGCI .and. SG_Avail()
+SGMode = CI_Lib_Is(CI_Lib_SGUGA)
 end function SG_CI
+
+!> FARO: the whole CI is done by Faroald in the configuration order of
+!> citrans (RASSCF keyword FARO: Faroald is the selected CI library).
+function Faro_CI() result(FaroMode)
+logical(kind=iwp) :: FaroMode
+FaroMode = CI_Lib_Is(CI_Lib_Faroald)
+end function Faro_CI
 
 !> FARO: the number of determinants of the RAS/GAS space of Faroald (all
 !> symmetries; nela/nelb electrons, o(k) orbitals in partition k of np,
@@ -179,18 +187,13 @@ logical(kind=iwp) :: Active
 Active = Lucia_Active
 end function CI_Lucia_Active
 
-!> The CSF basis of the CI vectors of RASSCF: 1 = Lucia, 2 = the split-graph
-!> basis of SGUGA (SGCI; the order of the files), 3 = the configuration
-!> order of Faroald (citrans; keyword FARO).
+!> The CSF basis of the CI vectors of RASSCF = the selected CI library
+!> (CI_Op_Defs): 1 = Lucia, 2 = the split-graph basis of SGUGA (SGCI; the
+!> order of the files), 3 = the configuration order of Faroald (citrans;
+!> keyword FARO).
 function CI_Basis() result(iBasis)
 integer(kind=iwp) :: iBasis
-if (SG_CI()) then
-  iBasis = 2
-else if (DoFaro) then
-  iBasis = 3
-else
-  iBasis = 1
-end if
+iBasis = CI_Lib
 end function CI_Basis
 
 !> A CI vector from the basis of the CI back end to the split-graph order of
@@ -587,7 +590,7 @@ end if
 if (SG_CI()) then
   call mma_allocate(HEXS_Keep,nConf,Label='HEXS_Keep')
   HEXS_Keep(:) = HEXS_Keep_SG(:)
-else if (DoFaro) then
+else if (Faro_CI()) then
   call mma_allocate(HEXS_Keep,nConf,Label='HEXS_Keep')
   call HEXS_Mask_Faro(HEXS_Keep)
 end if
@@ -690,7 +693,7 @@ if (SG_CI()) then
   return
 end if
 
-if (DOFARO) then
+if (Faro_CI()) then
 
   call Faroald_Ints(TU,TUVX)
   call Faroald_Sigma(nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
@@ -784,7 +787,7 @@ If (CI_Verify('SIGMA') .and. SG_Avail()) Then
        call Abend()
      end if
    end if
-   if (DoFaro) then
+   if (Faro_CI()) then
      SG_Done = HPsi_Faro_Verified
      call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs SGUGA',maxval(abs(SG_PSI(:)-Sigma_Vec(:))), &
                      1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:)))),SG_Done)
@@ -980,7 +983,7 @@ Call mma_deallocate(Full)
 ! in SD basis
 #endif
 
-if (DOFARO) then
+if (Faro_CI()) then
 
   call Faroald_Ints(TU,TUVX)
 
@@ -1176,7 +1179,7 @@ if (SG_CI()) then
   return
 end if
 
-If (DoFaro) Then
+If (Faro_CI()) Then
    Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
 
    If (ras_active) Then
@@ -1390,7 +1393,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    return
  end if
 
- If (DoFaro) Then
+ If (Faro_CI()) Then
    call mma_allocate(D_loc,nD,Label='D_loc')
    call mma_allocate(SD_loc,nD,Label='SD_loc')
    call mma_allocate(P_loc,nP,Label='P_loc')
@@ -1454,7 +1457,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): verify the SGUGA density matrices
 ! against the CI back end. D, P and PA are optional, so only those present
 ! are compared.
-        If (CI_Verify('SIGMA') .and. (.NOT.iDoGAS) .and. (.NOT.DoFaro)) Then
+        If (CI_Verify('SIGMA') .and. (.NOT.iDoGAS) .and. (.NOT.Faro_CI())) Then
 
           Call mma_allocate(CIV,nCIVEC,Label='CIV')
           call CI_Basis_To_File(iState,CI_St(iState)%STSym,nCIVEC,CIVEC,CIV)
@@ -1694,7 +1697,7 @@ Case ('Ini')
    Tim_Calls(:) = 0
 Case ('Pri')
   call Tim_Print()
-  If (DoFaro) Then
+  If (Faro_CI()) Then
   Else If (Lucia_Active) Then
     call PrtTim()
   End If
@@ -1711,7 +1714,7 @@ integer(kind=iwp) :: k
 character(len=8) :: BackEnd
 if (SG_CI()) then
   BackEnd = 'SGUGA'
-else if (DoFaro) then
+else if (Faro_CI()) then
   BackEnd = 'Faroald'
 else
   BackEnd = 'Lucia'
@@ -1823,7 +1826,7 @@ end if
 write(u6,'(1X,A)') 'CI_Space_Setup: CI space verified against the RAS description'
 end subroutine CI_Space_Setup
 
-subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
+subroutine CI_Initialize(DO_SGUGA)
 ! (the input values: the CI state is set up here)
 use CI_Input, only: ISPIN, NACTEL, STSYM
 use sguga, only: SG_Test_EpqErs_Ref
@@ -1834,7 +1837,7 @@ use CI_Input, only: STSym
 use Molcas, only: MxSym
 
 implicit none
-logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
+logical(kind=iwp), intent(in) :: DO_SGUGA
 integer(kind=iwp), parameter :: iState=1
 integer(kind=iwp) :: nAct, k, iSym, iLev, nPrt, nCSF_Lucia, nFail_TT
 integer(kind=iwp), allocatable :: nOrbP(:)
@@ -1844,7 +1847,7 @@ integer(kind=iwp), allocatable :: OrbSym(:), OrbRas(:), nOff(:)
 nCSF_Lucia = 0
 ! SGCI does not need Lucia; it is set up only as the reference of
 ! MOLCAS_CI_VERIFY=SIGMA.
-Lucia_Active = .not. (((Do_SGUGA .and. SG_CI()) .or. Do_Faroald) .and. (.not. CI_Verify('SIGMA')))
+Lucia_Active = .not. (((Do_SGUGA .and. SG_CI()) .or. Faro_CI()) .and. (.not. CI_Verify('SIGMA')))
 
 ! the CI space in the common description of the back ends
 call CI_Space_Setup()
@@ -1919,7 +1922,7 @@ If (Do_SGUGA) Then
 End If
 
 ! faroald initializations
-if (DO_FAROALD) then
+if (Faro_CI()) then
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
   write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
   write(u6,'(1X,A)') '**EXPERIMENTAL**'
@@ -2027,7 +2030,7 @@ end subroutine CI_Close
 !> Diagonal of the CI Hamiltonian in the CSF basis as used by the CI solver
 !> (preconditioner, selection of the explicit subspace in PHPCSF): for each
 !> configuration the average of its determinant diagonals, assigned to all
-!> of its CSFs (Lucia, CSDIAG). With DoFaro the same average from Faroald
+!> of its CSFs (Lucia, CSDIAG). With FARO the same average from Faroald
 !> (hdiag), compared with Lucia and then used.
 !>
 !> With MOLCAS_CI_VERIFY=SIGMA (single RAS partition, no GAS) the exact
@@ -2063,7 +2066,7 @@ if (SG_CI()) then
   return
 end if
 ! Faroald (FARO): the configuration average in its own basis
-if (DoFaro) then
+if (Faro_CI()) then
   call Faroald_Diag()
   call Tim_Off(Tim_IHI,TimT)
   return
@@ -2578,7 +2581,7 @@ if (SG_CI()) then
     call mma_allocate(iCSFCnf,Cnf_SG%iOff(Cnf_SG%nCnf+1),Label='iCSFCnf')
     iCSFCnf(:) = Cnf_SG%iCSF(1:Cnf_SG%iOff(Cnf_SG%nCnf+1))
   end if
-else if (DoFaro) then
+else if (Faro_CI()) then
   ! Faroald (citrans): the CSFs of a configuration are contiguous
   call Mk_Cnf_Layout_Faroald(nCSFCnf)
   if (present(iCSFCnf)) then
@@ -2659,7 +2662,7 @@ end subroutine Mk_Cnf_Layout_Lucia
 !> Back ends:
 !>  - Lucia: CNHCN for each pair of configurations (determinant block,
 !>    transformed with DTOC).
-!>  - Faroald (DoFaro): for each pair of configurations the determinant
+!>  - Faroald (FARO): for each pair of configurations the determinant
 !>    block (Slater-Condon rules, Faroald_HDet) transformed with the spin
 !>    tables of citrans, C_L^T H C_R.
 !>  - SGUGA (RASSCF keyword SGEX; no GAS, single RAS partition): <I|H|J>
@@ -2725,20 +2728,20 @@ if (DoSGEx .and. (.not. SG_OK) .and. (.not. SGEx_Warned)) then
 end if
 ! FARO: the explicit block is always that of Faroald, in its own basis
 ! (SGEX belongs to the Lucia path)
-if (DoSGEx .and. DoFaro .and. (.not. SGEx_Warned)) then
+if (DoSGEx .and. Faro_CI() .and. (.not. SGEx_Warned)) then
   write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored with FARO; the explicit block is computed by Faroald'
   SGEx_Warned = .true.
 end if
-UseSG = DoSGEx .and. SG_OK .and. (.not. DoFaro)
+UseSG = DoSGEx .and. SG_OK .and. (.not. Faro_CI())
 Verify = CI_Verify('SIGMA') .and. (.not. IHJ_Verified)
 ! the walks of the Lucia CSFs, once per run
-if (Verify .and. SG_OK .and. (.not. DoFaro)) call SG_Verify_Lucia_Walk(iState,IREFSM,nConf)
+if (Verify .and. SG_OK .and. (.not. Faro_CI())) call SG_Verify_Lucia_Walk(iState,IREFSM,nConf)
 
 call CWTime(T0,W)
 if (UseSG) then
   Lab = 'SGUGA'
   call IHJ_SGUGA(PHP)
-else if (DoFaro) then
+else if (Faro_CI()) then
   Lab = 'Faroald'
   call IHJ_Faroald(PHP)
 else
@@ -2754,14 +2757,14 @@ if (Verify) then
   call mma_allocate(PHP_Ref,nTri_Elem(NPCSF),Label='PHP_Ref')
   ! (with FARO the block is in the basis of Faroald: the references of
   ! Lucia and SGUGA are their columns H e_J in that basis, Ref_Sigma)
-  if (UseSG .and. (.not. DoFaro)) call Ref_Block('Lucia')
-  if (DoFaro) then
+  if (UseSG .and. (.not. Faro_CI())) call Ref_Block('Lucia')
+  if (Faro_CI()) then
     call Ref_Block('Faroald H e_J')
     call Ref_Block('Lucia H e_J')
     if (SG_OK) call Ref_Block('SGUGA H e_J')
   end if
   if (SG_OK) then
-    if ((.not. UseSG) .and. (.not. DoFaro)) call Ref_Block('SGUGA')
+    if ((.not. UseSG) .and. (.not. Faro_CI())) call Ref_Block('SGUGA')
     call Verify_SG_Explicit()
   else
     write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (not available with GAS)'
@@ -3311,7 +3314,7 @@ contains
     real(kind=wp) :: Ref, Err, ErrMax
     logical(kind=iwp) :: Sigma_Save
 
-    if (DoFaro) then
+    if (Faro_CI()) then
       nTmp = Faro_nTmp()
     else
       nTmp = nDet
@@ -3544,14 +3547,14 @@ If (Verify_SG) Then
   CI_SGUGA(:) = CI_Vector(:)
 End If
 
-If (DoFaro .and. CI_Verify('SIGMA')) Then
+If (Faro_CI() .and. CI_Verify('SIGMA')) Then
   ! the reference of Lucia, in the Lucia basis
   Call mma_allocate(CI_Faroald,nCSF,Label='CI_Lucia')
   call CI_Basis_To_Lucia(iState,CI_St(iState)%STSym,nCSF,CI_Vector,CI_Faroald)
   Call Lucia_util('TRACI',CI_Vector=CI_Faroald(:),TU=TU(:),nTU=nTU)
 End If
 
-If (DoFaro) Then
+If (Faro_CI()) Then
   ! Faroald in its own basis (citrans), through the determinants
   ! the transformation matrix in symmetry blocks -> NAC x NAC over the
   ! orbitals of Faroald (the levels, Faro_L2O)

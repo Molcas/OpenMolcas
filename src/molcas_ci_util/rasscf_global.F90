@@ -33,7 +33,7 @@ real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, C
                  ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, &
                  POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, S, SXDAMP, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, &
                  TMIN, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
-logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, Lowdin_On, lSquare, NonEq, RFpert, &
+logical(kind=iwp) :: DoBlockDMRG, doDMRG, DOFCIDUMP, IfCRPR, kIvo, l_casdft, Lowdin_On, lSquare, NonEq, RFpert, &
                      Start_Vectors
 ! Explicit CI Hamiltonian of the CI start from SGUGA (keyword SGEX)
 logical(kind=iwp) :: DoSGEx = .false.
@@ -46,10 +46,6 @@ public :: DoSGEx
 ! size of the explicit subspace (keyword SDAV, capped by the CI interface)
 integer(kind=iwp) :: NCONF, NDET, NSEL
 public :: NCONF, NDET, NSEL
-! The whole CI in the SGUGA (split-graph) CSF basis, without Lucia (keyword
-! SGCI); development, see ci_interfaces
-logical(kind=iwp) :: DoSGCI = .false.
-public :: DoSGCI
 character(len=LenIn+8) :: BName(mxOrb)
 character(len=256) :: CMSStartMat
 character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)
@@ -60,7 +56,7 @@ character(len=2) :: HEADER(72), QNSTEP
 real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)
 
 public :: BName, CBLB, CBLBM, CCI, CleanMask, CMAX, CMSStartMat, CMSThreshold, CONV, CoreShift, CRPROJ, CRVEC, DE, DFTFOCK, &
-          DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, E2act, ECAS, EMY, ENER, ESX, ExFac, FDIAG, HALFQ, HALFQ1, HEADER, hfocc, hRoots, &
+          DoBlockDMRG, doDMRG, DOFCIDUMP, E2act, ECAS, EMY, ENER, ESX, ExFac, FDIAG, HALFQ, HALFQ1, HEADER, hfocc, hRoots, &
           IADR15, iAlphaBeta, IBLB, IBLBM, ICI, ICICH, ICICP, iCIonly, ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, &
           IEXPAND, IfCRPR, IFORDE, INOCALC, INVEC, iOrbOnly, iOrbTyp, IORDEM, iOverwr, IPCMROOT, IPHNAME, IPR, IPT2, iRlxRoot, &
           IROOT, IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD, ISTORP, ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc, &

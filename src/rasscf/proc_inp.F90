@@ -46,7 +46,7 @@ use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
 use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, CRPROJ, CRVEC, DFTFOCK, DoBLOCKDMRG, DoDMRG, &
-                         DoFaro, DoFCIDump, ExFac, HFOCC, HFOcc, hRoots, iAlphaBeta, ICI, ICICH, iCIonly, iCIRFROOT, iCIRST, &
+                         DoFCIDump, ExFac, HFOCC, HFOcc, hRoots, iAlphaBeta, ICI, ICICH, iCIonly, iCIRFROOT, iCIRST, &
                          iCMSITERMAX, iCMSITERMin, iCMSP, iExpand, IfCRPR, iFORDE, InOCalc, INVEC, iOrbOnly, iOrbTyp, iOrdEM, &
                          iOverWr, iPCMRoot, iPhName, iPT2, IRLXROOT, IROOT, iRotPsi, iSave_Exp, iSCF, iSPDEN, iSupSM, ITCORE, &
                          ITMAX, IXMSP, ixSym, iZRot, JCJ, kivo, KSDFT, kTight, l_CASDFT, LOWDIN_ON, LowMS, LROOTS, LvShft, MALTER, &
@@ -56,7 +56,8 @@ use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, C
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
-use rasscf_global, only: DoSGEx, DoSGCI
+use rasscf_global, only: DoSGEx
+use CI_Op_Defs, only: CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_Select, CI_Lib_SGUGA
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, &
                          Do3RDM, Max_Canonical, Max_Sweep, MxDMRG
@@ -90,7 +91,7 @@ integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2
 integer(kind=iwp) :: nOrbGAS(MxGAS)
 integer(kind=iwp) :: MaxFaro
 real(kind=wp) :: dSum, Dummy(1), nDetFaro, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
-logical(kind=iwp) :: DBG, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists, SkipGUGA
+logical(kind=iwp) :: DBG, DoFaro, DoSGCI, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists, SkipGUGA
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=256) :: myTitle
 character(len=180) :: Line
@@ -4145,8 +4146,20 @@ if (.not. SkipGUGA) then
     end if
   end if
 
-  call CI_Initialize(.true.,DOFARO)
+  ! the CI library of the run (CI_Op_Defs), read by the CI interface
+  if (DoSGCI) then
+    call CI_Lib_Select(CI_Lib_SGUGA)
+  else if (DoFaro) then
+    call CI_Lib_Select(CI_Lib_Faroald)
+  else
+    call CI_Lib_Select(CI_Lib_Lucia)
+  end if
+  call CI_Initialize(.true.)
 
+else
+  ! DMRG, NECI, ...: no CI library of the CI interface (as before, the
+  ! basis of Lucia for the conversions)
+  call CI_Lib_Select(CI_Lib_Lucia)
 end if
 
 ISCF = 0

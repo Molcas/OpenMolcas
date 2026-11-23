@@ -12,8 +12,8 @@
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,TUVX)
 
 use timers, only: TimeDavid, TimeSigma
-use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
-use ci_interfaces, only: Faro_nTmp, Mk_H_Psi
+use rasscf_global, only: DE, hRoots, ICIRST, lRoots, MAXJT
+use ci_interfaces, only: Faro_CI, Faro_nTmp, Mk_H_Psi
 use rasscf_files, only: ITERFILE, LUDAVID
 use CI_Info, only: CI_St
 use rasscf_global, only: NCONF, NSEL
@@ -44,7 +44,7 @@ real(kind=wp), pointer, contiguous :: Vec2(:)
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), external :: dDot_, dnrm2_
 
-if (DoFaro) then
+if (Faro_CI()) then
   ! determinant wavefunctions Faroald (not with RAS, Faro_nTmp)
   call mma_allocate(sigtemp,Faro_nTmp(),label='sgm')
   call mma_allocate(ctemp,Faro_nTmp(),label='psi')
