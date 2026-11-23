@@ -32,7 +32,8 @@ use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use Orbital_Spaces, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT1
 use CI_Input, only: ISPIN, NACTEL
-use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp, NAC, NACPAR, NONEQ, PotNuc, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
+use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp, NAC, NACPAR, NONEQ, PotNuc, RFpert, Tot_Charge, Tot_El_Charge, &
+                         Tot_Nuc_Charge
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -217,7 +218,7 @@ call Put_iArray('nIsh',nIsh,nSym)
 
 iCharge = int(Tot_Charge)
 ! Tmp5 and Tmp6 are not updated in DrvXV...
-call DrvXV(Tmp5,Tmp6,Tmp3,PotNuc,nTot1,First,Dff,NonEq,lRF,KSDFT_TEMP,ExFac,iCharge,iSpin,DFTFOCK,Do_DFT)
+call DrvXV(Tmp5,Tmp6,Tmp3,PotNuc,nTot1,First,Dff,NonEq,lRF .and. (.not.RFPert),KSDFT_TEMP,ExFac,iCharge,iSpin,DFTFOCK,Do_DFT)
 
 Tmp1(:) = Tmp1(:)+Tmp5(:)
 FI(1:nTot1) = FI(1:nTot1)+Tmp6(:)

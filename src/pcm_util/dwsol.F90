@@ -71,24 +71,23 @@ end subroutine DWSol_dummy
 
 ! should be called somewhere in RASSCF or MCLR after nRoots and
 ! IPCMROOT are determined
-subroutine DWSol_init(IPCMROOT_,nRoots_,NonEq_)
+subroutine DWSol_init(IPCMROOT_,IROOT_,nRoots_,NonEq_)
 
   use rctfld_module, only: iSLPar, rSlPar
   use input_mclr, only: Weight_MCLR => Weight
   use rasscf_global, only: Weight_RASSCF => Weight
   use UnixInfo, only: ProgName
 
-  integer(kind=iwp), intent(in) :: IPCMROOT_, nRoots_
+  integer(kind=iwp), intent(in) :: IPCMROOT_, nRoots_, IROOT_(nRoots_)
   logical(kind=iwp), intent(in) :: NonEq_
   integer(kind=iwp) :: i, istate, jstate, mData
   real(kind=wp) :: wgt
   logical(kind=iwp) :: Found
 
-  IPCMROOT = IPCMROOT_
   nRoots = nRoots_
 
   DWSolv%DWType = ISlPar(17)
-  DWSolv%DWRoot = IPCMROOT
+! DWSolv%DWRoot = IPCMROOT
   DWSolv%DWZeta = RSlPar(53)
 
   if (NonEq_) DWSolv%DWZeta = Zero
@@ -103,14 +102,13 @@ subroutine DWSol_init(IPCMROOT_,nRoots_,NonEq_)
     DWSolv%DWZeta = -12345.0_wp
   else
     if (DWSolv%DWZeta == Zero) then
-      if (IPCMROOT > 0) then
-        W_SOLV(IPCMROOT) = One
-      else
+      ! single-root reaction field
+      if (IPCMROOT_ <= 0) then
         if (ProgName(1:6) == 'rasscf') W_SOLV(1:nRoots) = Weight_RASSCF(1:nRoots)
         if (ProgName(1:4) == 'mclr') W_SOLV(1:nRoots) = Weight_MCLR(1:nRoots)
       end if
     else if (DWSolv%DWZeta < Zero) then
-      !! fixed averaging
+      ! fixed-averaged reaction field
       call DWSol_fixed(istate,jstate)
       do i=1,nRoots
         if ((i == istate) .or. (i == jstate)) then
@@ -121,11 +119,52 @@ subroutine DWSol_init(IPCMROOT_,nRoots_,NonEq_)
         W_SOLV(i) = wgt
       end do
     else if (DWSolv%DWZeta > Zero) then
+      ! dynamically weighted reaction field
       DWSolv%do_DW = .true.
     end if
   end if
 
+  ! define DWRoot here
+  call DWSol_root(IPCMROOT_,IROOT_)
+
 end subroutine DWSol_init
+
+!-----------------------------------------------------------------------
+
+subroutine DWSol_root(IPCMROOT_,IROOT_)
+
+  integer(kind=iwp), intent(in) :: IPCMROOT_, IROOT_(nRoots)
+
+  ! Update the RF root to be followed when root flipping occurs
+  ! Additionally, update W_SOLV
+
+  IPCMROOT = IPCMROOT_
+  DWSolv%DWRoot = DWSol_pos(IPCMROOT_,IROOT_)
+  if ((DWSolv%DWRoot == 0) .and. (IPCMROOT_ > 0)) then
+    write(u6,*) 'The root of the reaction field must be included in CIROOT (with zero weight if necessary)'
+    call Abend()
+  end if
+  if ((DWSolv%DWZeta == Zero) .and. (IPCMROOT_ > 0)) then
+    W_SOLV(:) = Zero
+    if (DWSolv%DWRoot > 0) W_SOLV(DWSolv%DWRoot) = One
+  end if
+
+end subroutine DWSol_root
+
+!-----------------------------------------------------------------------
+
+function DWSol_pos(IR,IROOT_)
+
+  integer(kind=iwp) :: DWSol_pos
+  integer(kind=iwp), intent(in) :: IR, IROOT_(nRoots)
+  integer(kind=iwp) :: i
+
+  DWSol_pos = 0
+  do i=1,nRoots
+    if (IROOT_(i) == IR) DWSol_pos = i
+  end do
+
+end function DWSol_pos
 
 !-----------------------------------------------------------------------
 

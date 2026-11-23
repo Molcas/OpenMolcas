@@ -123,7 +123,7 @@ contains
 
 subroutine PCM_grad_init()
 
-  use input_mclr, only: ERASSCF, nRoots, ntAsh, ntBsqr
+  use input_mclr, only: ERASSCF, IROOT, nRoots, ntAsh, ntBsqr
   use ISRotation, only: InvEne, InvSCF, InvSol
 
   integer(kind=iwp) :: iR
@@ -180,7 +180,7 @@ subroutine PCM_grad_init()
 
   !! For weighted solvation
   !! assume that noneq is irrelevant in MCLR
-  call DWSol_init(IPCMROOT,nRoots,.false.)
+  call DWSol_init(IPCMROOT,IROOT,nRoots,.false.)
   call DWSol_wgt(2,ERASSCF)
   !write(u6,*) 'weight of the solvation density'
   !do i=1,nroots

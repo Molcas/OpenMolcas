@@ -223,7 +223,7 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb) then
 
   call Timing(Time(1),dum1,dum2,dum3)
 
-  call DrvXV(Tmp5,Tmp6,Tmp3,PotNuc,nTot1,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,DFTFOCK,Do_DFT)
+  call DrvXV(Tmp5,Tmp6,Tmp3,PotNuc,nTot1,First,Dff,NonEq,lRF .and. (.not.RFpert),KSDFT,ExFac,iCharge,iSpin,DFTFOCK,Do_DFT)
   if (IPRLEV >= DEBUG) then
     write(u6,*)
     write(u6,*) ' Tmp5, h1 (DFT), in AO basis in SGFCIN'
