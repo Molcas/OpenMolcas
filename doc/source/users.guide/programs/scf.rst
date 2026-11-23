@@ -1218,12 +1218,16 @@ Advanced general keywords
   is the latest self consistent perturbation generated
   by one of the programs :program:`SCF` or :program:`RASSCF`.
 
-  .. xmldoc:: %%Keyword: Rfpert <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RFPERT" APPEAR="Reaction field perturbation" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: RFPErt <advanced>
+              <HELP>
               This keyword will add a constant reaction field perturbation to the
               bare nuclei Hamiltonian.
               The perturbation is read from RUNOLD (if not present defaults to RUNFILE) and
               is the latest selfconsistent perturbation generated
               by one of the programs SCF or RASSCF.
+              </HELP>
+              </KEYWORD>
 
 :kword:`STAT`
   This keyword will add an addition print outs with statistic information.

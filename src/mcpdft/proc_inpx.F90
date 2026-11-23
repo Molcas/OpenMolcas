@@ -43,6 +43,7 @@ real(kind=wp) :: potnucdummy
 logical(kind=iwp) :: DBG, FoundSpace, GAS, keyjobi, lExists, RunFile_Exists
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=72) :: JobTit(mxTit), ReadStatus
+character(len=120) :: msg
 character(len=2*72) :: lJobH2
 #ifdef _HDF5_
 integer(kind=iwp) :: mh5id, NBAS_L(MxSym), nsym_l
@@ -349,11 +350,37 @@ end if
 if (DBG) write(u6,*) ' Initialize seward.'
 nDiff = 0
 call IniSew(DSCF .or. Langevin_On() .or. PCM_On(),nDiff)
-if (lrf) then
-  call warningmessage(2,'MC-PDFT with solvent not supported!')
-  write(u6,*) 'MC-PDFT cannot be used with solvent!'
+! L-PDFT: self-consistent reaction field unless RFPERT
+mcpdft_options%rf_scf = mcpdft_options%lpdft .and. lrf .and. (.not. mcpdft_options%rfpert)
+mcpdft_options%rf_on = mcpdft_options%lpdft .and. (mcpdft_options%rfpert .or. lrf)
+
+! RF root for the self-consistent L-PDFT field
+if (mcpdft_options%rf_scf .and. (mcpdft_options%rfroot == 0)) then
+  mcpdft_options%rfroot = 1
+  call Qpg_iScalar('RF CASSCF root',lExists)
+  if (lExists) then
+    call Get_iScalar('RF CASSCF root',mcpdft_options%rfroot)
+    write(msg,'(A,I0,A)') 'RFROOT not specified; the reaction field is taken from state ', &
+                          mcpdft_options%rfroot,', the RF root of the reference RASSCF'
+  else
+    write(msg,'(A)') 'RFROOT not specified and no RF root on RUNFILE; the reaction field is taken from state 1'
+  end if
+  call WarningMessage(1,trim(msg))
+end if
+
+if (lrf .and. (.not. mcpdft_options%rfpert) .and. (.not. mcpdft_options%lpdft)) then
+  call warningmessage(1,'A reaction field is present but RFPERT was not specified;')
+  write(u6,*) 'Solvation is not included in the MC-PDFT energy.'
+end if
+if (mcpdft_options%noneq .and. (.not. mcpdft_options%rf_scf)) then
+  call WarningMessage(2,'NONEQ requires a reaction field')
+  write(u6,*) ' ************* ERROR **************'
+  write(u6,*) ' NONEQ requires a reaction field   '
+  write(u6,*) ' defined in GATEWAY/SEWARD         '
+  write(u6,*) ' **********************************'
   call Quit_OnUserError()
 end if
+
 ! ===============================================================
 !     Check the input data
 call validate_wfn()

@@ -75,8 +75,8 @@ integer(kind=iwp) :: iaddressQDAT, iBreak, iMethod, iPt2, iRoot(mxRoot), iToc(it
                      NIRREP, niter, nOrb(mxSym), nRoots, nSkip(mxSym), nsRot, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, &
                      ntIsqr, ntItri, nTPert(mxPer), nUserPT
 real(kind=wp) :: Coor(3,MxAtom), Eps, ERASSCF(mxroot), ESCF, Omega, PotNuc, rin_ene, UserP, UserT(64), Weight(mxroot)
-logical(kind=iwp) :: CASINT, debug, double, fail, iMCPD, iMSPD, lCalc(3*MxAtom+3), McKinley, newCho, page, PT2, RASSI, lSave, &
-                     Timedep, TwoStep
+logical(kind=iwp) :: CASINT, ColdStart, debug, double, fail, iMCPD, iMSPD, lCalc(3*MxAtom+3), McKinley, newCho, page, PT2, RASSI, &
+                     lSave, Timedep, TwoStep
 character(len=LenIn) :: AtLbl(MxAtom)
 character(len=72) :: Header1I(2), HeaderJP(2), TitleJp(mxTit)
 character(len=16) :: Perturbation
@@ -84,10 +84,10 @@ character(len=8) :: TitleIN(180)
 character(len=4) :: StepType
 character(len=3) :: chirr(8)
 
-public :: AtLbl, CASINT, chirr, Coor, debug, double, Eps, ERASSCF, ESCF, fail, Header1I, HeaderJP, iaddressQDAT, iBreak, iMCPD, &
-          iMethod, iMSPD, iPt2, iRoot, iToc, itociph, kprint, lCalc, lRoots, LuAChoVec, LuChoInt, LuIChoVec, McKinley, &
-          mTit, nAtoms, nBas, nConf, nCSF, nDel, nDisp, newCho, nFro, NIRREP, niter, nOrb, nRoots, nSkip, nsRot, ntAsh, ntAsqr, &
-          ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, RASSI, &
-          rin_ene, lSave, StepType, Timedep, TitleIN, TitleJp, TwoStep, UserP, UserT, Weight
+public :: AtLbl, CASINT, chirr, ColdStart, Coor, debug, double, Eps, ERASSCF, ESCF, fail, Header1I, HeaderJP, iaddressQDAT, &
+          iBreak, iMCPD, iMethod, iMSPD, iPt2, iRoot, iToc, itociph, kprint, lCalc, lRoots, LuAChoVec, LuChoInt, LuIChoVec, &
+          McKinley, mTit, nAtoms, nBas, nConf, nCSF, nDel, nDisp, newCho, nFro, NIRREP, niter, nOrb, nRoots, nSkip, nsRot, ntAsh, &
+          ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, &
+          RASSI, rin_ene, lSave, StepType, Timedep, TitleIN, TitleJp, TwoStep, UserP, UserT, Weight
 
 end module Input_MCLR

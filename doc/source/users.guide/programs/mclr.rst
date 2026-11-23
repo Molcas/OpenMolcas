@@ -411,6 +411,22 @@ A list of these keywords is given below:
               Note that CGS increases the computational cost by a factor of two per iteration and doubles the memory requirement.
               </KEYWORD>
 
+:kword:`COLD`
+  Start the Z-vector equations from zero. By default, inside a geometry loop (:command:`Do while`) and in
+  molecular dynamics, :program:`MCLR` starts the SA-MCSCF and MC-PDFT Z-vector equations from the solution of the
+  previous geometry with the same target, which reduces the number of iterations. If no such solution is stored
+  (e.g. at the first geometry), a warning is printed and the equations start from zero.
+  Since :program:`MCLR` is usually called implicitly, the warm start can also be switched off with the
+  environment variable :variable:`MOLCAS_MCLR_WARM` set to ``0``.
+
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="COLD" APPEAR="Cold start" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: COLD <advanced>
+              <HELP>
+              Start the Z-vector equations from zero instead of the solution at the previous geometry
+              (geometry loops and molecular dynamics).
+              </HELP>
+              </KEYWORD>
+
 :kword:`RFPErt`
   This keyword makes the program add reaction field effects to the response
   calculation. This is done by adding the reaction field effects to the

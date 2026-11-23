@@ -166,6 +166,7 @@ set (sources
      wfctl_pdft.F90
      wfctl_sa.F90
      wfctl_td.F90
+     zvec_guess.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)
