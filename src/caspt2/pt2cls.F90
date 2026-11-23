@@ -20,10 +20,6 @@ use qcmaquis_interface_cfg, only: dmrg_file
 use qcmaquis_info, only: qcmaquis_info_deinit
 use caspt2_module, only: DMRG
 #endif
-#if 0
-! NOT TESTED
-use OFembed, only: FMaux
-#endif
 use ChoCASPT2, only: NASplit, NISplit, NumCho_PT2
 use CI_States, only: CI_Free_State
 use Orbital_Spaces, only: NASH
@@ -50,10 +46,6 @@ if (IfChol) then
   end do
   ! Deallocate memory used as index arrays in the setup section
   call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'FREE')
-# if 0
-  ! NOT TESTED
-  call mma_deallocate(FMaux,safe='*')
-# endif
   ! deallocate chovec_io arrays
   call trachosz_free()
 end if

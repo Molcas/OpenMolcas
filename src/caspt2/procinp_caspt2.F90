@@ -36,10 +36,6 @@ use stdalloc, only: mma_allocate
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
-#if 0
-! NOT TESTED
-use OFembed, only: Do_OFemb
-#endif
 use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp, u6
 
@@ -405,21 +401,6 @@ if (Input%DELE) then
 end if
 
 ! NOT TESTED
-#if 0
-!***********************************************************************
-!
-! Orbital-free embedding.
-!
-!***********************************************************************
-if (Input%OFEmbedding) then
-  Do_OFemb = .true.
-  write(u6,*)
-  write(u6,*) '  --------------------------------------'
-  write(u6,*) '   Orbital-Free Embedding Calculation   '
-  write(u6,*) '  --------------------------------------'
-  write(u6,*)
-end if
-#endif
 !***********************************************************************
 !
 ! Determine what kind of calculations are needed/requested.
