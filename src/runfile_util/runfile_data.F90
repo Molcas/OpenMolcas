@@ -160,6 +160,7 @@ character(len=lw), parameter :: LabelsCA(nTocCA) = [ &
 !> - '``ExtFuncParams``'            External Libxc parameters (EXPM keyword of MCPDFT): number of functions, parameters per function, values.
 !> - '``D1ao_PCM``'                 One particle density matrix in AO that polarizes ASCs during RASSCF
 !> - '``SolventWeight``'            Weight of the density matrix used for generating reaction-field
+!> - '``LPDFT RCTFLD``'             Slow reaction-field component saved by an equilibrium L-PDFT run.
 
 character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'Analytic Hessian','Center of Charge','Center of Mass  ','CMO_ab          ', & !   1-  4
@@ -213,7 +214,7 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'P2INTER         ','D1AO_MS         ','D1SAO_MS        ','MS_FINAL_ROT    ', & ! 193-196
                                 'F1_PDFT         ','F2_PDFT         ','FxyMS           ','SH_Ovlp_Save    ', & ! 297-200
                                 'Old_Phase       ','<rhoB|VnucA>    ','D1ao_PCM        ','SolventWeight   ', & ! 201-204
-                                'ExtFuncParams   ','                ','                ','                ', & ! 205-208
+                                'ExtFuncParams   ','LPDFT RCTFLD    ','                ','                ', & ! 205-208
                                 '                ','                ','                ','                ', & ! 209-212
                                 '                ','                ','                ','                ', & ! 213-216
                                 '                ','                ','                ','                ', & ! 217-220
@@ -237,7 +238,11 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
 !> - '``Last energy``'               Last energy computed.
 !> - '``PC Self Energy``'            Self energy for point charges.
 !> - '``PotNuc``'                    Nuclear repusion energy.
-!> - '``RF Self Energy``'            Self energy in the Kirkwood model.
+!> - '``RF Self Energy``'            Self energy in the solvent model.
+!> - '``RF Pot Energy``'             Interaction energy with the reaction field.
+!> - '``LPDFT W_or_el``'             ``W_or_el`` saved by an equilibrium L-PDFT run (PCM non-equilibrium).
+!> - '``LPDFT W_or_Inf``'            ``W_or_Inf`` saved by an equilibrium L-PDFT run (PCM non-equilibrium).
+!> - '``LPDFT E_0_NN``'              ``E_0_NN`` saved by an equilibrium L-PDFT run (Kirkwood non-equilibrium).
 !> - '``SCF energy``'                Energy for the last SCF calculation.
 !> - '``EThr``'                      Energy convergence threshold.
 !> - '``Thrs``'
@@ -259,7 +264,7 @@ character(len=lw), parameter :: LabelsDS(nTocDS) = [ &
                                 'MD_Time         ','NAD dft energy  ','GradLim         ','Average energy  ', & ! 25-28
                                 'Timestep        ','MD_Etot         ','Max error       ','Total Charge    ', & ! 29-32
                                 'DFT exch coeff  ','DFT corr coeff  ','Value_l         ','R_WF_HMC        ', & ! 33-36
-                                '                ','                ','                ','                ', & ! 37-40
+                                'RF Pot Energy   ','LPDFT W_or_el   ','LPDFT W_or_Inf  ','LPDFT E_0_NN    ', & ! 37-40
                                 '                ','                ','                ','                ', & ! 41-44
                                 '                ','                ','                ','                ', & ! 45-48
                                 '                ','                ','                ','                ', & ! 49-52

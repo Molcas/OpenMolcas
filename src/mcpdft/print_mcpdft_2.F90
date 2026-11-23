@@ -15,7 +15,7 @@
 ! 2026 Bhavnesh Jangid - Added print outs for LPDFT quadrature results *
 !***********************************************************************
 
-subroutine print_MCPDFT_2(e_nuc,e_cas,e_ot,state,e_mcscf)
+subroutine print_MCPDFT_2(e_nuc,e_cas,e_ot,state,e_mcscf,e_tot)
 
 use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
 use mspdft, only: mspdftmethod
@@ -26,15 +26,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: e_nuc, e_cas, e_ot, e_mcscf
+real(kind=wp), intent(in) :: e_nuc, e_cas, e_ot, e_mcscf, e_tot
 integer(kind=iwp), intent(in) :: state
-real(kind=wp) :: CASDFT_E_1, E_ot_1, e_pdft, e_state, Funcaa1, Funcbb1, Funccc1
+real(kind=wp) :: CASDFT_E_1, E_ot_1, e_state, Funcaa1, Funcbb1, Funccc1
 character(len=120) :: Line
 character(len=6) :: Fmt2
 
-e_state = e_cas+e_ot
-e_pdft = e_state
-if (mcpdft_options%otfnal%is_hybrid()) e_state = mcpdft_options%otfnal%lambda*e_mcscf+(One-mcpdft_options%otfnal%lambda)*e_state
+e_state = e_tot
 
 if (iPrGlb >= USUAL) then
   write(Fmt2,'(A,I3.3,A)') '(6X,'
@@ -61,7 +59,7 @@ if (iPrGlb >= USUAL) then
     write(u6,'(6X,A)') 'Information for hybrid PDFT:'
     write(u6,'(6X,A,37X,F6.2)') 'Wave function percentage (Lambda*100)',mcpdft_options%otfnal%lambda*1.0e2_wp
     write(u6,'(6X,A,42X,F18.8)') 'Wave function energy',mcpdft_options%otfnal%lambda*e_mcscf
-    write(u6,'(6X,A,51X,F18.8)') 'PDFT energy',(One-mcpdft_options%otfnal%lambda)*e_pdft
+    write(u6,'(6X,A,51X,F18.8)') 'PDFT energy',e_state-mcpdft_options%otfnal%lambda*e_mcscf
     write(u6,*)
   end if
 

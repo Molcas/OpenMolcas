@@ -19,8 +19,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use Orbital_Spaces, only: nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
 use mcpdft_input, only: mcpdft_options
 use rasscf_files, only: jobiph, jobold
-use rasscf_global, only: dftfock, exfac, iadr15, istord, istorp, lroots, nac, nacpar, nacpr2, nfint, noneq, nroots, potnuc, weight
-use rctfld_module, only: lRF
+use rasscf_global, only: dftfock, exfac, iadr15, istord, istorp, lroots, nac, nacpar, nacpr2, nfint, nroots, potnuc, weight
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -31,7 +30,7 @@ private
 logical :: do_lpdft = .false.
 real(kind=wp) :: e_nuc_lpdft = Zero, e_ot_lpdft = Zero, e_wfn_lpdft = Zero, hconst = Zero
 real(kind=wp), allocatable :: casd1_0(:), casd1_0_blocked(:), casd1s_0(:), casd1s_0_blocked(:), casd2_0(:), dm1_core(:), &
-                              h1e_lpdft_act(:), h1e_lpdft_ao(:), h2e_lpdft_act(:), veff1(:), veff2(:), vj(:), vjk(:)
+                              h1e_lpdft_act(:), h1e_lpdft_ao(:), h2e_lpdft_act(:), v_rf_act(:), veff1(:), veff2(:), vj(:), vjk(:)
 
 public :: do_lpdft, lpdft_kernel
 
@@ -63,7 +62,7 @@ subroutine lpdft_kernel(CMO,e_mcscf)
 
   ! Using hconst, h1e, and h2e now we can compute the effective Hamiltonian and then diagonalize
   ! it to get the state-interaction vectors
-  call construct_lpdft_ham()
+  call construct_lpdft_ham(CMO)
 
   ! Adding the hybrid component, if needed.
   call hybridize_lpdft_ham(e_mcscf)
@@ -137,7 +136,7 @@ subroutine compute_Eot_and_potentials(CMO)
   integer(kind=iwp) :: charge
   real(kind=wp) :: casd1AO_0(ntot2), casD1AO_folded_0(ntot1), casd1sAO_0(ntot2), d1ao_0(ntot1), d1sao_0(ntot1), gtmp(ntot1), &
                    htmp(ntot1)
-  logical(kind=iwp), parameter :: Dff = .false., Do_DFT = .true., First = .true.
+  logical(kind=iwp), parameter :: Dff = .false., Do_DFT = .true., dummy_lrf = .false., dummy_noneq = .false., First = .true.
   integer(kind=iwp), external :: get_charge
 
   ! Convert CASD1 (MO) -> AO Basis
@@ -175,8 +174,8 @@ subroutine compute_Eot_and_potentials(CMO)
 
   htmp(:) = Zero
   gtmp(:) = Zero
-  call DrvXV(htmp,gtmp,d1ao_0,potnuc,nTot1,First,Dff,NonEq,lRF,mcpdft_options%otfnal%otxc,ExFac,charge,CI_St(iState)%iSpin, &
-             dftfock,Do_DFT)
+  call DrvXV(htmp,gtmp,d1ao_0,potnuc,nTot1,First,Dff,dummy_noneq,dummy_lrf,mcpdft_options%otfnal%otxc,ExFac,charge, &
+             CI_St(iState)%iSpin,dftfock,Do_DFT)
 
   ! Load in the on-top potentials.
   call get_dArray('ONTOPO',veff1,ntot1)
@@ -306,9 +305,12 @@ end function get_e_vhf_core
 !***********************************************************************
 function get_core_energy(CMO) result(e_core)
 
+  use mspdft, only: dao_core, e_rf_core, rf_runold_pop, rf_runold_push
+
   real(kind=wp) :: e_core
   real(kind=wp), intent(in) :: CMO(ntot2)
-  real(kind=wp), allocatable :: dm1_core_mo(:), hcore_mo(:), vj_mo(:)
+  logical(kind=iwp) :: runold
+  real(kind=wp), allocatable :: d1i_sq(:), dm1_core_mo(:), hcore_mo(:), v_rf(:), v_rf_mo(:), vj_mo(:)
   real(kind=wp), external :: dDot_
 
   call mma_allocate(dm1_core_mo,ntot1,Label='DM1_CORE_MO')
@@ -323,6 +325,30 @@ function get_core_energy(CMO) result(e_core)
 
   call get_core_dm1_mo(dm1_core_mo)
   call get_hcore(h1e_lpdft_ao)
+
+  if (mcpdft_options%rf_on) then
+    call mma_allocate(v_rf,ntot1,Label='v_rf')
+    call rf_runold_push(runold)
+    call get_dArray('Reaction field',v_rf,ntot1)
+    call rf_runold_pop(runold)
+
+    call mma_allocate(v_rf_mo,ntot1,Label='V_RF_MO_LPDFT')
+    v_rf_mo(:) = Zero
+    call ao2mo_1e(CMO,v_rf,v_rf_mo,nSym,nBas,nOrb,nFro)
+    e_rf_core = dDot_(ntot1,v_rf_mo,1,dm1_core_mo,1)
+    call mma_deallocate(v_rf_mo)
+
+    ! Folded AO core density
+    if (.not. allocated(dao_core)) call mma_allocate(dao_core,ntot1,Label='DAO_CORE')
+    call mma_allocate(d1i_sq,ntot2,Label='D1I_SQ')
+    call Get_D1I_RASSCF(CMO,d1i_sq)
+    call Fold(nSym,nBas,d1i_sq,dao_core)
+    call mma_deallocate(d1i_sq)
+
+    call daxpy_(ntot1,One,v_rf,1,h1e_lpdft_ao,1)
+    call mma_deallocate(v_rf)
+  end if
+
   call ao2mo_1e(CMO,h1e_lpdft_ao,hcore_mo,nSym,nBas,nOrb,nFro)
   call ao2mo_1e(CMO,vj,vj_mo,nSym,nBas,nOrb,nFro)
 
@@ -478,9 +504,12 @@ end function contract_puvx_2rdm
 !***********************************************************************
 subroutine compute_h1e_lpdft(CMO)
 
+  use mspdft, only: rf_runold_pop, rf_runold_push
+
   real(kind=wp), intent(in) :: CMO(ntot2)
   real(kind=wp) :: lpdft_comp
-  real(kind=wp), allocatable :: veff1_act(:), vj_act(:), vjk_act(:)
+  logical(kind=iwp) :: runold
+  real(kind=wp), allocatable :: v_rf(:), veff1_act(:), vj_act(:), vjk_act(:)
 
   call mma_allocate(veff1_act,nacpar,Label='VEFF1_ACT')
   call mma_allocate(vj_act,nacpar,Label='VJ_ACT_LPDFT')
@@ -494,6 +523,20 @@ subroutine compute_h1e_lpdft(CMO)
 
   ! Compute the hcore term and transform it to the active space in MO basis
   call get_hcore(h1e_lpdft_ao)
+
+  if (mcpdft_options%rf_on) then
+    call mma_allocate(v_rf,ntot1,Label='v_rf')
+    call rf_runold_push(runold)
+    call get_dArray('Reaction field',v_rf,ntot1)
+    call rf_runold_pop(runold)
+    v_rf_act(:) = Zero
+    call ao2moact_1e(CMO,v_rf,v_rf_act,nSym,nBas,nAsh,nFro,nIsh)
+    ! unscaled: the reaction field enters at full weight also for hybrids
+    call unblock_active_1e(v_rf_act)
+    call daxpy_(ntot1,One,v_rf,1,h1e_lpdft_ao,1)
+    call mma_deallocate(v_rf)
+  end if
+
   call ao2moact_1e(CMO,h1e_lpdft_ao,h1e_lpdft_act,nSym,nBas,nAsh,nFro,nIsh)
 
   ! Add the classical Coulomb and veff2 core-response terms.
@@ -558,21 +601,26 @@ end subroutine compute_h2e_lpdft
 !> density matrix and the symmetric 2e transition density (same packing as the 2-RDM).
 !> @param[out] heff: L-PDFT Hamiltonian in the active space in MO basis.
 !***********************************************************************
-subroutine construct_lpdft_ham()
+subroutine construct_lpdft_ham(CMO)
 
   use mspdft, only: heff
 # ifdef _HDF5_
+  use mcpdft_output, only: iprglb
   use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
+  use mspdft, only: dao_pair, pair_roots, w_rf
+  use PrintLevel, only: DEBUG
 # endif
 
+  real(kind=wp), intent(in) :: CMO(ntot2)
   integer(kind=iwp) :: iRoot
 # ifdef _HDF5_
-  integer(kind=iwp) :: iPair, jRoot, lFileName, mh5id, nPairs
+  integer(kind=iwp) :: iAct, iPacked, iPair, jAct, jRoot, lFileName, mh5id, nPairs
   integer(kind=iwp), allocatable :: rootPairs(:,:)
-  real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:)
+  real(kind=wp), allocatable :: aoSq(:), pb(:), pk(:), tdm1(:,:,:), tdm2(:,:)
   character(len=1024) :: fileName
   character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
 # endif
+# include "macros.fh"
 # include "warnings.h"
 
   do iRoot=1,lRoots
@@ -580,6 +628,7 @@ subroutine construct_lpdft_ham()
   end do
 
 # ifndef _HDF5_
+  unused_var(CMO)
   call WarningMessage(2,'LPDFT MS-PDFT requested, but HDF5 support is disabled.')
   call Quit_OnUserError()
 # else
@@ -619,6 +668,37 @@ subroutine construct_lpdft_ham()
 
   call mh5_close_file(mh5id)
 
+  if (mcpdft_options%rf_on) then
+    call mma_allocate(dao_pair,ntot1,nPairs,Label='DAO_PAIR')
+    call mma_allocate(pair_roots,2,nPairs,Label='PAIR_ROOTS')
+    dao_pair(:,:) = Zero
+    pair_roots(:,:) = rootPairs(:,:)
+
+    ! Folded AO density of every root pair (off-diagonals halved for Get_D1A_RASSCF)
+    call mma_allocate(pk,nacpar,Label='PACKK')
+    call mma_allocate(pb,nacpar,Label='PACKB')
+    call mma_allocate(aoSq,ntot2,Label='AOSQ')
+    do iPair=1,nPairs
+      call pack_active_1rdm(tdm1(:,:,iPair),pk)
+
+      pb(:) = pk(:)
+      iPacked = 0
+      do iAct=1,nac
+        do jAct=1,iAct
+          iPacked = iPacked+1
+          if (iAct /= jAct) pb(iPacked) = Half*pb(iPacked)
+        end do
+      end do
+      if (nAsh(1) /= nac) call dblock(pb)
+
+      call Get_D1A_RASSCF(CMO,pb,aoSq)
+      call Fold(nSym,nBas,aoSq,dao_pair(:,iPair))
+    end do
+    call mma_deallocate(aoSq)
+    call mma_deallocate(pb)
+    call mma_deallocate(pk)
+  end if
+
   do iPair=1,nPairs
     iRoot = rootPairs(1,iPair)
     jRoot = rootPairs(2,iPair)
@@ -628,8 +708,18 @@ subroutine construct_lpdft_ham()
     end if
     ! Diagonal and off-diagonal elements both contract the packed 2-PDM (P) with the PUVX potential.
     heff(iRoot,jRoot) = heff(iRoot,jRoot)+contract_lpdft_rdms(tdm1(:,:,iPair),tdm2(:,iPair))
-    if (iRoot /= jRoot) heff(jRoot,iRoot) = heff(iRoot,jRoot)
+    if (mcpdft_options%rf_on) w_rf(iRoot,jRoot) = w_rf(iRoot,jRoot)+contract_v_rf(tdm1(:,:,iPair))
+    if (iRoot /= jRoot) then
+      heff(jRoot,iRoot) = heff(iRoot,jRoot)
+      if (mcpdft_options%rf_on) w_rf(jRoot,iRoot) = w_rf(iRoot,jRoot)
+    end if
   end do
+
+  if (mcpdft_options%rf_on .and. (iprglb >= DEBUG)) then
+    do iRoot=1,lRoots
+      write(u6,'(6X,A,I3,A,10F18.8)') 'W_RF row',iRoot,':',(w_rf(iRoot,jRoot),jRoot=1,lRoots)
+    end do
+  end if
 
   call print_lpdft_initial_info(fileName,nPairs)
 
@@ -659,18 +749,25 @@ end subroutine construct_lpdft_ham
 !***********************************************************************
 subroutine hybridize_lpdft_ham(e_mcscf)
 
-  use mspdft, only: heff
+  use mspdft, only: heff, rf_runold_pop, rf_runold_push
 
   real(kind=wp), intent(in) :: e_mcscf(:)
   integer(kind=iwp) :: iRoot
-  real(kind=wp) :: lambda
+  real(kind=wp) :: e_rf_self, lambda
+  logical(kind=iwp) :: runold
 
   ! In case, if it is not hybrid, then return without doing anything.
   if (.not. mcpdft_options%otfnal%is_hybrid()) return
 
   lambda = mcpdft_options%otfnal%lambda
+  e_rf_self = Zero
+  if (mcpdft_options%rf_on) then
+    call rf_runold_push(runold)
+    call get_dScalar('RF Self Energy',e_rf_self)
+    call rf_runold_pop(runold)
+  end if
   do iRoot=1,size(e_mcscf)
-    heff(iRoot,iRoot) = heff(iRoot,iRoot)+lambda*e_mcscf(iRoot)
+    heff(iRoot,iRoot) = heff(iRoot,iRoot)+lambda*(e_mcscf(iRoot)-e_rf_self)
   end do
 
 end subroutine hybridize_lpdft_ham
@@ -730,6 +827,47 @@ function contract_lpdft_rdms(rdm1,rdm2) result(ediagval)
 
 end function contract_lpdft_rdms
 
+function contract_v_rf(dm1) result(value_1e)
+
+  real(kind=wp) :: value_1e
+  real(kind=wp), intent(in) :: dm1(nac,nac)
+  integer(kind=iwp) :: iAct, iPacked, jAct
+
+  value_1e = Zero
+  iPacked = 0
+  do iAct=1,nac
+    do jAct=1,iAct
+      iPacked = iPacked+1
+      if (iAct == jAct) then
+        value_1e = value_1e+v_rf_act(iPacked)*dm1(iAct,jAct)
+      else
+        value_1e = value_1e+v_rf_act(iPacked)*(dm1(iAct,jAct)+dm1(jAct,iAct))
+      end if
+    end do
+  end do
+
+end function contract_v_rf
+
+subroutine pack_active_1rdm(square,packed)
+
+  real(kind=wp), intent(in) :: square(nac,nac)
+  real(kind=wp), intent(out) :: packed(nacpar)
+  integer(kind=iwp) :: iAct, iPacked, jAct
+
+  iPacked = 0
+  do iAct=1,nac
+    do jAct=1,iAct
+      iPacked = iPacked+1
+      if (iAct == jAct) then
+        packed(iPacked) = square(iAct,jAct)
+      else
+        packed(iPacked) = square(iAct,jAct)+square(jAct,iAct)
+      end if
+    end do
+  end do
+
+end subroutine pack_active_1rdm
+
 subroutine default_root_pairs(rootPairs,nPairs)
 
   integer(kind=iwp), intent(in) :: nPairs
@@ -786,6 +924,7 @@ subroutine init_vars(CMO)
   call mma_allocate(h1e_lpdft_ao,ntot1,Label='H1E_LPDFT_AO')
   call mma_allocate(h1e_lpdft_act,nacpar,Label='H1E_LPDFT_ACT')
   call mma_allocate(h2e_lpdft_act,nacpr2,Label='H2E_LPDFT_ACT')
+  call mma_allocate(v_rf_act,nacpar,Label='V_RF_ACT')
   call mma_allocate(vj,ntot1,Label='VJ_LPDFT')
   call mma_allocate(vjk,ntot1,Label='VJK_LPDFT')
 
@@ -801,6 +940,7 @@ subroutine init_vars(CMO)
   dm1_core(:) = Zero
   veff1(:) = Zero
   veff2(:) = Zero
+  v_rf_act(:) = Zero
   h1e_lpdft_ao(:) = Zero
   h1e_lpdft_act(:) = Zero
   h2e_lpdft_act(:) = Zero
@@ -818,6 +958,7 @@ subroutine release_vars()
   call mma_deallocate(casd1s_0)
   call mma_deallocate(casd1_0_blocked)
   call mma_deallocate(casd1s_0_blocked)
+  call mma_deallocate(v_rf_act)
   call mma_deallocate(casd2_0)
   call mma_deallocate(h1e_lpdft_ao)
   call mma_deallocate(h1e_lpdft_act)
