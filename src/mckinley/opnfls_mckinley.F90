@@ -22,9 +22,11 @@ integer(kind=iwp) :: i, idum(1), iDummer, iGo, iOpt, iRC, ngrad
 character(len=288) :: Header
 character(len=8) :: MckLbl, Method
 
+iDummer = 0
 iOpt = 0
 iRC = -1
 MckLbl = 'Title'
+Header = ' '
 call cWrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
 if (iRC /= 0) then
   write(u6,*) 'OpnFls: Error writing to MCKINT'
