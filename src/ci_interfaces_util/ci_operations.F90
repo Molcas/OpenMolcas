@@ -1642,6 +1642,20 @@ subroutine Faro_Sort(iState,iSym,Dir,n,CI)
   call mma_deallocate(V)
 end subroutine Faro_Sort
 
+!> RASSCF's Lucia: a CI vector between the split-graph order of the files
+!> and Lucia's CSF order (SG_ReOrd: iWay = 1 file -> Lucia, 0 back)
+subroutine Lucia1_Sort(iState,iSym,iWay,n,CI)
+  use SG_Lucia_Bridge, only: SG_ReOrd
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, iWay, n
+  real(kind=wp), intent(inout) :: CI(n)
+  real(kind=wp), allocatable :: V(:)
+  call mma_allocate(V,n,Label='V')
+  call SG_ReOrd(iState,iSym,iWay,n,CI,V)
+  CI(:) = V(:)
+  call mma_deallocate(V)
+end subroutine Lucia1_Sort
+
 subroutine CI_Lib_Dets_To_Basis(iState,iSym,nD,DetVec,IdxD,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
   real(kind=wp), intent(in) :: DetVec(nD)
@@ -1662,6 +1676,10 @@ subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
     call Faro_Sort(iState,iSym,'C',n,CI)
     return
   end if
+  if (CI_Lib == CI_Lib_Lucia) then
+    call Lucia1_Sort(iState,iSym,1,n,CI)
+    return
+  end if
   call Check_Lib('CI_Lib_File_To_Basis')
   call MCLR_Lucia_Conv(iState,iSym,CI_To_Basis,n,CI)
 end subroutine CI_Lib_File_To_Basis
@@ -1674,6 +1692,10 @@ subroutine CI_Lib_Basis_To_File(iState,iSym,n,CI)
   if (CI_Lib == CI_Lib_SGUGA) return
   if (CI_Lib == CI_Lib_Faroald) then
     call Faro_Sort(iState,iSym,'O',n,CI)
+    return
+  end if
+  if (CI_Lib == CI_Lib_Lucia) then
+    call Lucia1_Sort(iState,iSym,0,n,CI)
     return
   end if
   call Check_Lib('CI_Lib_Basis_To_File')

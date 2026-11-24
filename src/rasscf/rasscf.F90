@@ -100,7 +100,8 @@ use CI_Input, only: NACTEL
 #ifdef _FDE_
 use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, embWriteDens, embWriteEsp
 #endif
-use ci_interfaces, only: CI_File_To_Basis, Mk_T1DM
+use ci_interfaces, only: Mk_T1DM
+use CI_Operations, only: CI_Lib_File_To_Basis
 use rasscf_global, only: lRoots
 use CI_Input, only: STSYM
 #ifdef _HDF5_
@@ -1602,12 +1603,14 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
         ! (JOBIPH holds the split-graph order)
-        call CI_File_To_Basis(iState,STSYM,nConf,Tmp,VecL)
+        VecL(1:nConf) = Tmp(1:nConf)
+        call CI_Lib_File_To_Basis(iState,STSYM,nConf,VecL)
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          call CI_File_To_Basis(iState,STSYM,nConf,Tmp,VecR)
+          VecR(1:nConf) = Tmp(1:nConf)
+          call CI_Lib_File_To_Basis(iState,STSYM,nConf,VecR)
           ! Compute TDM and store in h5 file
           call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
           call mma_allocate(XTmp,NAC**2,Label='XTmp')

@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use ci_interfaces, only: CI_Basis, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Lucia_Active, CI_Verify
+use ci_interfaces, only: CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Lucia_Active, CI_Verify
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -57,7 +57,7 @@ use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, C
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
 use rasscf_global, only: DoSGEx
-use CI_Op_Defs, only: CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_Select, CI_Lib_SGUGA
+use CI_Op_Defs, only: CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_Select, CI_Lib_SGUGA
 use CI_Operations, only: CI_Lib_Initialize
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, &
@@ -4192,7 +4192,7 @@ end if
 ! (SGCI: the CI vectors are in the split-graph order of the reference CSF
 ! numbers already)
 if (ICICH == 1 .and. (.not. SkipGUGA)) then
-  if (CI_Basis() == 1) then
+  if (CI_Lib_Is(CI_Lib_Lucia)) then
     call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
   else
     ! SGCI and FARO: map the reference CSFs from the file order

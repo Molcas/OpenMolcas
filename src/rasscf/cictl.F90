@@ -83,7 +83,7 @@ use CI_Input, only: ISPIN, NACTEL, STSYM, iDoGAS
 use rasscf_global, only: NCONF
 use CI_Info, only: CI_St
 use CI_States, only: CI_PrWF
-use ci_interfaces, only: CI_Basis_To_File
+use CI_Operations, only: CI_Lib_Basis_To_File
 use DWSol, only: DWSol_root, DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -599,7 +599,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         ! to the split-graph order of the files
-        call CI_Basis_To_File(istate,STSYM,nConf,CIVEC,CIV)
+        CIV(1:nConf) = CIVEC(1:nConf)
+        call CI_Lib_Basis_To_File(istate,STSYM,nConf,CIV)
         ! the phase in this common order, the same for all CI back ends
         call VecPhase(CIV,nConf)
 
