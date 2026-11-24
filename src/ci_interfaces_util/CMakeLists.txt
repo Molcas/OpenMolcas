@@ -20,7 +20,6 @@ set (sources
      orbital_spaces.F90
      SD_CSF_Codec_module.F90
      sg_lucia_bridge.F90
-     sg_setup_rasscf.F90
      ug2sg.F90
 )
 

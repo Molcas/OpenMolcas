@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use ci_interfaces, only: CI_Basis, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Initialize, CI_Verify
+use ci_interfaces, only: CI_Basis, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Lucia_Active, CI_Verify
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -39,9 +39,9 @@ use output_ras, only: IPRGLB, IPRLOC
 use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
 use Orbital_Spaces, only: NASH, NBAS, NDEL, NDELT, NFRO, NFROT, NISH, NORB, NSSH, NSYM, NTOT, NTOT1, NTOT2
 use CI_Input, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM
-use rasscf_global, only: NCONF, NSEL
+use rasscf_global, only: NCONF, nDet, NSEL
 use DWSol, only: DWSol_DWRO
-use CI_Info, only: Space_Inp
+use CI_Info, only: CI_St, Space_CI, Space_Inp
 use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
@@ -58,6 +58,7 @@ use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sam
 #endif
 use rasscf_global, only: DoSGEx
 use CI_Op_Defs, only: CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_Select, CI_Lib_SGUGA
+use CI_Operations, only: CI_Lib_Initialize
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, &
                          Do3RDM, Max_Canonical, Max_Sweep, MxDMRG
@@ -79,6 +80,7 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), parameter :: iState_CI = 1
 logical(kind=iwp), intent(in) :: DSCF
 logical(kind=iwp), intent(out) :: lOPTO
 integer(kind=iwp), intent(out) :: iRC
@@ -4154,7 +4156,19 @@ if (.not. SkipGUGA) then
   else
     call CI_Lib_Select(CI_Lib_Lucia)
   end if
-  call CI_Initialize(.true.)
+  ! the CI state from the CI input (space, graph, library, HEXS/DEXS masks)
+  call CI_Lib_Initialize(iState_CI)
+  ! RASSCF's quantities of the CI space: the super-CI indices, the CSFs of
+  ! the CI symmetry, the determinants of the Davidson scratch (Lucia's, else
+  ! none: the CSF dimension), the explicit subspace at most the kept CSFs
+  call SETSXCI()
+  NCONF = CI_St(iState_CI)%nCSF(STSYM)
+  if (CI_Lucia_Active()) then
+    nDet = maxval(CI_St(iState_CI)%nDet(:))
+  else
+    nDet = NCONF
+    if (Space_CI%nRem > 0) NSEL = min(NSEL,CI_St(iState_CI)%nCSF_Kept)
+  end if
 
 else
   ! DMRG, NECI, ...: no CI library of the CI interface (as before, the

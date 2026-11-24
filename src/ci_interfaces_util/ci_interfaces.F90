@@ -16,7 +16,7 @@ use sguga, only: SG_Free
 use SG_Lucia_Bridge, only: SG_Lucia_Walk, SG_ReOrd, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
-use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort
+use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
 use faroald_ras, only: n_ras, ras_active, ras_sigma
 use rasscf_global, only: DoSGEx
 use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SGUGA
@@ -26,22 +26,21 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SG
 ! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
+use CI_Operations, only: CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
 use CI_Operations, only: Cnf_Exc, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Block, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, &
-                         CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Sigma, CI_Lib_Transform, Faro_L2O => Faro_Lev, Faroald_HDet, &
+                         CI_Lib_Level_Map, CI_Lib_Sigma, CI_Lib_Transform, Faro_L2O => Faro_Lev, Faroald_HDet, &
                          Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
-use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use SGUGA_Sigma, only: SG_Check_HPsi_Op, SG_Sigma_Free, SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
-use SGUGA_Densities, only: SG_Check_Trans_Two_PDM, SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
+use SGUGA_Sigma, only: SG_Sigma_Free, SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
+use SGUGA_Densities, only: SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
 use CI_Input, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
-use CI_Space_Def, only: Space_Free, Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
+use CI_Space_Def, only: Space_Free
 use CI_Info, only: CI_St, Space_CI
-use Molcas, only: MxGAS
 
 #include "intent.fh"
 
@@ -49,7 +48,7 @@ implicit none
 Private
 
 Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
-Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, CI_Initialize, &
+Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
           CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_CI, Faro_nTmp, SG_CI
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
@@ -80,23 +79,11 @@ logical(kind=iwp) :: T1DM_SG_Verified = .false.
 ! FARO: the Faroald steps verified against Lucia and SGUGA (SIGMA), printed once
 logical(kind=iwp) :: HPsi_Faro_Verified = .false., PDM_Faro_Verified = .false., T1DM_Faro_Verified = .false., &
                      TraPsi_Faro_Verified = .false., IHI_Faro_SG_Verified = .false.
-! Lucia has been initialized (not for SGCI, except as the SIGMA reference)
-logical(kind=iwp) :: Lucia_Active = .true.
 ! FARO with RAS: the string-driven sigma (faroald_ras) checked once against
 ! the sigma of the full determinant space (SIGMA)
 logical(kind=iwp) :: HPsi_FaroRAS_Verified = .false.
 ! SIGMA: the spin density of the ASTA triplet operator checked, printed once
 logical(kind=iwp) :: SD_ASTA_Verified = .false.
-! HEXS/DEXS (RASSCF keywords, CI_Info Space_Inp): the configurations
-! with the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in
-! the listed RAS partitions are removed as in Lucia: their CSFs stay in the
-! vectors, the CI works with P H P (zero sigma, zero diagonal there). The
-! maximum occupation of partition g is maxa(g) + maxb(g) (Space_Max_Occ), the
-! largest numbers of alpha and beta electrons in g in the determinants of
-! the space (Lucia's rule for the determinant blocks, I_AM_SO_EXCITED).
-! HEXS_Keep: the kept CSFs in the CI basis (SGCI, FARO; Lucia does it
-! itself); HEXS_Keep_SG: in the split-graph basis (the SGUGA references).
-logical(kind=iwp), allocatable :: HEXS_Keep(:), HEXS_Keep_SG(:)
 
 
 ! CPU and wall time and number of calls of the operations of the CI
@@ -160,7 +147,7 @@ integer(kind=iwp) :: nNeed
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: iR, LSM
 nNeed = 0
-if (Lucia_Active) nNeed = nNeed+Memory_Needed_Lucia
+if (CI_Lucia_Active()) nNeed = nNeed+Memory_Needed_Lucia
 if (.not. SG_CI()) return
 LSM = CI_St(iState)%STSym
 iR = CI_St(iState)%iRel
@@ -171,12 +158,6 @@ else
 end if
 end function CI_Work_Need
 
-!> Lucia is initialized (CI_Initialize): its tables (determinant counts,
-!> configuration types) may be used.
-function CI_Lucia_Active() result(Active)
-logical(kind=iwp) :: Active
-Active = Lucia_Active
-end function CI_Lucia_Active
 
 !> The CSF basis of the CI vectors of RASSCF = the selected CI library
 !> (CI_Op_Defs): 1 = Lucia, 2 = the split-graph basis of SGUGA (SGCI; the
@@ -444,118 +425,14 @@ call mma_deallocate(DR)
 end subroutine SG_HDiag_G
 
 !> SGUGA covers the CI space of RASSCF: CAS and RAS directly, GAS through
-!> the relaxed space (set up by SG_Setup_RASSCF; HEXS/DEXS are masks).
+!> the relaxed space (set up by CI_Lib_Initialize; HEXS/DEXS are masks).
 function SG_Avail() result(Avail)
 integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp) :: Avail
 Avail = (.not. iDoGAS) .or. (CI_St(iState)%iRel > 0)
 end function SG_Avail
 
-!> HEXS/DEXS: is a configuration with nOcc(k) electrons in partition k of
-!> Space_CI removed (the removal rules of the CI space)?
-function HEXS_Removed(nOcc) result(Rem)
-use CI_Space_Def, only: Space_Allowed
-integer(kind=iwp), intent(in) :: nOcc(:)
-logical(kind=iwp) :: Rem
-Rem = .not. Space_Allowed(Space_CI,nOcc(1:Space_CI%nPart))
-end function HEXS_Removed
 
-!> HEXS/DEXS: the kept CSFs of symmetry STSYM in the split-graph basis,
-!> from the SGUGA configurations.
-subroutine HEXS_Mask_SG(iState,Keep)
-use sguga, only: SG_Mk_Cnf_List, SG_Cnf_Occ
-integer(kind=iwp), intent(in) :: iState
-logical(kind=iwp), intent(out) :: Keep(:)
-type(SGCnfList) :: Cnf
-integer(kind=iwp) :: k, iLev, nOcc(MxGAS)
-integer(kind=iwp), allocatable :: Occ(:)
-call SG_Mk_Cnf_List(iState,CI_St(iState)%STSym,Cnf)
-call mma_allocate(Occ,max(1,Cnf%nLev),Label='HEXS_Occ')
-Keep(:) = .true.
-do k=1,Cnf%nCnf
-  call SG_Cnf_Occ(Cnf,k,Occ)
-  nOcc(:) = 0
-  do iLev=1,Cnf%nLev
-    nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+Occ(iLev)
-  end do
-  if (HEXS_Removed(nOcc)) Keep(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))) = .false.
-end do
-call mma_deallocate(Occ)
-call SG_Free_Cnf_List(Cnf)
-end subroutine HEXS_Mask_SG
-
-!> HEXS/DEXS: the kept CSFs in the basis of Faroald (citrans), from its
-!> configurations (the orbitals of Faroald are the levels).
-subroutine HEXS_Mask_Faro(Keep)
-logical(kind=iwp), intent(out) :: Keep(:)
-integer(kind=iwp) :: k, k1, nc, nd, iLev, nOcc(MxGAS)
-integer(kind=iwp), allocatable :: da(:), db(:)
-real(kind=wp), allocatable :: cf(:,:)
-Keep(:) = .true.
-k = 1
-do while (k <= nConf)
-  call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
-  nOcc(:) = 0
-  do iLev=1,NAC
-    if (btest(da(1),iLev-1)) nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+1
-    if (btest(db(1),iLev-1)) nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+1
-  end do
-  if (HEXS_Removed(nOcc)) Keep(k1:k1+nc-1) = .false.
-  k = k1+nc
-  call mma_deallocate(da)
-  call mma_deallocate(db)
-  call mma_deallocate(cf)
-end do
-end subroutine HEXS_Mask_Faro
-
-!> HEXS/DEXS: the masks of the kept CSFs (end of CI_Initialize). Without
-!> Lucia the number of kept CSFs (CI_St%nCSF_Kept) and the cap of NSEL come from
-!> here; with Lucia they are compared.
-subroutine HEXS_Setup(iState,Do_SGUGA)
-use rasscf_global, only: NSEL
-integer(kind=iwp), intent(in) :: iState
-logical(kind=iwp), intent(in) :: Do_SGUGA
-integer(kind=iwp) :: nKeep
-call mma_deallocate(HEXS_Keep,safe='*')
-call mma_deallocate(HEXS_Keep_SG,safe='*')
-! the removals are part of the CI space (CI_Space_Setup)
-if (Space_CI%nRem <= 0) return
-if (Do_SGUGA .and. SG_Avail()) then
-  call mma_allocate(HEXS_Keep_SG,nConf,Label='HEXS_Keep_SG')
-  call HEXS_Mask_SG(iState,HEXS_Keep_SG)
-end if
-if (SG_CI()) then
-  call mma_allocate(HEXS_Keep,nConf,Label='HEXS_Keep')
-  HEXS_Keep(:) = HEXS_Keep_SG(:)
-else if (Faro_CI()) then
-  call mma_allocate(HEXS_Keep,nConf,Label='HEXS_Keep')
-  call HEXS_Mask_Faro(HEXS_Keep)
-end if
-if (allocated(HEXS_Keep)) then
-  nKeep = count(HEXS_Keep)
-else if (allocated(HEXS_Keep_SG)) then
-  nKeep = count(HEXS_Keep_SG)
-else
-  return
-end if
-write(u6,'(1X,A,I0,A,I0,A)') 'HEXS/DEXS: ',nKeep,' of ',nConf,' CSFs kept'
-if (.not. Lucia_Active) then
-  CI_St(iState)%nCSF_Kept = nKeep
-  if (NSEL > nKeep) NSEL = nKeep
-else if (nKeep /= CI_St(iState)%nCSF_Kept) then
-  write(u6,'(1X,A,I0)') 'HEXS/DEXS: Lucia keeps (nCSF_HEXS) ',CI_St(iState)%nCSF_Kept
-end if
-end subroutine HEXS_Setup
-
-!> HEXS/DEXS: v := P v (zero on the removed CSFs), if the mask is set and
-!> matches v.
-subroutine HEXS_Proj(Keep,v)
-logical(kind=iwp), allocatable, intent(in) :: Keep(:)
-real(kind=wp), intent(inout) :: v(:)
-if (.not. allocated(Keep)) return
-if (size(Keep) /= size(v)) return
-where (.not. Keep) v = Zero
-end subroutine HEXS_Proj
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
@@ -1385,7 +1262,7 @@ Case ('Ini')
 Case ('Pri')
   call Tim_Print()
   If (Faro_CI()) Then
-  Else If (Lucia_Active) Then
+  Else If (CI_Lucia_Active()) Then
     call PrtTim()
   End If
 Case Default
@@ -1418,211 +1295,7 @@ end subroutine Tim_Print
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-!> The CI space of RASSCF (Space_CI) from the GAS description of the input
-!> (NGAS, NGSSH, IGSOCCX; CAS and RAS are converted to it by proc_inp) and
-!> the HEXS/DEXS lists. With MOLCAS_CI_VERIFY (any level) printed and
-!> checked against the RAS description (nRsPrt, nRas, nRasEl, NSM) and the
-!> HEXS/DEXS thresholds used by the CI interface.
-subroutine CI_Space_Setup()
-use Orbital_Spaces, only: nSym
-use CI_Input, only: IGSOCCX, ISPIN, NACTEL, NGAS, NGSSH, nElec3, nHole1, nRs1, nRs2, nRs3
-use CI_Info, only: Space_Inp
-use CI_States, only: RAS_Partitions
-use Molcas, only: MxSym
-integer(kind=iwp) :: g, k, i, iLev, iSym, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS), nRsPrt, nRas(MxSym,3), &
-                     nRasEl(3)
-integer(kind=iwp), allocatable :: NMx(:)
-logical(kind=iwp) :: OK
 
-call Space_From_GAS(Space_CI,nSym,NACTEL,ISPIN,NGAS,NGSSH(1:NGAS,1:nSym),IGSOCCX(1:NGAS,1:2))
-! partition of each input space (0: no orbitals, dropped)
-k = 0
-do g=1,NGAS
-  iPart(g) = 0
-  if (sum(NGSSH(g,1:nSym)) == 0) cycle
-  k = k+1
-  iPart(g) = k
-end do
-! HEXS (maximum occupation) and DEXS (maximum - 1) removals
-if (Space_Removals(Space_Inp)) then
-  call mma_allocate(NMx,max(1,Space_CI%nPart),Label='NMx')
-  call Space_Max_Occ(Space_CI,NMx)
-  do i=1,Space_Inp%nHEXS
-    g = Space_Inp%iHEXS(i)
-    if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g)))
-  end do
-  do i=1,Space_Inp%nDEXS
-    g = Space_Inp%iDEXS(i)
-    if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g))-1)
-  end do
-  call mma_deallocate(NMx)
-end if
-if (.not. CI_Verify('ANY')) return
-
-call Space_Print(Space_CI)
-! GAS: no RAS description to compare with
-if (iDoGAS) return
-! the RAS description (as CI_Setup_RAS builds it), with its empty
-! partitions dropped (their lower
-! bound merged into the previous one): the same partitions, the same lower
-! bounds (after tightening to the physical ones), no upper bounds, the same
-! levels
-call RAS_Partitions(nSym,NACTEL,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nRsPrt,nRas,nRasEl)
-OK = (Space_CI%nLev == NAC)
-k = 0
-nBelow = 0
-do i=1,nRsPrt
-  if (sum(nRas(1:nSym,i)) == 0) then
-    if (k > 0) MinEO(k) = max(MinEO(k),nRasEl(i))
-    cycle
-  end if
-  k = k+1
-  if (k > Space_CI%nPart) then
-    OK = .false.
-    exit
-  end if
-  OK = OK .and. all(Space_CI%nOrb(1:nSym,k) == nRas(1:nSym,i))
-  MinEO(k) = nRasEl(i)
-end do
-OK = OK .and. (k == Space_CI%nPart)
-if (OK) then
-  do k=1,Space_CI%nPart
-    nBelow = nBelow+sum(Space_CI%nOrb(1:nSym,k))
-    nAbove = sum(Space_CI%nOrb(1:nSym,k+1:Space_CI%nPart))
-    MinR = max(MinEO(k),0,NACTEL-2*nAbove)
-    MaxR = min(NACTEL,2*nBelow)
-    if (k == Space_CI%nPart) then
-      MinR = NACTEL
-      MaxR = NACTEL
-    end if
-    OK = OK .and. (Space_CI%MinEl(k) == MinR) .and. (Space_CI%MaxEl(k) == MaxR)
-  end do
-  ! the levels: partition by partition, within each by symmetry
-  iLev = 0
-  do i=1,nRsPrt
-    do iSym=1,nSym
-      OK = OK .and. all(Space_CI%LevSym(iLev+1:iLev+nRas(iSym,i)) == iSym)
-      iLev = iLev+nRas(iSym,i)
-    end do
-  end do
-end if
-if (.not. OK) then
-  write(u6,'(1X,A)') 'CI_Space_Setup: the CI space differs from the RAS description (nRsPrt, nRas, nRasEl)'
-  call Abend()
-end if
-write(u6,'(1X,A)') 'CI_Space_Setup: CI space verified against the RAS description'
-end subroutine CI_Space_Setup
-
-subroutine CI_Initialize(DO_SGUGA)
-! (the input values: the CI state is set up here)
-use CI_Input, only: NACTEL, STSYM
-use sguga, only: SG_Test_EpqErs_Ref
-use Orbital_Spaces, only: nSym
-use Molcas, only: MxSym
-
-implicit none
-logical(kind=iwp), intent(in) :: DO_SGUGA
-integer(kind=iwp), parameter :: iState=1
-integer(kind=iwp) :: nCSF_Lucia, nFail_TT
-
-nCSF_Lucia = 0
-! SGCI does not need Lucia; it is set up only as the reference of
-! MOLCAS_CI_VERIFY=SIGMA.
-Lucia_Active = .not. (((Do_SGUGA .and. SG_CI()) .or. Faro_CI()) .and. (.not. CI_Verify('SIGMA')))
-
-! the CI space in the common description of the back ends
-call CI_Space_Setup()
-
-if (Lucia_Active) then
-  ! Construct the determinant tables
-  ! Initialize LUCIA and determinant control
-  call Lucia_Util('Ini')
-
-  ! to get number of CSFs for GAS
-  ! and number of determinants to store (Lucia's dimensions, CI_St set by
-  ! lucia2molcas; Lucia's CSF count of the CI symmetry kept for the check
-  ! against the split graph, which redefines CI_St%nCSF below)
-  nconf = MaxVal(CI_St(iState)%nCSF(1:mxsym))
-  nDet = MaxVal(CI_St(iState)%nDet(1:mxsym))
-  nCSF_Lucia = CI_St(iState)%nCSF(STSym)
-end if
-
-! Initiate the SGUGA environment conditional to all flags
-If (Do_SGUGA) Then
-   if (CI_Verify('SIGMA')) then
-      write(u6,'(1X,A)') '**EXPERIMENTAL**'
-      write(u6,'(1X,A)') 'CI back end cross-checked against SGUGA (MOLCAS_CI_VERIFY=SIGMA).'
-      write(u6,'(1X,A)') '**EXPERIMENTAL**'
-   end if
-   call SG_Setup_RASSCF()
-   ! GAS: the split graph against Lucia's CSF count of the CI symmetry (the
-   ! CI is Lucia's; with GAS Lucia counts the CI symmetry only)
-   if (iDoGAS .and. Lucia_Active) then
-     if (CIS(iState)%nCSF(STSym) /= nCSF_Lucia) then
-       write(u6,'(1X,A,2I10)') 'CI_Initialize: GAS split graph and Lucia, CSFs of the CI symmetry',CIS(iState)%nCSF(STSym), &
-                               nCSF_Lucia
-       call Abend()
-     end if
-     if (CI_Verify('ANY')) write(u6,'(1X,A,I0,A)') 'CI_Initialize: GAS split graph verified against Lucia, ', &
-                                                   CIS(iState)%nCSF(STSym),' CSFs of the CI symmetry'
-   end if
-   if (.not. Lucia_Active) then
-     ! the CSF counts from SGUGA; no determinants (the Davidson scratch for
-     ! the determinant expansion of the other back ends is not needed)
-     ! (CI_St%nCSF from the split graph, CI_Setup_SG)
-     CI_St(iState)%nCSF(:) = 0
-     CI_St(iState)%nCSF(1:nSym) = CIS(iState)%nCSF(1:nSym)
-     CI_St(iState)%nDet(:) = CI_St(iState)%nCSF(:)
-     nDet = nConf
-     write(u6,'(1X,A)') 'SGCI/FARO: Lucia is not initialized.'
-   end if
-   ! Exhaustive verification of the SGUGA coupling-coefficient codes,
-   ! only on request (used by the test/csf_sd groups), see CI_Verify. With
-   ! GAS only the single operators (E_pq, T_pq), which are exact in any
-   ! restricted graph: the products of the self-test sum over the
-   ! intermediate CSFs of the graph itself, which is exact for CAS/RAS only
-   ! (the CI interface evaluates them for GAS in the relaxed space, checked
-   ! under SIGMA against Lucia and Faroald).
-   if (CI_Verify('YES') .and. (.not. iDoGAS)) then
-      call SG_Test_EpqErs_Ref(iState,STSym,sg_h_psi,sg_h_psi_ras)
-      ! the 2-body transition densities (bra /= ket, any symmetries)
-      call SG_Check_Trans_Two_PDM(SGS(iState),CIS(iState),EXS(iState),nFail_TT)
-      if (nFail_TT > 0) then
-        write(u6,'(1X,A,I0)') 'CI_Initialize: sg_trans_two_pdm check failed: ',nFail_TT
-        call Abend()
-      end if
-      ! sigma for operators of any symmetry
-      call SG_Check_HPsi_Op(SGS(iState),CIS(iState),EXS(iState),nFail_TT)
-      if (nFail_TT > 0) then
-        write(u6,'(1X,A,I0)') 'CI_Initialize: sg_h_psi_op check failed: ',nFail_TT
-        call Abend()
-      end if
-   else if (CI_Verify('YES') .or. CI_Verify('EPQ')) then
-      call SG_Test_EpqErs_Ref(iState,STSym,sg_h_psi,sg_h_psi_ras,Epq_Only=.true.)
-   end if
-End If
-
-! faroald initializations
-if (Faro_CI()) then
-  write(u6,'(1X,A)') '**EXPERIMENTAL**'
-  write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
-  write(u6,'(1X,A)') '**EXPERIMENTAL**'
-  ! the one Faroald setup (CI_Operations), from Space_CI
-  if (NAC /= sum(NASH(1:nSym))) then
-    write(u6,*) 'CI_Initialize: inconsistent active orbitals for Faroald',NAC,sum(NASH(1:nSym))
-    call Abend()
-  end if
-  call CI_Lib_Initialize(iState)
-  if ((citrans_ncsf() /= nConf) .and. (nActEl > 0)) then
-    write(u6,*) 'CI_Initialize: number of CSFs, Faroald and RASSCF:',citrans_ncsf(),nConf
-    call Abend()
-  end if
-end if
-
-! HEXS/DEXS: the kept CSFs
-call HEXS_Setup(iState,Do_SGUGA)
-
-End subroutine CI_Initialize
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
@@ -1632,7 +1305,7 @@ integer(kind=iwp), Intent(in):: iState
 
 ! All of these are safe to call even of their corresponding environment have not been activated.
 
-if (Lucia_Active) Call Lucia_Util('Close')
+if (CI_Lucia_Active()) Call Lucia_Util('Close')
 
 ! (the selected library frees its data in CI_Operations; the selection is kept)
 call CI_Lib_Close(iState)
@@ -1643,6 +1316,7 @@ if (CI_St(iState)%iRel > 0) then
 end if
 call SG_Rel_Free()
 Call SG_free(iState)
+CI_St(iState)%Active = .false.
 call SG_Sigma_Free()
 call SG_Densities_Free()
 call SG_Free_Cnf_List(Cnf_SG)
