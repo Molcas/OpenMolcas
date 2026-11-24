@@ -15,11 +15,9 @@ module CI_Interfaces
 use sguga, only: SG_Free
 use SG_Lucia_Bridge, only: SG_Lucia_Walk, SG_ReOrd, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
-use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, &
-                   fold_two_pdm, traci_faroald
+use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb, traci_faroald
 use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort
-use faroald_ras, only: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_sigma, ras_traci, ras_trans_one_pdm, &
-                       ras_trans_two_pdm
+use faroald_ras, only: n_ras, ras_active, ras_sigma, ras_traci
 use rasscf_global, only: DoSGEx
 use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SGUGA
 ! FARO: Faroald works with the active orbitals in the order of the levels
@@ -1119,6 +1117,7 @@ contains
   ! and SGUGA (sg_trans_pdm, whose layout is the transpose), those not in
   ! use
   subroutine Check_T1DM()
+    integer(kind=iwp) :: p, q
     real(kind=wp), allocatable :: BL(:), KL(:), TS(:), TSS(:)
     real(kind=wp) :: Dev(2)
     logical(kind=iwp) :: Done
@@ -1518,7 +1517,6 @@ subroutine CI_Initialize(DO_SGUGA)
 ! (the input values: the CI state is set up here)
 use CI_Input, only: NACTEL, STSYM
 use sguga, only: SG_Test_EpqErs_Ref
-use second_quantization, only: binom_coef
 use Orbital_Spaces, only: nSym
 use Molcas, only: MxSym
 
@@ -1832,7 +1830,6 @@ contains
   ! <I|H|I> (sg_hdiag_fast). Under SIGMA the exact diagonal is checked
   ! against sg_hdiag_ref (small spaces) and the average against Lucia.
   subroutine SGCI_Diag()
-    use sguga, only: SG_Cnf_Avg_Diag
     integer(kind=iwp), parameter :: MxRef = 500
     real(kind=wp) :: MaxDev
     real(kind=wp), allocatable :: DRef(:), DAvg(:), DAvgL(:), DL(:), DD(:)
