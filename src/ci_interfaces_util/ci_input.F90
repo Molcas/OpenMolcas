@@ -24,7 +24,9 @@ private
 integer(kind=iwp) :: ISPIN, NACTEL, NELEC3, NHOLE1, NLEV, NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T, NRS3(mxSym), NRS3T, STSYM
 integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
 logical(kind=iwp) :: iDoGas = .false.
+! Explicit CI Hamiltonian of the CI start from SGUGA (keyword SGEX)
+logical(kind=iwp) :: DoSGEx = .false.
 
-public :: iDoGas, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NLEV, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM
+public :: DoSGEx, iDoGas, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NLEV, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM
 
 end module CI_Input

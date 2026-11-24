@@ -38,7 +38,8 @@ use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
 use Orbital_Spaces, only: NASH, NBAS, NDEL, NDELT, NFRO, NFROT, NISH, NORB, NSSH, NSYM, NTOT, NTOT1, NTOT2
-use CI_Input, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM
+use CI_Input, only: DoSGEx, iDoGAS, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, &
+                    STSYM
 use rasscf_global, only: NCONF, nDet, NSEL
 use DWSol, only: DWSol_DWRO
 use CI_Info, only: CI_St, Space_CI, Space_Inp
@@ -56,7 +57,6 @@ use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, C
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
-use rasscf_global, only: DoSGEx
 use CI_Op_Defs, only: CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_Select, CI_Lib_SGUGA
 use CI_Operations, only: CI_Lib_Initialize
 #ifdef _ENABLE_CHEMPS2_DMRG_

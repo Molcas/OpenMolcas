@@ -17,7 +17,6 @@ use Lucia_Interface, only: Lucia_Util
 use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
 use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
 use faroald_ras, only: n_ras, ras_active, ras_sigma
-use rasscf_global, only: DoSGEx
 use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SGUGA
 ! FARO: Faroald works with the active orbitals in the order of the levels
 ! of the split graph (by partition, within each by symmetry), so that its
@@ -29,14 +28,13 @@ use CI_Operations, only: CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
 use CI_Operations, only: Cnf_Exc, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Block, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, &
                          CI_Lib_Level_Map, CI_Lib_Sigma, CI_Lib_Transform, Faro_L2O => Faro_Lev, Faroald_HDet, &
                          Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Map, SG_Rel_Project
-use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
 use SGUGA_Sigma, only: SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
 use SGUGA_Densities, only: sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
-use CI_Input, only: iDoGAS
+use CI_Input, only: DoSGEx, iDoGAS
 use CI_Verify_Options, only: CI_Verify
 use CI_Info, only: CI_St
 
@@ -950,13 +948,14 @@ real(kind=wp), intent(_IN_):: Bra_Vec(nVec), Ket_Vec(nVec)
 real(kind=wp), intent(out):: T1DM(nT1DM)
 real(kind=wp), optional, intent(out):: T1SDM(nT1DM)
 integer(kind=iwp), parameter :: iState=1
-integer(kind=iwp) :: LSM, p, q
+integer(kind=iwp) :: LSM, NAC, p, q
 integer(kind=iwp), allocatable :: L2O(:)
 real(kind=wp), allocatable :: R1(:), R2(:), T1SDM_loc(:)
 real(kind=wp) :: TimT(2)
 
 call Tim_On(TimT)
 LSM = CI_St(iState)%STSym
+NAC = CI_St(iState)%nLev
 call mma_allocate(L2O,max(1,NAC),Label='L2O')
 call CI_Lib_Level_Map(iState,NAC,L2O)
 call mma_allocate(R1,max(1,NAC**2),Label='R1')
@@ -1073,19 +1072,22 @@ Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
 ! order, from CI_Lib_Dens in its packed layout (any library). Under
 ! MOLCAS_CI_VERIFY=SIGMA compared with Lucia and SGUGA (those not in use).
 use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
-use rasscf_global, only: NACPAR, NACPR2
+use Index_Functions, only: nTri_Elem
 implicit none
 integer(kind=iwp), intent(in) :: nCIVEC
 real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
 real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
 integer(kind=iwp), intent(in) :: nD, nP
 integer(kind=iwp), parameter :: iState = 1
-integer(kind=iwp) :: I12, LSM
+integer(kind=iwp) :: I12, LSM, NACPAR, NACPR2
 real(kind=wp), allocatable :: D_loc(:), P_loc(:), PA_loc(:), R2(:), SD_loc(:)
 real(kind=wp) :: TimT(2)
 
 call Tim_On(TimT)
 LSM = CI_St(iState)%STSym
+! the packed active pairs and pairs of pairs
+NACPAR = nTri_Elem(CI_St(iState)%nLev)
+NACPR2 = nTri_Elem(NACPAR)
 I12 = 1
 if (Present(P) .or. Present(PA)) I12 = 2
 call mma_allocate(D_loc,max(1,NACPAR),Label='D_loc')
@@ -1323,17 +1325,22 @@ end subroutine CI_Close
 !> otherwise by the configurations that the selection of PHPCSF would pick
 !> with either diagonal. The latter is reported, not enforced, since the
 !> average is an approximation.
-subroutine Mk_IHI(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
+subroutine Mk_IHI(CSFDIA,nConf,TU,nTU,TUVX,nTUVX,nSel)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use lucia_data, only: MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
 use Constants, only: One
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
+! the CSFs of the explicit subspace (RASSCF's NSEL; the check of the
+! selection under MOLCAS_CI_VERIFY=SIGMA)
+integer(kind=iwp), intent(in) :: nSel
 real(kind=wp), intent(out):: CSFDIA(nConf)
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp):: IPRINT=0
+! the determinants of Lucia (the reference under MOLCAS_CI_VERIFY=SIGMA)
+integer(kind=iwp) :: nDet
 
 real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
 ! the CI state of RASSCF (SGS, CIS, EXS)
@@ -1342,6 +1349,7 @@ integer(kind=iwp), parameter :: iState = 1
 ! SGCI: the exact diagonal in the SGUGA basis, no Lucia
 real(kind=wp) :: TimT(2)
 call Tim_On(TimT)
+nDet = maxval(CI_St(iState)%nDet(:))
 if (SG_CI()) then
   call SGCI_Diag()
   call Tim_Off(Tim_IHI,TimT)
@@ -1547,7 +1555,6 @@ contains
   end subroutine SGCI_Diag
 
   subroutine Verify_IHI()
-    use rasscf_global, only: NSEL
     integer(kind=iwp), parameter :: MxRef = 500, MxPrt = 10
     integer(kind=iwp) :: i, iTyp, iCnf, k, nCnf, nC, iC, nSD, nSDErr, nSelL, nSelMin, nSelMean, nBoth, nPrt, iRk(3), iRkMin, &
                          iRkMax
@@ -1739,7 +1746,6 @@ contains
   ! order of the configurations), until the next one does not fit into NSEL
   ! CSFs.
   subroutine Sel_PHP(Key,Sel)
-    use rasscf_global, only: NSEL
     real(kind=wp), intent(in) :: Key(:)
     logical(kind=iwp), intent(out) :: Sel(size(Key))
     integer(kind=iwp) :: k, kMin, nP, nPCnf, nCMin
@@ -1919,11 +1925,17 @@ real(kind=wp), parameter :: Thr = 1.0e-10_wp
 ! the CI state of RASSCF (SGS, CIS, EXS)
 integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp) :: SG_OK, UseSG, Verify
+! the active orbitals, the CSFs of the CI symmetry and the determinants of
+! Lucia (the reference under MOLCAS_CI_VERIFY=SIGMA)
+integer(kind=iwp) :: NAC, nConf, nDet
 character(len=8) :: Lab
 
 ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection.
 real(kind=wp) :: TimT(2)
 call Tim_On(TimT)
+NAC = CI_St(iState)%nLev
+nConf = CI_St(iState)%nCSF(IREFSM)
+nDet = maxval(CI_St(iState)%nDet(:))
 call Sel_CSFs()
 NPCSF = size(IPCSF)
 if (nTri_Elem(NPCSF) > nPHP) then
