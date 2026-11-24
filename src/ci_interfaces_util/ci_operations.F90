@@ -383,6 +383,27 @@ subroutine Lucia1_Work_Free()
   call mma_deallocate(PATMP,safe='*')
 end subroutine Lucia1_Work_Free
 
+!> RASSCF's Lucia: the configuration-average diagonal (Lucia's CSDIAG of
+!> its determinant diagonal) in the symmetry of the state, plus ECore
+subroutine Lucia1_Diag(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+  use Lucia_Interface, only: Lucia_Util
+  use lucia_data, only: NCNFTP, NCSFTP, NDTFTP, NTYP, SDREO
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, n
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(out) :: Diag(n)
+  integer(kind=iwp) :: nD
+  real(kind=wp), allocatable :: DD(:)
+  if (iSym /= CI_St(iState)%STSym) call Not_Yet('CI_Lib_Diag','RASSCF''s Lucia in other symmetries')
+  nD = CI_St(iState)%nDet(iSym)
+  call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+  call mma_allocate(DD,max(1,nD),Label='DETDIA')
+  call get_diag(DD,nD)
+  call CSDIAG(n,nD,Diag,DD,NCNFTP(1,iSym),NTYP,SDREO,NDTFTP,NCSFTP,0)
+  call mma_deallocate(DD)
+  Diag(:) = Diag(:)+ECore
+end subroutine Lucia1_Diag
+
 !> RASSCF's Lucia: free the determinant scratch of Lucia1_Sigma
 subroutine Lucia1_Free()
   use stdalloc, only: mma_deallocate
@@ -685,6 +706,9 @@ subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
       call SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case (CI_Lib_Faroald)
       call Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+    case (CI_Lib_Lucia)
+      if (Mode /= CI_Diag_Cnf_Avg) call Not_Yet('CI_Lib_Diag','the exact diagonal with RASSCF''s Lucia')
+      call Lucia1_Diag(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case (CI_Lib_MCLR_Lucia)
       call MCLR_Lucia_Diag_Act(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case default
@@ -1219,11 +1243,22 @@ end subroutine SG_Dens_Core
 subroutine SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   use sguga, only: CIS, EXS, SGCnfList, SGS, SG_Cnf_Avg_Diag, SG_Free_Cnf_List, SG_Mk_Cnf_List
   use SGUGA_Sigma, only: sg_hdiag_fast
+  use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
   real(kind=wp), intent(out) :: Diag(n)
+  integer(kind=iwp) :: iR, nR
+  real(kind=wp), allocatable :: DR(:)
   type(SGCnfList) :: Cnf
-  if (Mode == CI_Diag_Exact) then
+  if ((Mode == CI_Diag_Exact) .and. (CI_St(iState)%iRel > 0)) then
+    ! GAS: the exact diagonal in the relaxed space of the state
+    iR = CI_St(iState)%iRel
+    nR = CIS(iR)%NCSF(iSym)
+    call mma_allocate(DR,nR,Label='DR')
+    call sg_hdiag_fast(SGS(iR),CIS(iR),EXS(iR),nR,iSym,TUVX,nTUVX,TU,nTU,DR)
+    call SG_Rel_Project(iState,iSym,n,DR,Diag)
+    call mma_deallocate(DR)
+  else if (Mode == CI_Diag_Exact) then
     call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),n,iSym,TUVX,nTUVX,TU,nTU,Diag)
   else
     call SG_Mk_Cnf_List(iState,iSym,Cnf)

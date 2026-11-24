@@ -28,8 +28,9 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SG
 ! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
-use CI_Operations, only: CI_Lib_Close, CI_Lib_Dens, CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Sigma, Faro_L2O => Faro_Lev, &
-                         Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+use CI_Operations, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, CI_Lib_Initialize, &
+                         CI_Lib_Level_Map, CI_Lib_Sigma, Faro_L2O => Faro_Lev, Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, &
+                         SG_Rel_Map, SG_Rel_Project
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1679,7 +1680,6 @@ integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(out):: CSFDIA(nConf)
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
-real(kind=wp), allocatable :: DDIA(:)
 integer(kind=iwp):: IPRINT=0
 
 real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
@@ -1703,18 +1703,8 @@ end if
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
-call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
-
-call mma_allocate(DDIA,NDET,label='DETDIA')
-
-call get_diag(DDIA,ndet)
-
-! Todo: ndet comes from general_data!! Check this!
-! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
-call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,CI_St(iState)%STSym),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
-
-! DEALLOCATE LOCAL MEMORY
-call mma_deallocate(DDIA)
+! RASSCF's Lucia: the configuration average (CI_Lib_Diag)
+call CI_Lib_Diag(iState,CI_Diag_Cnf_Avg,CI_St(iState)%STSym,nTU,TU,nTUVX,TUVX,Zero,nConf,CSFDIA)
 
 ! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the exact diagonal.
 if (CI_Verify('SIGMA') .and. SG_Avail()) call Verify_IHI()
@@ -1741,54 +1731,15 @@ contains
     ! for two singly occupied ones, na/nb the alpha/beta open-shell
     ! electrons of no). Under SIGMA checked once against the average of
     ! Faroald_HDet over the determinants of each configuration.
-    use citrans, only: citrans_conf_dets, citrans_conf_occ
-    use faroald, only: nela, nelb
-    use Constants, only: Two
-    integer(kind=iwp) :: k, k1, nc, nd, i, j, ic, ncf, nd2, no, na, nb
-    integer(kind=iwp), allocatable :: da(:), db(:), kf(:), ncs(:), dco(:), sco(:)
-    real(kind=wp) :: E, MaxDev, P, ni, nj
+    use citrans, only: citrans_conf_dets
+    integer(kind=iwp) :: k, k1, nc, nd, i
+    integer(kind=iwp), allocatable :: da(:), db(:)
+    real(kind=wp) :: E, MaxDev
     real(kind=wp), allocatable :: cf(:,:), DD(:), DL(:), Idx(:), Map(:)
 
+    ! the configuration average from the occupations (CI_Lib_Diag)
+    call CI_Lib_Diag(iState,CI_Diag_Cnf_Avg,CI_St(iState)%STSym,nTU,TU,nTUVX,TUVX,Zero,nConf,CSFDIA)
     call Faroald_Ints(TU,TUVX)
-    call citrans_conf_occ(ncf,kf,ncs,dco,sco)
-    do ic=1,ncf
-      nd2 = popcnt(dco(ic))
-      no = popcnt(sco(ic))
-      na = nela-nd2
-      nb = nelb-nd2
-      P = Zero
-      if (no > 1) P = real(na*(na-1)+nb*(nb-1),kind=wp)/real(no*(no-1),kind=wp)
-      E = Zero
-      do i=1,my_norb
-        ni = Zero
-        if (btest(dco(ic),i-1)) then
-          ni = Two
-          E = E+gtuvx(i,i,i,i)
-        else if (btest(sco(ic),i-1)) then
-          ni = One
-        end if
-        if (ni == Zero) cycle
-        E = E+ni*htu(i,i)
-        do j=i+1,my_norb
-          nj = Zero
-          if (btest(dco(ic),j-1)) then
-            nj = Two
-          else if (btest(sco(ic),j-1)) then
-            nj = One
-          end if
-          if (nj == Zero) cycle
-          E = E+ni*nj*gtuvx(i,i,j,j)
-          if ((ni == Two) .and. (nj == Two)) then
-            E = E-Two*gtuvx(i,j,j,i)
-          else if ((ni == Two) .or. (nj == Two)) then
-            E = E-gtuvx(i,j,j,i)
-          else
-            E = E-P*gtuvx(i,j,j,i)
-          end if
-        end do
-      end do
-      CSFDIA(kf(ic):kf(ic)+ncs(ic)-1) = E
-    end do
     if (CI_Verify('SIGMA') .and. (.not. IHI_Avg_Verified)) then
       ! the average of the determinant energies, as reference
       MaxDev = Zero
@@ -1811,10 +1762,6 @@ contains
         call Abend()
       end if
     end if
-    call mma_deallocate(kf)
-    call mma_deallocate(ncs)
-    call mma_deallocate(dco)
-    call mma_deallocate(sco)
     call HEXS_Proj(HEXS_Keep,CSFDIA)
     if (CI_Verify('SIGMA')) then
       call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
@@ -1891,7 +1838,7 @@ contains
     real(kind=wp), allocatable :: DRef(:), DAvg(:), DAvgL(:), DL(:), DD(:)
     call SG_Cnf_Kept(CI_St(iState)%STSym)
     call mma_allocate(DAvg,nConf,Label='DAvg')
-    call SG_Cnf_Avg_Diag(iState,Cnf_SG,TU,nTU,TUVX,nTUVX,DAvg)
+    call CI_Lib_Diag(iState,CI_Diag_Cnf_Avg,CI_St(iState)%STSym,nTU,TU,nTUVX,TUVX,Zero,nConf,DAvg)
     call HEXS_Proj(HEXS_Keep_SG,DAvg)
     if (CI_Verify('SIGMA')) then
       ! Lucia's configuration-average diagonal, in the Lucia basis
@@ -1924,7 +1871,7 @@ contains
     end if
     ! the exact diagonal (HDIAG, and its check under SIGMA)
     call mma_allocate(DAvg,nConf,Label='DExact')
-    call SG_HDiag_G('FAST',iState,nConf,CI_St(iState)%STSym,TUVX,nTUVX,TU,nTU,DAvg)
+    call CI_Lib_Diag(iState,CI_Diag_Exact,CI_St(iState)%STSym,nTU,TU,nTUVX,TUVX,Zero,nConf,DAvg)
     if (CI_Verify('HDIAG')) then
       CSFDIA(:) = DAvg(:)
       call HEXS_Proj(HEXS_Keep_SG,CSFDIA)
