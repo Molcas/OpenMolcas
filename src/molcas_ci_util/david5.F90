@@ -13,7 +13,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,T
 
 use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, hRoots, ICIRST, lRoots, MAXJT
-use ci_interfaces, only: Faro_CI, Faro_nTmp, Mk_H_Psi
+use ci_interfaces, only: CI_Verify, Faro_CI, Faro_nTmp, Mk_H_Psi
 use rasscf_files, only: ITERFILE, LUDAVID
 use CI_Info, only: CI_St
 use rasscf_global, only: NCONF, NSEL
@@ -48,10 +48,14 @@ if (Faro_CI()) then
   ! determinant wavefunctions Faroald (not with RAS, Faro_nTmp)
   call mma_allocate(sigtemp,Faro_nTmp(),label='sgm')
   call mma_allocate(ctemp,Faro_nTmp(),label='psi')
-else
-  ! determinant wavefunctions Lucia
+else if (CI_Verify('SIGMA')) then
+  ! determinant wavefunctions of the Lucia reference sigma (SGCI checks)
   call mma_allocate(ctemp,ndet,label='CTEMP')
   call mma_allocate(sigtemp,ndet,label='SIGTEM')
+else
+  ! not used: the CI libraries keep their own scratch
+  call mma_allocate(ctemp,1,label='CTEMP')
+  call mma_allocate(sigtemp,1,label='SIGTEM')
 end if
 
 !-----------------------------------------------------------------------

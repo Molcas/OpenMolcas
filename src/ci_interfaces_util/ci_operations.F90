@@ -98,8 +98,6 @@ type Rel_Map_Type
 end type Rel_Map_Type
 type(Rel_Map_Type) :: Rel_Map(8)
 
-! RASSCF's Lucia: the determinant scratch of its sigma (Lucia1_Sigma)
-real(kind=wp), allocatable :: Lucia1_C(:), Lucia1_S(:)
 ! Faroald: its string-driven sigma checked once against the full space
 logical(kind=iwp) :: Faro_RAS_Verified = .false.
 
@@ -149,7 +147,6 @@ subroutine CI_Lib_Close(iState)
     call SG_Densities_Free()
   end if
   if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
-  if (CI_Lib == CI_Lib_Lucia) call Lucia1_Free()
 end subroutine CI_Lib_Close
 
 !> S = H C (S is overwritten, never accumulated) for the CI state iState
@@ -213,27 +210,23 @@ subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX
 end subroutine CI_Lib_Sigma
 
 !> RASSCF's Lucia (CI_Lib_Lucia): S = H C in the symmetry of the state, via
-!> its determinant basis (csdtvc); the determinant scratch is kept between
-!> calls (Lucia1_Free, CI_Lib_Close)
+!> its determinant basis (csdtvc), with determinant scratch of this call
 subroutine Lucia1_Sigma(iState,iSym,nTU,TU,nTUVX,TUVX,n,C,S)
   use lucia_data, only: IREFSM, Sigma_on_disk
   use cands, only: ICSM, ISSM
   use Lucia_Interface, only: Lucia_Util
-  use stdalloc, only: mma_allocate
+  use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
   integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, n
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(n)
   real(kind=wp), intent(out) :: S(n)
   integer(kind=iwp) :: IREFSM_Keep, nD, nW
+  real(kind=wp), allocatable :: Lucia1_C(:), Lucia1_S(:)
+  ! the determinant scratch, only for this call (peak memory as before)
   nD = CI_St(iState)%nDet(iSym)
   nW = max(n,nD)
-  if (allocated(Lucia1_C)) then
-    if (size(Lucia1_C) < nW) call Lucia1_Free()
-  end if
-  if (.not. allocated(Lucia1_C)) then
-    call mma_allocate(Lucia1_C,nW,Label='Lucia1_C')
-    call mma_allocate(Lucia1_S,nW,Label='Lucia1_S')
-  end if
+  call mma_allocate(Lucia1_C,nW,Label='Lucia1_C')
+  call mma_allocate(Lucia1_S,nW,Label='Lucia1_S')
   IREFSM_Keep = IREFSM
   IREFSM = iSym
   ICSM = iSym
@@ -248,6 +241,8 @@ subroutine Lucia1_Sigma(iState,iSym,nTU,TU,nTUVX,TUVX,n,C,S)
   Sigma_on_disk = .true.
   ! determinants -> CSFs
   call csdtvc(S,Lucia1_S,2,iSym,0)
+  call mma_deallocate(Lucia1_C)
+  call mma_deallocate(Lucia1_S)
   IREFSM = IREFSM_Keep
   ICSM = IREFSM
   ISSM = IREFSM
@@ -404,13 +399,6 @@ subroutine Lucia1_Diag(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   call mma_deallocate(DD)
   Diag(:) = Diag(:)+ECore
 end subroutine Lucia1_Diag
-
-!> RASSCF's Lucia: free the determinant scratch of Lucia1_Sigma
-subroutine Lucia1_Free()
-  use stdalloc, only: mma_deallocate
-  call mma_deallocate(Lucia1_C,safe='*')
-  call mma_deallocate(Lucia1_S,safe='*')
-end subroutine Lucia1_Free
 
 !> The checks of the operator arguments of CI_Lib_Sigma
 subroutine Check_Op(Caller,iOpSpin,Have_2_el,Square)
