@@ -28,7 +28,7 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SG
 ! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
-use CI_Operations, only: CI_Lib_Close, CI_Lib_Dens, CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Sigma, Faro_L2O => Faro_Lev, &
+use CI_Operations, only: CI_Lib_Close, CI_Lib_Dens, CI_Lib_Initialize, CI_Lib_Sigma, Faro_L2O => Faro_Lev, &
                          Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
@@ -1268,49 +1268,39 @@ end subroutine SG_Spin_Density_ASTA
 Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
 ! The densities of the state CIVec (basis of the selected library) in the
 ! layout of RASSCF: D, SD (triangular), P, PA (packed pairs), in level
-! order. Computed by CI_Lib_Dens (any library) and converted here
-! (Rho_To_Packed). Under MOLCAS_CI_VERIFY=SIGMA compared with Lucia and
-! SGUGA (those not in use).
+! order, from CI_Lib_Dens in its packed layout (any library). Under
+! MOLCAS_CI_VERIFY=SIGMA compared with Lucia and SGUGA (those not in use).
 use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
 use rasscf_global, only: NACPAR, NACPR2
-use Index_Functions, only: nTri_Elem
 implicit none
 integer(kind=iwp), intent(in) :: nCIVEC
 real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
 real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
 integer(kind=iwp), intent(in) :: nD, nP
 integer(kind=iwp), parameter :: iState = 1
-integer(kind=iwp) :: I12, LSM, N
-integer(kind=iwp), allocatable :: L2O(:)
-real(kind=wp), allocatable :: D_loc(:), P_loc(:), PA_loc(:), R1(:), R2(:), SD_loc(:)
+integer(kind=iwp) :: I12, LSM
+real(kind=wp), allocatable :: D_loc(:), P_loc(:), PA_loc(:), R2(:), SD_loc(:)
 real(kind=wp) :: TimT(2)
 
 call Tim_On(TimT)
-N = NAC
 LSM = CI_St(iState)%STSym
 I12 = 1
 if (Present(P) .or. Present(PA)) I12 = 2
-call mma_allocate(L2O,max(1,N),Label='L2O')
-call CI_Lib_Level_Map(iState,N,L2O)
-call mma_allocate(R1,max(1,N**2),Label='R1')
-if (I12 == 2) then
-  call mma_allocate(R2,max(1,nTri_Elem(N**2)),Label='R2')
-else
-  call mma_allocate(R2,1,Label='R2')
-end if
 call mma_allocate(D_loc,max(1,NACPAR),Label='D_loc')
 call mma_allocate(SD_loc,max(1,NACPAR),Label='SD_loc')
 call mma_allocate(P_loc,max(1,NACPR2),Label='P_loc')
 call mma_allocate(PA_loc,max(1,NACPR2),Label='PA_loc')
+call mma_allocate(R2,max(1,2*NACPR2),Label='R2')
 SD_loc(:) = Zero
 P_loc(:) = Zero
 PA_loc(:) = Zero
-call CI_Lib_Dens(iState,I12,0,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(R1),R1,size(R2),R2)
-call Rho_To_Packed(N,L2O,R1,I12,R2,D_loc,P_loc,PA_loc)
-if (Present(SD)) then
-  call CI_Lib_Dens(iState,1,1,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(R1),R1,size(R2),R2)
-  call Rho_To_Packed(N,L2O,R1,1,R2,SD_loc,P_loc,PA_loc)
+! the packed layout of RASSCF (CI_Lib_Dens, Packed)
+call CI_Lib_Dens(iState,I12,0,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(D_loc),D_loc,size(R2),R2,Packed=.true.)
+if (I12 == 2) then
+  P_loc(1:NACPR2) = R2(1:NACPR2)
+  PA_loc(1:NACPR2) = R2(NACPR2+1:2*NACPR2)
 end if
+if (Present(SD)) call CI_Lib_Dens(iState,1,1,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(SD_loc),SD_loc,size(R2),R2,Packed=.true.)
 if (Present(D)) then
   D(1:nD) = Zero
   D(1:NACPAR) = D_loc(1:NACPAR)
@@ -1330,8 +1320,6 @@ call mma_deallocate(P_loc)
 call mma_deallocate(SD_loc)
 call mma_deallocate(D_loc)
 call mma_deallocate(R2)
-call mma_deallocate(R1)
-call mma_deallocate(L2O)
 call Tim_Off(Tim_PDM,TimT)
 
 contains
@@ -1419,52 +1407,6 @@ contains
 
 End Subroutine Mk_pdms
 
-!> The densities of CI_Lib_Dens (symmetry-ordered orbitals: Rho1 square,
-!> Rho2 at iTri(ij,kl), square pair index) in the layout of RASSCF, in
-!> level order (L2O, CI_Lib_Level_Map): D(iTri(a,b)) = Rho1(b,a) for
-!> a >= b; for I12 = 2 also P(tuvx) = 1/2 (p(tuvx)+p(tuxv)) (1/2 p(tuvv)
-!> for v = x) and PA(tuvx) = 1/2 (p(tuvx)-p(tuxv)) (zero for t = u or
-!> v = x), t >= u, v >= x, tu >= vx (the packing of fold_two_pdm).
-subroutine Rho_To_Packed(N,L2O,Rho1,I12,Rho2,D,P,PA)
-use Index_Functions, only: iTri
-use Constants, only: Half
-integer(kind=iwp), intent(in) :: N, L2O(N), I12
-real(kind=wp), intent(in) :: Rho1(N,N), Rho2(*)
-real(kind=wp), intent(out) :: D(*)
-real(kind=wp), intent(inout) :: P(*), PA(*)
-integer(kind=iwp) :: t, tu, tuvx, u, v, vx, x, x_max
-real(kind=wp) :: A, B
-do t=1,N
-  do u=1,t
-    D(iTri(t,u)) = Rho1(L2O(u),L2O(t))
-  end do
-end do
-if (I12 /= 2) return
-do t=1,N
-  do u=1,t
-    tu = iTri(t,u)
-    do v=1,t
-      x_max = v
-      if (v == t) x_max = u
-      do x=1,x_max
-        vx = iTri(v,x)
-        tuvx = iTri(tu,vx)
-        A = Rho2(iTri(L2O(t)+(L2O(u)-1)*N,L2O(v)+(L2O(x)-1)*N))
-        if (v == x) then
-          P(tuvx) = Half*A
-          PA(tuvx) = Zero
-        else
-          B = Rho2(iTri(L2O(t)+(L2O(u)-1)*N,L2O(x)+(L2O(v)-1)*N))
-          P(tuvx) = Half*(A+B)
-          PA(tuvx) = Zero
-          if (t /= u) PA(tuvx) = Half*(A-B)
-        end if
-      end do
-    end do
-  end do
-end do
-
-end subroutine Rho_To_Packed
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************

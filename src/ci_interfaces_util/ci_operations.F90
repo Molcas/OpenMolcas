@@ -256,7 +256,7 @@ end subroutine Lucia1_Sigma
 !> symmetry of the state) from Lucia's DENSI (packed, in level order),
 !> brought to the layout of CI_Lib_Dens. The spin density is Lucia's as it
 !> is (for singlets Lucia's spin-combination value).
-subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Pk)
   use lucia_data, only: DStmp, Dtmp, PAtmp, Ptmp
   use Lucia_Interface, only: Lucia_Util
   use Orbital_Spaces, only: nAsh, nSym
@@ -265,6 +265,7 @@ subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
+  logical(kind=iwp), intent(in) :: Pk
   integer(kind=iwp) :: N, nP
   integer(kind=iwp), allocatable :: L2O(:)
   real(kind=wp), allocatable :: CL(:)
@@ -272,8 +273,6 @@ subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     call Not_Yet('CI_Lib_Dens','RASSCF''s Lucia for densities between symmetries')
   if (.not. all(L(:) == R(:))) call Not_Yet('CI_Lib_Dens','RASSCF''s Lucia for transition densities')
   N = sum(nAsh(1:nSym))
-  if (n1 < N**2) call Abend()
-  if ((I12 == 2) .and. (n2 < nTri_Elem(N**2))) call Abend()
   nP = nTri_Elem(nTri_Elem(N))
   call mma_allocate(DTMP,N**2,Label='DTMP')
   call mma_allocate(DSTMP,N**2,Label='DSTMP')
@@ -283,14 +282,29 @@ subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   CL(:) = L(:)
   call Lucia_Util('Densi',CI_Vector=CL)
   call mma_deallocate(CL)
-  call mma_allocate(L2O,N,Label='L2O')
-  call CI_Lib_Level_Map(iState,N,L2O)
-  if (iOpSpin == 1) then
-    call Packed_To_Rho(N,L2O,DSTMP,1,PTMP,PATMP,Rho1,Rho2)
+  if (Pk) then
+    ! Lucia's own layout (only the triangles of DTMP/DSTMP are defined)
+    if (iOpSpin == 1) then
+      Rho1(1:nTri_Elem(N)) = DSTMP(1:nTri_Elem(N))
+    else
+      Rho1(1:nTri_Elem(N)) = DTMP(1:nTri_Elem(N))
+      if (I12 == 2) then
+        Rho2(1:nP) = PTMP(1:nP)
+        Rho2(nP+1:2*nP) = PATMP(1:nP)
+      end if
+    end if
   else
-    call Packed_To_Rho(N,L2O,DTMP,I12,PTMP,PATMP,Rho1,Rho2)
+    if (n1 < N**2) call Abend()
+    if ((I12 == 2) .and. (n2 < nTri_Elem(N**2))) call Abend()
+    call mma_allocate(L2O,N,Label='L2O')
+    call CI_Lib_Level_Map(iState,N,L2O)
+    if (iOpSpin == 1) then
+      call Packed_To_Rho(N,L2O,DSTMP,1,PTMP,PATMP,Rho1,Rho2)
+    else
+      call Packed_To_Rho(N,L2O,DTMP,I12,PTMP,PATMP,Rho1,Rho2)
+    end if
+    call mma_deallocate(L2O)
   end if
-  call mma_deallocate(L2O)
   call mma_deallocate(PATMP)
   call mma_deallocate(PTMP)
   call mma_deallocate(DSTMP)
@@ -335,13 +349,30 @@ end subroutine Check_Op
 !>   components; the spin-adapted libraries use that convention).
 !> Active orbitals in symmetry order, as in CI_Lib_Sigma. The densities
 !> are the elements of the operators as written: not symmetrized, not
-!> folded (the callers symmetrize where they need it). Programs that need
-!> other layouts (RASSCF: D, SD, P, PA, triangular, in its level order)
-!> convert after the call.
-subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+!> folded (the callers symmetrize where they need it).
+!> Packed = .true. (optional, default .false.): the densities of one state
+!> (L = R, iLSym = iRSym) in the packed layout instead, in the level order
+!> of the CI space (CI_Lib_Level_Map): Rho1(iTri(a,b)) = D_ba (or the spin
+!> density) for a >= b (n1 >= nTri(nAct)); for I12 = 2 Rho2(1:nP) = P and
+!> Rho2(nP+1:2*nP) = PA, nP = nTri(nTri(nAct)), P(tuvx) =
+!> 1/2 (p(tuvx)+p(tuxv)) (1/2 p(tuvv) for v = x), PA(tuvx) =
+!> 1/2 (p(tuvx)-p(tuxv)) (zero for t = u or v = x), t >= u, v >= x,
+!> tu >= vx (n2 >= 2*nP). Libraries that produce it directly (RASSCF's
+!> Lucia, SGUGA) fill it without a conversion; the others fold once.
+subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Packed)
+  use Orbital_Spaces, only: nAsh, nSym
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
+  logical(kind=iwp), intent(in), optional :: Packed
+  integer(kind=iwp) :: N, nP
+  logical(kind=iwp) :: Pk
+  integer(kind=iwp), allocatable :: L2O(:)
+  real(kind=wp), allocatable :: R1(:), R2(:)
+  Pk = .false.
+  if (present(Packed)) Pk = Packed
   if ((iOpSpin /= 0) .and. (iOpSpin /= 1)) then
     write(u6,'(A,I4)') ' CI_Lib_Dens: invalid operator spin iOpSpin =',iOpSpin
     call Abend()
@@ -350,8 +381,51 @@ subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     write(u6,'(A)') ' CI_Lib_Dens: the spin density is one-body only (I12 = 1)'
     call Abend()
   end if
+  if (Pk) then
+    if ((iLSym /= iRSym) .or. (nL /= nR)) then
+      write(u6,'(A)') ' CI_Lib_Dens: the packed layout is for the densities of one state'
+      call Abend()
+    end if
+    N = sum(nAsh(1:nSym))
+    nP = nTri_Elem(nTri_Elem(N))
+    if ((n1 < nTri_Elem(N)) .or. ((I12 == 2) .and. (n2 < 2*nP))) call Abend()
+    ! the libraries with the state densities in this layout
+    if (CI_Lib == CI_Lib_Lucia) then
+      call Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.true.)
+      return
+    end if
+    if (CI_Lib == CI_Lib_SGUGA) then
+      if (all(L(:) == R(:))) then
+        call SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.true.)
+        return
+      end if
+    end if
+    ! the others: the layout of CI_Lib_Dens, folded once
+    call mma_allocate(R1,N**2,Label='R1')
+    call mma_allocate(R2,max(1,nTri_Elem(N**2)),Label='R2')
+    call Lib_Dens_Rho(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,size(R1),R1,size(R2),R2)
+    call mma_allocate(L2O,max(1,N),Label='L2O')
+    call CI_Lib_Level_Map(iState,N,L2O)
+    if (I12 == 2) then
+      call Rho_To_Packed(N,L2O,R1,I12,R2,Rho1,Rho2(1:nP),Rho2(nP+1:2*nP))
+    else
+      call Rho_To_Packed(N,L2O,R1,I12,R2,Rho1,R2,R2)
+    end if
+    call mma_deallocate(L2O)
+    call mma_deallocate(R2)
+    call mma_deallocate(R1)
+    return
+  end if
+  call Lib_Dens_Rho(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+end subroutine CI_Lib_Dens
+
+!> CI_Lib_Dens in its own layout, for the selected library
+subroutine Lib_Dens_Rho(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+  integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
+  real(kind=wp), intent(in) :: L(nL), R(nR)
+  real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   if (CI_Lib == CI_Lib_SGUGA) then
-    call SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+    call SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.false.)
     return
   end if
   if (CI_Lib == CI_Lib_Faroald) then
@@ -359,12 +433,12 @@ subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     return
   end if
   if (CI_Lib == CI_Lib_Lucia) then
-    call Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+    call Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.false.)
     return
   end if
   call Check_Lib('CI_Lib_Dens')
   call MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
-end subroutine CI_Lib_Dens
+end subroutine Lib_Dens_Rho
 
 !> The level order of the CI state iState (the order of the split graph
 !> and of the RASSCF densities: partition by partition, within each by
@@ -426,6 +500,53 @@ subroutine Packed_To_Rho(n,L2O,D,I12,P,PA,Rho1,Rho2)
     end do
   end do
 end subroutine Packed_To_Rho
+
+!> The densities of CI_Lib_Dens (symmetry-ordered orbitals: Rho1 square,
+!> Rho2 at iTri(ij,kl), square pair index) in the layout of RASSCF, in
+!> level order (L2O, CI_Lib_Level_Map): D(iTri(a,b)) = Rho1(b,a) for
+!> a >= b; for I12 = 2 also P(tuvx) = 1/2 (p(tuvx)+p(tuxv)) (1/2 p(tuvv)
+!> for v = x) and PA(tuvx) = 1/2 (p(tuvx)-p(tuxv)) (zero for t = u or
+!> v = x), t >= u, v >= x, tu >= vx (the packing of fold_two_pdm).
+subroutine Rho_To_Packed(N,L2O,Rho1,I12,Rho2,D,P,PA)
+use Index_Functions, only: iTri
+use Constants, only: Zero, Half
+integer(kind=iwp), intent(in) :: N, L2O(N), I12
+real(kind=wp), intent(in) :: Rho1(N,N), Rho2(*)
+real(kind=wp), intent(out) :: D(*)
+real(kind=wp), intent(inout) :: P(*), PA(*)
+integer(kind=iwp) :: t, tu, tuvx, u, v, vx, x, x_max
+real(kind=wp) :: A, B
+do t=1,N
+  do u=1,t
+    D(iTri(t,u)) = Rho1(L2O(u),L2O(t))
+  end do
+end do
+if (I12 /= 2) return
+do t=1,N
+  do u=1,t
+    tu = iTri(t,u)
+    do v=1,t
+      x_max = v
+      if (v == t) x_max = u
+      do x=1,x_max
+        vx = iTri(v,x)
+        tuvx = iTri(tu,vx)
+        A = Rho2(iTri(L2O(t)+(L2O(u)-1)*N,L2O(v)+(L2O(x)-1)*N))
+        if (v == x) then
+          P(tuvx) = Half*A
+          PA(tuvx) = Zero
+        else
+          B = Rho2(iTri(L2O(t)+(L2O(u)-1)*N,L2O(x)+(L2O(v)-1)*N))
+          P(tuvx) = Half*(A+B)
+          PA(tuvx) = Zero
+          if (t /= u) PA(tuvx) = Half*(A-B)
+        end if
+      end do
+    end do
+  end do
+end do
+
+end subroutine Rho_To_Packed
 
 !> Packed_To_Rho: p(abcd) of a real state from the stored element of
 !> (t,u,v,x) = (a,b,max(c,d),min(c,d)) with t >= u and tu >= vx, using
@@ -883,12 +1004,13 @@ end subroutine SG_Sigma_Run
 
 !> SGUGA: spin-free transition densities, mapped from the level order to
 !> the symmetry-ordered active orbitals
-subroutine SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+subroutine SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Pk)
   use sguga, only: CIS
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
+  logical(kind=iwp), intent(in) :: Pk
   integer(kind=iwp) :: iR, nLR, nRR
   logical(kind=iwp) :: Same
   real(kind=wp), allocatable :: LR(:), RR(:)
@@ -905,17 +1027,17 @@ subroutine SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho
     call mma_allocate(RR,nRR,Label='RR')
     call SG_Rel_Embed(iState,iLSym,nL,L,LR)
     call SG_Rel_Embed(iState,iRSym,nR,R,RR)
-    call SG_Dens_Core(iR,Same,I12,iOpSpin,iLSym,iRSym,nLR,LR,nRR,RR,n1,Rho1,n2,Rho2)
+    call SG_Dens_Core(iR,Same,Pk,I12,iOpSpin,iLSym,iRSym,nLR,LR,nRR,RR,n1,Rho1,n2,Rho2)
     call mma_deallocate(RR)
     call mma_deallocate(LR)
   else
-    call SG_Dens_Core(iState,Same,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+    call SG_Dens_Core(iState,Same,Pk,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   end if
 end subroutine SG_Trans_Dens
 
 !> SGUGA: the densities of SG_Trans_Dens in the graph of the state jS (the
 !> state or its relaxed space); Same: L and R are the same state
-subroutine SG_Dens_Core(iState,Same,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+subroutine SG_Dens_Core(iState,Same,Pk,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use sguga, only: CIS, EXS, SGS, SG_Level_Map
   use SGUGA_Densities, only: sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_trans_two_pdm, sg_two_pdm
   use Orbital_Spaces, only: nAsh, nSym
@@ -923,7 +1045,7 @@ subroutine SG_Dens_Core(iState,Same,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
-  logical(kind=iwp), intent(in) :: Same
+  logical(kind=iwp), intent(in) :: Same, Pk
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   integer(kind=iwp) :: a, b, c, d, i, ij, ijL, j, k, kl, klL, l_, N
@@ -931,7 +1053,7 @@ subroutine SG_Dens_Core(iState,Same,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2
   real(kind=wp), allocatable :: DT(:), PA(:), PT(:), R1(:,:), R2(:), RS(:,:), SDT(:)
   N = sum(nAsh(1:nSym))
   if (SGS(iState)%nLev /= N) call Abend()
-  if (n1 < N**2) call Abend()
+  if ((.not. Pk) .and. (n1 < N**2)) call Abend()
   call mma_allocate(L2O,N,Label='L2O')
   call SG_Level_Map(SGS(iState),L2O)
   if (Same) then
@@ -941,16 +1063,28 @@ subroutine SG_Dens_Core(iState,Same,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2
     if (iOpSpin == 1) then
       call mma_allocate(SDT,nTri_Elem(N),Label='SDT')
       call sg_spin_pdm(SGS(iState),CIS(iState),EXS(iState),L,nL,iLSym,DT,SDT,size(DT))
-      call Packed_To_Rho(N,L2O,SDT,1,SDT,SDT,Rho1,Rho2)
+      if (Pk) then
+        Rho1(1:size(SDT)) = SDT(:)
+      else
+        call Packed_To_Rho(N,L2O,SDT,1,SDT,SDT,Rho1,Rho2)
+      end if
       call mma_deallocate(SDT)
     else if (I12 == 2) then
-      if (n2 < nTri_Elem(N**2)) call Abend()
       call mma_allocate(PT,nTri_Elem(nTri_Elem(N)),Label='PT')
       call mma_allocate(PA,nTri_Elem(nTri_Elem(N)),Label='PA')
       call sg_two_pdm(SGS(iState),CIS(iState),EXS(iState),L,nL,iLSym,PT,PA,size(PT))
-      call Packed_To_Rho(N,L2O,DT,2,PT,PA,Rho1,Rho2)
+      if (Pk) then
+        Rho1(1:size(DT)) = DT(:)
+        Rho2(1:size(PT)) = PT(:)
+        Rho2(size(PT)+1:2*size(PT)) = PA(:)
+      else
+        if (n2 < nTri_Elem(N**2)) call Abend()
+        call Packed_To_Rho(N,L2O,DT,2,PT,PA,Rho1,Rho2)
+      end if
       call mma_deallocate(PA)
       call mma_deallocate(PT)
+    else if (Pk) then
+      Rho1(1:size(DT)) = DT(:)
     else
       call Packed_To_Rho(N,L2O,DT,1,DT,DT,Rho1,Rho2)
     end if
