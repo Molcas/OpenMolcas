@@ -1109,7 +1109,8 @@ end subroutine Occ_Bits
 !> (within 1.0e-10) are dropped again and the selection stops, so that a
 !> degenerate group is taken whole or not at all; only if that would empty
 !> the P space (the first group alone exceeds nPMax) the group is kept as
-!> far as it fits, i.e. split. nSel <= nPMax holds in every case (checked).
+!> far as it fits, i.e. split, with a warning that names the size needed
+!> to take it whole. nSel <= nPMax holds in every case (checked).
 !> IPC(1:nPC) (intent(out), dimension nCnf = CI_Lib_nCnf) are the chosen
 !> configurations in the library's configuration order
 !> (CI_Lib_Cnf_Layout), nSel their number of CSFs.
@@ -1170,6 +1171,16 @@ subroutine CI_Lib_PSel(iState,iSym,n,Diag,nPMax,nCnf,nPC,IPC,nSel)
       if (nPC == 0) then
         nPC = nKeep
         nSel = nSelKeep
+        ! the first degenerate group alone exceeds nPMax: it is split
+        m = nSel
+        do k=1,nCnf
+          if ((.not. Used(k)) .and. (abs(Key(k)-KMinV) <= Deg)) m = m+nCSFCnf(k)
+        end do
+        call WarningMessage(1,'The P space of the CI preconditioner splits a degenerate group of configurations.')
+        write(u6,'(1X,A,I0,A,I0,A)') 'The explicit subspace holds at most ',nPMax,' CSFs, the lowest degenerate group has ', &
+                                     m,' CSFs;'
+        write(u6,'(1X,A,I0,A)') 'increase the size of the explicit subspace (RASSCF: keyword SDAV) to at least ',m, &
+                                ' to take it whole.'
       end if
       exit
     end if
