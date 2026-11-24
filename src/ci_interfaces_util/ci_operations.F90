@@ -66,6 +66,7 @@ use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Faroald, CI
                       CI_Lib_Select, CI_Lib_SGUGA, CI_To_Basis, CI_To_File
 use MCLR_Lucia_CI, only: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_Conv, MCLR_Lucia_Dets, &
                          MCLR_Lucia_Diag_Act, MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -104,9 +105,9 @@ logical(kind=iwp) :: Faro_RAS_Verified = .false.
 
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
-          CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSpace, &
-          CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_To_Basis, CI_To_File, Faro_Lev, Rel_Map, Report_Dev, SG_Rel_Embed, &
-          SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+          CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSel, &
+          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_To_Basis, CI_To_File, Cnf_Exc, Faro_Lev, Faroald_HDet, &
+          Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 
 contains
 
@@ -731,6 +732,7 @@ end subroutine Check_Diag_Mode
 function CI_Lib_nCnf(iState,iSym) result(nCnf)
   use sguga, only: SGCnfList, SG_Free_Cnf_List, SG_Mk_Cnf_List
   use citrans, only: citrans_conf_occ
+  use lucia_data, only: NCNFTP, NTYP
   use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym
   integer(kind=iwp) :: nCnf
@@ -751,6 +753,9 @@ function CI_Lib_nCnf(iState,iSym) result(nCnf)
       call mma_deallocate(sco)
     case (CI_Lib_MCLR_Lucia)
       nCnf = MCLR_Lucia_nCnf(iState,iSym)
+    case (CI_Lib_Lucia)
+      ! RASSCF's Lucia: its configurations of all types (NCNFTP)
+      nCnf = sum(NCNFTP(1:NTYP,iSym))
     case default
       call Check_Lib('CI_Lib_nCnf')
   end select
@@ -764,10 +769,11 @@ end function CI_Lib_nCnf
 subroutine CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
   use sguga, only: SGCnfList, SG_Free_Cnf_List, SG_Mk_Cnf_List
   use citrans, only: citrans_conf_occ
+  use lucia_data, only: NCNFTP, NCSFTP, NTYP
   use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym, nCnf, n
   integer(kind=iwp), intent(out) :: nCSFCnf(nCnf), iCSFCnf(n)
-  integer(kind=iwp) :: i, k, m, ncf
+  integer(kind=iwp) :: i, iTyp, k, m, ncf
   integer(kind=iwp), allocatable :: dco(:), kf(:), ncs(:), sco(:)
   type(SGCnfList) :: Cnf
   select case (CI_Lib)
@@ -799,6 +805,20 @@ subroutine CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
       call mma_deallocate(sco)
     case (CI_Lib_MCLR_Lucia)
       call MCLR_Lucia_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
+    case (CI_Lib_Lucia)
+      ! RASSCF's Lucia: type by type, the CSFs of a configuration contiguous
+      m = 0
+      k = 0
+      do iTyp=1,NTYP
+        do i=1,NCNFTP(iTyp,iSym)
+          k = k+1
+          nCSFCnf(k) = NCSFTP(iTyp)
+        end do
+      end do
+      if (k /= nCnf) call Abend()
+      do i=1,n
+        iCSFCnf(i) = i
+      end do
     case default
       call Check_Lib('CI_Lib_Cnf_Layout')
   end select
@@ -813,16 +833,14 @@ end subroutine CI_Lib_Cnf_Layout
 !> packed as a lower triangle (nHP >= nTri(nP)).
 subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
   use sguga, only: SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List, SG_Mk_Cnf_List
-  use Index_Functions, only: iTri, nTri_Elem
+  use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
-  use Constants, only: Zero, One
   integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nPMax, nHP
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
   integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
   real(kind=wp), intent(out) :: HP(nHP)
-  integer(kind=iwp) :: i, j, k, m, n, nCnf
-  integer(kind=iwp), allocatable :: iCSFCnf(:), kOff(:), nCSFCnf(:)
-  real(kind=wp), allocatable :: X(:), Y(:)
+  integer(kind=iwp) :: k, m, n, nCnf
+  integer(kind=iwp), allocatable :: iCSFCnf(:), kOff(:), nCSFCnf(:), nSelCnf(:)
   type(SGCnfList) :: Cnf
   n = CI_St(iState)%nCSF(iSym)
   nP = 0
@@ -837,7 +855,13 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
       nP = nP+m
     end do
     if (nHP < nTri_Elem(nP)) call Abend()
-    call SG_Explicit_Block(iState,Cnf,nPC,IPC,ECore,TU,nTU,TUVX,nTUVX,HP)
+    if (CI_St(iState)%iRel > 0) then
+      ! GAS: the matrix elements in the relaxed space of the state
+      call SG_Rel_Map(iState,iSym)
+      call SG_Explicit_Block(iState,Cnf,nPC,IPC,ECore,TU,nTU,TUVX,nTUVX,HP,iRel=CI_St(iState)%iRel,RelMap=Rel_Map(iSym)%M)
+    else
+      call SG_Explicit_Block(iState,Cnf,nPC,IPC,ECore,TU,nTU,TUVX,nTUVX,HP)
+    end if
     call SG_Free_Cnf_List(Cnf)
     return
   end if
@@ -845,86 +869,290 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
     call MCLR_Lucia_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
     return
   end if
-  if (CI_Lib /= CI_Lib_Faroald) call Check_Lib('CI_Lib_Block')
-  ! Faroald: the columns H e_j of the CSFs of the configurations
+  ! Faroald and RASSCF's Lucia: the CSFs of the configurations from the
+  ! layout
   nCnf = CI_Lib_nCnf(iState,iSym)
-  call mma_allocate(nCSFCnf,nCnf,Label='nCSFCnf')
+  call mma_allocate(nCSFCnf,max(1,nCnf),Label='nCSFCnf')
   call mma_allocate(kOff,nCnf+1,Label='kOff')
-  call mma_allocate(iCSFCnf,n,Label='iCSFCnf')
+  call mma_allocate(iCSFCnf,max(1,n),Label='iCSFCnf')
   call CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
   kOff(1) = 0
   do k=1,nCnf
     kOff(k+1) = kOff(k)+nCSFCnf(k)
   end do
+  call mma_allocate(nSelCnf,max(1,nPC),Label='nSelCnf')
   do k=1,nPC
     m = nCSFCnf(IPC(k))
     if (nP+m > nPMax) call Abend()
     IdxP(nP+1:nP+m) = iCSFCnf(kOff(IPC(k))+1:kOff(IPC(k)+1))
+    nSelCnf(k) = m
     nP = nP+m
   end do
   if (nHP < nTri_Elem(nP)) call Abend()
-  call mma_allocate(X,n,Label='X')
-  call mma_allocate(Y,n,Label='Y')
-  do j=1,nP
-    X(:) = Zero
-    X(IdxP(j)) = One
-    call Faro_Sigma_Act(iState,iSym,iSym,.false.,.true.,nTU,TU,nTUVX,TUVX,n,X,n,Y)
-    do i=j,nP
-      HP(iTri(i,j)) = Y(IdxP(i))
-    end do
-    HP(iTri(j,j)) = HP(iTri(j,j))+ECore
-  end do
-  call mma_deallocate(Y)
-  call mma_deallocate(X)
+  select case (CI_Lib)
+    case (CI_Lib_Faroald)
+      call Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
+    case (CI_Lib_Lucia)
+      call Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,HP)
+    case default
+      call Check_Lib('CI_Lib_Block')
+  end select
+  call mma_deallocate(nSelCnf)
   call mma_deallocate(iCSFCnf)
   call mma_deallocate(kOff)
   call mma_deallocate(nCSFCnf)
 end subroutine CI_Lib_Block
 
-!> The P space of the preconditioner: at most nPMax CSFs of symmetry iSym,
-!> whole configurations, chosen from the diagonal Diag(1:n) (n =
-!> nCSF(iSym), the CSF basis of the library, with the ECore of the caller)
-!> by one rule for every library: the configurations by increasing key
-!> (the mean of Diag over the CSFs of the configuration) while they fit;
-!> when the next one does not fit, the configurations already taken with
-!> the same key (within 1.0e-10) are dropped again and the selection
-!> stops, so that a degenerate group is taken whole or not at all and the
-!> chosen set does not depend on the configuration order of the library.
-!> Then the block of H + ECore for them (CI_Lib_Block; IdxP, nP, HP as
-!> there).
-subroutine CI_Lib_PSpace(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag,nPMax,nP,IdxP,nHP,HP)
+!> Faroald: the explicit block for the configurations of the CSFs
+!> IdxP(1:nP) (citrans order, nSelCnf(k) CSFs of configuration k): for each
+!> pair of configurations L, R the determinant block <D_L|H|D_R>
+!> (Faroald_HDet, Slater-Condon) transformed to the CSFs, C_L^T H C_R;
+!> pairs more than a double excitation apart are skipped (Cnf_Exc)
+subroutine Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
+  use citrans, only: citrans_conf_dets
+  use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, n, nPMax, nHP
-  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore, Diag(n)
-  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
-  real(kind=wp), intent(out) :: HP(nHP)
-  real(kind=wp), parameter :: Deg = 1.0e-10_wp
-  integer(kind=iwp) :: k, kMin, m, nCnf, nPC, nSel
-  integer(kind=iwp), allocatable :: iCSFCnf(:), IPC(:), nCSFCnf(:)
+  use Constants, only: One
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, nSelCnf(nPC), nP, IdxP(nP)
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(inout) :: H(*)
+  integer(kind=iwp) :: I, IIL, IILB, IIR, IIRB, IIRMAX, ICNL, ICNR, J, k1, kCnf, nc, nCTot, nd, nDTot, ndL, ndR, nL, nR
+  integer(kind=iwp), allocatable :: DA(:), da1(:), DB(:), db1(:), DOcc(:), iCOff(:), iDOff(:), nDCnf(:), SOcc(:)
+  real(kind=wp), allocatable :: Blk(:,:), C(:), cf(:,:), HDet(:,:), T(:,:)
+  call Faro_Set_Sym(iState,iSym)
+  call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,.true.)
+  ! determinants and CSF coefficients of the configurations
+  call mma_allocate(nDCnf,nPC,Label='nDCnf')
+  call mma_allocate(iDOff,nPC,Label='iDOff')
+  call mma_allocate(iCOff,nPC,Label='iCOff')
+  call mma_allocate(DOcc,nPC,Label='DOcc')
+  call mma_allocate(SOcc,nPC,Label='SOcc')
+  nDTot = 0
+  nCTot = 0
+  IILB = 0
+  do kCnf=1,nPC
+    call citrans_conf_dets(IdxP(IILB+1),k1,nc,nd,da1,db1,cf)
+    if (nc /= nSelCnf(kCnf)) call Abend()
+    nDCnf(kCnf) = nd
+    ! doubly and singly occupied orbitals of the configuration
+    DOcc(kCnf) = iand(da1(1),db1(1))
+    SOcc(kCnf) = ieor(da1(1),db1(1))
+    iDOff(kCnf) = nDTot
+    iCOff(kCnf) = nCTot
+    nDTot = nDTot+nd
+    nCTot = nCTot+nd*nc
+    IILB = IILB+nc
+    call mma_deallocate(da1)
+    call mma_deallocate(db1)
+    call mma_deallocate(cf)
+  end do
+  call mma_allocate(DA,nDTot,Label='DA')
+  call mma_allocate(DB,nDTot,Label='DB')
+  call mma_allocate(C,nCTot,Label='C')
+  IILB = 0
+  do kCnf=1,nPC
+    call citrans_conf_dets(IdxP(IILB+1),k1,nc,nd,da1,db1,cf)
+    DA(iDOff(kCnf)+1:iDOff(kCnf)+nd) = da1(:)
+    DB(iDOff(kCnf)+1:iDOff(kCnf)+nd) = db1(:)
+    do I=1,nc
+      J = IdxP(IILB+I)-k1+1
+      if ((J < 1) .or. (J > nc)) call Abend()
+      C(iCOff(kCnf)+(I-1)*nd+1:iCOff(kCnf)+I*nd) = cf(:,J)
+    end do
+    IILB = IILB+nc
+    call mma_deallocate(da1)
+    call mma_deallocate(db1)
+    call mma_deallocate(cf)
+  end do
+  ! blocks C_L^T <D_L|H|D_R> C_R
+  nd = maxval(nDCnf)
+  nc = maxval(nSelCnf)
+  call mma_allocate(HDet,nd,nd,Label='HDet')
+  call mma_allocate(T,nd,nc,Label='T')
+  call mma_allocate(Blk,nc,nc,Label='Blk')
+  IILB = 1
+  do ICNL=1,nPC
+    nL = nSelCnf(ICNL)
+    ndL = nDCnf(ICNL)
+    IIRB = 1
+    do ICNR=1,ICNL
+      nR = nSelCnf(ICNR)
+      ndR = nDCnf(ICNR)
+      if (Cnf_Exc(DOcc(ICNL),SOcc(ICNL),DOcc(ICNR),SOcc(ICNR)) > 2) then
+        Blk(1:nL,1:nR) = Zero
+      else
+        do J=1,ndR
+          do I=1,ndL
+            HDet(I,J) = Faroald_HDet(DA(iDOff(ICNL)+I),DB(iDOff(ICNL)+I),DA(iDOff(ICNR)+J),DB(iDOff(ICNR)+J))
+          end do
+        end do
+        call DGEMM_('N','N',ndL,nR,ndR,One,HDet,nd,C(iCOff(ICNR)+1:iCOff(ICNR)+ndR*nR),ndR,Zero,T,nd)
+        call DGEMM_('T','N',nL,nR,ndL,One,C(iCOff(ICNL)+1:iCOff(ICNL)+ndL*nL),ndL,T,nd,Zero,Blk,nc)
+      end if
+      do IIL=1,nL
+        IIRMAX = merge(IIL,nR,IILB == IIRB)
+        do IIR=1,IIRMAX
+          H(nTri_Elem(IILB-1+IIL-1)+IIRB-1+IIR) = Blk(IIL,IIR)
+        end do
+      end do
+      IIRB = IIRB+nR
+    end do
+    IILB = IILB+nL
+  end do
+  do I=1,nP
+    H(nTri_Elem(I)) = H(nTri_Elem(I))+ECore
+  end do
+  call mma_deallocate(Blk)
+  call mma_deallocate(T)
+  call mma_deallocate(HDet)
+  call mma_deallocate(C)
+  call mma_deallocate(DB)
+  call mma_deallocate(DA)
+  call mma_deallocate(SOcc)
+  call mma_deallocate(DOcc)
+  call mma_deallocate(iCOff)
+  call mma_deallocate(iDOff)
+  call mma_deallocate(nDCnf)
+end subroutine Faro_Block
+
+!> RASSCF's Lucia: the explicit block for its configurations IPC(1:nPC)
+!> (Lucia's configuration order of symmetry iSym), CNHCN for each pair
+!> (pairs more than a double excitation apart skipped)
+subroutine Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,H)
+  use lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, MINOP, NCSFTP, NDTFTP, NTYP
+  use csfbas, only: NAEL, NBEL
+  use Orbital_Spaces, only: nAsh, nSym
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One
+  integer(kind=iwp), intent(in) :: iSym, nTU, nTUVX, nPC, IPC(nPC), nP
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(inout) :: H(*)
+  integer(kind=iwp) :: DL, DR, ICNL, ICNR, IIL, IILB, IIR, IIRB, IIRMAX, ILTYP, IRTYP, MXCS, MXDT, NAC, NCSFL, NCSFR, NEL, &
+                       nScr, NTEST, SL, SR
+  integer(kind=iwp), allocatable :: ICONFL(:), ICONFR(:)
+  real(kind=wp), allocatable :: CNHCNM(:), HONE(:,:), Scr(:)
+#include "macros.fh"
+  unused_var(nP)
+  NAC = sum(nAsh(1:nSym))
+  NEL = NAEL+NBEL
+  NTEST = 0
+  MXDT = maxval(NDTFTP(1:NTYP))
+  MXCS = maxval(NCSFTP(1:NTYP))
+  ! one-body matrix in square storage, as CNHCN wants it
+  call mma_allocate(HONE,NAC,NAC,Label='HONE')
+  call SQUARE(TU,HONE,NAC,1,NAC)
+  ! scratch of CNHCN
+  nScr = 2*MXDT*(NEL+1)+NEL*(MXDT+1)+MXDT*MXDT+4*NAC+MXDT+MXCS*MXDT+64
+  call mma_allocate(Scr,nScr,Label='IHJ_Scr')
+  call mma_allocate(CNHCNM,MXCS*MXCS,Label='CNHCNM')
+  call mma_allocate(ICONFL,NEL,Label='ICONFL')
+  call mma_allocate(ICONFR,NEL,Label='ICONFR')
+  IILB = 1
+  do ICNL=1,nPC
+    call GETCNF(ICONFL,ILTYP,IPC(ICNL),Conf_Occ(iSym)%A,iSym,NEL)
+    NCSFL = NCSFTP(ILTYP)
+    call Occ_Bits(ICONFL,ILTYP-1+MINOP,NEL,DL,SL)
+    IIRB = 1
+    do ICNR=1,ICNL
+      call GETCNF(ICONFR,IRTYP,IPC(ICNR),Conf_Occ(iSym)%A,iSym,NEL)
+      NCSFR = NCSFTP(IRTYP)
+      call Occ_Bits(ICONFR,IRTYP-1+MINOP,NEL,DR,SR)
+      if (Cnf_Exc(DL,SL,DR,SR) > 2) then
+        CNHCNM(1:NCSFL*NCSFR) = Zero
+      else
+        call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECore,HONE,DFTP,DTOC,NAC,TUVX,NTEST,One,IREOTS)
+      end if
+      do IIL=1,NCSFL
+        IIRMAX = merge(IIL,NCSFR,IILB == IIRB)
+        do IIR=1,IIRMAX
+          H(nTri_Elem(IILB-1+IIL-1)+IIRB-1+IIR) = CNHCNM((IIR-1)*NCSFL+IIL)
+        end do
+      end do
+      IIRB = IIRB+NCSFR
+    end do
+    IILB = IILB+NCSFL
+  end do
+  call mma_deallocate(ICONFR)
+  call mma_deallocate(ICONFL)
+  call mma_deallocate(CNHCNM)
+  call mma_deallocate(Scr)
+  call mma_deallocate(HONE)
+end subroutine Lucia1_Block
+
+!> Doubly (D) and singly (S) occupied orbitals, as bit strings (orbital t
+!> in bit t-1), of the configuration ICONF with nOp open shells (GETCNF
+!> form: the closed orbitals first, then the open ones), nEl electrons
+subroutine Occ_Bits(ICONF,nOp,nEl,D,S)
+  integer(kind=iwp), intent(in) :: ICONF(*), nOp, nEl
+  integer(kind=iwp), intent(out) :: D, S
+  integer(kind=iwp) :: I, ICL
+  ICL = (nEl-nOp)/2
+  D = 0
+  S = 0
+  do I=1,ICL
+    D = ibset(D,ICONF(I)-1)
+  end do
+  do I=ICL+1,ICL+nOp
+    S = ibset(S,ICONF(I)-1)
+  end do
+end subroutine Occ_Bits
+
+!> The configurations of the P space of the preconditioner: at most nPMax
+!> CSFs of symmetry iSym, whole configurations, chosen from the diagonal
+!> Diag(1:n) (n = nCSF(iSym), the CSF basis of the library) by one rule for
+!> every library and program: the configurations by increasing key while
+!> they fit, the key being the diagonal value of the configuration if its
+!> CSFs share it (configuration average) and otherwise the mean over its
+!> CSFs (ties within 1.0e-13 in the configuration order); when the next one
+!> does not fit, the configurations already taken with the same key
+!> (within 1.0e-10) are dropped again and the selection stops, so that a
+!> degenerate group is taken whole or not at all; only if that would empty
+!> the P space (the first group alone exceeds nPMax) the group is kept as
+!> far as it fits, i.e. split. nSel <= nPMax holds in every case (checked).
+!> IPC(1:nPC) (intent(out), dimension nCnf = CI_Lib_nCnf) are the chosen
+!> configurations in the library's configuration order
+!> (CI_Lib_Cnf_Layout), nSel their number of CSFs.
+subroutine CI_Lib_PSel(iState,iSym,n,Diag,nPMax,nCnf,nPC,IPC,nSel)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One
+  integer(kind=iwp), intent(in) :: iState, iSym, n, nPMax, nCnf
+  real(kind=wp), intent(in) :: Diag(n)
+  integer(kind=iwp), intent(out) :: nPC, IPC(nCnf), nSel
+  real(kind=wp), parameter :: Acc = 1.0e-13_wp, Deg = 1.0e-10_wp
+  integer(kind=iwp) :: k, kMin, m, nKeep, nSelKeep
+  integer(kind=iwp), allocatable :: iCSFCnf(:), nCSFCnf(:)
   logical(kind=iwp), allocatable :: Used(:)
-  real(kind=wp) :: KMinV
+  real(kind=wp) :: KMinV, XMax, XMn, XMx
   real(kind=wp), allocatable :: Key(:)
-  nCnf = CI_Lib_nCnf(iState,iSym)
-  call mma_allocate(nCSFCnf,nCnf,Label='nCSFCnf')
-  call mma_allocate(iCSFCnf,n,Label='iCSFCnf')
+  call mma_allocate(nCSFCnf,max(1,nCnf),Label='nCSFCnf')
+  call mma_allocate(iCSFCnf,max(1,n),Label='iCSFCnf')
   call CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
-  call mma_allocate(Key,nCnf,Label='Key')
-  call mma_allocate(Used,nCnf,Label='Used')
-  call mma_allocate(IPC,max(1,nCnf),Label='IPC')
+  call mma_allocate(Key,max(1,nCnf),Label='Key')
+  call mma_allocate(Used,max(1,nCnf),Label='Used')
   m = 0
   do k=1,nCnf
-    Key(k) = sum(Diag(iCSFCnf(m+1:m+nCSFCnf(k))))/real(nCSFCnf(k),kind=wp)
+    ! (all equal: that value exactly, so that ties are not decided by rounding)
+    XMn = minval(Diag(iCSFCnf(m+1:m+nCSFCnf(k))))
+    XMx = maxval(Diag(iCSFCnf(m+1:m+nCSFCnf(k))))
+    if (XMn == XMx) then
+      Key(k) = XMn
+    else
+      Key(k) = sum(Diag(iCSFCnf(m+1:m+nCSFCnf(k))))/real(nCSFCnf(k),kind=wp)
+    end if
     m = m+nCSFCnf(k)
   end do
+  XMax = Zero
+  if (nCnf > 0) XMax = maxval(Key(1:nCnf))
   Used(:) = .false.
   nPC = 0
   nSel = 0
   do
     kMin = 0
-    KMinV = huge(KMinV)
+    KMinV = XMax+One
     do k=1,nCnf
       if (Used(k)) cycle
-      if (Key(k) < KMinV) then
+      if (Key(k)+Acc < KMinV) then
         KMinV = Key(k)
         kMin = k
       end if
@@ -932,11 +1160,17 @@ subroutine CI_Lib_PSpace(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag,nPMax,nP,Idx
     if (kMin == 0) exit
     if (nSel+nCSFCnf(kMin) > nPMax) then
       ! the degenerate group of the configuration that does not fit
+      nKeep = nPC
+      nSelKeep = nSel
       do while (nPC > 0)
         if (abs(Key(IPC(nPC))-KMinV) > Deg) exit
         nSel = nSel-nCSFCnf(IPC(nPC))
         nPC = nPC-1
       end do
+      if (nPC == 0) then
+        nPC = nKeep
+        nSel = nSelKeep
+      end if
       exit
     end if
     Used(kMin) = .true.
@@ -944,12 +1178,31 @@ subroutine CI_Lib_PSpace(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag,nPMax,nP,Idx
     IPC(nPC) = kMin
     nSel = nSel+nCSFCnf(kMin)
   end do
-  call CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC(1:max(1,nPC)),nPMax,nP,IdxP,nHP,HP)
-  call mma_deallocate(IPC)
+  if (nSel > nPMax) then
+    write(u6,'(A,2I10)') ' CI_Lib_PSel: P space larger than allowed',nSel,nPMax
+    call Abend()
+  end if
   call mma_deallocate(Used)
   call mma_deallocate(Key)
   call mma_deallocate(iCSFCnf)
   call mma_deallocate(nCSFCnf)
+end subroutine CI_Lib_PSel
+
+!> The P space of the preconditioner: the configurations of CI_Lib_PSel and
+!> the block of H + ECore for them (CI_Lib_Block; IdxP, nP, HP as there).
+subroutine CI_Lib_PSpace(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag,nPMax,nP,IdxP,nHP,HP)
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, n, nPMax, nHP
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore, Diag(n)
+  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+  real(kind=wp), intent(out) :: HP(nHP)
+  integer(kind=iwp) :: nCnf, nPC, nSel
+  integer(kind=iwp), allocatable :: IPC(:)
+  nCnf = CI_Lib_nCnf(iState,iSym)
+  call mma_allocate(IPC,max(1,nCnf),Label='IPC')
+  call CI_Lib_PSel(iState,iSym,n,Diag,nPMax,nCnf,nPC,IPC,nSel)
+  call CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC(1:max(1,nPC)),nPMax,nP,IdxP,nHP,HP)
+  call mma_deallocate(IPC)
 end subroutine CI_Lib_PSpace
 
 !> Faroald: a CI vector of symmetry iSym between the order of the files
@@ -1823,6 +2076,140 @@ if (Dev > Thr) then
 end if
 end subroutine Report_Dev
 
+
+!> Excitation level between two configurations given by their doubly (D)
+!> and singly (S) occupied orbitals as bit strings: the number of electrons
+!> to move, Sum_t max(0,n_t(L)-n_t(R)). H couples only configurations with
+!> an excitation level of at most 2.
+function Cnf_Exc(DL,SL,DR,SR) result(nExc)
+integer(kind=iwp) :: nExc
+integer(kind=iwp), intent(in) :: DL, SL, DR, SR
+
+! n_t(L)-n_t(R) = 2 (doubly -> empty), 1 (doubly -> singly, singly -> empty)
+nExc = 2*popcnt(iand(DL,not(ior(DR,SR))))+popcnt(iand(DL,SR))+popcnt(iand(SL,not(ior(DR,SR))))
+
+end function Cnf_Exc
+
+!> <aL bL|H|aR bR> between Faroald determinants (alpha and beta strings as
+!> bit strings, orbital t in bit t-1, alpha string before the beta string)
+!> by the Slater-Condon rules, with the integrals htu and gtuvx (chemists'
+!> notation) of Faroald, H = sum_tu h_tu E_tu + 1/2 sum_tuvx g_tuvx
+!> (E_tu E_vx - delta_uv E_tx), as in sigma_update.
+function Faroald_HDet(aL,bL,aR,bR) result(E)
+use faroald, only: gtuvx, htu, my_norb
+use Constants, only: Zero, Half
+
+real(kind=wp) :: E
+integer(kind=iwp), intent(in) :: aL, bL, aR, bR
+integer(kind=iwp) :: dA, dB, nA, nB, i, j, p, q, r, s, aI
+
+dA = ieor(aL,aR)
+dB = ieor(bL,bR)
+nA = popcnt(dA)/2
+nB = popcnt(dB)/2
+E = Zero
+if (nA+nB > 2) return
+
+if (nA+nB == 0) then
+  do i=1,my_norb
+    if (btest(aL,i-1)) then
+      E = E+htu(i,i)
+      do j=1,my_norb
+        if (btest(aL,j-1)) E = E+Half*(gtuvx(i,i,j,j)-gtuvx(i,j,j,i))
+        if (btest(bL,j-1)) E = E+gtuvx(i,i,j,j)
+      end do
+    end if
+    if (btest(bL,i-1)) then
+      E = E+htu(i,i)
+      do j=1,my_norb
+        if (btest(bL,j-1)) E = E+Half*(gtuvx(i,i,j,j)-gtuvx(i,j,j,i))
+      end do
+    end if
+  end do
+else if (nA == 1 .and. nB == 0) then
+  call Single(aL,aR,bR)
+else if (nA == 0 .and. nB == 1) then
+  call Single(bL,bR,aR)
+else if (nA == 2) then
+  call Double(aL,aR)
+else if (nB == 2) then
+  call Double(bL,bR)
+else
+  ! one alpha (p <- q) and one beta (r <- s) excitation
+  p = Orb(iand(dA,aL),1)
+  q = Orb(iand(dA,aR),1)
+  r = Orb(iand(dB,bL),1)
+  s = Orb(iand(dB,bR),1)
+  E = Par(aR,p,q)*Par(bR,r,s)*gtuvx(p,q,r,s)
+end if
+
+contains
+
+  ! single excitation p <- q in the string xL/xR of one spin, yR the string
+  ! of the other spin
+  subroutine Single(xL,xR,yR)
+    integer(kind=iwp), intent(in) :: xL, xR, yR
+    integer(kind=iwp) :: dX, iC, j
+
+    dX = ieor(xL,xR)
+    p = Orb(iand(dX,xL),1)
+    q = Orb(iand(dX,xR),1)
+    iC = iand(xL,xR)
+    E = htu(p,q)
+    do j=1,my_norb
+      if (btest(iC,j-1)) E = E+gtuvx(p,q,j,j)-gtuvx(p,j,j,q)
+      if (btest(yR,j-1)) E = E+gtuvx(p,q,j,j)
+    end do
+    E = Par(xR,p,q)*E
+
+  end subroutine Single
+
+  ! double excitation p,r <- q,s in the string xL/xR of one spin
+  subroutine Double(xL,xR)
+    integer(kind=iwp), intent(in) :: xL, xR
+    integer(kind=iwp) :: dX
+
+    dX = ieor(xL,xR)
+    p = Orb(iand(dX,xL),1)
+    r = Orb(iand(dX,xL),2)
+    q = Orb(iand(dX,xR),1)
+    s = Orb(iand(dX,xR),2)
+    aI = ibset(ibclr(xR,q-1),p-1)
+    E = Par(xR,p,q)*Par(aI,r,s)*(gtuvx(p,q,r,s)-gtuvx(p,s,r,q))
+
+  end subroutine Double
+
+  ! the n-th orbital (bit) set in x
+  function Orb(x,n) result(k)
+    integer(kind=iwp) :: k
+    integer(kind=iwp), intent(in) :: x, n
+    integer(kind=iwp) :: m
+
+    m = 0
+    do k=1,my_norb
+      if (btest(x,k-1)) then
+        m = m+1
+        if (m == n) return
+      end if
+    end do
+    k = 0
+
+  end function Orb
+
+  ! sign of a+_t a_u acting on the string x: the parity of the number of
+  ! orbitals occupied in x strictly between t and u
+  function Par(x,t,u) result(iSgn)
+    integer(kind=iwp) :: iSgn
+    integer(kind=iwp), intent(in) :: x, t, u
+    integer(kind=iwp) :: lo, hi
+
+    lo = min(t,u)
+    hi = max(t,u)
+    iSgn = 1-2*poppar(ibits(x,lo,hi-lo-1))
+
+  end function Par
+
+end function Faroald_HDet
 
 !> The remaining case of the operations is the MCLR copy of Lucia (also the
 !> stop for RASSCF's Lucia, CI_Lib_Lucia, not available for MCLR)

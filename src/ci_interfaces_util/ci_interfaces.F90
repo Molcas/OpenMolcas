@@ -28,9 +28,9 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SG
 ! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
-use CI_Operations, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, CI_Lib_Initialize, &
-                         CI_Lib_Level_Map, CI_Lib_Sigma, Faro_L2O => Faro_Lev, Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, &
-                         SG_Rel_Map, SG_Rel_Project
+use CI_Operations, only: Cnf_Exc, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Block, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, &
+                         CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Sigma, Faro_L2O => Faro_Lev, Faroald_HDet, &
+                         Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -2283,8 +2283,7 @@ end if
 ! checked once against exact columns H e_J of Mk_H_Psi (itself compared
 ! with Lucia there).
 if (SG_CI()) then
-  call SG_Cnf_Kept(IREFSM)
-  call SG_Block_G(Cnf_SG,NPCNF,IPCNF,PHP)
+  call Lib_Block(PHP)
   if (CI_Verify('SIGMA') .and. (.not. IHJ_Verified)) then
     IHJ_Verified = .true.
     call Verify_IHJ()
@@ -2319,10 +2318,10 @@ if (UseSG) then
   call IHJ_SGUGA(PHP)
 else if (Faro_CI()) then
   Lab = 'Faroald'
-  call IHJ_Faroald(PHP)
+  call Lib_Block(PHP)
 else
   Lab = 'Lucia'
-  call IHJ_Lucia(PHP)
+  call Lib_Block(PHP)
 end if
 call CWTime(T1,W)
 
@@ -2355,6 +2354,22 @@ call mma_deallocate(nSelCnf)
 
 call Tim_Off(Tim_IHJ,TimT)
 contains
+
+  ! The block of the selected library (CI_Lib_Block), for the
+  ! configurations IPCNF in its configuration order; its CSFs must be
+  ! those of the selection (Sel_CSFs)
+  subroutine Lib_Block(HB)
+    real(kind=wp), intent(out) :: HB(*)
+    integer(kind=iwp) :: nPB
+    integer(kind=iwp), allocatable :: IdxB(:)
+    call mma_allocate(IdxB,max(1,NPCSF),Label='IdxB')
+    call CI_Lib_Block(iState,IREFSM,nTU,TU,nTUVX,TUVX,ECORE,NPCNF,IPCNF,NPCSF,nPB,IdxB,nTri_Elem(NPCSF),HB)
+    if ((nPB /= NPCSF) .or. any(IdxB(1:NPCSF) /= IPCSF(1:NPCSF))) then
+      write(u6,*) 'Mk_IHJ: the CSFs of CI_Lib_Block differ from the selection'
+      call Abend()
+    end if
+    call mma_deallocate(IdxB)
+  end subroutine Lib_Block
 
   ! SGUGA explicit block over the configurations IPC(1:NPC) of Cnf; for GAS
   ! the matrix elements in the relaxed space
@@ -2935,138 +2950,6 @@ contains
 
 end subroutine Mk_IHJ
 
-!> Excitation level between two configurations given by their doubly (D)
-!> and singly (S) occupied orbitals as bit strings: the number of electrons
-!> to move, Sum_t max(0,n_t(L)-n_t(R)). H couples only configurations with
-!> an excitation level of at most 2.
-function Cnf_Exc(DL,SL,DR,SR) result(nExc)
-integer(kind=iwp) :: nExc
-integer(kind=iwp), intent(in) :: DL, SL, DR, SR
-
-! n_t(L)-n_t(R) = 2 (doubly -> empty), 1 (doubly -> singly, singly -> empty)
-nExc = 2*popcnt(iand(DL,not(ior(DR,SR))))+popcnt(iand(DL,SR))+popcnt(iand(SL,not(ior(DR,SR))))
-
-end function Cnf_Exc
-
-!> <aL bL|H|aR bR> between Faroald determinants (alpha and beta strings as
-!> bit strings, orbital t in bit t-1, alpha string before the beta string)
-!> by the Slater-Condon rules, with the integrals htu and gtuvx (chemists'
-!> notation) of Faroald, H = sum_tu h_tu E_tu + 1/2 sum_tuvx g_tuvx
-!> (E_tu E_vx - delta_uv E_tx), as in sigma_update.
-function Faroald_HDet(aL,bL,aR,bR) result(E)
-use Constants, only: Half
-
-real(kind=wp) :: E
-integer(kind=iwp), intent(in) :: aL, bL, aR, bR
-integer(kind=iwp) :: dA, dB, nA, nB, i, j, p, q, r, s, aI
-
-dA = ieor(aL,aR)
-dB = ieor(bL,bR)
-nA = popcnt(dA)/2
-nB = popcnt(dB)/2
-E = Zero
-if (nA+nB > 2) return
-
-if (nA+nB == 0) then
-  do i=1,my_norb
-    if (btest(aL,i-1)) then
-      E = E+htu(i,i)
-      do j=1,my_norb
-        if (btest(aL,j-1)) E = E+Half*(gtuvx(i,i,j,j)-gtuvx(i,j,j,i))
-        if (btest(bL,j-1)) E = E+gtuvx(i,i,j,j)
-      end do
-    end if
-    if (btest(bL,i-1)) then
-      E = E+htu(i,i)
-      do j=1,my_norb
-        if (btest(bL,j-1)) E = E+Half*(gtuvx(i,i,j,j)-gtuvx(i,j,j,i))
-      end do
-    end if
-  end do
-else if (nA == 1 .and. nB == 0) then
-  call Single(aL,aR,bR)
-else if (nA == 0 .and. nB == 1) then
-  call Single(bL,bR,aR)
-else if (nA == 2) then
-  call Double(aL,aR)
-else if (nB == 2) then
-  call Double(bL,bR)
-else
-  ! one alpha (p <- q) and one beta (r <- s) excitation
-  p = Orb(iand(dA,aL),1)
-  q = Orb(iand(dA,aR),1)
-  r = Orb(iand(dB,bL),1)
-  s = Orb(iand(dB,bR),1)
-  E = Par(aR,p,q)*Par(bR,r,s)*gtuvx(p,q,r,s)
-end if
-
-contains
-
-  ! single excitation p <- q in the string xL/xR of one spin, yR the string
-  ! of the other spin
-  subroutine Single(xL,xR,yR)
-    integer(kind=iwp), intent(in) :: xL, xR, yR
-    integer(kind=iwp) :: dX, iC, j
-
-    dX = ieor(xL,xR)
-    p = Orb(iand(dX,xL),1)
-    q = Orb(iand(dX,xR),1)
-    iC = iand(xL,xR)
-    E = htu(p,q)
-    do j=1,my_norb
-      if (btest(iC,j-1)) E = E+gtuvx(p,q,j,j)-gtuvx(p,j,j,q)
-      if (btest(yR,j-1)) E = E+gtuvx(p,q,j,j)
-    end do
-    E = Par(xR,p,q)*E
-
-  end subroutine Single
-
-  ! double excitation p,r <- q,s in the string xL/xR of one spin
-  subroutine Double(xL,xR)
-    integer(kind=iwp), intent(in) :: xL, xR
-    integer(kind=iwp) :: dX
-
-    dX = ieor(xL,xR)
-    p = Orb(iand(dX,xL),1)
-    r = Orb(iand(dX,xL),2)
-    q = Orb(iand(dX,xR),1)
-    s = Orb(iand(dX,xR),2)
-    aI = ibset(ibclr(xR,q-1),p-1)
-    E = Par(xR,p,q)*Par(aI,r,s)*(gtuvx(p,q,r,s)-gtuvx(p,s,r,q))
-
-  end subroutine Double
-
-  ! the n-th orbital (bit) set in x
-  function Orb(x,n) result(k)
-    integer(kind=iwp) :: k
-    integer(kind=iwp), intent(in) :: x, n
-    integer(kind=iwp) :: m
-
-    m = 0
-    do k=1,my_norb
-      if (btest(x,k-1)) then
-        m = m+1
-        if (m == n) return
-      end if
-    end do
-    k = 0
-
-  end function Orb
-
-  ! sign of a+_t a_u acting on the string x: the parity of the number of
-  ! orbitals occupied in x strictly between t and u
-  function Par(x,t,u) result(iSgn)
-    integer(kind=iwp) :: iSgn
-    integer(kind=iwp), intent(in) :: x, t, u
-    integer(kind=iwp) :: lo, hi
-
-    lo = min(t,u)
-    hi = max(t,u)
-    iSgn = 1-2*poppar(ibits(x,lo,hi-lo-1))
-
-  end function Par
-
-end function Faroald_HDet
 
 subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
 

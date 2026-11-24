@@ -39,9 +39,9 @@ subroutine PHPCSF(PHP,IPCSF,MXPDIM,IREFSM,ECORE,NPCSF,DIAG,TU,nTU,TUVX,nTUVX,NTE
 ! made generic with respect to the CI library, R. Lindh, 2026
 
 use CI_Interfaces, only: Mk_Cnf_Layout, Mk_IHJ
+use CI_Operations, only: CI_Lib_PSel
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -50,12 +50,9 @@ real(kind=wp), intent(out) :: PHP(nTri_Elem(MXPDIM))
 integer(kind=iwp), intent(out) :: IPCSF(MXPDIM), NPCSF
 real(kind=wp), intent(in) :: ECORE, DIAG(*), TU(nTU), TUVX(nTUVX)
 integer(kind=iwp), intent(inout) :: NTEST
-integer(kind=iwp) :: ICNF, ICSFMN, IFINIT, IICSF, IMIN, NCONF, NCSFMN, NPCNF
-real(kind=wp) :: XMAX, XMIN
+integer(kind=iwp) :: ICNF, IICSF, NCONF, NCSFMN, NPCNF
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), allocatable :: nCSFCnf(:), IPCNF(:), iCSF1(:), iCSFCnf(:)
-real(kind=wp), allocatable :: CnfDia(:)
-real(kind=wp), parameter :: Acc = 1.0e-13_wp ! Assumed machine accuray (give and take)
-real(kind=wp), external :: FNDMNX
 
 ! Layout of the CSF basis by configuration (the CSFs of a configuration need
 ! not be contiguous, iCSFCnf), and the key of each configuration: the mean of
@@ -64,58 +61,26 @@ real(kind=wp), external :: FNDMNX
 ! configuration divided by its number of CSFs).
 call Mk_Cnf_Layout(IREFSM,nCSFCnf,iCSFCnf)
 NCONF = size(nCSFCnf)
-call mma_allocate(CnfDia,NCONF,Label='CnfDia')
 call mma_allocate(iCSF1,NCONF,Label='iCSF1')
 call mma_allocate(IPCNF,NCONF,Label='IPCNF')
 IICSF = 1
 do ICNF=1,NCONF
-  ! (all equal: that value exactly, so that ties are not decided by rounding)
-  XMIN = minval(DIAG(iCSFCnf(IICSF:IICSF+nCSFCnf(ICNF)-1)))
-  XMAX = maxval(DIAG(iCSFCnf(IICSF:IICSF+nCSFCnf(ICNF)-1)))
-  if (XMIN == XMAX) then
-    CnfDia(ICNF) = XMIN
-  else
-    CnfDia(ICNF) = sum(DIAG(iCSFCnf(IICSF:IICSF+nCSFCnf(ICNF)-1)))/real(nCSFCnf(ICNF),kind=wp)
-  end if
   iCSF1(ICNF) = IICSF
   IICSF = IICSF+nCSFCnf(ICNF)
 end do
-if (NTEST >= 30) call RecPrt('CnfDia',' ',CnfDia,1,NCONF)
 
-! find the elements of the subspace
-! (MXPDIM elements smallest in energy, whole configurations)
-
-XMAX = FNDMNX(CnfDia,NCONF,2)
-NPCSF = 0
-NPCNF = 0
-IFINIT = 0
-ICSFMN = 0
+! find the elements of the subspace: whole configurations, by the one rule
+! of the CI interface (CI_Lib_PSel: increasing key, a degenerate group at
+! the boundary whole or not at all)
+call CI_Lib_PSel(iState,IREFSM,size(iCSFCnf),DIAG,MXPDIM,NCONF,NPCNF,IPCNF,NPCSF)
 NCSFMN = 0
-do
-  XMIN = XMAX+One
-  IMIN = 0
-  do ICNF=1,NCONF
-    if (CnfDia(ICNF)+Acc < XMIN) then
-      XMIN = CnfDia(ICNF)
-      IMIN = ICNF
-      ICSFMN = iCSF1(ICNF)
-      NCSFMN = nCSFCnf(ICNF)
-    end if
-  end do
-  if ((NPCSF+NCSFMN) <= MXPDIM) then
-    ! add new configuration
-    NPCNF = NPCNF+1
-    IPCNF(NPCNF) = IMIN
-    IPCSF(NPCSF+1:NPCSF+NCSFMN) = iCSFCnf(ICSFMN:ICSFMN+NCSFMN-1)
-    NPCSF = NPCSF+NCSFMN
-    CnfDia(IMIN) = XMAX+One
-  else
-    ! No space for this configuration.
-    ! PAM 2011: Do not remove any previous configurations.
-    IFINIT = 1
-  end if
-  if ((IFINIT /= 0) .or. (NPCNF >= NCONF)) exit
+IICSF = 0
+do ICNF=1,NPCNF
+  IPCSF(IICSF+1:IICSF+nCSFCnf(IPCNF(ICNF))) = iCSFCnf(iCSF1(IPCNF(ICNF)):iCSF1(IPCNF(ICNF))+nCSFCnf(IPCNF(ICNF))-1)
+  IICSF = IICSF+nCSFCnf(IPCNF(ICNF))
 end do
+if (IICSF /= NPCSF) call Abend()
+if (NPCNF == 0) NCSFMN = minval(nCSFCnf)
 
 if (NPCNF == 0) then
   call WarningMessage(2,'Making explicit Hamiltonian failed.')
@@ -148,7 +113,6 @@ call Mk_IHJ(PHP,nTri_Elem(MXPDIM),IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTE
 call mma_deallocate(IPCNF)
 call mma_deallocate(iCSFCnf)
 call mma_deallocate(iCSF1)
-call mma_deallocate(CnfDia)
 call mma_deallocate(nCSFCnf)
 
 end subroutine PHPCSF
