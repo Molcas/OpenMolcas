@@ -28,7 +28,7 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SG
 ! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
-use CI_Operations, only: CI_Lib_Close, CI_Lib_Dens, CI_Lib_Initialize, CI_Lib_Sigma, Faro_L2O => Faro_Lev, &
+use CI_Operations, only: CI_Lib_Close, CI_Lib_Dens, CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Sigma, Faro_L2O => Faro_Lev, &
                          Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
@@ -1063,177 +1063,104 @@ End Subroutine Mk_H_Psi_Det
 !***********************************************************************************************************************************
 
 Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM, T1SDM)
+! The one-body transition density (and its spin part) of the CI vectors
+! Bra and Ket (basis of the selected library, the symmetry of the state)
+! in the layout of RASSCF: T1DM(p+(q-1)*NAC) = <Bra|E_qp|Ket> over the
+! levels (Lucia's layout), from CI_Lib_Dens (a permutation of its Rho1).
+! Under MOLCAS_CI_VERIFY=SIGMA compared with Lucia and SGUGA (those not in
+! use).
 use Lucia_Data, only: DTmp, DSTmp
 implicit none
 integer(kind=iwp), intent(in) :: nVec, nT1DM
 real(kind=wp), intent(_IN_):: Bra_Vec(nVec), Ket_Vec(nVec)
 real(kind=wp), intent(out):: T1DM(nT1DM)
 real(kind=wp), optional, intent(out):: T1SDM(nT1DM)
-
-real(kind=wp), allocatable:: T1SDM_loc(:), Bra_SD(:,:), Ket_SD(:,:)
 integer(kind=iwp), parameter :: iState=1
-logical(kind=iwp) :: free_D, free_DS
-
-! SGCI: transition densities from SGUGA in its basis; under SIGMA compared
-! with Lucia (both vectors reordered to the Lucia basis).
+integer(kind=iwp) :: LSM, p, q
+integer(kind=iwp), allocatable :: L2O(:)
+real(kind=wp), allocatable :: R1(:), R2(:), T1SDM_loc(:)
 real(kind=wp) :: TimT(2)
+
 call Tim_On(TimT)
-if (SG_CI()) then
-  call SGCI_T1DM()
-  call Tim_Off(Tim_T1DM,TimT)
-  return
+LSM = CI_St(iState)%STSym
+call mma_allocate(L2O,max(1,NAC),Label='L2O')
+call CI_Lib_Level_Map(iState,NAC,L2O)
+call mma_allocate(R1,max(1,NAC**2),Label='R1')
+call mma_allocate(R2,1,Label='R2')
+call mma_allocate(T1SDM_loc,max(1,nT1DM),Label='T1SDM')
+call CI_Lib_Dens(iState,1,0,LSM,LSM,nVec,Bra_Vec,nVec,Ket_Vec,size(R1),R1,size(R2),R2)
+T1DM(:) = Zero
+do q=1,NAC
+  do p=1,NAC
+    T1DM(p+(q-1)*NAC) = R1(L2O(q)+(L2O(p)-1)*NAC)
+  end do
+end do
+T1SDM_loc(:) = Zero
+if (present(T1SDM) .or. CI_Verify('SIGMA')) then
+  call CI_Lib_Dens(iState,1,1,LSM,LSM,nVec,Bra_Vec,nVec,Ket_Vec,size(R1),R1,size(R2),R2)
+  do q=1,NAC
+    do p=1,NAC
+      T1SDM_loc(p+(q-1)*NAC) = R1(L2O(q)+(L2O(p)-1)*NAC)
+    end do
+  end do
 end if
-
-If (Faro_CI()) Then
-   Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
-
-   If (ras_active) Then
-     ! RAS: in the RAS string classes (faroald_ras)
-     Call mma_allocate(Bra_SD,max(1,n_ras),1,Label='Psi')
-     Call mma_allocate(Ket_SD,max(1,n_ras),1,Label='Psi')
-     call CITRANS_CSF2RAS(Bra_Vec,Bra_SD(:,1))
-     call CITRANS_CSF2RAS(Ket_Vec,Ket_SD(:,1))
-     Call RAS_Trans_One_PDM(Ket_SD(:,1),Bra_SD(:,1),T1DM,T1SDM_loc)
-   Else
-     Call mma_allocate(Bra_SD,nDetA,nDetB,Label='Psi')
-     Call mma_allocate(Ket_SD,nDetA,nDetB,Label='Psi')
-
-     ! (the CI vectors are in the configuration order of Faroald, citrans)
-     Bra_SD(:,:)=Zero
-     call CITRANS_CSF2SD(Bra_Vec,Bra_SD)
-     Ket_SD(:,:)=Zero
-     call CITRANS_CSF2SD(Ket_Vec,Ket_SD)
-
-!    Don't ask me why we need to do it the other way?
-!    Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM_loc)
-     Call Transition_One_PDM(Ket_SD,Bra_SD,T1DM,T1SDM_loc)
-   End If
-
-   If (present(T1SDM)) T1SDM(1:nT1DM) = T1SDM_loc(1:nT1DM)
-   If (CI_Verify('SIGMA')) call Faroald_Check_T1DM()
-
-   Call mma_deallocate(Ket_SD)
-   Call mma_deallocate(Bra_SD)
-   Call mma_deallocate(T1SDM_loc)
-Else
-   Free_D =.False.
-   Free_DS=.False.
-   If (.Not.Allocated(DTMP)) Then
-      Free_D =.True.
-      Call mma_allocate(DTMP,nT1DM,Label='DTMP')
-   End If
-   If (.Not.Allocated(DSTMP)) Then
-      Free_DS=.True.
-      Call mma_allocate(DSTMP,nT1DM,Label='DSTMP')
-   End If
-
-   call Lucia_Util('Densi',CI_Vector=Ket_Vec(:),RVec=Bra_Vec(:))
-   T1DM(1:nT1DM)=DTMP(1:nT1DM)
-   If (present(T1SDM)) T1SDM(1:nT1DM) = DSTMP(1:nT1DM)
-
-   If (Free_D ) Call mma_deallocate(DTMP )
-   If (Free_DS) Call mma_deallocate(DSTMP)
-End If
-
+if (present(T1SDM)) T1SDM(1:nT1DM) = T1SDM_loc(1:nT1DM)
+if (CI_Verify('SIGMA')) call Check_T1DM()
+call mma_deallocate(T1SDM_loc)
+call mma_deallocate(R2)
+call mma_deallocate(R1)
+call mma_deallocate(L2O)
 call Tim_Off(Tim_T1DM,TimT)
+
 contains
 
-  ! FARO (CI development, SIGMA): the Faroald transition densities against
-  ! Lucia (no spin density for singlets) and SGUGA (sg_trans_pdm, whose
-  ! layout is the transpose).
-  subroutine Faroald_Check_T1DM()
+  ! CI development (SIGMA): against Lucia (no spin density for singlets)
+  ! and SGUGA (sg_trans_pdm, whose layout is the transpose), those not in
+  ! use
+  subroutine Check_T1DM()
     real(kind=wp), allocatable :: BL(:), KL(:), TS(:), TSS(:)
     real(kind=wp) :: Dev(2)
-    integer(kind=iwp) :: p, q
     logical(kind=iwp) :: Done
     real(kind=wp), parameter :: ThrD = 1.0e-10_wp
-
     call mma_allocate(BL,nVec,Label='BL')
     call mma_allocate(KL,nVec,Label='KL')
-    call CI_Basis_To_Lucia(iState,CI_St(iState)%STSym,nVec,Bra_Vec,BL)
-    call CI_Basis_To_Lucia(iState,CI_St(iState)%STSym,nVec,Ket_Vec,KL)
-    call mma_allocate(DTMP,max(nT1DM,NAC*NAC),Label='DTMP')
-    call mma_allocate(DSTMP,max(nT1DM,NAC*NAC),Label='DSTMP')
-    call Lucia_Util('Densi',CI_Vector=KL(:),RVec=BL(:))
-    Dev(1) = maxval(abs(DTMP(1:NAC*NAC)-T1DM(1:NAC*NAC)))
-    Dev(2) = Zero
-    if (CI_St(iState)%iSpin > 1) Dev(2) = maxval(abs(DSTMP(1:NAC*NAC)-T1SDM_loc(1:NAC*NAC)))
-    Done = T1DM_Faro_Verified
-    call Report_Dev('Mk_T1DM (FARO): Faroald T1DM, T1SDM vs Lucia',maxval(Dev),ThrD,Done)
-    call mma_deallocate(DSTMP)
-    call mma_deallocate(DTMP)
-    if (SG_Avail()) then
-      call CI_Basis_To_File(iState,CI_St(iState)%STSym,nVec,Bra_Vec,BL)
-      call CI_Basis_To_File(iState,CI_St(iState)%STSym,nVec,Ket_Vec,KL)
+    if (CI_Lib /= CI_Lib_Lucia) then
+      call CI_Basis_To_Lucia(iState,LSM,nVec,Bra_Vec,BL)
+      call CI_Basis_To_Lucia(iState,LSM,nVec,Ket_Vec,KL)
+      call mma_allocate(DTMP,max(nT1DM,NAC*NAC),Label='DTMP')
+      call mma_allocate(DSTMP,max(nT1DM,NAC*NAC),Label='DSTMP')
+      call Lucia_Util('Densi',CI_Vector=KL(:),RVec=BL(:))
+      Dev(1) = maxval(abs(DTMP(1:NAC*NAC)-T1DM(1:NAC*NAC)))
+      Dev(2) = Zero
+      if (CI_St(iState)%iSpin > 1) Dev(2) = maxval(abs(DSTMP(1:NAC*NAC)-T1SDM_loc(1:NAC*NAC)))
+      Done = T1DM_Faro_Verified
+      call Report_Dev('Mk_T1DM: T1DM, T1SDM vs Lucia',maxval(Dev),ThrD,Done)
+      call mma_deallocate(DSTMP)
+      call mma_deallocate(DTMP)
+    end if
+    if ((CI_Lib /= CI_Lib_SGUGA) .and. SG_Avail()) then
+      call CI_Basis_To_File(iState,LSM,nVec,Bra_Vec,BL)
+      call CI_Basis_To_File(iState,LSM,nVec,Ket_Vec,KL)
       call mma_allocate(TS,NAC*NAC,Label='TS')
       call mma_allocate(TSS,NAC*NAC,Label='TSS')
-      call SG_Trans_PDM_G(iState,BL,KL,nVec,CI_St(iState)%STSym,NAC,TS,TSS,.true.)
+      call SG_Trans_PDM_G(iState,BL,KL,nVec,LSM,NAC,TS,TSS,.true.)
       Dev(:) = Zero
       do q=1,NAC
         do p=1,NAC
           Dev(1) = max(Dev(1),abs(T1DM(p+(q-1)*NAC)-TS(q+(p-1)*NAC)))
-          Dev(2) = max(Dev(2),abs(T1SDM_loc(p+(q-1)*NAC)-TSS(q+(p-1)*NAC)))
+          if (CI_Lib /= CI_Lib_Lucia) Dev(2) = max(Dev(2),abs(T1SDM_loc(p+(q-1)*NAC)-TSS(q+(p-1)*NAC)))
         end do
       end do
-      Done = T1DM_Faro_Verified
-      call Report_Dev('Mk_T1DM (FARO): Faroald T1DM, T1SDM vs SGUGA',maxval(Dev),ThrD,Done)
+      Done = T1DM_SG_Verified
+      call Report_Dev('Mk_T1DM: T1DM, T1SDM vs SGUGA',maxval(Dev),ThrD,Done)
       call mma_deallocate(TSS)
       call mma_deallocate(TS)
     end if
     T1DM_Faro_Verified = .true.
+    T1DM_SG_Verified = .true.
     call mma_deallocate(KL)
     call mma_deallocate(BL)
-  end subroutine Faroald_Check_T1DM
-
-  subroutine SGCI_T1DM()
-    real(kind=wp), allocatable :: TS(:), TSS(:), BL(:), KL(:)
-    real(kind=wp) :: Dev(2)
-    integer(kind=iwp) :: p, q
-    logical(kind=iwp) :: Spin
-    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
-
-    Spin = present(T1SDM)
-    call mma_allocate(TS,NAC*NAC,Label='TS')
-    call mma_allocate(TSS,NAC*NAC,Label='TSS')
-    call SG_Trans_PDM_G(iState,Bra_Vec,Ket_Vec,nVec,CI_St(iState)%STSym,NAC,TS,TSS,Spin)
-    ! layout of the CI interface (as Lucia): element p+(q-1)*NAC is
-    ! <Bra|E_qp|Ket>, the transpose of sg_trans_pdm
-    T1DM(:) = Zero
-    if (Spin) T1SDM(:) = Zero
-    do q=1,NAC
-      do p=1,NAC
-        T1DM(p+(q-1)*NAC) = TS(q+(p-1)*NAC)
-        if (Spin) T1SDM(p+(q-1)*NAC) = TSS(q+(p-1)*NAC)
-      end do
-    end do
-    if (CI_Verify('SIGMA')) then
-      call mma_allocate(BL,nVec,Label='BL')
-      call mma_allocate(KL,nVec,Label='KL')
-      call SG_Reord(iState,CI_St(iState)%STSym,1,nVec,Bra_Vec,BL)
-      call SG_Reord(iState,CI_St(iState)%STSym,1,nVec,Ket_Vec,KL)
-      call mma_allocate(DTMP,max(nT1DM,NAC*NAC),Label='DTMP')
-      call mma_allocate(DSTMP,max(nT1DM,NAC*NAC),Label='DSTMP')
-      call Lucia_Util('Densi',CI_Vector=KL(:),RVec=BL(:))
-      ! (Lucia computes no spin density for singlets)
-      Dev(1) = maxval(abs(DTMP(1:NAC*NAC)-T1DM(1:NAC*NAC)))
-      Dev(2) = Zero
-      if (Spin .and. (SGS(iState)%iSpin > 1)) Dev(2) = maxval(abs(DSTMP(1:NAC*NAC)-T1SDM(1:NAC*NAC)))
-      if (.not. T1DM_SG_Verified) then
-        write(u6,'(1X,A,2ES10.3)') 'Mk_T1DM (SGCI): SGUGA T1DM, T1SDM vs Lucia, max. abs. differences',Dev(1:2)
-        T1DM_SG_Verified = .true.
-      end if
-      if (any(Dev(1:2) > ThrD)) then
-        write(u6,'(1X,A,2ES10.3)') 'SGUGA error in the transition densities (SGCI), max. abs. differences',Dev(1:2)
-        call Abend()
-      end if
-      call mma_deallocate(DSTMP)
-      call mma_deallocate(DTMP)
-      call mma_deallocate(KL)
-      call mma_deallocate(BL)
-    end if
-    call mma_deallocate(TSS)
-    call mma_deallocate(TS)
-  end subroutine SGCI_T1DM
+  end subroutine Check_T1DM
 
 End Subroutine Mk_T1DM
 

@@ -267,17 +267,21 @@ subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
   logical(kind=iwp), intent(in) :: Pk
   integer(kind=iwp) :: N, nP
+  logical(kind=iwp) :: Own
   integer(kind=iwp), allocatable :: L2O(:)
   real(kind=wp), allocatable :: CL(:)
   if ((iLSym /= iRSym) .or. (iLSym /= CI_St(iState)%STSym) .or. (nL /= nR)) &
     call Not_Yet('CI_Lib_Dens','RASSCF''s Lucia for densities between symmetries')
-  if (.not. all(L(:) == R(:))) call Not_Yet('CI_Lib_Dens','RASSCF''s Lucia for transition densities')
+  if (.not. all(L(:) == R(:))) then
+    ! transition densities (one-body): Lucia's DENSI with two vectors gives
+    ! DTMP(p+(q-1)*N) = <L|E_qp|R> over the levels
+    if ((I12 /= 1) .or. Pk) call Not_Yet('CI_Lib_Dens','RASSCF''s Lucia for two-body or packed transition densities')
+    call Lucia1_TDens(iState,iOpSpin,nL,L,nR,R,n1,Rho1)
+    return
+  end if
   N = sum(nAsh(1:nSym))
   nP = nTri_Elem(nTri_Elem(N))
-  call mma_allocate(DTMP,N**2,Label='DTMP')
-  call mma_allocate(DSTMP,N**2,Label='DSTMP')
-  call mma_allocate(PTMP,nP,Label='PTMP')
-  call mma_allocate(PATMP,nP,Label='PATMP')
+  call Lucia1_Work(N,Own)
   call mma_allocate(CL,nL,Label='CL')
   CL(:) = L(:)
   call Lucia_Util('Densi',CI_Vector=CL)
@@ -305,11 +309,79 @@ subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,
     end if
     call mma_deallocate(L2O)
   end if
-  call mma_deallocate(PATMP)
-  call mma_deallocate(PTMP)
-  call mma_deallocate(DSTMP)
-  call mma_deallocate(DTMP)
+  if (Own) call Lucia1_Work_Free()
 end subroutine Lucia1_Dens
+
+!> RASSCF's Lucia: the one-body transition density (or its spin part)
+!> <L|E_ij|R> in the layout of CI_Lib_Dens, from Lucia's DENSI with two
+!> vectors (DTMP(p+(q-1)*N) = <L|E_qp|R> over the levels; a permutation)
+subroutine Lucia1_TDens(iState,iOpSpin,nL,L,nR,R,n1,Rho1)
+  use lucia_data, only: DStmp, Dtmp
+  use Lucia_Interface, only: Lucia_Util
+  use Orbital_Spaces, only: nAsh, nSym
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iOpSpin, nL, nR, n1
+  real(kind=wp), intent(in) :: L(nL), R(nR)
+  real(kind=wp), intent(out) :: Rho1(n1)
+  integer(kind=iwp) :: N, p, q
+  logical(kind=iwp) :: Own
+  integer(kind=iwp), allocatable :: L2O(:)
+  real(kind=wp), allocatable :: CL(:), CR(:)
+  N = sum(nAsh(1:nSym))
+  if (n1 < N**2) call Abend()
+  call Lucia1_Work(N,Own)
+  call mma_allocate(CL,nL,Label='CL')
+  call mma_allocate(CR,nR,Label='CR')
+  CL(:) = L(:)
+  CR(:) = R(:)
+  call Lucia_Util('Densi',CI_Vector=CR,RVec=CL)
+  call mma_deallocate(CR)
+  call mma_deallocate(CL)
+  call mma_allocate(L2O,N,Label='L2O')
+  call CI_Lib_Level_Map(iState,N,L2O)
+  do q=1,N
+    do p=1,N
+      if (iOpSpin == 1) then
+        Rho1(L2O(q)+(L2O(p)-1)*N) = DSTMP(p+(q-1)*N)
+      else
+        Rho1(L2O(q)+(L2O(p)-1)*N) = DTMP(p+(q-1)*N)
+      end if
+    end do
+  end do
+  call mma_deallocate(L2O)
+  if (Own) call Lucia1_Work_Free()
+end subroutine Lucia1_TDens
+
+!> RASSCF's Lucia: the result arrays of DENSI (lucia_data), allocated here
+!> unless the program has them already (Own: allocated here)
+subroutine Lucia1_Work(N,Own)
+  use lucia_data, only: DStmp, Dtmp, PAtmp, Ptmp
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate
+  integer(kind=iwp), intent(in) :: N
+  logical(kind=iwp), intent(out) :: Own
+  integer(kind=iwp) :: nP
+  Own = .not. allocated(DTMP)
+  if (.not. Own) then
+    if (size(DTMP) < N**2) call Abend()
+    return
+  end if
+  nP = nTri_Elem(nTri_Elem(N))
+  call mma_allocate(DTMP,N**2,Label='DTMP')
+  call mma_allocate(DSTMP,N**2,Label='DSTMP')
+  call mma_allocate(PTMP,max(1,nP),Label='PTMP')
+  call mma_allocate(PATMP,max(1,nP),Label='PATMP')
+end subroutine Lucia1_Work
+
+!> RASSCF's Lucia: free the arrays of Lucia1_Work
+subroutine Lucia1_Work_Free()
+  use lucia_data, only: DStmp, Dtmp, PAtmp, Ptmp
+  use stdalloc, only: mma_deallocate
+  call mma_deallocate(DTMP,safe='*')
+  call mma_deallocate(DSTMP,safe='*')
+  call mma_deallocate(PTMP,safe='*')
+  call mma_deallocate(PATMP,safe='*')
+end subroutine Lucia1_Work_Free
 
 !> RASSCF's Lucia: free the determinant scratch of Lucia1_Sigma
 subroutine Lucia1_Free()
@@ -1014,8 +1086,9 @@ subroutine SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho
   integer(kind=iwp) :: iR, nLR, nRR
   logical(kind=iwp) :: Same
   real(kind=wp), allocatable :: LR(:), RR(:)
-  ! the densities of one state (L = R): the state-density routines
-  Same = (iLSym == iRSym) .and. (nL == nR)
+  ! the densities of one state (L = R) in the packed layout: the
+  ! state-density routines
+  Same = Pk .and. (iLSym == iRSym) .and. (nL == nR)
   if (Same) Same = all(L(:) == R(:))
   iR = CI_St(iState)%iRel
   if (iR > 0) then
@@ -1099,6 +1172,11 @@ subroutine SG_Dens_Core(iState,Same,Pk,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1
     if ((iLSym /= iRSym) .or. (nL /= nR)) call Not_Yet('CI_Lib_Dens','spin densities between symmetries')
     call mma_allocate(RS,N,N,Label='RS')
     call sg_trans_pdm(SGS(iState),CIS(iState),EXS(iState),L,R,nL,iLSym,N,RS,R1,.true.)
+    call mma_deallocate(RS)
+  else if ((I12 == 1) .and. (iLSym == iRSym) .and. (nL == nR)) then
+    ! one-body, one symmetry: sg_trans_pdm (no two-body part)
+    call mma_allocate(RS,N,N,Label='RS')
+    call sg_trans_pdm(SGS(iState),CIS(iState),EXS(iState),L,R,nL,iLSym,N,R1,RS,.false.)
     call mma_deallocate(RS)
   else
     call mma_allocate(R2,nTri_Elem(N**2),Label='R2')
