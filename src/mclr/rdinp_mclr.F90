@@ -41,7 +41,7 @@ integer(kind=iwp), intent(in):: iPL
 integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM, nDiff
 logical(kind=iwp) :: DoRys, Epsilon_Undef, Skip
 character(len=72) :: Line
-character(len=8) :: Label, SewLab
+character(len=8) :: EnvLib, Label, SewLab
 character(len=4) :: Command
 character(len=2) :: Element(MxAtom)
 real(kind=wp), allocatable :: umass(:)
@@ -106,15 +106,12 @@ ColdStart = .false.
 ! the CI library: LUCIA unless the keyword CILIbrary is given (for
 ! comparisons the default can be set with the environment variable
 ! MCLR_CILIB)
-block
-  character(len=8) :: EnvLib
-  EnvLib = ' '
-  call get_environment_variable('MCLR_CILIB',EnvLib)
-  call UpCase(EnvLib)
-  CILib = 'LUCIA'
-  if (EnvLib == 'SGUGA') CILib = 'SGUGA'
-  if (EnvLib == 'FAROALD') CILib = 'FAROALD'
-end block
+EnvLib = ' '
+call get_environment_variable('MCLR_CILIB',EnvLib)
+call UpCase(EnvLib)
+CILib = 'LUCIA'
+if (EnvLib == 'SGUGA') CILib = 'SGUGA'
+if (EnvLib == 'FAROALD') CILib = 'FAROALD'
 CGS = .false.
 RFPERT = .false.
 !----------------------------------------------------------------------*
