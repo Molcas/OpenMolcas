@@ -12,7 +12,6 @@
 !***********************************************************************
 
 module CI_Interfaces
-use sguga, only: SG_Free
 use SG_Lucia_Bridge, only: SG_Lucia_Walk, SG_ReOrd, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
@@ -29,18 +28,17 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SG
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
 use CI_Operations, only: Cnf_Exc, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Block, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, &
                          CI_Lib_Level_Map, CI_Lib_Sigma, CI_Lib_Transform, Faro_L2O => Faro_Lev, Faroald_HDet, &
-                         Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+                         Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Map, SG_Rel_Project
 use rasscf_global, only: NAC, nDet, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use SGUGA_Sigma, only: SG_Sigma_Free, SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
-use SGUGA_Densities, only: SG_Densities_Free, sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
+use SGUGA_Sigma, only: SG_Work_Need, sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
+use SGUGA_Densities, only: sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_two_pdm
 use CI_Input, only: iDoGAS
 use CI_Verify_Options, only: CI_Verify
-use CI_Space_Def, only: Space_Free
-use CI_Info, only: CI_St, Space_CI
+use CI_Info, only: CI_St
 
 #include "intent.fh"
 
@@ -1303,26 +1301,9 @@ end subroutine Tim_Print
 subroutine CI_Close(iState)
 integer(kind=iwp), Intent(in):: iState
 
-! All of these are safe to call even of their corresponding environment have not been activated.
-
-if (CI_Lucia_Active()) Call Lucia_Util('Close')
-
-! (the selected library frees its data in CI_Operations; the selection is kept)
+! the library and the state from the CI input (CI_Lib_Close); the selection is kept
 call CI_Lib_Close(iState)
-
-if (CI_St(iState)%iRel > 0) then
-  call SG_Free(CI_St(iState)%iRel)
-  CI_St(iState)%iRel = 0
-end if
-call SG_Rel_Free()
-Call SG_free(iState)
-CI_St(iState)%Active = .false.
-call SG_Sigma_Free()
-call SG_Densities_Free()
 call SG_Free_Cnf_List(Cnf_SG)
-call mma_deallocate(HEXS_Keep,safe='*')
-call mma_deallocate(HEXS_Keep_SG,safe='*')
-call Space_Free(Space_CI)
 
 end subroutine CI_Close
 

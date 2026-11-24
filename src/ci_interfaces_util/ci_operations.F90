@@ -96,6 +96,10 @@ integer(kind=iwp), allocatable, protected :: Faro_Lev(:)
 ! Lucia (RASSCF's) has been initialized (not for SGCI and FARO, except as the
 ! reference of MOLCAS_CI_VERIFY=SIGMA)
 logical(kind=iwp) :: Lucia_Active = .true.
+! the CI state set up by CI_Lib_Initialize from the CI input (0: none); only
+! that state is torn down by CI_Lib_Close (a program that sets up its state
+! itself, as MCLR, frees it itself)
+integer(kind=iwp) :: iState_Input = 0
 ! HEXS/DEXS (RASSCF keywords, CI_Info Space_Inp): the configurations with
 ! the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in the
 ! listed RAS partitions are removed as in Lucia: their CSFs stay in the
@@ -163,14 +167,35 @@ end subroutine CI_Lib_Initialize
 subroutine CI_Lib_Close(iState)
   use SGUGA_Sigma, only: SG_Sigma_Free
   use SGUGA_Densities, only: SG_Densities_Free
+  use sguga, only: SG_Free
+  use Lucia_Interface, only: Lucia_Util
+  use CI_Space_Def, only: Space_Free
+  use CI_Info, only: Space_CI
+  use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState
   if (CI_Lib == CI_Lib_MCLR_Lucia) call MCLR_Lucia_Close(iState)
-  ! the work space of SGUGA (safe to call in any case, as in CI_Close)
-  if (CI_Lib == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
+  ! the work space of SGUGA (safe to call in any case; also used as the
+  ! reference of MOLCAS_CI_VERIFY=SIGMA with the other libraries)
+  if ((CI_Lib == CI_Lib_SGUGA) .or. (iState == iState_Input)) then
     call SG_Sigma_Free()
     call SG_Densities_Free()
   end if
-  if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
+  if (iState /= iState_Input) return
+  ! the state from the CI input (CI_Lib_Setup_Input): Lucia, the graphs, the
+  ! CI space and the HEXS/DEXS masks
+  if (Lucia_Active) call Lucia_Util('Close')
+  if (CI_St(iState)%iRel > 0) then
+    call SG_Free(CI_St(iState)%iRel)
+    CI_St(iState)%iRel = 0
+  end if
+  call SG_Rel_Free()
+  call SG_Free(iState)
+  CI_St(iState)%Active = .false.
+  call mma_deallocate(HEXS_Keep,safe='*')
+  call mma_deallocate(HEXS_Keep_SG,safe='*')
+  call Space_Free(Space_CI)
+  iState_Input = 0
 end subroutine CI_Lib_Close
 
 !> Lucia (RASSCF's) is initialized (CI_Lib_Initialize): its tables
@@ -197,6 +222,7 @@ subroutine CI_Lib_Setup_Input(iState)
   integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: nCSF_Lucia, nFail_TT
 
+  iState_Input = iState
   nCSF_Lucia = 0
   ! SGCI and FARO do not need Lucia; it is set up only as the reference of
   ! MOLCAS_CI_VERIFY=SIGMA.
