@@ -315,6 +315,8 @@ subroutine SG_Ints(iState,iOp,nInt1,Int1,nInt2,Int2,Have_2_el,nTU,TU,nTUVX,TUVX)
   unused_var(iState)
   TU(:) = Zero
   ! offsets of the Int1 blocks (iS,Mul(iS,iOp)) and of the active orbitals
+  iOff(:) = 0
+  nAOff(:) = 0
   nAct = 0
   do iS=1,nSym
     jS = Mul(iS,iOp)
@@ -399,6 +401,8 @@ subroutine SG_Sigma_Sq(iState,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,nC,C,n
   real(kind=wp), intent(out) :: S(nS)
   integer(kind=iwp) :: iOff(8), iOp, iS, it, iu, jS, n2, nA, nAOff(8)
   real(kind=wp), allocatable :: G2(:), H1(:,:)
+  iOff(:) = 0
+  nAOff(:) = 0
   iOp = Mul(iCSym,iSSym)
   nA = 0
   do iS=1,nSym
@@ -746,6 +750,8 @@ subroutine Faro_Ints_Sq(iOp,nInt1,Int1,nInt2,Int2,Have_2_el)
   logical(kind=iwp), intent(in) :: Have_2_el
   integer(kind=iwp) :: iOff(8), iS, it, iu, iv, ix, jS, N, nAOff(8), otu, ovx
   real(kind=wp), allocatable :: G(:,:,:,:), H1(:,:)
+  iOff(:) = 0
+  nAOff(:) = 0
   N = my_norb
   call mma_allocate(H1,N,N,Label='H1')
   H1(:,:) = Zero
