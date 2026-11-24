@@ -104,8 +104,8 @@ logical(kind=iwp) :: Faro_RAS_Verified = .false.
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSel, &
-          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_To_Basis, CI_To_File, Cnf_Exc, Faro_Lev, Faroald_HDet, &
-          Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Transform, CI_To_Basis, CI_To_File, Cnf_Exc, Faro_Lev, &
+          Faroald_HDet, Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 
 contains
 
@@ -1623,7 +1623,7 @@ subroutine Faro_Init(iState)
     do k=1,nPrt
       nOrbP(k) = count(OrbRas(1:nAct) == k)
     end do
-    call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP,MinEl,MaxEl,nSym,OrbSym(1:nAct),Faro_Sym,iSpin == 1)
+    call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP,MinEl,MaxEl,nSym,OrbSym(1:nAct),Faro_Sym,iSpin == 1,.not. Faro_Reproducible())
     call mma_deallocate(nOrbP)
     write(u6,'(1X,A,I0,A,I0,A)') 'Faroald: string-driven CI, ',nPrt,' partition(s), ',n_ras,' determinants of the CI symmetry'
     if (iSpin == 1) write(u6,'(1X,A)') 'Faroald: singlet, spin-flip symmetry C(Ib,Ia) = C(Ia,Ib) used'
@@ -1656,6 +1656,17 @@ subroutine Faro_Init(iState)
   ! another library initialized as a reference is kept)
   CI_St(iState)%nDet(:) = max(CI_St(iState)%nDet(:),CI_St(iState)%nCSF(:))
 end subroutine Faro_Init
+
+!> Faroald: inside the verification (MOLCAS_TEST set, as for the seed of
+!> GetSeed) its alpha-beta sigma path comes from the cost estimate, so that
+!> the results do not depend on timings; otherwise the fastest is timed
+function Faro_Reproducible() result(Repro)
+  logical(kind=iwp) :: Repro
+  character(len=16) :: Env
+  Env = ' '
+  call get_environment_variable('MOLCAS_TEST',Env)
+  Repro = Env /= ' '
+end function Faro_Reproducible
 
 subroutine Faro_Close()
   use faroald_ras, only: faroald_ras_free
@@ -2209,6 +2220,92 @@ contains
   end function Par
 
 end function Faroald_HDet
+
+!> The CI vector CI (n CSFs of symmetry iSym, in the library basis) for
+!> orbitals transformed by T: the active orbital transformation of each
+!> symmetry as a square block (nAsh(iSym) x nAsh(iSym), column-major), the
+!> blocks in symmetry order (sum nAsh**2 <= nTU), as in the CI
+!> transformation of Malmqvist (sequence of single-orbital steps).
+subroutine CI_Lib_Transform(iState,iSym,nTU,TU,n,CI)
+  use SGUGA, only: SG_TRACI
+  use Lucia_Interface, only: Lucia_Util
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, n
+  real(kind=wp), intent(in) :: TU(nTU)
+  real(kind=wp), intent(inout) :: CI(n)
+  select case (CI_Lib)
+    case (CI_Lib_SGUGA)
+      call SG_TRACI(iState,iSym,TU,nTU,CI,n)
+    case (CI_Lib_Faroald)
+      call Faro_Transform(iState,iSym,nTU,TU,n,CI)
+    case (CI_Lib_Lucia)
+      ! (the vector goes through Lucia's determinant basis inside)
+      call Lucia_Util('TRACI',CI_Vector=CI,TU=TU,nTU=nTU)
+    case (CI_Lib_MCLR_Lucia)
+      call Not_Yet('CI_Lib_Transform','the CI transformation with MCLR''s Lucia')
+    case default
+      call Check_Lib('CI_Lib_Transform')
+  end select
+end subroutine CI_Lib_Transform
+
+!> Faroald: the CI transformation (CI_Lib_Transform) through the
+!> determinants, with the transformation matrix over its orbitals (levels)
+subroutine Faro_Transform(iState,iSym,nTU,TU,n,CI)
+  use faroald, only: ndeta, ndetb, traci_faroald
+  use faroald_ras, only: n_ras, ras_active, ras_traci
+  use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf
+  use Molcas, only: MxSym
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, n
+  real(kind=wp), intent(in) :: TU(nTU)
+  real(kind=wp), intent(inout) :: CI(n)
+  integer(kind=iwp) :: nA, iLev, jLev, iO, jO, iS, nAshS(MxSym), iOffO(MxSym), iOffT(MxSym)
+  real(kind=wp), allocatable :: TF(:), PsiR(:), PsiD(:,:)
+  nA = Faro_nAct
+  ! the symmetry and the offsets of the orbitals and of the blocks of T
+  nAshS(:) = 0
+  do iLev=1,nA
+    nAshS(Faro_OrbSym(iLev)) = nAshS(Faro_OrbSym(iLev))+1
+  end do
+  iOffO(1) = 0
+  iOffT(1) = 0
+  do iS=2,MxSym
+    iOffO(iS) = iOffO(iS-1)+nAshS(iS-1)
+    iOffT(iS) = iOffT(iS-1)+nAshS(iS-1)**2
+  end do
+  if (iOffT(MxSym)+nAshS(MxSym)**2 > nTU) then
+    write(u6,*) 'Faro_Transform: T too short',nTU
+    call Abend()
+  end if
+  call mma_allocate(TF,max(1,nA*nA),Label='TF')
+  TF(:) = Zero
+  do jLev=1,nA
+    jO = Faro_Lev(jLev)
+    iS = Faro_OrbSym(jLev)
+    do iLev=1,nA
+      if (Faro_OrbSym(iLev) /= iS) cycle
+      iO = Faro_Lev(iLev)
+      TF(iLev+(jLev-1)*nA) = TU(iOffT(iS)+iO-iOffO(iS)+(jO-iOffO(iS)-1)*nAshS(iS))
+    end do
+  end do
+  call Faro_Set_Sym(iState,iSym)
+  if (ras_active .and. (iSym == Faro_Sym)) then
+    ! in the string classes of the CI symmetry (faroald_ras)
+    call mma_allocate(PsiR,max(1,n_ras),Label='PsiR')
+    call citrans_csf2ras(CI,PsiR)
+    call ras_traci(TF,nA*nA,PsiR)
+    call citrans_ras2csf(PsiR,CI)
+    call mma_deallocate(PsiR)
+  else
+    call Faro_Full_Init()
+    call mma_allocate(PsiD,ndeta,ndetb,Label='PsiD')
+    PsiD(:,:) = Zero
+    call citrans_csf2sd(CI,PsiD)
+    call traci_faroald(TF,nA*nA,PsiD)
+    call citrans_sd2csf(PsiD,CI)
+    call mma_deallocate(PsiD)
+  end if
+  call mma_deallocate(TF)
+end subroutine Faro_Transform
 
 !> The remaining case of the operations is the MCLR copy of Lucia (also the
 !> stop for RASSCF's Lucia, CI_Lib_Lucia, not available for MCLR)

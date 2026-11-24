@@ -15,9 +15,9 @@ module CI_Interfaces
 use sguga, only: SG_Free
 use SG_Lucia_Bridge, only: SG_Lucia_Walk, SG_ReOrd, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
-use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb, traci_faroald
+use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
 use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort
-use faroald_ras, only: n_ras, ras_active, ras_sigma, ras_traci
+use faroald_ras, only: n_ras, ras_active, ras_sigma
 use rasscf_global, only: DoSGEx
 use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SGUGA
 ! FARO: Faroald works with the active orbitals in the order of the levels
@@ -27,7 +27,7 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_SG
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
 use CI_Operations, only: Cnf_Exc, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Block, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, &
-                         CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Sigma, Faro_L2O => Faro_Lev, Faroald_HDet, &
+                         CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Sigma, CI_Lib_Transform, Faro_L2O => Faro_Lev, Faroald_HDet, &
                          Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 use Orbital_Spaces, only: nAsh
 use rasscf_global, only: NAC, nDet, nConf
@@ -2950,145 +2950,60 @@ end subroutine Mk_IHJ
 
 subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
 
+! The CI transformation of the selected library (CI_Lib_Transform); under
+! MOLCAS_CI_VERIFY=SIGMA compared with Lucia (SGUGA, Faroald) and with SGUGA
+! (the other libraries).
 use sguga, only: sg_traci
-use Orbital_Spaces, only: nSym
 
-integer(kind=iwp), intent(in) ::  iState,nTU, nCSF
+integer(kind=iwp), intent(in) :: iState, nTU, nCSF
 real(kind=wp), intent(in) :: TU(nTU)
 real(kind=wp), intent(inout) :: CI_Vector(nCSF)
+integer(kind=iwp) :: LSM
+real(kind=wp) :: Dev, TimT(2)
+logical(kind=iwp) :: Ref_Lucia, Verify_SG
+real(kind=wp), allocatable :: CI_Ref(:), CI_SGUGA(:), ctemp(:)
 
-real(kind=wp), allocatable :: Faroald_Psi(:,:), ctemp(:), TFull(:)
-integer(kind=iwp) :: iSym, iOffT, iOffO, kk, pp
-integer(kind=iwp), allocatable :: O2L(:)
-
-integer(kind=iwp) :: iCSF
-real(kind=wp), allocatable :: CI_Faroald(:)
-real(kind=wp), allocatable :: CI_SGUGA(:)
-logical(kind=iwp) :: Verify_SG
-
-! SGCI: the vector is in the SGUGA basis, transformed by SGUGA; under SIGMA
-! compared with Lucia (vector reordered to the Lucia basis and back).
-real(kind=wp) :: TimT(2)
 call Tim_On(TimT)
-if (SG_CI()) then
-  if (CI_Verify('SIGMA')) then
-    call mma_allocate(CI_Faroald,nCSF,Label='CI_Lucia')
-    call SG_REORD(iState,CI_St(iState)%STSym,1,nCSF,CI_Vector,CI_Faroald)
-    call Lucia_util('TRACI',CI_Vector=CI_Faroald(:),TU=TU(:),nTU=nTU)
-  end if
-  call SG_TRACI(iState,CI_St(iState)%STSym,TU,nTU,CI_Vector,nCSF)
-  if (CI_Verify('SIGMA')) then
-    call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
-    call SG_REORD(iState,CI_St(iState)%STSym,0,nCSF,CI_Faroald,CI_SGUGA)
-    if (.not. TraPsi_Verified) then
-      write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_Tra_Psi (SGCI): SGUGA CI transformation verified against Lucia, ',nCSF, &
-                                     ' CSFs, max. error ',maxval(abs(CI_Vector(:)-CI_SGUGA(:)))
-      TraPsi_Verified = .true.
-    end if
-    if (maxval(abs(CI_Vector(:)-CI_SGUGA(:))) > 1.0e-10_wp) then
-      write(u6,*) 'Mk_Tra_Psi (SGCI): SGUGA and Lucia CI transformations differ'
-      call Abend()
-    end if
-    call mma_deallocate(CI_SGUGA)
-    call mma_deallocate(CI_Faroald)
-  end if
-  call Tim_Off(Tim_TraPsi,TimT)
-  return
+LSM = CI_St(iState)%STSym
+Ref_Lucia = CI_Verify('SIGMA') .and. (SG_CI() .or. Faro_CI())
+Verify_SG = CI_Verify('SIGMA') .and. SG_Avail() .and. (.not. SG_CI())
+if (Ref_Lucia) then
+  ! the reference of Lucia, in the Lucia basis
+  call mma_allocate(CI_Ref,nCSF,Label='CI_Lucia')
+  call CI_Basis_To_Lucia(iState,LSM,nCSF,CI_Vector,CI_Ref)
+  call Lucia_Util('TRACI',CI_Vector=CI_Ref(:),TU=TU(:),nTU=nTU)
+end if
+if (Verify_SG) then
+  ! the reference of SGUGA, in the order of the file
+  call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
+  call CI_Basis_To_File(iState,LSM,nCSF,CI_Vector,CI_SGUGA)
+  call SG_TRACI(iState,LSM,TU,nTU,CI_SGUGA,nCSF)
 end if
 
-! CI development (MOLCAS_CI_VERIFY=SIGMA): also transform with SGUGA and compare.
-Verify_SG = CI_Verify('SIGMA') .and. SG_Avail()
-If (Verify_SG) Then
-  Call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
-  CI_SGUGA(:) = CI_Vector(:)
-End If
+call CI_Lib_Transform(iState,LSM,nTU,TU,nCSF,CI_Vector)
 
-If (Faro_CI() .and. CI_Verify('SIGMA')) Then
-  ! the reference of Lucia, in the Lucia basis
-  Call mma_allocate(CI_Faroald,nCSF,Label='CI_Lucia')
-  call CI_Basis_To_Lucia(iState,CI_St(iState)%STSym,nCSF,CI_Vector,CI_Faroald)
-  Call Lucia_util('TRACI',CI_Vector=CI_Faroald(:),TU=TU(:),nTU=nTU)
-End If
-
-If (Faro_CI()) Then
-  ! Faroald in its own basis (citrans), through the determinants
-  ! the transformation matrix in symmetry blocks -> NAC x NAC over the
-  ! orbitals of Faroald (the levels, Faro_L2O)
-  Call mma_allocate(TFull,NAC*NAC,Label='TFull')
-  Call mma_allocate(O2L,NAC,Label='O2L')
-  do kk=1,NAC
-    O2L(Faro_L2O(kk)) = kk
-  end do
-  TFull(:) = Zero
-  iOffT = 0
-  iOffO = 0
-  do iSym=1,nSym
-    do kk=1,NASH(iSym)
-      do pp=1,NASH(iSym)
-        TFull(O2L(iOffO+pp)+(O2L(iOffO+kk)-1)*NAC) = TU(iOffT+pp+(kk-1)*NASH(iSym))
-      end do
-    end do
-    iOffT = iOffT+NASH(iSym)**2
-    iOffO = iOffO+NASH(iSym)
-  end do
-  Call mma_deallocate(O2L)
-  If (ras_active) Then
-    ! RAS: in the RAS string classes (faroald_ras)
-    Call mma_allocate(Faroald_Psi,max(1,n_ras),1,Label='Faroald_Psi')
-    call CITRANS_CSF2RAS(CI_Vector,Faroald_Psi(:,1))
-    Call RAS_Traci(TFull,NAC*NAC,Faroald_Psi(:,1))
-    call CITRANS_RAS2CSF(Faroald_Psi(:,1),CI_Vector)
-  Else
-    Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Faroald_Psi')
-    Faroald_PSI(:,:) = Zero
-    call CITRANS_CSF2SD(CI_Vector,Faroald_PSI)
-    Call traci_faroald(TFull,NAC*NAC,Faroald_Psi)
-    call CITRANS_SD2CSF(Faroald_Psi,CI_Vector)
-  End If
-  Call mma_deallocate(TFull)
-  Call mma_deallocate(Faroald_Psi)
-  If (CI_Verify('SIGMA')) Then
-    Call mma_allocate(ctemp,nCSF,Label='ctemp')
-    call CI_Lucia_To_Basis(iState,CI_St(iState)%STSym,nCSF,CI_Faroald,ctemp)
-    call Report_Dev('Mk_Tra_Psi (FARO): Faroald CI transformation vs Lucia',maxval(abs(CI_Vector(:)-ctemp(:))),1.0e-10_wp, &
-                    TraPsi_Faro_Verified)
-    Call mma_deallocate(ctemp)
-    Call mma_deallocate(CI_Faroald)
-  End If
-Else
-  ! Note that the CI vector is transformed to Lucia format inside the
-  ! routine! This in difference to the other calls to Lucia_util.
-  Call Lucia_util('TRACI', &
-                  CI_Vector=CI_Vector(:), &
-                  TU=TU(:), nTU=nTU)
-End If
-
-If (Verify_SG) Then
-
-!  Call SG_TRACI(iState,STSYM,TU,nTU,CI_SGUGA,nCSF)
-   Call mma_allocate(ctemp,nCSF,Label='ctemp')
-   call CI_Basis_To_File(iState,CI_St(iState)%STSym,nCSF,CI_SGUGA,ctemp)
-   Call SG_TRACI(iState,CI_St(iState)%STSym,TU,nTU,ctemp,nCSF)
-   call CI_File_To_Basis(iState,CI_St(iState)%STSym,nCSF,ctemp,CI_SGUGA)
-   Call mma_deallocate(ctemp)
-   If (.not. TraPsi_Verified) Then
-      Write (u6,'(1X,A,I0,A,ES10.3)') 'Mk_Tra_Psi: SGUGA CI transformation verified against the CI back end, ',nCSF, &
-                                     ' CSFs, max. error ',maxval(abs(CI_Vector(:)-CI_SGUGA(:)))
-      TraPsi_Verified = .true.
-   End If
-
-   Do iCSF = 1, nCSF
-      If (Abs(CI_Vector(iCSF)-CI_SGUGA(iCSF))/nCSF>1.0E-12_wp) Then
-         Write (6,*) 'Mk_Tra_Psi(SGUGA) error, iCSF=',iCSF
-         Write (6,*) 'CI_Vector(iCSF) =',CI_Vector(iCSF)
-         Write (6,*) 'CI_SGUGA(iCSF)=',CI_SGUGA(iCSF)
-         Call Abend()
-      End If
-   End Do
-   Call mma_deallocate(CI_SGUGA)
-End If
+if (Ref_Lucia) then
+  call mma_allocate(ctemp,nCSF,Label='ctemp')
+  call CI_Lucia_To_Basis(iState,LSM,nCSF,CI_Ref,ctemp)
+  Dev = maxval(abs(CI_Vector(:)-ctemp(:)))
+  if (SG_CI()) then
+    call Report_Dev('Mk_Tra_Psi (SGCI): SGUGA CI transformation vs Lucia',Dev,1.0e-10_wp,TraPsi_Verified)
+  else
+    call Report_Dev('Mk_Tra_Psi (FARO): Faroald CI transformation vs Lucia',Dev,1.0e-10_wp,TraPsi_Faro_Verified)
+  end if
+  call mma_deallocate(ctemp)
+  call mma_deallocate(CI_Ref)
+end if
+if (Verify_SG) then
+  call mma_allocate(ctemp,nCSF,Label='ctemp')
+  call CI_File_To_Basis(iState,LSM,nCSF,CI_SGUGA,ctemp)
+  call Report_Dev('Mk_Tra_Psi: SGUGA CI transformation vs the CI library',maxval(abs(CI_Vector(:)-ctemp(:))), &
+                  1.0e-10_wp*max(One,maxval(abs(CI_Vector(:)))),TraPsi_Verified)
+  call mma_deallocate(ctemp)
+  call mma_deallocate(CI_SGUGA)
+end if
 call Tim_Off(Tim_TraPsi,TimT)
 
-End subroutine Mk_Tra_Psi
+end subroutine Mk_Tra_Psi
 
 End module CI_Interfaces

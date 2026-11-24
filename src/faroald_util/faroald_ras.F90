@@ -108,9 +108,8 @@ integer(kind=iwp) :: nbat = 0, mxbat = 0
 ! res_okb(B,cb) / res_cokb: the K of (fine/coarse) block B couple with the beta
 ! strings of group cb. res_mode: 0 the direct loops (opposite_spin), 1 the
 ! resolution with the fine blocks, 2 with the coarse blocks, -1 not yet
-! chosen: the candidates res_try (res_choose: those not much more expensive
-! than the cheapest by an estimate of the cost) are timed in the first
-! sigma calls and the fastest is used from then on.
+! chosen: the candidates res_try are timed in the first sigma calls and the
+! fastest is used from then on (see res_choose).
 integer(kind=iwp) :: nres_k = 0, res_nblk = 0, res_ncb = 0, res_mode = 0, res_ntry = 0, res_itry = 0, res_try(3) = 0
 real(kind=wp) :: res_tim(0:2) = Zero
 integer(kind=iwp), allocatable :: res_cre(:,:), res_boff(:), res_bsym(:), res_bocc(:,:), res_ord(:), res_soff(:), res_ns(:), &
@@ -119,8 +118,12 @@ logical(kind=iwp), allocatable :: res_okb(:,:), res_cokb(:,:)
 ! the work arrays of the resolution, kept between the calls (no new pages
 ! per sigma); used with the current block size as leading dimension
 real(kind=wp), allocatable :: res_Xw(:), res_Sw(:)
-! the speed of DGEMM relative to the scalar loops, for res_choose
-real(kind=wp), parameter :: ResGemmSpeed = 8.0_wp
+! the cost model of res_choose, in units of one element of a vector update
+! of the direct loops: per update (Cost_Op), per gathered or scattered
+! element (Cost_GS), per DGEMM call (Cost_Call) and multiply-add (Cost_Flop);
+! fitted to the timings of CAS/RAS/GAS cases with and without symmetry
+! (gfortran, MKL, one thread; right within a factor 3)
+real(kind=wp), parameter :: Cost_Op = 56.0_wp, Cost_GS = 6.0_wp, Cost_Call = 78.0_wp, Cost_Flop = 0.35_wp
 integer(kind=iwp), allocatable :: bat_cj(:), bat_ci(:), bat_v(:), bat_x(:), bat_off(:), be_j(:), be_i(:), be_sgn(:)
 
 public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_count_dets, ras_from_full, ras_sigma, &
@@ -135,9 +138,12 @@ contains
 !> space the symmetry lsym (determinants sym(alpha) x sym(beta) = lsym
 !> only). spin_flip: all vectors are singlets (nela = nelb), symmetric
 !> under the exchange of the alpha and beta strings.
-subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip)
+!> ab_timed: the path of the alpha-beta sigma is the fastest of the first
+!> sigma calls, else (reproducible, for the verification) by the cost
+!> estimate (see res_choose).
+subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip,ab_timed)
   integer(kind=iwp), intent(in) :: nela, nelb, norb, np, o(np), mn(np), mx(np), nsym, osym(norb), lsym
-  logical(kind=iwp), intent(in) :: spin_flip
+  logical(kind=iwp), intent(in) :: spin_flip, ab_timed
   integer(kind=iwp) :: ca, cb, n, k
 
   call faroald_ras_free()
@@ -209,7 +215,7 @@ subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip)
       end if
     end do
   end do
-  call res_choose()
+  call res_choose(ab_timed)
   ras_active = .true.
 
 end subroutine faroald_ras_init
@@ -837,64 +843,137 @@ subroutine mk_resolution()
   nres_k = nk
 end subroutine mk_resolution
 
-!> The candidates of the alpha-beta sigma (res_try; res_mode = -1 if there
-!> are several, timed in the first sigma calls): the direct loops, and the
-!> resolution with fine or coarse blocks unless it costs more than 8 times
-!> the cheapest by an estimate (direct: one scalar update per beta and alpha
-!> excitation; resolution: gathers and scatters, and the DGEMM work divided
-!> by ResGemmSpeed). The estimate only screens; the timings decide (the
-!> efficiency of the small DGEMMs varies too much to be estimated).
-subroutine res_choose()
-  real(kind=wp) :: c_dir, c_fine, c_coarse, cmin
-  integer(kind=iwp) :: b, ca, cb
-  real(kind=wp), allocatable :: na(:)
+!> The path of the alpha-beta sigma (res_mode): the direct loops, or the
+!> resolution with fine or coarse blocks. timed: the candidates (within a
+!> factor 8 of the cheapest estimate) are timed in the first sigma calls and
+!> the fastest is used (different paths differ by round-off, so the results
+!> are not reproducible to the last digit); else
+!> the cheapest by an estimate of the cost (dir_counts, res_counts; ties in
+!> the order direct, fine, coarse), which depends on the CI space only.
+subroutine res_choose(timed)
+  logical(kind=iwp), intent(in) :: timed
+  real(kind=wp) :: c_dir, c_fine, c_coarse, cmin, d_el, d_op, d_gs, f_gs, f_call, f_fl, c_gs, c_call, c_fl
+  logical(kind=iwp) :: coarse
+  character(len=*), parameter :: Path(0:2) = ['direct loops               ','resolution, fine blocks    ', &
+                                              'resolution, coarse blocks  ']
   res_mode = 0
-  if (nres_k == 0) return
-  ! direct: per beta excitation of group cb, the alpha excitations of the
-  ! alpha strings allowed with cb
-  call mma_allocate(na,sb%ncls,label='res_cost')
-  na(:) = Zero
-  do cb=1,sb%ncls
-    do ca=1,sa%ncls
-      if (blk_off(ca,cb) < 0) cycle
-      na(cb) = na(cb)+real(sa%ex_off(sa%cls_off(ca)+sa%cls_nstr(ca)+1)-sa%ex_off(sa%cls_off(ca)+1),kind=wp)
-    end do
-  end do
-  c_dir = Zero
-  do b=1,nbat
-    c_dir = c_dir+real(bat_off(b+1)-bat_off(b),kind=wp)*na(bat_cj(b))
-  end do
-  call mma_deallocate(na)
-  c_fine = res_cost(res_nblk,res_boff,res_bsym,res_okb)
-  c_coarse = res_cost(res_ncb,res_cboff,res_cbsym,res_cokb)
-  ! candidates: the direct loops, and each resolution within a factor 8 of
-  ! the cheapest estimate; timed in the first sigma calls
-  res_ntry = 1
-  res_try(1) = 0
-  cmin = min(c_dir,c_fine,c_coarse)
-  if (c_fine <= 8.0_wp*cmin) then
-    res_ntry = res_ntry+1
-    res_try(res_ntry) = 1
-  end if
-  ! (CAS: the coarse blocks are the fine ones)
-  if ((c_coarse <= 8.0_wp*cmin) .and. (res_ncb /= res_nblk)) then
-    res_ntry = res_ntry+1
-    res_try(res_ntry) = 2
-  end if
+  res_ntry = 0
   res_itry = 0
   res_tim(:) = Zero
-  res_mode = merge(-1,0,res_ntry > 1)
+  if (nres_k == 0) return
+  call dir_counts(d_el,d_op,d_gs)
+  call res_counts(res_nblk,res_boff,res_bsym,res_okb,f_gs,f_call,f_fl)
+  call res_counts(res_ncb,res_cboff,res_cbsym,res_cokb,c_gs,c_call,c_fl)
+  c_dir = d_el+Cost_Op*d_op+Cost_GS*d_gs
+  c_fine = Cost_GS*f_gs+Cost_Call*f_call+Cost_Flop*f_fl
+  c_coarse = Cost_GS*c_gs+Cost_Call*c_call+Cost_Flop*c_fl
+  ! (CAS: the coarse blocks are the fine ones)
+  coarse = res_ncb /= res_nblk
+  if (.not. coarse) c_coarse = c_fine
+  cmin = min(c_dir,c_fine,c_coarse)
+  if (timed) then
+    ! the candidates within a factor 8 of the cheapest estimate
+    res_ntry = 0
+    if (c_dir <= 8.0_wp*cmin) then
+      res_ntry = res_ntry+1
+      res_try(res_ntry) = 0
+    end if
+    if (c_fine <= 8.0_wp*cmin) then
+      res_ntry = res_ntry+1
+      res_try(res_ntry) = 1
+    end if
+    if (coarse .and. (c_coarse <= 8.0_wp*cmin)) then
+      res_ntry = res_ntry+1
+      res_try(res_ntry) = 2
+    end if
+    res_mode = merge(-1,res_try(1),res_ntry > 1)
+  else if (c_dir <= cmin) then
+    res_mode = 0
+  else if (c_fine <= cmin) then
+    res_mode = 1
+  else
+    res_mode = 2
+  end if
+  write(u6,'(1X,A,3ES11.3)') 'Faroald alpha-beta sigma, cost estimate (direct, resolution fine, coarse):',c_dir,c_fine,c_coarse
+  if (res_mode >= 0) then
+    write(u6,'(1X,2A)') 'Faroald alpha-beta sigma uses: ',trim(Path(res_mode))
+  else
+    write(u6,'(1X,A)') 'Faroald alpha-beta sigma: path timed in the first sigma calls'
+  end if
 end subroutine res_choose
 
-!> The estimated cost of the resolution with the blocks boff/bsym/okb.
-function res_cost(nb,boff,bsym,okb) result(c)
+!> The work of the direct loops (opposite_spin_dir): el the elements of the
+!> vector updates, op their number (one per alpha excitation whose integral
+!> is allowed by symmetry, for singlets only ka >= kb), gs the gathered and
+!> scattered elements
+subroutine dir_counts(el,op,gs)
+  real(kind=wp), intent(out) :: el, op, gs
+  integer(kind=iwp) :: n2, b, ca, ga, ea, ka, kb, nk, kc, nch, sk
+  real(kind=wp) :: na
+  real(kind=wp), allocatable :: h(:,:), m(:,:)
+  integer(kind=iwp), allocatable :: psym(:)
+  n2 = ras_norb**2
+  call mma_allocate(psym,n2,label='res_psym')
+  do kb=1,n2
+    psym(kb) = ieor(ras_osym(mod(kb-1,ras_norb)+1)-1,ras_osym((kb-1)/ras_norb+1)-1)
+  end do
+  ! h(ka,ca): the alpha excitations of pair ka of the strings of group ca;
+  ! m(kb,ca): those that couple with the beta pair kb
+  call mma_allocate(h,n2,sa%ncls,label='res_h')
+  call mma_allocate(m,n2,sa%ncls,label='res_m')
+  h(:,:) = Zero
+  do ca=1,sa%ncls
+    do ga=sa%cls_off(ca)+1,sa%cls_off(ca)+sa%cls_nstr(ca)
+      do ea=sa%ex_off(ga)+1,sa%ex_off(ga+1)
+        ka = (sa%ex_q(ea)-1)*ras_norb+sa%ex_p(ea)
+        h(ka,ca) = h(ka,ca)+One
+      end do
+    end do
+  end do
+  m(:,:) = Zero
+  do ca=1,sa%ncls
+    do kb=1,n2
+      sk = psym(kb)
+      do ka=merge(kb,1,ras_singlet),n2
+        if (psym(ka) == sk) m(kb,ca) = m(kb,ca)+h(ka,ca)
+      end do
+    end do
+  end do
+  kc = chunk_size()
+  el = Zero
+  op = Zero
+  gs = Zero
+  do b=1,nbat
+    kb = (bat_x(b)-1)*ras_norb+bat_v(b)
+    nk = bat_off(b+1)-bat_off(b)
+    nch = (nk+kc-1)/kc
+    na = Zero
+    do ca=1,sa%ncls
+      if (blk_off(ca,bat_cj(b)) >= 0) then
+        na = na+m(kb,ca)
+        gs = gs+real(nk,kind=wp)*real(sa%cls_nstr(ca),kind=wp)
+      end if
+      if (blk_off(ca,bat_ci(b)) >= 0) gs = gs+real(2*nk,kind=wp)*real(sa%cls_nstr(ca),kind=wp)
+    end do
+    el = el+real(nk,kind=wp)*na
+    op = op+real(nch,kind=wp)*na
+  end do
+  call mma_deallocate(m)
+  call mma_deallocate(h)
+  call mma_deallocate(psym)
+end subroutine dir_counts
+
+!> The work of the resolution with the blocks boff/bsym/okb
+!> (opposite_spin_res): gs the gathered and scattered elements, nc the
+!> DGEMM calls, fl their multiply-adds
+subroutine res_counts(nb,boff,bsym,okb,gs,nc,fl)
   integer(kind=iwp), intent(in) :: nb, boff(nb+1), bsym(nb)
   logical(kind=iwp), intent(in) :: okb(nb,sb%ncls)
-  real(kind=wp) :: c
+  real(kind=wp), intent(out) :: gs, nc, fl
   integer(kind=iwp) :: iblk, nk, jb, ib, e, cbj, usym, nu, tsym, nt
-  real(kind=wp) :: gs, mm
   gs = Zero
-  mm = Zero
+  nc = Zero
+  fl = Zero
   do iblk=1,nb
     nk = boff(iblk+1)-boff(iblk)
     do jb=1,sb%nstr
@@ -910,12 +989,13 @@ function res_cost(nb,boff,bsym,okb) result(c)
         if (.not. okb(iblk,sb%str_cls(ib))) cycle
         tsym = ieor(ieor(usym-1,ras_osym(sb%ex_p(e))-1),ras_osym(sb%ex_q(e))-1)+1
         nt = res_ns(tsym)
-        mm = mm+real(nk,kind=wp)*real(nu,kind=wp)*real(nt,kind=wp)
+        if (nt == 0) cycle
+        nc = nc+One
+        fl = fl+real(nk,kind=wp)*real(nu,kind=wp)*real(nt,kind=wp)
       end do
     end do
   end do
-  c = gs+mm/ResGemmSpeed
-end function res_cost
+end subroutine res_counts
 
 function chunk_size() result(kc)
   use stdalloc, only: mma_maxDBLE
@@ -1463,13 +1543,7 @@ subroutine opposite_spin(g,vec,sgm)
       end do
       write(u6,'(1X,A,3ES11.3)') 'Faroald alpha-beta sigma, s per call (direct, resolution fine, coarse; 0 = not tried):', &
                                 res_tim(0:2)
-      if (res_mode == 0) then
-        write(u6,'(1X,A)') 'Faroald alpha-beta sigma uses: direct loops'
-      else if (res_mode == 1) then
-        write(u6,'(1X,A)') 'Faroald alpha-beta sigma uses: resolution, fine blocks'
-      else
-        write(u6,'(1X,A)') 'Faroald alpha-beta sigma uses: resolution, coarse blocks'
-      end if
+      write(u6,'(1X,A,I0,A)') 'Faroald alpha-beta sigma uses path ',res_mode,' (0 direct, 1 fine, 2 coarse)'
     end if
   end if
 
