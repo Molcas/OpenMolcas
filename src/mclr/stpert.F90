@@ -26,6 +26,7 @@ character(len=288) :: Header
 character(len=16) :: Label
 character(len=8) :: MckLbl
 
+iDummer = 0
 nHss = 0
 do iS=1,nSym
   nHss = nHss+nTri_Elem(lDisp(is))
@@ -74,6 +75,7 @@ if (.not. Mckinley) then
   irc = -1
   iopt = 0
   MckLbl = 'Title'
+  Header = ' '
   call cWrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
   if (irc /= 0) then
     write(u6,*) 'StPert: Error writing to MCKINT'

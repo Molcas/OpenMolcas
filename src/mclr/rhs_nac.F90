@@ -229,6 +229,7 @@ do k=1,nSym
     F(ij) = T(ipMat(k,k)+nBas(k)*i+i)
   end do
 end do
+F(ij+1:) = Zero
 call Put_dArray('FockOcc',F,nDens)
 
 call mma_deallocate(T)
