@@ -15,6 +15,7 @@ use CI_Info, only: CI_St
 use ipPage, only: ipin, W
 use MCLR_Data, only: FANCY_PRECONDITIONER, ipCI, ipDia, nConf1
 use input_mclr, only: ERASSCF, nCSF, nRoots, Weight
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
@@ -23,8 +24,9 @@ integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: ipSigma
 real(kind=wp), intent(out) :: rout(nCSF(CI_St(iState)%STSym),nRoots)
 real(kind=wp), intent(in) :: S(nRoots,nRoots,nRoots)
-integer(kind=iwp) :: iR, jR, k
-real(kind=wp) :: alpha(nRoots), rcoeff(nRoots), den(nCSF(CI_St(1)%STSym),nRoots)
+integer(kind=iwp) :: iR, jR, k, n
+real(kind=wp) :: alpha(nRoots), rcoeff(nRoots)
+real(kind=wp), allocatable :: den(:,:), Tmp(:)
 real(kind=wp), external :: DDot_
 
 !                                  -1           -1
@@ -35,30 +37,41 @@ real(kind=wp), external :: DDot_
 !                                    <0|(H -E) |0>
 !                                         0
 
+n = nCSF(CI_St(iState)%STSym)
 if (nconf1 > 1) then
   call ipin(ipdia)
   call ipin(ipsigma)
-  ! Denominators |H0-E_i|: the CI block of the SA Hessian, 2 w_i (H-E_i), is
-  ! positive definite on the space orthogonal to the SA states, but H0-E_i
-  ! can be negative for excited roots, which made the preconditioner
-  ! indefinite. The same denominators are used in SA_PREC2. The simpler
-  ! (NODEfault) preconditioner, which only projects against the own state,
-  ! keeps the signed denominators of CIDIA_sa.
-  do iR=1,nRoots
-    den(:,iR) = W(ipdia)%A(1:nCSF(CI_St(iState)%STSym))-ERASSCF(iR)
-    if (FANCY_PRECONDITIONER) den(:,iR) = max(abs(den(:,iR)),1.0e-16_wp)
-  end do
-  k = 0
-  do iR=1,nRoots
-    rout(:,iR) = W(ipSigma)%A(k+1:k+nCSF(CI_St(iState)%STSym))/den(:,iR)
-    k = k+nCSF(CI_St(iState)%STSym)
-  end do
+  if (FANCY_PRECONDITIONER) then
+    ! |H0-E_i|^-1, H0 with the explicit Hamiltonian in a subspace and the
+    ! diagonal elsewhere (ExpHinvv_SA): the CI block of the SA Hessian,
+    ! 2 w_i (H-E_i), is positive definite on the space orthogonal to the
+    ! SA states, but H0-E_i can be negative for excited roots. The same
+    ! operator is used in SA_PREC2.
+    call mma_allocate(Tmp,n,Label='Tmp')
+    k = 0
+    do iR=1,nRoots
+      call ExpHinvv_SA(n,W(ipdia)%A,W(ipSigma)%A(k+1:k+n),rout(:,iR),ERASSCF(iR))
+      k = k+n
+    end do
+  else
+    ! The simpler (NODEfault) preconditioner, which only projects against
+    ! the own state, keeps the signed denominators of CIDIA_sa.
+    call mma_allocate(den,n,nRoots,Label='den')
+    do iR=1,nRoots
+      den(:,iR) = W(ipdia)%A(1:n)-ERASSCF(iR)
+    end do
+    k = 0
+    do iR=1,nRoots
+      rout(:,iR) = W(ipSigma)%A(k+1:k+n)/den(:,iR)
+      k = k+n
+    end do
+  end if
   do iR=1,nRoots
 
     !We = weight(iR)
     call ipin(ipCI)
     do jR=1,nRoots
-      rcoeff(jR) = ddot_(nconf1,rout(:,iR),1,W(ipCI)%A(1+(jR-1)*nCSF(CI_St(iState)%STSym)),1)
+      rcoeff(jR) = ddot_(nconf1,rout(:,iR),1,W(ipCI)%A(1+(jR-1)*n),1)
     end do
 
     do jR=1,nRoots
@@ -66,12 +79,22 @@ if (nconf1 > 1) then
     end do
 
     do jR=1,nRoots
-      rout(:,iR) = rout(:,iR)-W(ipCI)%A((jR-1)*nCSF(CI_St(iState)%STSym)+1:jR*nCSF(CI_St(iState)%STSym))*alpha(jR)/den(:,iR)
+      if (FANCY_PRECONDITIONER) then
+        call ExpHinvv_SA(n,W(ipdia)%A,W(ipCI)%A((jR-1)*n+1:jR*n),Tmp,ERASSCF(iR))
+        rout(:,iR) = rout(:,iR)-alpha(jR)*Tmp(:)
+      else
+        rout(:,iR) = rout(:,iR)-W(ipCI)%A((jR-1)*n+1:jR*n)*alpha(jR)/den(:,iR)
+      end if
     end do
     ! the CI block of the Hessian is 2 w_i (H-E_i), cf. the factor 1/2 in DMinvCI
     if (FANCY_PRECONDITIONER .and. (Weight(iR) > 1.0e-12_wp)) rout(:,iR) = rout(:,iR)/(Two*Weight(iR))
 
   end do
+  if (FANCY_PRECONDITIONER) then
+    call mma_deallocate(Tmp)
+  else
+    call mma_deallocate(den)
+  end if
 else
   rout(:,:) = Zero
 end if

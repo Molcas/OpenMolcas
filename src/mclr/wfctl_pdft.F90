@@ -707,6 +707,7 @@ call mma_deallocate(Sigma)
 call mma_deallocate(dKappa)
 call mma_deallocate(Kappa)
 call mma_deallocate(Fancy)
+call ExplH_SA_Free()
 
 ! Free all memory and remove from disk all data
 ! related to this symmetry

@@ -211,16 +211,22 @@ A list of these keywords is given below:
 
 :kword:`EXPDimension`
   Here follows the dimension of the explicit Hamiltonian used as preconditioner
-  in the Preconditioned conjugate gradient algorithm. Default 100.
+  in the Preconditioned conjugate gradient algorithm, for single-state and
+  (unless :kword:`NODEfault` is given) state-averaged wave functions. The
+  subspace consists of the configurations with the lowest diagonal elements,
+  as in the Davidson procedure of RASSCF; 0 uses the diagonal only. Default 100.
 
   .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="EXPD" APPEAR="Explicit Hamiltonian dimension" KIND="INT" DEFAULT_VALUE="100" LEVEL="BASIC">
               <HELP>
               Specify the dimension of the explicit Hamiltonian used as preconditioner
-              in the Preconditioned Conjugate Gradient algorithm.
+              in the Preconditioned Conjugate Gradient algorithm, for single-state and
+              (unless NODEfault is given) state-averaged wave functions. 0 uses the
+              diagonal only.
               </HELP>
               %%Keyword: EXPDimension <advanced>
               Here follows the dimension of the explicit Hamiltonian used as preconditioner
-              in the Preconditioned conjugate gradient algorithm. Default 100.
+              in the Preconditioned conjugate gradient algorithm, for single-state and
+              (unless NODEfault is given) state-averaged wave functions. Default 100.
               </KEYWORD>
 
 :kword:`ITERations`

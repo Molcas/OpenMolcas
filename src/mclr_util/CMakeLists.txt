@@ -16,6 +16,9 @@ set (sources
      clsfls_mclr.F90
      dwder.F90
      exphinvv.F90
+     exphinvv_sa.F90
+     explh_sa.F90
+     explh_sa_free.F90
      e2.F90
      e2_td.F90
      get_cmo_mclr.F90

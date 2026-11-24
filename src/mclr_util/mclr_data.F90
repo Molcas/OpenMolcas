@@ -131,6 +131,12 @@ module MCLR_Data
 ! Stuff from Exp
 !  H0F, H0S, NewPre, nexp, nexp_max, SBIDT
 
+! The explicit Hamiltonian of the SA CI preconditioner (ExplH_SA)
+!  nSel  : number of CSFs in the subspace
+!  iSel  : the CSFs of the subspace
+!  ExplE : eigenvalues of the explicit Hamiltonian
+!  ExplV : eigenvectors of the explicit Hamiltonian
+
 use Molcas, only: LenIn
 use Definitions, only: wp, iwp
 
@@ -143,21 +149,22 @@ integer(kind=iwp), parameter :: Mxdccc = 500, MXSTATE = 10
 integer(kind=iwp) :: dspvec(mxdccc), ipCI, ipCM(8), ipdia, ipMat(8,8), ipmatba(8,8), ipMatLT(8,8), ipMO(8,8,8), irlxroot, &
                      istate, lDisp(8), luciv, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, &
                      LUTRi3, LUTRI4, LUTRI5, LuTwo, n1Dens, n2Dens, na(8), nacpar, nacpr2, NACstates(2), nb(8), nCMO, nconf1, &
-                     nDens, nDensC, nexp = 0, nexp_max = 100, nhess, nmba, nna, nrec, NSSA(2)
+                     nDens, nDensC, nexp = 0, nexp_max = 100, nhess, nmba, nna, nrec, nSel = 0, NSSA(2)
 real(kind=wp) :: ERAS(MXSTATE), P1(MXSTATE*(MXSTATE+1)/2), P1INV(MXSTATE*(MXSTATE+1)/2), PDFT_Ratio, ResQaaLag2, WF_Ratio
 logical(kind=iwp) :: Do_Hybrid, esterr, Fancy_Preconditioner, isMECIMSPD, isNAC, NewPre = .true., ngp, Nofile, override, SA
 character(len=LenIn+6) :: ChDisp(Mxdccc*3)
 character(len=8) :: FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FnTwo, &
                     SwLbl(Mxdccc)
-integer(kind=iwp), allocatable :: H0F(:), SBIDT(:)
-real(kind=wp), allocatable :: CMO_Inv(:), F0SQMO(:), FAMO(:), FIMO(:), G1t(:), G2sq(:), G2t(:), H0S(:), Hss(:), INT2(:), SS(:,:)
+integer(kind=iwp), allocatable :: H0F(:), iSel(:), SBIDT(:)
+real(kind=wp), allocatable :: CMO_Inv(:), ExplE(:), ExplV(:,:), F0SQMO(:), FAMO(:), FIMO(:), G1t(:), G2sq(:), G2t(:), H0S(:), &
+                              Hss(:), INT2(:), SS(:,:)
 real(kind=wp), allocatable, target :: CMO(:), INT1(:)
 
-public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, F0SQMO, FAMO, Fancy_Preconditioner, FIMO, FnHlf2, FNHlf3, &
-          FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FnTwo, G1t, G2sq, G2t, H0F, H0S, &
-          Hss, INT1, INT2, ipCI, ipCM, ipdia, ipMat, ipmatba, ipMatLT, ipMO, irlxroot, isMECIMSPD, isNAC, istate, lDisp, luciv, &
-          LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LuTwo, n1Dens, &
-          n2Dens, na, nacpar, nacpr2, NACstates, nb, nCMO, nconf1, nDens, nDensC, NewPre, nexp, nexp_max, ngp, nhess, nmba, nna, &
-          Nofile, nrec, NSSA, override, P1, P1INV, PDFT_Ratio, ResQaaLag2, SA, SBIDT, SS, SwLbl, WF_Ratio
+public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, ExplE, ExplV, F0SQMO, FAMO, Fancy_Preconditioner, FIMO, FnHlf2, &
+          FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FnTwo, G1t, G2sq, G2t, &
+          H0F, H0S, Hss, INT1, INT2, ipCI, ipCM, ipdia, ipMat, ipmatba, ipMatLT, ipMO, irlxroot, iSel, isMECIMSPD, isNAC, istate, &
+          lDisp, luciv, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, &
+          LuTwo, n1Dens, n2Dens, na, nacpar, nacpr2, NACstates, nb, nCMO, nconf1, nDens, nDensC, NewPre, nexp, nexp_max, ngp, &
+          nhess, nmba, nna, Nofile, nrec, nSel, NSSA, override, P1, P1INV, PDFT_Ratio, ResQaaLag2, SA, SBIDT, SS, SwLbl, WF_Ratio
 
 end module MCLR_Data

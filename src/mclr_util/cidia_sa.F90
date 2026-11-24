@@ -50,6 +50,8 @@ ipdia = ipdiai
 
 if (FANCY_PRECONDITIONER) then
   call ipin(ipdia)
+  ! the explicit Hamiltonian in a subspace (as in RASSCF's Davidson)
+  call ExplH_SA(iSym,W(ipdia)%A)
   call SA_PREC(S,W(ipdia)%A)
 else
   call ipin(ipdiai)

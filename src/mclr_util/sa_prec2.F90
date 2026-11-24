@@ -10,31 +10,31 @@
 !***********************************************************************
 
 subroutine SA_PREC2(rdia,S,CI,ENE)
+! S = <i|H0-E|^-1|j>, inverted, over the SA states i, j, for the state of
+! energy ENE (H0: ExpHinvv_SA, as in DMinvCI_SA)
 
 use CI_Info, only: CI_St
 use input_mclr, only: nCSF, nRoots
-use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), parameter :: iState = 1
-real(kind=wp), intent(in) :: rdia(nCSF(CI_St(iState)%STSym)), CI(nCSF(CI_St(iState)%STSym),nCSF(CI_St(iState)%STSym)), ENE
+real(kind=wp), intent(in) :: rdia(nCSF(CI_St(iState)%STSym)), CI(nCSF(CI_St(iState)%STSym),nRoots), ENE
 real(kind=wp), intent(out) :: S(nroots,nroots)
-integer(kind=iwp) :: i, j, k, n
-real(kind=wp) :: dnum
+integer(kind=iwp) :: i, j, n
+real(kind=wp), allocatable :: Tmp(:)
+real(kind=wp), external :: DDot_
 
 n = nCSF(CI_St(iState)%STSym)
-S(:,:) = Zero
-do i=1,nroots
-  do j=1,nroots
-    do k=1,n
-      ! |H0-E|: keeps the preconditioner positive definite for excited
-      ! roots (must be the same as in DMinvCI_SA)
-      dnum = max(abs(rdia(k)-Ene),1.0e-16_wp)
-      S(i,j) = S(i,j)+CI(k,i)*CI(k,j)/dnum
-    end do
+call mma_allocate(Tmp,n,Label='Tmp')
+do j=1,nroots
+  call ExpHinvv_SA(n,rdia,CI(:,j),Tmp,ENE)
+  do i=1,nroots
+    S(i,j) = DDot_(n,CI(:,i),1,Tmp,1)
   end do
 end do
+call mma_deallocate(Tmp)
 call MatInvert(S,nroots)
 
 end subroutine SA_PREC2

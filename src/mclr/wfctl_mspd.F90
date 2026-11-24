@@ -413,6 +413,7 @@ end if
 ! related to this symmetry
 
 call mma_deallocate(Fancy)
+call ExplH_SA_Free()
 call mma_deallocate(iPre)
 
 call ipclose(ipdia)
