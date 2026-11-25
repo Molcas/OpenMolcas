@@ -52,7 +52,7 @@ subroutine RASSCF(IRETURN)
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use Index_Functions, only: nTri_Elem
-use ci_interfaces, only: CI_Timer
+use CI_Library, only: CI_Timer
 use CI_Library, only: CI_Lib_Close
 use OneDat, only: sNoNuc, sNoOri
 use Fock_util_global, only: ALGO, DoActive, DoCholesky

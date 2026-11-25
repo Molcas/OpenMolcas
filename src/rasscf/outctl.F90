@@ -31,7 +31,7 @@ subroutine OutCtl(CMO,OCCN,SMAT,lOPTO)
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
-use ci_interfaces, only: CI_Lucia_Active
+use CI_Library, only: CI_Lucia_Active
 use CI_Input, only: iDoGAS, NGAS, NGSSH
 use input_ras, only: Key
 use rasscf_global, only: BName, CBLBM, cCI, CleanMask, CMAX, DE, DoDMRG, ECAS, Ener, ESX, FDIAG, HalfQ, iADR15, IBLBM, iCI, ICICH, &

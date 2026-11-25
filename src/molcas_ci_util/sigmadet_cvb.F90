@@ -11,7 +11,7 @@
 
 subroutine SIGMADET_CVB(C,HC,IREFSM_CASVB,NCI)
 
-use ci_interfaces, only: Mk_H_Psi_Det
+use CI_Library, only: CI_Lib_Sigma_Det
 use wadr, only: FMO, TUVX
 use Definitions, only: wp, iwp
 
@@ -23,6 +23,6 @@ real(kind=wp), intent(_IN_) :: C(NCI)
 real(kind=wp), intent(out) :: HC(NCI)
 integer(kind=iwp), parameter :: iState=1
 
-Call Mk_H_Psi_Det(iState,IREFSM_CASVB,nCI,C,HC,nTU=size(FMO),TU=FMO,nTUVX=size(TUVX),TUVX=TUVX)
+call CI_Lib_Sigma_Det(iState,IREFSM_CASVB,size(FMO),FMO,size(TUVX),TUVX,nCI,C,HC)
 
 end subroutine SIGMADET_CVB

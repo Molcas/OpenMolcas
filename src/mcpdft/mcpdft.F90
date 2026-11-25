@@ -19,7 +19,7 @@
 
 subroutine mcpdft(ireturn)
 
-use ci_interfaces, only: CI_Timer
+use CI_Library, only: CI_Timer
 use CI_States, only: CI_Free_State
 use Fock_util_global, only: DoCholesky
 use timers, only: TimeInput, TimeOutput, TimeTotal, TimeTrans

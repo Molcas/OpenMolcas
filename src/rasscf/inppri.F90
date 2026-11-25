@@ -30,7 +30,7 @@ subroutine InpPri(lOPTO)
 
 use OneDat, only: sNoOri
 use fcidump, only: DumpOnly
-use ci_interfaces, only: CI_Lucia_Active
+use CI_Library, only: CI_Lucia_Active
 use fciqmc, only: DoNECI
 use CC_CI_mod, only: Do_CC_CI
 use Fock_util_global, only: DoLocK

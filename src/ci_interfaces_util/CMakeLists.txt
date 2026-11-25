@@ -12,7 +12,6 @@
 set (sources
      ci_info.F90
      ci_input.F90
-     ci_interfaces.F90
      ci_lib_checks.F90
      ci_library.F90
      ci_op_defs.F90
@@ -29,7 +28,6 @@ set (sources
 set (modfile_list
      ci_info.F90
      ci_input.F90
-     ci_interfaces.F90
      ci_lib_checks.F90
      ci_library.F90
      ci_op_defs.F90

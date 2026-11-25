@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use ci_interfaces, only: CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Lucia_Active, CI_Verify
+use CI_Library, only: CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Lucia_Active, CI_Verify
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky

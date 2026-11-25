@@ -125,9 +125,9 @@ public :: CI_Lib_Input_State, CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Pro
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSel, &
-          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGEX, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Transform, CI_To_Basis, CI_To_File, &
-          Cnf_Exc, Faro_Ints_Act, Faro_Lev, Faroald_HDet, Lucia1_Block, Lucia1_Block_SG, Rel_Map, Report_Dev, SG_Rel_Embed, &
-          SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGEX, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Sigma_Det, CI_Lib_Transform, CI_To_Basis, &
+          CI_To_File, Cnf_Exc, Faro_Ints_Act, Faro_Lev, Faroald_HDet, Lucia1_Block, Lucia1_Block_SG, Rel_Map, Report_Dev, &
+          SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 
 contains
 
@@ -639,6 +639,36 @@ subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX
     call Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
   end if
 end subroutine CI_Lib_Sigma
+
+!> The sigma vector S = H C in the determinant basis of RASSCF's Lucia
+!> (CASVB), symmetry iSym, nDet determinants; TU/TUVX as for CI_Lib_Sigma.
+!> Lucia's determinant sigma is not spin-projected: a C that is not spin
+!> adapted gives an S that is not either. Only with RASSCF's Lucia (CASVB
+!> selects it). Lucia's sigma is left on disk (Sigma_on_disk) for the
+!> densities.
+subroutine CI_Lib_Sigma_Det(iState,iSym,nTU,TU,nTUVX,TUVX,nDet,C,S)
+  use Lucia_Interface, only: Lucia_Util
+  use lucia_data, only: IREFSM, Sigma_on_disk
+  use cands, only: ICSM, ISSM
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nDet
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(inout) :: C(nDet)
+  real(kind=wp), intent(out) :: S(nDet)
+  integer(kind=iwp) :: IREFSM_Save
+#include "macros.fh"
+  unused_var(iState)
+  if (CI_Lib /= CI_Lib_Lucia) call Not_Yet('CI_Lib_Sigma_Det','the sigma vector in the determinant basis (CASVB)')
+  IREFSM_Save = IREFSM
+  IREFSM = iSym
+  ICSM = iSym
+  ISSM = iSym
+  call Lucia_Util('Sigma',CI_Vector=C(:),Sigma_Vector=S(:),nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+  ! the sigma vector exists on disk (densi_master)
+  Sigma_on_disk = .true.
+  IREFSM = IREFSM_Save
+  ICSM = IREFSM
+  ISSM = IREFSM
+end subroutine CI_Lib_Sigma_Det
 
 !> CI_Lib_Sigma for the selected library
 subroutine Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)

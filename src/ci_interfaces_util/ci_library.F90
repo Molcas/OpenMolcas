@@ -19,14 +19,21 @@
 !> program set up itself gets the core operations unchanged.
 module CI_Library
 
-use CI_Operations, Raw_Dens => CI_Lib_Dens, Raw_Diag => CI_Lib_Diag, Raw_Sigma => CI_Lib_Sigma, Raw_Transform => CI_Lib_Transform
+! (for the programs: the timers, work-space estimate and conversions of the
+! checks module, and the verification options)
+use CI_Lib_Checks, only: CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Timer, CI_Work_Need
+use CI_Verify_Options, only: CI_Verify
+use CI_Operations, Raw_Block => CI_Lib_Block, Raw_Dens => CI_Lib_Dens, Raw_Diag => CI_Lib_Diag, Raw_Sigma => CI_Lib_Sigma, &
+                   Raw_Sigma_Det => CI_Lib_Sigma_Det, Raw_Transform => CI_Lib_Transform
 
 implicit none
-private :: Check_Diag_Faro, Check_Diag_Faro_SG, Check_Diag_Lucia, Check_Diag_SG, Check_PDMs, Check_T1DM, Cnf_Rank, Diag_To_Lucia, &
-           Check_Sigma, CheckSum, Exact_Diag_Lucia, Lucia_Avg_Diag, Lucia_Sigma_Ref, Raw_Dens, Raw_Diag, Raw_Sigma, Raw_Transform, &
-           Sel_PHP
+private :: Block_Col_Ref, Block_Columns, Block_Compare, Block_Eigenvalues, Block_Ref, Check_Block, Check_Diag_Faro, &
+           Check_Diag_Faro_SG, Check_Diag_Lucia, Check_Diag_SG, Check_PDMs, Check_Sigma, Check_T1DM, CheckSum, Cnf_Rank, &
+           Diag_To_Lucia, Exact_Diag_Lucia, Lucia_Avg_Diag, Lucia_Sigma_Ref, Raw_Block, Raw_Dens, Raw_Diag, Raw_Sigma, &
+           Raw_Sigma_Det, Raw_Transform, Sel_PHP, Verify_SG_Explicit
 
-public :: CI_Lib_Dens, CI_Lib_Diag, CI_Lib_Sigma, CI_Lib_Transform
+public :: CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Lib_Block, CI_Lib_Dens, CI_Lib_Diag, CI_Lib_Sigma, CI_Lib_Sigma_Det, &
+          CI_Lib_Transform, CI_Timer, CI_Verify, CI_Work_Need
 
 contains
 
@@ -814,6 +821,62 @@ subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX
 
 end subroutine CI_Lib_Sigma
 
+!> The sigma vector in the determinant basis of RASSCF's Lucia (CASVB): the
+!> core's CI_Lib_Sigma_Det (see there). Under MOLCAS_CI_VERIFY=SIGMA
+!> compared with the SGUGA sigma vector, which is then used (CAS without
+!> symmetry only: the SD/CSF codec exists for CAS, the comparison in the
+!> determinant basis needs one symmetry).
+subroutine CI_Lib_Sigma_Det(iState,iSym,nTU,TU,nTUVX,TUVX,nDet,C,S)
+
+  use CI_Lib_Checks, only: SG_HPsi, Tim_HPsi, Tim_Off, Tim_On
+  use CI_Verify_Options, only: CI_Verify
+  use CI_Info, only: CI_St
+  use SD_CSF_Codec_module, only: CSF_to_SD, SD_CSF_Codec, SD_to_CSF
+  use SG_Lucia_Bridge, only: SG_ReOrd
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nDet
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(inout) :: C(nDet)
+  real(kind=wp), intent(out) :: S(nDet)
+  integer(kind=iwp) :: iDet, nCSF
+  real(kind=wp) :: TimT(2)
+  real(kind=wp), allocatable :: T1(:), T2(:)
+
+  call Tim_On(TimT)
+  call Raw_Sigma_Det(iState,iSym,nTU,TU,nTUVX,TUVX,nDet,C,S)
+  if (CI_Verify('SIGMA') .and. CI_Lib_Input_State(iState) .and. (CI_St(iState)%nRsPrt == 1) .and. (CI_St(iState)%nSym == 1)) then
+    nCSF = CI_St(iState)%nCSF(iSym)
+    call mma_allocate(T1,nDet,Label='T1')
+    call mma_allocate(T2,nDet,Label='T2')
+    ! Lucia determinants -> Lucia CSFs -> split-graph CSFs
+    T2(:) = C(:)
+    T1(:) = Zero
+    call SD_CSF_Codec(T2,T1,SD_to_CSF,iSym)
+    call SG_ReOrd(iState,iSym,0,nCSF,T1,T2)
+    call SG_HPsi(iState,T2,nCSF,iSym,T1,TUVX,nTUVX,TU,nTU,.false.)
+    ! and back
+    call SG_ReOrd(iState,iSym,1,nCSF,T1,T2)
+    call SD_CSF_Codec(T1,T2,CSF_to_SD,iSym)
+    do iDet=1,nDet
+      if (abs(T1(iDet)-S(iDet)) > 1.0e-10_wp) then
+        write(u6,*) 'Mk_H_Psi_Det: Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp)'
+        write(u6,*) ' iDet=',iDet
+        write(u6,*) 'temp1(iDet)=    ',T1(iDet)
+        write(u6,*) 'Sigma_vec(iDet)=',S(iDet)
+        call Abend()
+      end if
+    end do
+    S(:) = T1(:)
+    call mma_deallocate(T2)
+    call mma_deallocate(T1)
+  end if
+  call Tim_Off(Tim_HPsi,TimT)
+
+end subroutine CI_Lib_Sigma_Det
+
 !> CI development (SIGMA): the sigma vector S of C (H of the state iState
 !> in its symmetry LSM) against Lucia (SGCI, FARO) and SGUGA; S is replaced
 !> by SGUGA's (not for SGCI), projected for HEXS/DEXS.
@@ -1061,5 +1124,437 @@ subroutine CI_Lib_Transform(iState,iSym,nTU,TU,n,CI)
   call Tim_Off(Tim_TraPsi,TimT)
 
 end subroutine CI_Lib_Transform
+
+!***********************************************************************************************************************************
+
+!> The explicit block <I|H|J> + ECore of the core (CI_Lib_Block of
+!> CI_Operations, see there for the arguments). Under MOLCAS_CI_VERIFY=SIGMA,
+!> once per run: the block in use is compared with the other libraries (with
+!> FARO in the Faroald basis: columns H e_J of the sigma vectors), SGUGA's
+!> own configuration list and selection are checked against it, and some of
+!> its columns against the sigma vector (CI_Lib_Sigma); the CPU time of each
+!> library is reported.
+subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
+
+  use CI_Lib_Checks, only: Faro_CI, IHJ_Verified, SG_Avail, SG_CI, Tim_IHJ, Tim_Off, Tim_On
+  use CI_Verify_Options, only: CI_Verify
+  use SG_Lucia_Bridge, only: SG_Verify_Lucia_Walk
+  use CI_Info, only: CI_St
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nPMax, nHP
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  integer(kind=iwp), intent(out) :: nP, IdxP(nPMax)
+  real(kind=wp), intent(out) :: HP(nHP)
+  real(kind=wp) :: T0, T1, TimT(2), W
+  logical(kind=iwp) :: Verify
+
+  call Tim_On(TimT)
+  Verify = CI_Verify('SIGMA') .and. CI_Lib_Input_State(iState) .and. (.not. IHJ_Verified)
+  ! the walks of the Lucia CSFs, once per run
+  if (Verify .and. (.not. SG_CI()) .and. SG_Avail() .and. (.not. Faro_CI())) &
+    call SG_Verify_Lucia_Walk(iState,iSym,CI_St(iState)%nCSF(iSym))
+  call CWTime(T0,W)
+  call Raw_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
+  call CWTime(T1,W)
+  if (Verify) then
+    IHJ_Verified = .true.
+    call Check_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,HP,T1-T0)
+  end if
+  call Tim_Off(Tim_IHJ,TimT)
+
+end subroutine CI_Lib_Block
+
+!> CI development (SIGMA): the block HP of the library in use (CPU time
+!> TBlk) against the other libraries, SGUGA's own selection
+!> (Verify_SG_Explicit) and columns of the sigma vector (Block_Columns).
+subroutine Check_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,HP,TBlk)
+
+  use CI_Lib_Checks, only: Faro_CI, SG_Avail, SG_CI
+  use CI_Info, only: CI_St
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nPMax, nP, IdxP(nP)
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore, HP(nTri_Elem(nP)), TBlk
+  integer(kind=iwp) :: k, nCnf
+  integer(kind=iwp), allocatable :: iCSFCnf(:), nCSFCnf(:), nSelCnf(:)
+  real(kind=wp), allocatable :: HRef(:)
+  logical(kind=iwp) :: SG_OK, UseSG
+  character(len=8) :: Lab
+
+  ! SGCI: the block of SGUGA, checked against columns of the sigma vector
+  ! (itself compared with Lucia there)
+  if (SG_CI()) then
+    call Block_Columns(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nP,IdxP,HP)
+    return
+  end if
+
+  ! SGUGA is available without GAS (or through the relaxed space)
+  SG_OK = SG_Avail()
+  ! SGEX: the block of the core is SGUGA's for RASSCF's Lucia
+  UseSG = CI_Lib_SGEX(iState)
+  if (UseSG) then
+    Lab = 'SGUGA'
+  else if (Faro_CI()) then
+    Lab = 'Faroald'
+  else
+    Lab = 'Lucia'
+  end if
+  write(u6,'(1X,3A,I0,A,F10.3,A)') 'Mk_IHJ: ',trim(Lab),' block, ',nP,' CSFs, CPU ',TBlk,' s'
+
+  ! the number of CSFs of each selected configuration
+  nCnf = CI_Lib_nCnf(iState,iSym)
+  call mma_allocate(nCSFCnf,max(1,nCnf),Label='nCSFCnf')
+  call mma_allocate(iCSFCnf,max(1,CI_St(iState)%nCSF(iSym)),Label='iCSFCnf')
+  call CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,size(iCSFCnf),iCSFCnf)
+  call mma_allocate(nSelCnf,max(1,nPC),Label='nSelCnf')
+  do k=1,nPC
+    nSelCnf(k) = nCSFCnf(IPC(k))
+  end do
+  call mma_deallocate(iCSFCnf)
+  call mma_deallocate(nCSFCnf)
+
+  call mma_allocate(HRef,nTri_Elem(nP),Label='HRef')
+  ! (with FARO the block is in the basis of Faroald: the references of
+  ! Lucia and SGUGA are their columns H e_J in that basis, Ref_Sigma)
+  if (UseSG .and. (.not. Faro_CI())) call Block_Ref('Lucia',Lab,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nSelCnf,nP,IdxP,HP,HRef)
+  if (Faro_CI()) then
+    call Block_Ref('Faroald H e_J',Lab,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nSelCnf,nP,IdxP,HP,HRef)
+    call Block_Ref('Lucia H e_J',Lab,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nSelCnf,nP,IdxP,HP,HRef)
+    if (SG_OK) call Block_Ref('SGUGA H e_J',Lab,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nSelCnf,nP,IdxP,HP,HRef)
+  end if
+  if (SG_OK) then
+    if ((.not. UseSG) .and. (.not. Faro_CI())) &
+      call Block_Ref('SGUGA',Lab,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nSelCnf,nP,IdxP,HP,HRef)
+    call Verify_SG_Explicit(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,HP)
+  else
+    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (not available with GAS)'
+  end if
+  call mma_deallocate(HRef)
+  call mma_deallocate(nSelCnf)
+
+  call Block_Columns(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nP,IdxP,HP)
+
+end subroutine Check_Block
+
+!> CI development (SIGMA): the reference block HRef of LabRef, compared with
+!> the block HP of the library in use (Lab).
+subroutine Block_Ref(LabRef,Lab,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nSelCnf,nP,IdxP,HP,HRef)
+
+  use Index_Functions, only: nTri_Elem
+  use Definitions, only: wp, iwp, u6
+
+  character(len=*), intent(in) :: LabRef, Lab
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nSelCnf(nPC), nP, IdxP(nP)
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore, HP(nTri_Elem(nP))
+  real(kind=wp), intent(out) :: HRef(nTri_Elem(nP))
+  real(kind=wp) :: T2, T3, W
+
+  call CWTime(T2,W)
+  select case (LabRef)
+    case ('Lucia')
+      ! (with SGEX: the Lucia block of the core)
+      call Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,HRef)
+    case ('Faroald H e_J')
+      call Block_Col_Ref('Faroald',iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nP,IdxP,HRef)
+    case ('Lucia H e_J')
+      call Block_Col_Ref('Lucia',iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nP,IdxP,HRef)
+    case ('SGUGA H e_J')
+      call Block_Col_Ref('SGUGA',iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nP,IdxP,HRef)
+    case ('SGUGA')
+      call Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HRef)
+  end select
+  call CWTime(T3,W)
+  write(u6,'(1X,3A,F10.3,A)') 'Mk_IHJ: ',LabRef,' block, CPU ',T3-T2,' s'
+  call Block_Compare(trim(Lab),LabRef,nP,IdxP,HP,HRef)
+
+end subroutine Block_Ref
+
+!> CI development (SIGMA): the reference block H(I,J) = (H e_J)(I) + ECore
+!> delta_IJ from the sigma vectors of the unit vectors e_J, J over the CSFs
+!> IdxP of the block: Faroald (the core sigma vector of the library in use,
+!> with FARO), Lucia or SGUGA (Ref_Sigma, in the basis of the library).
+subroutine Block_Col_Ref(LabRef,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nP,IdxP,H)
+
+  use CI_Lib_Checks, only: Ref_Sigma
+  use CI_Info, only: CI_St
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One, Zero
+  use Definitions, only: wp, iwp
+
+  character(len=*), intent(in) :: LabRef
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nP, IdxP(nP)
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(out) :: H(nTri_Elem(nP))
+  integer(kind=iwp) :: I, J, n
+  real(kind=wp), allocatable :: EJ(:), HEJ(:)
+
+  n = CI_St(iState)%nCSF(iSym)
+  call mma_allocate(EJ,n,Label='EJ')
+  call mma_allocate(HEJ,n,Label='HEJ')
+  EJ(:) = Zero
+  do J=1,nP
+    EJ(IdxP(J)) = One
+    if (LabRef == 'Faroald') then
+      call Raw_Sigma(iState,0,iSym,iSym,.false.,.true.,nTU,TU,nTUVX,TUVX,n,EJ,n,HEJ)
+    else
+      call Ref_Sigma(LabRef,iState,iSym,n,EJ,HEJ,nTU,TU,nTUVX,TUVX)
+    end if
+    EJ(IdxP(J)) = Zero
+    do I=J,nP
+      H(nTri_Elem(I-1)+J) = HEJ(IdxP(I))
+    end do
+    H(nTri_Elem(J)) = H(nTri_Elem(J))+ECore
+  end do
+  call mma_deallocate(HEJ)
+  call mma_deallocate(EJ)
+
+end subroutine Block_Col_Ref
+
+!> CI development (SIGMA): the block HP (library Lab) against the reference
+!> block HRef (LabRef), elementwise.
+subroutine Block_Compare(Lab,LabRef,nP,IdxP,HP,HRef)
+
+  use Index_Functions, only: nTri_Elem
+  use Constants, only: Zero
+  use Definitions, only: wp, iwp, u6
+
+  character(len=*), intent(in) :: Lab, LabRef
+  integer(kind=iwp), intent(in) :: nP, IdxP(nP)
+  real(kind=wp), intent(in) :: HP(nTri_Elem(nP)), HRef(nTri_Elem(nP))
+  real(kind=wp), parameter :: Thr = 1.0e-10_wp
+  integer(kind=iwp) :: I, IJ, J
+  real(kind=wp) :: ErrMax
+
+  ErrMax = Zero
+  do I=1,nP
+    do J=1,I
+      IJ = nTri_Elem(I-1)+J
+      ErrMax = max(ErrMax,abs(HP(IJ)-HRef(IJ)))
+      if (abs(HP(IJ)-HRef(IJ)) > Thr) then
+        write(u6,*) 'Mk_IHJ: <I|H|J> of ',Lab,' differs from ',LabRef
+        write(u6,*) 'I, J, CSF(I), CSF(J) =',I,J,IdxP(I),IdxP(J)
+        write(u6,*) Lab,' =',HP(IJ)
+        write(u6,*) LabRef,' =',HRef(IJ)
+        call Abend()
+      end if
+    end do
+  end do
+  write(u6,'(1X,5A,I0,A,ES10.3)') 'Mk_IHJ: ',Lab,' verified against ',LabRef,', ',nP,' CSFs, max. error ',ErrMax
+
+end subroutine Block_Compare
+
+!> CI development (SIGMA): the block HP against columns H e_J of the sigma
+!> vector (CI_Lib_Sigma, checked itself) for at most mxCol CSFs J of the
+!> block, evenly spaced.
+subroutine Block_Columns(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nP,IdxP,HP)
+
+  use Lucia_data, only: Sigma_on_disk
+  use CI_Info, only: CI_St
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One, Zero
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nP, IdxP(nP)
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore, HP(nTri_Elem(nP))
+  integer(kind=iwp), parameter :: mxCol = 32
+  real(kind=wp), parameter :: Thr = 1.0e-10_wp
+  integer(kind=iwp) :: I, J, JJ, n, nCol
+  real(kind=wp) :: Err, ErrMax, Ref
+  logical(kind=iwp) :: Sigma_Save
+  real(kind=wp), allocatable :: EJ(:), HEJ(:)
+
+  n = CI_St(iState)%nCSF(iSym)
+  call mma_allocate(EJ,n,Label='EJ')
+  call mma_allocate(HEJ,n,Label='HEJ')
+  Sigma_Save = Sigma_on_disk
+  nCol = min(nP,mxCol)
+  ErrMax = Zero
+  do JJ=1,nCol
+    J = 1+((JJ-1)*(nP-1))/max(nCol-1,1)
+    EJ(:) = Zero
+    EJ(IdxP(J)) = One
+    call CI_Lib_Sigma(iState,0,iSym,iSym,.false.,.true.,nTU,TU,nTUVX,TUVX,n,EJ,n,HEJ)
+    do I=1,nP
+      Ref = HEJ(IdxP(I))
+      if (I == J) Ref = Ref+ECore
+      Err = abs(HP(nTri_Elem(max(I,J)-1)+min(I,J))-Ref)
+      ErrMax = max(ErrMax,Err)
+      if (Err > Thr) then
+        write(u6,*) 'Mk_IHJ: <I|H|J> differs from (H e_J)(I)'
+        write(u6,*) 'I, J, CSF(I), CSF(J) =',I,J,IdxP(I),IdxP(J)
+        write(u6,*) 'Mk_IHJ   =',HP(nTri_Elem(max(I,J)-1)+min(I,J))
+        write(u6,*) 'Mk_H_Psi =',Ref
+        call Abend()
+      end if
+    end do
+  end do
+  Sigma_on_disk = Sigma_Save
+  write(u6,'(1X,A,I0,A,I0,A,ES10.3)') 'Mk_IHJ verified against Mk_H_Psi: ',nCol,' of ',nP,' columns, max. error ',ErrMax
+  call mma_deallocate(HEJ)
+  call mma_deallocate(EJ)
+
+end subroutine Block_Columns
+
+!> CI development (SIGMA): SGUGA's own configuration list and explicit
+!> subspace (SG_Mk_Cnf_List, SG_Select_Explicit, SG_Explicit_Block) against
+!> the library in use: (1) each configuration of the library is exactly one
+!> SGUGA configuration (same CSFs), (2) the two selections are compared (the
+!> keys differ: the configuration average of the library, the mean exact CSF
+!> diagonal of SGUGA), (3) the SGUGA block over the configurations IPC of the
+!> library has the eigenvalues of the block in use, HP (nP CSFs).
+subroutine Verify_SG_Explicit(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,HP)
+
+  use CI_Lib_Checks, only: CI_Basis_To_File
+  use CI_Info, only: CI_St
+  use sguga, only: SGCnfList, SG_Cnf_Avg_Diag, SG_Explicit_Block, SG_Free_Cnf_List, SG_Mk_Cnf_List, SG_Select_Explicit
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nPMax, nP
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore, HP(nTri_Elem(nP))
+  real(kind=wp), parameter :: Thr = 1.0e-10_wp
+  type(SGCnfList) :: Cnf
+  integer(kind=iwp) :: I, iOffL, k, kG, nBoth, nConf, nGCSF, nGSel, nLSel
+  integer(kind=iwp), allocatable :: CnfOfG(:), GCSF(:), GSel(:), GtoL(:), LtoG(:), LtoGCnf(:), nCSFL(:)
+  logical(kind=iwp), allocatable :: SelG(:), SelL(:)
+  real(kind=wp) :: Dev
+  real(kind=wp), allocatable :: DSG(:), EG(:), EL(:), HG(:), Idx(:), Map(:)
+
+  nConf = CI_St(iState)%nCSF(iSym)
+  call SG_Mk_Cnf_List(iState,iSym,Cnf)
+  ! library CSF -> split-graph CSF, and the SGUGA configuration of each
+  call mma_allocate(Idx,nConf,Label='Idx')
+  call mma_allocate(Map,nConf,Label='Map')
+  do I=1,nConf
+    Idx(I) = real(I,kind=wp)
+  end do
+  call CI_Basis_To_File(iState,iSym,nConf,Idx,Map)
+  call mma_allocate(LtoG,nConf,Label='LtoG')
+  do I=1,nConf
+    LtoG(nint(abs(Map(I)))) = I
+  end do
+  call mma_deallocate(Map)
+  call mma_deallocate(Idx)
+  call mma_allocate(CnfOfG,nConf,Label='CnfOfG')
+  do kG=1,Cnf%nCnf
+    CnfOfG(Cnf%iCSF(Cnf%iOff(kG)+1:Cnf%iOff(kG+1))) = kG
+  end do
+  ! (1) configurations of the library -> SGUGA configurations, a bijection
+  call mma_allocate(nCSFL,CI_Lib_nCnf(iState,iSym),Label='nCSFL')
+  call mma_allocate(GtoL,nConf,Label='GtoL')
+  call CI_Lib_Cnf_Layout(iState,iSym,size(nCSFL),nCSFL,nConf,GtoL)
+  call mma_deallocate(GtoL)
+  if (size(nCSFL) /= Cnf%nCnf) then
+    write(u6,*) 'Mk_IHJ: number of configurations, CI back end and SGUGA:',size(nCSFL),Cnf%nCnf
+    call Abend()
+  end if
+  call mma_allocate(LtoGCnf,size(nCSFL),Label='LtoGCnf')
+  call mma_allocate(SelG,Cnf%nCnf,Label='SelG')
+  SelG(:) = .false.
+  iOffL = 0
+  do k=1,size(nCSFL)
+    kG = CnfOfG(LtoG(iOffL+1))
+    if (any(CnfOfG(LtoG(iOffL+1:iOffL+nCSFL(k))) /= kG) .or. (nCSFL(k) /= Cnf%iOff(kG+1)-Cnf%iOff(kG)) .or. SelG(kG)) then
+      write(u6,*) 'Mk_IHJ: configuration',k,' of the CI back end is not one SGUGA configuration'
+      call Abend()
+    end if
+    SelG(kG) = .true.
+    LtoGCnf(k) = kG
+    iOffL = iOffL+nCSFL(k)
+  end do
+  write(u6,'(1X,A,I0,A)') 'Mk_IHJ: SGUGA configuration list verified, ',Cnf%nCnf,' configurations as in the CI back end'
+  ! (2) the SGUGA selection with its configuration-average diagonal (the key
+  ! of SGCI and of Lucia: differences come from ties only)
+  call mma_allocate(DSG,nConf,Label='DSG')
+  call SG_Cnf_Avg_Diag(iState,Cnf,TU,nTU,TUVX,nTUVX,DSG)
+  call HEXS_Proj(HEXS_Keep_SG,DSG)
+  call mma_allocate(GSel,Cnf%nCnf,Label='GSel')
+  call mma_allocate(GCSF,max(1,nPMax),Label='GCSF')
+  call SG_Select_Explicit(Cnf,DSG,nPMax,nGSel,GSel,nGCSF,GCSF)
+  call mma_deallocate(DSG)
+  call mma_allocate(SelL,Cnf%nCnf,Label='SelL')
+  SelG(:) = .false.
+  SelL(:) = .false.
+  SelG(GSel(1:nGSel)) = .true.
+  SelL(LtoGCnf(IPC(1:nPC))) = .true.
+  nBoth = count(SelG .and. SelL)
+  nLSel = count(SelL)
+  write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A,I0,A)') 'Mk_IHJ: SGUGA selection (configuration average): ',nGSel,' configurations, ', &
+                                              nGCSF,' CSFs; CI back end: ',nLSel,' configurations; ',nBoth,' in common, ', &
+                                              count(SelG .neqv. SelL),' differ'
+  ! (3) SGUGA block over the configurations selected by the library (for GAS
+  ! the matrix elements in the relaxed space)
+  call mma_allocate(GtoL,max(1,nPC),Label='GtoL')
+  GtoL(1:nPC) = LtoGCnf(IPC(1:nPC))
+  call mma_allocate(HG,nTri_Elem(nP),Label='HG')
+  if (CI_St(iState)%iRel > 0) then
+    call SG_Rel_Map(iState,Cnf%LSM)
+    call SG_Explicit_Block(iState,Cnf,nPC,GtoL,ECore,TU,nTU,TUVX,nTUVX,HG,iRel=CI_St(iState)%iRel,RelMap=Rel_Map(Cnf%LSM)%M)
+  else
+    call SG_Explicit_Block(iState,Cnf,nPC,GtoL,ECore,TU,nTU,TUVX,nTUVX,HG)
+  end if
+  call mma_allocate(EG,nP,Label='EG')
+  call mma_allocate(EL,nP,Label='EL')
+  call Block_Eigenvalues(HG,nP,EG)
+  HG(:) = HP(:)
+  call Block_Eigenvalues(HG,nP,EL)
+  Dev = maxval(abs(EG(:)-EL(:)))
+  write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHJ: SG_Explicit_Block, eigenvalues verified against the block in use, ',nP, &
+                                 ' CSFs, max. error ',Dev
+  if (Dev > Thr*max(One,maxval(abs(EL(:))))) then
+    write(u6,*) 'Mk_IHJ: eigenvalues of the SGUGA explicit block differ'
+    call Abend()
+  end if
+  call mma_deallocate(EL)
+  call mma_deallocate(EG)
+  call mma_deallocate(HG)
+  call mma_deallocate(GtoL)
+  call mma_deallocate(SelL)
+  call mma_deallocate(GCSF)
+  call mma_deallocate(GSel)
+  call mma_deallocate(SelG)
+  call mma_deallocate(LtoGCnf)
+  call mma_deallocate(nCSFL)
+  call mma_deallocate(CnfOfG)
+  call mma_deallocate(LtoG)
+  call SG_Free_Cnf_List(Cnf)
+
+end subroutine Verify_SG_Explicit
+
+!> Eigenvalues E (increasing) of the lower-triangle packed symmetric matrix
+!> A, which is overwritten.
+subroutine Block_Eigenvalues(A,n,E)
+
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One, Zero
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: n
+  real(kind=wp), intent(inout) :: A(nTri_Elem(n))
+  real(kind=wp), intent(out) :: E(n)
+  integer(kind=iwp) :: I
+  real(kind=wp), allocatable :: V(:,:)
+
+  call mma_allocate(V,n,n,Label='V')
+  V(:,:) = Zero
+  do I=1,n
+    V(I,I) = One
+  end do
+  call NIdiag_new(A,V,n,n)
+  call JACORD(A,V,n,n)
+  do I=1,n
+    E(I) = A(nTri_Elem(I))
+  end do
+  call mma_deallocate(V)
+
+end subroutine Block_Eigenvalues
 
 end module CI_Library
