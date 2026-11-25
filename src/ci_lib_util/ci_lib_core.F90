@@ -154,25 +154,40 @@ subroutine CI_Lib_Initialize(iState)
   if (.not. CI_Lib_Space(iState)%Active) then
     ! no state set up by the program: the state from the CI input
     call CI_Lib_Setup_Input(iState)
-    return
-  end if
-  if (CI_Lib_Selected == CI_Lib_SGUGA) then
+  else if (CI_Lib_Selected == CI_Lib_SGUGA) then
     ! the split graph is the state of the CI interface (set up by the
     ! program with CI_Lib_Graph_Mode()); no determinants
     CI_Lib_Space(iState)%nDet(:) = CI_Lib_Space(iState)%nCSF(:)
-    return
-  end if
-  if (CI_Lib_Selected == CI_Lib_Faroald) then
+  else if (CI_Lib_Selected == CI_Lib_Faroald) then
     call CI_Faro_Init(iState)
-    return
+  else
+    call Check_Lib('CI_Lib_Initialize')
+    ! the CI space as arguments: the library keeps its own copies
+    call MCLR_Lucia_Init(nSym,nOrb(1:nSym),nIsh(1:nSym),nAsh(1:nSym),nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3, &
+                         nActEl,iSpin,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%nCSF(1:nSym),nDet(1:nSym))
+    CI_Lib_Space(iState)%nDet(:) = 0
+    CI_Lib_Space(iState)%nDet(1:nSym) = nDet(1:nSym)
   end if
-  call Check_Lib('CI_Lib_Initialize')
-  ! the CI space as arguments: the library keeps its own copies
-  call MCLR_Lucia_Init(nSym,nOrb(1:nSym),nIsh(1:nSym),nAsh(1:nSym),nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,nActEl, &
-                       iSpin,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%nCSF(1:nSym),nDet(1:nSym))
-  CI_Lib_Space(iState)%nDet(:) = 0
-  CI_Lib_Space(iState)%nDet(1:nSym) = nDet(1:nSym)
+  call CI_Lib_Report()
 end subroutine CI_Lib_Initialize
+
+!> One line, once the CI library is initialized: which library does the CI.
+subroutine CI_Lib_Report()
+  character(len=24) :: Name
+  select case (CI_Lib_Selected)
+    case (CI_Lib_Lucia)
+      Name = 'LUCIA'
+    case (CI_Lib_SGUGA)
+      Name = 'SGUGA'
+    case (CI_Lib_Faroald)
+      Name = 'FAROALD (experimental)'
+    case (CI_Lib_MCLR_Lucia)
+      Name = 'LUCIA (copy in MCLR)'
+    case default
+      Name = 'none'
+  end select
+  write(u6,'(1X,A,A)') 'CI library initialized: ',trim(Name)
+end subroutine CI_Lib_Report
 
 !> Free the library of the CI state (safe to call in any case); the
 !> selection is kept (CI_Lib_Defs: other code of the program may still read it)
@@ -282,7 +297,6 @@ subroutine CI_Lib_Setup_Input(iState)
     CI_Lib_Space(iState)%nCSF(:) = 0
     CI_Lib_Space(iState)%nCSF(1:nSym) = CIS(iState)%nCSF(1:nSym)
     CI_Lib_Space(iState)%nDet(:) = CI_Lib_Space(iState)%nCSF(:)
-    write(u6,'(1X,A)') 'SGCI/FARO: Lucia is not initialized.'
   end if
   ! Exhaustive verification of the SGUGA coupling-coefficient codes, only on
   ! request (used by the test/csf_sd groups), see CI_Verify. With GAS only
@@ -310,9 +324,6 @@ subroutine CI_Lib_Setup_Input(iState)
   end if
 
   if (CI_Lib_Selected == CI_Lib_Faroald) then
-    write(u6,'(1X,A)') '**EXPERIMENTAL**'
-    write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
-    write(u6,'(1X,A)') '**EXPERIMENTAL**'
     ! the one Faroald setup, from CI_Lib_Space(iState)%Space
     call CI_Faro_Init(iState)
     if ((Faro_ncsf() /= CI_Lib_Space(iState)%nCSF(STSym)) .and. (CI_Lib_Space(iState)%nActEl > 0)) then
