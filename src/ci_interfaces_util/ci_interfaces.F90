@@ -31,7 +31,7 @@ use CI_Operations, only: CI_Lib_Block, CI_Lib_Cnf_Layout, CI_Lib_nCnf, CI_Lib_SG
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
-use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
+use sguga, only: CIS, SGS, SGCnfList, SG_Explicit_Block
 use CI_Verify_Options, only: CI_Verify
 use CI_Info, only: CI_St
 
