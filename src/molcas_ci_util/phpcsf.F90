@@ -38,8 +38,9 @@ subroutine PHPCSF(PHP,IPCSF,MXPDIM,IREFSM,ECORE,NPCSF,DIAG,TU,nTU,TUVX,nTUVX,NTE
 ! adapted to DETRAS by M.P. Fuelscher, October 1989
 ! made generic with respect to the CI library, R. Lindh, 2026
 
-use CI_Interfaces, only: Mk_Cnf_Layout, Mk_IHJ
-use CI_Operations, only: CI_Lib_PSel
+use CI_Interfaces, only: Mk_IHJ
+use CI_Operations, only: CI_Lib_Cnf_Layout, CI_Lib_nCnf, CI_Lib_PSel
+use CI_Info, only: CI_St
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -59,8 +60,10 @@ integer(kind=iwp), allocatable :: nCSFCnf(:), IPCNF(:), iCSF1(:), iCSFCnf(:)
 ! the diagonal over its CSFs (for a back end with a configuration average
 ! diagonal, its value; for an exact diagonal, the trace of H over the
 ! configuration divided by its number of CSFs).
-call Mk_Cnf_Layout(IREFSM,nCSFCnf,iCSFCnf)
-NCONF = size(nCSFCnf)
+NCONF = CI_Lib_nCnf(iState,IREFSM)
+call mma_allocate(nCSFCnf,NCONF,Label='nCSFCnf')
+call mma_allocate(iCSFCnf,CI_St(iState)%nCSF(IREFSM),Label='iCSFCnf')
+call CI_Lib_Cnf_Layout(iState,IREFSM,NCONF,nCSFCnf,size(iCSFCnf),iCSFCnf)
 call mma_allocate(iCSF1,NCONF,Label='iCSF1')
 call mma_allocate(IPCNF,NCONF,Label='IPCNF')
 IICSF = 1

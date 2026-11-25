@@ -26,8 +26,8 @@ use faroald_ras, only: n_ras, ras_active, ras_sigma
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep_SG, HEXS_Proj
-use CI_Operations, only: Cnf_Exc, CI_Lib_Block, CI_Lib_Close, Faro_L2O => Faro_Lev, Faroald_HDet, Rel_Map, Report_Dev, &
-                         SG_Rel_Map
+use CI_Operations, only: Cnf_Exc, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, CI_Lib_nCnf, Faro_L2O => Faro_Lev, Faroald_HDet, &
+                         Rel_Map, Report_Dev, SG_Rel_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
@@ -41,15 +41,12 @@ use CI_Info, only: CI_St
 implicit none
 Private
 
-Public :: Mk_H_Psi_Det, Mk_IHJ, Mk_Cnf_Layout
+Public :: Mk_H_Psi_Det, Mk_IHJ
 Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
           CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_CI, Faro_nTmp, SG_CI
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
 ! run-time verification options (MOLCAS_CI_VERIFY).
-
-! SGCI: the SGUGA configuration list of the CI symmetry (SG_Cnf_Kept)
-type(SGCnfList) :: Cnf_SG
 
 contains
 
@@ -405,7 +402,6 @@ integer(kind=iwp), Intent(in):: iState
 
 ! the library and the state from the CI input (CI_Lib_Close); the selection is kept
 call CI_Lib_Close(iState)
-call SG_Free_Cnf_List(Cnf_SG)
 
 end subroutine CI_Close
 
@@ -416,103 +412,16 @@ end subroutine CI_Close
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-!> Layout of the CSF basis of symmetry IREFSM by configuration:
-!> nCSFCnf(k) is the number of CSFs of the k-th configuration, the
-!> configurations being in the order of the CSF basis (the CSFs of one
-!> configuration are consecutive). Allocated here, to be freed by the caller
-!> with mma_deallocate. (Lucia back end: configuration types from lucia_data.)
-!> Layout of the CSF basis of symmetry IREFSM by configuration: nCSFCnf(k)
-!> CSFs in configuration k, and optionally their indices in the CSF basis,
-!> iCSFCnf(iOff+1:iOff+nCSFCnf(k)) (configuration by configuration). With
-!> SGCI the SGUGA configurations and split-graph CSF indices (not
-!> contiguous), otherwise those of the CI back end (contiguous).
-subroutine Mk_Cnf_Layout(IREFSM,nCSFCnf,iCSFCnf)
-integer(kind=iwp), intent(in) :: IREFSM
-integer(kind=iwp), allocatable, intent(out) :: nCSFCnf(:)
-integer(kind=iwp), allocatable, intent(out), optional :: iCSFCnf(:)
-integer(kind=iwp) :: k, I
 
-if (SG_CI()) then
-  call SG_Cnf_Kept(IREFSM)
-  call mma_allocate(nCSFCnf,Cnf_SG%nCnf,Label='nCSFCnf')
-  do k=1,Cnf_SG%nCnf
-    nCSFCnf(k) = Cnf_SG%iOff(k+1)-Cnf_SG%iOff(k)
-  end do
-  if (present(iCSFCnf)) then
-    call mma_allocate(iCSFCnf,Cnf_SG%iOff(Cnf_SG%nCnf+1),Label='iCSFCnf')
-    iCSFCnf(:) = Cnf_SG%iCSF(1:Cnf_SG%iOff(Cnf_SG%nCnf+1))
-  end if
-else if (Faro_CI()) then
-  ! Faroald (citrans): the CSFs of a configuration are contiguous
-  call Mk_Cnf_Layout_Faroald(nCSFCnf)
-  if (present(iCSFCnf)) then
-    call mma_allocate(iCSFCnf,sum(nCSFCnf),Label='iCSFCnf')
-    do I=1,size(iCSFCnf)
-      iCSFCnf(I) = I
-    end do
-  end if
-else
-  call Mk_Cnf_Layout_Lucia(IREFSM,nCSFCnf)
-  if (present(iCSFCnf)) then
-    call mma_allocate(iCSFCnf,sum(nCSFCnf),Label='iCSFCnf')
-    do I=1,size(iCSFCnf)
-      iCSFCnf(I) = I
-    end do
-  end if
-end if
 
-end subroutine Mk_Cnf_Layout
 
-!> The SGUGA configuration list of symmetry LSM, built once and kept
-!> (Cnf_SG) for SGCI.
-subroutine SG_Cnf_Kept(LSM)
-use sguga, only: SG_Mk_Cnf_List
-integer(kind=iwp), intent(in) :: LSM
-! the CI state of RASSCF (SGS, CIS, EXS)
-integer(kind=iwp), parameter :: iState = 1
-if ((Cnf_SG%nCnf == 0) .or. (Cnf_SG%LSM /= LSM)) call SG_Mk_Cnf_List(iState,LSM,Cnf_SG)
-end subroutine SG_Cnf_Kept
-
-!> The configurations of Faroald (citrans order) and their numbers of CSFs.
-subroutine Mk_Cnf_Layout_Faroald(nCSFCnf)
-! the number of CSFs of each configuration of citrans, in its CSF order
-use citrans, only: citrans_conf_occ
-integer(kind=iwp), allocatable, intent(out) :: nCSFCnf(:)
-integer(kind=iwp) :: nCnf
-integer(kind=iwp), allocatable :: k1(:), nc(:), docc(:), socc(:)
-call citrans_conf_occ(nCnf,k1,nc,docc,socc)
-call mma_allocate(nCSFCnf,nCnf,Label='nCSFCnf')
-nCSFCnf(:) = nc(1:nCnf)
-call mma_deallocate(k1)
-call mma_deallocate(nc)
-call mma_deallocate(docc)
-call mma_deallocate(socc)
-end subroutine Mk_Cnf_Layout_Faroald
-
-subroutine Mk_Cnf_Layout_Lucia(IREFSM,nCSFCnf)
-use lucia_data, only: NCNFTP, NCSFTP, NTYP
-
-integer(kind=iwp), intent(in) :: IREFSM
-integer(kind=iwp), allocatable, intent(out) :: nCSFCnf(:)
-integer(kind=iwp) :: iTyp, iCnf, k
-
-call mma_allocate(nCSFCnf,sum(NCNFTP(1:NTYP,IREFSM)),Label='nCSFCnf')
-k = 0
-do iTyp=1,NTYP
-  do iCnf=1,NCNFTP(iTyp,IREFSM)
-    k = k+1
-    nCSFCnf(k) = NCSFTP(iTyp)
-  end do
-end do
-
-end subroutine Mk_Cnf_Layout_Lucia
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
 !> Explicit CI Hamiltonian <I|H|J> over the CSFs of the configurations
 !> IPCNF(1:NPCNF) of symmetry IREFSM (configuration indices as in
-!> Mk_Cnf_Layout), packed as a lower triangle: the CSFs are ordered
+!> CI_Lib_Cnf_Layout), packed as a lower triangle: the CSFs are ordered
 !> configuration by configuration in the order given, the CSFs of each
 !> configuration consecutively. TU and TUVX are the one- and two-electron
 !> integrals in triangular packing (as for Mk_IHI); ECORE is added on the
@@ -703,10 +612,13 @@ contains
   ! IPCSF: the CSFs of the selected configurations, in the order of PHP;
   ! nSelCnf: the number of CSFs of each selected configuration.
   subroutine Sel_CSFs()
-    integer(kind=iwp) :: iCnf, iOff, kCnf, I, ICSF
+    integer(kind=iwp) :: iCnf, iOff, kCnf, I, ICSF, nCnfL
     integer(kind=iwp), allocatable :: nCSFCnf(:), iCSF1(:), iCSFCnf(:)
 
-    call Mk_Cnf_Layout(IREFSM,nCSFCnf,iCSFCnf)
+    nCnfL = CI_Lib_nCnf(iState,IREFSM)
+    call mma_allocate(nCSFCnf,nCnfL,Label='nCSFCnf')
+    call mma_allocate(iCSFCnf,nConf,Label='iCSFCnf')
+    call CI_Lib_Cnf_Layout(iState,IREFSM,nCnfL,nCSFCnf,nConf,iCSFCnf)
     ! iCSF1(k): position of the first CSF of configuration k in iCSFCnf
     call mma_allocate(iCSF1,size(nCSFCnf),Label='iCSF1')
     iOff = 1
@@ -1008,7 +920,10 @@ contains
       CnfOfG(Cnf%iCSF(Cnf%iOff(kG)+1:Cnf%iOff(kG+1))) = kG
     end do
     ! (1) configurations of the back end -> SGUGA configurations, a bijection
-    call Mk_Cnf_Layout(IREFSM,nCSFL)
+    call mma_allocate(nCSFL,CI_Lib_nCnf(iState,IREFSM),Label='nCSFL')
+    call mma_allocate(GtoL,nConf,Label='GtoL')
+    call CI_Lib_Cnf_Layout(iState,IREFSM,size(nCSFL),nCSFL,nConf,GtoL)
+    call mma_deallocate(GtoL)
     if (size(nCSFL) /= Cnf%nCnf) then
       write(u6,*) 'Mk_IHJ: number of configurations, CI back end and SGUGA:',size(nCSFL),Cnf%nCnf
       call Abend()
