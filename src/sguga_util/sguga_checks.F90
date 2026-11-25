@@ -883,7 +883,7 @@ contains
 
             NNN = NNN+1
 
-            if (NNN == nPack+1) then
+            if (NNN == CSFG_nPack+1) then
               NNN = 1
               ICDPOS = ICDPOS+1
               ICDWN = CIS%ICase(ICDPOS)
@@ -906,7 +906,7 @@ contains
 
               NNN = NNN+1
 
-              if (NNN == nPack+1) then
+              if (NNN == CSFG_nPack+1) then
                 NNN = 1
                 ICUPOS = ICUPOS+1
                 ICUP = CIS%ICase(ICUPOS)

@@ -27,7 +27,7 @@ use SGUGA_Transform, only: SG_CITRA, SYG2SGU
 use CI_Info, only: CI_St, Space_CI
 use CI_Space_Def, only: Space_Free, Space_Pack, Space_Rec_Len, Space_Unpack
 use CI_Verify_Options, only: CI_Verify
-use CSF_Graph, only: SG_Walk_Next
+use CSF_Graph, only: CSFG_Walk_Next
 use Molcas, only: MxLev, MxSym
 use Definitions, only: wp, iwp
 
@@ -195,7 +195,7 @@ subroutine CI_Walk_Next(iState,LSM,it,ICS)
   integer(kind=iwp), intent(in) :: iState, LSM
   integer(kind=iwp), intent(inout) :: it(4)
   integer(kind=iwp), intent(out) :: ICS(*)
-  call SG_Walk_Next(SGS(iState),CIS(iState),LSM,it(1),it(2),it(3),it(4),ICS)
+  call CSFG_Walk_Next(SGS(iState),CIS(iState),LSM,it(1),it(2),it(3),it(4),ICS)
 end subroutine CI_Walk_Next
 
 !> DIAG(I) = sum_lev n_lev(I) ETA(lev) for the CSFs I of symmetry ISYCI

@@ -67,7 +67,7 @@ module citrans
 ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
-use CSF_Graph, only: Free_SG_Graph, MkSGUGA, SG_Graph, SG_Walk_Next, SG_Walks
+use CSF_Graph, only: CSFG_Free, CSFG_Make, CSFG_Graph, CSFG_Walk_Next, CSFG_Walks
 use Molcas, only: MxGAS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -94,8 +94,8 @@ type(spintable), allocatable :: spintabs(:)
 ! The split graph of the CSF space in the order of the CI vectors of the
 ! files (CSF_Graph), built by citrans itself, so that citrans_sort does not
 ! need SGUGA.
-type(SG_Graph), target :: FileG
-type(SG_Walks) :: FileW
+type(CSFG_Graph), target :: FileG
+type(CSFG_Walks) :: FileW
 
 ! Symmetry: the CSF space holds the configurations of symmetry ci_lsym only
 ! (the symmetry of a configuration is the product of the symmetries of its
@@ -144,7 +144,7 @@ contains
 subroutine citrans_graph_init(nel,norb,mult)
   integer(kind=iwp), intent(in) :: nel, norb, mult
   integer(kind=iwp) :: isym, iprt
-  call Free_SG_Graph(FileG,FileW)
+  call CSFG_Free(FileG,FileW)
   FileG%nSym = ci_nsym
   FileG%nActEl = nel
   FileG%iSpin = mult
@@ -165,7 +165,7 @@ subroutine citrans_graph_init(nel,norb,mult)
   end do
   call mma_allocate(FileG%ISm,norb,Label='FileG%ISm')
   FileG%ISm(:) = orbsym(1:norb)
-  call MkSGUGA(FileG,FileW)
+  call CSFG_Make(FileG,FileW)
 end subroutine citrans_graph_init
 
 !> The CSF space: nsym irreps, the symmetries osym of the norb active
@@ -520,7 +520,7 @@ function citrans_ncsf() result(n)
 end function citrans_ncsf
 
 subroutine citrans_graph_free()
-  call Free_SG_Graph(FileG,FileW)
+  call CSFG_Free(FileG,FileW)
 end subroutine citrans_graph_free
 
 subroutine citrans_sort(mode,ciold,cinew)
@@ -588,7 +588,7 @@ subroutine citrans_sort(mode,ciold,cinew)
       call Abend()
     end if
     ! obtain the stepvector
-    call SG_Walk_Next(FileG,FileW,ci_lsym,mv,isyup,idwn,iup,stepvector)
+    call CSFG_Walk_Next(FileG,FileW,ci_lsym,mv,isyup,idwn,iup,stepvector)
 
     ! position of the CSF in the configuration order, and its phase
     ioff_csf = csf_rank(stepvector,csf_offset,wtab,iphase)

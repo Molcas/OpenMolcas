@@ -17,7 +17,7 @@
 !> CI interface (the gateway), not to either environment.
 module SG_Lucia_Bridge
 
-use sguga, only: CIS, EXS, MkCOT, MkSgNum, SG_NUM, SG_Num_Setup, SG_PHASE, SGS, StepVec
+use sguga, only: CIS, EXS, CSFG_MkCOT, MkSgNum, SG_NUM, SG_Num_Setup, SG_PHASE, SGS, StepVec
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -195,7 +195,7 @@ If (SGS(iState)%nRsPrt /= 1) Then
    Return
 endif
 
-if (.not. allocated(CIS(iState)%ICASE)) call MkCOT(SGS(iState),CIS(iState))
+if (.not. allocated(CIS(iState)%ICASE)) call CSFG_MkCOT(SGS(iState),CIS(iState))
 call MkSgNum(IREFSM,SGS(iState),CIS(iState),EXS(iState))
 
 ICSFJP = 0

@@ -1470,7 +1470,7 @@ subroutine SG_Occ_Diag(iState,ISYCI,ETA,DIAG,nDiag)
 
   use Symmetry_Info, only: Mul
   use sguga, only: CIS, SGS
-  use CSF_Graph, only: nPack
+  use CSF_Graph, only: CSFG_nPack
   use Constants, only: Zero
   use Definitions, only: wp, iwp
 
@@ -1511,10 +1511,10 @@ contains
     do I=1,NUP
       II = ICS-1+NIPWLK*(I-1)
       rSum = Zero
-      do LV1=MidLev+1,nLev,nPack
+      do LV1=MidLev+1,nLev,CSFG_nPack
         II = II+1
         IC = CIS(iState)%ICase(II)
-        do LEV=LV1,min(LV1+(nPack-1),nLev)
+        do LEV=LV1,min(LV1+(CSFG_nPack-1),nLev)
           IC1 = IC/4
           ISTEP = IC-4*IC1
           IOC = (ISTEP+1)/2
@@ -1528,10 +1528,10 @@ contains
     do I=1,NDWN
       II = JCS-1+NIPWLK*(I-1)
       rSum = Zero
-      do LV1=1,MidLev,nPack
+      do LV1=1,MidLev,CSFG_nPack
         II = II+1
         IC = CIS(iState)%ICase(II)
-        do LEV=LV1,min(LV1+(nPack-1),MidLev)
+        do LEV=LV1,min(LV1+(CSFG_nPack-1),MidLev)
           IC1 = IC/4
           ISTEP = IC-4*IC1
           IOC = (ISTEP+1)/2

@@ -801,13 +801,13 @@ end subroutine W2SGORD
 subroutine SG_PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
   ! PURPOSE: PACK THE GUGA STEP NUMBERS INTO THE ARRAY IWALK.
   ! EACH OF THE NWALK WALKS HAS N STEP NUMBERS, 2 BITS EACH,
-  ! AT MOST nPack TO AN INTEGER ELEMENT OF IWALK, EACH NEW WALK
+  ! AT MOST CSFG_nPack TO AN INTEGER ELEMENT OF IWALK, EACH NEW WALK
   ! IS ALIGNED ON INTEGERS.
   ! NOTE: Can be used for upper, lower, or total walks, so the
   ! number of integers used for each walk (IPWLK) is given as
   ! call parameter.
 
-  use sguga, only: nPack
+  use sguga, only: CSFG_nPack
   use Definitions, only: iwp
 
   implicit none
@@ -820,7 +820,7 @@ subroutine SG_PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
     LEND = 0
     do J=1,IPWLK
       LSTA = LEND+1
-      LEND = min(LSTA+nPack-1,N)
+      LEND = min(LSTA+CSFG_nPack-1,N)
       IPOS = IPOS+1
       IWORD = 0
       do L=LEND,LSTA,-1
@@ -834,7 +834,7 @@ end subroutine SG_PKWLK
 
 subroutine SG_UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 
-  use sguga, only: nPack
+  use sguga, only: CSFG_nPack
   use Definitions, only: iwp
 
   implicit none
@@ -848,7 +848,7 @@ subroutine SG_UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
     LEND = 0
     do J=1,IPWLK
       LSTA = LEND+1
-      LEND = min(LSTA+nPack-1,N)
+      LEND = min(LSTA+CSFG_nPack-1,N)
       IPOS = IPOS+1
       IWORD = IWALK(IPOS)
       do L=LSTA,LEND
