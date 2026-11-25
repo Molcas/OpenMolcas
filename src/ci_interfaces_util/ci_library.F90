@@ -19,12 +19,13 @@
 !> program set up itself gets the core operations unchanged.
 module CI_Library
 
-use CI_Operations, Raw_Dens => CI_Lib_Dens, Raw_Transform => CI_Lib_Transform
+use CI_Operations, Raw_Dens => CI_Lib_Dens, Raw_Diag => CI_Lib_Diag, Raw_Transform => CI_Lib_Transform
 
 implicit none
-private :: Check_PDMs, Check_T1DM, Raw_Dens, Raw_Transform
+private :: Check_Diag_Faro, Check_Diag_Faro_SG, Check_Diag_Lucia, Check_Diag_SG, Check_PDMs, Check_T1DM, Cnf_Rank, Diag_To_Lucia, &
+           Exact_Diag_Lucia, Lucia_Avg_Diag, Raw_Dens, Raw_Diag, Raw_Transform, Sel_PHP
 
-public :: CI_Lib_Dens, CI_Lib_Transform
+public :: CI_Lib_Dens, CI_Lib_Diag, CI_Lib_Transform
 
 contains
 
@@ -247,6 +248,543 @@ subroutine Check_T1DM(iState,LSM,nVec,Bra_Vec,Ket_Vec,n1,Rho1,n2)
   call mma_deallocate(T1DM)
 
 end subroutine Check_T1DM
+
+!> The diagonal of H + ECore of the core (CI_Lib_Diag of CI_Operations).
+!> For the configuration average of the state from the CI input (the
+!> diagonal of the CI solver, no core energy) the development options of
+!> MOLCAS_CI_VERIFY: SIGMA compares it with the other libraries and with the
+!> exact SGUGA diagonal (exactly for the single-determinant configurations;
+!> with nPMax, the CSFs of the P space, also the selection of the P space by
+!> either diagonal, reported, not enforced); HDIAG replaces it by the exact
+!> SGUGA diagonal.
+subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag,nPMax)
+
+  use CI_Lib_Checks, only: SG_Avail, Tim_IHI, Tim_Off, Tim_On
+  use CI_Info, only: CI_St
+  use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Lib, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_SGUGA
+  use CI_Verify_Options, only: CI_Verify
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, Mode, iSym, nTU, nTUVX, n
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(out) :: Diag(n)
+  integer(kind=iwp), intent(in), optional :: nPMax
+  real(kind=wp) :: TimT(2)
+  real(kind=wp), allocatable :: DL(:)
+
+  call Tim_On(TimT)
+  call Raw_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+  if (CI_Lib_Input_State(iState) .and. (Mode == CI_Diag_Cnf_Avg) .and. (iSym == CI_St(iState)%STSym) .and. (ECore == Zero)) then
+    select case (CI_Lib)
+      case (CI_Lib_SGUGA)
+        call Check_Diag_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
+      case (CI_Lib_Faroald)
+        if (CI_Verify('SIGMA')) call Check_Diag_Faro(iState,n,Diag,nTU,TU,nTUVX,TUVX)
+      case (CI_Lib_Lucia)
+        if (CI_Verify('SIGMA') .and. SG_Avail()) call Check_Diag_Lucia(iState,n,Diag,nTU,TU,nTUVX,TUVX,nPMax)
+        if (CI_Verify('HDIAG') .and. SG_Avail()) then
+          ! the exact diagonal instead (in the Lucia order)
+          call mma_allocate(DL,n,Label='DL')
+          call Exact_Diag_Lucia(iState,n,nTU,TU,nTUVX,TUVX,DL)
+          Diag(:) = DL(:)
+          call mma_deallocate(DL)
+          write(u6,'(1X,A)') 'Mk_IHI: exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
+        end if
+    end select
+  end if
+  call Tim_Off(Tim_IHI,TimT)
+
+end subroutine CI_Lib_Diag
+
+!> CI development (SIGMA): Lucia's configuration-average diagonal of the CI
+!> symmetry of state iState in the Lucia basis (CSDIAG of its determinant
+!> diagonal)
+subroutine Lucia_Avg_Diag(iState,n,nTU,TU,nTUVX,TUVX,DL)
+
+  use CI_Info, only: CI_St
+  use Lucia_Interface, only: Lucia_Util
+  use lucia_data, only: NCNFTP, NCSFTP, NDTFTP, NTYP, SDREO
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, n, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(out) :: DL(n)
+  integer(kind=iwp) :: nDet
+  real(kind=wp), allocatable :: DD(:)
+  integer(kind=iwp), parameter :: IPRINT = 0
+
+  ! the determinants of Lucia
+  nDet = maxval(CI_St(iState)%nDet(:))
+  call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+  call mma_allocate(DD,nDet,label='DETDIA')
+  call get_diag(DD,nDet)
+  call CSDIAG(n,nDet,DL,DD,NCNFTP(1,CI_St(iState)%STSym),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
+  call mma_deallocate(DD)
+
+end subroutine Lucia_Avg_Diag
+
+!> A diagonal in the SGUGA CSF order to the Lucia order: a permutation,
+!> without the CSF phases (SG_ReOrd of the index vector: Idx(ICSF) = +-ISG).
+subroutine Diag_To_Lucia(iState,n,DSG,DL)
+
+  use CI_Info, only: CI_St
+  use SG_Lucia_Bridge, only: SG_ReOrd
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, n
+  real(kind=wp), intent(in) :: DSG(n)
+  real(kind=wp), intent(out) :: DL(n)
+  integer(kind=iwp) :: j
+  real(kind=wp), allocatable :: Idx(:), Map(:)
+
+  call mma_allocate(Map,n,Label='Map')
+  call mma_allocate(Idx,n,Label='Idx')
+  do j=1,n
+    Map(j) = real(j,kind=wp)
+  end do
+  call SG_ReOrd(iState,CI_St(iState)%STSym,1,n,Map,Idx)
+  do j=1,n
+    DL(j) = DSG(nint(abs(Idx(j))))
+  end do
+  call mma_deallocate(Idx)
+  call mma_deallocate(Map)
+
+end subroutine Diag_To_Lucia
+
+!> The exact diagonal <I|H|I> (sg_hdiag_fast) in the Lucia CSF order.
+subroutine Exact_Diag_Lucia(iState,n,nTU,TU,nTUVX,TUVX,DL)
+
+  use CI_Info, only: CI_St
+  use CI_Lib_Checks, only: SG_HDiag_G
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, n, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(out) :: DL(n)
+  real(kind=wp), allocatable :: DSG(:)
+
+  call mma_allocate(DSG,n,Label='DSG')
+  call SG_HDiag_G('FAST',iState,n,CI_St(iState)%STSym,TUVX,nTUVX,TU,nTU,DSG)
+  call HEXS_Proj(HEXS_Keep_SG,DSG)
+  call Diag_To_Lucia(iState,n,DSG,DL)
+  call mma_deallocate(DSG)
+
+end subroutine Exact_Diag_Lucia
+
+!> SGCI: the configuration average of the core (SG_Cnf_Avg_Diag, so that
+!> SGCI follows the iterations of Lucia), or with MOLCAS_CI_VERIFY=HDIAG the
+!> exact <I|H|I> (sg_hdiag_fast). Under SIGMA the average is checked against
+!> Lucia and the exact diagonal against sg_hdiag_ref (small spaces).
+subroutine Check_Diag_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
+
+  use CI_Info, only: CI_St
+  use CI_Lib_Checks, only: IHI_Avg_Verified, IHI_SG_Verified, SG_HDiag_G
+  use CI_Op_Defs, only: CI_Diag_Exact
+  use CI_Verify_Options, only: CI_Verify
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One, Zero
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, n, nTU, nTUVX
+  real(kind=wp), intent(inout) :: Diag(n)
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  integer(kind=iwp), parameter :: MxRef = 500
+  real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
+  real(kind=wp) :: MaxDev
+  real(kind=wp), allocatable :: DAvgL(:), DEx(:), DL(:), DRef(:)
+
+  if (CI_Verify('SIGMA')) then
+    ! Lucia's configuration-average diagonal, in the Lucia basis
+    call mma_allocate(DL,n,Label='DL')
+    call Lucia_Avg_Diag(iState,n,nTU,TU,nTUVX,TUVX,DL)
+    call mma_allocate(DAvgL,n,Label='DAvgL')
+    call Diag_To_Lucia(iState,n,Diag,DAvgL)
+    MaxDev = maxval(abs(DAvgL(:)-DL(:)))
+    if (.not. IHI_Avg_Verified) &
+      write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (SGCI): SGUGA configuration-average diagonal verified against Lucia, ',n, &
+                                     ' CSFs, max. error ',MaxDev
+    IHI_Avg_Verified = .true.
+    if (MaxDev > ThrDia*max(One,maxval(abs(DL(:))))) then
+      write(u6,*) 'Mk_IHI: the SGUGA configuration-average diagonal differs from Lucia'
+      call Abend()
+    end if
+    call mma_deallocate(DAvgL)
+    call mma_deallocate(DL)
+  end if
+  if (.not. (CI_Verify('HDIAG') .or. CI_Verify('SIGMA'))) return
+  ! the exact diagonal (HDIAG, and its check under SIGMA)
+  call mma_allocate(DEx,n,Label='DExact')
+  call Raw_Diag(iState,CI_Diag_Exact,CI_St(iState)%STSym,nTU,TU,nTUVX,TUVX,Zero,n,DEx)
+  if (CI_Verify('HDIAG')) then
+    Diag(:) = DEx(:)
+    write(u6,'(1X,A)') 'Mk_IHI (SGCI): exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
+  end if
+  if (CI_Verify('SIGMA') .and. (n <= MxRef)) then
+    call mma_allocate(DRef,n,Label='DRef')
+    call SG_HDiag_G('REF',iState,n,CI_St(iState)%STSym,TUVX,nTUVX,TU,nTU,DRef)
+    call HEXS_Proj(HEXS_Keep_SG,DRef)
+    MaxDev = maxval(abs(DEx(:)-DRef(:)))
+    if (.not. IHI_SG_Verified) &
+      write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (SGCI): sg_hdiag_fast verified against sg_hdiag_ref, ',n,' CSFs, max. error ', &
+                                     MaxDev
+    IHI_SG_Verified = .true.
+    if (MaxDev > ThrDia*max(One,maxval(abs(DRef(:))))) then
+      write(u6,*) 'Mk_IHI: sg_hdiag_fast differs from sg_hdiag_ref'
+      call Abend()
+    end if
+    call mma_deallocate(DRef)
+  end if
+  call mma_deallocate(DEx)
+
+end subroutine Check_Diag_SG
+
+!> FARO (SIGMA): the configuration average of Faroald (from the
+!> occupations) checked once against the average of Faroald_HDet over the
+!> determinants (M_S = S) of each kept configuration, and against Lucia and
+!> SGUGA.
+subroutine Check_Diag_Faro(iState,n,Diag,nTU,TU,nTUVX,TUVX)
+
+  use CI_Lib_Checks, only: CI_Basis_To_Lucia, IHI_Avg_Verified, SG_Avail
+  use CI_Info, only: CI_St
+  use citrans, only: citrans_conf_dets
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One, Zero
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, n, nTU, nTUVX
+  real(kind=wp), intent(in) :: Diag(n), TU(nTU), TUVX(nTUVX)
+  real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
+  integer(kind=iwp) :: i, k, k1, nc, nd
+  real(kind=wp) :: E, MaxDev
+  logical(kind=iwp), allocatable :: Kept(:)
+  integer(kind=iwp), allocatable :: da(:), db(:)
+  real(kind=wp), allocatable :: cf(:,:), DL(:), Idx(:), Map(:)
+
+  if (.not. IHI_Avg_Verified) then
+    ! the average of the determinant energies, as reference (the removed
+    ! configurations of HEXS/DEXS, zero in Diag, skipped)
+    call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,.true.)
+    call mma_allocate(Kept,n,Label='Kept')
+    Kept(:) = .true.
+    if (allocated(HEXS_Keep)) then
+      if (size(HEXS_Keep) == n) Kept(:) = HEXS_Keep(:)
+    end if
+    MaxDev = Zero
+    k = 1
+    do while (k <= n)
+      call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
+      E = Zero
+      do i=1,nd
+        E = E+Faroald_HDet(da(i),db(i),da(i),db(i))
+      end do
+      if (Kept(k1)) MaxDev = max(MaxDev,abs(Diag(k1)-E/real(max(nd,1),kind=wp)))
+      k = k1+nc
+      call mma_deallocate(da)
+      call mma_deallocate(db)
+      call mma_deallocate(cf)
+    end do
+    call mma_deallocate(Kept)
+    write(u6,'(1X,A,ES10.3)') 'Mk_IHI (Faroald): occupation formula vs determinant average, max. difference ',MaxDev
+    if (MaxDev > ThrDia*max(One,maxval(abs(Diag(1:n))))) then
+      write(u6,*) 'Mk_IHI: the Faroald occupation formula differs from the determinant average'
+      call Abend()
+    end if
+  end if
+  call mma_allocate(DL,n,Label='DL')
+  call Lucia_Avg_Diag(iState,n,nTU,TU,nTUVX,TUVX,DL)
+  ! the permutation Faroald -> Lucia basis
+  call mma_allocate(Idx,n,Label='Idx')
+  call mma_allocate(Map,n,Label='Map')
+  do i=1,n
+    Idx(i) = real(i,kind=wp)
+  end do
+  call CI_Basis_To_Lucia(iState,CI_St(iState)%STSym,n,Idx,Map)
+  MaxDev = Zero
+  do i=1,n
+    MaxDev = max(MaxDev,abs(Diag(nint(abs(Map(i))))-DL(i)))
+  end do
+  if (.not. IHI_Avg_Verified) &
+    write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (Faroald): configuration-average diagonal verified against Lucia, ',n, &
+                                   ' CSFs, max. error ',MaxDev
+  IHI_Avg_Verified = .true.
+  if (MaxDev > ThrDia*max(One,maxval(abs(DL(:))))) then
+    write(u6,*) 'Mk_IHI: the Faroald configuration-average diagonal differs from Lucia'
+    call Abend()
+  end if
+  call mma_deallocate(Map)
+  call mma_deallocate(Idx)
+  call mma_deallocate(DL)
+  if (SG_Avail()) call Check_Diag_Faro_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
+
+end subroutine Check_Diag_Faro
+
+!> FARO (SIGMA): the Faroald configuration-average diagonal against that of
+!> SGUGA (SG_Cnf_Avg_Diag, split-graph order of the files).
+subroutine Check_Diag_Faro_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
+
+  use CI_Lib_Checks, only: CI_Basis_To_File, IHI_Faro_SG_Verified
+  use CI_Info, only: CI_St
+  use sguga, only: SG_Cnf_Avg_Diag, SG_Free_Cnf_List, SG_Mk_Cnf_List, SGCnfList
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One, Zero
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, n, nTU, nTUVX
+  real(kind=wp), intent(in) :: Diag(n), TU(nTU), TUVX(nTUVX)
+  real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
+  type(SGCnfList) :: Cnf
+  integer(kind=iwp) :: i
+  real(kind=wp) :: MaxDev
+  real(kind=wp), allocatable :: DSG(:), Idx(:), Map(:)
+
+  call SG_Mk_Cnf_List(iState,CI_St(iState)%STSym,Cnf)
+  call mma_allocate(DSG,n,Label='DSG')
+  call SG_Cnf_Avg_Diag(iState,Cnf,TU,nTU,TUVX,nTUVX,DSG)
+  call HEXS_Proj(HEXS_Keep_SG,DSG)
+  call mma_allocate(Idx,n,Label='Idx')
+  call mma_allocate(Map,n,Label='Map')
+  do i=1,n
+    Idx(i) = real(i,kind=wp)
+  end do
+  call CI_Basis_To_File(iState,CI_St(iState)%STSym,n,Idx,Map)
+  MaxDev = Zero
+  do i=1,n
+    MaxDev = max(MaxDev,abs(Diag(nint(abs(Map(i))))-DSG(i)))
+  end do
+  call Report_Dev('Mk_IHI (FARO): Faroald configuration-average diagonal vs SGUGA',MaxDev,ThrDia*max(One,maxval(abs(DSG(:)))), &
+                  IHI_Faro_SG_Verified)
+  call mma_deallocate(Map)
+  call mma_deallocate(Idx)
+  call mma_deallocate(DSG)
+  call SG_Free_Cnf_List(Cnf)
+
+end subroutine Check_Diag_Faro_SG
+
+!> RASSCF's Lucia (SIGMA): its configuration-average diagonal Diag (Lucia
+!> order) against the exact SGUGA diagonal (sg_hdiag_fast, for small spaces
+!> checked against sg_hdiag_ref): exactly for the single-determinant
+!> configurations, where the average is exact, and, with nPMax, by the
+!> configurations that the selection of the P space would pick with either
+!> diagonal (reported, not enforced: the average is an approximation).
+subroutine Check_Diag_Lucia(iState,n,Diag,nTU,TU,nTUVX,TUVX,nPMax)
+
+  use CI_Info, only: CI_St
+  use CI_Lib_Checks, only: SG_HDiag_G
+  use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One, Zero
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, n, nTU, nTUVX
+  real(kind=wp), intent(in) :: Diag(n), TU(nTU), TUVX(nTUVX)
+  integer(kind=iwp), intent(in), optional :: nPMax
+  integer(kind=iwp), parameter :: MxRef = 500, MxPrt = 10
+  real(kind=wp), parameter :: ThrDia = 1.0e-10_wp
+  integer(kind=iwp) :: i, iC, iCnf, iRk(3), iRkMax, iRkMin, iTyp, k, LSM, nBoth, nC, nCnf, nPrt, nSD, nSDErr, nSelL, nSelMean, &
+                       nSelMin
+  real(kind=wp) :: Dev, MaxDev
+  integer(kind=iwp), allocatable :: nCSFCnf(:), nOpCnf(:)
+  real(kind=wp), allocatable :: DEx(:), DRef(:), DSG(:), KeyL(:), KeyMean(:), KeyMin(:)
+  logical(kind=iwp), allocatable :: SelL(:), SelMean(:), SelMin(:)
+
+  LSM = CI_St(iState)%STSym
+  ! exact diagonal in the SGUGA order
+  call mma_allocate(DSG,n,Label='DSG')
+  call SG_HDiag_G('FAST',iState,n,LSM,TUVX,nTUVX,TU,nTU,DSG)
+  if (n <= MxRef) then
+    call mma_allocate(DRef,n,Label='DRef')
+    call SG_HDiag_G('REF',iState,n,LSM,TUVX,nTUVX,TU,nTU,DRef)
+    MaxDev = Zero
+    do i=1,n
+      Dev = abs(DSG(i)-DRef(i))
+      MaxDev = max(MaxDev,Dev)
+      if (Dev > ThrDia*max(One,abs(DRef(i)))) then
+        write(u6,*) 'Mk_IHI: sg_hdiag_fast differs from sg_hdiag_ref for CSF',i,DSG(i),DRef(i)
+        call Abend()
+      end if
+    end do
+    write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI: sg_hdiag_fast verified against sg_hdiag_ref, ',n,' CSFs, max. error ',MaxDev
+    call mma_deallocate(DRef)
+  end if
+
+  ! to the Lucia CSF order (with HEXS/DEXS zero for the removed CSFs, as
+  ! Lucia's)
+  call HEXS_Proj(HEXS_Keep_SG,DSG)
+  call mma_allocate(DEx,n,Label='DEx')
+  call Diag_To_Lucia(iState,n,DSG,DEx)
+  call mma_deallocate(DSG)
+
+  ! configuration layout with the number of open shells (NDTFTP counts
+  ! spin combinations, not determinants, for MS = 0)
+  nCnf = sum(NCNFTP(1:NTYP,LSM))
+  call mma_allocate(nCSFCnf,nCnf,Label='nCSFCnf')
+  call mma_allocate(nOpCnf,nCnf,Label='nOpCnf')
+  k = 0
+  do iTyp=1,NTYP
+    do iCnf=1,NCNFTP(iTyp,LSM)
+      k = k+1
+      nCSFCnf(k) = NCSFTP(iTyp)
+      nOpCnf(k) = iTyp-1+MINOP
+    end do
+  end do
+
+  ! keys per configuration: Lucia (the average, as the P-space selection
+  ! uses it) and the exact lowest and mean CSF energies; exact check for
+  ! single determinants: closed shells, or all open shells parallel (2S open
+  ! shells, the high-spin determinant is the only one with MS = S)
+  call mma_allocate(KeyL,nCnf,Label='KeyL')
+  call mma_allocate(KeyMin,nCnf,Label='KeyMin')
+  call mma_allocate(KeyMean,nCnf,Label='KeyMean')
+  nSD = 0
+  nSDErr = 0
+  MaxDev = Zero
+  iC = 0
+  do k=1,nCnf
+    nC = nCSFCnf(k)
+    KeyL(k) = Diag(iC+1)
+    KeyMin(k) = minval(DEx(iC+1:iC+nC))
+    KeyMean(k) = sum(DEx(iC+1:iC+nC))/real(nC,kind=wp)
+    if (nOpCnf(k) == CI_St(iState)%iSpin-1) then
+      nSD = nSD+1
+      Dev = abs(Diag(iC+1)-DEx(iC+1))
+      MaxDev = max(MaxDev,Dev)
+      if (Dev > ThrDia*max(One,abs(DEx(iC+1)))) then
+        nSDErr = nSDErr+1
+        if (nSDErr <= MxPrt) write(u6,*) 'Mk_IHI: single-determinant configuration',k,' CI solver:',Diag(iC+1),' exact:',DEx(iC+1)
+      end if
+    end if
+    iC = iC+nC
+  end do
+  if (nSDErr > 0) then
+    write(u6,*) 'Mk_IHI: diagonal of single-determinant configurations differs from SGUGA'
+    call Abend()
+  end if
+  write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI: diagonal verified against SGUGA for ',nSD,' single-determinant configurations, &
+                                 &max. error ',MaxDev
+
+  if (present(nPMax)) then
+    ! the selection of the P space with each key
+    call mma_allocate(SelL,nCnf,Label='SelL')
+    call mma_allocate(SelMin,nCnf,Label='SelMin')
+    call mma_allocate(SelMean,nCnf,Label='SelMean')
+    call Sel_PHP(nCnf,KeyL,nCSFCnf,nPMax,SelL)
+    call Sel_PHP(nCnf,KeyMin,nCSFCnf,nPMax,SelMin)
+    call Sel_PHP(nCnf,KeyMean,nCSFCnf,nPMax,SelMean)
+    nSelL = count(SelL)
+    nSelMin = count(SelMin)
+    nSelMean = count(SelMean)
+    write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A)') 'Mk_IHI: explicit subspace (NSEL = ',nPMax,' of ',n,' CSFs, ',nCnf, &
+                                           ' configurations) from the CI-solver diagonal: ',nSelL,' configurations'
+    if (nPMax >= n) write(u6,'(1X,A)') '        (the whole space, the comparison is trivial)'
+    nBoth = count(SelL .and. SelMin)
+    write(u6,'(1X,A,I0,A,I0,A,I0,A)') '        exact lowest CSF energy per configuration: ',nSelMin,' configurations, ',nBoth, &
+                                      ' in common, ',count(SelL .neqv. SelMin),' differ'
+    nBoth = count(SelL .and. SelMean)
+    write(u6,'(1X,A,I0,A,I0,A,I0,A)') '        exact mean CSF energy per configuration:   ',nSelMean,' configurations, ',nBoth, &
+                                      ' in common, ',count(SelL .neqv. SelMean),' differ'
+    ! The selection stops at the first configuration that does not fit into
+    ! nPMax CSFs, so near the cutoff the sizes of the configurations decide;
+    ! what matters is whether the differing configurations are ranked near
+    ! the cutoff (rank = position in the order of increasing energy).
+    if (any(SelL .neqv. SelMin) .or. any(SelL .neqv. SelMean)) then
+      write(u6,'(1X,A)') '        differing configurations (selected by CI solver/exact lowest/exact mean, CSFs, '// &
+                         'open shells, rank by CI-solver key, by exact lowest, by exact mean):'
+      nPrt = 0
+      iRkMin = huge(iRkMin)
+      iRkMax = 0
+      do k=1,nCnf
+        if ((SelL(k) .eqv. SelMin(k)) .and. (SelL(k) .eqv. SelMean(k))) cycle
+        iRk(1) = Cnf_Rank(nCnf,KeyL,k)
+        iRk(2) = Cnf_Rank(nCnf,KeyMin,k)
+        iRk(3) = Cnf_Rank(nCnf,KeyMean,k)
+        iRkMin = min(iRkMin,minval(iRk))
+        iRkMax = max(iRkMax,maxval(iRk))
+        nPrt = nPrt+1
+        if (nPrt <= MxPrt) write(u6,'(9X,I8,3L2,2I6,3I8)') k,SelL(k),SelMin(k),SelMean(k),nCSFCnf(k),nOpCnf(k),iRk(:)
+      end do
+      write(u6,'(1X,A,I0,A,I0,A,I0,A)') '        differing configurations are ranked ',iRkMin,' to ',iRkMax,' (',nSelL, &
+                                        ' selected by the CI solver)'
+    end if
+    call mma_deallocate(SelMean)
+    call mma_deallocate(SelMin)
+    call mma_deallocate(SelL)
+  end if
+
+  call mma_deallocate(KeyMean)
+  call mma_deallocate(KeyMin)
+  call mma_deallocate(KeyL)
+  call mma_deallocate(nOpCnf)
+  call mma_deallocate(nCSFCnf)
+  call mma_deallocate(DEx)
+
+end subroutine Check_Diag_Lucia
+
+!> Position of Key(k) in the order of increasing Key (ties by index).
+function Cnf_Rank(nKey,Key,k) result(iRank)
+
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: nKey, k
+  real(kind=wp), intent(in) :: Key(nKey)
+  integer(kind=iwp) :: iRank, l
+
+  iRank = 1
+  do l=1,nKey
+    if ((Key(l) < Key(k)) .or. ((Key(l) == Key(k)) .and. (l < k))) iRank = iRank+1
+  end do
+
+end function Cnf_Rank
+
+!> The configurations (nCSFCnf CSFs each) of a P space of at most nPMax
+!> CSFs with the configuration energies Key, as RASSCF's Lucia selects
+!> them: the lowest first (ties within Acc in the order of the
+!> configurations), until the next one does not fit.
+subroutine Sel_PHP(nKey,Key,nCSFCnf,nPMax,Sel)
+
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: nKey, nCSFCnf(nKey), nPMax
+  real(kind=wp), intent(in) :: Key(nKey)
+  logical(kind=iwp), intent(out) :: Sel(nKey)
+  integer(kind=iwp) :: k, kMin, nCMin, nP, nPCnf
+  real(kind=wp) :: XMax, XMin
+  real(kind=wp), allocatable :: Wrk(:)
+  real(kind=wp), parameter :: Acc = 1.0e-13_wp
+
+  call mma_allocate(Wrk,nKey,Label='Wrk')
+  Wrk(:) = Key(:)
+  XMax = maxval(abs(Key))
+  Sel(:) = .false.
+  nP = 0
+  nPCnf = 0
+  do
+    XMin = XMax+One
+    kMin = 0
+    nCMin = 0
+    do k=1,nKey
+      if (Wrk(k)+Acc < XMin) then
+        XMin = Wrk(k)
+        kMin = k
+        nCMin = nCSFCnf(k)
+      end if
+    end do
+    if ((kMin == 0) .or. (nP+nCMin > nPMax)) exit
+    Sel(kMin) = .true.
+    nP = nP+nCMin
+    nPCnf = nPCnf+1
+    Wrk(kMin) = XMax+One
+    if (nPCnf >= nKey) exit
+  end do
+  call mma_deallocate(Wrk)
+
+end subroutine Sel_PHP
 
 !> The CI vector CI (basis of the selected library, symmetry iSym of state
 !> iState) for the active orbitals rotated by TU (per symmetry the square

@@ -123,8 +123,8 @@ public :: CI_Lib_Input_State, CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Pro
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSel, &
-          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Transform, CI_To_Basis, CI_To_File, Cnf_Exc, Faro_Lev, &
-          Faroald_HDet, Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Transform, CI_To_Basis, CI_To_File, Cnf_Exc, &
+          Faro_Ints_Act, Faro_Lev, Faroald_HDet, Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 
 contains
 
@@ -1132,6 +1132,9 @@ subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case default
       call Check_Lib('CI_Lib_Diag')
   end select
+  ! HEXS/DEXS (the state from the CI input): zero for the removed CSFs, as
+  ! Lucia's (which does it itself)
+  if ((iState == iState_Input) .and. ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald))) call HEXS_Proj(HEXS_Keep,Diag)
 end subroutine CI_Lib_Diag
 
 !> The check of the Mode of CI_Lib_Diag
