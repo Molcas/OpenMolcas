@@ -26,8 +26,8 @@ use faroald_ras, only: n_ras, ras_active, ras_sigma
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep_SG, HEXS_Proj
-use CI_Operations, only: Cnf_Exc, CI_Lib_Block, CI_Lib_Close, CI_Lib_Sigma, Faro_L2O => Faro_Lev, Faroald_HDet, Rel_Map, &
-                         Report_Dev, SG_Rel_Map
+use CI_Operations, only: Cnf_Exc, CI_Lib_Block, CI_Lib_Close, Faro_L2O => Faro_Lev, Faroald_HDet, Rel_Map, Report_Dev, &
+                         SG_Rel_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
@@ -552,9 +552,8 @@ real(kind=wp), parameter :: Thr = 1.0e-10_wp
 ! the CI state of RASSCF (SGS, CIS, EXS)
 integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp) :: SG_OK, UseSG, Verify
-! the active orbitals, the CSFs of the CI symmetry and the determinants of
-! Lucia (the reference under MOLCAS_CI_VERIFY=SIGMA)
-integer(kind=iwp) :: NAC, nConf, nDet
+! the active orbitals and the CSFs of the CI symmetry
+integer(kind=iwp) :: NAC, nConf
 character(len=8) :: Lab
 
 ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection.
@@ -562,7 +561,6 @@ real(kind=wp) :: TimT(2)
 call Tim_On(TimT)
 NAC = CI_St(iState)%nLev
 nConf = CI_St(iState)%nCSF(IREFSM)
-nDet = maxval(CI_St(iState)%nDet(:))
 call Sel_CSFs()
 NPCSF = size(IPCSF)
 if (nTri_Elem(NPCSF) > nPHP) then
