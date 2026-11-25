@@ -82,7 +82,7 @@ character(len=72) :: Header1I(2), HeaderJP(2), TitleJp(mxTit)
 character(len=16) :: Perturbation
 character(len=8) :: TitleIN(180)
 character(len=4) :: StepType
-! the CI library (keyword CILIbrary): LUCIA (MCLR's copy of Lucia) or SGUGA
+! the CI library (keyword CILIbrary): LUCIA (MCLR's copy of Lucia), SGUGA or FAROALD
 character(len=8) :: CILib = 'LUCIA'
 character(len=3) :: chirr(8)
 

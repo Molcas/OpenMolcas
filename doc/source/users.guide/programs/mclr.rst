@@ -433,6 +433,23 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`CILIbrary`
+  Select the CI library that computes the CI operations of :program:`MCLR` (sigma vectors, densities, the
+  CI diagonal and the explicit Hamiltonian of the preconditioner). The keyword is followed by one of
+  ``LUCIA`` (the copy of Lucia in :program:`MCLR`, default), ``SGUGA`` (the split-graph GUGA library) or
+  ``FAROALD``. All three give the same results within the convergence threshold; ``SGUGA`` and ``FAROALD``
+  are usually faster for larger active spaces. Since :program:`MCLR` is usually called implicitly, the
+  default can also be set with the environment variable :variable:`MCLR_CILIB` (``LUCIA``, ``SGUGA`` or
+  ``FAROALD``); the keyword takes precedence.
+
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="CILI" APPEAR="CI library" KIND="CHOICE" LIST="LUCIA,SGUGA,FAROALD" DEFAULT_VALUE="LUCIA" LEVEL="ADVANCED">
+              %%Keyword: CILIbrary <advanced>
+              <HELP>
+              Select the CI library of MCLR: LUCIA (MCLR's copy of Lucia, default), SGUGA or FAROALD.
+              The default can also be set with the environment variable MCLR_CILIB.
+              </HELP>
+              </KEYWORD>
+
 :kword:`RFPErt`
   This keyword makes the program add reaction field effects to the response
   calculation. This is done by adding the reaction field effects to the
