@@ -342,7 +342,8 @@ end do STATELOOP
 !***********************************************************************
 
 call Print_Truff()
-call Post_Process()
+! Without convergence the results are not post-processed
+if (IRETURN == 0) call Post_Process()
 call CASPT2_TERM()
 
 contains
@@ -351,10 +352,7 @@ subroutine Print_Truff()
 
   integer(kind=iwp) :: I
 
-  if (IRETURN /= 0) then
-    call CASPT2_TERM()
-    return
-  end if
+  if (IRETURN /= 0) return
 
   if ((HZERO == 'DYALL') .and. SC_prop) ENERGY(1:NSTATE) = ENERGY_SC(1:NSTATE)
   if (IPRGLB >= TERSE) then
