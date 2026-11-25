@@ -21,7 +21,7 @@ module CI_Lib_Checks
 
 use CI_SG_Lucia_Bridge, only: CI_SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
-use citrans, only: citrans_sort
+use Faroald_CITrans, only: Faro_sort
 use CI_Lib_Defs, only: CI_Lib_Selected, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_SGUGA
 use CI_Lib_Core, only: CI_Lucia_Active, CI_HEXS_Keep_SG, CI_HEXS_Proj, CI_SG_Rel_Embed, CI_SG_Rel_Project
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -67,7 +67,7 @@ logical(kind=iwp) :: CI_Chk_T1DM_SG = .false.
 ! FARO: the Faroald steps verified against Lucia and SGUGA (SIGMA), printed once
 logical(kind=iwp) :: CI_Chk_HPsi_Faro = .false., CI_Chk_PDM_Faro = .false., CI_Chk_T1DM_Faro = .false., &
                      CI_Chk_TraPsi_Faro = .false., CI_Chk_IHI_Faro_SG = .false.
-! FARO with RAS: the string-driven sigma (faroald_ras) checked once against
+! FARO with RAS: the string-driven sigma (Faroald_RAS) checked once against
 ! the sigma of the full determinant space (SIGMA)
 logical(kind=iwp) :: CI_Chk_HPsi_FaroRAS = .false.
 ! SIGMA: the spin density of the ASTA triplet operator checked, printed once
@@ -94,7 +94,7 @@ SGMode = CI_Lib_Is(CI_Lib_SGUGA)
 end function CI_SG_CI
 
 !> FARO: the whole CI is done by Faroald in the configuration order of
-!> citrans (RASSCF keyword FARO: Faroald is the selected CI library).
+!> Faroald_CITrans (RASSCF keyword FARO: Faroald is the selected CI library).
 function CI_Faro_CI() result(FaroMode)
 logical(kind=iwp) :: FaroMode
 FaroMode = CI_Lib_Is(CI_Lib_Faroald)
@@ -105,10 +105,10 @@ end function CI_Faro_CI
 !> mn(k) to mx(k) electrons in the partitions 1..k), before any setup, for
 !> the memory estimate of RASSCF.
 function CI_Faro_nDet_RAS(nela,nelb,np,o,mn,mx) result(n)
-use faroald_ras, only: ras_count_dets
+use Faroald_RAS, only: Faro_RAS_count_dets
 integer(kind=iwp), intent(in) :: nela, nelb, np, o(np), mn(np), mx(np)
 real(kind=wp) :: n
-n = ras_count_dets(nela,nelb,np,o,mn,mx)
+n = Faro_RAS_count_dets(nela,nelb,np,o,mn,mx)
 end function CI_Faro_nDet_RAS
 
 !> The memory (words) the active CI back ends need besides the CI vectors of
@@ -138,7 +138,7 @@ end function CI_Work_Need
 
 !> The CSF basis of the CI vectors of RASSCF = the selected CI library
 !> (CI_Lib_Defs): 1 = Lucia, 2 = the split-graph basis of SGUGA (SGCI; the
-!> order of the files), 3 = the configuration order of Faroald (citrans;
+!> order of the files), 3 = the configuration order of Faroald (Faroald_CITrans;
 !> keyword FARO).
 function CI_Basis() result(iBasis)
 integer(kind=iwp) :: iBasis
@@ -157,7 +157,7 @@ select case (CI_Basis())
   case (2)
     Cout(:) = Cin(:)
   case (3)
-    call CITRANS_SORT('O',Cin,Cout)
+    call Faro_sort('O',Cin,Cout)
 end select
 end subroutine CI_Basis_To_File
 
@@ -173,7 +173,7 @@ select case (CI_Basis())
   case (2)
     Cout(:) = Cin(:)
   case (3)
-    call CITRANS_SORT('C',Cin,Cout)
+    call Faro_sort('C',Cin,Cout)
 end select
 end subroutine CI_File_To_Basis
 

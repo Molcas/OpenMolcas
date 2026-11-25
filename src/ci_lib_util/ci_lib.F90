@@ -460,7 +460,7 @@ subroutine Check_Diag_Faro(iState,n,Diag,nTU,TU,nTUVX,TUVX)
 
   use CI_Lib_Checks, only: CI_Basis_To_Lucia, CI_Chk_IHI_Avg, CI_SG_Avail
   use CI_Lib_Info, only: CI_Lib_Space
-  use citrans, only: citrans_conf_dets
+  use Faroald_CITrans, only: Faro_conf_dets
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: One, Zero
   use Definitions, only: wp, iwp, u6
@@ -486,7 +486,7 @@ subroutine Check_Diag_Faro(iState,n,Diag,nTU,TU,nTUVX,TUVX)
     MaxDev = Zero
     k = 1
     do while (k <= n)
-      call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
+      call Faro_conf_dets(k,k1,nc,nd,da,db,cf)
       E = Zero
       do i=1,nd
         E = E+CI_Faro_HDet(da(i),db(i),da(i),db(i))

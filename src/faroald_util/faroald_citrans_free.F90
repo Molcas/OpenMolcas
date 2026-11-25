@@ -9,19 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine citrans_free()
+subroutine Faro_CITrans_Free()
 
-use citrans, only: citrans_graph_free, citrans_sym_free, ndet_group, ncsf_group, ndoc_group, nsoc_group, spintabs_free
+use Faroald_CITrans, only: Faro_graph_free, Faro_sym_free, Faro_ndet_group, Faro_ncsf_group, Faro_ndoc_group, Faro_nsoc_group, &
+                           Faro_spintabs_free
 use stdalloc, only: mma_deallocate
 
 implicit none
 
-call mma_deallocate(ndoc_group,safe='*')
-call mma_deallocate(nsoc_group,safe='*')
-call mma_deallocate(ndet_group,safe='*')
-call mma_deallocate(ncsf_group,safe='*')
-call spintabs_free()
-call citrans_graph_free()
-call citrans_sym_free()
+call mma_deallocate(Faro_ndoc_group,safe='*')
+call mma_deallocate(Faro_nsoc_group,safe='*')
+call mma_deallocate(Faro_ndet_group,safe='*')
+call mma_deallocate(Faro_ncsf_group,safe='*')
+call Faro_spintabs_free()
+call Faro_graph_free()
+call Faro_sym_free()
 
-end subroutine citrans_free
+end subroutine Faro_CITrans_Free

@@ -9,25 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine faroald_free()
+subroutine Faro_Free()
 ! The finalization subroutine lives outside of the
-! faroald module so that it can be called separately.
+! Faroald module so that it can be called separately.
 
-use faroald, only: ex1_a, ex1_b, gtuvx, htu, ipat_of_det, occpat, mma_deallocate, ndoub, nsing, nSpin_Comb, nComb, ibComb, ictsdt
+use Faroald, only: Faro_ex1_a, Faro_ex1_b, Faro_gtuvx, Faro_htu, Faro_ipat_of_det, Faro_occpat, mma_deallocate, Faro_ndoub, &
+                   Faro_nsing, Faro_nSpin_Comb, Faro_nComb, Faro_ibComb, Faro_ictsdt
 
 implicit none
 
-call mma_deallocate(ex1_a,safe='*')
-call mma_deallocate(ex1_b,safe='*')
-call mma_deallocate(htu,safe='*')
-call mma_deallocate(gtuvx,safe='*')
-call mma_deallocate(ipat_of_det,safe='*')
-call mma_deallocate(occpat,safe='*')
-call mma_deallocate(ndoub,safe='*')
-call mma_deallocate(nsing,safe='*')
-call mma_deallocate(nSpin_Comb,safe='*')
-call mma_deallocate(nComb,safe='*')
-call mma_deallocate(ibComb,safe='*')
-call mma_deallocate(ictsdt,safe='*')
+call mma_deallocate(Faro_ex1_a,safe='*')
+call mma_deallocate(Faro_ex1_b,safe='*')
+call mma_deallocate(Faro_htu,safe='*')
+call mma_deallocate(Faro_gtuvx,safe='*')
+call mma_deallocate(Faro_ipat_of_det,safe='*')
+call mma_deallocate(Faro_occpat,safe='*')
+call mma_deallocate(Faro_ndoub,safe='*')
+call mma_deallocate(Faro_nsing,safe='*')
+call mma_deallocate(Faro_nSpin_Comb,safe='*')
+call mma_deallocate(Faro_nComb,safe='*')
+call mma_deallocate(Faro_ibComb,safe='*')
+call mma_deallocate(Faro_ictsdt,safe='*')
 
-end subroutine faroald_free
+end subroutine Faro_Free

@@ -11,7 +11,7 @@
 ! Copyright (C) 2013, Steven Vancoillie                                *
 !***********************************************************************
 
-module second_quantization
+module Faroald_SecQuant
 ! Implements determinants of k electrons in n (spin)orbitals as combinations
 ! (k,n) represented as bitstrings, using 32-bit integers.  Combinations are
 ! represented in lexicographic ordering, and their rank can be computed using
@@ -33,7 +33,8 @@ private
 integer(kind=iwp) :: onebits(0:255), ranktbl(0:255,64)
 integer(kind=iwp), parameter :: b_1111 = int(b'1111',kind=iwp), z_6996 = int(z'6996',kind=iwp)
 
-public :: ann, ann2, binom_coef, cre, cre2, ex1, fase, lex_init, lex_next, lexrank, rank_init
+public :: Faro_ann, Faro_ann2, Faro_Binom, Faro_cre, Faro_cre2, Faro_ex1, Faro_fase, Faro_lex_init, Faro_lex_next, &
+  Faro_lexrank, Faro_rank_init
 
 contains
 
@@ -84,16 +85,16 @@ recursive function gcd(i,j) result(k)
 
 end function gcd
 
-function binom_coef(k,n)
+function Faro_Binom(k,n)
 ! compute binomial coefficient
 ! returns #k-subsets out of n choices
 
-  integer(kind=iwp) :: binom_coef
+  integer(kind=iwp) :: Faro_Binom
   integer(kind=iwp), intent(in) :: k, n
   integer(kind=iwp) :: i, frac(2), div
 
   if (k > n) then
-    binom_coef = 0
+    Faro_Binom = 0
   else
     frac = 1
     do i=1,k
@@ -104,12 +105,12 @@ function binom_coef(k,n)
         frac = frac/div
       end if
     end do
-    binom_coef = frac(1)/frac(2)
+    Faro_Binom = frac(1)/frac(2)
   end if
 
-end function binom_coef
+end function Faro_Binom
 
-function lex_init(k,n) result(c)
+function Faro_lex_init(k,n) result(c)
 ! initialize the first combination
 
   integer(kind=iwp) :: c
@@ -121,9 +122,9 @@ function lex_init(k,n) result(c)
     c = 2**k-1
   end if
 
-end function lex_init
+end function Faro_lex_init
 
-function lex_next(c) result(d)
+function Faro_lex_next(c) result(d)
 ! generate the next lexicographic bit combination
 
   integer(kind=iwp) :: d
@@ -134,9 +135,9 @@ function lex_next(c) result(d)
   s = iand(not(t-1),t)-1
   d = ior(t,ishft(s,-min(trailz(c)+1,storage_size(s))))
 
-end function lex_next
+end function Faro_lex_next
 
-subroutine rank_init()
+subroutine Faro_rank_init()
 ! initializes a rank table indexed as:
 !      1 2   3    4        8
 !      1 1-8 1-16 1-24 ... 1-56
@@ -168,7 +169,7 @@ subroutine rank_init()
     do ibit=0,7
       if (btest(irow,ibit)) then
         ipos = ipos+1
-        irank = irank+binom_coef(ipos,ibit)
+        irank = irank+Faro_Binom(ipos,ibit)
       end if
     end do
     icol = 1
@@ -185,7 +186,7 @@ subroutine rank_init()
         do ibit=0,7
           if (btest(irow,ibit)) then
             ipos = ipos+1
-            irank = irank+binom_coef(ipos,ibit+8*(ibyte-1))
+            irank = irank+Faro_Binom(ipos,ibit+8*(ibyte-1))
           end if
         end do
         ranktbl(irow,icol) = irank
@@ -193,15 +194,15 @@ subroutine rank_init()
     end do
   end do
 
-end subroutine rank_init
+end subroutine Faro_rank_init
 
-function lexrank(c)
+function Faro_lexrank(c)
 
-  integer(kind=iwp) :: lexrank
+  integer(kind=iwp) :: Faro_lexrank
   integer(kind=iwp), intent(in) :: c
   integer(kind=iwp) :: byte(4), ones(4)
 
-  lexrank = 0
+  Faro_lexrank = 0
   if (c == -1) return
   byte(1) = ibits(c,0,8)
   byte(2) = ibits(c,8,8)
@@ -210,24 +211,24 @@ function lexrank(c)
   ones(1) = onebits(byte(1))
   ones(2) = onebits(byte(2))+ones(1)
   ones(3) = onebits(byte(3))+ones(2)
-  lexrank = 1+ranktbl(byte(1),1)+ranktbl(byte(2),2+ones(1))+ranktbl(byte(3),11+ones(2))+ranktbl(byte(4),28+ones(3))
+  Faro_lexrank = 1+ranktbl(byte(1),1)+ranktbl(byte(2),2+ones(1))+ranktbl(byte(3),11+ones(2))+ranktbl(byte(4),28+ones(3))
 
-end function lexrank
+end function Faro_lexrank
 
-function fase(c)
+function Faro_fase(c)
 
-  integer(kind=iwp) :: fase
+  integer(kind=iwp) :: Faro_fase
   integer(kind=iwp), intent(in) :: c
 
   if (btest(c,31)) then
-    fase = -1
+    Faro_fase = -1
   else
-    fase = 1
+    Faro_fase = 1
   end if
 
-end function fase
+end function Faro_fase
 
-function ex1(p,q,c) result(d)
+function Faro_ex1(p,q,c) result(d)
 
   integer(kind=iwp) :: d
   integer(kind=iwp), intent(in) :: p, q, c
@@ -256,9 +257,9 @@ function ex1(p,q,c) result(d)
     t = ishft(t,-1)
   end do
 
-end function ex1
+end function Faro_ex1
 
-function ann(p,c) result(d)
+function Faro_ann(p,c) result(d)
 ! operates on determinant c with (a_p)
 ! and returns the resulting determinant with
 ! the sign in the highest bit (1 = negative)
@@ -280,9 +281,9 @@ function ann(p,c) result(d)
   t = iand(ishft(z_6996,-t),1)
   d = ieor(ishft(t,31),d)
 
-end function ann
+end function Faro_ann
 
-function cre(p,c) result(d)
+function Faro_cre(p,c) result(d)
 ! operates on determinant c with (a+_p)
 ! and returns the resulting determinant with
 ! the sign in the highest bit (1 = negative)
@@ -304,9 +305,9 @@ function cre(p,c) result(d)
   t = iand(ishft(z_6996,-t),1)
   d = ieor(ishft(t,31),d)
 
-end function cre
+end function Faro_cre
 
-function ann2(p,q,c) result(d)
+function Faro_ann2(p,q,c) result(d)
 ! operates on determinant c with (a_p a_q)
 ! and returns the resulting determinant with
 ! the sign in the highest bit (1 = negative)
@@ -337,9 +338,9 @@ function ann2(p,q,c) result(d)
   t = iand(ishft(z_6996,-t),1)
   d = ieor(ishft(t,31),d)
 
-end function ann2
+end function Faro_ann2
 
-function cre2(p,q,c) result(d)
+function Faro_cre2(p,q,c) result(d)
 ! operates on determinant c with (a+_p a+_q)
 ! and returns the resulting determinant with
 ! the sign in the highest bit (1 = negative)
@@ -370,6 +371,6 @@ function cre2(p,q,c) result(d)
   t = iand(ishft(z_6996,-t),1)
   d = ieor(ishft(t,31),d)
 
-end function cre2
+end function Faro_cre2
 
-end module second_quantization
+end module Faroald_SecQuant
