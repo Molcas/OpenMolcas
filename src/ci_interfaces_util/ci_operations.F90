@@ -98,7 +98,10 @@ integer(kind=iwp), allocatable, protected :: Faro_Lev(:)
 logical(kind=iwp) :: Lucia_Active = .true.
 ! the CI state set up by CI_Lib_Initialize from the CI input (0: none); only
 ! that state is torn down by CI_Lib_Close (a program that sets up its state
-! itself, as MCLR, frees it itself)
+! itself, as MCLR, frees it itself). It is reset only by CI_Lib_Close: a
+! program that sets up its own state after CI_Lib_Initialize from the CI
+! input in the same process must close that one first, or the input-state
+! checks and HEXS projections would apply to the wrong state.
 integer(kind=iwp) :: iState_Input = 0
 ! SGEX given where it does not apply: warned once
 logical(kind=iwp) :: SGEx_Warned = .false.
