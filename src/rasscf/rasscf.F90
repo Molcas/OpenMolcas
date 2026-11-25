@@ -75,6 +75,7 @@ use Rank0_Sync, only: Rank0_Bcast
 use input_ras, only: Key, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID
 use timers, only: TimeCIOpt, TimeInput, TimeOrb, TimeOutput, TimeRelax, TimeTotal, TimeTrans, TimeWfn
+use Active_Space_Check, only: Act_Check_Final, Act_Check_Free, Act_Check_Start, ActStop
 use rasscf_global, only: CBLBM, CMAX, Conv, DE, DoDMRG, DoFCIDump, ECAS, EMY, Ener, ESX, ExFac, FDIAG, HalfQ, iAdr15, iBLBM, &
                          ICICH, iCIOnly, iCIRST, iExpand, IfCrPr, InOCalc, IPCMROOT, iPr, iPT2, iRLXRoot, iRoot, iSave_Exp, &
                          iSymBB, ITER, ITERCI, ITERSX, JBLBM, KSDFT, KSDFT_Temp, l_casdft, lSquare, MaxIt, NAC, NACPAR, NACPR2, &
@@ -118,7 +119,7 @@ integer(kind=iwp) :: actual_iter, i, i_ROOT, iAd, iAd15, iBas, iComp, iFinal, iF
                      RC_RAS
 real(kind=wp) :: CASDFT_E, CASDFT_FUNCT, DiffE, DiffETol, dum1, dum2, dum3, EAv, ECAS1, EVAC, ThMax, time0(2), time1(2), time2(2), &
                  time3(2), TMXTOT
-logical(kind=iwp) :: DSCF, IfOpened, lOPTO, lTemp
+logical(kind=iwp) :: Act_Lost, DSCF, IfOpened, lOPTO, lTemp
 character(len=80) :: Line, VecTyp
 character(len=15) :: STLNE2
 character(len=8) :: Label
@@ -152,6 +153,7 @@ call StatusLine('RASSCF: ','Just started.')
 ! Set the return code(s)
 ITERM = 0
 IRETURN = _RC_ALL_IS_WELL_
+Act_Lost = .false.
 
 ! Set the HDF5 file id (a proper id will never be 0)
 wfn_fileid = 0
@@ -397,6 +399,8 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
 
   !GG03 Aug 03
   if (NAlter > 0) call Alter_MO(CMO)
+  ! the active space the macro iterations start from (active-space check)
+  if (ifvb /= 2) call Act_Check_Start(NTOT2,CMO)
 
   ! At this point all is ready to potentially dump MO integrals... just do it if required.
   if ((.not. DumpOnly) .and. (ifvb /= 2) .and. (.not. dofcidump)) then
@@ -1690,6 +1694,8 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
 #   endif
 
     if (ITERM /= 99) call OUTCTL(CMO,OCCN,SMAT,lOPTO)
+    ! how far the active space moved from the start
+    call Act_Check_Final(NTOT2,CMO,ifvb /= 2,wfn_fileid,Act_Lost)
 
     call mma_deallocate(SMAT)
 
@@ -1796,6 +1802,8 @@ else
   call WarningMessage(2,'Something is wrong: Did CI fail?')
   ireturn = _RC_GENERAL_ERROR_
 end if
+! the active space of the start was lost (Active_Space_Check; not with EXPERT)
+if (Act_Lost .and. ActStop) ireturn = _RC_GENERAL_ERROR_
 
 if (Do_OFemb) then
   if (isStructure() == 1) then
@@ -1870,6 +1878,9 @@ contains
 subroutine Finalize()
 
   integer(kind=iwp) :: I
+
+  ! the copy of the starting orbitals of the active-space check
+  call Act_Check_Free()
 
   ! Close the one-electron integral file:
   iRC = -1

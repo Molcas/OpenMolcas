@@ -59,10 +59,11 @@ subroutine ReadVC(CMO,OCC,D,DS,P,PA,scheme)
 !                                                                      *
 !***********************************************************************
 
+use Active_Space_Check, only: Act_In_Loop, Act_Same_WF, Act_Set_Restart
 use rasscf_global, only: CleanMask, iAdr15, iAlphaBeta, iCIrst, INVEC, iOverwr, iPhName, iRoot, iSUPSM, iXsym, lRoots, nAcPar, &
                          nAcpr2, nOrbT, nRoots, purify, Weight, INVEC
 use rasscf_files, only: JobIph, JobOld, LuStartOrb, StartOrbFile
-use Orbital_Spaces, only: nBas, nDel, nOrb, nSSH, nSym, nTot, nTot2
+use Orbital_Spaces, only: nAsh, nBas, nDel, nOrb, nSSH, nSym, nTot, nTot2
 use casvb_global, only: ifvb
 use orthonormalization, only: ON_scheme_values, orthonormalize, t_ON_scheme
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
@@ -70,7 +71,7 @@ use output_ras, only: IPRGLB, IPRLOC
 use Molcas, only: LenIn, MaxBfn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
 #ifdef _HDF5_
-use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
+use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -90,10 +91,16 @@ character(len=80) :: VecTit
 character(len=72) :: JobTit(mxTit)
 character(len=4) :: Label
 integer(kind=iwp), allocatable :: JobH(:), NewOrd(:), TIND(:), TmpXSym(:)
+! the wave function of JOBOLD/HDF5 for the active-space check
+integer(kind=iwp) :: Job_iRoot(mxRoot), Job_iSpin, Job_LSym, Job_nActEl, Job_nAsh(mxSym), Job_nBas(mxSym), Job_nDel(mxSym), &
+                     Job_nFro(mxSym), Job_nIsh(mxSym), Job_nRoots, Job_nRS1(mxSym), Job_nRS2(mxSym), Job_nRS3(mxSym), Job_nSym
+real(kind=wp) :: Job_Weight(mxRoot)
 real(kind=wp), allocatable :: CMO_copy(:), Ene(:), JobR(:), Scr(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: mh5id
 character(len=:), allocatable :: typestring
+character(len=16) :: H5Module
+logical(kind=iwp) :: H5Restart
 #endif
 integer(kind=iwp), external :: isfreeunit
 #include "warnings.h"
@@ -136,6 +143,8 @@ if (Invec == 0) InVec = 1
 !----------------------------------------------------------------------*
 LUStartOrb = IsFreeUnit(19)
 if (ifvb == 2) invec = 3
+! the active-space check: no restart unless found below (Act_Same_WF)
+call Act_Set_Restart(.false.)
 if (InVec == 2) then
   ! read from unit formatted ascii file with starting orbitals
 
@@ -231,6 +240,12 @@ else if (InVec == 3) then
   call WR_RASSCF_Info(JobOld,2,iAd19,JobH(1),JobH(2),JobH(3),JobH(4),JobH,JobH,JobH,JobH,JobH,mxSym,lJobH1,(LenIn+8)*mxOrb, &
                       JobH(5),lJobH2,2*72,JobTit,72*mxTit,JobR(1),JobH(6),JobH(7),JobH,mxRoot,JobH,JobH,JobH,JobH(8),JobH(9), &
                       JobH(10),JobR(:))
+  ! the active-space check: a restart if JOBOLD holds this wave function
+  iAd19 = iAdr19(1)
+  call WR_RASSCF_Info(JobOld,2,iAd19,Job_nActEl,Job_iSpin,Job_nSym,Job_LSym,Job_nFro,Job_nIsh,Job_nAsh,Job_nDel,Job_nBas,mxSym, &
+                      lJobH1,(LenIn+8)*mxOrb,JobH(5),lJobH2,2*72,JobTit,72*mxTit,JobR(1),JobH(6),Job_nRoots,Job_iRoot,mxRoot, &
+                      Job_nRS1,Job_nRS2,Job_nRS3,JobH(8),JobH(9),JobH(10),Job_Weight)
+  call Act_Set_Restart(Act_Same_WF(Job_nActEl,Job_iSpin,Job_LSym,Job_nAsh,Job_nRoots,Job_iRoot,Job_Weight))
   if (IPRLEV >= TERSE) then
     if (iJOB == 1) then
       write(u6,'(6X,A)') 'The MO-coefficients are taken from the file:'
@@ -314,6 +329,32 @@ else if (InVec == 4) then
   end select
   call RdVec_HDF5(mh5id,Label,NSYM,NBAS,CMO,Dummy,Dummy,iDummy)
   if (mh5_exists_dset(mh5id,trim(VecTit))) call mh5_fetch_dset(mh5id,trim(VecTit),typestring)
+  ! a restart (active-space check) if the file is a RASSCF wave function, or
+  ! orbitals projected by MORT that define active orbitals
+  H5Module = ''
+  if (mh5_exists_attr(mh5id,'MOLCAS_MODULE')) call mh5_fetch_attr(mh5id,'MOLCAS_MODULE',H5Module)
+  if (H5Module == 'RASSCF') then
+    H5Restart = mh5_exists_attr(mh5id,'NACTEL') .and. mh5_exists_attr(mh5id,'SPINMULT') .and. &
+                mh5_exists_attr(mh5id,'LSYM') .and. mh5_exists_attr(mh5id,'NSTATES') .and. &
+                mh5_exists_attr(mh5id,'STATE_ROOTID') .and. mh5_exists_attr(mh5id,'STATE_WEIGHT')
+    if (H5Restart) then
+      call mh5_fetch_attr(mh5id,'NACTEL',Job_nActEl)
+      call mh5_fetch_attr(mh5id,'SPINMULT',Job_iSpin)
+      call mh5_fetch_attr(mh5id,'LSYM',Job_LSym)
+      call mh5_fetch_attr(mh5id,'NSTATES',Job_nRoots)
+      H5Restart = (Job_nRoots >= 1) .and. (Job_nRoots <= mxRoot)
+    end if
+    if (H5Restart) then
+      call mh5_fetch_attr(mh5id,'STATE_ROOTID',Job_iRoot(1:Job_nRoots))
+      call mh5_fetch_attr(mh5id,'STATE_WEIGHT',Job_Weight(1:Job_nRoots))
+      ! (the active orbitals per irrep come from the type indices)
+      H5Restart = Act_Same_WF(Job_nActEl,Job_iSpin,Job_LSym,nAsh,Job_nRoots,Job_iRoot,Job_Weight)
+    end if
+  else
+    ! orbitals projected to another basis by MORT, with active orbitals
+    H5Restart = mh5_exists_attr(mh5id,'MORT_version') .and. (scan(typestring,'123') > 0)
+  end if
+  call Act_Set_Restart(H5Restart)
   call mh5_close_file(mh5id)
   ! Reorder orbitals based on typeindex
   if (typestring /= '') then
@@ -321,6 +362,7 @@ else if (InVec == 4) then
     call mma_allocate(TInd,NNWOrd,Label='TIND')
     call mma_allocate(NewOrd,NNwOrd,Label='NewOrd')
     call tpstr2tpidx(typestring,TInd,NNWOrd)
+    call Act_Set_Restart(H5Restart,NNwOrd,TInd)
     call VecSort(NSYM,NBAS,NBAS,CMO,OCC,TInd,NNwOrd,NewOrd,iErr)
     ! If there is a supersymmetry array, use the orbital mapping:
     if (iSUPSM /= 0) then
@@ -372,6 +414,8 @@ else if (InVec == 6) then
   if (IPRLEV >= VERBOSE) write(u6,'(6x,a)') 'Detected old RASSCF orbitals'
   call qpg_darray('RASSCF orbitals',Found,nData)
   call get_darray('RASSCF orbitals',CMO,nData)
+  ! the active-space check: the same input in the steps of a loop
+  call Act_Set_Restart(Act_In_Loop())
   call Qpg_iArray('nDel',Found,nData)
   if (Found) then
     call Get_iArray('nDel',nTmp,nData)

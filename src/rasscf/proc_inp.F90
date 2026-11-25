@@ -39,6 +39,7 @@ use output_ras, only: IPRGLB, IPRLOC
 use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
 use Orbital_Spaces, only: NASH, NBAS, NDEL, NDELT, NFRO, NFROT, NISH, NORB, NSSH, NSYM, NTOT, NTOT1, NTOT2
 use CI_Input, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, STSYM
+use Active_Space_Check, only: ActStop, ThrAct
 use rasscf_global, only: NCONF, nDet, NSEL
 use DWSol, only: DWSol_DWRO
 use CI_Info, only: CI_St, Space_CI, Space_Inp
@@ -3050,6 +3051,29 @@ else
     if (DBG) write(u6,*) ' Core orbital is number ITCORE'
     call ChkIfKey()
   end if
+
+  !---  Process ACTT command (threshold of the active-space check)
+  if (Key('ACTT')) then
+    if (DBG) write(u6,*) ' ACTT (active-space check threshold) keyword was used.'
+    call SetPos(LUInput,'ACTT',Line,iRc)
+    if (iRc /= _RC_ALL_IS_WELL_) then
+      call Error(1)
+      return
+    end if
+    ReadStatus = ' Failure reading the threshold after the ACTThreshold keyword.'
+    read(LUInput,*,iostat=istatus) ThrAct
+    if (istatus < 0) then
+      call Error(2)
+      return
+    else if (istatus > 0) then
+      call Error(3)
+      return
+    end if
+    ReadStatus = ' O.K. reading the threshold after the ACTThreshold keyword.'
+    call ChkIfKey()
+  end if
+  ! EXPERT: a lost active space gives a warning only
+  ActStop = .not. Key('EXPE')
 
   !---  Process LEVS command
   if (Key('LEVS')) then

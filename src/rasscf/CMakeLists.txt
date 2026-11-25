@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     active_space_check.F90
      alter_mo.F90
      calceigvec.F90
      calcfcko.F90
