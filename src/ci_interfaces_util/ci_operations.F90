@@ -609,17 +609,40 @@ end subroutine HEXS_Proj
 !>   assumed (the iTri packing).
 !> Have_2_el = .false.: one-body operator only, TUVX not referenced (a
 !> dummy of size 1 may be passed).
-!> HEXS/DEXS: projected only if the program set up HEXS/DEXS for iState
-!> (RASSCF input); otherwise no projection. (Not yet: RASSCF still calls
-!> Mk_H_Psi, which projects.)
+!> HEXS/DEXS: projected (P H P) for the state from the CI input with
+!> HEXS/DEXS, in its symmetry; otherwise no projection.
 !> Scratch: the libraries keep their own work space (freed by
 !> CI_Lib_Close).
 subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
   logical(kind=iwp), intent(in) :: Square, Have_2_el
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
   real(kind=wp), intent(out) :: S(nS)
+  real(kind=wp), allocatable :: CM(:)
   call Check_Op('CI_Lib_Sigma',iOpSpin,Have_2_el,Square)
+  ! HEXS/DEXS (the state from the CI input, its symmetry): P H P, the vector
+  ! and the result projected on the kept CSFs (HEXS_Keep; Lucia does it
+  ! itself, its mask is not allocated)
+  if ((iState == iState_Input) .and. allocated(HEXS_Keep) .and. (iCSym == CI_St(iState)%STSym) .and. &
+      (iSSym == CI_St(iState)%STSym)) then
+    call mma_allocate(CM,nC,Label='HEXS_CM')
+    CM(:) = C(:)
+    call HEXS_Proj(HEXS_Keep,CM)
+    call Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,CM,nS,S)
+    call HEXS_Proj(HEXS_Keep,S)
+    call mma_deallocate(CM)
+  else
+    call Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  end if
+end subroutine CI_Lib_Sigma
+
+!> CI_Lib_Sigma for the selected library
+subroutine Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
+  real(kind=wp), intent(out) :: S(nS)
   select case (CI_Lib)
     case (CI_Lib_SGUGA)
       if (iOpSpin /= 0) call Not_Yet('CI_Lib_Sigma','triplet operators')
@@ -636,7 +659,7 @@ subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX
     case default
       call Check_Lib('CI_Lib_Sigma')
   end select
-end subroutine CI_Lib_Sigma
+end subroutine Lib_Sigma_Run
 
 !> RASSCF's Lucia (CI_Lib_Lucia): S = H C in the symmetry of the state, via
 !> its determinant basis (csdtvc), with determinant scratch of this call

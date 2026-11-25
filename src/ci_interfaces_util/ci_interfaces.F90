@@ -13,6 +13,7 @@
 
 module CI_Interfaces
 use CI_Lib_Checks
+use CI_Library, only: Checked_Sigma => CI_Lib_Sigma
 use SG_Lucia_Bridge, only: SG_Lucia_Walk, SG_ReOrd, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
@@ -24,15 +25,14 @@ use faroald_ras, only: n_ras, ras_active, ras_sigma
 ! the active orbital (symmetry-blocked order of TU/TUVX) of level lev, set
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
-use CI_Operations, only: CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
+use CI_Operations, only: CI_Lucia_Active, HEXS_Keep_SG, HEXS_Proj
 use CI_Operations, only: Cnf_Exc, CI_Lib_Block, CI_Lib_Close, CI_Lib_Sigma, Faro_L2O => Faro_Lev, Faroald_HDet, Rel_Map, &
                          Report_Dev, SG_Rel_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras
-use CI_Input, only: DoSGEx, iDoGAS
+use CI_Input, only: DoSGEx
 use CI_Verify_Options, only: CI_Verify
 use CI_Info, only: CI_St
 
@@ -41,7 +41,7 @@ use CI_Info, only: CI_St
 implicit none
 Private
 
-Public :: Mk_H_Psi, Mk_H_Psi_Det, Mk_IHJ, Mk_Cnf_Layout
+Public :: Mk_H_Psi_Det, Mk_IHJ, Mk_Cnf_Layout
 Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
           CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_CI, Faro_nTmp, SG_CI
 
@@ -56,185 +56,6 @@ contains
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-!> Sigma vector Sigma_Vec = H CI_Vec of the CI back end; with HEXS/DEXS
-!> P H P (Mk_H_Psi_P on the projected vector, the result projected).
-Subroutine Mk_H_Psi(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
-integer(kind=iwp), intent(in):: iState, STSYM, nCSF, ntemp, nTU, nTUVX
-real(kind=wp), intent(in) :: CI_Vec(nCSF), TU(nTU), TUVX(nTUVX)
-real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
-real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
-real(kind=wp), allocatable :: CM(:)
-real(kind=wp) :: TimT(2)
-call Tim_On(TimT)
-if (.not. allocated(HEXS_Keep)) then
-  call Mk_H_Psi_P(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
-  call Tim_Off(Tim_HPsi,TimT)
-  return
-end if
-call mma_allocate(CM,nCSF,Label='HEXS_CM')
-CM(:) = CI_Vec(:)
-call HEXS_Proj(HEXS_Keep,CM)
-call Mk_H_Psi_P(iState,STSYM,nCSF,CM,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
-call HEXS_Proj(HEXS_Keep,Sigma_Vec)
-call mma_deallocate(CM)
-call Tim_Off(Tim_HPsi,TimT)
-end subroutine Mk_H_Psi
-
-Subroutine Mk_H_Psi_P(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,nTU,TU,nTUVX,TUVX)
-use lucia_data, only: Sigma_on_disk, IREFSM
-use cands, only: ICSM, ISSM
-Implicit None
-
-integer(kind=iwp), intent(in):: iState, STSYM, nCSF
-real(kind=wp), intent(in) :: CI_Vec(nCSF)
-real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
-integer(kind=iwp), intent(in) :: ntemp
-real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
-integer(kind=iwp), intent(in):: nTU, nTUVX
-real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
-
-
-real(kind=wp) :: Check_Href, Check_H, DMax
-logical(kind=iwp) :: Lucia_Done, SG_Done
-real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:), SG_RAS(:)
-
-! SGCI: the CI is in the SGUGA (split-graph) CSF basis. Under
-! MOLCAS_CI_VERIFY=SIGMA the sigma vector is compared with that of Lucia
-! (vector reordered to the Lucia basis and the result back).
-if (SG_CI()) then
-  call CI_Lib_Sigma(iState,0,STSYM,STSYM,.false.,.true.,nTU,TU,nTUVX,TUVX,nCSF,CI_Vec,nCSF,Sigma_Vec)
-  call HEXS_Proj(HEXS_Keep,Sigma_Vec)
-  if (CI_Verify('SIGMA')) then
-    call mma_allocate(SG_PSI,max(nCSF,CI_St(iState)%nDet(STSYM)),Label='SG_PSI')
-    call mma_allocate(SG_SGM,max(nCSF,CI_St(iState)%nDet(STSYM)),Label='SG_SGM')
-    call SG_Reord(iState,STSYM,1,nCSF,CI_Vec,SG_PSI)
-    call Lucia_Sigma(SG_PSI,SG_SGM)
-    call SG_Reord(iState,STSYM,0,nCSF,SG_SGM,SG_PSI)
-    DMax = maxval(abs(SG_PSI(1:nCSF)-Sigma_Vec(:)))
-    if (.not. HPsi_SG_Verified) then
-      write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi (SGCI): SGUGA sigma vs Lucia, max. abs. difference',DMax
-      HPsi_SG_Verified = .true.
-    end if
-    if (DMax > 1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:))))) then
-      write(u6,'(1X,A,ES10.3)') 'SGUGA error in H|Psi> (SGCI), max. abs. difference',DMax
-      call Abend()
-    end if
-    call mma_deallocate(SG_SGM)
-    call mma_deallocate(SG_PSI)
-  end if
-  return
-end if
-
-if (Faro_CI()) then
-
-  call CI_Lib_Sigma(iState,0,STSYM,STSYM,.false.,.true.,nTU,TU,nTUVX,TUVX,nCSF,CI_Vec,nCSF,Sigma_Vec)
-  call HEXS_Proj(HEXS_Keep,Sigma_Vec)
-  ! CI development (MOLCAS_CI_VERIFY=SIGMA): the Faroald sigma vector
-  ! against Lucia (and below against SGUGA)
-  if (CI_Verify('SIGMA')) then
-    call mma_allocate(SG_SGM,nCSF,Label='Lucia_SGM')
-    call Ref_Sigma('Lucia',iState,STSYM,nCSF,CI_Vec,SG_SGM,nTU,TU,nTUVX,TUVX)
-    DMax = maxval(abs(SG_SGM(:)-Sigma_Vec(:)))
-    Lucia_Done = HPsi_Faro_Verified
-    call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs Lucia',DMax,1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:)))),Lucia_Done)
-    call mma_deallocate(SG_SGM)
-  end if
-
-else
-
-  ! RASSCF's Lucia (its determinant basis inside CI_Lib)
-  call CI_Lib_Sigma(iState,0,STSYM,STSYM,.false.,.true.,nTU,TU,nTUVX,TUVX,nCSF,CI_Vec,nCSF,Sigma_Vec)
-
-end if
-
-! CI development (MOLCAS_CI_VERIFY=SIGMA): compare with the SGUGA sigma
-! vector, which is then used. With RAS partitions it comes from
-! sg_h_psi_ras (no intermediate states outside the RAS space); for CAS from
-! sg_h_psi, checked once per run against sg_h_psi_ras. With HEXS/DEXS
-! projected (P H P, HEXS_Keep_SG).
-If (CI_Verify('SIGMA') .and. SG_Avail()) Then
-   Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
-   call CI_Basis_To_File(iState,STSYM,nCSF,CI_VEC,SG_PSI)
-   call HEXS_Proj(HEXS_Keep_SG,SG_PSI)
-   Check_Href=CheckSum(Sigma_Vec,nCSF)
-   Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
-   if ((CI_St(iState)%nRsPrt == 1) .and. (.not. iDoGAS)) then
-     Call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
-     if (.not. HPsi_RAS_Verified) then
-       call mma_allocate(SG_RAS,nCSF,Label='SG_RAS')
-       call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_RAS,TUVX,nTUVX,TU,nTU)
-       DMax = maxval(abs(SG_RAS(:)-SG_SGM(:)))
-       write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs sg_h_psi, max. abs. difference',DMax
-       if (DMax > 1.0e-12_wp*max(One,maxval(abs(SG_SGM(:))))) then
-         write(u6,*) 'SGUGA error in sg_h_psi_ras'
-         call Abend()
-       end if
-       call mma_deallocate(SG_RAS)
-       HPsi_RAS_Verified = .true.
-     end if
-   else
-     call SG_HPsi(iState,SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU,.true.)
-   end if
-   call HEXS_Proj(HEXS_Keep_SG,SG_SGM)
-   call CI_File_To_Basis(iState,STSYM,nCSF,SG_SGM,SG_PSI)
-   if ((CI_St(iState)%nRsPrt /= 1) .or. iDoGAS) then
-     DMax = maxval(abs(SG_PSI(:)-Sigma_Vec(:)))
-     if (.not. HPsi_RAS_Verified) &
-       write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs CI back end (RAS), max. abs. difference',DMax
-     HPsi_RAS_Verified = .true.
-     if (DMax > 1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:))))) then
-       write(u6,'(1X,A,ES10.3)') 'SGUGA error in sg_h_psi_ras (RAS), max. abs. difference',DMax
-       call Abend()
-     end if
-   end if
-   if (Faro_CI()) then
-     SG_Done = HPsi_Faro_Verified
-     call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs SGUGA',maxval(abs(SG_PSI(:)-Sigma_Vec(:))), &
-                     1.0e-10_wp*max(One,maxval(abs(Sigma_Vec(:)))),SG_Done)
-     HPsi_Faro_Verified = .true.
-   end if
-   Check_H   =CheckSum(SG_PSI,nCSF)
-   If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
-      Write (u6,*) 'SGUGA error in H|Psi>'
-      Write (u6,*) 'Check_HRef=',Check_HRef
-      Write (u6,*) 'Check_H   =',Check_H
-      Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nCSF)
-      Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
-      Call Abend()
-   End If
-   Sigma_Vec(1:nCSF) = SG_PSI(1:nCSF)
-   Call mma_deallocate(SG_SGM)
-   Call mma_deallocate(SG_PSI)
-End if
-
-contains
-
-  ! Lucia sigma vector of the CSF vector Cin (Lucia basis), the reference
-  ! of SGCI; Sout must hold max(nCSF,nDet) elements (CSDTVC).
-  subroutine Lucia_Sigma(Cin,Sout)
-    real(kind=wp), intent(in) :: Cin(*)
-    real(kind=wp), intent(inout) :: Sout(*)
-    integer(kind=iwp) :: IREFSM_Keep, nD
-
-    IREFSM_Keep = IREFSM
-    IREFSM = STSYM
-    ICSM = STSYM
-    ISSM = STSYM
-    nD = CI_St(iState)%nDet(IREFSM)
-    ctemp(1:nCSF) = Cin(1:nCSF)
-    sigtemp(:) = Zero
-    call csdtvc(ctemp,sigtemp,1,STSym,0)
-    ctemp(1:nD) = sigtemp(1:nD)
-    call Lucia_Util('Sigma',CI_Vector=ctemp(:),Sigma_Vector=sigtemp(:),nTU=Size(TU),TU=TU,nTUVX=Size(TUVX),TUVX=TUVX)
-    Sigma_on_disk = .true.
-    call CSDTVC(Sout,sigtemp,2,STSym,0)
-    IREFSM = IREFSM_Keep
-    ICSM = IREFSM
-    ISSM = IREFSM
-
-  end subroutine Lucia_Sigma
-
-End Subroutine Mk_H_Psi_P
 
 !> Unpack the active one- and two-electron integrals (triangular packing)
 !> into the square arrays htu and gtuvx of Faroald.
@@ -566,16 +387,6 @@ End Subroutine Mk_H_Psi_Det
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
- Function Checksum(A,nA)
- real(kind=wp) :: Checksum
- integer(kind=iwp), intent(in):: nA
- real(kind=wp), intent(in):: A(nA)
- integer(kind=iwp) :: i
- Checksum=0.0_wp
- Do i = 1, nA
-    Checksum = Checksum + Abs(A(i))/real(i,kind=wp)
- End Do
- End Function Checksum
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
@@ -1380,21 +1191,13 @@ contains
   ! of the selection, evenly spaced.
   subroutine Verify_IHJ()
     integer(kind=iwp), parameter :: mxCol = 32
-    integer(kind=iwp) :: I, J, JJ, nCol, nTmp
-    real(kind=wp), allocatable :: EJ(:), HEJ(:), cTmp(:), sTmp(:)
+    integer(kind=iwp) :: I, J, JJ, nCol
+    real(kind=wp), allocatable :: EJ(:), HEJ(:)
     real(kind=wp) :: Ref, Err, ErrMax
     logical(kind=iwp) :: Sigma_Save
 
-    if (Faro_CI()) then
-      nTmp = Faro_nTmp()
-    else
-      nTmp = nDet
-    end if
-    call mma_allocate(cTmp,nTmp,Label='cTmp')
-    call mma_allocate(sTmp,nTmp,Label='sTmp')
     call mma_allocate(EJ,nConf,Label='EJ')
-    ! CSDTVC may write beyond nConf (cf. David5)
-    call mma_allocate(HEJ,max(nConf,nDet),Label='HEJ')
+    call mma_allocate(HEJ,nConf,Label='HEJ')
 
     Sigma_Save = Sigma_on_disk
     nCol = min(NPCSF,mxCol)
@@ -1403,7 +1206,7 @@ contains
       J = 1+((JJ-1)*(NPCSF-1))/max(nCol-1,1)
       EJ(:) = Zero
       EJ(IPCSF(J)) = One
-      call Mk_H_Psi(iState,IREFSM,nConf,EJ,HEJ,cTmp,sTmp,nTmp,nTU,TU,nTUVX,TUVX)
+      call Checked_Sigma(iState,0,IREFSM,IREFSM,.false.,.true.,nTU,TU,nTUVX,TUVX,nConf,EJ,nConf,HEJ)
       do I=1,NPCSF
         Ref = HEJ(IPCSF(I))
         if (I == J) Ref = Ref+ECORE
@@ -1423,8 +1226,6 @@ contains
 
     call mma_deallocate(HEJ)
     call mma_deallocate(EJ)
-    call mma_deallocate(sTmp)
-    call mma_deallocate(cTmp)
 
   end subroutine Verify_IHJ
 

@@ -19,13 +19,14 @@
 !> program set up itself gets the core operations unchanged.
 module CI_Library
 
-use CI_Operations, Raw_Dens => CI_Lib_Dens, Raw_Diag => CI_Lib_Diag, Raw_Transform => CI_Lib_Transform
+use CI_Operations, Raw_Dens => CI_Lib_Dens, Raw_Diag => CI_Lib_Diag, Raw_Sigma => CI_Lib_Sigma, Raw_Transform => CI_Lib_Transform
 
 implicit none
 private :: Check_Diag_Faro, Check_Diag_Faro_SG, Check_Diag_Lucia, Check_Diag_SG, Check_PDMs, Check_T1DM, Cnf_Rank, Diag_To_Lucia, &
-           Exact_Diag_Lucia, Lucia_Avg_Diag, Raw_Dens, Raw_Diag, Raw_Transform, Sel_PHP
+           Check_Sigma, CheckSum, Exact_Diag_Lucia, Lucia_Avg_Diag, Lucia_Sigma_Ref, Raw_Dens, Raw_Diag, Raw_Sigma, Raw_Transform, &
+           Sel_PHP
 
-public :: CI_Lib_Dens, CI_Lib_Diag, CI_Lib_Transform
+public :: CI_Lib_Dens, CI_Lib_Diag, CI_Lib_Sigma, CI_Lib_Transform
 
 contains
 
@@ -785,6 +786,216 @@ subroutine Sel_PHP(nKey,Key,nCSFCnf,nPMax,Sel)
   call mma_deallocate(Wrk)
 
 end subroutine Sel_PHP
+
+!> S = H C of the core (CI_Lib_Sigma of CI_Operations, see there). Under
+!> MOLCAS_CI_VERIFY=SIGMA, for H in the symmetry of the state from the CI
+!> input, compared with Lucia (SGCI, FARO) and with SGUGA, whose sigma
+!> vector is then used (with RAS partitions from sg_h_psi_ras; for CAS from
+!> sg_h_psi, checked once against sg_h_psi_ras).
+subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+
+  use CI_Info, only: CI_St
+  use CI_Lib_Checks, only: Tim_HPsi, Tim_Off, Tim_On
+  use CI_Verify_Options, only: CI_Verify
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
+  real(kind=wp), intent(out) :: S(nS)
+  real(kind=wp) :: TimT(2)
+
+  call Tim_On(TimT)
+  call Raw_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  if (CI_Verify('SIGMA') .and. CI_Lib_Input_State(iState) .and. (iOpSpin == 0) .and. (.not. Square) .and. Have_2_el .and. &
+      (iCSym == CI_St(iState)%STSym) .and. (iSSym == iCSym) .and. (nS == nC)) &
+    call Check_Sigma(iState,iCSym,nC,C,S,nTU,TU,nTUVX,TUVX)
+  call Tim_Off(Tim_HPsi,TimT)
+
+end subroutine CI_Lib_Sigma
+
+!> CI development (SIGMA): the sigma vector S of C (H of the state iState
+!> in its symmetry LSM) against Lucia (SGCI, FARO) and SGUGA; S is replaced
+!> by SGUGA's (not for SGCI), projected for HEXS/DEXS.
+subroutine Check_Sigma(iState,LSM,n,C,S,nTU,TU,nTUVX,TUVX)
+
+  use CI_Info, only: CI_St
+  use CI_Input, only: iDoGAS
+  use CI_Lib_Checks, only: CI_Basis_To_File, CI_File_To_Basis, Faro_CI, HPsi_Faro_Verified, HPsi_RAS_Verified, &
+                           HPsi_SG_Verified, Ref_Sigma, SG_Avail, SG_CI, SG_HPsi
+  use SG_Lucia_Bridge, only: SG_ReOrd
+  use sguga, only: CIS, EXS, SGS
+  use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: One
+  use Definitions, only: wp, iwp, u6
+
+  integer(kind=iwp), intent(in) :: iState, LSM, n, nTU, nTUVX
+  real(kind=wp), intent(in) :: C(n), TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(inout) :: S(n)
+  real(kind=wp) :: Check_H, Check_HRef, DMax
+  logical(kind=iwp) :: Lucia_Done, SG_Done
+  real(kind=wp), allocatable :: CM(:), SG_PSI(:), SG_RAS(:), SG_SGM(:)
+
+  ! the vector the library got (HEXS/DEXS: projected)
+  call mma_allocate(CM,n,Label='CM')
+  CM(:) = C(:)
+  call HEXS_Proj(HEXS_Keep,CM)
+
+  ! SGCI: the SGUGA sigma vector against that of Lucia (vector reordered to
+  ! the Lucia basis and the result back)
+  if (SG_CI()) then
+    call mma_allocate(SG_PSI,max(n,CI_St(iState)%nDet(LSM)),Label='SG_PSI')
+    call mma_allocate(SG_SGM,max(n,CI_St(iState)%nDet(LSM)),Label='SG_SGM')
+    call SG_ReOrd(iState,LSM,1,n,CM,SG_PSI)
+    call Lucia_Sigma_Ref(iState,LSM,n,SG_PSI,SG_SGM,nTU,TU,nTUVX,TUVX)
+    call SG_ReOrd(iState,LSM,0,n,SG_SGM,SG_PSI)
+    DMax = maxval(abs(SG_PSI(1:n)-S(:)))
+    if (.not. HPsi_SG_Verified) then
+      write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi (SGCI): SGUGA sigma vs Lucia, max. abs. difference',DMax
+      HPsi_SG_Verified = .true.
+    end if
+    if (DMax > 1.0e-10_wp*max(One,maxval(abs(S(:))))) then
+      write(u6,'(1X,A,ES10.3)') 'SGUGA error in H|Psi> (SGCI), max. abs. difference',DMax
+      call Abend()
+    end if
+    call mma_deallocate(SG_SGM)
+    call mma_deallocate(SG_PSI)
+    call mma_deallocate(CM)
+    return
+  end if
+
+  ! FARO: the Faroald sigma vector against Lucia (and below against SGUGA)
+  if (Faro_CI()) then
+    call mma_allocate(SG_SGM,n,Label='Lucia_SGM')
+    call Ref_Sigma('Lucia',iState,LSM,n,CM,SG_SGM,nTU,TU,nTUVX,TUVX)
+    DMax = maxval(abs(SG_SGM(:)-S(:)))
+    Lucia_Done = HPsi_Faro_Verified
+    call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs Lucia',DMax,1.0e-10_wp*max(One,maxval(abs(S(:)))),Lucia_Done)
+    call mma_deallocate(SG_SGM)
+  end if
+
+  ! the SGUGA sigma vector, which is then used: with RAS partitions from
+  ! sg_h_psi_ras (no intermediate states outside the RAS space); for CAS from
+  ! sg_h_psi, checked once per run against sg_h_psi_ras. With HEXS/DEXS
+  ! projected (P H P, HEXS_Keep_SG).
+  if (SG_Avail()) then
+    call mma_allocate(SG_PSI,n,Label='SG_PSI')
+    call CI_Basis_To_File(iState,LSM,n,CM,SG_PSI)
+    call HEXS_Proj(HEXS_Keep_SG,SG_PSI)
+    Check_HRef = CheckSum(S,n)
+    call mma_allocate(SG_SGM,n,Label='SG_SGM')
+    if ((CI_St(iState)%nRsPrt == 1) .and. (.not. iDoGAS)) then
+      call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),SG_PSI,n,LSM,SG_SGM,TUVX,nTUVX,TU,nTU)
+      if (.not. HPsi_RAS_Verified) then
+        call mma_allocate(SG_RAS,n,Label='SG_RAS')
+        call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),SG_PSI,n,LSM,SG_RAS,TUVX,nTUVX,TU,nTU)
+        DMax = maxval(abs(SG_RAS(:)-SG_SGM(:)))
+        write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs sg_h_psi, max. abs. difference',DMax
+        if (DMax > 1.0e-12_wp*max(One,maxval(abs(SG_SGM(:))))) then
+          write(u6,*) 'SGUGA error in sg_h_psi_ras'
+          call Abend()
+        end if
+        call mma_deallocate(SG_RAS)
+        HPsi_RAS_Verified = .true.
+      end if
+    else
+      call SG_HPsi(iState,SG_PSI,n,LSM,SG_SGM,TUVX,nTUVX,TU,nTU,.true.)
+    end if
+    call HEXS_Proj(HEXS_Keep_SG,SG_SGM)
+    call CI_File_To_Basis(iState,LSM,n,SG_SGM,SG_PSI)
+    if ((CI_St(iState)%nRsPrt /= 1) .or. iDoGAS) then
+      DMax = maxval(abs(SG_PSI(:)-S(:)))
+      if (.not. HPsi_RAS_Verified) &
+        write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs CI back end (RAS), max. abs. difference',DMax
+      HPsi_RAS_Verified = .true.
+      if (DMax > 1.0e-10_wp*max(One,maxval(abs(S(:))))) then
+        write(u6,'(1X,A,ES10.3)') 'SGUGA error in sg_h_psi_ras (RAS), max. abs. difference',DMax
+        call Abend()
+      end if
+    end if
+    if (Faro_CI()) then
+      SG_Done = HPsi_Faro_Verified
+      call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs SGUGA',maxval(abs(SG_PSI(:)-S(:))),1.0e-10_wp*max(One,maxval(abs(S(:)))), &
+                      SG_Done)
+      HPsi_Faro_Verified = .true.
+    end if
+    Check_H = CheckSum(SG_PSI,n)
+    if (abs(Check_HRef-Check_H)/n > 1.0e-12_wp) then
+      write(u6,*) 'SGUGA error in H|Psi>'
+      write(u6,*) 'Check_HRef=',Check_HRef
+      write(u6,*) 'Check_H   =',Check_H
+      call RecPrt('Sigma_Vec',' ',S,1,n)
+      call RecPrt('SG_SGM',' ',SG_PSI,1,n)
+      call Abend()
+    end if
+    S(1:n) = SG_PSI(1:n)
+    call HEXS_Proj(HEXS_Keep,S)
+    call mma_deallocate(SG_SGM)
+    call mma_deallocate(SG_PSI)
+  end if
+  call mma_deallocate(CM)
+
+end subroutine Check_Sigma
+
+!> Lucia's sigma vector Sout of the CSF vector Cin (Lucia basis, symmetry
+!> LSM of state iState), the reference of SGCI; Cin and Sout hold
+!> max(n,nDet) elements (CSDTVC).
+subroutine Lucia_Sigma_Ref(iState,LSM,n,Cin,Sout,nTU,TU,nTUVX,TUVX)
+
+  use CI_Info, only: CI_St
+  use Lucia_Interface, only: Lucia_Util
+  use lucia_data, only: IREFSM, Sigma_on_disk
+  use cands, only: ICSM, ISSM
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, LSM, n, nTU, nTUVX
+  real(kind=wp), intent(in) :: Cin(*), TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(inout) :: Sout(*)
+  integer(kind=iwp) :: IREFSM_Keep, nD
+  real(kind=wp), allocatable :: CT(:), ST(:)
+
+  IREFSM_Keep = IREFSM
+  IREFSM = LSM
+  ICSM = LSM
+  ISSM = LSM
+  nD = CI_St(iState)%nDet(IREFSM)
+  call mma_allocate(CT,max(n,nD),Label='CT')
+  call mma_allocate(ST,max(n,nD),Label='ST')
+  CT(1:n) = Cin(1:n)
+  ST(:) = Zero
+  call csdtvc(CT,ST,1,LSM,0)
+  CT(1:nD) = ST(1:nD)
+  call Lucia_Util('Sigma',CI_Vector=CT(:),Sigma_Vector=ST(:),nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+  Sigma_on_disk = .true.
+  call CSDTVC(Sout,ST,2,LSM,0)
+  call mma_deallocate(ST)
+  call mma_deallocate(CT)
+  IREFSM = IREFSM_Keep
+  ICSM = IREFSM
+  ISSM = IREFSM
+
+end subroutine Lucia_Sigma_Ref
+
+!> A weighted checksum of A (the order matters)
+function CheckSum(A,n) result(Chk)
+
+  use Constants, only: Zero
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: n
+  real(kind=wp), intent(in) :: A(n)
+  real(kind=wp) :: Chk
+  integer(kind=iwp) :: i
+
+  Chk = Zero
+  do i=1,n
+    Chk = Chk+abs(A(i))/real(i,kind=wp)
+  end do
+
+end function CheckSum
 
 !> The CI vector CI (basis of the selected library, symmetry iSym of state
 !> iState) for the active orbitals rotated by TU (per symmetry the square
