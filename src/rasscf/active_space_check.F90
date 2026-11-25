@@ -57,9 +57,17 @@ logical(kind=iwp) :: Restart = .false.
 ! active orbitals per irrep of the start file (type indices; -1: unknown)
 integer(kind=iwp) :: nAct_File(8) = -1
 
-public :: Act_Check_Final, Act_Check_Free, Act_Check_Start, Act_In_Loop, Act_Same_WF, Act_Set_Restart, ActStop, ThrAct
+public :: Act_Check_Final, Act_Check_Free, Act_Check_Start, Act_In_Loop, Act_Same_WF, Act_Set_Restart, Act_Warn_SCF, ActStop, &
+          ThrAct
 
 contains
+
+!> One line of warning when the starting orbitals come from SCF (runfile,
+!> SCF HDF5 file, or an orbital file with the SCF title): their active
+!> orbitals are only those at the Fermi level of the SCF.
+subroutine Act_Warn_SCF()
+  write(u6,'(6X,A)') 'WARNING: RASSCF starts from SCF orbitals; check that the active orbitals are the intended ones.'
+end subroutine Act_Warn_SCF
 
 !> Whether the starting orbitals hold the active space of an earlier
 !> CASSCF/RASSCF (set by ReadVc); TInd: the type indices of the file

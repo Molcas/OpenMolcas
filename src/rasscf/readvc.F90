@@ -59,7 +59,7 @@ subroutine ReadVC(CMO,OCC,D,DS,P,PA,scheme)
 !                                                                      *
 !***********************************************************************
 
-use Active_Space_Check, only: Act_In_Loop, Act_Same_WF, Act_Set_Restart
+use Active_Space_Check, only: Act_In_Loop, Act_Same_WF, Act_Set_Restart, Act_Warn_SCF
 use rasscf_global, only: CleanMask, iAdr15, iAlphaBeta, iCIrst, INVEC, iOverwr, iPhName, iRoot, iSUPSM, iXsym, lRoots, nAcPar, &
                          nAcpr2, nOrbT, nRoots, purify, Weight, INVEC
 use rasscf_files, only: JobIph, JobOld, LuStartOrb, StartOrbFile
@@ -202,6 +202,9 @@ if (InVec == 2) then
     write(u6,'(6X,A)') trim(StartOrbFile)
     write(u6,'(6X,A,A)') 'Title:',VecTit(2:80)
   end if
+  ! (titles written by SCF: '* SCF orbitals', '* UHF orbitals', '* RKS-DFT orbitals', ...)
+  if ((index(VecTit,'SCF orbitals') > 0) .or. (index(VecTit,'UHF orbitals') > 0) .or. &
+      (index(VecTit,'KS-DFT orbitals') > 0)) call Act_Warn_SCF()
 
 else if (InVec == 3) then
   ! read from unit JOBOLD (binary file)
@@ -355,6 +358,7 @@ else if (InVec == 4) then
     H5Restart = mh5_exists_attr(mh5id,'MORT_version') .and. (scan(typestring,'123') > 0)
   end if
   call Act_Set_Restart(H5Restart)
+  if (H5Module == 'SCF') call Act_Warn_SCF()
   call mh5_close_file(mh5id)
   ! Reorder orbitals based on typeindex
   if (typestring /= '') then
@@ -462,6 +466,7 @@ else if (InVec == 7) then
     end do
   end if
   if (IPRLEV >= TERSE) write(u6,'(6X,A)') 'The MO-coefficients are taken from scf orbitals on runfile'
+  call Act_Warn_SCF()
 else if (InVec == 1) then
   if (IPRLEV >= VERBOSE) write(u6,'(6X,A)') 'The MO-coefficients are obtained by diagonalizing the core Hamiltonian'
   call Guess(CMO)
