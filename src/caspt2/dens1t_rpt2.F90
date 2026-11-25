@@ -16,7 +16,7 @@ subroutine DENS1T_RPT2(CI1,CI2,SGM1,G1,NLEV)
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: iSCF, MxCI, nAshT, nG1
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -43,7 +43,7 @@ if (ISCF == 2) then
   do IT=1,NASHT
     G1(IT,IT) = One
   end do
-else if ((ISCF == 1) .and. (CI_St(iState)%nActEl > 0)) then
+else if ((ISCF == 1) .and. (CI_Lib_Space(iState)%nActEl > 0)) then
   ! Special code for closed-shell:
   do IT=1,NASHT
     G1(IT,IT) = Two
@@ -54,7 +54,7 @@ else
   ! have to take account of orbital order.
   ! We will use level inices LT,LU... in these calls, but produce
   ! the density matrices with usual active orbital indices.
-  ! Translation tables L2ACT and LEVEL, in CI_St (CI_Info)
+  ! Translation tables L2ACT and LEVEL, in CI_Lib_Space (CI_Lib_Info)
 
   !-SVC20100311: set up a task table with LT,LU
   nTasks = nLev**2
@@ -77,20 +77,20 @@ else
     !LTU = 0
     !do LT=1,NLEV
     LT = TASK(iTask,1)
-    IST = CI_St(istate)%ISm(LT)
-    IT = CI_St(istate)%L2Act(LT)
+    IST = CI_Lib_Space(istate)%ISm(LT)
+    IT = CI_Lib_Space(istate)%L2Act(LT)
     !do LU=1,LT
     LU = Task(iTask,2)
     !LTU = LTU+1
     !LTU = iTask
-    ISU = CI_St(istate)%ISm(LU)
-    IU = CI_St(istate)%L2Act(LU)
+    ISU = CI_Lib_Space(istate)%ISm(LU)
+    IU = CI_Lib_Space(istate)%L2Act(LU)
     ISTU = Mul(IST,ISU)
     if (ISTU /= 1) cycle
-    ISSG = Mul(ISTU,CI_St(iState)%STSym)
-    NSGM = CI_St(istate)%nCSF(ISSG)
+    ISSG = Mul(ISTU,CI_Lib_Space(iState)%STSym)
+    NSGM = CI_Lib_Space(istate)%nCSF(ISSG)
     if (NSGM == 0) cycle
-    call GETSGM2(LU,LT,CI_St(iState)%STSym,CI1,MXCI,SGM1,NSGM)
+    call GETSGM2(LU,LT,CI_Lib_Space(iState)%STSym,CI1,MXCI,SGM1,NSGM)
     GTU = DDOT_(NSGM,CI2,1,SGM1,1)
     G1(IT,IU) = G1(IT,IU)+GTU
 

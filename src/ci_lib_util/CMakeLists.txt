@@ -10,33 +10,33 @@
 #***********************************************************************
 
 set (sources
-     ci_info.F90
      ci_input.F90
+     ci_lib.F90
      ci_lib_checks.F90
-     ci_library.F90
-     ci_op_defs.F90
-     ci_operations.F90
-     ci_states.F90
+     ci_lib_core.F90
+     ci_lib_defs.F90
+     ci_lib_info.F90
+     ci_lib_states.F90
+     ci_sd_csf_codec.F90
+     ci_sg_lucia_bridge.F90
+     ci_sg_ug2sg.F90
      ci_verify_options.F90
      orbital_spaces.F90
-     SD_CSF_Codec_module.F90
-     sg_lucia_bridge.F90
-     ug2sg.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     ci_info.F90
      ci_input.F90
+     ci_lib.F90
      ci_lib_checks.F90
-     ci_library.F90
-     ci_op_defs.F90
-     ci_operations.F90
-     ci_states.F90
+     ci_lib_core.F90
+     ci_lib_defs.F90
+     ci_lib_info.F90
+     ci_lib_states.F90
+     ci_sd_csf_codec.F90
+     ci_sg_lucia_bridge.F90
      ci_verify_options.F90
      orbital_spaces.F90
-     SD_CSF_Codec_module.F90
-     sg_lucia_bridge.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

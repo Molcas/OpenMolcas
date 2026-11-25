@@ -12,10 +12,10 @@
 !#define _DEBUGPRINT_
 subroutine CIDens_TD(iCI,iS,rP,rD)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1
-use CI_Operations, only: CI_Lib_Dens
+use CI_Lib_Core, only: CI_Lib_Dens
 use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -81,7 +81,7 @@ rD(1:n1Dens) = Zero
 rP(1:n2Dens) = Zero
 
 ! (through the CI interface) iCI is as long as ipcid for the timedep case!
-iSy = CI_St(iState)%STSym
+iSy = CI_Lib_Space(iState)%STSym
 ! <0|E_pq|P> & <0|e_pqrs|P>: the bra is the reference
 call ipin(iCI)
 call ipin(ipCI)

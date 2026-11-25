@@ -32,7 +32,7 @@ subroutine RHS_td(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,rKappa,ipst,iDisp,lOper,CM
 !         Theoretical Chemistry, University of Lund                    *
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
@@ -190,9 +190,11 @@ if ((iMethod == 2) .and. btest(ntpert(idisp),2)) call ABXpY(MOT,MOX,idsym)
 
 if (CI) then
   if (btest(ntPert(idisp),3)) then
-    call CiSigma_td(0,CI_St(iState)%STSym,Mul(CI_St(iState)%STSym,idsym),Fix,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,'N',.true.)
+    call CiSigma_td(0,CI_Lib_Space(iState)%STSym,Mul(CI_Lib_Space(iState)%STSym,idsym),Fix,nDens,MOX,size(MOX),rdum,1,ipCI, &
+      ipst,'N',.true.)
   else
-    call CiSigma_td(0,CI_St(iState)%STSym,Mul(CI_St(iState)%STSym,idsym),Fix,nDens,rdum,1,rdum,1,ipCI,ipst,'N',.false.)
+    call CiSigma_td(0,CI_Lib_Space(iState)%STSym,Mul(CI_Lib_Space(iState)%STSym,idsym),Fix,nDens,rdum,1,rdum,1,ipCI,ipst,'N', &
+      .false.)
   end if
 
   call ipin(ipST)

@@ -11,8 +11,8 @@
 
 subroutine TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
 
-use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Epq_Psi
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, MyRank, nProcs
 #endif
@@ -62,7 +62,7 @@ do J=1,NDIM
   ! CI:=( 1 + Sum(U(I)E(IJ)) + (1/2)Sum(U(I)U(M)E(IJ,MJ)) ) CI,
   ! where U(I) = T(I)-Kronecker(I,J).
   JORB = ISTART-1+J
-  LJ = CI_St(istate)%Level(JORB)
+  LJ = CI_Lib_Space(istate)%Level(JORB)
 
 # ifdef _MOLCAS_MPP_
   ITASK = 0
@@ -72,7 +72,7 @@ do J=1,NDIM
 # endif
   do I=1,NDIM
     IORB = ISTART-1+I
-    LI = CI_St(istate)%Level(IORB)
+    LI = CI_Lib_Space(istate)%Level(IORB)
     SCL = Half*TVEC(I)
     if (I == J) SCL = SCL-Half
     if (abs(SCL) < THRSCL) cycle
@@ -102,7 +102,7 @@ do J=1,NDIM
 # endif
   do I=1,NDIM
     IORB = ISTART-1+I
-    LI = CI_St(istate)%Level(IORB)
+    LI = CI_Lib_Space(istate)%Level(IORB)
     SCL = TVEC(I)
     if (I == J) SCL = SCL-One
     if (abs(SCL) < THRSCL) cycle

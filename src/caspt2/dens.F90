@@ -24,7 +24,7 @@ use CHOVEC_IO, only: nvloc_chobatch
 use PrintLevel, only: DEBUG, VERBOSE
 use EQSOLV, only: IVECC, IVECC2, IVECR, IVECW, IVECX
 use ChoCASPT2, only: iALGO, MaxVec_PT2
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Orbital_Spaces, only: nAsh
 use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
                          DPT2Canti_tot, DRDMFro, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_FroSCF, if_invar, &
@@ -182,9 +182,9 @@ if (do_grad) then
   call mma_allocate(RDMFock,nAshT,nAshT,Label='RDMFock')
   !! Derivative contributions of RDMFock
   call mma_allocate(DRDMFock,nAshT,nAshT,Label='DRDMFock')
-  NLEV = CI_St(kstate)%nLev
-  if (nAshT /= CI_St(kstate)%nLev) then
-    write(u6,*) 'Analytical gradients for nAshT /= CI_St(kstate)%nLev (GASPT2?) does not work'
+  NLEV = CI_Lib_Space(kstate)%nLev
+  if (nAshT /= CI_Lib_Space(kstate)%nLev) then
+    write(u6,*) 'Analytical gradients for nAshT /= CI_Lib_Space(kstate)%nLev (GASPT2?) does not work'
     call abend()
   end if
   !write(u6,*) 'olag before'

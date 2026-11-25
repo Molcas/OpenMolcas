@@ -15,7 +15,7 @@ subroutine PREPSD(WFTP,iState,LSYM,ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,NCONF,CI,DET,d
 ! getting biorthonormal orbitals, prepare a wave function
 ! in the general SD format, using transformed orbitals.
 
-use CI_States, only: CI_SYG2SGU
+use CI_Lib_States, only: CI_SYG2SGU
 use rassi_aux, only: ipglob
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

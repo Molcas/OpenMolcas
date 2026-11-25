@@ -13,12 +13,12 @@
 
 subroutine CIDIA_sa(iSym,ralp,S)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use ipPage, only: ipget, ipin, W
-use CI_Op_Defs, only: CI_Diag_Cnf_Avg
+use CI_Lib_Defs, only: CI_Diag_Cnf_Avg
 use MCLR_procedures, only: MCLR_CI_Diag
 use MCLR_Data, only: FANCY_PRECONDITIONER, FIMO, INT2, ipCI, ipDia
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, Weight
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -40,7 +40,7 @@ real(kind=wp) :: rTmp
 ! otherwise we will switch to SD representation in this routine
 
 ! The CSF diagonal through the CI interface (MCLR_CI_Diag -> CI_Lib_Diag)
-nsd = max(ncsf(isym),CI_St(iState)%nDet(ISYM))
+nsd = max(ncsf(isym),CI_Lib_Space(iState)%nDet(ISYM))
 ipdiai = ipget(nsd)
 call ipin(ipdiai)
 call MCLR_CI_Diag(CI_Diag_Cnf_Avg,iSym,size(FIMO),FIMO,size(INT2),INT2,rin_ene+potnuc,ncsf(iSym),W(ipdiai)%A(1:ncsf(iSym)))
@@ -62,10 +62,11 @@ else
   S(1:nRoots**3) = Zero
   ip2 = 0
   do j=1,nroots
-    rTmp = sum(W(ipCI)%A(ip2+1:ip2+ncsf(CI_St(iState)%STSym))**2/(W(ipdiai)%A(1:ncsf(CI_St(iState)%STSym))-ERASSCF(j)))
+    rTmp = sum(W(ipCI)%A(ip2+1:ip2+ncsf(CI_Lib_Space(iState)%STSym))**2/ &
+               (W(ipdiai)%A(1:ncsf(CI_Lib_Space(iState)%STSym))-ERASSCF(j)))
     ralp(j) = Weight(j)*rTmp
     if (rTmp /= Zero) S(j+(j-1)*nRoots+(j-1)*nRoots**2) = One/rTmp
-    ip2 = ip2+ncsf(CI_St(iState)%STSym)
+    ip2 = ip2+ncsf(CI_Lib_Space(iState)%STSym)
   end do
 end if
 

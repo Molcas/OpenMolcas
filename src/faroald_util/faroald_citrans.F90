@@ -11,7 +11,7 @@
 ! Copyright (C) 2014, Steven Vancoillie                                *
 !***********************************************************************
 
-module citrans
+module Faroald_CITrans
 ! written by Steven Vancoillie, summer 2014.
 !
 ! This module implements operations that are performed on a CI vector
@@ -22,7 +22,7 @@ module citrans
 ! orbitals.
 !
 ! The configurations are grouped by the number of double/single
-! occupied orbitals.  Consider e.g. the case of 7in6, mult = 2.  We
+! occupied orbitals.  Consider e.g. the case of 7in6, Faro_mult = 2.  We
 ! have n = 6 (#orbitals), N = 7 (#electrons), a = 4 (#alpha), b = 3
 ! (#beta). The number of doubly occupied orbitals (d) varies from 1 to
 ! 3, the singly occupied orbitals (s) from 5 to 1. The orbitals are
@@ -67,7 +67,7 @@ module citrans
 ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
-use CSF_Graph, only: Free_SG_Graph, MkSGUGA, SG_Graph, SG_Walk_Next, SG_Walks
+use CSF_Graph, only: CSFG_Free, CSFG_Make, CSFG_Graph, CSFG_Walk_Next, CSFG_Walks
 use Molcas, only: MxGAS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -78,24 +78,24 @@ private
 
 ! global module variables
 
-integer(kind=iwp) :: ndo_min, ndo_max
+integer(kind=iwp) :: Faro_ndo_min, Faro_ndo_max
 ! number of doubly/singly occupied configurations per group
-integer(kind=iwp), allocatable :: ndoc_group(:), nsoc_group(:)
+integer(kind=iwp), allocatable :: Faro_ndoc_group(:), Faro_nsoc_group(:)
 ! number of determinants/CSFs per group
-integer(kind=iwp), allocatable :: ndet_group(:), ncsf_group(:)
+integer(kind=iwp), allocatable :: Faro_ndet_group(:), Faro_ncsf_group(:)
 
 type spintable
   integer(kind=iwp) :: ndet, ncsf
   real(kind=wp), allocatable :: coef(:,:)
 end type spintable
 
-type(spintable), allocatable :: spintabs(:)
+type(spintable), allocatable :: Faro_spintabs(:)
 
 ! The split graph of the CSF space in the order of the CI vectors of the
-! files (CSF_Graph), built by citrans itself, so that citrans_sort does not
+! files (CSF_Graph), built by Faroald_CITrans itself, so that Faro_sort does not
 ! need SGUGA.
-type(SG_Graph), target :: FileG
-type(SG_Walks) :: FileW
+type(CSFG_Graph), target :: FileG
+type(CSFG_Walks) :: FileW
 
 ! Symmetry: the CSF space holds the configurations of symmetry ci_lsym only
 ! (the symmetry of a configuration is the product of the symmetries of its
@@ -113,15 +113,16 @@ integer(kind=iwp) :: ci_nsym = 1, ci_lsym = 1, ci_nrsprt = 1, part_pos(MxGAS) = 
 integer(kind=iwp), allocatable :: orbsym(:), orbras(:), ci_nrasel(:), ci_nrasmx(:), conf_off(:), conf_key(:), conf_doub(:), &
                                   conf_sing(:), nkeep_group(:)
 ! the RAS address times the phase of every determinant of the kept
-! configurations, in the order of citrans_csf2ras/citrans_ras2csf (groups,
+! configurations, in the order of Faro_csf2ras/Faro_ras2csf (groups,
 ! configurations, determinants); built on first use (mk_det_map), freed
-! with the CI space (citrans_sym_free)
+! with the CI space (Faro_sym_free)
 integer(kind=iwp), allocatable :: det_map(:)
 
-public :: citrans_conf_dets, citrans_conf_occ, citrans_csf2ras, citrans_csf2sd, citrans_csf_rank, citrans_graph_free, &
-          citrans_graph_init, &
-          citrans_ncsf, citrans_ras2csf, citrans_sd2csf, citrans_sort, citrans_sym_free, citrans_sym_init, ncsf_group, ndet_group, &
-          ndo_max, ndo_min, ndoc_group, nsoc_group, spintable_create, spintabs, spintabs_allocate, spintabs_free
+public :: Faro_conf_dets, Faro_conf_occ, Faro_csf2ras, Faro_csf2sd, Faro_csf_rank, Faro_graph_free, &
+          Faro_graph_init, &
+          Faro_ncsf, Faro_ras2csf, Faro_sd2csf, Faro_sort, Faro_sym_free, Faro_sym_init, Faro_ncsf_group, Faro_ndet_group, &
+          Faro_ndo_max, Faro_ndo_min, Faro_ndoc_group, Faro_nsoc_group, Faro_spintable_create, Faro_spintabs, &
+            Faro_spintabs_allocate, Faro_spintabs_free
 
 ! Private extensions to mma interfaces
 
@@ -138,16 +139,16 @@ contains
 
 !> The split graph of the CAS or RAS space (nel electrons in norb orbitals
 !> = levels of the symmetries orbsym and partitions orbras, multiplicity
-!> mult) in the file order, as SGUGA sets it up for RASSCF (SG_Init_Light:
+!> Faro_mult) in the file order, as SGUGA sets it up for RASSCF (SG_Init_Light:
 !> IFRAS = 1 for three partitions, plus the number of symmetries with
 !> active orbitals).
-subroutine citrans_graph_init(nel,norb,mult)
-  integer(kind=iwp), intent(in) :: nel, norb, mult
+subroutine Faro_graph_init(nel,norb,Faro_mult)
+  integer(kind=iwp), intent(in) :: nel, norb, Faro_mult
   integer(kind=iwp) :: isym, iprt
-  call Free_SG_Graph(FileG,FileW)
+  call CSFG_Free(FileG,FileW)
   FileG%nSym = ci_nsym
   FileG%nActEl = nel
-  FileG%iSpin = mult
+  FileG%iSpin = Faro_mult
   FileG%nLev = norb
   FileG%nRsPrt = ci_nrsprt
   FileG%nRas(:,:) = 0
@@ -165,21 +166,21 @@ subroutine citrans_graph_init(nel,norb,mult)
   end do
   call mma_allocate(FileG%ISm,norb,Label='FileG%ISm')
   FileG%ISm(:) = orbsym(1:norb)
-  call MkSGUGA(FileG,FileW)
-end subroutine citrans_graph_init
+  call CSFG_Make(FileG,FileW)
+end subroutine Faro_graph_init
 
 !> The CSF space: nsym irreps, the symmetries osym of the norb active
 !> orbitals, the target symmetry lsym, and the RAS/GAS restrictions (nrsprt
 !> partitions, oras the partition of each orbital, nrasel and nrasmx the
 !> minimum and maximum number of electrons in the partitions 1..k); builds
-!> the configuration maps (after the group sizes of citrans_init). Without
+!> the configuration maps (after the group sizes of Faro_CITrans_Init). Without
 !> the optional arguments C1 CAS.
-subroutine citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel,nrasmx)
+subroutine Faro_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel,nrasmx)
   integer(kind=iwp), intent(in) :: nel, norb
   integer(kind=iwp), intent(in), optional :: nsym, osym(norb), lsym, nrsprt, oras(norb), nrasel(:), nrasmx(:)
   integer(kind=iwp) :: ido, ntot
 
-  call citrans_sym_free()
+  call Faro_sym_free()
   ci_nsym = 1
   ci_lsym = 1
   ci_nrsprt = 1
@@ -203,28 +204,28 @@ subroutine citrans_sym_init(nel,norb,nsym,osym,lsym,nrsprt,oras,nrasel,nrasmx)
   if (present(nrasmx)) ci_nrasmx(1:ci_nrsprt) = nrasmx(1:ci_nrsprt)
   if (present(oras)) orbras(1:norb) = oras(1:norb)
 
-  call mma_allocate(conf_off,[ndo_min,ndo_max],label='conf_off')
-  call mma_allocate(nkeep_group,[ndo_min,ndo_max],label='nkeep_group')
+  call mma_allocate(conf_off,[Faro_ndo_min,Faro_ndo_max],label='conf_off')
+  call mma_allocate(nkeep_group,[Faro_ndo_min,Faro_ndo_max],label='nkeep_group')
   call ras_partitions(norb)
   ! upper bound of the number of kept configurations (RAS, no symmetry)
   ntot = 0
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
     ntot = ntot+gen_confs(nel,norb,ido,.false.,0)
   end do
   call mma_allocate(conf_key,max(1,ntot),label='conf_key')
   call mma_allocate(conf_doub,max(1,ntot),label='conf_doub')
   call mma_allocate(conf_sing,max(1,ntot),label='conf_sing')
   ntot = 0
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
     conf_off(ido) = ntot
     nkeep_group(ido) = gen_confs(nel,norb,ido,.true.,ntot)
     call sort_confs(ntot,nkeep_group(ido))
     ntot = ntot+nkeep_group(ido)
   end do
 
-end subroutine citrans_sym_init
+end subroutine Faro_sym_init
 
-subroutine citrans_sym_free()
+subroutine Faro_sym_free()
   call mma_deallocate(orbsym,safe='*')
   call mma_deallocate(orbras,safe='*')
   call mma_deallocate(ci_nrasel,safe='*')
@@ -235,34 +236,34 @@ subroutine citrans_sym_free()
   call mma_deallocate(conf_sing,safe='*')
   call mma_deallocate(nkeep_group,safe='*')
   call mma_deallocate(det_map,safe='*')
-end subroutine citrans_sym_free
+end subroutine Faro_sym_free
 
-!> det_map: the signed RAS address (faroald_ras) of each determinant of the
-!> kept configurations, in the loop order of citrans_csf2ras.
+!> det_map: the signed RAS address (Faroald_RAS) of each determinant of the
+!> kept configurations, in the loop order of Faro_csf2ras.
 subroutine mk_det_map()
-  use second_quantization, only: lex_init, lex_next
-  use faroald, only: my_nel, nela
-  use faroald_ras, only: ras_addr
+  use Faroald_SecQuant, only: Faro_lex_init, Faro_lex_next
+  use Faroald_Core, only: Faro_nEl, Faro_nela
+  use Faroald_RAS, only: Faro_RAS_addr
   integer(kind=iwp) :: ido, iso, isoa, idet, kconf, k, n, doub, sing, alfa, beta, deta, detb, phase
   n = 0
-  do ido=ndo_min,ndo_max
-    n = n+nkeep_group(ido)*ndet_group(ido)
+  do ido=Faro_ndo_min,Faro_ndo_max
+    n = n+nkeep_group(ido)*Faro_ndet_group(ido)
   end do
   call mma_allocate(det_map,max(1,n),label='det_map')
   k = 0
-  do ido=ndo_min,ndo_max
-    iso = my_nel-2*ido
-    isoa = nela-ido
+  do ido=Faro_ndo_min,Faro_ndo_max
+    iso = Faro_nEl-2*ido
+    isoa = Faro_nela-ido
     do kconf=1,nkeep_group(ido)
       doub = conf_doub(conf_off(ido)+kconf)
       sing = conf_sing(conf_off(ido)+kconf)
-      alfa = lex_init(isoa,iso)
-      do idet=1,ndet_group(ido)
+      alfa = Faro_lex_init(isoa,iso)
+      do idet=1,Faro_ndet_group(ido)
         beta = ibits(not(alfa),0,iso)
         phase = ds2ab(doub,sing,alfa,beta,deta,detb)
         k = k+1
-        det_map(k) = phase*ras_addr(deta,detb)
-        alfa = lex_next(alfa)
+        det_map(k) = phase*Faro_RAS_addr(deta,detb)
+        alfa = Faro_lex_next(alfa)
       end do
     end do
   end do
@@ -304,7 +305,7 @@ end subroutine ras_partitions
 !> those of symmetry ci_lsym are stored from conf_* (off+1) on, unsorted,
 !> and their number is returned.
 function gen_confs(nel,norb,ido,store,off) result(n)
-  use second_quantization, only: binom_coef, lexrank
+  use Faroald_SecQuant, only: Faro_Binom, Faro_lexrank
   integer(kind=iwp), intent(in) :: nel, norb, ido, off
   logical(kind=iwp), intent(in) :: store
   integer(kind=iwp) :: n
@@ -314,7 +315,7 @@ function gen_confs(nel,norb,ido,store,off) result(n)
 
   n = 0
   iso = nel-2*ido
-  nsoc = binom_coef(iso,norb-ido)
+  nsoc = Faro_Binom(iso,norb-ido)
   np = ci_nrsprt
   d(:) = 0
   sx(:) = 0
@@ -334,7 +335,7 @@ function gen_confs(nel,norb,ido,store,off) result(n)
       if (.not. store) then
         cnt = 1
         do k=1,np
-          cnt = cnt*binom_coef(d(k),part_n(k))*binom_coef(sx(k),part_n(k)-d(k))
+          cnt = cnt*Faro_Binom(d(k),part_n(k))*Faro_Binom(sx(k),part_n(k)-d(k))
         end do
         n = n+cnt
       else
@@ -355,7 +356,7 @@ function gen_confs(nel,norb,ido,store,off) result(n)
               n = n+1
               conf_doub(off+n) = doub
               conf_sing(off+n) = sing
-              conf_key(off+n) = nsoc*(lexrank(doub)-1)+lexrank(sing)
+              conf_key(off+n) = nsoc*(Faro_lexrank(doub)-1)+Faro_lexrank(sing)
             end if
             more = .false.
             do k=1,np
@@ -398,31 +399,31 @@ end function gen_confs
 !> the i-th pattern of partition k, with d(k) doubly and sx(k) singly
 !> occupied orbitals; nl(k) patterns.
 subroutine part_lists(np,d,sx,lst,nl)
-  use second_quantization, only: binom_coef, lex_init, lex_next
+  use Faroald_SecQuant, only: Faro_Binom, Faro_lex_init, Faro_lex_next
   integer(kind=iwp), intent(in) :: np, d(np), sx(np)
   integer(kind=iwp), allocatable, intent(out) :: lst(:,:,:), nl(:)
   integer(kind=iwp) :: k, nd, ns, id, is, pd, ps, i, mx
   call mma_allocate(nl,np,label='nl')
   mx = 1
   do k=1,np
-    nl(k) = binom_coef(d(k),part_n(k))*binom_coef(sx(k),part_n(k)-d(k))
+    nl(k) = Faro_Binom(d(k),part_n(k))*Faro_Binom(sx(k),part_n(k)-d(k))
     mx = max(mx,nl(k))
   end do
   call mma_allocate(lst,[1,2],[1,mx],[1,np],label='lst')
   do k=1,np
-    nd = binom_coef(d(k),part_n(k))
-    ns = binom_coef(sx(k),part_n(k)-d(k))
+    nd = Faro_Binom(d(k),part_n(k))
+    ns = Faro_Binom(sx(k),part_n(k)-d(k))
     i = 0
-    pd = lex_init(d(k),part_n(k))
+    pd = Faro_lex_init(d(k),part_n(k))
     do id=1,nd
-      ps = lex_init(sx(k),part_n(k)-d(k))
+      ps = Faro_lex_init(sx(k),part_n(k)-d(k))
       do is=1,ns
         i = i+1
         lst(1,i,k) = ishft(pd,part_pos(k))
         lst(2,i,k) = ishft(pdep(ps,ibits(not(pd),0,max(part_n(k),1))),part_pos(k))
-        if (is < ns) ps = lex_next(ps)
+        if (is < ns) ps = Faro_lex_next(ps)
       end do
-      if (id < nd) pd = lex_next(pd)
+      if (id < nd) pd = Faro_lex_next(pd)
     end do
   end do
 end subroutine part_lists
@@ -510,24 +511,24 @@ function conf_sym(doub,sing,norb) result(isym)
 end function conf_sym
 
 !> The number of CSFs of the CSF space (of symmetry ci_lsym).
-function citrans_ncsf() result(n)
+function Faro_ncsf() result(n)
   integer(kind=iwp) :: n
   integer(kind=iwp) :: ido
   n = 0
-  do ido=ndo_min,ndo_max
-    n = n+nkeep_group(ido)*ncsf_group(ido)
+  do ido=Faro_ndo_min,Faro_ndo_max
+    n = n+nkeep_group(ido)*Faro_ncsf_group(ido)
   end do
-end function citrans_ncsf
+end function Faro_ncsf
 
-subroutine citrans_graph_free()
-  call Free_SG_Graph(FileG,FileW)
-end subroutine citrans_graph_free
+subroutine Faro_graph_free()
+  call CSFG_Free(FileG,FileW)
+end subroutine Faro_graph_free
 
-subroutine citrans_sort(mode,ciold,cinew)
+subroutine Faro_sort(mode,ciold,cinew)
 ! sort CSFs such that they are grouped by configurations
 ! and fill in the transformation matrices to determinants
 
-  use faroald, only: my_norb
+  use Faroald_Core, only: Faro_nOrb
 
   ! 'C' for configuration order, 'O' for original order
   character, intent(in) :: mode
@@ -541,7 +542,7 @@ subroutine citrans_sort(mode,ciold,cinew)
   integer(kind=iwp), allocatable :: csf_offset(:), stepvector(:)
 
   ! Compute offsets for addressing into the reordering and coefficient arrays.
-  call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')
+  call mma_allocate(csf_offset,[Faro_ndo_min,Faro_ndo_max],label='csf_offset')
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'citrans_Sort'
@@ -549,20 +550,20 @@ subroutine citrans_sort(mode,ciold,cinew)
 # endif
 
   ncsf = 0
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
 #   ifdef _DEBUGPRINT_
-    write(u6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
+    write(u6,'(5(1x,i4))') ido,Faro_ndoc_group(ido),Faro_nsoc_group(ido),Faro_ndet_group(ido),Faro_ncsf_group(ido)
 #   endif
     ! use nconf/ncsf/ndet as offsets
     csf_offset(ido) = ncsf
-    ncsf = ncsf+nkeep_group(ido)*ncsf_group(ido)
+    ncsf = ncsf+nkeep_group(ido)*Faro_ncsf_group(ido)
   end do
 
   ! The algorithm loops over CSFs (stepvectors) in an order determined
   ! by an external function, so that we do not need to know how that
   ! is done. Each time, we get a specific stepvector, e.g. 2u20du. We
-  ! compute rankdo using the lexrank() function on the bitpattern 000101,
-  ! and similarly rankso by applying the lexrank() function on the pattern
+  ! compute rankdo using the Faro_lexrank() function on the bitpattern 000101,
+  ! and similarly rankso by applying the Faro_lexrank() function on the pattern
   ! 1101 (ignoring the doubly occupied orbitals), remembering that for
   ! bitpatterns we use the reverse orbital ordering. So our stepvector
   ! 2u20du (normal orbital ordering) has 000202 and xx0x as do and so
@@ -575,7 +576,7 @@ subroutine citrans_sort(mode,ciold,cinew)
   ! set up table to compute CSF ranks
   call mkwtab(maxorb,maxdown,wtab)
 
-  call mma_allocate(stepvector,my_norb,label='stepvector')
+  call mma_allocate(stepvector,Faro_nOrb,label='stepvector')
 
   ! initialize variables that track the stepvector
   mv = 1
@@ -588,7 +589,7 @@ subroutine citrans_sort(mode,ciold,cinew)
       call Abend()
     end if
     ! obtain the stepvector
-    call SG_Walk_Next(FileG,FileW,ci_lsym,mv,isyup,idwn,iup,stepvector)
+    call CSFG_Walk_Next(FileG,FileW,ci_lsym,mv,isyup,idwn,iup,stepvector)
 
     ! position of the CSF in the configuration order, and its phase
     ioff_csf = csf_rank(stepvector,csf_offset,wtab,iphase)
@@ -605,47 +606,47 @@ subroutine citrans_sort(mode,ciold,cinew)
   call mma_deallocate(csf_offset)
   call mma_deallocate(stepvector)
 
-end subroutine citrans_sort
+end subroutine Faro_sort
 
-subroutine citrans_csf_rank(stepvector,k,iphase)
+subroutine Faro_csf_rank(stepvector,k,iphase)
 ! Position k (1-based) of the CSF with the given GUGA step vector in the
-! configuration order of citrans_sort, and its phase iphase:
+! configuration order of Faro_sort, and its phase iphase:
 ! cinew(k) = iphase*ciold(icsf) for mode 'C'.
 
-  use faroald, only: my_norb
+  use Faroald_Core, only: Faro_nOrb
 
-  integer(kind=iwp), intent(in) :: stepvector(my_norb)
+  integer(kind=iwp), intent(in) :: stepvector(Faro_nOrb)
   integer(kind=iwp), intent(out) :: k, iphase
   integer(kind=iwp) :: ido, ncsf
   integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
   real(kind=wp) :: wtab(0:maxorb,maxdown)
   integer(kind=iwp), allocatable :: csf_offset(:)
 
-  call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')
+  call mma_allocate(csf_offset,[Faro_ndo_min,Faro_ndo_max],label='csf_offset')
   ncsf = 0
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
     csf_offset(ido) = ncsf
-    ncsf = ncsf+nkeep_group(ido)*ncsf_group(ido)
+    ncsf = ncsf+nkeep_group(ido)*Faro_ncsf_group(ido)
   end do
   call mkwtab(maxorb,maxdown,wtab)
   k = csf_rank(stepvector,csf_offset,wtab,iphase)+1
   call mma_deallocate(csf_offset)
 
-end subroutine citrans_csf_rank
+end subroutine Faro_csf_rank
 
 function csf_rank(stepvector,csf_offset,wtab,iphase) result(ioff_csf)
 ! Offset (0-based) of the CSF with the given step vector in the
-! configuration order, and its phase (see citrans_sort).
+! configuration order, and its phase (see Faro_sort).
 
-  use second_quantization, only: lexrank
-  use faroald, only: my_norb
+  use Faroald_SecQuant, only: Faro_lexrank
+  use Faroald_Core, only: Faro_nOrb
 
   integer(kind=iwp) :: ioff_csf
-  integer(kind=iwp), intent(in) :: stepvector(my_norb), csf_offset(ndo_min:ndo_max)
+  integer(kind=iwp), intent(in) :: stepvector(Faro_nOrb), csf_offset(Faro_ndo_min:Faro_ndo_max)
   real(kind=wp), intent(in) :: wtab(0:,:)
   integer(kind=iwp), intent(out) :: iphase
   integer(kind=iwp) :: doub, ido, idown, iorb, iso, kconf, ndown, nsoc, rankdo, rankso, sing
-  integer(kind=iwp) :: downvector(my_norb)
+  integer(kind=iwp) :: downvector(Faro_nOrb)
 
   ! determine configuration group and rank
   doub = 0
@@ -654,7 +655,7 @@ function csf_rank(stepvector,csf_offset,wtab,iphase) result(ioff_csf)
   iso = 0
   ndown = 0
   iphase = 1
-  do iorb=1,my_norb
+  do iorb=1,Faro_nOrb
     select case (stepvector(iorb))
       case (1)
         sing = ibset(sing,iorb-ido-1)
@@ -675,15 +676,15 @@ function csf_rank(stepvector,csf_offset,wtab,iphase) result(ioff_csf)
   end do
 
   ! configuration index
-  rankdo = lexrank(doub)
-  rankso = lexrank(sing)
-  nsoc = nsoc_group(ido)
+  rankdo = Faro_lexrank(doub)
+  rankso = Faro_lexrank(sing)
+  nsoc = Faro_nsoc_group(ido)
   kconf = find_conf(ido,nsoc*(rankdo-1)+rankso)
   if (kconf == 0) then
     write(u6,*) 'csf_rank: the CSF is not of the symmetry of the CSF space'
     call Abend()
   end if
-  ioff_csf = csf_offset(ido)+(kconf-1)*ncsf_group(ido)
+  ioff_csf = csf_offset(ido)+(kconf-1)*Faro_ncsf_group(ido)
 
   ! CSF offset within this configuration, use per-ake's magical wtab
   ! to get the rank of a ud string within its set.
@@ -693,13 +694,13 @@ function csf_rank(stepvector,csf_offset,wtab,iphase) result(ioff_csf)
 
 end function csf_rank
 
-subroutine citrans_csf2sd(ci,det)
+subroutine Faro_csf2sd(ci,det)
 
-  use second_quantization, only: lex_init, lex_next, lexrank
-  use faroald, only: my_nel, my_norb, ndeta, ndetb, nela
+  use Faroald_SecQuant, only: Faro_lex_init, Faro_lex_next, Faro_lexrank
+  use Faroald_Core, only: Faro_nEl, Faro_nOrb, Faro_ndeta, Faro_ndetb, Faro_nela
 
   real(kind=wp), intent(in) :: ci(:)
-  real(kind=wp), intent(out) :: det(ndeta,ndetb)
+  real(kind=wp), intent(out) :: det(Faro_ndeta,Faro_ndetb)
   integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
                        deta, detb, phase         ! determinant strings
@@ -714,7 +715,7 @@ subroutine citrans_csf2sd(ci,det)
   ! (Only the kept configurations of the CSF space, conf_doub/conf_sing;
   ! the determinants of the others are zero.)
 
-  call mma_allocate(stepvector,my_norb,label='stepvector')
+  call mma_allocate(stepvector,Faro_nOrb,label='stepvector')
   det(:,:) = Zero
 
 # ifdef _DEBUGPRINT_
@@ -723,37 +724,37 @@ subroutine citrans_csf2sd(ci,det)
 # endif
 
   ioff_csf1 = 1
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
 #   ifdef _DEBUGPRINT_
-    write(u6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
+    write(u6,'(5(1x,i4))') ido,Faro_ndoc_group(ido),Faro_nsoc_group(ido),Faro_ndet_group(ido),Faro_ncsf_group(ido)
 #   endif
     nconf = nkeep_group(ido)
-    ndet = ndet_group(ido)
-    ncsf = ncsf_group(ido)
+    ndet = Faro_ndet_group(ido)
+    ncsf = Faro_ncsf_group(ido)
     ioff_csf2 = ioff_csf1+ncsf*nconf-1
 
     call mma_allocate(tmp,ndet,nconf,label='tmp')
     tmp = Zero
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf1:ioff_csf2),ncsf,Zero,tmp,ndet)
+    call dgemm_('N','N',ndet,nconf,ncsf,One,Faro_spintabs(ido)%coef,ndet,ci(ioff_csf1:ioff_csf2),ncsf,Zero,tmp,ndet)
 
     ! Store the determinant coefficients with the right phase factor in
     ! the correct place in the determinant matrix. The loops runs over
     ! the determinants in the order they are stored in the tmp array.
 
-    iso = my_nel-2*ido
-    isoa = nela-ido
+    iso = Faro_nEl-2*ido
+    isoa = Faro_nela-ido
 
     do kconf=1,nconf
       doub = conf_doub(conf_off(ido)+kconf)
       sing = conf_sing(conf_off(ido)+kconf)
-      alfa = lex_init(isoa,iso)
+      alfa = Faro_lex_init(isoa,iso)
       do idet=1,ndet
         beta = ibits(not(alfa),0,iso)
         phase = ds2ab(doub,sing,alfa,beta,deta,detb)
-        det(lexrank(deta),lexrank(detb)) = phase*tmp(idet,kconf)
-        alfa = lex_next(alfa)
+        det(Faro_lexrank(deta),Faro_lexrank(detb)) = phase*tmp(idet,kconf)
+        alfa = Faro_lex_next(alfa)
       end do
     end do
 
@@ -763,14 +764,14 @@ subroutine citrans_csf2sd(ci,det)
 
   call mma_deallocate(stepvector)
 
-end subroutine citrans_csf2sd
+end subroutine Faro_csf2sd
 
-subroutine citrans_sd2csf(det,ci)
+subroutine Faro_sd2csf(det,ci)
 
-  use second_quantization, only: lex_init, lex_next, lexrank
-  use faroald, only: my_nel, my_norb, ndeta, ndetb, nela
+  use Faroald_SecQuant, only: Faro_lex_init, Faro_lex_next, Faro_lexrank
+  use Faroald_Core, only: Faro_nEl, Faro_nOrb, Faro_ndeta, Faro_ndetb, Faro_nela
 
-  real(kind=wp), intent(in) :: det(ndeta,ndetb)
+  real(kind=wp), intent(in) :: det(Faro_ndeta,Faro_ndetb)
   real(kind=wp), intent(out) :: ci(:)
   integer(kind=iwp) :: ido, iso, isoa, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, &
                        doub, sing, alfa, beta, & ! occupation substrings
@@ -784,13 +785,13 @@ subroutine citrans_sd2csf(det,ci)
   ! the determinant coefficients. Then, loop through each configuration
   ! and put the determinants in the correct place with the right phase.
 
-  call mma_allocate(stepvector,my_norb,label='stepvector')
+  call mma_allocate(stepvector,Faro_nOrb,label='stepvector')
 
   ioff_csf1 = 1
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
     nconf = nkeep_group(ido)
-    ndet = ndet_group(ido)
-    ncsf = ncsf_group(ido)
+    ndet = Faro_ndet_group(ido)
+    ncsf = Faro_ncsf_group(ido)
     ioff_csf2 = ioff_csf1+ncsf*nconf-1
 
     call mma_allocate(tmp,ndet,nconf,label='tmp')
@@ -799,23 +800,23 @@ subroutine citrans_sd2csf(det,ci)
     ! from the correct place in the determinant matrix. The loops runs
     ! over the determinants in the order they should end up in tmp.
 
-    iso = my_nel-2*ido
-    isoa = nela-ido
+    iso = Faro_nEl-2*ido
+    isoa = Faro_nela-ido
 
     do kconf=1,nconf
       doub = conf_doub(conf_off(ido)+kconf)
       sing = conf_sing(conf_off(ido)+kconf)
-      alfa = lex_init(isoa,iso)
+      alfa = Faro_lex_init(isoa,iso)
       do idet=1,ndet
         beta = ibits(not(alfa),0,iso)
         phase = ds2ab(doub,sing,alfa,beta,deta,detb)
-        tmp(idet,kconf) = phase*det(lexrank(deta),lexrank(detb))
-        alfa = lex_next(alfa)
+        tmp(idet,kconf) = phase*det(Faro_lexrank(deta),Faro_lexrank(detb))
+        alfa = Faro_lex_next(alfa)
       end do
     end do
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    call dgemm_('T','N',ncsf,nconf,ndet,One,spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf1:ioff_csf2),ncsf)
+    call dgemm_('T','N',ncsf,nconf,ndet,One,Faro_spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf1:ioff_csf2),ncsf)
 
     call mma_deallocate(tmp)
     ioff_csf1 = ioff_csf2+1
@@ -823,17 +824,17 @@ subroutine citrans_sd2csf(det,ci)
 
   call mma_deallocate(stepvector)
 
-end subroutine citrans_sd2csf
+end subroutine Faro_sd2csf
 
-!> As citrans_csf2sd and citrans_sd2csf, with the CI vector of the RAS
-!> string classes (faroald_ras) instead of the full determinant matrix.
-subroutine citrans_csf2ras(ci,vec)
+!> As Faro_csf2sd and Faro_sd2csf, with the CI vector of the RAS
+!> string classes (Faroald_RAS) instead of the full determinant matrix.
+subroutine Faro_csf2ras(ci,vec)
 
-  use faroald, only: my_norb
-  use faroald_ras, only: n_ras
+  use Faroald_Core, only: Faro_nOrb
+  use Faroald_RAS, only: Faro_n_ras
 
   real(kind=wp), intent(in) :: ci(:)
-  real(kind=wp), intent(out) :: vec(n_ras)
+  real(kind=wp), intent(out) :: vec(Faro_n_ras)
   integer(kind=iwp) :: ido, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, k
   integer(kind=iwp), allocatable :: stepvector(:)
   real(kind=wp), allocatable :: tmp(:,:)
@@ -846,7 +847,7 @@ subroutine citrans_csf2ras(ci,vec)
   ! (Only the kept configurations of the CSF space, conf_doub/conf_sing;
   ! the determinants of the others are zero.)
 
-  call mma_allocate(stepvector,my_norb,label='stepvector')
+  call mma_allocate(stepvector,Faro_nOrb,label='stepvector')
   vec(:) = Zero
 
 # ifdef _DEBUGPRINT_
@@ -857,20 +858,20 @@ subroutine citrans_csf2ras(ci,vec)
   if (.not. allocated(det_map)) call mk_det_map()
   k = 0
   ioff_csf1 = 1
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
 #   ifdef _DEBUGPRINT_
-    write(u6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
+    write(u6,'(5(1x,i4))') ido,Faro_ndoc_group(ido),Faro_nsoc_group(ido),Faro_ndet_group(ido),Faro_ncsf_group(ido)
 #   endif
     nconf = nkeep_group(ido)
-    ndet = ndet_group(ido)
-    ncsf = ncsf_group(ido)
+    ndet = Faro_ndet_group(ido)
+    ncsf = Faro_ncsf_group(ido)
     ioff_csf2 = ioff_csf1+ncsf*nconf-1
 
     call mma_allocate(tmp,ndet,nconf,label='tmp')
     tmp = Zero
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf1:ioff_csf2),ncsf,Zero,tmp,ndet)
+    call dgemm_('N','N',ndet,nconf,ncsf,One,Faro_spintabs(ido)%coef,ndet,ci(ioff_csf1:ioff_csf2),ncsf,Zero,tmp,ndet)
 
     ! Store the determinant coefficients with the right phase factor in
     ! the correct place in the determinant matrix. The loops runs over
@@ -894,14 +895,14 @@ subroutine citrans_csf2ras(ci,vec)
 
   call mma_deallocate(stepvector)
 
-end subroutine citrans_csf2ras
+end subroutine Faro_csf2ras
 
-subroutine citrans_ras2csf(vec,ci)
+subroutine Faro_ras2csf(vec,ci)
 
-  use faroald, only: my_norb
-  use faroald_ras, only: n_ras
+  use Faroald_Core, only: Faro_nOrb
+  use Faroald_RAS, only: Faro_n_ras
 
-  real(kind=wp), intent(in) :: vec(n_ras)
+  real(kind=wp), intent(in) :: vec(Faro_n_ras)
   real(kind=wp), intent(out) :: ci(:)
   integer(kind=iwp) :: ido, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, k
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -913,15 +914,15 @@ subroutine citrans_ras2csf(vec,ci)
   ! the determinant coefficients. Then, loop through each configuration
   ! and put the determinants in the correct place with the right phase.
 
-  call mma_allocate(stepvector,my_norb,label='stepvector')
+  call mma_allocate(stepvector,Faro_nOrb,label='stepvector')
 
   if (.not. allocated(det_map)) call mk_det_map()
   k = 0
   ioff_csf1 = 1
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
     nconf = nkeep_group(ido)
-    ndet = ndet_group(ido)
-    ncsf = ncsf_group(ido)
+    ndet = Faro_ndet_group(ido)
+    ncsf = Faro_ncsf_group(ido)
     ioff_csf2 = ioff_csf1+ncsf*nconf-1
 
     call mma_allocate(tmp,ndet,nconf,label='tmp')
@@ -943,7 +944,7 @@ subroutine citrans_ras2csf(vec,ci)
     end do
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    call dgemm_('T','N',ncsf,nconf,ndet,One,spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf1:ioff_csf2),ncsf)
+    call dgemm_('T','N',ncsf,nconf,ndet,One,Faro_spintabs(ido)%coef,ndet,tmp,ndet,Zero,ci(ioff_csf1:ioff_csf2),ncsf)
 
     call mma_deallocate(tmp)
     ioff_csf1 = ioff_csf2+1
@@ -951,21 +952,21 @@ subroutine citrans_ras2csf(vec,ci)
 
   call mma_deallocate(stepvector)
 
-end subroutine citrans_ras2csf
+end subroutine Faro_ras2csf
 
-!> The kept configurations in the CSF order of citrans: for configuration
+!> The kept configurations in the CSF order of Faroald_CITrans: for configuration
 !> i its first CSF k1(i), number of CSFs nc(i), and the doubly and singly
 !> occupied orbitals as bit strings (docc, socc; orbital p is bit p-1).
-subroutine citrans_conf_occ(nconf,k1,nc,docc,socc)
+subroutine Faro_conf_occ(nconf,k1,nc,docc,socc)
 
-  use faroald, only: my_norb
+  use Faroald_Core, only: Faro_nOrb
 
   integer(kind=iwp), intent(out) :: nconf
   integer(kind=iwp), allocatable, intent(out) :: k1(:), nc(:), docc(:), socc(:)
   integer(kind=iwp) :: ido, kconf, ioff, i, doub
 
   nconf = 0
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
     nconf = nconf+nkeep_group(ido)
   end do
   call mma_allocate(k1,max(1,nconf),label='conf_k1')
@@ -974,31 +975,31 @@ subroutine citrans_conf_occ(nconf,k1,nc,docc,socc)
   call mma_allocate(socc,max(1,nconf),label='conf_socc')
   i = 0
   ioff = 0
-  do ido=ndo_min,ndo_max
+  do ido=Faro_ndo_min,Faro_ndo_max
     do kconf=1,nkeep_group(ido)
       i = i+1
       doub = conf_doub(conf_off(ido)+kconf)
-      k1(i) = ioff+(kconf-1)*ncsf_group(ido)+1
-      nc(i) = ncsf_group(ido)
+      k1(i) = ioff+(kconf-1)*Faro_ncsf_group(ido)+1
+      nc(i) = Faro_ncsf_group(ido)
       docc(i) = doub
       ! the singly occupied orbitals among the not doubly occupied ones (as in ds2ab)
-      socc(i) = pdep(conf_sing(conf_off(ido)+kconf),ibits(not(doub),0,my_norb))
+      socc(i) = pdep(conf_sing(conf_off(ido)+kconf),ibits(not(doub),0,Faro_nOrb))
     end do
-    ioff = ioff+nkeep_group(ido)*ncsf_group(ido)
+    ioff = ioff+nkeep_group(ido)*Faro_ncsf_group(ido)
   end do
 
-end subroutine citrans_conf_occ
+end subroutine Faro_conf_occ
 
-subroutine citrans_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
+subroutine Faro_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
 ! Determinant expansion of the configuration holding the CSF kcsf, kcsf
-! being an index of the configuration order (citrans_sort mode 'C'):
+! being an index of the configuration order (Faro_sort mode 'C'):
 ! CSF k1-1+j (j = 1..ncsf) of this configuration is
 ! sum_i coef(i,j) |deta(i) detb(i)>, with deta(i)/detb(i) the alpha/beta
-! strings of the determinants (as in citrans_csf2sd, phase included).
+! strings of the determinants (as in Faro_csf2sd, phase included).
 ! deta, detb and coef are allocated here, to be freed by the caller.
 
-  use second_quantization, only: lex_init, lex_next
-  use faroald, only: my_nel, nela
+  use Faroald_SecQuant, only: Faro_lex_init, Faro_lex_next
+  use Faroald_Core, only: Faro_nEl, Faro_nela
 
   integer(kind=iwp), intent(in) :: kcsf
   integer(kind=iwp), intent(out) :: k1, ncsf, ndet
@@ -1009,38 +1010,38 @@ subroutine citrans_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
   ! locate the configuration group and the configuration within it (among
   ! those of the symmetry of the CSF space)
   ioff = 0
-  do ido=ndo_min,ndo_max
-    if (kcsf <= ioff+nkeep_group(ido)*ncsf_group(ido)) exit
-    ioff = ioff+nkeep_group(ido)*ncsf_group(ido)
+  do ido=Faro_ndo_min,Faro_ndo_max
+    if (kcsf <= ioff+nkeep_group(ido)*Faro_ncsf_group(ido)) exit
+    ioff = ioff+nkeep_group(ido)*Faro_ncsf_group(ido)
   end do
-  if ((kcsf < 1) .or. (ido > ndo_max)) then
+  if ((kcsf < 1) .or. (ido > Faro_ndo_max)) then
     write(u6,*) 'citrans_conf_dets: CSF index out of range:',kcsf
     call Abend()
   end if
-  ncsf = ncsf_group(ido)
-  ndet = ndet_group(ido)
+  ncsf = Faro_ncsf_group(ido)
+  ndet = Faro_ndet_group(ido)
   kconf = (kcsf-ioff-1)/ncsf+1
   k1 = ioff+(kconf-1)*ncsf+1
   doub = conf_doub(conf_off(ido)+kconf)
   sing = conf_sing(conf_off(ido)+kconf)
 
-  iso = my_nel-2*ido
-  isoa = nela-ido
+  iso = Faro_nEl-2*ido
+  isoa = Faro_nela-ido
 
   call mma_allocate(deta,ndet,label='deta')
   call mma_allocate(detb,ndet,label='detb')
   call mma_allocate(coef,ndet,ncsf,label='coef')
-  alfa = lex_init(isoa,iso)
+  alfa = Faro_lex_init(isoa,iso)
   do idet=1,ndet
     beta = ibits(not(alfa),0,iso)
     phase = ds2ab(doub,sing,alfa,beta,deta(idet),detb(idet))
-    coef(idet,:) = phase*spintabs(ido)%coef(idet,:)
-    alfa = lex_next(alfa)
+    coef(idet,:) = phase*Faro_spintabs(ido)%coef(idet,:)
+    alfa = Faro_lex_next(alfa)
   end do
 
-end subroutine citrans_conf_dets
+end subroutine Faro_conf_dets
 
-subroutine spintabs_allocate()
+subroutine Faro_spintabs_allocate()
 
 # ifdef _GARBLE_
   interface
@@ -1052,34 +1053,34 @@ subroutine spintabs_allocate()
     integer(kind=iwp) :: i
 # endif
 
-    call mma_allocate(spintabs,[ndo_min,ndo_max],label='spintabs')
+    call mma_allocate(Faro_spintabs,[Faro_ndo_min,Faro_ndo_max],label='spintabs')
 
 # ifdef _GARBLE_
     ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
-    do i=ndo_min,ndo_max
-      call c_null_alloc(spintabs(i)%coef)
+    do i=Faro_ndo_min,Faro_ndo_max
+      call c_null_alloc(Faro_spintabs(i)%coef)
     end do
 # endif
 
 # include "macros.fh"
-    unused_proc(mma_allocate(spintabs,0))
+    unused_proc(mma_allocate(Faro_spintabs,0))
 
-    end subroutine spintabs_allocate
+    end subroutine Faro_spintabs_allocate
 
-    subroutine spintabs_free()
+    subroutine Faro_spintabs_free()
 
       integer(kind=iwp) :: i
 
-      If (allocated(Spintabs)) Then
-         do i=lbound(spintabs,1),ubound(spintabs,1)
-           call mma_deallocate(spintabs(i)%coef,safe='*')
+      If (allocated(Faro_spintabs)) Then
+         do i=lbound(Faro_spintabs,1),ubound(Faro_spintabs,1)
+           call mma_deallocate(Faro_spintabs(i)%coef,safe='*')
          end do
-         call mma_deallocate(spintabs,safe='*')
+         call mma_deallocate(Faro_spintabs,safe='*')
       End If
 
-    end subroutine spintabs_free
+    end subroutine Faro_spintabs_free
 
-    subroutine spintable_create(nso,ndown,spintab)
+    subroutine Faro_spintable_create(nso,ndown,spintab)
 ! given a number of singly occupied orbitals and down couplings,
 ! construct the table of CSFs and determinant transformation matrices.
 !
@@ -1123,7 +1124,7 @@ subroutine spintabs_allocate()
       call mma_deallocate(down_orb)
       call mma_deallocate(udvec)
 
-    end subroutine spintable_create
+    end subroutine Faro_spintable_create
 
     subroutine ud2det(udvec,coef)
 ! A stepvector in this case is represented by a series of integers 1,2
@@ -1136,7 +1137,7 @@ subroutine spintabs_allocate()
 ! The determinants are traversed in lexicographic order, with all alpha
 ! orbitals the lowest orbitals.
 
-      use second_quantization, only: binom_coef, lex_init, lex_next
+      use Faroald_SecQuant, only: Faro_Binom, Faro_lex_init, Faro_lex_next
 
       integer(kind=iwp), intent(in) :: udvec(:)
       real(kind=wp), intent(out) :: coef(:)
@@ -1161,9 +1162,9 @@ subroutine spintabs_allocate()
       end do
       nso = nsoa+nsob
 
-      ndet = binom_coef(nsoa,nso)
+      ndet = Faro_Binom(nsoa,nso)
       ! loop over possible determinants
-      deta = lex_init(nsoa,nso)
+      deta = Faro_lex_init(nsoa,nso)
       do idet=1,ndet
         nom = One
         den = One
@@ -1211,7 +1212,7 @@ subroutine spintabs_allocate()
         ! determinant coefficients are stored in lexicographic bit-order.
         coef(idet) = phase*sqrt(nom/den)
 
-        deta = lex_next(deta)
+        deta = Faro_lex_next(deta)
       end do
 
     end subroutine ud2det
@@ -1231,7 +1232,7 @@ subroutine spintabs_allocate()
 ! 000101, 1101, 101 (dsa) and as 100111, 010101 (ab)
 ! as usual counting orbitals from the right with bits (lower-most bit)
 
-      use faroald, only: my_norb
+      use Faroald_Core, only: Faro_nOrb
 
       integer(kind=iwp) :: phase
       integer(kind=iwp), intent(in) :: doub, sing, alfa, beta
@@ -1246,7 +1247,7 @@ subroutine spintabs_allocate()
       ! scattering operation as a function pdep: res = pdep(val,mask), which
       ! scatters the bits of 'val' according to 'mask' into 'res'.
 
-      not_doub = ibits(not(doub),0,my_norb)
+      not_doub = ibits(not(doub),0,Faro_nOrb)
       deta = pdep(pdep(alfa,sing),not_doub)
       detb = pdep(pdep(beta,sing),not_doub)
 
@@ -1362,7 +1363,7 @@ subroutine spintabs_allocate()
 
     subroutine mkwtab(mxn1,mxn2,wtab)
 
-      use second_quantization, only: binom_coef
+      use Faroald_SecQuant, only: Faro_Binom
 
       integer(kind=iwp), intent(in) :: mxn1, mxn2
       real(kind=wp), intent(out) :: wtab(0:mxn1,mxn2)
@@ -1370,7 +1371,7 @@ subroutine spintabs_allocate()
 
       do n1=0,mxn1
         do n2=1,mxn2
-          wtab(n1,n2) = real(binom_coef(n1+n2,n1+2*n2),kind=wp)*real(n1,kind=wp)/real(n1+2*n2,kind=wp)
+          wtab(n1,n2) = real(Faro_Binom(n1+n2,n1+2*n2),kind=wp)*real(n1,kind=wp)/real(n1+2*n2,kind=wp)
         end do
       end do
 
@@ -1390,4 +1391,4 @@ subroutine spintabs_allocate()
 #  undef _DEF_LABEL_
 #undef _TYPE_
 
-  end module citrans
+  end module Faroald_CITrans

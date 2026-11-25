@@ -21,7 +21,7 @@ subroutine MKRHSC(IVEC,FIMO,NFIMO,ERI,nERI,SCR,nSCR)
 ! Set up RHS vector of PT2 Linear Equation System, in vector
 ! number IVEC of LUSOLV for case 4 (ATVX).
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
@@ -94,7 +94,7 @@ do ISYM=1,NSYM
         IYYWA = IYYW+NAS*(IA-1)
         rSUM = rSUM-GA_Arrays(LW)%A(IYYWA)
       end do
-      ONEADD = rSUM/real(max(1,CI_St(iState)%nActEl),kind=wp)
+      ONEADD = rSUM/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
       do ISYMU=1,NSYM
         do IU=1,NASH(ISYMU)
           IUABS = IU+NAES(ISYMU)

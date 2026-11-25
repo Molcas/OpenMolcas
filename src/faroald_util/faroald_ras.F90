@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-module faroald_ras
+module Faroald_RAS
 ! String-driven RAS/GAS for Faroald (Olsen et al., J. Chem. Phys. 89, 2185
 ! (1988)): the alpha and beta strings are grouped in occupation classes
 ! (n_1,..,n_np), the numbers of electrons in the partitions (RAS1/2/3, or
@@ -37,16 +37,17 @@ module faroald_ras
 !
 ! A CAS space is the special case of one partition (one class per spin).
 !
-! Singlets (spin_flip, nela = nelb, M_S = S = 0): the vectors are
+! Singlets (spin_flip, Faro_nela = Faro_nelb, M_S = S = 0): the vectors are
 ! symmetric under the exchange of the alpha and beta strings,
-! C(Ia,Ib) = C(Ib,Ia) (Faroald's phase convention, as in sigma_update).
+! C(Ia,Ib) = C(Ib,Ia) (Faroald's phase convention, as in Faro_sigma_update).
 ! Then the alpha and beta strings are the same, block (ga,gb) is the
 ! transpose of block (gb,ga), and sigma = X + X^T with X = the beta-beta
 ! part plus half of the alpha-beta part (pairs tu >= vx of
 ! g_tuvx a+_ta a_ua a+_vb a_xb, tu = vx with weight 1/2); the alpha-alpha
 ! density equals the beta-beta one and the spin density is zero.
 
-use second_quantization, only: ann, ann2, binom_coef, cre, cre2, ex1, fase, lex_init, lex_next, lexrank
+use Faroald_SecQuant, only: Faro_ann, Faro_ann2, Faro_Binom, Faro_cre, Faro_cre2, Faro_ex1, Faro_fase, Faro_lex_init, &
+                            Faro_lex_next, Faro_lexrank
 use stdalloc, only: mma_allocate, mma_deallocate
 use Molcas, only: MxGAS
 use Constants, only: Zero, One, Two, Half
@@ -84,13 +85,17 @@ end type ras_spin
 ! partitions: number, orbitals, first orbital - 1, cumulative bounds on
 ! the electrons in the partitions 1..k; ras_rdx the radices of occ_key
 integer(kind=iwp) :: ras_norb = 0, ras_np = 0, ras_o(MxGAS) = 0, ras_pos(MxGAS) = 0, ras_mn(MxGAS) = 0, ras_mx(MxGAS) = 0, &
-                     ras_rdx(MxGAS) = 0, n_ras = 0, ras_nsym = 1, ras_lsym = 1, ras_osym(30) = 1
+                     ras_rdx(MxGAS) = 0, ras_nsym = 1, ras_lsym = 1, ras_osym(30) = 1
+! the number of RAS determinants of the CI symmetry and the RAS setup is
+! active (read-only outside this module)
+integer(kind=iwp), protected :: Faro_n_ras = 0
+logical(kind=iwp), protected :: Faro_RAS_active = .false.
 type(ras_spin) :: sa, sb
 ! block offsets (0-based) of (alpha group, beta group), -1 outside the
 ! RAS space or of another symmetry; blk_offT: the same blocks transposed
 ! (beta x alpha)
 integer(kind=iwp), allocatable :: blk_off(:,:), blk_offT(:,:)
-logical(kind=iwp) :: ras_active = .false., ras_singlet = .false.
+logical(kind=iwp) :: ras_singlet = .false.
 ! the beta single excitations Jb -> Ib = a+_v a_x Jb in batches, one per
 ! beta group of Jb and (v,x): batch b holds the entries
 ! bat_off(b)+1..bat_off(b+1) (Jb and Ib as indices within their groups,
@@ -126,27 +131,28 @@ real(kind=wp), allocatable :: res_Xw(:), res_Sw(:)
 real(kind=wp), parameter :: Cost_Op = 56.0_wp, Cost_GS = 6.0_wp, Cost_Call = 78.0_wp, Cost_Flop = 0.35_wp
 integer(kind=iwp), allocatable :: bat_cj(:), bat_ci(:), bat_v(:), bat_x(:), bat_off(:), be_j(:), be_i(:), be_sgn(:)
 
-public :: faroald_ras_free, faroald_ras_init, n_ras, ras_active, ras_addr, ras_count_dets, ras_from_full, ras_sigma, &
-          ras_to_full, ras_traci, ras_trans_one_pdm, ras_trans_two_pdm
+public :: Faro_RAS_Free, Faro_RAS_Init, Faro_n_ras, Faro_RAS_active, Faro_RAS_addr, Faro_RAS_count_dets, Faro_RAS_from_full, &
+  Faro_RAS_sigma, &
+          Faro_RAS_to_full, Faro_RAS_traci, Faro_RAS_trans_one_pdm, Faro_RAS_trans_two_pdm
 
 contains
 
 !> Set up the string groups, the single-excitation lists and the CI layout
-!> for nela/nelb electrons in norb orbitals, o(k) of them in partition k
+!> for Faro_nela/Faro_nelb electrons in norb orbitals, o(k) of them in partition k
 !> (np partitions, RAS: 3), the partitions 1..k holding mn(k) to mx(k)
 !> electrons; the orbitals have the symmetries osym (nsym irreps), the CI
 !> space the symmetry lsym (determinants sym(alpha) x sym(beta) = lsym
-!> only). spin_flip: all vectors are singlets (nela = nelb), symmetric
+!> only). spin_flip: all vectors are singlets (Faro_nela = Faro_nelb), symmetric
 !> under the exchange of the alpha and beta strings.
 !> ab_timed: the path of the alpha-beta sigma is the fastest of the first
 !> sigma calls, else (reproducible, for the verification) by the cost
 !> estimate (see res_choose).
-subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip,ab_timed)
-  integer(kind=iwp), intent(in) :: nela, nelb, norb, np, o(np), mn(np), mx(np), nsym, osym(norb), lsym
+subroutine Faro_RAS_Init(Faro_nela,Faro_nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip,ab_timed)
+  integer(kind=iwp), intent(in) :: Faro_nela, Faro_nelb, norb, np, o(np), mn(np), mx(np), nsym, osym(norb), lsym
   logical(kind=iwp), intent(in) :: spin_flip, ab_timed
   integer(kind=iwp) :: ca, cb, n, k
 
-  call faroald_ras_free()
+  call Faro_RAS_Free()
   if (sum(o) /= norb) then
     write(u6,*) 'faroald_ras_init: the orbitals of the partitions /= norb',o,norb
     call Abend()
@@ -175,14 +181,14 @@ subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip,a
   ras_lsym = lsym
   ras_osym(:) = 1
   ras_osym(1:norb) = osym(1:norb)
-  if (spin_flip .and. (nela /= nelb)) then
-    write(u6,*) 'faroald_ras_init: spin-flip symmetry needs nela = nelb',nela,nelb
+  if (spin_flip .and. (Faro_nela /= Faro_nelb)) then
+    write(u6,*) 'faroald_ras_init: spin-flip symmetry needs nela = nelb',Faro_nela,Faro_nelb
     call Abend()
   end if
   ras_singlet = spin_flip
 
-  call mk_classes(sa,nela,nelb)
-  call mk_classes(sb,nelb,nela)
+  call mk_classes(sa,Faro_nela,Faro_nelb)
+  call mk_classes(sb,Faro_nelb,Faro_nela)
   call mk_strings(sa)
   call mk_strings(sb)
   call mk_singles(sa)
@@ -205,7 +211,7 @@ subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip,a
       end if
     end do
   end do
-  n_ras = n
+  Faro_n_ras = n
   n = 0
   do ca=1,sa%ncls
     do cb=1,sb%ncls
@@ -216,11 +222,11 @@ subroutine faroald_ras_init(nela,nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin_flip,a
     end do
   end do
   call res_choose(ab_timed)
-  ras_active = .true.
+  Faro_RAS_active = .true.
 
-end subroutine faroald_ras_init
+end subroutine Faro_RAS_Init
 
-subroutine faroald_ras_free()
+subroutine Faro_RAS_Free()
   call free_spin(sa)
   call free_spin(sb)
   call mma_deallocate(bat_cj,safe='*')
@@ -254,10 +260,10 @@ subroutine faroald_ras_free()
   nres_k = 0
   call mma_deallocate(blk_off,safe='*')
   call mma_deallocate(blk_offT,safe='*')
-  n_ras = 0
-  ras_active = .false.
+  Faro_n_ras = 0
+  Faro_RAS_active = .false.
   ras_singlet = .false.
-end subroutine faroald_ras_free
+end subroutine Faro_RAS_Free
 
 subroutine free_spin(s)
   type(ras_spin), intent(inout) :: s
@@ -386,7 +392,7 @@ subroutine mk_classes(s,nel,nelo)
     k = k+1
     s%occ_n(:,k) = V(:,iv)
     do j=1,np
-      s%occ_cnt(j,k) = binom_coef(V(j,iv),ras_o(j))
+      s%occ_cnt(j,k) = Faro_Binom(V(j,iv),ras_o(j))
     end do
     s%occ_nstr(k) = product(s%occ_cnt(:,k))
     s%occ_skey(k) = occ_key(V(:,iv))
@@ -457,7 +463,7 @@ subroutine mk_strings(s)
     ! odometer over the substrings of the partitions, the first fastest
     do j=1,ras_np
       ip(j) = 1
-      pt(j) = lex_init(s%occ_n(j,k),ras_o(j))
+      pt(j) = Faro_lex_init(s%occ_n(j,k),ras_o(j))
     end do
     do
       g = g+1
@@ -471,12 +477,12 @@ subroutine mk_strings(s)
       do j=1,ras_np
         if (ip(j) < s%occ_cnt(j,k)) then
           ip(j) = ip(j)+1
-          pt(j) = lex_next(pt(j))
+          pt(j) = Faro_lex_next(pt(j))
           more = .true.
           exit
         end if
         ip(j) = 1
-        pt(j) = lex_init(s%occ_n(j,k),ras_o(j))
+        pt(j) = Faro_lex_init(s%occ_n(j,k),ras_o(j))
       end do
       if (.not. more) exit
     end do
@@ -564,7 +570,7 @@ function str_index(s,c) result(g)
   type(ras_spin), intent(in) :: s
   integer(kind=iwp), intent(in) :: c
   integer(kind=iwp) :: g
-  integer(kind=iwp) :: b(MxGAS), n(MxGAS), j, k, idx, mult
+  integer(kind=iwp) :: b(MxGAS), n(MxGAS), j, k, idx, Faro_mult
 
   g = 0
   do j=1,ras_np
@@ -576,10 +582,10 @@ function str_index(s,c) result(g)
   if (k == 0) return
   ! the rank address, the first partition fastest
   idx = 0
-  mult = 1
+  Faro_mult = 1
   do j=1,ras_np
-    idx = idx+(lexrank(b(j))-1)*mult
-    mult = mult*s%occ_cnt(j,k)
+    idx = idx+(Faro_lexrank(b(j))-1)*Faro_mult
+    Faro_mult = Faro_mult*s%occ_cnt(j,k)
   end do
   g = s%perm(s%occ_off(k)+idx+1)
 end function str_index
@@ -597,7 +603,7 @@ subroutine mk_singles(s)
       do q=1,ras_norb
         if (.not. btest(s%str(g),q-1)) cycle
         do p=1,ras_norb
-          d = ex1(p,q,s%str(g))
+          d = Faro_ex1(p,q,s%str(g))
           if (d == -1) cycle
           j = str_index(s,ibits(d,0,31))
           if (j == 0) cycle
@@ -605,7 +611,7 @@ subroutine mk_singles(s)
           if (pass == 2) then
             s%ex_p(n) = p
             s%ex_q(n) = q
-            s%ex_sgn(n) = fase(d)
+            s%ex_sgn(n) = Faro_fase(d)
             s%ex_j(n) = j
           end if
         end do
@@ -709,7 +715,7 @@ subroutine mk_resolution()
   integer(kind=iwp), allocatable :: r2c(:), kb(:), ksym(:), kocc(:,:), key(:), ordk(:)
   nres_k = 0
   if (sa%nel < 1) return
-  nfull = binom_coef(sa%nel-1,ras_norb)
+  nfull = Faro_Binom(sa%nel-1,ras_norb)
   if (nfull > MaxRank) return
   ! the K that occur, in order of first appearance
   call mma_allocate(r2c,nfull,label='res_r2c')
@@ -718,10 +724,10 @@ subroutine mk_resolution()
   nk = 0
   do ga=1,sa%nstr
     do u=1,ras_norb
-      d = ann(u,sa%str(ga))
+      d = Faro_ann(u,sa%str(ga))
       if (d == -1) cycle
       kbits = ibclr(d,31)
-      k = lexrank(kbits)
+      k = Faro_lexrank(kbits)
       if (r2c(k) /= 0) cycle
       nk = nk+1
       r2c(k) = nk
@@ -816,9 +822,9 @@ subroutine mk_resolution()
   do i=1,nk
     kbits = kb(ordk(i))
     do t=1,ras_norb
-      d = cre(t,kbits)
+      d = Faro_cre(t,kbits)
       if (d == -1) cycle
-      res_cre(t,i) = fase(d)*str_index(sa,ibclr(d,31))
+      res_cre(t,i) = Faro_fase(d)*str_index(sa,ibclr(d,31))
     end do
   end do
   call mma_deallocate(ordk)
@@ -1020,19 +1026,19 @@ subroutine mk_doubles(s)
       do u=2,ras_norb
         if (.not. btest(s%str(g),u-1)) cycle
         do x=1,u-1
-          d = ann2(x,u,s%str(g))
+          d = Faro_ann2(x,u,s%str(g))
           if (d == -1) cycle
           do t=2,ras_norb
             if (btest(d,t-1)) cycle
             do v=1,t-1
-              dd = cre2(t,v,d)
+              dd = Faro_cre2(t,v,d)
               if (dd == -1) cycle
               j = str_index(s,ibits(dd,0,31))
               if (j == 0) cycle
               n = n+1
               if (pass == 2) then
                 s%dex_j(n) = j
-                s%dex_sgn(n) = fase(dd)
+                s%dex_sgn(n) = Faro_fase(dd)
                 s%dex_tuvx(n) = pack4(t,u,v,x)
               end if
             end do
@@ -1079,7 +1085,7 @@ end subroutine unpack4
 
 !> Position (1-based) of the determinant |deta detb> in the RAS vector, 0
 !> if it is not in the RAS space.
-function ras_addr(deta,detb) result(k)
+function Faro_RAS_addr(deta,detb) result(k)
   integer(kind=iwp), intent(in) :: deta, detb
   integer(kind=iwp) :: k
   integer(kind=iwp) :: ga, gb, ca, cb
@@ -1092,13 +1098,13 @@ function ras_addr(deta,detb) result(k)
   cb = sb%str_cls(gb)
   if (blk_off(ca,cb) < 0) return
   k = blk_off(ca,cb)+sa%str_idx(ga)+(sb%str_idx(gb)-1)*sa%cls_nstr(ca)
-end function ras_addr
+end function Faro_RAS_addr
 
-!> The RAS vector from Faroald's full determinant matrix psi(ndeta,ndetb)
+!> The RAS vector from Faroald's full determinant matrix psi(Faro_ndeta,Faro_ndetb)
 !> (lexical ranks of the whole strings); for verification.
-subroutine ras_from_full(psi,vec)
+subroutine Faro_RAS_from_full(psi,vec)
   real(kind=wp), intent(in) :: psi(:,:)
-  real(kind=wp), intent(out) :: vec(n_ras)
+  real(kind=wp), intent(out) :: vec(Faro_n_ras)
   integer(kind=iwp) :: ca, cb, ia, ib, k
   do cb=1,sb%ncls
     do ca=1,sa%ncls
@@ -1107,17 +1113,17 @@ subroutine ras_from_full(psi,vec)
       do ib=1,sb%cls_nstr(cb)
         do ia=1,sa%cls_nstr(ca)
           k = k+1
-          vec(k) = psi(lexrank(sa%str(sa%cls_off(ca)+ia)),lexrank(sb%str(sb%cls_off(cb)+ib)))
+          vec(k) = psi(Faro_lexrank(sa%str(sa%cls_off(ca)+ia)),Faro_lexrank(sb%str(sb%cls_off(cb)+ib)))
         end do
       end do
     end do
   end do
-end subroutine ras_from_full
+end subroutine Faro_RAS_from_full
 
 !> Faroald's full determinant matrix from the RAS vector (zero outside the
 !> RAS space); for verification.
-subroutine ras_to_full(vec,psi)
-  real(kind=wp), intent(in) :: vec(n_ras)
+subroutine Faro_RAS_to_full(vec,psi)
+  real(kind=wp), intent(in) :: vec(Faro_n_ras)
   real(kind=wp), intent(out) :: psi(:,:)
   integer(kind=iwp) :: ca, cb, ia, ib, k
   psi(:,:) = Zero
@@ -1128,18 +1134,18 @@ subroutine ras_to_full(vec,psi)
       do ib=1,sb%cls_nstr(cb)
         do ia=1,sa%cls_nstr(ca)
           k = k+1
-          psi(lexrank(sa%str(sa%cls_off(ca)+ia)),lexrank(sb%str(sb%cls_off(cb)+ib))) = vec(k)
+          psi(Faro_lexrank(sa%str(sa%cls_off(ca)+ia)),Faro_lexrank(sb%str(sb%cls_off(cb)+ib))) = vec(k)
         end do
       end do
     end do
   end do
-end subroutine ras_to_full
+end subroutine Faro_RAS_to_full
 
 !> sgm = H vec in the RAS space (h, g over the orbitals of Faroald, as for
-!> sigma_update; no core energy).
-subroutine ras_sigma(h,g,vec,sgm)
-  real(kind=wp), intent(in) :: h(ras_norb,ras_norb), g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
-  real(kind=wp), intent(out) :: sgm(n_ras)
+!> Faro_sigma_update; no core energy).
+subroutine Faro_RAS_sigma(h,g,vec,sgm)
+  real(kind=wp), intent(in) :: h(ras_norb,ras_norb), g(ras_norb,ras_norb,ras_norb,ras_norb), vec(Faro_n_ras)
+  real(kind=wp), intent(out) :: sgm(Faro_n_ras)
   real(kind=wp), allocatable :: vT(:), sT(:)
 
   sgm(:) = Zero
@@ -1152,23 +1158,23 @@ subroutine ras_sigma(h,g,vec,sgm)
     return
   end if
   ! alpha-alpha: the columns of the transposed blocks
-  call mma_allocate(vT,max(1,n_ras),label='ras_vT')
-  call mma_allocate(sT,max(1,n_ras),label='ras_sT')
+  call mma_allocate(vT,max(1,Faro_n_ras),label='ras_vT')
+  call mma_allocate(sT,max(1,Faro_n_ras),label='ras_sT')
   call transpose_blocks(vec,vT,.true.)
   sT(:) = Zero
   call same_spin(sb,sa,blk_offT,h,g,vT,sT)
   call transpose_blocks(sT,vT,.false.)
-  sgm(:) = sgm(:)+vT(1:n_ras)
+  sgm(:) = sgm(:)+vT(1:Faro_n_ras)
   call mma_deallocate(vT)
   call mma_deallocate(sT)
   ! alpha-beta
   call opposite_spin(g,vec,sgm)
 
-end subroutine ras_sigma
+end subroutine Faro_RAS_sigma
 
 !> Singlets: v := v + v^T (v^T: alpha and beta strings exchanged).
 subroutine sym_add(v)
-  real(kind=wp), intent(inout) :: v(n_ras)
+  real(kind=wp), intent(inout) :: v(Faro_n_ras)
   integer(kind=iwp) :: ca, cb, na, nb, ia, ib, o, oT
   real(kind=wp) :: w
   do cb=1,sb%ncls
@@ -1293,17 +1299,17 @@ subroutine same_spin(r,c,off,h,g,vec,sgm)
       do u=2,ras_norb
         if (.not. btest(c%str(gi),u-1)) cycle
         do x=1,u-1
-          d = ann2(x,u,c%str(gi))
+          d = Faro_ann2(x,u,c%str(gi))
           if (d == -1) cycle
           do t=2,ras_norb
             if (btest(d,t-1)) cycle
             do v=1,t-1
-              dd = cre2(t,v,d)
+              dd = Faro_cre2(t,v,d)
               if (dd == -1) cycle
               gj = str_index(c,ibits(dd,0,31))
               if (gj == 0) cycle
               if (.not. comp(c%str_cls(gj),ci)) cycle
-              call add(gj,fase(dd)*(g(t,u,v,x)-g(t,x,v,u)))
+              call add(gj,Faro_fase(dd)*(g(t,u,v,x)-g(t,x,v,u)))
             end do
           end do
         end do
@@ -1366,8 +1372,8 @@ end subroutine same_spin
 subroutine opposite_spin_res(mode,g,vec,sgm,done)
   use stdalloc, only: mma_maxDBLE
   integer(kind=iwp), intent(in) :: mode
-  real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
-  real(kind=wp), intent(inout) :: sgm(n_ras)
+  real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(Faro_n_ras)
+  real(kind=wp), intent(inout) :: sgm(Faro_n_ras)
   logical(kind=iwp), intent(out) :: done
   integer(kind=iwp) :: n, ul, tl, u, t, v, x, ka, kb, mxmem, maxkb, nsb
   real(kind=wp) :: w
@@ -1424,9 +1430,9 @@ end subroutine opposite_spin_res
 subroutine res_blocks(nb,boff,bsym,okb,Gp,nX,Xs,nS,S,maxkb,vec,sgm)
   integer(kind=iwp), intent(in) :: nb, boff(nb+1), bsym(nb), nX, nS, maxkb
   logical(kind=iwp), intent(in) :: okb(nb,sb%ncls)
-  real(kind=wp), intent(in) :: Gp(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
+  real(kind=wp), intent(in) :: Gp(ras_norb,ras_norb,ras_norb,ras_norb), vec(Faro_n_ras)
   ! X(kk,ul) at kk+(ul-1)*nkb, S(kk,t',ib) at kk+(t'-1)*nkb+(ib-1)*nkb*norb
-  real(kind=wp), intent(inout) :: Xs(nX), S(nS), sgm(n_ras)
+  real(kind=wp), intent(inout) :: Xs(nX), S(nS), sgm(Faro_n_ras)
   integer(kind=iwp) :: n, nsb, iblk, ks, k0, k1, nkb, ib, jb, cbj, cbi, sja, usym, nu, u0, ul, u, kk, kc, r, ia, ca, o, e, v, x, &
                        tsym, nt, t0, tl, t
   logical(kind=iwp) :: any_x
@@ -1510,8 +1516,8 @@ end subroutine res_blocks
 
 
 subroutine opposite_spin(g,vec,sgm)
-  real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
-  real(kind=wp), intent(inout) :: sgm(n_ras)
+  real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(Faro_n_ras)
+  real(kind=wp), intent(inout) :: sgm(Faro_n_ras)
   integer(kind=iwp) :: m, k
   real(kind=wp) :: c0, c1
   logical(kind=iwp) :: done
@@ -1552,8 +1558,8 @@ end subroutine opposite_spin
 !> The alpha-beta part of sigma by the direct loops over the beta and alpha
 !> excitations (batched over beta excitations).
 subroutine opposite_spin_dir(g,vec,sgm)
-  real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(n_ras)
-  real(kind=wp), intent(inout) :: sgm(n_ras)
+  real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(Faro_n_ras)
+  real(kind=wp), intent(inout) :: sgm(Faro_n_ras)
   integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka
   real(kind=wp) :: w
   real(kind=wp), allocatable :: Cp(:,:), Vw(:,:)
@@ -1617,16 +1623,16 @@ end subroutine opposite_spin_dir
 
 !> Transition one-particle densities between RAS vectors:
 !> da(p,q) = <bra|a+_pa a_qa|ket>, db(p,q) = <bra|a+_pb a_qb|ket>,
-!> d = da+db, sd = da-db (as Faroald's transition_one_pdm).
-subroutine ras_trans_one_pdm(bra,ket,d,sd)
-  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+!> d = da+db, sd = da-db (as Faroald's Faro_transition_one_pdm).
+subroutine Faro_RAS_trans_one_pdm(bra,ket,d,sd)
+  real(kind=wp), intent(in) :: bra(Faro_n_ras), ket(Faro_n_ras)
   real(kind=wp), intent(out) :: d(ras_norb,ras_norb), sd(ras_norb,ras_norb)
   real(kind=wp), allocatable :: da(:,:), db(:,:), bT(:), kT(:)
 
   call mma_allocate(da,ras_norb,ras_norb,label='ras_da')
   call mma_allocate(db,ras_norb,ras_norb,label='ras_db')
-  call mma_allocate(bT,max(1,n_ras),label='ras_bT')
-  call mma_allocate(kT,max(1,n_ras),label='ras_kT')
+  call mma_allocate(bT,max(1,Faro_n_ras),label='ras_bT')
+  call mma_allocate(kT,max(1,Faro_n_ras),label='ras_kT')
   da(:,:) = Zero
   db(:,:) = Zero
   call col_one_pdm(sa,sb,blk_off,bra,ket,db)
@@ -1649,7 +1655,7 @@ subroutine ras_trans_one_pdm(bra,ket,d,sd)
   call mma_deallocate(db)
   call mma_deallocate(bT)
   call mma_deallocate(kT)
-end subroutine ras_trans_one_pdm
+end subroutine Faro_RAS_trans_one_pdm
 
 !> dm(p,q) += <bra|a+_p a_q|ket> for the column spin c (row spin r).
 subroutine col_one_pdm(r,c,off,bra,ket,dm)
@@ -1675,9 +1681,9 @@ end subroutine col_one_pdm
 !> Spin-free transition two-particle density between RAS vectors,
 !> p2(t,u,v,x) = <bra|E_tu E_vx - delta_uv E_tx|ket>
 !>             = sum_{s,s'} <bra|a+_ts a+_vs' a_xs' a_us|ket>
-!> (as Faroald's transition_two_pdm).
-subroutine ras_trans_two_pdm(bra,ket,p2)
-  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+!> (as Faroald's Faro_transition_two_pdm).
+subroutine Faro_RAS_trans_two_pdm(bra,ket,p2)
+  real(kind=wp), intent(in) :: bra(Faro_n_ras), ket(Faro_n_ras)
   real(kind=wp), intent(out) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
   real(kind=wp), allocatable :: bT(:), kT(:)
 
@@ -1690,8 +1696,8 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
     call ab_two_pdm_any(bra,ket,p2)
     return
   end if
-  call mma_allocate(bT,max(1,n_ras),label='ras_bT')
-  call mma_allocate(kT,max(1,n_ras),label='ras_kT')
+  call mma_allocate(bT,max(1,Faro_n_ras),label='ras_bT')
+  call mma_allocate(kT,max(1,Faro_n_ras),label='ras_kT')
   call transpose_blocks(bra,bT,.true.)
   call transpose_blocks(ket,kT,.true.)
   call col_two_pdm(sb,sa,blk_offT,bT,kT,p2)
@@ -1699,13 +1705,13 @@ subroutine ras_trans_two_pdm(bra,ket,p2)
   call mma_deallocate(kT)
   ! opposite spin
   call ab_two_pdm_any(bra,ket,p2)
-end subroutine ras_trans_two_pdm
+end subroutine Faro_RAS_trans_two_pdm
 
 !> The alpha-beta part of the 2-RDM: through the (N-1)-string resolution
 !> with the blocks the sigma uses (res_mode 1/2), else (direct loops chosen
 !> or not enough memory) by ab_two_pdm.
 subroutine ab_two_pdm_any(bra,ket,p2)
-  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(in) :: bra(Faro_n_ras), ket(Faro_n_ras)
   real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
   logical(kind=iwp) :: done
   done = .false.
@@ -1724,7 +1730,7 @@ end subroutine ab_two_pdm_any
 subroutine ab_two_pdm_res(mode,bra,ket,p2,done)
   use stdalloc, only: mma_maxDBLE
   integer(kind=iwp), intent(in) :: mode
-  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(in) :: bra(Faro_n_ras), ket(Faro_n_ras)
   real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
   logical(kind=iwp), intent(out) :: done
   integer(kind=iwp) :: n, nsb, mxmem, maxkb, t, u, v, x, tl, ul
@@ -1780,7 +1786,7 @@ subroutine ab_res_blocks(nb,boff,bsym,okb,nX,Xk,nY,Yb,maxkb,bra,ket,M)
   logical(kind=iwp), intent(in) :: okb(nb,sb%ncls)
   ! Xk(kk,u',jb) at kk+(u'-1)*nkb+(jb-1)*nkb*norb (ket), Yb(kk,t',ib) likewise (bra)
   real(kind=wp), intent(inout) :: Xk(nX), Yb(nY), M(ras_norb,ras_norb,ras_norb,ras_norb)
-  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(in) :: bra(Faro_n_ras), ket(Faro_n_ras)
   integer(kind=iwp) :: n, nsb, iblk, ks, k0, k1, nkb, jb, ib, cb, sa_sym, usym, tsym, nu, nt, u0, t0, ul, u, kk, r, ia, ca, &
                        o, e, v, x
   n = ras_norb
@@ -1846,13 +1852,13 @@ subroutine ab_res_blocks(nb,boff,bsym,okb,nX,Xk,nY,Yb,maxkb,bra,ket,M)
   end do
 end subroutine ab_res_blocks
 
-!> The alpha-beta part of ras_trans_two_pdm, <bra|a+_ta a_ua a+_vb a_xb|ket>
+!> The alpha-beta part of Faro_RAS_trans_two_pdm, <bra|a+_ta a_ua a+_vb a_xb|ket>
 !> added to (t,u,v,x) and (v,x,t,u), batched as opposite_spin:
 !> Kp(k,Ja) = sgn_k ket(Ja,Jb_k), Bp(k,Ia) = bra(Ia,Ib_k), val = sgn
 !> Bp(:,Ia).Kp(:,Ja). Singlets: P_ab(tuvx) = P_ab(vxtu), only the pairs
 !> tu >= vx, 2 val to (t,u,v,x) and (v,x,t,u) (once for tu = vx).
 subroutine ab_two_pdm(bra,ket,p2)
-  real(kind=wp), intent(in) :: bra(n_ras), ket(n_ras)
+  real(kind=wp), intent(in) :: bra(Faro_n_ras), ket(Faro_n_ras)
   real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
   integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka, t, u
   real(kind=wp) :: val
@@ -1937,17 +1943,17 @@ subroutine col_two_pdm(r,c,off,bra,ket,p2)
       do u=2,ras_norb
         if (.not. btest(c%str(gi),u-1)) cycle
         do x=1,u-1
-          d = ann2(x,u,c%str(gi))
+          d = Faro_ann2(x,u,c%str(gi))
           if (d == -1) cycle
           do t=2,ras_norb
             if (btest(d,t-1)) cycle
             do v=1,t-1
-              dd = cre2(t,v,d)
+              dd = Faro_cre2(t,v,d)
               if (dd == -1) cycle
               gj = str_index(c,ibits(dd,0,31))
               if (gj == 0) cycle
               if (.not. comp(c%str_cls(gj),c%str_cls(gi))) cycle
-              call put(gi,gj,fase(dd),t,u,v,x)
+              call put(gi,gj,Faro_fase(dd),t,u,v,x)
             end do
           end do
         end do
@@ -1983,18 +1989,18 @@ end subroutine col_two_pdm
 
 !> out = sum_pq h1(p,q) E_pq vin (both spins).
 subroutine ras_apply_1e(h1,vin,vout)
-  real(kind=wp), intent(in) :: h1(ras_norb,ras_norb), vin(n_ras)
-  real(kind=wp), intent(out) :: vout(n_ras)
+  real(kind=wp), intent(in) :: h1(ras_norb,ras_norb), vin(Faro_n_ras)
+  real(kind=wp), intent(out) :: vout(Faro_n_ras)
   real(kind=wp), allocatable :: iT(:), oT(:)
   vout(:) = Zero
   call col_apply_1e(sa,sb,blk_off,h1,vin,vout)
-  call mma_allocate(iT,max(1,n_ras),label='ras_iT')
-  call mma_allocate(oT,max(1,n_ras),label='ras_oT')
+  call mma_allocate(iT,max(1,Faro_n_ras),label='ras_iT')
+  call mma_allocate(oT,max(1,Faro_n_ras),label='ras_oT')
   call transpose_blocks(vin,iT,.true.)
   oT(:) = Zero
   call col_apply_1e(sb,sa,blk_offT,h1,iT,oT)
   call transpose_blocks(oT,iT,.false.)
-  vout(:) = vout(:)+iT(1:n_ras)
+  vout(:) = vout(:)+iT(1:Faro_n_ras)
   call mma_deallocate(iT)
   call mma_deallocate(oT)
 end subroutine ras_apply_1e
@@ -2023,15 +2029,15 @@ subroutine col_apply_1e(r,c,off,h1,vin,vout)
   end do
 end subroutine col_apply_1e
 
-!> The CI transformation of traci_faroald (Malmqvist, one orbital at a
+!> The CI transformation of Faro_TRACI (Malmqvist, one orbital at a
 !> time) in the RAS space; T (norb x norb over the orbitals of Faroald)
 !> must not mix the RAS partitions, so that every step stays in the RAS
 !> space: elements between partitions up to ThrMix (rounding noise) are set
 !> to zero in a local copy Tc, larger ones are an error.
-subroutine ras_traci(T,nT,vec)
+subroutine Faro_RAS_traci(T,nT,vec)
   integer(kind=iwp), intent(in) :: nT
   real(kind=wp), intent(in) :: T(nT)
-  real(kind=wp), intent(inout) :: vec(n_ras)
+  real(kind=wp), intent(inout) :: vec(Faro_n_ras)
   real(kind=wp), allocatable :: Tc(:), h1(:,:), v0(:), v1(:), v2(:)
   integer(kind=iwp) :: k, p, prt(30), ca, cb, ia, ib, nk, o
   real(kind=wp) :: tkk, fac(0:2)
@@ -2054,9 +2060,9 @@ subroutine ras_traci(T,nT,vec)
   end do
 
   call mma_allocate(h1,ras_norb,ras_norb,label='ras_h1')
-  call mma_allocate(v0,max(1,n_ras),label='ras_v0')
-  call mma_allocate(v1,max(1,n_ras),label='ras_v1')
-  call mma_allocate(v2,max(1,n_ras),label='ras_v2')
+  call mma_allocate(v0,max(1,Faro_n_ras),label='ras_v0')
+  call mma_allocate(v1,max(1,Faro_n_ras),label='ras_v1')
+  call mma_allocate(v2,max(1,Faro_n_ras),label='ras_v2')
   do k=1,ras_norb
     tkk = Tc((k-1)*ras_norb+k)
     h1(:,:) = Zero
@@ -2084,29 +2090,29 @@ subroutine ras_traci(T,nT,vec)
     end do
     call ras_apply_1e(h1,v0,v1)
     call ras_apply_1e(h1,v1,v2)
-    vec(:) = v0(1:n_ras)+v1(1:n_ras)+Half*v2(1:n_ras)
+    vec(:) = v0(1:Faro_n_ras)+v1(1:Faro_n_ras)+Half*v2(1:Faro_n_ras)
   end do
   call mma_deallocate(Tc)
   call mma_deallocate(h1)
   call mma_deallocate(v0)
   call mma_deallocate(v1)
   call mma_deallocate(v2)
-end subroutine ras_traci
+end subroutine Faro_RAS_traci
 
 !> The number of determinants of the RAS/GAS space (all symmetries),
-!> without setting anything up: nela/nelb electrons, o(k) orbitals in
+!> without setting anything up: Faro_nela/Faro_nelb electrons, o(k) orbitals in
 !> partition k (np partitions), mn(k) to mx(k) electrons in the partitions
 !> 1..k; in floating point (no overflow), for the memory estimate of RASSCF.
-function ras_count_dets(nela,nelb,np,o,mn,mx) result(n)
-  integer(kind=iwp), intent(in) :: nela, nelb, np, o(np), mn(np), mx(np)
+function Faro_RAS_count_dets(Faro_nela,Faro_nelb,np,o,mn,mx) result(n)
+  integer(kind=iwp), intent(in) :: Faro_nela, Faro_nelb, np, o(np), mn(np), mx(np)
   real(kind=wp) :: n
   integer(kind=iwp) :: nva, nvb, ia, ib, k, ne
   integer(kind=iwp), allocatable :: VA(:,:), VB(:,:)
   real(kind=wp) :: fa
   logical(kind=iwp) :: ok
   n = Zero
-  call occ_vectors(np,o,nela,nva,VA)
-  call occ_vectors(np,o,nelb,nvb,VB)
+  call occ_vectors(np,o,Faro_nela,nva,VA)
+  call occ_vectors(np,o,Faro_nelb,nvb,VB)
   do ia=1,nva
     fa = One
     do k=1,np
@@ -2147,6 +2153,6 @@ contains
     end do
   end function bin_r
 
-end function ras_count_dets
+end function Faro_RAS_count_dets
 
-end module faroald_ras
+end module Faroald_RAS

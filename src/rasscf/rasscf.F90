@@ -52,8 +52,8 @@ subroutine RASSCF(IRETURN)
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use Index_Functions, only: nTri_Elem
-use CI_Library, only: CI_Timer
-use CI_Library, only: CI_Lib_Close
+use CI_Lib, only: CI_Timer
+use CI_Lib, only: CI_Lib_Close
 use OneDat, only: sNoNuc, sNoOri
 use Fock_util_global, only: ALGO, DoActive, DoCholesky
 use write_orbital_files, only: OrbFiles, putOrbFile, write_orb_per_iter
@@ -103,7 +103,7 @@ use CI_Input, only: NACTEL
 use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, embWriteDens, embWriteEsp
 #endif
 use RAS_CI_Dens, only: RAS_T1DM
-use CI_Operations, only: CI_Lib_File_To_Basis
+use CI_Lib_Core, only: CI_Lib_File_To_Basis
 use rasscf_global, only: lRoots
 use CI_Input, only: STSYM
 #ifdef _HDF5_

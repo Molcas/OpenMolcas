@@ -11,7 +11,7 @@
 
 subroutine Ci_Ci(ipcid,ips2)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use ipPage, only: ipin, W
 use MCLR_Data, only: INT2, FIMO
 use MCLR_procedures, only: CISigma_sa
@@ -25,14 +25,14 @@ integer(kind=iwp), intent(in) :: ipCID, ipS2
 integer(kind=iwp) :: i, n
 real(kind=wp) :: EC, rDum(1)
 
-call CISigma_sa(0,CI_St(iState)%STSym,CI_St(iState)%STSym,FIMO,size(FIMO),Int2,size(Int2),rDum,1,ipCId,ips2,.true.)
+call CISigma_sa(0,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,FIMO,size(FIMO),Int2,size(Int2),rDum,1,ipCId,ips2,.true.)
 call ipin(ipCId)
 call ipin(ipS2)
-n = ncsf(CI_St(iState)%STSym)
+n = ncsf(CI_Lib_Space(iState)%STSym)
 do i=1,nroots
   EC = (rin_ene+potnuc-ERASSCF(i))*Weight(i)
   W(ipS2)%A((i-1)*n+1:i*n) = W(ipS2)%A((i-1)*n+1:i*n)+EC*W(ipCId)%A((i-1)*n+1:i*n)
 end do
-W(ipS2)%A(1:nroots*ncsf(CI_St(iState)%STSym)) = Two*W(ipS2)%A(1:nroots*ncsf(CI_St(iState)%STSym))
+W(ipS2)%A(1:nroots*ncsf(CI_Lib_Space(iState)%STSym)) = Two*W(ipS2)%A(1:nroots*ncsf(CI_Lib_Space(iState)%STSym))
 
 end subroutine Ci_Ci

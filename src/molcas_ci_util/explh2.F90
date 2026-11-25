@@ -51,7 +51,7 @@ use Index_Functions, only: nTri_Elem
 use timers, only: TimeHSel
 use rasscf_global, only: NAC, NACPR2
 use rasscf_files, only: LUDAVID
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use rasscf_global, only: NCONF, NSEL
 use output_ras, only: IPRLOC
 use PrintLevel, only: INSANE
@@ -62,7 +62,7 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-! the RASSCF CI state (CI_Info)
+! the RASSCF CI state (CI_Lib_Info)
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
 real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
@@ -91,7 +91,7 @@ call Load_H_diag(nConf,DIAG,LuDavid)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call PHPCSF(EXHAM,ISEL,MXXSEL,CI_St(iState)%STSym,ECORE,NSEL,DIAG,ONEINT,nTri_Elem(NAC),TUVX,NACPR2,IPRINT)
+call PHPCSF(EXHAM,ISEL,MXXSEL,CI_Lib_Space(iState)%STSym,ECORE,NSEL,DIAG,ONEINT,nTri_Elem(NAC),TUVX,NACPR2,IPRINT)
 if (IPRLEV == INSANE) then
   call Square(EXHAM,EXPLV,1,NSEL,NSEL)
   call RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)

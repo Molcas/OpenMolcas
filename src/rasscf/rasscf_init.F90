@@ -23,13 +23,14 @@
 
 subroutine RasScf_Init()
 
-use CI_Library, only: CI_Timer
+use CI_Lib, only: CI_Timer
 use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk, DoCholesky, DoLocK, Estimate, Nscreen, Update
 use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings
 use CMS, only: CMSGiveOpt, iCMSOpt
 use UnixInfo, only: SuperName
 use CI_Input, only: IGSOCCX, NGAS, NGSSH
+use CI_Input, only: HEXS_DEXS_Inp
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
 use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSSH
@@ -41,7 +42,6 @@ use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoo
                          KSDFT, kTight, LOWDIN_ON, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NALTER, NewFock, NonEq, &
                          NQUNE, NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXDAMP, SXSel, &
                          ThFact, Thre, ThrEn, ThrSX, ThrTE, Title, TMin, Weight
-use CI_Info, only: Space_Inp
 use rasscf_files, only: STARTORBFILE
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half
@@ -198,8 +198,8 @@ ICICH = 0
 ISUPSM = 0
 ! make no use of supersymmetry
 ! Highly excited states are not default (HEXS/DEXS)
-Space_Inp%nHEXS = 0
-Space_Inp%nDEXS = 0
+HEXS_DEXS_Inp%nHEXS = 0
+HEXS_DEXS_Inp%nDEXS = 0
 hRoots = 0
 ! No hidden roots by default
 n_keep = 0

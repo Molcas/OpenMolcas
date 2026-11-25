@@ -13,9 +13,9 @@ subroutine rhs_sa(Fock,SLag,ipS2)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use MCLR_Data, only: Int1, ipCI, ipCM, ipMat, ISTATE, LuJob, n1Dens, n2Dens, nA, nConf1, nDens, nNA
-use CI_Operations, only: CI_Lib_Dens
+use CI_Lib_Core, only: CI_Lib_Dens
 use Orbital_Spaces, only: nAsh, nIsh, nSym
 use input_mclr, only: Debug, iRoot, iTOC, nBas, nConf, nCSF, nOrb, nRoots, ntAsh, PT2
 use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
@@ -79,7 +79,7 @@ if (PT2 .or. (InvSCF .and. (.not. InvEne))) then
     end do
   end do
 
-  iSy = CI_St(iState_CI)%STSym
+  iSy = CI_Lib_Space(iState_CI)%STSym
   !iR = iRLXRoot
   do jR=1,nRoots
     do kR=1,jR ! jR-1

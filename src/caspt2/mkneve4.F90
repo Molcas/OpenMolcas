@@ -17,8 +17,8 @@ use Index_Functions, only: nTri_Elem
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX
 use caspt2_module, only: JSTATE, MXCI, NCONF, NSYM
 use PrintLevel, only: verbose
-use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Epq_Psi
 use Symmetry_Info, only: Mul
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -52,9 +52,9 @@ integer(kind=iwp), parameter :: istate = 1
 ! only lowering operation is permitted
 
 if (nlev == 0) return
-if (CI_St(iState)%nActEl == 0) return
+if (CI_Lib_Space(iState)%nActEl == 0) return
 
-NCI = CI_St(istate)%nCSF(CI_St(iState)%STSym)
+NCI = CI_Lib_Space(istate)%nCSF(CI_Lib_Space(iState)%STSym)
 ! This should not happen, but...
 if (NCI == 0) return
 
@@ -276,42 +276,42 @@ else
   do ip4=1,nlev2
     ialev = idx2ij(1,ip4)
     iblev = idx2ij(2,ip4)
-    isab = Mul(CI_St(istate)%ISm(ialev),CI_St(istate)%ISm(iblev))
-    issg4 = Mul(isab,CI_St(iState)%STSym)
-    nsgm4 = CI_St(istate)%nCSF(issg4)
-    !ia = CI_St(istate)%L2Act(ialev)
-    !ib = CI_St(istate)%L2Act(iblev)
+    isab = Mul(CI_Lib_Space(istate)%ISm(ialev),CI_Lib_Space(istate)%ISm(iblev))
+    issg4 = Mul(isab,CI_Lib_Space(iState)%STSym)
+    nsgm4 = CI_Lib_Space(istate)%nCSF(issg4)
+    !ia = CI_Lib_Space(istate)%L2Act(ialev)
+    !ib = CI_Lib_Space(istate)%L2Act(iblev)
     BUF2(1:nsgm4,4) = Zero
-    call CI_Epq_Psi(istate,IALEV,IBLEV,One,CI_St(iState)%STSym,CI,BUF2(:,4))
+    call CI_Epq_Psi(istate,IALEV,IBLEV,One,CI_Lib_Space(iState)%STSym,CI,BUF2(:,4))
     do ip3=ip4,nlev2
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
+      isyz = Mul(CI_Lib_Space(istate)%ISm(iylev),CI_Lib_Space(istate)%ISm(izlev))
       issg3 = Mul(isyz,issg4)
-      nsgm3 = CI_St(istate)%nCSF(issg3)
-      !iy = CI_St(istate)%L2Act(iylev)
-      !iz = CI_St(istate)%L2Act(izlev)
+      nsgm3 = CI_Lib_Space(istate)%nCSF(issg3)
+      !iy = CI_Lib_Space(istate)%L2Act(iylev)
+      !iz = CI_Lib_Space(istate)%L2Act(izlev)
       BUF2(1:nsgm3,3) = Zero
       call CI_Epq_Psi(istate,IYLEV,IZLEV,One,issg4,BUF2(:,4),BUF2(:,3))
     end do
     do ip2=ip3,nlev2
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
-      isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
+      isvx = Mul(CI_Lib_Space(istate)%ISm(ivlev),CI_Lib_Space(istate)%ISm(ixlev))
       issg2 = Mul(isvx,issg3)
-      nsgm2 = CI_St(istate)%nCSF(issg2)
-      !iv = CI_St(istate)%L2Act(ivlev)
-      !ix = CI_St(istate)%L2Act(ixlev)
+      nsgm2 = CI_Lib_Space(istate)%nCSF(issg2)
+      !iv = CI_Lib_Space(istate)%L2Act(ivlev)
+      !ix = CI_Lib_Space(istate)%L2Act(ixlev)
       BUF2(1:nsgm2,2) = Zero
       call CI_Epq_Psi(istate,IVLEV,IXLEV,One,issg3,BUF2(:,3),BUF2(:,2))
       do ip1=ip2,nlev2
         itlev = idx2ij(1,ip1)
         iulev = idx2ij(2,ip1)
-        istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
+        istu = Mul(CI_Lib_Space(istate)%ISm(itlev),CI_Lib_Space(istate)%ISm(iulev))
         issg1 = Mul(istu,issg2)
-        nsgm1 = CI_St(istate)%nCSF(issg1)
-        !it = CI_St(istate)%L2Act(itlev)
-        !iu = CI_St(istate)%L2Act(iulev)
+        nsgm1 = CI_Lib_Space(istate)%nCSF(issg1)
+        !it = CI_Lib_Space(istate)%L2Act(itlev)
+        !iu = CI_Lib_Space(istate)%L2Act(iulev)
         BUF2(1:nsgm1,1) = Zero
         call CI_Epq_Psi(istate,ITLEV,IULEV,One,issg2,BUF2(:,2),BUF2(:,1))
       end do

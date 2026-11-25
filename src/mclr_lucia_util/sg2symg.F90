@@ -11,7 +11,7 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use CI_States, only: CI_ReOrd_Orig
+use CI_Lib_States, only: CI_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC, MINOP, NCNFTP, NCSFTP, NTYP
 use MCLR_Lucia_Data, only: L_nCSF, L_STSym, MINOP_MCLR => MINOP, NCNFTP_MCLR => NCNFTP, NCSFTP_MCLR => NCSFTP, &
@@ -19,7 +19,7 @@ use MCLR_Lucia_Data, only: L_nCSF, L_STSym, MINOP_MCLR => MINOP, NCNFTP_MCLR => 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use CI_States, only: CI_PrWF
+use CI_Lib_States, only: CI_PrWF
 use MCLR_Lucia_Data, only: L_iSpin
 use Definitions, only: u6
 #endif
@@ -60,7 +60,7 @@ Conf_Occ(pState_Sym)%A(:) = -CNSM(iss)%ICONF
 call mma_allocate(CFTP,size(CFTP_MCLR),Label='CFTP')
 CFTP(:) = CFTP_MCLR(:)
 ! MCLR's configuration types, for the reordering in the CI interface
-! (sg_lucia_bridge reads Lucia's tables)
+! (CI_SG_Lucia_Bridge reads Lucia's tables)
 MINOP = MINOP_MCLR
 NTYP = NTYP_MCLR
 NCNFTP(:,:) = NCNFTP_MCLR(:,:)

@@ -288,9 +288,9 @@ function Lower_Diagonal_Value( &
 ! Locate the packed integer containing the step vector at p.
 !
   LLW = 1+IOLW-CIS(ME_iState)%nIpWlk+ &
-        IPSHFT/(2*nPack)
+        IPSHFT/(2*CSFG_nPack)
 
-  IPSHFT = mod(IPSHFT,2*nPack)
+  IPSHFT = mod(IPSHFT,2*CSFG_nPack)
   IPPOW = 2**IPSHFT
 
 !
@@ -451,9 +451,9 @@ function Upper_Diagonal_Value( &
 ! Select the packed integer containing the step vector at level p.
 !
   LUW = 1+IOUW-CIS(ME_iState)%nIpWlk+ &
-        IPSHFT/(2*nPack)
+        IPSHFT/(2*CSFG_nPack)
 
-  IPSHFT = mod(IPSHFT,2*nPack)
+  IPSHFT = mod(IPSHFT,2*CSFG_nPack)
   IPPOW = 2**IPSHFT
 
 !
@@ -2276,15 +2276,15 @@ function MatEl_Epq(SGS,CIS,EXS,IP,IQ,ISYJ,I_CSF,J_CSF,Verbose) result(EIJ)
     if (IP > SGS%MidLev) then
       IOUW = CIS%IOW(1,ISYUI,MVI)
       IPSHFT = 2*(IP-1-SGS%MidLev)
-      IC = CIS%ICase(1+IOUW-CIS%nIpWlk+IPSHFT/(2*nPack) &
+      IC = CIS%ICase(1+IOUW-CIS%nIpWlk+IPSHFT/(2*CSFG_nPack) &
                      +IUP*CIS%nIpWlk)
     else
       IOLW = CIS%IOW(2,ISYDI,MVI)
       IPSHFT = 2*(IP-1)
-      IC = CIS%ICase(1+IOLW-CIS%nIpWlk+IPSHFT/(2*nPack) &
+      IC = CIS%ICase(1+IOLW-CIS%nIpWlk+IPSHFT/(2*CSFG_nPack) &
                      +IDN*CIS%nIpWlk)
     end if
-    IPSHFT = mod(IPSHFT,2*nPack)
+    IPSHFT = mod(IPSHFT,2*CSFG_nPack)
     IPPOW = 2**IPSHFT
     ICS = mod(IC/IPPOW,4)
     if (ICS /= 0) EIJ = real((1+ICS)/2,kind=wp)

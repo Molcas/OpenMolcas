@@ -15,20 +15,20 @@
 !> basis: reordering of CI vectors and the walks of the Lucia CSFs. It uses
 !> Lucia's configuration tables and the SGUGA graph, so it belongs to the
 !> CI interface (the gateway), not to either environment.
-module SG_Lucia_Bridge
+module CI_SG_Lucia_Bridge
 
-use sguga, only: CIS, EXS, MkCOT, MkSgNum, SG_NUM, SG_Num_Setup, SG_PHASE, SGS, StepVec
+use sguga, only: CIS, EXS, CSFG_MkCOT, MkSgNum, SG_NUM, SG_Num_Setup, SG_PHASE, SGS, StepVec
 use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
-public :: SG_Lucia_Walk, SG_ReOrd, SG_ReOrd_Orig, SG_Verify_Lucia_Walk
+public :: CI_SG_Lucia_Walk, CI_SG_ReOrd, CI_SG_ReOrd_Orig, CI_SG_Verify_Lucia_Walk
 
 contains
 
 ! This is temporarily for the MCLR code
-subroutine SG_ReOrd_orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
+subroutine CI_SG_ReOrd_Orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -151,9 +151,9 @@ write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
   write(u6,*)
 #endif
 
-end subroutine SG_Reord_Orig
+end subroutine CI_SG_ReOrd_Orig
 
-subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
+subroutine CI_SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 
 use Molcas, only: MxAct
 use Constants, only: One
@@ -191,11 +191,11 @@ real(kind=wp) :: Fact
 integer(kind=iwp) :: I
 #endif
 If (SGS(iState)%nRsPrt /= 1) Then
-   Call SG_ReOrd_orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
+   Call CI_SG_ReOrd_Orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
    Return
 endif
 
-if (.not. allocated(CIS(iState)%ICASE)) call MkCOT(SGS(iState),CIS(iState))
+if (.not. allocated(CIS(iState)%ICASE)) call CSFG_MkCOT(SGS(iState),CIS(iState))
 call MkSgNum(IREFSM,SGS(iState),CIS(iState),EXS(iState))
 
 ICSFJP = 0
@@ -261,13 +261,13 @@ write(u6,*)
 
 #endif
 
-end subroutine SG_ReOrd
+end subroutine CI_SG_ReOrd
 
 !> Step vector IWALK of the CSF ICSF of the Lucia (SGA) CSF basis of
 !> symmetry IREFSM and the phase IP relating it to the GUGA CSF, as in
-!> SG_ReOrd: CINEW(SG_NUM(IWALK)) = IP*CIOLD(ICSF) for IMODE = 0.
-!> Only for a single RAS partition (nRsPrt = 1, the case of SG_ReOrd proper).
-subroutine SG_Lucia_Walk(iState,IREFSM,ICSF,IWALK,IP)
+!> CI_SG_ReOrd: CINEW(SG_NUM(IWALK)) = IP*CIOLD(ICSF) for IMODE = 0.
+!> Only for a single RAS partition (nRsPrt = 1, the case of CI_SG_ReOrd proper).
+subroutine CI_SG_Lucia_Walk(iState,IREFSM,ICSF,IWALK,IP)
 
 use Molcas, only: MxAct
 
@@ -277,7 +277,7 @@ integer(kind=iwp) :: iOpen, ICL, MinOpen, MaxOpen, nOC, nCSF, iOff, IC, IICSF
 integer(kind=iwp) :: KCNF(MxAct)
 
 if (SGS(iState)%nRsPrt /= 1) then
-  call SG_Lucia_Walk_CFTP(iState,IREFSM,ICSF,IWALK,IP)
+  call CI_SG_Lucia_Walk_CFTP(iState,IREFSM,ICSF,IWALK,IP)
   return
 end if
 
@@ -301,15 +301,15 @@ do iOpen=MinOpen,MaxOpen,2
   iOff = iOff+nOC*nCSF
 end do
 
-write(u6,*) 'SG_Lucia_Walk: CSF index out of range:',ICSF
+write(u6,*) 'CI_SG_Lucia_Walk: CSF index out of range:',ICSF
 call Abend()
 
-end subroutine SG_Lucia_Walk
+end subroutine CI_SG_Lucia_Walk
 
-!> SG_Lucia_Walk from Lucia's own configuration list (Conf_Occ) and prototype
-!> spin couplings (CFTP), as in SG_ReOrd_orig; valid for any RAS partitioning
+!> CI_SG_Lucia_Walk from Lucia's own configuration list (Conf_Occ) and prototype
+!> spin couplings (CFTP), as in CI_SG_ReOrd_Orig; valid for any RAS partitioning
 !> (used for nRsPrt /= 1, where the CDCInfo tables are not built).
-subroutine SG_Lucia_Walk_CFTP(iState,IREFSM,ICSF,IWALK,IP)
+subroutine CI_SG_Lucia_Walk_CFTP(iState,IREFSM,ICSF,IWALK,IP)
 
 use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CFTP, CONF_Occ
@@ -358,16 +358,16 @@ do ITYP=1,NTYP
   IOFF = IOFF+nBlk
 end do
 
-write(u6,*) 'SG_Lucia_Walk_CFTP: CSF index out of range:',ICSF
+write(u6,*) 'CI_SG_Lucia_Walk_CFTP: CSF index out of range:',ICSF
 call Abend()
 
-end subroutine SG_Lucia_Walk_CFTP
+end subroutine CI_SG_Lucia_Walk_CFTP
 
-!> Check SG_Lucia_Walk for all nConf CSFs of symmetry IREFSM: the split-graph
-!> index (SG_NUM) and phase of each walk against the reordering SG_ReOrd
+!> Check CI_SG_Lucia_Walk for all nConf CSFs of symmetry IREFSM: the split-graph
+!> index (SG_NUM) and phase of each walk against the reordering CI_SG_ReOrd
 !> (mode 0) of the index vector; for a single RAS partition also the walks
 !> of the CDCInfo route against those of the CFTP route.
-subroutine SG_Verify_Lucia_Walk(iState,IREFSM,nConf)
+subroutine CI_SG_Verify_Lucia_Walk(iState,IREFSM,nConf)
 
 use Molcas, only: MxAct
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -382,10 +382,10 @@ call mma_allocate(Map,nConf,Label='Map')
 do I=1,nConf
   Idx(I) = real(I,kind=wp)
 end do
-call SG_ReOrd(iState,IREFSM,0,nConf,Idx,Map)
+call CI_SG_ReOrd(iState,IREFSM,0,nConf,Idx,Map)
 nBad = 0
 do I=1,nConf
-  call SG_Lucia_Walk(iState,IREFSM,I,IWALK,IP)
+  call CI_SG_Lucia_Walk(iState,IREFSM,I,IWALK,IP)
   ISG = SG_NUM(SGS(iState),EXS(iState),IWALK)
   if ((ISG < 1) .or. (ISG > nConf)) then
     nBad = nBad+1
@@ -393,19 +393,19 @@ do I=1,nConf
     nBad = nBad+1
   end if
   if (SGS(iState)%nRsPrt == 1) then
-    call SG_Lucia_Walk_CFTP(iState,IREFSM,I,IWALK2,IP2)
+    call CI_SG_Lucia_Walk_CFTP(iState,IREFSM,I,IWALK2,IP2)
     if (any(IWALK(1:SGS(iState)%nLev) /= IWALK2(1:SGS(iState)%nLev)) .or. (IP /= IP2)) nBad = nBad+1
   end if
 end do
 call mma_deallocate(Map)
 call mma_deallocate(Idx)
 if (nBad /= 0) then
-  write(u6,*) 'SG_Verify_Lucia_Walk: walks of the Lucia CSFs differ from SG_ReOrd, errors:',nBad
+  write(u6,*) 'CI_SG_Verify_Lucia_Walk: walks of the Lucia CSFs differ from CI_SG_ReOrd, errors:',nBad
   call Abend()
 end if
-write(u6,'(1X,A,I0,A)') 'SG_Verify_Lucia_Walk: walks of ',nConf,' Lucia CSFs verified against SG_ReOrd'
+write(u6,'(1X,A,I0,A)') 'CI_SG_Verify_Lucia_Walk: walks of ',nConf,' Lucia CSFs verified against CI_SG_ReOrd'
 
-end subroutine SG_Verify_Lucia_Walk
+end subroutine CI_SG_Verify_Lucia_Walk
 
 subroutine GetOccupation_SGUGA(iState,iOpen,mult,iSym,iOC,KCNF)
    use Molcas, only: MxAct
@@ -487,4 +487,4 @@ End subroutine BuildWalk
 !===========================================================
 
 
-end module SG_Lucia_Bridge
+end module CI_SG_Lucia_Bridge

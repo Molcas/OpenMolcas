@@ -32,7 +32,7 @@ subroutine RHS(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,rKappa,ipst,iDisp,lOper,CMO,j
 !         Theoretical Chemistry, University of Lund                    *
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
@@ -196,7 +196,7 @@ if ((iMethod == 2) .and. btest(ntpert(idisp),2)) call ABXpY(MOT,MOX,idsym)
 
 if (CI) then
 
-  call CiSigma(0,CI_St(iState)%STSym,Mul(CI_St(iState)%STSym,idsym),FIX,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,.true.)
+  call CiSigma(0,CI_Lib_Space(iState)%STSym,Mul(CI_Lib_Space(iState)%STSym,idsym),FIX,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,.true.)
 
   call ipin(ipst)
   if (idsym == 1) then

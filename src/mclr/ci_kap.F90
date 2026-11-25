@@ -11,7 +11,7 @@
 
 subroutine CI_KAP(ipcid,fock,fockOut,isym)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipnout !, W
 use MCLR_Data, only: ipCI, n2Dens, nDens, nNA
@@ -33,7 +33,7 @@ call ipnout(-1)
 call mma_allocate(De,ntash**2,Label='De')
 call mma_allocate(Pe,n2Dens,Label='Pe')
 
-call CIDens_SA(.true.,ipCI,ipCid,CI_St(iState)%STSym,CI_St(iState)%STSym,Pe,De)
+call CIDens_SA(.true.,ipCI,ipCid,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,Pe,De)
 
 d0 = Zero
 ! ======================================================================

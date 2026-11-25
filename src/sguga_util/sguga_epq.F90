@@ -290,8 +290,8 @@ subroutine SG_Epq_Psi(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM,CI_Tag)
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           IOUW = CIS%IOW(1,ISYUSG,MVSGM)
           IPSHFT = 2*(IP-1-SGS%MidLev)
-          LUW = 1+IOUW-CIS%nIpWlk+IPSHFT/(2*nPack)
-          IPSHFT = mod(IPSHFT,2*nPack)
+          LUW = 1+IOUW-CIS%nIpWlk+IPSHFT/(2*CSFG_nPack)
+          IPSHFT = mod(IPSHFT,2*CSFG_nPack)
           IPPOW = 2**IPSHFT
           do I=1,NUPSG
             IC = CIS%ICase(LUW+I*CIS%nIpWlk)
@@ -318,8 +318,8 @@ subroutine SG_Epq_Psi(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM,CI_Tag)
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           IOLW = CIS%IOW(2,ISYDSG,MVSGM)
           IPSHFT = 2*(IP-1)
-          LLW = 1+IOLW-CIS%nIpWlk+IPSHFT/(2*nPack)
-          IPSHFT = mod(IPSHFT,2*nPack)
+          LLW = 1+IOLW-CIS%nIpWlk+IPSHFT/(2*CSFG_nPack)
+          IPSHFT = mod(IPSHFT,2*CSFG_nPack)
           IPPOW = 2**IPSHFT
           do J=1,NDWNSG
             JC = CIS%ICase(LLW+J*CIS%nIpWlk)

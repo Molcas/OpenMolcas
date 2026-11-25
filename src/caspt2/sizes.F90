@@ -19,7 +19,7 @@
 
 subroutine SIZES()
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use PrintLevel, only: USUAL
@@ -67,7 +67,7 @@ NG02 = 1
 NG30 = 1
 NG12 = 1
 
-if (CI_St(iState)%nActEl > 0) then
+if (CI_Lib_Space(iState)%nActEl > 0) then
   NGARR = 2*(NG10+NG20+NG02+NG30+NG12)
   NPOLY = NPOLY+NGARR+5*MXCI
   MXLFT = MXLEFT-NPOLY
@@ -93,7 +93,7 @@ if (CI_St(iState)%nActEl > 0) then
   !write(u6,*)
   ! For NEVPT2 (MKNEVE4)
   if (HZERO == 'DYALL') then
-    NNEVE4 = NBOTTOM+NCONF+MXCI+(2*MXCI+3*CI_St(iState)%nLev**2+2)*CI_St(iState)%nLev
+    NNEVE4 = NBOTTOM+NCONF+MXCI+(2*MXCI+3*CI_Lib_Space(iState)%nLev**2+2)*CI_Lib_Space(iState)%nLev
     NPOLY = max(NPOLY,NNEVE4)
   end if
 end if
@@ -410,7 +410,8 @@ if (do_grad) then
   ! For NEVPT2
   if (HZERO == 'DYALL') then
     ! DERE4 (inside CLagX)
-    ngrad6_3 = NCONF+MXCI+(4*MXCI+5*CI_St(iState)%nLev**2+2*nTri_Elem(CI_St(iState)%nLev**2))*CI_St(iState)%nLev
+    ngrad6_3 = NCONF+MXCI+(4*MXCI+5*CI_Lib_Space(iState)%nLev**2+ &
+               2*nTri_Elem(CI_Lib_Space(iState)%nLev**2))*CI_Lib_Space(iState)%nLev
     ngrad6_4 = 6*NASHT**2+2*NASHT**4+2*sum(NTUV(1:NSYM)**2) ! BDerNEV (before CLagX)
     ngrad6 = max(ngrad6,ngrad6_3)+ngrad6_4
   end if

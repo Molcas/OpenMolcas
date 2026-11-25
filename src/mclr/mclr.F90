@@ -48,14 +48,14 @@ use PCM_grad, only: PCM_grad_final
 use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
 use Orbital_Spaces, only: nAsh, nSym
 use CI_Input, only: nRS2
-use CI_States, only: CI_Free_State
+use CI_Lib_States, only: CI_Free_State
 use input_mclr, only: double, Fail, iMCPD, iMethod, iMSPD, LuAChoVec, LuChoInt, LuIChoVec, McKinley, nDisp, NewCho, ntAsh, ntASqr, &
                       ntAtri, PT2, RASSI, StepType, TimeDep, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, RtoB
 
-use CI_Operations, only: CI_Lib_Close
+use CI_Lib_Core, only: CI_Lib_Close
 implicit none
 ! the CI state of MCLR (SG_Setup_MCLR; MCLR_Data's istate is the root)
 integer(kind=iwp), parameter :: iState_CI = 1

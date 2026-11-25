@@ -81,13 +81,14 @@ use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM, NTOT, NTOT2
 use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
 use rasscf_global, only: NCONF
 use CI_Input, only: iDoGAS
-use CI_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
+use CI_Lib_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: I, IAD15, NFOCK, SpaceRec(CI_Space_Rec_Len)
 logical(kind=iwp) :: HaveSpace
 real(kind=wp) :: Dum(1)
@@ -159,7 +160,7 @@ call IDAFILE(JOBIPH,1,IDXSX,mxAct,IAD15)
 !SVC: translates orbital index to levels (LEVEL in caspt2)
 call IDAFILE(JOBIPH,1,IDXCI,mxAct,IAD15)
 IADR15(19:30) = 0
-call CI_Space_To_Rec(iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
+call CI_Space_To_Rec(iState,iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
 if (HaveSpace) then
   IADR15(19) = IAD15
   call IDAFILE(JOBIPH,1,SpaceRec,CI_Space_Rec_Len,IAD15)

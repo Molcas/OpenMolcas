@@ -22,7 +22,7 @@ subroutine GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
 ! The states in the group can be obtained from the ordered MSTATE array,
 ! for which a group offset JSTATE_OFF is passed in.
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_qmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_set_param
@@ -39,7 +39,7 @@ implicit none
 integer(kind=iwp), intent(in) :: IGROUP, NGRP, JSTATE_OFF, nState
 real(kind=wp), intent(inout) :: Heff(Nstate,Nstate), H0(Nstate,Nstate), U0(Nstate,Nstate)
 integer(kind=iwp) :: I, iDisk, iState, J, K
-! the CI state of the reference (CI_Info; iState counts the roots here)
+! the CI state of the reference (CI_Lib_Info; iState counts the roots here)
 integer(kind=iwp), parameter :: iState_CI = 1
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPU, CPU0, CPU1, TIO, TIO0, TIO1, TIOE, TIOTF0, TIOTF10
 logical(kind=iwp) :: Initiate
@@ -229,7 +229,7 @@ if ((Ngrp > 1) .and. IFXMS .and. (.not. IFDW) .and. (HZERO /= 'DYALL')) then
 
     if (IPRGLB >= VERBOSE) then
       write(u6,'(1x,a,i3)') ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-      call PRWF_CP2(CI_St(iState_CI)%STSym,NCONF,CIXMS,CITHR)
+      call PRWF_CP2(CI_Lib_Space(iState_CI)%STSym,NCONF,CIXMS,CITHR)
     end if
   end do
 

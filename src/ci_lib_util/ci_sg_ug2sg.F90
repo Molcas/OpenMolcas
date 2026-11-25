@@ -12,7 +12,7 @@
 !               1990, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
+subroutine CI_SG_UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
 ! AUTHOR:  J. OLSEN AND M.P. FUELSCHER
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -30,7 +30,7 @@ use Lucia_data, only: CFTP, Conf_Occ
 use lucia_data, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Constants, only: One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -51,7 +51,7 @@ integer(kind=iwp), parameter :: istate = 1
 integer(kind=iwp) :: I, LPRINT
 #endif
 
-call SG_Num_Setup(iState,CI_St(iState)%STSym)
+call SG_Num_Setup(iState,CI_Lib_Space(iState)%STSym)
 
 call mma_allocate(IORD,NCONF,Label='IORD')
 
@@ -159,4 +159,4 @@ write(u6,*)
 
 call mma_deallocate(IORD)
 
-end subroutine UG2SG
+end subroutine CI_SG_UG2SG

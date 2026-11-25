@@ -13,7 +13,7 @@
 
 subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_global, only: iRoot1, iRoot2, OLagFull
 use Orbital_Spaces, only: NASH
 use caspt2_module, only: ENERGY, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NORB, NSTATE, NSYM
@@ -45,7 +45,7 @@ do iStat=1,nState
     if (iStat == jStat) cycle
     call LoadCI_XMS('N',1,nConf,nState,CI2,jStat,U0)
 
-    call Dens1T_RPT2(CI1,CI2,SGM1,TG1,CI_St(iState)%nLev)
+    call Dens1T_RPT2(CI1,CI2,SGM1,TG1,CI_Lib_Space(iState)%nLev)
     !call sqprt(tg1,5)
     G1(:,:) = G1(:,:)+Half*(UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)-UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1))*TG1(:,:)
   end do

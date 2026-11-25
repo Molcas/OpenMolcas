@@ -11,7 +11,7 @@
 
 subroutine RHS_NAC(Fock,SLag,ipS2)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: ipCI, ipMat, n1Dens, n2Dens, nConf1, nDens, NSSA
@@ -23,7 +23,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
-use CI_Operations, only: CI_Lib_Dens
+use CI_Lib_Core, only: CI_Lib_Dens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(out) :: Fock(nDens)
@@ -55,7 +55,7 @@ G2r(:) = Zero
 ! from the CI vectors of the two NAC states
 ! (code copied from CIdens_SA, same symmetry)
 
-iSy = CI_St(iState)%STSym
+iSy = CI_Lib_Space(iState)%STSym
 
 if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
   ! Almost the same as the code in rhs_sa, but slightly modified
@@ -93,7 +93,7 @@ else
 end if
 
 if (do_RF) then
-  nconf = ncsf(CI_St(iState)%STSym)
+  nconf = ncsf(CI_Lib_Space(iState)%STSym)
   ! Update state-specific quantities using rotated G1r
   DSSMO(1:ntAsh,1:ntAsh) = reshape(G1r(1:ntAsh**2),[ntAsh,ntAsh])
   call PrepPCM2(2,DSSMO,DSSAO,PCMSSAO,PCMSSMO)

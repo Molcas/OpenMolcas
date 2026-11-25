@@ -18,7 +18,7 @@ subroutine WfCtl_MSPD(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 !                                                                      *
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISMECIMSPD, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, OVERRIDE, &
                      ResQaaLag2
@@ -72,7 +72,7 @@ if (lSAVE) then
   call Abend()
 end if
 isym = 1
-nconf1 = ncsf(CI_St(iState)%STSym)
+nconf1 = ncsf(CI_Lib_Space(iState)%STSym)
 
 CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
@@ -86,7 +86,7 @@ if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 !
 ! Output: Commonblocks (Pointers.fh)
 
-nConf3 = CI_St(iState)%nDet(CI_St(iState)%STSym)
+nConf3 = CI_Lib_Space(iState)%nDet(CI_Lib_Space(iState)%STSym)
 
 call Setup_MCLR(iSym)
 
@@ -103,7 +103,7 @@ if (isNAC) override = .true.
 
 call mma_allocate(FANCY,nroots**3,Label='FANCY')
 call mma_allocate(rCHC,nRoots,Label='rCHC')
-call CIDia_SA(CI_St(iState)%STSym,rCHC,Fancy)
+call CIDia_SA(CI_Lib_Space(iState)%STSym,rCHC,Fancy)
 call mma_deallocate(rCHC)
 
 call ipOut(ipdia)

@@ -14,7 +14,7 @@
 
 subroutine xdwinit(Heff,H0,U0,nState)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri
 use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO
@@ -166,7 +166,7 @@ do J=1,Nstate
 
   if (IPRGLB >= VERBOSE) then
     write(u6,'(1x,a,i3)') ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-    call PRWF_CP2(CI_St(jState)%STSym,NCONF,CIXMS,CITHR)
+    call PRWF_CP2(CI_Lib_Space(jState)%STSym,NCONF,CIXMS,CITHR)
   end if
 end do
 

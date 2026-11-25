@@ -56,7 +56,7 @@ end subroutine SG_Print
 
 subroutine SG_PRWF(iState,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
 
-  use sguga, only: CIS, nPack, SGS
+  use sguga, only: CIS, CSFG_nPack, SGS
   use Symmetry_Info, only: MUL, nIrrep
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: wp, iwp, u6
@@ -161,7 +161,7 @@ subroutine SG_PRWF(iState,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
             NNN = 0
             do LEV=1,SGS(iState)%MidLev
               NNN = NNN+1
-              if (NNN == nPack+1) then
+              if (NNN == CSFG_nPack+1) then
                 NNN = 1
                 ICDPOS = ICDPOS+1
                 ICDWN = CIS(iState)%ICase(ICDPOS)
@@ -178,7 +178,7 @@ subroutine SG_PRWF(iState,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
           NNN = 0
           do LEV=SGS(iState)%MidLev+1,SGS(iState)%nLev
             NNN = NNN+1
-            if (NNN == nPack+1) then
+            if (NNN == CSFG_nPack+1) then
               NNN = 1
               ICUPOS = ICUPOS+1
               ICUP = CIS(iState)%ICase(ICUPOS)

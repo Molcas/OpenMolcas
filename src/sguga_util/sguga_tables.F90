@@ -107,12 +107,12 @@ subroutine MKSEG(SGS,CIS,EXS)
     IV1 = SGS%LTV(LEV)
     IV2 = SGS%LTV(LEV-1)-1
     do IVL=IV1,IV2-1          ! loop over all vertices of level LEV, right to left, but the last vertex
-      IAL = SGS%DRT(IVL,ATAB)! Pick up the a- and b-value of the left vertex
-      IBL = SGS%DRT(IVL,BTAB)
+      IAL = SGS%DRT(IVL,CSFG_ATab)! Pick up the a- and b-value of the left vertex
+      IBL = SGS%DRT(IVL,CSFG_BTab)
       INL = 2*IAL+IBL
       do IV=IVL+1,IV2         ! loop over all vertices of level LEV, right to left, but the first vertex
-        IA = SGS%DRT(IV,ATAB)! Pick up the a-value of the right vertex
-        IB = SGS%DRT(IV,BTAB)
+        IA = SGS%DRT(IV,CSFG_ATab)! Pick up the a-value of the right vertex
+        IB = SGS%DRT(IV,CSFG_BTab)
         I_N = 2*IA+IB
 
 !     The number of particles in the node decrease left to right. If the difference between two vertices
@@ -151,11 +151,11 @@ subroutine MKSEG(SGS,CIS,EXS)
     IV1 = SGS%LTV(LEV)
     IV2 = SGS%LTV(LEV-1)-1
     do IVL=IV1,IV2
-      IAL = SGS%DRT(IVL,ATAB)
-      IBL = SGS%DRT(IVL,BTAB)
+      IAL = SGS%DRT(IVL,CSFG_ATab)
+      IBL = SGS%DRT(IVL,CSFG_BTab)
       do IV=IV1,IV2
-        IA = SGS%DRT(IV,ATAB)
-        IB = SGS%DRT(IV,BTAB)
+        IA = SGS%DRT(IV,CSFG_ATab)
+        IB = SGS%DRT(IV,CSFG_BTab)
         if ((IA == IAL+1) .and. (IB == IBL-2)) CIS%IVR(IVL,3) = IV
         if ((IA == IAL-1) .and. (IB == IBL+2)) CIS%IVR(IVL,4) = IV
       end do
@@ -230,11 +230,11 @@ subroutine MKSEG(SGS,CIS,EXS)
       if (IVRB == 0) cycle          ! Branch out if there is no such vertex
       ! SEGMENT IS NOW ACCEPTED AS POSSIBLE.
 
-      IB = SGS%DRT(IVLT,BTAB)    ! Pick up the b-value from the DRT
+      IB = SGS%DRT(IVLT,CSFG_BTab)    ! Pick up the b-value from the DRT
       if (ISGT >= iSegTHeadBeg) then
         ! triplet operator: the ASTA values, referred to the b of the right
         ! (ket) top vertex; zero segments (b = 0 with db = 0) are not valid
-        IBR = SGS%DRT(IVRT,BTAB)
+        IBR = SGS%DRT(IVRT,CSFG_BTab)
         if (ISGT <= iSegTHeadEnd) then
           V = ASTA_Head_T(IC1(ISGT),IC2(ISGT),IBR-IB,IBR)
         else if (ISGT <= iSegTTopEnd) then
@@ -354,7 +354,7 @@ subroutine MkNRCOUP(SGS,CIS,EXS,TRS)
 
 ! IVLT=0 is the root node.
   do IVLT=1,SGS%MVSta-1    ! This formally denotes the upper left node of an segment
-    LEV = SGS%DRT(IVLT,LTAB)
+    LEV = SGS%DRT(IVLT,CSFG_LTab)
 
     ! loop over all possible transition classes: upper walk, delta(b)=-1/+1, or lower walk
     ! A segment is classified by its top and bottom transition class
@@ -467,7 +467,7 @@ subroutine MkNRCOUP(SGS,CIS,EXS,TRS)
   NRL(1,SGS%nVert,0) = 1
 
   do IVLT=SGS%nVert-1,SGS%MVSta,-1
-    LEV = SGS%DRT(IVLT,LTAB)
+    LEV = SGS%DRT(IVLT,CSFG_LTab)
 
     do ICLASS=0,TRS%nClass-1
 
@@ -579,9 +579,9 @@ subroutine MkNRCOUP(SGS,CIS,EXS,TRS)
     end do
   end do
 
-  call Mk_IOW(CIS,SGS)
+  call CSFG_Mk_IOW(CIS,SGS)
 
-  call CSFCOUNT(CIS,SGS)
+  call CSFG_Count(CIS,SGS)
 
 ! INSERT FOR USE IN SIGMA ROUTINE
 
@@ -927,9 +927,9 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
             IPOS = CIS%IOW(IHALF,LFTSYM,MV)+(ILND-1)*CIS%nIpWlk
 
-            do LL=LEV2+1,LEV1,nPack
+            do LL=LEV2+1,LEV1,CSFG_nPack
               IC = 0
-              do L=min(LL+nPack-1,LEV1),LL,-1
+              do L=min(LL+CSFG_nPack-1,LEV1),LL,-1
                 IC = 4*IC+ISGPTH(ICS,L)
               end do
               IPOS = IPOS+1
@@ -1131,7 +1131,7 @@ subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
         JPOS = 0
         do LEV=SGS%MidLev+1,SGS%nLev
           JPOS = JPOS+1
-          if (JPOS == nPack+1) then
+          if (JPOS == CSFG_nPack+1) then
             JPOS = 1
             IPOS = IPOS+1
             ICODE = CIS%iCase(IPOS)
@@ -1160,7 +1160,7 @@ subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
         JPOS = 0
         do LEV=1,SGS%MidLev
           JPOS = JPOS+1
-          if (JPOS == nPack+1) then
+          if (JPOS == CSFG_nPack+1) then
             JPOS = 1
             IPOS = IPOS+1
             ICODE = CIS%iCase(IPOS)
@@ -1356,7 +1356,7 @@ subroutine MKTRANS(SGS,CIS,TRS)
   ! Second pass: fill transition arrays
 
   do IVLT=1,SGS%nVert      ! Loop over all vertices
-    LEV = SGS%DRT(IVLT,LTAB)  ! Pick up the level index of the vertex
+    LEV = SGS%DRT(IVLT,CSFG_LTab)  ! Pick up the level index of the vertex
 
     ! loop over all possible segment types allowed for this vertex.
     do ISGT=1,nSeg
@@ -1424,12 +1424,12 @@ subroutine MKTRANS(SGS,CIS,TRS)
 end subroutine MKTRANS
 
 !> The walk tables of state iState for the CSFs of symmetry LSM: ICase
-!> (MkCOT) and the walk numbering USGN/LSGN (MkSgNum), which depends on the
+!> (CSFG_MkCOT) and the walk numbering USGN/LSGN (MkSgNum), which depends on the
 !> symmetry and is rebuilt when another symmetry is asked for (a state can
 !> serve several symmetries, e.g. MCLR's state for the whole run).
 subroutine SG_Num_Setup(iState,LSM)
   integer(kind=iwp), intent(in) :: iState, LSM
-  if (.not. allocated(CIS(iState)%ICase)) call MkCOT(SGS(iState),CIS(iState))
+  if (.not. allocated(CIS(iState)%ICase)) call CSFG_MkCOT(SGS(iState),CIS(iState))
   if ((.not. allocated(EXS(iState)%USGN)) .or. (EXS(iState)%Num_Sym /= LSM)) &
     call MkSgNum(LSM,SGS(iState),CIS(iState),EXS(iState))
 end subroutine SG_Num_Setup

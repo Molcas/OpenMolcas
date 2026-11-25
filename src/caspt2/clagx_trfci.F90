@@ -13,7 +13,7 @@
 
 subroutine CLagX_TrfCI(NCONF,CI)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_global, only: TAT, TORB
 use caspt2_module, only: NISH, NRAS1, NRAS2, NRAS3, NSSH, NSYM
 use Constants, only: Zero
@@ -65,7 +65,7 @@ end do
 ! orbitals to zero.
 NISH_SAVE(:) = NISH(:)
 NISH(:) = 0
-call mkTraCI(size(TAT),TAT,CI_St(iState)%STSym,nConf,CI)
+call mkTraCI(size(TAT),TAT,CI_Lib_Space(iState)%STSym,nConf,CI)
 NISH(:) = NISH_SAVE(:)
 
 end subroutine CLagX_TrfCI

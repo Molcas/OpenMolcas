@@ -16,7 +16,7 @@ subroutine make_close_cvb(it)
 
 use casvb_global, only: variat
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FMO, FockOcc, OccN, PA, PMAT, TUVX
-use CI_States, only: CI_Free_State
+use CI_Lib_States, only: CI_Free_State
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 

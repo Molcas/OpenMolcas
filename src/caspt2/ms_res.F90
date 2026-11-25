@@ -14,7 +14,7 @@
 subroutine MS_Res(IVEC,JVEC,IST,JST,Scal,CNT)
 ! Compute the derivative of E^PT2 with respect to the T amplitude
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri3_Elem
 use caspt2_global, only: IDTCEX, LUCIEX
 use caspt2_module, only: ISCF, MXCI, NASHT, NCONF, NSTATE
@@ -63,7 +63,7 @@ if (ISCF == 0) then
   end do
 end if
 
-call MKTG3(CI_St(iState)%STSym,CI_St(iState)%STSym,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
+call MKTG3(CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 call mma_deallocate(CI1)
 call mma_deallocate(CI2)
 

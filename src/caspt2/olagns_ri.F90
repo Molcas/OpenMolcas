@@ -69,7 +69,7 @@
 
 subroutine OLagNS_RI(iSym0,NBSQT,MaxVec_PT2,DPT2C,DPT2Canti,A_PT2)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use PrintLevel, only: VERBOSE
@@ -122,7 +122,7 @@ if (SC_Prop) call SC_NEVPT2_NINDEP(1)
 
 !iVec = iVecX
 iSym = iSym0
-SCLNEL = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
+SCLNEL = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

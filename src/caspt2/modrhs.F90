@@ -11,7 +11,7 @@
 
 subroutine MODRHS(IVEC,FIMO,NFIMO)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: KTU, KTUV
 use Orbital_Spaces, only: NASH
@@ -53,7 +53,7 @@ do ISYM=1,NSYM
       ITTOT = NIT+IT
       ITABS = NAES(ISYT)+IT
       do IJ=1,NIT
-        Val = FIMO(IFOFF+iTri(ITTOT,IJ))/real(max(1,CI_St(iState)%nActEl),kind=wp)
+        Val = FIMO(IFOFF+iTri(ITTOT,IJ))/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
         do IVABS=1,NASHT
           IW1 = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
           IW2 = IJ
@@ -103,7 +103,7 @@ do ISYM=1,NSYM
           IYYWA = IYYW+NAS*(IA-1)
           rSUM = rSUM-WC(IYYWA)
         end do
-        ONEADD = rSUM/real(max(1,CI_St(iState)%nActEl),kind=wp)
+        ONEADD = rSUM/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
         do IUABS=1,NASHT
           IW1 = KTUV(IXABS,IUABS,IUABS)-NTUVES(ISYM)
           IW2 = IA
@@ -149,7 +149,7 @@ if (NINDEP(ISYM,5)*NWD /= 0) then
     do IA=1,NSJ
       IATOT = NIJ+NAJ+IA
       do IJ=1,NIJ
-        ONEADD = FIMO(IFOFF+iTri(IATOT,IJ))/real(max(1,CI_St(iState)%nActEl),kind=wp)
+        ONEADD = FIMO(IFOFF+iTri(IATOT,IJ))/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
         IAJ = IAJ+1
         do ISYU=1,NSYM
           do IU=1,NASH(ISYU)

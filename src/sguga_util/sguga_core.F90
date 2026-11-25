@@ -24,7 +24,8 @@ use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-use CSF_Graph, only: SG_Graph, SG_Walks, nPack, LTAB, ATAB, BTAB, MkSGUGA, MkCOT, CSFCOUNT, Mk_IOW
+use CSF_Graph, only: CSFG_ATab, CSFG_BTab, CSFG_Count, CSFG_Graph, CSFG_LTab, CSFG_Make, CSFG_Mk_IOW, CSFG_MkCOT, CSFG_nPack, &
+                     CSFG_Walks
 
 #include "intent.fh"
 
@@ -76,7 +77,7 @@ end type CDCInfo
 ! Split-Graph descriptor, sizes, addresses...
 !
 ! Ism(:): Symmetry label of each graph level.
-! DRT: Final compact distinct-row table with columns LTAB,NTAB,ATAB,BTAB,CTAB.
+! DRT: Final compact distinct-row table with columns CSFG_LTab,CSFG_NTab,CSFG_ATab,CSFG_BTab,CSFG_CTab.
 ! DRT0: Unrestricted DRT before pruning.
 ! Down: Final downchar arc table; child vetrex reached by each of the four step types
 ! Down0: unrestricted Down table
@@ -90,14 +91,14 @@ end type CDCInfo
 ! LEVEL: external ordering of graphs levels
 ! nRas: number of orbitals in each symmetry and RAS/GAS partionining
 ! nRasEl: Electron limit for each RAS/GAS partioning
-! The graph (SG_Graph of CSF_Graph) and the parts of SGUGA (CSF/SD codec)
-type, extends(SG_Graph) :: SGStruct
+! The graph (CSFG_Graph of CSF_Graph) and the parts of SGUGA (CSF/SD codec)
+type, extends(CSFG_Graph) :: SGStruct
   type(CDCInfo), allocatable :: CDCInfo(:,:)
   integer(kind=iwp), allocatable :: OC(:)
   type(SDReoInfo), allocatable :: SDREO(:)
 end type SGStruct
 
-! the DRT column indices LTAB, NTAB, ATAB, BTAB, CTAB come from CSF_Graph
+! the DRT column indices CSFG_LTab, CSFG_NTab, CSFG_ATab, CSFG_BTab, CSFG_CTab come from CSF_Graph
 
 ! CI Structures, addresses,..
 !
@@ -111,8 +112,8 @@ end type SGStruct
 ! IVR(:,:): partner index one the same level for delta(b)=-1/+1 segments tops.
 ! ISGM(:,:): segment connectivity: lower-left destination vertex for each valid segment, zero otherwise.
 ! VSGM(:,): numerical value of each valid segment-
-! The walks (SG_Walks of CSF_Graph) and the segment tables of SGUGA
-type, extends(SG_Walks) :: CIStruct
+! The walks (CSFG_Walks of CSF_Graph) and the segment tables of SGUGA
+type, extends(CSFG_Walks) :: CIStruct
   integer(kind=iwp), allocatable :: IVR(:,:), ISGM(:,:)
   real(kind=wp), allocatable :: VSGM(:,:)
 end type CIStruct
@@ -297,7 +298,7 @@ integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 !#define _TEST_CSFDET_
 
-! nPack (cases per integer of the packed walks) comes from CSF_Graph
+! CSFG_nPack (cases per integer of the packed walks) comes from CSF_Graph
 
 type(SGStruct), target :: SGS(4)
 type(CIStruct) :: CIS(4)
@@ -443,7 +444,7 @@ subroutine SG_Init_Light(iState,nSym,nActEl,iSpin, &
 
   if (present(Do_MkSGUGA)) then
     if (Do_MkSGUGA) then
-      call MkSGUGA(SGS(istate),CIS(istate))
+      call CSFG_Make(SGS(istate),CIS(istate))
 
     else
       SGS(istate)%iSpin = 0
@@ -454,7 +455,7 @@ subroutine SG_Init_Light(iState,nSym,nActEl,iSpin, &
       CIS(istate)%NCSF(:) = 0
     end if
   else
-    call MkSGUGA(SGS(istate),CIS(istate))
+    call CSFG_Make(SGS(istate),CIS(istate))
   end if
 
   if (NActEl == 0) CIS(istate)%NCSF(:) = 1
@@ -904,7 +905,7 @@ end function Tri_SG
 !
 ! Orbital occupations of CSF I of symmetry ISY, unpacked from its step
 ! vector: the upper and lower walks are stored in CIS%ICase, 2 bits per
-! level (step d = 0,1,2,3 gives occupation 0,1,1,2), nPack levels per
+! level (step d = 0,1,2,3 gives occupation 0,1,1,2), CSFG_nPack levels per
 ! integer. Same layout as read in the diagonal case of MatEl_Epq.
 !
 subroutine CSF_Occupation(ISY,I,OccVec)
@@ -917,13 +918,13 @@ subroutine CSF_Occupation(ISY,I,OccVec)
     if (iLev > SGS(ME_iState)%MidLev) then
       IOW0 = CIS(ME_iState)%IOW(1,ISYU,MV)
       IPSHFT = 2*(iLev-1-SGS(ME_iState)%MidLev)
-      IC = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*nPack)+IUP*CIS(ME_iState)%nIpWlk)
+      IC = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*CSFG_nPack)+IUP*CIS(ME_iState)%nIpWlk)
     else
       IOW0 = CIS(ME_iState)%IOW(2,ISYD,MV)
       IPSHFT = 2*(iLev-1)
-      IC = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*nPack)+IDN*CIS(ME_iState)%nIpWlk)
+      IC = CIS(ME_iState)%ICase(1+IOW0-CIS(ME_iState)%nIpWlk+IPSHFT/(2*CSFG_nPack)+IDN*CIS(ME_iState)%nIpWlk)
     end if
-    IPSHFT = mod(IPSHFT,2*nPack)
+    IPSHFT = mod(IPSHFT,2*CSFG_nPack)
     ICS = mod(IC/2**IPSHFT,4)
     OccVec(iLev) = (1+ICS)/2
   end do
@@ -957,13 +958,13 @@ subroutine SG_CSF_StepVec(SGS,CIS,ISY,I,Step)
     if (iLev > SGS%MidLev) then
       IOW0 = CIS%IOW(1,ISYU,MV)
       IPSHFT = 2*(iLev-1-SGS%MidLev)
-      IC = CIS%ICase(1+IOW0-CIS%nIpWlk+IPSHFT/(2*nPack)+IUP*CIS%nIpWlk)
+      IC = CIS%ICase(1+IOW0-CIS%nIpWlk+IPSHFT/(2*CSFG_nPack)+IUP*CIS%nIpWlk)
     else
       IOW0 = CIS%IOW(2,ISYD,MV)
       IPSHFT = 2*(iLev-1)
-      IC = CIS%ICase(1+IOW0-CIS%nIpWlk+IPSHFT/(2*nPack)+IDN*CIS%nIpWlk)
+      IC = CIS%ICase(1+IOW0-CIS%nIpWlk+IPSHFT/(2*CSFG_nPack)+IDN*CIS%nIpWlk)
     end if
-    IPSHFT = mod(IPSHFT,2*nPack)
+    IPSHFT = mod(IPSHFT,2*CSFG_nPack)
     Step(iLev) = mod(IC/2**IPSHFT,4)
   end do
 end subroutine SG_CSF_StepVec
@@ -985,8 +986,8 @@ subroutine SG_Map_CSFs(iA,iB,ISY,nA,Map)
     write(u6,*) 'SG_Map_CSFs: the states have different levels',nL,SGS(iB)%nLev
     call Abend()
   end if
-  if (.not. allocated(CIS(iA)%ICase)) call MkCOT(SGS(iA),CIS(iA))
-  if (.not. allocated(CIS(iB)%ICase)) call MkCOT(SGS(iB),CIS(iB))
+  if (.not. allocated(CIS(iA)%ICase)) call CSFG_MkCOT(SGS(iA),CIS(iA))
+  if (.not. allocated(CIS(iB)%ICase)) call CSFG_MkCOT(SGS(iB),CIS(iB))
   nW = max(1,(nL+nPerWord-1)/nPerWord)
   nB = CIS(iB)%NCSF(ISY)
   call mma_allocate(Step,max(1,nL),Label='Map_Step')

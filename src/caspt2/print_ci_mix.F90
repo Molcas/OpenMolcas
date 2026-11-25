@@ -14,7 +14,7 @@
 
 subroutine Print_CI_Mix(EigVec)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use RefWfn, only: iadr15, refwfn_active, refwfn_close, refwfn_filename, refwfn_id, refwfn_is_h5
 use caspt2_module, only: CIThr, nConf, nState
 #ifdef _HDF5_
@@ -80,7 +80,7 @@ do iState=1,nState
     mCI(:) = EigVec(iiState,iState)*cCI(:)
   end do
   write(u6,'(1X,A,I3)') ' The CI coefficients for the MIXED state nr. ',iState
-  call PrWf_CP2(CI_St(jState)%STSym,nConf,mCI,CITHR)
+  call PrWf_CP2(CI_Lib_Space(jState)%STSym,nConf,mCI,CITHR)
 end do
 
 call CollapseOutput(0,'Mixed CI coefficients:')

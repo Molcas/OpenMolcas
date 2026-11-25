@@ -13,7 +13,7 @@
 
 subroutine MKBNEV()
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use caspt2_global, only: iPrGlb, LUSBT, LUSOLV
 use caspt2_module, only: NASHT_ => NASHT, NASUP, NG1, NG2, NG3, NINDEP, NSYM
@@ -110,7 +110,7 @@ if (nAshT /= 0) then
   call mma_deallocate(G3)
   call mma_deallocate(idxG3)
 
-  call MKBNEVAC_E4(nAshT,CI_St(iState)%nLev,Gact)
+  call MKBNEVAC_E4(nAshT,CI_Lib_Space(iState)%nLev,Gact)
 
   if (IPRGLB >= verbose) then
     call TIMING(CPTF10,CPE,TIOTF10,TIOE)

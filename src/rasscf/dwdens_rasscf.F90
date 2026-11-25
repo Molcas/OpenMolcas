@@ -22,7 +22,7 @@ use CI_Input, only: iDoGAS
 use rasscf_files, only: JOBIPH
 use CI_Input, only: NACTEL
 use rasscf_global, only: NCONF
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use sxci, only: IDXSX
 #ifdef _DMRG_
 use rasscf_global, only: RF1, RF2, TwoRDM_qcm
@@ -102,7 +102,7 @@ else if (iFinal == 2) then
       else
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
         call RAS_PDMs(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
-        if ((CI_St(istate)%IFRAS > 2) .or. (iDoGAS)) then
+        if ((CI_Lib_Space(istate)%IFRAS > 2) .or. (iDoGAS)) then
           call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
         end if
         call mma_deallocate(PAtmp)

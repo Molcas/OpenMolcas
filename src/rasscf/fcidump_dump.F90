@@ -120,7 +120,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 # ifdef _HDF5_
   use Orbital_Spaces, only: nSym, nAsh
   use CI_Input, only: nActEl, multiplicity => iSpin, stSym
-  use CI_Info, only: CI_St
+  use CI_Lib_Info, only: CI_Lib_Space
   use CI_Input, only: iDoGAS
   use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_file, mh5_create_dset_int, mh5_create_dset_real, mh5_init_attr, &
                  mh5_put_dset
@@ -148,7 +148,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   ! Set wavefunction type
   if (iDoGAS) then
     call mh5_init_attr(file_id,'CI_TYPE','GAS')
-  else if (CI_St(istate)%nRsPrt == 1) then
+  else if (CI_Lib_Space(istate)%nRsPrt == 1) then
     ! one partition: CAS (IFRAS also counts the irreps with active orbitals)
     call mh5_init_attr(file_id,'CI_TYPE','CAS')
   else

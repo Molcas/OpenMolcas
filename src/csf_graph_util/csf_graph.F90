@@ -17,10 +17,10 @@
 !> and Faroald (which needs the file order at its boundary) do not depend on
 !> each other.
 !>
-!> SG_Graph: the distinct-row table and its arc weights (see SGStruct of the
-!> SGUGA module for the components); SG_Walks: the half-walk case lists by
+!> CSFG_Graph: the distinct-row table and its arc weights (see SGStruct of the
+!> SGUGA module for the components); CSFG_Walks: the half-walk case lists by
 !> midvertex and symmetry and the CSF counts and offsets (see CIStruct).
-!> MkSGUGA builds both from nSym, nActEl, iSpin, nLev, ISm and the RAS
+!> CSFG_Make builds both from nSym, nActEl, iSpin, nLev, ISm and the RAS
 !> partitioning set in the graph.
 module CSF_Graph
 
@@ -34,19 +34,19 @@ private
 
 integer(kind=iwp) :: iq
 
-! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
+! Set CSFG_nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
-integer(kind=iwp), parameter :: nPack = storage_size(1_iwp)/2-1
+integer(kind=iwp), parameter :: CSFG_nPack = storage_size(1_iwp)/2-1
 #elif defined (_I8_)
-integer(kind=iwp), parameter:: nPack=32-1
+integer(kind=iwp), parameter:: CSFG_nPack=32-1
 #else
-integer(kind=iwp), parameter:: nPack=16-1
+integer(kind=iwp), parameter:: CSFG_nPack=16-1
 #endif
 
 ! index for DRT
-integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
+integer(kind=iwp), parameter :: CSFG_LTab = 1, CSFG_NTab = 2, CSFG_ATab = 3, CSFG_BTab = 4, CSFG_CTab = 5
 
-type SG_Graph
+type CSFG_Graph
   integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
   integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN
   integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
@@ -57,26 +57,26 @@ type SG_Graph
   integer(kind=iwp) :: NRAS(MxSym,MxGAS), NRASEL(MxGAS), nRsPrt=0
   ! GAS: upper bound on the electrons in the partitions 1..k (-1: none)
   integer(kind=iwp) :: NRASMX(MxGAS) = -1
-end type SG_Graph
+end type CSFG_Graph
 
-type SG_Walks
+type CSFG_Walks
   integer(kind=iwp) :: nMidV, nIpWlk, nWalk, NUW
   integer(kind=iwp), allocatable :: NOW(:,:,:), IOW(:,:,:), NCSF(:), NOCSF(:,:,:), IOCSF(:,:,:), ICase(:)
-end type SG_Walks
+end type CSFG_Walks
 
-public :: SG_Graph, SG_Walks, nPack, LTAB, NTAB, ATAB, BTAB, CTAB, MkSGUGA, MkCOT, CSFCOUNT, Mk_IOW, SG_Walk_Next, &
-          Free_SG_Graph
+public :: CSFG_ATab, CSFG_BTab, CSFG_Count, CSFG_CTab, CSFG_Free, CSFG_Graph, CSFG_LTab, CSFG_Make, CSFG_Mk_IOW, CSFG_MkCOT, &
+          CSFG_nPack, CSFG_NTab, CSFG_Walk_Next, CSFG_Walks
 
 contains
 
-subroutine MKSGUGA(SGS,CIS)
+subroutine CSFG_Make(SGS,CIS)
 ! PURPOSE: MAKE THE GUGA TABLES
 ! NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
 !          THE START ADDRESSES OF OF THE ARRAYS ETC. ARE STORED IN
 !          THREE USER DEFINED TYPES. Consult the sguga module for the details.
 
-  class(SG_Graph), target, intent(inout) :: SGS
-  class(SG_Walks), intent(inout) :: CIS
+  class(CSFG_Graph), target, intent(inout) :: SGS
+  class(CSFG_Walks), intent(inout) :: CIS
 
   ! COMPUTE TOP ROW OF THE GUGA TABLE
 
@@ -114,12 +114,12 @@ subroutine MKSGUGA(SGS,CIS)
   call MKRAW(SGS) ! COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
   call MKLTV(SGS) ! COMPUTE LTV TABLES.
   call MKMID(SGS) ! COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.
-  call MKCOT(SGS,CIS) ! CONSTRUCT THE CASE LIST
+  call CSFG_MkCOT(SGS,CIS) ! CONSTRUCT THE CASE LIST
 contains
 
   subroutine mknVert0(SGS)
 
-    class(SG_Graph), target, intent(inout) :: SGS
+    class(CSFG_Graph), target, intent(inout) :: SGS
     integer(kind=iwp) :: IAC
 
     SGS%IB0 = SGS%iSpin-1
@@ -144,7 +144,7 @@ contains
   end subroutine mknVert0
 
 subroutine mkDRT0(SGS)
-  class(SG_Graph), target, intent(inout) :: SGS
+  class(CSFG_Graph), target, intent(inout) :: SGS
 
   integer(kind=iwp) :: ADWN, BDWN, CDWN
   integer(kind=iwp) :: AUP, BUP, CUP
@@ -181,11 +181,11 @@ subroutine mkDRT0(SGS)
 #   define _KEY_(A,B,C) ((A)*(Bmax+1)*(Cmax+1)+(B)*(Cmax+1)+(C))
 
   ! TOP vertex
-  SGS%DRTP(1,LTAB) = SGS%nLev
-  SGS%DRTP(1,NTAB) = SGS%NACTEL
-  SGS%DRTP(1,ATAB) = SGS%IA0
-  SGS%DRTP(1,BTAB) = SGS%IB0
-  SGS%DRTP(1,CTAB) = SGS%IC0
+  SGS%DRTP(1,CSFG_LTab) = SGS%nLev
+  SGS%DRTP(1,CSFG_NTab) = SGS%NACTEL
+  SGS%DRTP(1,CSFG_ATab) = SGS%IA0
+  SGS%DRTP(1,CSFG_BTab) = SGS%IB0
+  SGS%DRTP(1,CSFG_CTab) = SGS%IC0
 
   key = _KEY_(SGS%IA0,SGS%IB0,SGS%IC0)
   vmap(key) = 1
@@ -200,9 +200,9 @@ subroutine mkDRT0(SGS)
     VNEW = 0
 
     do VUP = VSTA, VEND
-      AUP = SGS%DRTP(VUP,ATAB)
-      BUP = SGS%DRTP(VUP,BTAB)
-      CUP = SGS%DRTP(VUP,CTAB)
+      AUP = SGS%DRTP(VUP,CSFG_ATab)
+      BUP = SGS%DRTP(VUP,CSFG_BTab)
+      CUP = SGS%DRTP(VUP,CSFG_CTab)
 
       do ISTEP = 0, 3
 
@@ -227,9 +227,9 @@ subroutine mkDRT0(SGS)
 
           SGS%DownP(VUP,ISTEP) = VDWN
 
-          SGS%DRTP(VDWN,ATAB) = ADWN
-          SGS%DRTP(VDWN,BTAB) = BDWN
-          SGS%DRTP(VDWN,CTAB) = CDWN
+          SGS%DRTP(VDWN,CSFG_ATab) = ADWN
+          SGS%DRTP(VDWN,CSFG_BTab) = BDWN
+          SGS%DRTP(VDWN,CSFG_CTab) = CDWN
 
           vmap(key) = VDWN
         end if
@@ -243,14 +243,14 @@ subroutine mkDRT0(SGS)
   end do
 
   ! ------------------------------------------
-  ! finalize LTAB / NTAB
+  ! finalize CSFG_LTab / CSFG_NTab
   ! ------------------------------------------
-  SGS%DRTP(1:VEND,LTAB) = SGS%DRTP(1:VEND,ATAB) + &
-                          SGS%DRTP(1:VEND,BTAB) + &
-                          SGS%DRTP(1:VEND,CTAB)
+  SGS%DRTP(1:VEND,CSFG_LTab) = SGS%DRTP(1:VEND,CSFG_ATab) + &
+                          SGS%DRTP(1:VEND,CSFG_BTab) + &
+                          SGS%DRTP(1:VEND,CSFG_CTab)
 
-  SGS%DRTP(1:VEND,NTAB) = 2*SGS%DRTP(1:VEND,ATAB) + &
-                            SGS%DRTP(1:VEND,BTAB)
+  SGS%DRTP(1:VEND,CSFG_NTab) = 2*SGS%DRTP(1:VEND,CSFG_ATab) + &
+                            SGS%DRTP(1:VEND,CSFG_BTab)
 
     call mma_deallocate(vmap)
 
@@ -263,7 +263,7 @@ end subroutine mkDRT0
   !          THE MASKING ARRAY PRODUCED BY RESTR COPY ALL VALID
   !          VERTICES FROM THE OLD TO THE NEW DRT TABLE
 
-    class(SG_Graph), target, intent(inout) :: SGS
+    class(CSFG_Graph), target, intent(inout) :: SGS
     integer(kind=iwp) :: IC, ID, IDNEW, IV, IVNEW
 
     call mma_allocate(SGS%DRT,SGS%nVert,5,Label='DRT')
@@ -300,7 +300,7 @@ end subroutine mkDRT0
   subroutine MKDAW(SGS)
   ! PURPOSE: CONSTRUCT DIRECT ARC WEIGHTS TABLE
 
-    class(SG_Graph), target, intent(inout) :: SGS
+    class(CSFG_Graph), target, intent(inout) :: SGS
     integer(kind=iwp) :: IC, IDWN, IV
 
     call mma_allocate(SGS%DAW,[0,SGS%nVert],[0,4],Label='SGS%DAW')
@@ -333,7 +333,7 @@ end subroutine mkDRT0
   subroutine MKRAW(SGS)
   ! PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
 
-    class(SG_Graph), target, intent(inout) :: SGS
+    class(CSFG_Graph), target, intent(inout) :: SGS
     integer(kind=iwp) :: IC, IDWN, IU, IV
 
     call mma_allocate(SGS%UP,[1,SGS%nVert],[0,3],Label='SGS%UP')
@@ -383,7 +383,7 @@ end subroutine mkDRT0
 
   subroutine MKLTV(SGS)
 
-    class(SG_Graph), target, intent(inout) :: SGS
+    class(CSFG_Graph), target, intent(inout) :: SGS
     integer(kind=iwp) :: IV, LEV
 
     !Note that the range is [-1,nLev]! An imaginary level, -1, is added.
@@ -395,7 +395,7 @@ end subroutine mkDRT0
 
     ! Loop over all vertices
     do IV=1,SGS%nVert
-      LEV = SGS%DRT(IV,LTAB) ! Pick up the level index of the vertex
+      LEV = SGS%DRT(IV,CSFG_LTab) ! Pick up the level index of the vertex
       SGS%LTV(LEV) = SGS%LTV(LEV)+1 ! Increment the number of vertex for a particular level
     end do
 
@@ -418,7 +418,7 @@ end subroutine mkDRT0
   subroutine MKMID(SGS)
   ! PURPOSE: FIND THE MIDLEVEL
 
-    class(SG_Graph), target, intent(inout) :: SGS
+    class(CSFG_Graph), target, intent(inout) :: SGS
     integer(kind=iwp) :: IL, IV, MINW, MV, NW
 
     ! USE DAW,RAW TABLES TO DETERMINE MIDLEV.
@@ -478,7 +478,7 @@ end subroutine mkDRT0
 
 subroutine RMVERT(SGS)
 
-  class(SG_Graph), intent(inout) :: SGS
+  class(CSFG_Graph), intent(inout) :: SGS
 
   integer(kind=iwp) :: IV, IC, ID
   integer(kind=iwp) :: L, N
@@ -514,8 +514,8 @@ subroutine RMVERT(SGS)
   ! Initial pruning based on occupation
   !-----------------------------------------
   do IV = 1, SGS%nVert-1
-    L = SGS%DRT0(IV,LTAB)
-    N = SGS%DRT0(IV,NTAB)
+    L = SGS%DRT0(IV,CSFG_LTab)
+    N = SGS%DRT0(IV,CSFG_NTab)
 
     if ((N < Lim(L)) .or. (N > LimMx(L))) SGS%Ver(IV) = 0
   end do
@@ -613,9 +613,9 @@ subroutine RMVERT(SGS)
 
 end subroutine RMVERT
 
-end subroutine MKSGUGA
+end subroutine CSFG_Make
 
-subroutine MKCOT(SGS,CIS)
+subroutine CSFG_MkCOT(SGS,CIS)
 ! For INIT==0
 ! PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 ! NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
@@ -627,11 +627,11 @@ subroutine MKCOT(SGS,CIS)
 ! For INIT==1
 ! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
 !          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
-!          IN THE ARRAY ICASE. GROUPS OF nPack CASES ARE PACKED
+!          IN THE ARRAY ICASE. GROUPS OF CSFG_nPack CASES ARE PACKED
 !          INTO ONE INTEGER WORD.
 
-class(SG_Graph), intent(inout) :: SGS
-class(SG_Walks), intent(inout) :: CIS
+class(CSFG_Graph), intent(inout) :: SGS
+class(CSFG_Walks), intent(inout) :: CIS
   integer(kind=iwp) :: IC, IHALF, ILND, INIT, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: IS, NUW
@@ -642,8 +642,8 @@ integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 do INIT=0,1
   if (INIT == 0) then
     ! Compute the number of integers needed to store the packed case vectors.
-    CIS%nIpWlk = 1+(SGS%MidLev-1)/nPack
-    CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/nPack)
+    CIS%nIpWlk = 1+(SGS%MidLev-1)/CSFG_nPack
+    CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/CSFG_nPack)
     call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
     call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
     call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
@@ -743,11 +743,11 @@ do IHALF=1,2
         ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
         IPOS = CIS%IOW(IHALF,IWSYM,MV)+(ILND-1)*CIS%nIpWlk
 
-        ! PACK THE STEPS IN GROUPS OF nPack LEVELS PER INTEGER:
-        do LL=LEV2+1,LEV1,nPack
+        ! PACK THE STEPS IN GROUPS OF CSFG_nPack LEVELS PER INTEGER:
+        do LL=LEV2+1,LEV1,CSFG_nPack
 
           IC = 0
-          do L=min(LL+nPack-1,LEV1),LL,-1
+          do L=min(LL+CSFG_nPack-1,LEV1),LL,-1
             IC = 4*IC+Scr(ISTEP,L)
           end do
 
@@ -764,8 +764,8 @@ end do
 
 if (INIT == 0) then
 ! Generate an off-set array for the CIS%NOW array
-call Mk_IOW(CIS,SGS)
-call CSFCOUNT(CIS,SGS)
+call CSFG_Mk_IOW(CIS,SGS)
+call CSFG_Count(CIS,SGS)
 
 #ifdef _DEBUGPRINT_
 NUW=CIS%NUW
@@ -794,15 +794,15 @@ end do ! INIT
 
 call mma_deallocate(Scr,safe='*')
 
-end subroutine MKCOT
+end subroutine CSFG_MkCOT
 
-subroutine CSFCOUNT(CIS,SGS)
+subroutine CSFG_Count(CIS,SGS)
 ! CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
 ! SEPARATED BY MIDVERTICES AND SYMMETRY.
 ! FORM ALSO CONTRACTED SUMS OVER MIDVERTICES.
 
-class(SG_Walks), intent(inout) :: CIS
-class(SG_Graph), intent(inout) :: SGS
+class(CSFG_Walks), intent(inout) :: CIS
+class(CSFG_Graph), intent(inout) :: SGS
 integer(kind=iwp) :: ISYDWN, ISYTOT, ISYUP, MV, N
 
 CIS%NCSF(:) = 0   ! Number of CSFs in each irrep
@@ -823,9 +823,9 @@ do ISYTOT=1,SGS%NSYM
   end do
 end do
 
-end subroutine CSFCOUNT
+end subroutine CSFG_Count
 
-subroutine Mk_IOW(CIS,SGS)
+subroutine CSFG_Mk_IOW(CIS,SGS)
 ! CONSTRUCT OFFSET TABLES FOR UPPER AND LOWER WALKS
 ! SEPARATED FOR EACH MIDVERTEX AND SYMMETRY
 !
@@ -833,8 +833,8 @@ subroutine Mk_IOW(CIS,SGS)
 ! CIS%NOW(1/2,ISYM,MV) is the number of upper/lower walks of symmetry ISYM that ends/starts in mid vertex MV (relative indexation).
 ! 1/2 indicate if the off-set is for upper or lower walks.
 
-  class(SG_Walks), intent(inout) :: CIS
-  class(SG_Graph), intent(inout) :: SGS
+  class(CSFG_Walks), intent(inout) :: CIS
+  class(CSFG_Graph), intent(inout) :: SGS
   integer(kind=iwp) :: ISYM, MV
 
 CIS%NUW = 0   ! At completion the total number of upper walks.
@@ -852,16 +852,16 @@ do MV=1,CIS%nMidV
     CIS%nWalk = CIS%nWalk+CIS%NOW(2,ISYM,MV)
   end do
 end do
-end subroutine Mk_IOW
+end subroutine CSFG_Mk_IOW
 
 !> The next CSF (walk) of symmetry LSM in the split-graph order, as its step
 !> vector ICS(1:nLev) (0 empty, 1 up, 2 down, 3 doubly occupied). The CSFs
-!> come in blocks (MV, ISYUP), MV outermost (CSFCOUNT), each block with the
+!> come in blocks (MV, ISYUP), MV outermost (CSFG_Count), each block with the
 !> upper walks running fastest (as GETSTEPVECTOR for symmetry 1). Start with
 !> MV = ISYUP = IDWN = IUP = 1; MV = 0 after the last walk.
-subroutine SG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
-  class(SG_Graph), intent(in) :: G
-  class(SG_Walks), intent(in) :: W
+subroutine CSFG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
+  class(CSFG_Graph), intent(in) :: G
+  class(CSFG_Walks), intent(in) :: W
   integer(kind=iwp), intent(in) :: LSM
   integer(kind=iwp), intent(inout) :: MV, ISYUP, IDWN, IUP
   integer(kind=iwp), intent(out) :: ICS(G%nLev)
@@ -869,7 +869,7 @@ subroutine SG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
 
   call Walk_Skip_Empty(G%nSym,W%nMidV,W%NOW,LSM,MV,ISYUP)
   if (MV == 0) then
-    write(u6,'(1X,A)') 'SG_Walk_Next: no more walks'
+    write(u6,'(1X,A)') 'CSFG_Walk_Next: no more walks'
     call Abend()
   end if
   ISYDWN = Mul(LSM,ISYUP)
@@ -883,7 +883,7 @@ subroutine SG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
   NNN = 0
   do LEV=1,G%MIDLEV
     NNN = NNN+1
-    if (NNN == nPack+1) then
+    if (NNN == CSFG_nPack+1) then
       NNN = 1
       ICDPOS = ICDPOS+1
       ICDWN = W%ICASE(ICDPOS)
@@ -898,7 +898,7 @@ subroutine SG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
   NNN = 0
   do LEV=G%MIDLEV+1,G%nLev
     NNN = NNN+1
-    if (NNN == nPack+1) then
+    if (NNN == CSFG_nPack+1) then
       NNN = 1
       ICUPOS = ICUPOS+1
       ICUP = W%ICASE(ICUPOS)
@@ -921,9 +921,9 @@ subroutine SG_Walk_Next(G,W,LSM,MV,ISYUP,IDWN,IUP,ICS)
   end if
   call Walk_Skip_Empty(G%nSym,W%nMidV,W%NOW,LSM,MV,ISYUP)
 
-end subroutine SG_Walk_Next
+end subroutine CSFG_Walk_Next
 
-!> The next (MV, ISYUP) block of SG_Walk_Next: ISYUP fastest; MV = 0 after
+!> The next (MV, ISYUP) block of CSFG_Walk_Next: ISYUP fastest; MV = 0 after
 !> the last one. (Module procedures with explicit arguments: internal
 !> procedures that changed the host's MV/ISYUP made nvfortran loop forever.)
 subroutine Walk_Next_Block(nSym,nMidV,MV,ISYUP)
@@ -951,10 +951,10 @@ subroutine Walk_Skip_Empty(nSym,nMidV,NOW,LSM,MV,ISYUP)
   end do
 end subroutine Walk_Skip_Empty
 
-!> Free the arrays of a graph and its walks built by MkSGUGA.
-subroutine Free_SG_Graph(G,W)
-  class(SG_Graph), intent(inout) :: G
-  class(SG_Walks), intent(inout) :: W
+!> Free the arrays of a graph and its walks built by CSFG_Make.
+subroutine CSFG_Free(G,W)
+  class(CSFG_Graph), intent(inout) :: G
+  class(CSFG_Walks), intent(inout) :: W
   call mma_deallocate(G%ISm,safe='*')
   call mma_deallocate(G%DRT,safe='*')
   call mma_deallocate(G%DRT0,safe='*')
@@ -972,6 +972,6 @@ subroutine Free_SG_Graph(G,W)
   call mma_deallocate(W%NOCSF,safe='*')
   call mma_deallocate(W%IOCSF,safe='*')
   call mma_deallocate(W%ICase,safe='*')
-end subroutine Free_SG_Graph
+end subroutine CSFG_Free
 
 end module CSF_Graph

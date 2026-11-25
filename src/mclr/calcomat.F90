@@ -17,7 +17,7 @@
 
 subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use ipPage, only: ipget, W
 use MCLR_Data, only: ipCI, ipMat, nAcPr2, nConf1, nDens
 use MCLR_procedures, only: CISigma_sa
@@ -37,7 +37,7 @@ real(kind=wp) :: rdum(1)
 real(kind=wp), allocatable :: FMO1(:)
 real(kind=wp), external :: DDot_
 
-nConf3 = CI_St(iState)%nDet(CI_St(iState)%STSym)
+nConf3 = CI_Lib_Space(iState)%nDet(CI_Lib_Space(iState)%STSym)
 iptmp = ipGet(nconf3*nRoots)
 CSFOK(:,:) = Zero
 W(iptmp)%A(1:nRoots*nConf3) = Zero
@@ -62,7 +62,7 @@ do I=1,nRoots
     end if
   end do
   !call ipin(ipCI)
-  call CISigma_SA(0,CI_St(iState)%STSym,CI_St(iState)%STSym,FMO1,nDens,FMO2t(:,I),NACPR2,rdum,1,ipci,iptmp,.true.)
+  call CISigma_SA(0,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,FMO1,nDens,FMO2t(:,I),NACPR2,rdum,1,ipci,iptmp,.true.)
   CSFOK(:,I) = CSFOK(:,I)+real(nRoots,kind=wp)*W(iptmp)%A((I-1)*nConf1+1:I*nConf1)
 
   do L=1,nRoots

@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-module SD_CSF_Codec_Module
+module CI_SD_CSF_Codec
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One
   use sguga, only: SGS, SG_Mk_SDREO
@@ -159,4 +159,4 @@ contains
 
   Call mma_deallocate(SD_Work)
   end subroutine SD_CSF_Codec
-end module SD_CSF_Codec_Module
+end module CI_SD_CSF_Codec

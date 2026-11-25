@@ -21,9 +21,9 @@ use rassi_aux, only: ipglob, Level
 use rassi_data, only: WFTYPE, NASH, NSSH, NDEL, NOSH, NASH, NISH, NFRO, NBASF, NDEL, NFRO, NISH
 use rassi_global_arrays, only: JBNUM, LROOT
 use Symmetry_Info, only: nIrrep
-use CI_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
+use CI_Lib_States, only: CI_No_GAS, CI_Space_Rd_JobIph
 #ifdef _HDF5_
-use CI_States, only: CI_Space_Rd_H5
+use CI_Lib_States, only: CI_Space_Rd_H5
 use Cntrl, only: NDET, NROOTS, QDPT2SC
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 #endif
@@ -86,7 +86,6 @@ if (mh5_is_hdf5(jbname(job))) then
   call mh5_fetch_attr(refwfn_id,'MOLCAS_MODULE',molcas_module)
   call CI_Space_Rd_H5(refwfn_id,Found,GAS)
   if (GAS) call CI_No_GAS('RASSI')
-  call CI_Space_Free()
   call mh5_fetch_attr(refwfn_id,'SPINMULT',ref_iSpin)
   call mh5_fetch_attr(refwfn_id,'NSYM',ref_nSym)
   call mh5_fetch_attr(refwfn_id,'LSYM',ref_stSym)
@@ -379,7 +378,6 @@ else
     call CI_Space_Rd_JobIph(LUIPH,0,Found,GAS)
   end if
   if (GAS) call CI_No_GAS('RASSI')
-  call CI_Space_Free()
   ! SCATTER-READ VARIOUS DATA:
   ! PAM Mar2014: Note that ENUC1 (=POTNUC) replaced by dummy placeholder
   IAD = ITOC15(1)

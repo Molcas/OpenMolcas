@@ -19,8 +19,8 @@
 
 subroutine mcpdft(ireturn)
 
-use CI_Library, only: CI_Timer
-use CI_States, only: CI_Free_State
+use CI_Lib, only: CI_Timer
+use CI_Lib_States, only: CI_Free_State
 use Fock_util_global, only: DoCholesky
 use timers, only: TimeInput, TimeOutput, TimeTotal, TimeTrans
 use write_pdft_job, only: writejob
@@ -99,7 +99,7 @@ end if
 ! Local print level may have changed:
 IPRLEV = IPRLOC(1)
 
-! The CI state of the reference for the whole run (CI_Info)
+! The CI state of the reference for the whole run (CI_Lib_Info)
 call SG_Setup_MCPDFT()
 
 if (mcpdft_options%mspdft) call mspdft_init()

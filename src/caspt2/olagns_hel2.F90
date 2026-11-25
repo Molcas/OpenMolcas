@@ -28,7 +28,7 @@ subroutine OLagNS_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,iSymI,iSymJ,nMaxOrb,ER
 !          (V*|V*) is split into (A*|A*), (A*|V*), (V*|V*)
 !          (*O|V*) is split into (*A|A*), (*A|V*)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ, KTGEU, KTGTU, KTU, KTUV
 use EQSOLV, only: IVECC2
@@ -450,7 +450,7 @@ subroutine OLagNS_C(AmpL1)
               iAS = kTUV(iTabs,iXabs,iXabs)-nTUVes(iSym)
               ONEADD = ONEADD+GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))
             end do
-            ONEADD = Two*ONEADD/real(max(1,CI_St(iState)%nActEl),kind=wp)
+            ONEADD = Two*ONEADD/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
             AmpL1(iAtot-nCorA,iBtot-nCorA) = AmpL1(iAtot-nCorA,iBtot-nCorA)-ONEADD
           end if
           AmpL1(iAtot-nCorA,iBtot-nCorB) = AmpL1(iAtot-nCorA,iBtot-nCorB)+ValC1

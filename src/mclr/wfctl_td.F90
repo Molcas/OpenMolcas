@@ -18,7 +18,7 @@ subroutine WfCtl_td(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,con
 !                                                                      *
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC
@@ -78,7 +78,7 @@ if (PT2) kkkSym = 1
 ! Starting loop over all symmetries/PT
 
 do iSym=kksym,kkksym
-  PState_SYM = Mul(CI_St(iState)%STSym,iSym)
+  PState_SYM = Mul(CI_Lib_Space(iState)%STSym,iSym)
   nconf1 = ncsf(PState_Sym)
   CI = .false.
   if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
@@ -93,10 +93,10 @@ do iSym=kksym,kkksym
   !
   ! Output: Commonblocks (Pointers.fh)
 
-  PState_SYM = Mul(CI_St(iState)%STSym,iSym)
-  !nConf2 = CI_St(iState)%nDet(PState_SYM)
+  PState_SYM = Mul(CI_Lib_Space(iState)%STSym,iSym)
+  !nConf2 = CI_Lib_Space(iState)%nDet(PState_SYM)
   !nConf2 = ndtasm(PState_SYM)
-  nconf3 = max(CI_St(iState)%nDet(PState_SYM),CI_St(iState)%nDet(CI_St(iState)%STSym))
+  nconf3 = max(CI_Lib_Space(iState)%nDet(PState_SYM),CI_Lib_Space(iState)%nDet(CI_Lib_Space(iState)%STSym))
   !nconf3 = max(ndtasm(PState_SYM),ndtasm(STSym))
 
   ! Setup is realted to symmetry treatment
@@ -164,7 +164,7 @@ do iSym=kksym,kkksym
     if (jspin == 0) then
       nconf1 = ncsf(PState_Sym)
     else
-      nConf1 = CI_St(iState)%nDet(Pstate_Sym)
+      nConf1 = CI_Lib_Space(iState)%nDet(Pstate_Sym)
     end if
     if (.not. lCalc(iDisp)) then
       converged(isym) = .false.
@@ -333,7 +333,7 @@ do iSym=kksym,kkksym
 
         if (CI) then
           ! Adjusted to timedep
-          call CISigma_td(jspin,CI_St(iState)%STSym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,'T',.true.)
+          call CISigma_td(jspin,CI_Lib_Space(iState)%STSym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,'T',.true.)
           Clock(iTimeKC) = Clock(iTimeKC)+Tim3
 
           ! This will give us a better

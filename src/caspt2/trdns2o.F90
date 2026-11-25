@@ -24,7 +24,7 @@ subroutine TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL)
 ! where IVEC, JVEC stands for the 1st-order perturbed CASPT2
 ! wave functions stored as vectors nr IVEC, JVEC on LUSOLV.
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
@@ -119,7 +119,7 @@ do ILOOP=1,NLOOP
       end if
       ! Form WEC1 from VEC1, if needed.
       NWEC1 = 0
-      FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
+      FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
       if (ICASE1 == 1) NWEC1 = NASH(ISYM1)*NISH(ISYM1)
       if (ICASE1 == 4) NWEC1 = NASH(ISYM1)*NSSH(ISYM1)
       if ((ICASE1 == 5) .and. (ISYM1 == 1)) NWEC1 = NIS1

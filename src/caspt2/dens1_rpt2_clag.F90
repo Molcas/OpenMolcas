@@ -18,10 +18,10 @@ subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,DRDM,nLev)
 ! have to take account of orbital order.
 ! We will use level inices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
-! Translation tables L2ACT and LEVEL, in CI_St (CI_Info)
+! Translation tables L2ACT and LEVEL, in CI_Lib_Space (CI_Lib_Info)
 
 use Symmetry_Info, only: Mul
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 use Para_Info, only: Is_Real_Par, King, nProcs
@@ -69,17 +69,17 @@ do while (Rsv_Tsk(ID,iTask))
   ! Compute SGM1 = E_UT acting on CI, with T >= U,
   ! i.e., lowering operations. These are allowed in RAS.
   LT = TASK(iTask,1)
-  IST = CI_St(istate)%ISm(LT)
-  IT = CI_St(istate)%L2Act(LT)
+  IST = CI_Lib_Space(istate)%ISm(LT)
+  IT = CI_Lib_Space(istate)%L2Act(LT)
   LU = Task(iTask,2)
-  ISU = CI_St(istate)%ISm(LU)
-  IU = CI_St(istate)%L2Act(LU)
+  ISU = CI_Lib_Space(istate)%ISm(LU)
+  IU = CI_Lib_Space(istate)%L2Act(LU)
   ISTU = Mul(IST,ISU)
-  ISSG = Mul(ISTU,CI_St(iState)%STSym)
-  NSGM = CI_St(istate)%nCSF(ISSG)
+  ISSG = Mul(ISTU,CI_Lib_Space(iState)%STSym)
+  NSGM = CI_Lib_Space(istate)%nCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
-  call GETSGM2(LU,LT,CI_St(iState)%STSym,CI,NCI,SGM1,NSGM)
+  call GETSGM2(LU,LT,CI_Lib_Space(iState)%STSym,CI,NCI,SGM1,NSGM)
   ! Symmetry not yet
   if (ISTU == 1) CLag(1:NSGM) = CLag(1:NSGM)+DRDM(IT,IU)*SGM1(1:NSGM)
 

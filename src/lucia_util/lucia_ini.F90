@@ -16,9 +16,9 @@ use lucia_data, only: ECORE, ENVIRO, iDEXS, nDEXS, nHEXS, IADVICE, ICISTR, ICJKA
                       iHEXS, IGSOCCX, IH0INSPC, IH0SPC, ini_h0, IPART, IPRCIX, IPRDEN, IREFSM, IRESTR, ISIMSYM, &
                       LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, nDEXS, nHEXS, NACTEL, NCISPC, NCMBSPC, &
                       NGAS, NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN, Sigma_on_disk, IH1FORM, I12
-use CI_Info, only: Space_Inp
 use Orbital_Spaces, only: NSYM
 use CI_Input, only: IGSOCCX_MOLCAS => IGSOCCX, iSpin, NACTEL_MOLCAS => NACTEL, nGAS_MOLCAS => nGAS, NGSSH_MOLCAS => NGSSH, STSYM
+use CI_Input, only: HEXS_DEXS_Inp
 use rasscf_global, only: ITMAX, lROOTS, nROOTS, POTNUC
 use output_ras, only: iPrLoc
 use casvb_global, only: ifvb
@@ -215,10 +215,10 @@ end if
 !  DEXS - Doubly excited states
 ! ==============================
 ! HEXS/DEXS from the input requests of the CI space
-nHEXS = Space_Inp%nHEXS
-nDEXS = Space_Inp%nDEXS
-iHEXS(1:nHEXS) = Space_Inp%iHEXS(1:nHEXS)
-iDEXS(1:nDEXS) = Space_Inp%iDEXS(1:nDEXS)
+nHEXS = HEXS_DEXS_Inp%nHEXS
+nDEXS = HEXS_DEXS_Inp%nDEXS
+iHEXS(1:nHEXS) = HEXS_DEXS_Inp%iHEXS(1:nHEXS)
+iDEXS(1:nDEXS) = HEXS_DEXS_Inp%iDEXS(1:nDEXS)
 
 ! =============
 !  Printlevels
@@ -299,7 +299,7 @@ end if
 PLSIGN = Zero
 #endif
 
-! IDC = 2: spin combinations (lucia2molcas sets CI_St%Spin_Comb from it)
+! IDC = 2: spin combinations (lucia2molcas sets CI_Lib_Space%Spin_Comb from it)
 if (PSSIGN == Zero) then
   IDC = 1
 else

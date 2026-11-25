@@ -10,7 +10,7 @@
 #***********************************************************************
 
 # The copy of Lucia used by MCLR, a CI library of the CI interface
-# (ci_interfaces_util, CI_Operations); all its modules are available to the
+# (ci_lib_util, CI_Lib_Core); all its modules are available to the
 # other *_util directories
 
 set (sources

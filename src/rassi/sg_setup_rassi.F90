@@ -12,7 +12,7 @@
 subroutine SG_setup_RASSI(nSym,nActEl,iSpin,LSym,iState,nRs1,nRs2,nRs3,nHole1,nElec3)
 
 use Molcas, only: MxLev
-use CI_States, only: CI_Setup_RAS
+use CI_Lib_States, only: CI_Setup_RAS
 use rassi_aux, only: Level
 use rassi_data, only: NASH
 use Definitions, only: iwp

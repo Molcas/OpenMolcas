@@ -44,8 +44,8 @@ subroutine cre_raswfn()
   use Orbital_Spaces, only: NBAS, NDEL, NFRO, NISH, NSSH, NSYM, NSYM, NTOT, NTOT2
   use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
   use rasscf_global, only: NCONF, NDET
-  use CI_Info, only: CI_St
-  use CI_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
+  use CI_Lib_Info, only: CI_Lib_Space
+  use CI_Lib_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
 # ifdef _DMRG_
@@ -74,7 +74,7 @@ subroutine cre_raswfn()
   ! set wavefunction type
   if (iDoGAS) then
     call mh5_init_attr(wfn_fileid,'CI_TYPE','GAS')
-  else if (CI_St(istate)%nRsPrt == 1) then
+  else if (CI_Lib_Space(istate)%nRsPrt == 1) then
     ! one partition: CAS (IFRAS also counts the irreps with active orbitals)
     call mh5_init_attr(wfn_fileid,'CI_TYPE','CAS')
   else
@@ -94,14 +94,14 @@ subroutine cre_raswfn()
 
   call mh5_init_attr(wfn_fileid,'L2ACT',1,[mxAct],IDXSX)
   ! the CI space (partitions, electron bounds, HEXS/DEXS, GAS flag)
-  call CI_Space_To_Rec(iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
+  call CI_Space_To_Rec(istate,iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
   if (HaveSpace) call mh5_init_attr(wfn_fileid,'CI_SPACE',1,[CI_Space_Rec_Len],SpaceRec)
   call mh5_init_attr(wfn_fileid,'A2LEV',1,[mxAct],IDXCI)
 
   ! the split graph (Shavitt graph) of the CSF space, which fixes the CSF order of CI_VECTORS, follows from SPINMULT, LSYM,
   ! NACTEL, the active orbitals (MO_TYPEINDICES), the RAS (NHOLE1, NELEC3) or GAS (GAS_*) restrictions and the level order
   ! (L2ACT); the midlevel is the one chosen by SGUGA (MKMID)
-  if (CI_St(istate)%MidLev > 0) call mh5_init_attr(wfn_fileid,'MIDLEVEL',CI_St(istate)%MidLev)
+  if (CI_Lib_Space(istate)%MidLev > 0) call mh5_init_attr(wfn_fileid,'MIDLEVEL',CI_Lib_Space(istate)%MidLev)
 
   ! GAS restrictions
   if (iDoGAS) then

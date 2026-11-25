@@ -31,14 +31,14 @@ use SGUGA_Checks
 implicit none
 private
 
-public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, MkCOT, MkSgNum, SG_NUM, SG_PHASE
+public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, CSFG_MkCOT, MkSgNum, SG_NUM, SG_PHASE
 public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, StepVec, SG_TRACI
 public :: SG_HPsi_Proc, SG_Test_EpqErs_Ref
 public :: SG_Mk_SDREO
 #ifdef _TEST_CSFDET_
 public :: test_sg_csfdet
 #endif
-public :: nPack
+public :: CSFG_nPack
 public :: SGS, CIS, EXS, State_is_used
 public :: SG_Checks
 public :: SG_New_Tag, SG_No_Reuse

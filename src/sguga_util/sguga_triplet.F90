@@ -259,7 +259,7 @@ function Table_MatEl_T(SGS,CIS,SI,SJ,p,q) result(V)
   vL = 1
   vR = 1
   do k=SGS%nLev,1,-1
-    db = SGS%DRT(vR,BTAB)-SGS%DRT(vL,BTAB)
+    db = SGS%DRT(vR,CSFG_BTab)-SGS%DRT(vL,CSFG_BTab)
     if (k > j) then
       ! top segments (triplet classes 4-6)
       iBeg = iSegTTopBeg
@@ -651,8 +651,8 @@ subroutine TRP_HW_Setup(iState)
           do iLev=lev0+nL,lev0+1,-1
             IOW0 = CIS(iState)%IOW(iHalf,ISY,MV)
             IPSHFT = 2*(iLev-1-lev0)
-            IC = CIS(iState)%ICase(1+IOW0-CIS(iState)%nIpWlk+IPSHFT/(2*nPack)+w*CIS(iState)%nIpWlk)
-            IPSHFT = mod(IPSHFT,2*nPack)
+            IC = CIS(iState)%ICase(1+IOW0-CIS(iState)%nIpWlk+IPSHFT/(2*CSFG_nPack)+w*CIS(iState)%nIpWlk)
+            IPSHFT = mod(IPSHFT,2*CSFG_nPack)
             Key = 4*Key+mod(IC/2**IPSHFT,4)
           end do
           k = k+1

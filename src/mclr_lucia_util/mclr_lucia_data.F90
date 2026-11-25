@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !> The data of MCLR's copy of Lucia, the CI library of MCLR behind the CI
-!> interface (CI_Operations, backend MCLR_Lucia_CI). Only the Lucia
+!> interface (CI_Lib_Core, backend MCLR_Lucia_CI). Only the Lucia
 !> routines of mclr_util use it; MCLR itself (src/mclr) does not.
 !>
 !> Operator in action: I12 (2: one- and two-electron integrals), IST

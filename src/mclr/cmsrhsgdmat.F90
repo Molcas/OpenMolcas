@@ -13,7 +13,7 @@
 
 subroutine CMSRHSGDMat(GDMat)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: ipCI, n1Dens, n2Dens, nNA
@@ -21,7 +21,7 @@ use input_mclr, only: nCSF, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
-use CI_Operations, only: CI_Lib_Dens
+use CI_Lib_Core, only: CI_Lib_Dens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(out) :: GDMat(nTri_Elem(nRoots),nnA,nnA)
@@ -34,8 +34,8 @@ real(kind=wp), allocatable :: GDArray(:,:), rdum(:)
 !  <I|E_pq|J>=<J|E_qp|I>
 call mma_allocate(GDArray,nnA,nnA)
 call mma_allocate(rdum,n2Dens)
-iL = CI_St(iState)%STSym
-iR = CI_St(iState)%STSym
+iL = CI_Lib_Space(iState)%STSym
+iR = CI_Lib_Space(iState)%STSym
 do I=1,nRoots
   do J=1,I
     call CI_Lib_Dens(iState,1,0,iL,iR,ncsf(iL),W(ipCI)%A(1+(I-1)*ncsf(iL):I*ncsf(iL)),ncsf(iR), &

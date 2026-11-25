@@ -16,8 +16,8 @@ subroutine SG_SETUP_CASPT2()
 use Molcas, only: MxLev
 use caspt2_qmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
-use CI_Info, only: CI_St
-use CI_States, only: CI_Setup_RAS
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Setup_RAS
 use Orbital_Spaces, only: nAsh
 use CI_Input, only: iSpin, nActel, nElec3, nHole1, nLev, STSym
 use caspt2_module, only: DMRG, DoCumulant, HZERO, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
@@ -48,7 +48,7 @@ else
                     Level(1:nLev),L2Act(1:nLev),ISM(1:nLev),'NONE',LSM_Single=STSYM)
 end if
 
-MXCI = maxval(CI_St(iState)%nCSF(1:NSYM))
+MXCI = maxval(CI_Lib_Space(iState)%nCSF(1:NSYM))
 
 ! NOTE: AT THIS POINT, WE HAVE ALLOCATED MEMORY SPACE FOR SGUGA USE:
 ! MVL,MVR,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,ICASE,ICOUP,VTAB,TMP.

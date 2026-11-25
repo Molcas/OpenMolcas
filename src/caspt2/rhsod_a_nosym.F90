@@ -13,7 +13,7 @@
 
 subroutine RHSOD_A_NOSYM(IVEC)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: MTREL, MTUV
@@ -105,7 +105,7 @@ do ISYM=1,NSYM
       if ((ISYT == ISYJ) .and. (IVABS == IXABS)) then
         ITTOT = IT+NISH(ISYT)
         FTJ = FIMO(NFIMOES+iTri(ITTOT,IJ))
-        ATVXJ = TJVX+FTJ/real(max(1,CI_St(iState)%nActEl),kind=wp)
+        ATVXJ = TJVX+FTJ/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
       else
         ATVXJ = TJVX
       end if

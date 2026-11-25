@@ -23,7 +23,7 @@ use Symmetry_Info, only: Mul
 use qcmaquis_interface, only: qcmaquis_interface_get_trans_1rdm_full, qcmaquis_interface_get_trans_2rdm_full, &
                               qcmaquis_interface_get_trans_3rdm_full, qcmaquis_interface_read_rdm_full
 use printLevel, only: debug
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: nAshT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -93,21 +93,21 @@ ovl = Zero
 do z=1,nasht
   do y=1,nasht
     ! symmetry of sigma2 = E_yz|Psi2>
-    sym_sig2 = Mul(Mul(CI_St(istate)%ISm(y),CI_St(istate)%ISm(z)),lsym2)
+    sym_sig2 = Mul(Mul(CI_Lib_Space(istate)%ISm(y),CI_Lib_Space(istate)%ISm(z)),lsym2)
     do x=1,nasht
       do v=1,nasht
         ! if (y + (z - 1) * nasht  < v + (x - 1) * nasht) then
         !   cycle
         ! end if
         ! symmetry of tau = E_vx|sigma2>
-        sym_tau = Mul(Mul(CI_St(istate)%ISm(x),CI_St(istate)%ISm(v)),sym_sig2)
+        sym_tau = Mul(Mul(CI_Lib_Space(istate)%ISm(x),CI_Lib_Space(istate)%ISm(v)),sym_sig2)
         do u=1,nasht
           do t=1,nasht
             ! if (v + (x - 1) * nasht  < t + (u - 1) * nasht) then
             !   cycle
             ! end if
             ! symmetry of SG_Epq_Psi = <Psi1|E_tu
-            sym_sig1 = Mul(Mul(CI_St(istate)%ISm(t),CI_St(istate)%ISm(u)),lsym1)
+            sym_sig1 = Mul(Mul(CI_Lib_Space(istate)%ISm(t),CI_Lib_Space(istate)%ISm(u)),lsym1)
             ! only for for matching symmetries we have an element different from 0
             if (sym_sig1 == sym_tau) then
               ! generate the flat index

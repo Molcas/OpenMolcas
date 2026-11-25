@@ -13,9 +13,9 @@
 
 subroutine CIDIA_MCLR(iSym,ralp)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use ipPage, only: ipget, ipin, ipnout, W
-use CI_Op_Defs, only: CI_Diag_Cnf_Avg
+use CI_Lib_Defs, only: CI_Diag_Cnf_Avg
 use MCLR_procedures, only: MCLR_CI_Diag
 use MCLR_Data, only: FIMO, INT2, ipCI, ipDia, nexp, nexp_max, nGP
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
@@ -42,7 +42,7 @@ real(kind=wp), external :: DDot_
 ! otherwise we will switch to SD representation in this routine
 
 ! The CSF diagonal through the CI interface (MCLR_CI_Diag -> CI_Lib_Diag)
-nsd = max(ncsf(isym),CI_St(iState)%nDet(ISYM))
+nsd = max(ncsf(isym),CI_Lib_Space(iState)%nDet(ISYM))
 ipdiai = ipget(nsd)
 call ipin(ipdiai)
 call MCLR_CI_Diag(CI_Diag_Cnf_Avg,iSym,size(FIMO),FIMO,size(INT2),INT2,rin_ene+potnuc,ncsf(iSym),W(ipdiai)%A(1:ncsf(iSym)))
