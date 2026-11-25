@@ -63,7 +63,7 @@ use Active_Space_Check, only: Act_In_Loop, Act_Same_WF, Act_Set_Restart, Act_War
 use rasscf_global, only: CleanMask, iAdr15, iAlphaBeta, iCIrst, INVEC, iOverwr, iPhName, iRoot, iSUPSM, iXsym, lRoots, nAcPar, &
                          nAcpr2, nOrbT, nRoots, purify, Weight, INVEC
 use rasscf_files, only: JobIph, JobOld, LuStartOrb, StartOrbFile
-use Orbital_Spaces, only: nAsh, nBas, nDel, nOrb, nSSH, nSym, nTot, nTot2
+use Orbital_Spaces, only: nBas, nDel, nOrb, nSSH, nSym, nTot, nTot2
 use casvb_global, only: ifvb
 use orthonormalization, only: ON_scheme_values, orthonormalize, t_ON_scheme
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
@@ -71,6 +71,7 @@ use output_ras, only: IPRGLB, IPRLOC
 use Molcas, only: LenIn, MaxBfn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
 #ifdef _HDF5_
+use Orbital_Spaces, only: nAsh
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
