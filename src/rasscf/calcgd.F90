@@ -20,7 +20,7 @@
 !     calculating GD with lucia.
 subroutine CalcGD(GD,nGD)
 
-use CI_interfaces, only: Mk_T1DM
+use RAS_CI_Dens, only: RAS_T1DM
 use rasscf_global, only: iADR15, lRoots, NAC
 use rasscf_files, only: JOBIPH
 use rasscf_global, only: NCONF
@@ -45,7 +45,7 @@ do jRoot=1,lRoots
   CIDisk2 = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-    call Mk_T1DM(VECR,VECL,nConf,TMPD,NAC**2)
+    call RAS_T1DM(VECR,VECL,nConf,TMPD,NAC**2)
     IOffNIJ1 = (lRoots*(jRoot-1)+kRoot-1)*NAC2
     IOffNIJ2 = (lRoots*(kRoot-1)+jRoot-1)*NAC2
     GD(IOffNIJ1+1:IOffNIJ1+NAC2) = TmpD(1:NAC2)
@@ -59,7 +59,7 @@ do jRoot=1,lRoots
   end do
   kRoot = jRoot
   call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-  call Mk_T1DM(VECR,VECL,nConf,TMPD,NAC**2)
+  call RAS_T1DM(VECR,VECL,nConf,TMPD,NAC**2)
   IOffNIJ1 = (lRoots+1)*(jRoot-1)*NAC2
   GD(IOffNIJ1+1:IOffNIJ1+NAC2) = TmpD(1:NAC2)
 end do

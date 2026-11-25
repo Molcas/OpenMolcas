@@ -13,7 +13,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,T
 
 use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, hRoots, ICIRST, lRoots, MAXJT
-use ci_interfaces, only: CI_Verify, Faro_CI, Faro_nTmp, Mk_H_Psi
+use CI_Library, only: CI_Lib_Sigma
 use rasscf_files, only: ITERFILE, LUDAVID
 use CI_Info, only: CI_St
 use rasscf_global, only: NCONF, NSEL
@@ -39,24 +39,10 @@ real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, Hji
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
 real(kind=wp), allocatable :: Cs(:), Es(:), Hs(:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), Vec1(:), Vec3(:)
-real(kind=wp), allocatable, target :: ctemp(:), sigtemp(:), Tmp(:)
+real(kind=wp), allocatable, target :: Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), external :: dDot_, dnrm2_
-
-if (Faro_CI()) then
-  ! determinant wavefunctions Faroald (not with RAS, Faro_nTmp)
-  call mma_allocate(sigtemp,Faro_nTmp(),label='sgm')
-  call mma_allocate(ctemp,Faro_nTmp(),label='psi')
-else if (CI_Verify('SIGMA')) then
-  ! determinant wavefunctions of the Lucia reference sigma (SGCI checks)
-  call mma_allocate(ctemp,ndet,label='CTEMP')
-  call mma_allocate(sigtemp,ndet,label='SIGTEM')
-else
-  ! not used: the CI libraries keep their own scratch
-  call mma_allocate(ctemp,1,label='CTEMP')
-  call mma_allocate(sigtemp,1,label='SIGTEM')
-end if
 
 !-----------------------------------------------------------------------
 ! MGD dec 2017 : When optimizing many states, the lowest ones tend to
@@ -120,7 +106,8 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    call Mk_H_Psi(iState,CI_St(iState)%STSym,nConf,Vec1,Vec2,ctemp,sigtemp,size(ctemp),nTU,TU,nTUVX,TUVX)
+    ! H|Psi> of the CI library (H of the CI state, its symmetry)
+    call CI_Lib_Sigma(iState,0,CI_St(iState)%STSym,CI_St(iState)%STSym,.false.,.true.,nTU,TU,nTUVX,TUVX,nConf,Vec1,nConf,Vec2)
 
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)
@@ -474,8 +461,6 @@ call mma_deallocate(Scr1)
 call mma_deallocate(Scr2)
 call mma_deallocate(Scr3)
 
-call mma_deallocate(ctemp)
-call mma_deallocate(sigtemp)
 
 call Timing(Time1(2),dum1,dum2,dum3)
 TimeDavid = TimeDavid+Time1(2)-Time1(1)

@@ -61,7 +61,7 @@ use qcmaquis_interface_utility_routines, only: fiedlerorder_length, file_name_ge
 use RASWfn, only: wfn_dmrg_checkpoint
 use rasscf_global, only: DOFCIDump, Emy, RF1, RF2, TwoRDM_qcm
 #endif
-use ci_interfaces, only: Mk_pdms
+use RAS_CI_Dens, only: RAS_PDMs
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
@@ -83,7 +83,7 @@ use CI_Input, only: ISPIN, NACTEL, STSYM, iDoGAS
 use rasscf_global, only: NCONF
 use CI_Info, only: CI_St
 use CI_States, only: CI_PrWF
-use ci_interfaces, only: CI_Basis_To_File
+use CI_Operations, only: CI_Lib_Basis_To_File
 use DWSol, only: DWSol_root, DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -284,7 +284,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
       else
 
 
-        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+        call RAS_PDMs(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
       end if
     end if
@@ -485,7 +485,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     if (NAC >= 1) then
       if (.not. doDMRG) then
 
-        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+        call RAS_PDMs(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
       end if
     end if
@@ -599,7 +599,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         ! to the split-graph order of the files
-        call CI_Basis_To_File(istate,STSYM,nConf,CIVEC,CIV)
+        CIV(1:nConf) = CIVEC(1:nConf)
+        call CI_Lib_Basis_To_File(istate,STSYM,nConf,CIV)
         ! the phase in this common order, the same for all CI back ends
         call VecPhase(CIV,nConf)
 

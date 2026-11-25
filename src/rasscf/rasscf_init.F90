@@ -23,7 +23,7 @@
 
 subroutine RasScf_Init()
 
-use ci_interfaces, only: CI_Timer
+use CI_Library, only: CI_Timer
 use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk, DoCholesky, DoLocK, Estimate, Nscreen, Update
 use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings

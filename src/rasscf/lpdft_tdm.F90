@@ -16,10 +16,10 @@ subroutine LPDFT_TDM()
 !> and store them in ${Project}.tdm_4_lpdft.h5.
 !>
 !> Cost note:
-!> The 2-PDM is obtained only through Mk_pdms (so all CI backends are supported), by polarization:
+!> The 2-PDM is obtained only through RAS_PDMs (so all CI backends are supported), by polarization:
 !> P[L+R] = P[L] + P[R] + (P_LR + P_RL). For nR = lRoots this needs
-!>   - nR  Mk_pdms calls, one per root, stored in Pstate,
-!>   - nR*(nR-1)/2  Mk_pdms calls, one per root pair, on the unnormalized sum vector,
+!>   - nR  RAS_PDMs calls, one per root, stored in Pstate,
+!>   - nR*(nR-1)/2  RAS_PDMs calls, one per root pair, on the unnormalized sum vector,
 !> i.e. nR*(nR+1)/2 CI density evaluations in total. The same calls give the 1-RDM D, so the
 !> 1-body transition density is obtained in the same way, with no separate transition-density call.
 !> The extra memory is (NACPR2+NAC**2)*nR for Pstate and Dstate, and one CI vector (VecSum).
@@ -29,7 +29,8 @@ subroutine LPDFT_TDM()
 use input_ras, only: Key
 #ifdef _HDF5_
 use Index_Functions, only: nTri_Elem
-use ci_interfaces, only: CI_File_To_Basis, Mk_pdms
+use RAS_CI_Dens, only: RAS_PDMs
+use CI_Operations, only: CI_Lib_File_To_Basis
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
 use CI_Input, only: iDoGAS, NELEC3, NHOLE1, STSYM
 use rasscf_global, only: NCONF
@@ -99,20 +100,22 @@ dDisk = IADR15(3)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
   ! JOBIPH holds the split-graph order
-  call CI_File_To_Basis(iState,STSYM,CI_St(iState)%nCSF(STSYM),Tmp,VecL)
+  VecL(:) = Tmp(:)
+  call CI_Lib_File_To_Basis(iState,STSYM,CI_St(iState)%nCSF(STSYM),VecL)
   ! 1-RDM and 2-PDM of the root, needed for the polarization identity below.
   VecSum(:) = VecL(:)
-  call Mk_pdms(VecSum,nConf,D=Dstate(:,jRoot),P=Pstate(:,jRoot),nD=NAC*NAC,nP=NACPR2)
+  call RAS_PDMs(VecSum,nConf,D=Dstate(:,jRoot),P=Pstate(:,jRoot),nD=NAC*NAC,nP=NACPR2)
   kDisk = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-    call CI_File_To_Basis(iState,STSYM,CI_St(iState)%nCSF(STSYM),Tmp,VecR)
+    VecR(:) = Tmp(:)
+    call CI_Lib_File_To_Basis(iState,STSYM,CI_St(iState)%nCSF(STSYM),VecR)
     ! Symmetrized transition 1-RDM and 2-PDM from polarization of the (bilinear) densities:
     ! X[L+R] = X[L] + X[R] + (X_LR + X_RL), so (X_LR + X_RL)/2 = (X[L+R] - X[L] - X[R])/2.
     ! These are the only parts of the 1-TDM and 2-TDM that contract with the (symmetric) L-PDFT
     ! 1e and 2e Hamiltonians. The one-body density comes packed (triangular) from the same call.
     VecSum(:) = VecL(:)+VecR(:)
-    call Mk_pdms(VecSum,nConf,D=Dtmp,P=Ptmp,nD=NAC*NAC,nP=NACPR2)
+    call RAS_PDMs(VecSum,nConf,D=Dtmp,P=Ptmp,nD=NAC*NAC,nP=NACPR2)
     Dtmp(1:NACPAR) = Half*(Dtmp(1:NACPAR)-Dstate(1:NACPAR,jRoot)-Dstate(1:NACPAR,kRoot))
     Ptmp(:) = Half*(Ptmp(:)-Pstate(:,jRoot)-Pstate(:,kRoot))
     call Square(Dtmp,Tdm1,1,NAC,NAC)

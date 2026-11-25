@@ -48,7 +48,7 @@ subroutine Ini_David(nRoots,nConf,nDet,nSel,n_keep,ntAsh,LuDavid)
 
 use davctl_mod, only: disk_address, in_core, istart, LblStk, memory_vectors, mixed_mode_1, mixed_mode_2, mxDiskStk, mxMemStk, &
                       n_Roots, nDiskStk, nkeep, nMemStk, nvec, on_disk, save_in_memory, save_mode
-use ci_interfaces, only: CI_Work_Need
+use CI_Library, only: CI_Work_Need
 use Molcas, only: MxAct, MxRoot
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero

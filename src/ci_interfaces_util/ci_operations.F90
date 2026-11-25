@@ -96,6 +96,15 @@ integer(kind=iwp), allocatable, protected :: Faro_Lev(:)
 ! Lucia (RASSCF's) has been initialized (not for SGCI and FARO, except as the
 ! reference of MOLCAS_CI_VERIFY=SIGMA)
 logical(kind=iwp) :: Lucia_Active = .true.
+! the CI state set up by CI_Lib_Initialize from the CI input (0: none); only
+! that state is torn down by CI_Lib_Close (a program that sets up its state
+! itself, as MCLR, frees it itself). It is reset only by CI_Lib_Close: a
+! program that sets up its own state after CI_Lib_Initialize from the CI
+! input in the same process must close that one first, or the input-state
+! checks and HEXS projections would apply to the wrong state.
+integer(kind=iwp) :: iState_Input = 0
+! SGEX given where it does not apply: warned once
+logical(kind=iwp) :: SGEx_Warned = .false.
 ! HEXS/DEXS (RASSCF keywords, CI_Info Space_Inp): the configurations with
 ! the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in the
 ! listed RAS partitions are removed as in Lucia: their CSFs stay in the
@@ -115,12 +124,13 @@ type(Rel_Map_Type) :: Rel_Map(8)
 ! Faroald: its string-driven sigma checked once against the full space
 logical(kind=iwp) :: Faro_RAS_Verified = .false.
 
-public :: CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
+public :: CI_Lib_Input_State, CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSel, &
-          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Transform, CI_To_Basis, CI_To_File, Cnf_Exc, Faro_Lev, &
-          Faroald_HDet, Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGEX, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Sigma_Det, CI_Lib_Transform, CI_To_Basis, &
+          CI_To_File, Cnf_Exc, Faro_Ints_Act, Faro_Lev, Faroald_HDet, Lucia1_Block, Lucia1_Block_SG, Rel_Map, Report_Dev, &
+          SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 
 contains
 
@@ -163,15 +173,44 @@ end subroutine CI_Lib_Initialize
 subroutine CI_Lib_Close(iState)
   use SGUGA_Sigma, only: SG_Sigma_Free
   use SGUGA_Densities, only: SG_Densities_Free
+  use sguga, only: SG_Free
+  use Lucia_Interface, only: Lucia_Util
+  use CI_Space_Def, only: Space_Free
+  use CI_Info, only: Space_CI
+  use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState
   if (CI_Lib == CI_Lib_MCLR_Lucia) call MCLR_Lucia_Close(iState)
-  ! the work space of SGUGA (safe to call in any case, as in CI_Close)
-  if (CI_Lib == CI_Lib_SGUGA) then
+  if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
+  ! the work space of SGUGA (safe to call in any case; also used as the
+  ! reference of MOLCAS_CI_VERIFY=SIGMA with the other libraries)
+  if ((CI_Lib == CI_Lib_SGUGA) .or. (iState == iState_Input)) then
     call SG_Sigma_Free()
     call SG_Densities_Free()
   end if
-  if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
+  if (iState /= iState_Input) return
+  ! the state from the CI input (CI_Lib_Setup_Input): Lucia, the graphs, the
+  ! CI space and the HEXS/DEXS masks
+  if (Lucia_Active) call Lucia_Util('Close')
+  if (CI_St(iState)%iRel > 0) then
+    call SG_Free(CI_St(iState)%iRel)
+    CI_St(iState)%iRel = 0
+  end if
+  call SG_Rel_Free()
+  call SG_Free(iState)
+  CI_St(iState)%Active = .false.
+  call mma_deallocate(HEXS_Keep,safe='*')
+  call mma_deallocate(HEXS_Keep_SG,safe='*')
+  call Space_Free(Space_CI)
+  iState_Input = 0
 end subroutine CI_Lib_Close
+
+!> The CI state iState was set up by CI_Lib_Initialize from the CI input
+!> (not by the program itself): the checks of MOLCAS_CI_VERIFY apply to it.
+function CI_Lib_Input_State(iState) result(Is)
+  integer(kind=iwp), intent(in) :: iState
+  logical(kind=iwp) :: Is
+  Is = (iState == iState_Input)
+end function CI_Lib_Input_State
 
 !> Lucia (RASSCF's) is initialized (CI_Lib_Initialize): its tables
 !> (determinant counts, configuration types) may be used.
@@ -197,6 +236,7 @@ subroutine CI_Lib_Setup_Input(iState)
   integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: nCSF_Lucia, nFail_TT
 
+  iState_Input = iState
   nCSF_Lucia = 0
   ! SGCI and FARO do not need Lucia; it is set up only as the reference of
   ! MOLCAS_CI_VERIFY=SIGMA.
@@ -575,17 +615,70 @@ end subroutine HEXS_Proj
 !>   assumed (the iTri packing).
 !> Have_2_el = .false.: one-body operator only, TUVX not referenced (a
 !> dummy of size 1 may be passed).
-!> HEXS/DEXS: projected only if the program set up HEXS/DEXS for iState
-!> (RASSCF input); otherwise no projection. (Not yet: RASSCF still calls
-!> Mk_H_Psi, which projects.)
+!> HEXS/DEXS: projected (P H P) for the state from the CI input with
+!> HEXS/DEXS, in its symmetry; otherwise no projection.
 !> Scratch: the libraries keep their own work space (freed by
 !> CI_Lib_Close).
 subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
   logical(kind=iwp), intent(in) :: Square, Have_2_el
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
   real(kind=wp), intent(out) :: S(nS)
+  real(kind=wp), allocatable :: CM(:)
   call Check_Op('CI_Lib_Sigma',iOpSpin,Have_2_el,Square)
+  ! HEXS/DEXS (the state from the CI input, its symmetry): P H P, the vector
+  ! and the result projected on the kept CSFs (HEXS_Keep; Lucia does it
+  ! itself, its mask is not allocated)
+  if ((iState == iState_Input) .and. allocated(HEXS_Keep) .and. (iCSym == CI_St(iState)%STSym) .and. &
+      (iSSym == CI_St(iState)%STSym)) then
+    call mma_allocate(CM,nC,Label='HEXS_CM')
+    CM(:) = C(:)
+    call HEXS_Proj(HEXS_Keep,CM)
+    call Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,CM,nS,S)
+    call HEXS_Proj(HEXS_Keep,S)
+    call mma_deallocate(CM)
+  else
+    call Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  end if
+end subroutine CI_Lib_Sigma
+
+!> The sigma vector S = H C in the determinant basis of RASSCF's Lucia
+!> (CASVB), symmetry iSym, nDet determinants; TU/TUVX as for CI_Lib_Sigma.
+!> Lucia's determinant sigma is not spin-projected: a C that is not spin
+!> adapted gives an S that is not either. Only with RASSCF's Lucia (CASVB
+!> selects it). Lucia's sigma is left on disk (Sigma_on_disk) for the
+!> densities.
+subroutine CI_Lib_Sigma_Det(iState,iSym,nTU,TU,nTUVX,TUVX,nDet,C,S)
+  use Lucia_Interface, only: Lucia_Util
+  use lucia_data, only: IREFSM, Sigma_on_disk
+  use cands, only: ICSM, ISSM
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nDet
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(inout) :: C(nDet)
+  real(kind=wp), intent(out) :: S(nDet)
+  integer(kind=iwp) :: IREFSM_Save
+#include "macros.fh"
+  unused_var(iState)
+  if (CI_Lib /= CI_Lib_Lucia) call Not_Yet('CI_Lib_Sigma_Det','the sigma vector in the determinant basis (CASVB)')
+  IREFSM_Save = IREFSM
+  IREFSM = iSym
+  ICSM = iSym
+  ISSM = iSym
+  call Lucia_Util('Sigma',CI_Vector=C(:),Sigma_Vector=S(:),nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+  ! the sigma vector exists on disk (densi_master)
+  Sigma_on_disk = .true.
+  IREFSM = IREFSM_Save
+  ICSM = IREFSM
+  ISSM = IREFSM
+end subroutine CI_Lib_Sigma_Det
+
+!> CI_Lib_Sigma for the selected library
+subroutine Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+  integer(kind=iwp), intent(in) :: iState, iOpSpin, iCSym, iSSym, nTU, nTUVX, nC, nS
+  logical(kind=iwp), intent(in) :: Square, Have_2_el
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
+  real(kind=wp), intent(out) :: S(nS)
   select case (CI_Lib)
     case (CI_Lib_SGUGA)
       if (iOpSpin /= 0) call Not_Yet('CI_Lib_Sigma','triplet operators')
@@ -602,7 +695,7 @@ subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX
     case default
       call Check_Lib('CI_Lib_Sigma')
   end select
-end subroutine CI_Lib_Sigma
+end subroutine Lib_Sigma_Run
 
 !> RASSCF's Lucia (CI_Lib_Lucia): S = H C in the symmetry of the state, via
 !> its determinant basis (csdtvc), with determinant scratch of this call
@@ -634,8 +727,10 @@ subroutine Lucia1_Sigma(iState,iSym,nTU,TU,nTUVX,TUVX,n,C,S)
   call Lucia_Util('Sigma',CI_Vector=Lucia1_C,Sigma_Vector=Lucia1_S,nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
   ! the sigma vector exists on disk (densi_master)
   Sigma_on_disk = .true.
-  ! determinants -> CSFs
-  call csdtvc(S,Lucia1_S,2,iSym,0)
+  ! determinants -> CSFs (csdtvc uses its CSF vector as work of nD
+  ! elements: through the scratch)
+  call csdtvc(Lucia1_C,Lucia1_S,2,iSym,0)
+  S(1:n) = Lucia1_C(1:n)
   call mma_deallocate(Lucia1_C)
   call mma_deallocate(Lucia1_S)
   IREFSM = IREFSM_Keep
@@ -1098,6 +1193,10 @@ subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case default
       call Check_Lib('CI_Lib_Diag')
   end select
+  ! HEXS/DEXS (the state from the CI input): zero for the removed CSFs, as
+  ! Lucia's (which does it itself)
+  if ((iState == iState_Input) .and. (iSym == CI_St(iState)%STSym) .and. &
+      ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald))) call HEXS_Proj(HEXS_Keep,Diag)
 end subroutine CI_Lib_Diag
 
 !> The check of the Mode of CI_Lib_Diag
@@ -1216,6 +1315,7 @@ end subroutine CI_Lib_Cnf_Layout
 !> packed as a lower triangle (nHP >= nTri(nP)).
 subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
   use sguga, only: SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List, SG_Mk_Cnf_List
+  use CI_Input, only: DoSGEx
   use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nPMax, nHP
@@ -1272,11 +1372,26 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
     nP = nP+m
   end do
   if (nHP < nTri_Elem(nP)) call Abend()
+  ! SGEX (RASSCF keyword, the state from the CI input): the block of SGUGA
+  ! for RASSCF's Lucia; not with GAS without the relaxed space, nor Faroald
+  if (DoSGEx .and. (iState == iState_Input) .and. (.not. SGEx_Warned)) then
+    if (.not. SG_Block_Avail(iState)) then
+      write(u6,'(1X,A)') 'CI_Lib_Block: SGEX ignored, SGUGA is not available with GAS; using the CI back end'
+      SGEx_Warned = .true.
+    else if (CI_Lib == CI_Lib_Faroald) then
+      write(u6,'(1X,A)') 'CI_Lib_Block: SGEX ignored with FARO; the explicit block is computed by Faroald'
+      SGEx_Warned = .true.
+    end if
+  end if
   select case (CI_Lib)
     case (CI_Lib_Faroald)
       call Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
     case (CI_Lib_Lucia)
-      call Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,HP)
+      if (CI_Lib_SGEX(iState)) then
+        call Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
+      else
+        call Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,HP)
+      end if
     case default
       call Check_Lib('CI_Lib_Block')
   end select
@@ -1463,6 +1578,62 @@ subroutine Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,H)
   call mma_deallocate(HONE)
 end subroutine Lucia1_Block
 
+!> SGEX (RASSCF keyword): the explicit block of RASSCF's Lucia for the
+!> state from the CI input comes from SGUGA (Lucia1_Block_SG)
+function CI_Lib_SGEX(iState) result(Use_SG)
+  use CI_Input, only: DoSGEx
+  integer(kind=iwp), intent(in) :: iState
+  logical(kind=iwp) :: Use_SG
+  Use_SG = DoSGEx .and. (CI_Lib == CI_Lib_Lucia) .and. (iState == iState_Input) .and. SG_Block_Avail(iState)
+end function CI_Lib_SGEX
+
+!> SGUGA can evaluate matrix elements of the CI space of iState: CAS and RAS
+!> directly, GAS through the relaxed space
+function SG_Block_Avail(iState) result(Avail)
+  use CI_Input, only: iDoGAS
+  integer(kind=iwp), intent(in) :: iState
+  logical(kind=iwp) :: Avail
+  Avail = (.not. iDoGAS) .or. (CI_St(iState)%iRel > 0)
+end function SG_Block_Avail
+
+!> RASSCF's Lucia with SGEX: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECore
+!> over the CSFs IdxP(1:nP) (Lucia order, nSelCnf(k) of configuration k),
+!> with I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
+!> (mode 0: c_G(I_G) = P_I c(I)); the block <I_G|H|J_G> from SG_Block_H
+!> (pairs of configurations more than a double excitation apart skipped;
+!> GAS: in the relaxed space, the CSFs by their walks)
+subroutine Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
+  use SG_Lucia_Bridge, only: SG_Lucia_Walk
+  use sguga, only: EXS, SG_Block_H, SG_MatEl_Init, SG_NUM, SGS
+  use Molcas, only: MxAct
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, nSelCnf(nPC), nP, IdxP(nP)
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(inout) :: H(*)
+  integer(kind=iwp) :: I, iS, J
+  integer(kind=iwp) :: IWALK(MxAct)
+  integer(kind=iwp), allocatable :: iG(:), iPG(:)
+  iS = iState
+  if (CI_St(iState)%iRel > 0) iS = CI_St(iState)%iRel
+  call SG_MatEl_Init(iS,iSym)
+  call mma_allocate(iG,nP,Label='iG')
+  call mma_allocate(iPG,nP,Label='iPG')
+  do J=1,nP
+    call SG_Lucia_Walk(iState,iSym,IdxP(J),IWALK,iPG(J))
+    iG(J) = SG_NUM(SGS(iS),EXS(iS),IWALK)
+  end do
+  call SG_Block_H(iSym,nPC,nSelCnf,nP,iG,TU,nTU,TUVX,nTUVX,H)
+  do I=1,nP
+    do J=1,I
+      H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*H(nTri_Elem(I-1)+J)
+    end do
+    H(nTri_Elem(I)) = H(nTri_Elem(I))+ECore
+  end do
+  call mma_deallocate(iPG)
+  call mma_deallocate(iG)
+end subroutine Lucia1_Block_SG
+
 !> Doubly (D) and singly (S) occupied orbitals, as bit strings (orbital t
 !> in bit t-1), of the configuration ICONF with nOp open shells (GETCNF
 !> form: the closed orbitals first, then the open ones), nEl electrons
@@ -1616,6 +1787,20 @@ subroutine Faro_Sort(iState,iSym,Dir,n,CI)
   call mma_deallocate(V)
 end subroutine Faro_Sort
 
+!> RASSCF's Lucia: a CI vector between the split-graph order of the files
+!> and Lucia's CSF order (SG_ReOrd: iWay = 1 file -> Lucia, 0 back)
+subroutine Lucia1_Sort(iState,iSym,iWay,n,CI)
+  use SG_Lucia_Bridge, only: SG_ReOrd
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, iWay, n
+  real(kind=wp), intent(inout) :: CI(n)
+  real(kind=wp), allocatable :: V(:)
+  call mma_allocate(V,n,Label='V')
+  call SG_ReOrd(iState,iSym,iWay,n,CI,V)
+  CI(:) = V(:)
+  call mma_deallocate(V)
+end subroutine Lucia1_Sort
+
 subroutine CI_Lib_Dets_To_Basis(iState,iSym,nD,DetVec,IdxD,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
   real(kind=wp), intent(in) :: DetVec(nD)
@@ -1636,6 +1821,10 @@ subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
     call Faro_Sort(iState,iSym,'C',n,CI)
     return
   end if
+  if (CI_Lib == CI_Lib_Lucia) then
+    call Lucia1_Sort(iState,iSym,1,n,CI)
+    return
+  end if
   call Check_Lib('CI_Lib_File_To_Basis')
   call MCLR_Lucia_Conv(iState,iSym,CI_To_Basis,n,CI)
 end subroutine CI_Lib_File_To_Basis
@@ -1648,6 +1837,10 @@ subroutine CI_Lib_Basis_To_File(iState,iSym,n,CI)
   if (CI_Lib == CI_Lib_SGUGA) return
   if (CI_Lib == CI_Lib_Faroald) then
     call Faro_Sort(iState,iSym,'O',n,CI)
+    return
+  end if
+  if (CI_Lib == CI_Lib_Lucia) then
+    call Lucia1_Sort(iState,iSym,0,n,CI)
     return
   end if
   call Check_Lib('CI_Lib_Basis_To_File')

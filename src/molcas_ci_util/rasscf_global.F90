@@ -35,9 +35,6 @@ real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, C
                  TMIN, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
 logical(kind=iwp) :: DoBlockDMRG, doDMRG, DOFCIDUMP, IfCRPR, kIvo, l_casdft, Lowdin_On, lSquare, NonEq, RFpert, &
                      Start_Vectors
-! Explicit CI Hamiltonian of the CI start from SGUGA (keyword SGEX)
-logical(kind=iwp) :: DoSGEx = .false.
-public :: DoSGEx
 ! RASSCF's CI vector and Davidson dimensions (formerly in general_data):
 ! NCONF the length of the CI vector of the wave-function method in use (the
 ! CSFs of the CI symmetry, CI_St(1)%nCSF(STSYM), for the CI libraries; 1 or 0

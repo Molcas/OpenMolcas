@@ -19,19 +19,25 @@ subroutine CIDIA(NCONF,CSFDIA,LUDAVID)
 ! NCONF :  NO. OF CSF
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
-use CI_Interfaces, only: Mk_IHI
+use CI_Library, only: CI_Diag_Cnf_Avg, CI_Lib_Diag
+use CI_Info, only: CI_St
 use wadr, only: FMO, TUVX
+use rasscf_global, only: NSEL
 use timers, only: TimeHDiag
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
 real(kind=wp) :: dum1, dum2, dum3, Time(2)
+integer(kind=iwp), parameter :: iState = 1
 
 call Timing(Time(1),dum1,dum2,dum3)
 
-Call Mk_IHI(CSFDIA,nConf,FMO,size(FMO),TUVX,size(TUVX))
+! the configuration average of the CI library (the CI state of RASSCF; the
+! P space of NSEL CSFs for the checks of MOLCAS_CI_VERIFY)
+call CI_Lib_Diag(iState,CI_Diag_Cnf_Avg,CI_St(iState)%STSym,size(FMO),FMO,size(TUVX),TUVX,Zero,nConf,CSFDIA,nPMax=NSEL)
 
 ! PRINT CI-DIAGONAL
 

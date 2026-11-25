@@ -15,7 +15,7 @@
 
 subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
 
-use ci_interfaces, only: Mk_pdms
+use RAS_CI_Dens, only: RAS_PDMs
 use rasscf_global, only: DoDMRG, Ener, IADR15, IROOT, ITER, lRoots, NAC, NACPAR, NACPR2, nRoots
 use DWSol, only: DWSol_pos, DWSol_wgt, W_SOLV
 use CI_Input, only: iDoGAS
@@ -101,7 +101,7 @@ else if (iFinal == 2) then
 #       endif
       else
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+        call RAS_PDMs(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
         if ((CI_St(istate)%IFRAS > 2) .or. (iDoGAS)) then
           call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
         end if
