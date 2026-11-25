@@ -31,7 +31,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
+use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras
 use CI_Input, only: DoSGEx, iDoGAS
 use CI_Verify_Options, only: CI_Verify
 use CI_Info, only: CI_St
