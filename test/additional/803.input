@@ -45,9 +45,6 @@ CIROOT
  1 1 1
 MDRLXROOT
  2
-* the active space may change partly along the trajectory (one MD step 0.74)
-ACTThreshold
- 0.6
 
 &surfacehop
  TULLY

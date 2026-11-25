@@ -1410,34 +1410,42 @@ A list of these keywords is given below:
 :kword:`ACTThreshold`
   At the end of the calculation, the program compares the converged active orbitals
   with the active orbitals it started from. For each irreducible representation it
-  prints the cosines of the principal angles between the two active subspaces (the
-  singular values of :math:`C_\text{start}^\dagger S C_\text{conv}`, which do not
-  depend on rotations within the active space) and, for each starting active orbital,
-  its weight outside the converged active space. A cosine well below one means that an
-  active orbital of the start has left the active space. If the smallest cosine is
-  below the threshold given on the next line (default 0.8), the active space counts as
-  lost: the orbital files are written, and the module then stops with an error, also
-  within geometry optimizations and molecular dynamics. :kword:`EXPERT` turns the stop
-  into a warning, and a threshold of 0 switches the check off. The check is done only
-  in a restart, when the starting orbitals hold the wave function of this calculation
-  (the same number of active electrons, spin, symmetry, active orbitals per irreducible
-  representation, roots and weights): a :file:`JOBIPH`/:file:`JOBOLD` file or an HDF5
-  file of RASSCF of the same wave function, the RASSCF orbitals on the runfile in the
-  later steps of a loop of the input (geometry optimizations, molecular dynamics), and
-  an HDF5 file projected to another basis by MORT with the same active orbitals per
-  irreducible representation. Starting from SCF orbitals, a computed guess or an
-  orbital text file (which holds no wave-function information), or reusing the
-  orbitals of another state or active space, the CASSCF is expected to change the
-  active orbitals, and no check is done. The cosines are stored in the HDF5 file
-  (attribute ``ACTIVE_SPACE_COSINES``).
+  forms :math:`M = C_\text{start}^\dagger S C_\text{conv}` and prints, for each
+  starting active orbital :math:`i`, its weight outside the converged active space,
+  :math:`w_i = 1 - \sum_j M_{ij}^2`, and the deficit :math:`D = n_\text{act} -
+  \sum_{ij} M_{ij}^2 = \sum_i w_i`: the number of orbitals' worth of the starting
+  active space that has left the active space. The cosines of the principal angles
+  between the two active subspaces (the singular values of :math:`M`) are printed as
+  extra information. These quantities do not depend on rotations within the active
+  spaces; both orbital sets must be expanded in the same basis (in a basis-set series,
+  the start is projected by MORT). If the total deficit over all irreducible
+  representations exceeds the threshold given on the next line (default 1.0), the
+  active space counts as lost: the orbital files are written, and the module then
+  stops with the return code ``_RC_GENERAL_ERROR_`` (130), also within geometry
+  optimizations and molecular dynamics, after the message "The active space of the
+  starting orbitals was lost". :kword:`EXPERT` turns the stop into a warning, and a
+  threshold of 0 switches the check off. The check is done only in a restart, when
+  the starting orbitals hold the wave function of this calculation (the same number of
+  active electrons, spin, symmetry, active orbitals per irreducible representation,
+  roots and weights): a :file:`JOBIPH`/:file:`JOBOLD` file or an HDF5 file of RASSCF of
+  the same wave function, the RASSCF orbitals on the runfile in the later steps of a
+  loop of the input (geometry optimizations, molecular dynamics), and an HDF5 file
+  projected to another basis by MORT with the same active orbitals per irreducible
+  representation. Starting from SCF orbitals, a computed guess or an orbital text file
+  (which holds no wave-function information), or reusing the orbitals of another state
+  or active space, the CASSCF is expected to change the active orbitals, and no check
+  is done. The HDF5 file holds the total deficit (attribute ``ACTIVE_SPACE_DEFICIT``),
+  the deficits per irreducible representation (``ACTIVE_SPACE_DEFICIT_IRREP``) and the
+  cosines (``ACTIVE_SPACE_COSINES``).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ACTTHRESHOLD" APPEAR="Active-space check threshold" KIND="REAL" DEFAULT_VALUE="0.8" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="ACTTHRESHOLD" APPEAR="Active-space check threshold" KIND="REAL" DEFAULT_VALUE="1.0" LEVEL="ADVANCED">
               %%Keyword: ACTThreshold <advanced>
               <HELP>
-              Threshold on the smallest cosine of the principal angles between the active
-              space of the starting orbitals and the converged one (default 0.8). Below it,
-              the active space counts as lost and the module stops with an error, unless
-              EXPERT is given. 0 switches the check off. Only checked in a restart (the
+              Threshold on the deficit of the active space, D = n_act - Sum_ij M_ij^2 with
+              M = C_start^T S C_conv over the active orbitals: the orbitals' worth of the
+              starting active space that left the active space (default 1.0). Above it, the
+              active space counts as lost and the module stops with _RC_GENERAL_ERROR_ (130),
+              unless EXPERT is given. 0 switches the check off. Only checked in a restart (the
               starting orbitals hold the same wave function: JOBIPH/JOBOLD, RASSCF HDF5,
               later steps of a geometry optimization or molecular dynamics, MORT).
               </HELP>

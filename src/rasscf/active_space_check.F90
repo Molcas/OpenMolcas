@@ -12,17 +12,20 @@
 !***********************************************************************
 
 !> How far the active space moved between the starting orbitals and the
-!> converged ones. For every irrep the cosines of the principal angles
-!> between the two active subspaces are the singular values of
-!> M = C_in^T S C_out (C_in: active orbitals the macro iterations start
-!> from, C_out: converged active orbitals, S: AO overlap). They do not
-!> depend on the basis nor on rotations within the active space; a cosine
-!> well below one means that an active orbital of the start has left the
-!> active space ("lost" active orbital). The weight outside the converged
-!> active space of start orbital i, 1-sum_j M(i,j)^2, tells which one.
-!> The active space counts as lost when the smallest cosine is below
-!> ThrAct (keyword ACTThreshold, default 0.8; 0 switches the check off);
-!> RASSCF then ends with _RC_GENERAL_ERROR_, unless EXPERT is given.
+!> converged ones. For every irrep, M = C_in^T S C_out (C_in: active
+!> orbitals the macro iterations start from, C_out: converged active
+!> orbitals, S: AO overlap). Sum_ij M(i,j)^2 = Tr(P_in P_out) is the part
+!> of the start active space that the converged one still spans, and the
+!> deficit D = n_act - Sum_ij M(i,j)^2 counts the orbitals' worth of the
+!> start that left the active space. D and the cosines of the principal
+!> angles (the singular values of M) do not depend on rotations within the
+!> active spaces; both orbital sets must be expanded in the same basis
+!> (in a basis-set series, the start projected by MORT). The weight
+!> outside the converged active space of start orbital i,
+!> w_i = 1-Sum_j M(i,j)^2, tells which orbital left (Sum_i w_i = D).
+!> The active space counts as lost when the total deficit over all irreps
+!> exceeds ThrAct (keyword ACTThreshold, default 1.0; 0 switches the check
+!> off); RASSCF then ends with _RC_GENERAL_ERROR_, unless EXPERT is given.
 !> The check is done only in a restart, when the starting orbitals hold the
 !> wave function of this calculation (ReadVc, Act_Set_Restart, Act_Same_WF:
 !> the same active electrons, spin, symmetry, active orbitals per irrep,
@@ -36,15 +39,15 @@
 !> active orbitals.
 module Active_Space_Check
 
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
-! the threshold on the smallest cosine (ACTThreshold) and whether a lost
+! the threshold on the total deficit (ACTThreshold) and whether a lost
 ! active space stops the calculation (not with EXPERT)
-real(kind=wp) :: ThrAct = 0.8_wp
+real(kind=wp) :: ThrAct = 1.0_wp
 logical(kind=iwp) :: ActStop = .true.
 ! copy of the starting orbitals (Act_Check_Start), the check applies
 real(kind=wp), allocatable :: CMO_Start(:)
@@ -139,9 +142,9 @@ subroutine Act_Check_Start(nCMO,CMO)
 end subroutine Act_Check_Start
 
 !> Compare the converged active space (CMO) with the start; print the
-!> cosines per irrep, the weights outside of the start orbitals, store the
-!> cosines on the HDF5 file (if open) and tell whether the active space
-!> was lost.
+!> weights outside of the start orbitals, the deficit and the cosines per
+!> irrep, store the total deficit, the deficits per irrep and the cosines
+!> on the HDF5 file (if open) and tell whether the active space was lost.
 subroutine Act_Check_Final(nCMO,CMO,Have_H5,H5Id,Lost)
 
   use OneDat, only: sNoNuc, sNoOri
@@ -157,7 +160,7 @@ subroutine Act_Check_Final(nCMO,CMO,Have_H5,H5Id,Lost)
   logical(kind=iwp), intent(in) :: Have_H5
   logical(kind=iwp), intent(out) :: Lost
   integer(kind=iwp) :: i, iC, iComp, iO, iOpt, iRc, iS, iSyLbl, j, k, nA, nAct, nB, nOff1, nOffC
-  real(kind=wp) :: CMin, Prod, W
+  real(kind=wp) :: Def, Def_Irr(8), W
   real(kind=wp), allocatable :: CIn(:,:), COut(:,:), Cos_All(:), M(:,:), S1(:), SC(:,:), Sq(:,:), SV(:)
   character(len=8) :: Label
 #include "macros.fh"
@@ -192,10 +195,11 @@ subroutine Act_Check_Final(nCMO,CMO,Have_H5,H5Id,Lost)
   call mma_allocate(Cos_All,nAct,Label='Cos_All')
   write(u6,*)
   write(u6,'(6X,A)') 'Active space: overlap of the converged active orbitals with the starting ones'
-  write(u6,'(6X,A)') '(cosines of the principal angles between the two active subspaces; 1 = unchanged)'
+  write(u6,'(6X,A)') '(deficit = orbitals'' worth of the start that left the active space; 0 = unchanged)'
   nOff1 = 0
   nOffC = 0
   iC = 0
+  Def_Irr(:) = Zero
   do iS=1,nSym
     nB = nBas(iS)
     nA = nAsh(iS)
@@ -219,7 +223,8 @@ subroutine Act_Check_Final(nCMO,CMO,Have_H5,H5Id,Lost)
       write(u6,'(6X,A)') 'start orbital   weight outside the converged active space'
       do i=1,nA
         W = One-sum(M(i,:)**2)
-        if (W > One-ThrAct**2) then
+        Def_Irr(iS) = Def_Irr(iS)+W
+        if (W > Half) then
           write(u6,'(6X,I8,6X,F10.4,A)') nFro(iS)+nIsh(iS)+i,W,'  <-- left the active space'
         else
           write(u6,'(6X,I8,6X,F10.4)') nFro(iS)+nIsh(iS)+i,W
@@ -227,7 +232,8 @@ subroutine Act_Check_Final(nCMO,CMO,Have_H5,H5Id,Lost)
       end do
       call mma_allocate(SV,nA,Label='SV')
       call SVD_Values(nA,M,SV)
-      write(u6,'(6X,A)') 'cosines:'
+      write(u6,'(6X,A,F9.4)') 'deficit',Def_Irr(iS)
+      write(u6,'(6X,A)') 'cosines of the principal angles:'
       write(u6,'(6X,8F9.4)') (SV(k),k=1,nA)
       Cos_All(iC+1:iC+nA) = SV(:)
       iC = iC+nA
@@ -243,22 +249,25 @@ subroutine Act_Check_Final(nCMO,CMO,Have_H5,H5Id,Lost)
   end do
   call mma_deallocate(S1)
 
-  CMin = minval(Cos_All(:))
-  Prod = product(Cos_All(:))
-  write(u6,'(/,6X,A,F9.4,A,F9.4,A,F6.3,A)') 'Smallest cosine',CMin,', product',Prod,' (threshold',ThrAct,')'
-  Lost = (CMin < ThrAct)
+  Def = sum(Def_Irr(1:nSym))
+  write(u6,'(/,6X,A,F9.4,A,I4,A,F6.3,A)') 'Deficit of the active space',Def,' of',nAct,' orbitals (threshold',ThrAct,')'
+  Lost = (Def > ThrAct)
   if (Lost) then
     call WarningMessage(2,'The active space of the starting orbitals was lost.')
-    write(u6,'(6X,A)') 'At least one active orbital of the start has left the active space (see the weights above).'
+    write(u6,'(6X,A)') 'Active orbitals of the start have left the active space (see the weights above).'
     write(u6,'(6X,A)') 'Choose the active orbitals of the start anew (e.g. with a larger basis or a smaller step),'
     if (ActStop) then
-      write(u6,'(6X,A)') 'or accept the result with EXPERT or a lower ACTThreshold. RASSCF stops with an error.'
+      write(u6,'(6X,A)') 'or accept the result with EXPERT or a larger ACTThreshold. RASSCF stops with an error.'
     else
-      write(u6,'(6X,A)') 'or lower ACTThreshold. EXPERT is given: RASSCF continues.'
+      write(u6,'(6X,A)') 'or raise ACTThreshold. EXPERT is given: RASSCF continues.'
     end if
   end if
 #ifdef _HDF5_
-  if (Have_H5) call mh5_init_attr(H5Id,'ACTIVE_SPACE_COSINES',1,[nAct],Cos_All)
+  if (Have_H5) then
+    call mh5_init_attr(H5Id,'ACTIVE_SPACE_DEFICIT',Def)
+    call mh5_init_attr(H5Id,'ACTIVE_SPACE_DEFICIT_IRREP',1,[nSym],Def_Irr)
+    call mh5_init_attr(H5Id,'ACTIVE_SPACE_COSINES',1,[nAct],Cos_All)
+  end if
 #endif
   call mma_deallocate(Cos_All)
   call Free_Start()
