@@ -24,7 +24,7 @@
 !>   EPQ    coupling-coefficient test of <I|Epq|J> only
 !>   SIGMA  cross-check the CI back end against SGUGA: sigma vectors, CI
 !>          transformation and density matrices (the SGUGA sigma vector is
-!>          then used in Mk_H_Psi)
+!>          then used in CI_Lib_Sigma)
 !>   FARO   use Faroald automatically for C1 CASSCF (compared with Lucia)
 !>   HDIAG  give the CI solver the exact diagonal <I|H|I> from SGUGA instead
 !>          of the configuration average (preconditioner and selection of the

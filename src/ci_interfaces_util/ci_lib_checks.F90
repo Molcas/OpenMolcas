@@ -21,9 +21,7 @@ module CI_Lib_Checks
 
 use SG_Lucia_Bridge, only: SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
-use faroald, only: ndeta, ndetb
 use citrans, only: citrans_sort
-use faroald_ras, only: ras_active
 use CI_Op_Defs, only: CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_SGUGA
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep_SG, HEXS_Proj, SG_Rel_Embed, SG_Rel_Project
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -39,19 +37,19 @@ implicit none
 private
 
 public :: CI_Basis, CI_Basis_To_File, CI_Basis_To_Lucia, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
-          CI_Lucia_To_Basis, CI_Timer, CI_Work_Need, Faro_CI, Faro_nTmp, HPsi_Faro_Verified, HPsi_FaroRAS_Verified, &
+          CI_Lucia_To_Basis, CI_Timer, CI_Work_Need, Faro_CI, HPsi_Faro_Verified, HPsi_FaroRAS_Verified, &
           HPsi_RAS_Verified, HPsi_SG_Verified, IHI_Avg_Verified, IHI_Faro_SG_Verified, IHI_SG_Verified, IHJ_Verified, nTimOp, &
           PDM_Faro_Verified, PDM_SG_Verified, Ref_Sigma, SD_ASTA_Verified, SG_Avail, SG_CI, SG_HDiag_G, SG_HPsi, &
           SG_Spin_Density_ASTA, SG_Spin_PDM_G, SG_Trans_PDM_G, SG_Two_PDM_G, T1DM_Faro_Verified, T1DM_SG_Verified, Tim_Calls, &
           Tim_CPU, Tim_HPsi, Tim_IHI, Tim_IHJ, Tim_Label, Tim_Off, Tim_On, Tim_PDM, Tim_Print, Tim_T1DM, Tim_TraPsi, Tim_Wall, &
           TraPsi_Faro_Verified, TraPsi_Verified
 
-! Mk_IHJ is verified against Mk_H_Psi only once per run.
+! CI_Lib_Block is verified against CI_Lib_Sigma only once per run.
 logical(kind=iwp) :: IHJ_Verified = .false.
 ! sg_h_psi_ras is compared with sg_h_psi (CAS) only once per run; for RAS
 ! the difference to the CI back end is printed once (checked every time).
 logical(kind=iwp) :: HPsi_RAS_Verified = .false.
-! The SGUGA CI transformation (Mk_Tra_Psi, SIGMA) is checked on every call,
+! The SGUGA CI transformation (CI_Lib_Transform, SIGMA) is checked on every call,
 ! its maximum error printed once.
 logical(kind=iwp) :: TraPsi_Verified = .false.
 ! SGCI: the SGUGA sigma vector compared with Lucia (SIGMA), printed once.
@@ -76,9 +74,9 @@ logical(kind=iwp) :: SD_ASTA_Verified = .false.
 ! CPU and wall time and number of calls of the operations of the CI
 ! interface, for every back end (CI_Timer: 'Init' resets, 'Print' prints)
 integer(kind=iwp), parameter :: Tim_HPsi = 1, Tim_IHI = 2, Tim_IHJ = 3, Tim_PDM = 4, Tim_T1DM = 5, Tim_TraPsi = 6, nTimOp = 6
-character(len=*), parameter :: Tim_Label(nTimOp) = ['H|Psi> (Mk_H_Psi)        ','diagonal (Mk_IHI)        ', &
-                                                    'explicit block (Mk_IHJ)  ','densities (Mk_pdms)      ', &
-                                                    'transition (Mk_T1DM)     ','CI transform (Mk_Tra_Psi)']
+character(len=*), parameter :: Tim_Label(nTimOp) = ['H|Psi> (CI_Lib_Sigma)          ','diagonal (CI_Lib_Diag)         ', &
+                                                    'explicit block (CI_Lib_Block)  ','densities (CI_Lib_Dens)        ', &
+                                                    'transition (CI_Lib_Dens)       ','CI transform (CI_Lib_Transform)']
 real(kind=wp) :: Tim_CPU(nTimOp) = Zero, Tim_Wall(nTimOp) = Zero
 integer(kind=iwp) :: Tim_Calls(nTimOp) = 0
 
@@ -109,17 +107,6 @@ integer(kind=iwp), intent(in) :: nela, nelb, np, o(np), mn(np), mx(np)
 real(kind=wp) :: n
 n = ras_count_dets(nela,nelb,np,o,mn,mx)
 end function CI_Faro_nDet_RAS
-
-!> FARO: the size of the determinant scratch of Faroald_Sigma (ctemp,
-!> sigtemp): the full determinant matrix, not needed with RAS (faroald_ras).
-function Faro_nTmp() result(n)
-integer(kind=iwp) :: n
-if (ras_active) then
-  n = 1
-else
-  n = nDetA*nDetB
-end if
-end function Faro_nTmp
 
 !> The memory (words) the active CI back ends need besides the CI vectors of
 !> the caller, for the Davidson vector store (Ini_David) to leave free; the
@@ -500,11 +487,11 @@ else
 end if
 write(u6,*)
 write(u6,'(1X,A,A)') 'CI interface timings, back end ',trim(BackEnd)
-write(u6,'(1X,A25,3X,A12,A12,A10)') 'operation','CPU (s)','wall (s)','calls'
+write(u6,'(1X,A32,3X,A12,A12,A10)') 'operation','CPU (s)','wall (s)','calls'
 do k=1,nTimOp
-  if (Tim_Calls(k) > 0) write(u6,'(1X,A25,3X,2F12.3,I10)') Tim_Label(k),Tim_CPU(k),Tim_Wall(k),Tim_Calls(k)
+  if (Tim_Calls(k) > 0) write(u6,'(1X,A32,3X,2F12.3,I10)') Tim_Label(k),Tim_CPU(k),Tim_Wall(k),Tim_Calls(k)
 end do
-write(u6,'(1X,A25,3X,2F12.3)') 'total',sum(Tim_CPU),sum(Tim_Wall)
+write(u6,'(1X,A32,3X,2F12.3)') 'total',sum(Tim_CPU),sum(Tim_Wall)
 end subroutine Tim_Print
 
 end module CI_Lib_Checks

@@ -125,7 +125,7 @@ subroutine Check_PDMs(iState,LSM,nVec,C,I12,n1,Rho1,n2,Rho2)
       Dev(4) = maxval(abs(PATMP(1:NACPR2)-Rho2(NACPR2+1:2*NACPR2)))
     end if
     Done = PDM_SG_Verified
-    call Report_Dev('Mk_pdms: D, SD, P, PA vs Lucia',maxval(Dev),ThrD,Done)
+    call Report_Dev('CI_Lib_Dens: D, SD, P, PA vs Lucia',maxval(Dev),ThrD,Done)
     call mma_deallocate(PATMP)
     call mma_deallocate(PTMP)
     call mma_deallocate(DSTMP)
@@ -150,7 +150,7 @@ subroutine Check_PDMs(iState,LSM,nVec,C,I12,n1,Rho1,n2,Rho2)
       Dev(4) = maxval(abs(PAS(1:NACPR2)-Rho2(NACPR2+1:2*NACPR2)))
     end if
     Done = PDM_Faro_Verified
-    call Report_Dev('Mk_pdms: D, SD, P, PA vs SGUGA',maxval(Dev),ThrD,Done)
+    call Report_Dev('CI_Lib_Dens: D, SD, P, PA vs SGUGA',maxval(Dev),ThrD,Done)
     call mma_deallocate(PAS)
     call mma_deallocate(PS)
     call mma_deallocate(SDS)
@@ -162,7 +162,7 @@ subroutine Check_PDMs(iState,LSM,nVec,C,I12,n1,Rho1,n2,Rho2)
     call mma_allocate(SDA,NACPAR,Label='SDA')
     call SG_Spin_Density_ASTA(iState,LSM,nVec,CIL,NACPAR,SDA)
     Done = SD_ASTA_Verified
-    call Report_Dev('Mk_pdms: spin density, ASTA T_pq vs the CI library',maxval(abs(SDA(:)-SD(1:NACPAR))),ThrD,Done)
+    call Report_Dev('CI_Lib_Dens: spin density, ASTA T_pq vs the CI library',maxval(abs(SDA(:)-SD(1:NACPAR))),ThrD,Done)
     SD_ASTA_Verified = .true.
     call mma_deallocate(SDA)
   end if
@@ -226,7 +226,7 @@ subroutine Check_T1DM(iState,LSM,nVec,Bra_Vec,Ket_Vec,n1,Rho1,n2)
     Dev(2) = Zero
     if (CI_St(iState)%iSpin > 1) Dev(2) = maxval(abs(DSTMP(1:NAC*NAC)-T1SDM(1:NAC*NAC)))
     Done = T1DM_Faro_Verified
-    call Report_Dev('Mk_T1DM: T1DM, T1SDM vs Lucia',maxval(Dev),ThrD,Done)
+    call Report_Dev('CI_Lib_Dens: T1DM, T1SDM vs Lucia',maxval(Dev),ThrD,Done)
     call mma_deallocate(DSTMP)
     call mma_deallocate(DTMP)
   end if
@@ -244,7 +244,7 @@ subroutine Check_T1DM(iState,LSM,nVec,Bra_Vec,Ket_Vec,n1,Rho1,n2)
       end do
     end do
     Done = T1DM_SG_Verified
-    call Report_Dev('Mk_T1DM: T1DM, T1SDM vs SGUGA',maxval(Dev),ThrD,Done)
+    call Report_Dev('CI_Lib_Dens: T1DM, T1SDM vs SGUGA',maxval(Dev),ThrD,Done)
     call mma_deallocate(TSS)
     call mma_deallocate(TS)
   end if
@@ -298,7 +298,7 @@ subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag,nPMax)
           call Exact_Diag_Lucia(iState,n,nTU,TU,nTUVX,TUVX,DL)
           Diag(:) = DL(:)
           call mma_deallocate(DL)
-          write(u6,'(1X,A)') 'Mk_IHI: exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
+          write(u6,'(1X,A)') 'CI_Lib_Diag: exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
         end if
     end select
   end if
@@ -414,11 +414,11 @@ subroutine Check_Diag_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
     call Diag_To_Lucia(iState,n,Diag,DAvgL)
     MaxDev = maxval(abs(DAvgL(:)-DL(:)))
     if (.not. IHI_Avg_Verified) &
-      write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (SGCI): SGUGA configuration-average diagonal verified against Lucia, ',n, &
+      write(u6,'(1X,A,I0,A,ES10.3)') 'CI_Lib_Diag (SGCI): SGUGA configuration-average diagonal verified against Lucia, ',n, &
                                      ' CSFs, max. error ',MaxDev
     IHI_Avg_Verified = .true.
     if (MaxDev > ThrDia*max(One,maxval(abs(DL(:))))) then
-      write(u6,*) 'Mk_IHI: the SGUGA configuration-average diagonal differs from Lucia'
+      write(u6,*) 'CI_Lib_Diag: the SGUGA configuration-average diagonal differs from Lucia'
       call Abend()
     end if
     call mma_deallocate(DAvgL)
@@ -430,7 +430,7 @@ subroutine Check_Diag_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
   call Raw_Diag(iState,CI_Diag_Exact,CI_St(iState)%STSym,nTU,TU,nTUVX,TUVX,Zero,n,DEx)
   if (CI_Verify('HDIAG')) then
     Diag(:) = DEx(:)
-    write(u6,'(1X,A)') 'Mk_IHI (SGCI): exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
+    write(u6,'(1X,A)') 'CI_Lib_Diag (SGCI): exact SGUGA diagonal used (MOLCAS_CI_VERIFY=HDIAG)'
   end if
   if (CI_Verify('SIGMA') .and. (n <= MxRef)) then
     call mma_allocate(DRef,n,Label='DRef')
@@ -438,11 +438,11 @@ subroutine Check_Diag_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
     call HEXS_Proj(HEXS_Keep_SG,DRef)
     MaxDev = maxval(abs(DEx(:)-DRef(:)))
     if (.not. IHI_SG_Verified) &
-      write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (SGCI): sg_hdiag_fast verified against sg_hdiag_ref, ',n,' CSFs, max. error ', &
+      write(u6,'(1X,A,I0,A,ES10.3)') 'CI_Lib_Diag (SGCI): sg_hdiag_fast verified against sg_hdiag_ref, ',n,' CSFs, max. error ', &
                                      MaxDev
     IHI_SG_Verified = .true.
     if (MaxDev > ThrDia*max(One,maxval(abs(DRef(:))))) then
-      write(u6,*) 'Mk_IHI: sg_hdiag_fast differs from sg_hdiag_ref'
+      write(u6,*) 'CI_Lib_Diag: sg_hdiag_fast differs from sg_hdiag_ref'
       call Abend()
     end if
     call mma_deallocate(DRef)
@@ -497,9 +497,9 @@ subroutine Check_Diag_Faro(iState,n,Diag,nTU,TU,nTUVX,TUVX)
       call mma_deallocate(cf)
     end do
     call mma_deallocate(Kept)
-    write(u6,'(1X,A,ES10.3)') 'Mk_IHI (Faroald): occupation formula vs determinant average, max. difference ',MaxDev
+    write(u6,'(1X,A,ES10.3)') 'CI_Lib_Diag (Faroald): occupation formula vs determinant average, max. difference ',MaxDev
     if (MaxDev > ThrDia*max(One,maxval(abs(Diag(1:n))))) then
-      write(u6,*) 'Mk_IHI: the Faroald occupation formula differs from the determinant average'
+      write(u6,*) 'CI_Lib_Diag: the Faroald occupation formula differs from the determinant average'
       call Abend()
     end if
   end if
@@ -517,11 +517,11 @@ subroutine Check_Diag_Faro(iState,n,Diag,nTU,TU,nTUVX,TUVX)
     MaxDev = max(MaxDev,abs(Diag(nint(abs(Map(i))))-DL(i)))
   end do
   if (.not. IHI_Avg_Verified) &
-    write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI (Faroald): configuration-average diagonal verified against Lucia, ',n, &
+    write(u6,'(1X,A,I0,A,ES10.3)') 'CI_Lib_Diag (Faroald): configuration-average diagonal verified against Lucia, ',n, &
                                    ' CSFs, max. error ',MaxDev
   IHI_Avg_Verified = .true.
   if (MaxDev > ThrDia*max(One,maxval(abs(DL(:))))) then
-    write(u6,*) 'Mk_IHI: the Faroald configuration-average diagonal differs from Lucia'
+    write(u6,*) 'CI_Lib_Diag: the Faroald configuration-average diagonal differs from Lucia'
     call Abend()
   end if
   call mma_deallocate(Map)
@@ -564,8 +564,8 @@ subroutine Check_Diag_Faro_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
   do i=1,n
     MaxDev = max(MaxDev,abs(Diag(nint(abs(Map(i))))-DSG(i)))
   end do
-  call Report_Dev('Mk_IHI (FARO): Faroald configuration-average diagonal vs SGUGA',MaxDev,ThrDia*max(One,maxval(abs(DSG(:)))), &
-                  IHI_Faro_SG_Verified)
+  call Report_Dev('CI_Lib_Diag (FARO): Faroald configuration-average diagonal vs SGUGA',MaxDev, &
+                  ThrDia*max(One,maxval(abs(DSG(:)))),IHI_Faro_SG_Verified)
   call mma_deallocate(Map)
   call mma_deallocate(Idx)
   call mma_deallocate(DSG)
@@ -612,11 +612,11 @@ subroutine Check_Diag_Lucia(iState,n,Diag,nTU,TU,nTUVX,TUVX,nPMax)
       Dev = abs(DSG(i)-DRef(i))
       MaxDev = max(MaxDev,Dev)
       if (Dev > ThrDia*max(One,abs(DRef(i)))) then
-        write(u6,*) 'Mk_IHI: sg_hdiag_fast differs from sg_hdiag_ref for CSF',i,DSG(i),DRef(i)
+        write(u6,*) 'CI_Lib_Diag: sg_hdiag_fast differs from sg_hdiag_ref for CSF',i,DSG(i),DRef(i)
         call Abend()
       end if
     end do
-    write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI: sg_hdiag_fast verified against sg_hdiag_ref, ',n,' CSFs, max. error ',MaxDev
+    write(u6,'(1X,A,I0,A,ES10.3)') 'CI_Lib_Diag: sg_hdiag_fast verified against sg_hdiag_ref, ',n,' CSFs, max. error ',MaxDev
     call mma_deallocate(DRef)
   end if
 
@@ -663,16 +663,16 @@ subroutine Check_Diag_Lucia(iState,n,Diag,nTU,TU,nTUVX,TUVX,nPMax)
       MaxDev = max(MaxDev,Dev)
       if (Dev > ThrDia*max(One,abs(DEx(iC+1)))) then
         nSDErr = nSDErr+1
-        if (nSDErr <= MxPrt) write(u6,*) 'Mk_IHI: single-determinant configuration',k,' CI solver:',Diag(iC+1),' exact:',DEx(iC+1)
+        if (nSDErr <= MxPrt) write(u6,*) 'CI_Lib_Diag: single-det. configuration',k,' CI solver:',Diag(iC+1),' exact:',DEx(iC+1)
       end if
     end if
     iC = iC+nC
   end do
   if (nSDErr > 0) then
-    write(u6,*) 'Mk_IHI: diagonal of single-determinant configurations differs from SGUGA'
+    write(u6,*) 'CI_Lib_Diag: diagonal of single-determinant configurations differs from SGUGA'
     call Abend()
   end if
-  write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHI: diagonal verified against SGUGA for ',nSD,' single-determinant configurations, &
+  write(u6,'(1X,A,I0,A,ES10.3)') 'CI_Lib_Diag: diagonal verified against SGUGA for ',nSD,' single-determinant configurations, &
                                  &max. error ',MaxDev
 
   if (present(nPMax)) then
@@ -686,7 +686,7 @@ subroutine Check_Diag_Lucia(iState,n,Diag,nTU,TU,nTUVX,TUVX,nPMax)
     nSelL = count(SelL)
     nSelMin = count(SelMin)
     nSelMean = count(SelMean)
-    write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A)') 'Mk_IHI: explicit subspace (NSEL = ',nPMax,' of ',n,' CSFs, ',nCnf, &
+    write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A)') 'CI_Lib_Diag: explicit subspace (NSEL = ',nPMax,' of ',n,' CSFs, ',nCnf, &
                                            ' configurations) from the CI-solver diagonal: ',nSelL,' configurations'
     if (nPMax >= n) write(u6,'(1X,A)') '        (the whole space, the comparison is trivial)'
     nBoth = count(SelL .and. SelMin)
@@ -862,7 +862,7 @@ subroutine CI_Lib_Sigma_Det(iState,iSym,nTU,TU,nTUVX,TUVX,nDet,C,S)
     call SD_CSF_Codec(T1,T2,CSF_to_SD,iSym)
     do iDet=1,nDet
       if (abs(T1(iDet)-S(iDet)) > 1.0e-10_wp) then
-        write(u6,*) 'Mk_H_Psi_Det: Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp)'
+        write(u6,*) 'CI_Lib_Sigma_Det: Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp)'
         write(u6,*) ' iDet=',iDet
         write(u6,*) 'temp1(iDet)=    ',T1(iDet)
         write(u6,*) 'Sigma_vec(iDet)=',S(iDet)
@@ -915,7 +915,7 @@ subroutine Check_Sigma(iState,LSM,n,C,S,nTU,TU,nTUVX,TUVX)
     call SG_ReOrd(iState,LSM,0,n,SG_SGM,SG_PSI)
     DMax = maxval(abs(SG_PSI(1:n)-S(:)))
     if (.not. HPsi_SG_Verified) then
-      write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi (SGCI): SGUGA sigma vs Lucia, max. abs. difference',DMax
+      write(u6,'(1X,A,ES10.3)') 'CI_Lib_Sigma (SGCI): SGUGA sigma vs Lucia, max. abs. difference',DMax
       HPsi_SG_Verified = .true.
     end if
     if (DMax > 1.0e-10_wp*max(One,maxval(abs(S(:))))) then
@@ -934,7 +934,7 @@ subroutine Check_Sigma(iState,LSM,n,C,S,nTU,TU,nTUVX,TUVX)
     call Ref_Sigma('Lucia',iState,LSM,n,CM,SG_SGM,nTU,TU,nTUVX,TUVX)
     DMax = maxval(abs(SG_SGM(:)-S(:)))
     Lucia_Done = HPsi_Faro_Verified
-    call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs Lucia',DMax,1.0e-10_wp*max(One,maxval(abs(S(:)))),Lucia_Done)
+    call Report_Dev('CI_Lib_Sigma (FARO): Faroald sigma vs Lucia',DMax,1.0e-10_wp*max(One,maxval(abs(S(:)))),Lucia_Done)
     call mma_deallocate(SG_SGM)
   end if
 
@@ -954,7 +954,7 @@ subroutine Check_Sigma(iState,LSM,n,C,S,nTU,TU,nTUVX,TUVX)
         call mma_allocate(SG_RAS,n,Label='SG_RAS')
         call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),SG_PSI,n,LSM,SG_RAS,TUVX,nTUVX,TU,nTU)
         DMax = maxval(abs(SG_RAS(:)-SG_SGM(:)))
-        write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs sg_h_psi, max. abs. difference',DMax
+        write(u6,'(1X,A,ES10.3)') 'CI_Lib_Sigma: sg_h_psi_ras vs sg_h_psi, max. abs. difference',DMax
         if (DMax > 1.0e-12_wp*max(One,maxval(abs(SG_SGM(:))))) then
           write(u6,*) 'SGUGA error in sg_h_psi_ras'
           call Abend()
@@ -970,7 +970,7 @@ subroutine Check_Sigma(iState,LSM,n,C,S,nTU,TU,nTUVX,TUVX)
     if ((CI_St(iState)%nRsPrt /= 1) .or. iDoGAS) then
       DMax = maxval(abs(SG_PSI(:)-S(:)))
       if (.not. HPsi_RAS_Verified) &
-        write(u6,'(1X,A,ES10.3)') 'Mk_H_Psi: sg_h_psi_ras vs CI back end (RAS), max. abs. difference',DMax
+        write(u6,'(1X,A,ES10.3)') 'CI_Lib_Sigma: sg_h_psi_ras vs CI back end (RAS), max. abs. difference',DMax
       HPsi_RAS_Verified = .true.
       if (DMax > 1.0e-10_wp*max(One,maxval(abs(S(:))))) then
         write(u6,'(1X,A,ES10.3)') 'SGUGA error in sg_h_psi_ras (RAS), max. abs. difference',DMax
@@ -979,8 +979,8 @@ subroutine Check_Sigma(iState,LSM,n,C,S,nTU,TU,nTUVX,TUVX)
     end if
     if (Faro_CI()) then
       SG_Done = HPsi_Faro_Verified
-      call Report_Dev('Mk_H_Psi (FARO): Faroald sigma vs SGUGA',maxval(abs(SG_PSI(:)-S(:))),1.0e-10_wp*max(One,maxval(abs(S(:)))), &
-                      SG_Done)
+      call Report_Dev('CI_Lib_Sigma (FARO): Faroald sigma vs SGUGA',maxval(abs(SG_PSI(:)-S(:))), &
+                      1.0e-10_wp*max(One,maxval(abs(S(:)))),SG_Done)
       HPsi_Faro_Verified = .true.
     end if
     Check_H = CheckSum(SG_PSI,n)
@@ -1106,9 +1106,9 @@ subroutine CI_Lib_Transform(iState,iSym,nTU,TU,n,CI)
     call CI_Lucia_To_Basis(iState,iSym,n,CI_Ref,ctemp)
     Dev = maxval(abs(CI(:)-ctemp(:)))
     if (SG_CI()) then
-      call Report_Dev('Mk_Tra_Psi (SGCI): SGUGA CI transformation vs Lucia',Dev,1.0e-10_wp,TraPsi_Verified)
+      call Report_Dev('CI_Lib_Transform (SGCI): SGUGA CI transformation vs Lucia',Dev,1.0e-10_wp,TraPsi_Verified)
     else
-      call Report_Dev('Mk_Tra_Psi (FARO): Faroald CI transformation vs Lucia',Dev,1.0e-10_wp,TraPsi_Faro_Verified)
+      call Report_Dev('CI_Lib_Transform (FARO): Faroald CI transformation vs Lucia',Dev,1.0e-10_wp,TraPsi_Faro_Verified)
     end if
     call mma_deallocate(ctemp)
     call mma_deallocate(CI_Ref)
@@ -1116,7 +1116,7 @@ subroutine CI_Lib_Transform(iState,iSym,nTU,TU,n,CI)
   if (Verify_SG) then
     call mma_allocate(ctemp,n,Label='ctemp')
     call CI_File_To_Basis(iState,iSym,n,CI_SGUGA,ctemp)
-    call Report_Dev('Mk_Tra_Psi: SGUGA CI transformation vs the CI library',maxval(abs(CI(:)-ctemp(:))), &
+    call Report_Dev('CI_Lib_Transform: SGUGA CI transformation vs the CI library',maxval(abs(CI(:)-ctemp(:))), &
                     1.0e-10_wp*max(One,maxval(abs(CI(:)))),TraPsi_Verified)
     call mma_deallocate(ctemp)
     call mma_deallocate(CI_SGUGA)
@@ -1202,7 +1202,7 @@ subroutine Check_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP
   else
     Lab = 'Lucia'
   end if
-  write(u6,'(1X,3A,I0,A,F10.3,A)') 'Mk_IHJ: ',trim(Lab),' block, ',nP,' CSFs, CPU ',TBlk,' s'
+  write(u6,'(1X,3A,I0,A,F10.3,A)') 'CI_Lib_Block: ',trim(Lab),' block, ',nP,' CSFs, CPU ',TBlk,' s'
 
   ! the number of CSFs of each selected configuration
   nCnf = CI_Lib_nCnf(iState,iSym)
@@ -1230,7 +1230,7 @@ subroutine Check_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP
       call Block_Ref('SGUGA',Lab,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nSelCnf,nP,IdxP,HP,HRef)
     call Verify_SG_Explicit(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,HP)
   else
-    write(u6,'(1X,A)') 'Mk_IHJ: SGUGA block skipped (not available with GAS)'
+    write(u6,'(1X,A)') 'CI_Lib_Block: SGUGA block skipped (not available with GAS)'
   end if
   call mma_deallocate(HRef)
   call mma_deallocate(nSelCnf)
@@ -1267,7 +1267,7 @@ subroutine Block_Ref(LabRef,Lab,iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nSel
       call Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HRef)
   end select
   call CWTime(T3,W)
-  write(u6,'(1X,3A,F10.3,A)') 'Mk_IHJ: ',LabRef,' block, CPU ',T3-T2,' s'
+  write(u6,'(1X,3A,F10.3,A)') 'CI_Lib_Block: ',LabRef,' block, CPU ',T3-T2,' s'
   call Block_Compare(trim(Lab),LabRef,nP,IdxP,HP,HRef)
 
 end subroutine Block_Ref
@@ -1335,7 +1335,7 @@ subroutine Block_Compare(Lab,LabRef,nP,IdxP,HP,HRef)
       IJ = nTri_Elem(I-1)+J
       ErrMax = max(ErrMax,abs(HP(IJ)-HRef(IJ)))
       if (abs(HP(IJ)-HRef(IJ)) > Thr) then
-        write(u6,*) 'Mk_IHJ: <I|H|J> of ',Lab,' differs from ',LabRef
+        write(u6,*) 'CI_Lib_Block: <I|H|J> of ',Lab,' differs from ',LabRef
         write(u6,*) 'I, J, CSF(I), CSF(J) =',I,J,IdxP(I),IdxP(J)
         write(u6,*) Lab,' =',HP(IJ)
         write(u6,*) LabRef,' =',HRef(IJ)
@@ -1343,7 +1343,7 @@ subroutine Block_Compare(Lab,LabRef,nP,IdxP,HP,HRef)
       end if
     end do
   end do
-  write(u6,'(1X,5A,I0,A,ES10.3)') 'Mk_IHJ: ',Lab,' verified against ',LabRef,', ',nP,' CSFs, max. error ',ErrMax
+  write(u6,'(1X,5A,I0,A,ES10.3)') 'CI_Lib_Block: ',Lab,' verified against ',LabRef,', ',nP,' CSFs, max. error ',ErrMax
 
 end subroutine Block_Compare
 
@@ -1385,16 +1385,16 @@ subroutine Block_Columns(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nP,IdxP,HP)
       Err = abs(HP(nTri_Elem(max(I,J)-1)+min(I,J))-Ref)
       ErrMax = max(ErrMax,Err)
       if (Err > Thr) then
-        write(u6,*) 'Mk_IHJ: <I|H|J> differs from (H e_J)(I)'
+        write(u6,*) 'CI_Lib_Block: <I|H|J> differs from (H e_J)(I)'
         write(u6,*) 'I, J, CSF(I), CSF(J) =',I,J,IdxP(I),IdxP(J)
-        write(u6,*) 'Mk_IHJ   =',HP(nTri_Elem(max(I,J)-1)+min(I,J))
-        write(u6,*) 'Mk_H_Psi =',Ref
+        write(u6,*) 'CI_Lib_Block   =',HP(nTri_Elem(max(I,J)-1)+min(I,J))
+        write(u6,*) 'CI_Lib_Sigma =',Ref
         call Abend()
       end if
     end do
   end do
   Sigma_on_disk = Sigma_Save
-  write(u6,'(1X,A,I0,A,I0,A,ES10.3)') 'Mk_IHJ verified against Mk_H_Psi: ',nCol,' of ',nP,' columns, max. error ',ErrMax
+  write(u6,'(1X,A,I0,A,I0,A,ES10.3)') 'CI_Lib_Block verified against CI_Lib_Sigma: ',nCol,' of ',nP,' columns, max. error ',ErrMax
   call mma_deallocate(HEJ)
   call mma_deallocate(EJ)
 
@@ -1452,7 +1452,7 @@ subroutine Verify_SG_Explicit(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,
   call CI_Lib_Cnf_Layout(iState,iSym,size(nCSFL),nCSFL,nConf,GtoL)
   call mma_deallocate(GtoL)
   if (size(nCSFL) /= Cnf%nCnf) then
-    write(u6,*) 'Mk_IHJ: number of configurations, CI back end and SGUGA:',size(nCSFL),Cnf%nCnf
+    write(u6,*) 'CI_Lib_Block: number of configurations, CI back end and SGUGA:',size(nCSFL),Cnf%nCnf
     call Abend()
   end if
   call mma_allocate(LtoGCnf,size(nCSFL),Label='LtoGCnf')
@@ -1462,14 +1462,14 @@ subroutine Verify_SG_Explicit(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,
   do k=1,size(nCSFL)
     kG = CnfOfG(LtoG(iOffL+1))
     if (any(CnfOfG(LtoG(iOffL+1:iOffL+nCSFL(k))) /= kG) .or. (nCSFL(k) /= Cnf%iOff(kG+1)-Cnf%iOff(kG)) .or. SelG(kG)) then
-      write(u6,*) 'Mk_IHJ: configuration',k,' of the CI back end is not one SGUGA configuration'
+      write(u6,*) 'CI_Lib_Block: configuration',k,' of the CI back end is not one SGUGA configuration'
       call Abend()
     end if
     SelG(kG) = .true.
     LtoGCnf(k) = kG
     iOffL = iOffL+nCSFL(k)
   end do
-  write(u6,'(1X,A,I0,A)') 'Mk_IHJ: SGUGA configuration list verified, ',Cnf%nCnf,' configurations as in the CI back end'
+  write(u6,'(1X,A,I0,A)') 'CI_Lib_Block: SGUGA configuration list verified, ',Cnf%nCnf,' configurations as in the CI back end'
   ! (2) the SGUGA selection with its configuration-average diagonal (the key
   ! of SGCI and of Lucia: differences come from ties only)
   call mma_allocate(DSG,nConf,Label='DSG')
@@ -1486,7 +1486,7 @@ subroutine Verify_SG_Explicit(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,
   SelL(LtoGCnf(IPC(1:nPC))) = .true.
   nBoth = count(SelG .and. SelL)
   nLSel = count(SelL)
-  write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A,I0,A)') 'Mk_IHJ: SGUGA selection (configuration average): ',nGSel,' configurations, ', &
+  write(u6,'(1X,A,I0,A,I0,A,I0,A,I0,A,I0,A)') 'CI_Lib_Block: SGUGA selection (configuration average): ',nGSel,' configurations, ', &
                                               nGCSF,' CSFs; CI back end: ',nLSel,' configurations; ',nBoth,' in common, ', &
                                               count(SelG .neqv. SelL),' differ'
   ! (3) SGUGA block over the configurations selected by the library (for GAS
@@ -1506,10 +1506,10 @@ subroutine Verify_SG_Explicit(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,
   HG(:) = HP(:)
   call Block_Eigenvalues(HG,nP,EL)
   Dev = maxval(abs(EG(:)-EL(:)))
-  write(u6,'(1X,A,I0,A,ES10.3)') 'Mk_IHJ: SG_Explicit_Block, eigenvalues verified against the block in use, ',nP, &
+  write(u6,'(1X,A,I0,A,ES10.3)') 'CI_Lib_Block: SG_Explicit_Block, eigenvalues verified against the block in use, ',nP, &
                                  ' CSFs, max. error ',Dev
   if (Dev > Thr*max(One,maxval(abs(EL(:))))) then
-    write(u6,*) 'Mk_IHJ: eigenvalues of the SGUGA explicit block differ'
+    write(u6,*) 'CI_Lib_Block: eigenvalues of the SGUGA explicit block differ'
     call Abend()
   end if
   call mma_deallocate(EL)

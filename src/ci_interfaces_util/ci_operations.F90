@@ -1373,10 +1373,10 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
   ! for RASSCF's Lucia; not with GAS without the relaxed space, nor Faroald
   if (DoSGEx .and. (iState == iState_Input) .and. (.not. SGEx_Warned)) then
     if (.not. SG_Block_Avail(iState)) then
-      write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA is not available with GAS; using the CI back end'
+      write(u6,'(1X,A)') 'CI_Lib_Block: SGEX ignored, SGUGA is not available with GAS; using the CI back end'
       SGEx_Warned = .true.
     else if (CI_Lib == CI_Lib_Faroald) then
-      write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored with FARO; the explicit block is computed by Faroald'
+      write(u6,'(1X,A)') 'CI_Lib_Block: SGEX ignored with FARO; the explicit block is computed by Faroald'
       SGEx_Warned = .true.
     end if
   end if
