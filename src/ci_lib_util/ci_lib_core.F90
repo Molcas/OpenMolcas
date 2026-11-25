@@ -178,9 +178,9 @@ subroutine CI_Lib_Report()
     case (CI_Lib_Lucia)
       Name = 'LUCIA'
     case (CI_Lib_SGUGA)
-      Name = 'SGUGA'
+      Name = 'Split-Graph UGA'
     case (CI_Lib_Faroald)
-      Name = 'FAROALD (experimental)'
+      Name = 'FAROALD'
     case (CI_Lib_MCLR_Lucia)
       Name = 'LUCIA (copy in MCLR)'
     case default
@@ -275,9 +275,7 @@ subroutine CI_Lib_Setup_Input(iState)
   end if
 
   if (CI_Verify('SIGMA')) then
-    write(u6,'(1X,A)') '**EXPERIMENTAL**'
     write(u6,'(1X,A)') 'CI back end cross-checked against SGUGA (MOLCAS_CI_VERIFY=SIGMA).'
-    write(u6,'(1X,A)') '**EXPERIMENTAL**'
   end if
   call CI_Lib_Graph_Setup(iState)
   ! GAS: the split graph against Lucia's CSF count of the CI symmetry (with

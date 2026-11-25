@@ -2282,19 +2282,21 @@ A list of these keywords is given below:
 
 :kword:`SGEX`
   The explicit Hamiltonian of keyword :kword:`SDAV` is computed with the
-  symmetric-group graphical unitary group approach (SGUGA) directly in the
-  CSF basis, instead of by the CI back end (Lucia, or Faroald with
-  :kword:`FAROALD`) through the determinant expansion of each configuration.
-  For CASSCF, RASSCF and GASSCF (also with :kword:`HEXS` or :kword:`DEXS`;
-  for GAS the matrix elements are evaluated in a relaxed space whose GAS
-  bounds are widened by one electron). Experimental.
+  split-graph unitary group approach (Split-Graph UGA, SGUGA) directly in the
+  CSF basis, instead of by Lucia (keyword :kword:`LUCIA`) through the
+  determinant expansion of each configuration. With the default CI library
+  (SGUGA, see :kword:`SGCI`) the explicit Hamiltonian is always computed this
+  way, and with :kword:`FAROALD` the keyword has no effect. For CASSCF, RASSCF
+  and GASSCF (also with :kword:`HEXS` or :kword:`DEXS`; for GAS the matrix
+  elements are evaluated in a relaxed space whose GAS bounds are widened by
+  one electron).
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGEX" APPEAR="SGUGA explicit Hamiltonian" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: SGEX <advanced>
               <HELP>
               Compute the explicit Hamiltonian of the Davidson procedure (SDAV)
-              with SGUGA in the CSF basis instead of with the CI back end.
-              CASSCF, RASSCF and GASSCF. Experimental.
+              with SGUGA in the CSF basis instead of with Lucia (LUCIA).
+              CASSCF, RASSCF and GASSCF.
               </HELP>
               </KEYWORD>
 
@@ -2308,7 +2310,9 @@ A list of these keywords is given below:
   without symmetry; RAS and GAS spaces use string-driven sigma vectors over
   the determinants of the restricted space only, and :kword:`HEXS` and
   :kword:`DEXS` are supported. With DMRG, NECI or CASVB the keyword is
-  ignored; :kword:`SGEX` has no effect with it. Experimental.
+  ignored; :kword:`SGEX` has no effect with it. If Faroald cannot run the CI
+  (more than 30 active orbitals, or the determinants do not fit in the
+  memory), the CI is done by SGUGA, or by Lucia with :kword:`LUCIA`.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" APPEAR="Faroald CI" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: FAROald <advanced>
@@ -2316,26 +2320,40 @@ A list of these keywords is given below:
               Do the whole CI with Faroald (determinant-based) in its own CSF
               basis, without Lucia. CASSCF, RASSCF and GASSCF with or without
               symmetry, also with HEXS and DEXS, not with DMRG, NECI or CASVB.
-              Experimental.
               </HELP>
               </KEYWORD>
 
 :kword:`SGCI`
-  Do the whole CI with SGUGA in its own (split-graph) CSF basis: the diagonal,
-  the explicit Hamiltonian of the Davidson procedure, the sigma vectors, the
-  density matrices (including the spin density) and the CI transformation of
-  the orbital optimization, without Lucia. For CASSCF, RASSCF and GASSCF
-  (also with :kword:`HEXS`, :kword:`DEXS` and :kword:`TDM`; for GAS the
-  products of excitation operators are evaluated in a relaxed space whose GAS
-  bounds are widened by one electron); with :kword:`FAROALD`, DMRG or CASVB
-  the keyword is ignored. Experimental.
+  Do the whole CI with the split-graph unitary group approach (Split-Graph
+  UGA, SGUGA) in its own (split-graph) CSF basis: the diagonal, the explicit
+  Hamiltonian of the Davidson procedure, the sigma vectors, the density
+  matrices (including the spin density) and the CI transformation of the
+  orbital optimization, without Lucia. This is the default CI library; the
+  keyword only states it explicitly. For CASSCF, RASSCF and GASSCF (also with
+  :kword:`HEXS`, :kword:`DEXS` and :kword:`TDM`; for GAS the products of
+  excitation operators are evaluated in a relaxed space whose GAS bounds are
+  widened by one electron). With DMRG, NECI or CASVB the CI is done by Lucia;
+  :kword:`FAROALD` and :kword:`LUCIA` select the other libraries. The output
+  names the CI library in the line "CI library initialized".
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SGCI" APPEAR="SGUGA CI" LEVEL="ADVANCED" KIND="SINGLE">
               %%Keyword: SGCI <advanced>
               <HELP>
-              Do the whole CI with SGUGA in its own CSF basis, without Lucia.
-              CASSCF, RASSCF and GASSCF (also HEXS, DEXS), not with FAROALD,
-              DMRG or CASVB. Experimental.
+              Do the whole CI with SGUGA (Split-Graph UGA) in its own CSF basis,
+              without Lucia. The default. CASSCF, RASSCF and GASSCF (also HEXS,
+              DEXS); with DMRG, NECI or CASVB the CI is done by Lucia.
+              </HELP>
+              </KEYWORD>
+
+:kword:`LUCIa`
+  Do the CI with Lucia, a determinant-based CI code, instead of the default
+  CI library (SGUGA, see :kword:`SGCI`). The CI vectors on the JobIph and HDF5
+  files are in the same (split-graph) order with every library.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="LUCIA" APPEAR="Lucia CI" LEVEL="ADVANCED" KIND="SINGLE">
+              %%Keyword: LUCIa <advanced>
+              <HELP>
+              Do the CI with Lucia instead of the default CI library (SGUGA).
               </HELP>
               </KEYWORD>
 

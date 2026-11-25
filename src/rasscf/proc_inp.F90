@@ -95,6 +95,7 @@ integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2
 integer(kind=iwp) :: nOrbGAS(MxGAS)
 integer(kind=iwp) :: MaxFaro
 real(kind=wp) :: dSum, Dummy(1), nDetFaro, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
+character(len=8) :: FaroFB
 logical(kind=iwp) :: DBG, DoFaro, DoSGCI, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists, SkipGUGA
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=256) :: myTitle
@@ -128,7 +129,7 @@ character(len=180), external :: Get_LN
 
 DoFaro = .false.
 DoSGEx = .false.
-DoSGCI = .false.
+DoSGCI = .true.
 
 #ifdef _DMRG_
 ! Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
@@ -3540,8 +3541,9 @@ else
   ! CI development: MOLCAS_CI_VERIFY=SGEX forces it (see CI_Verify)
   if (CI_Verify('SGEX')) DoSGEx = .true.
 
-  !---  Process SGCI command (the whole CI with SGUGA, in its own CSF basis)
-  if (Key('SGCI')) DoSGCI = .true.
+  !---  SGCI (the default) and LUCIa: the CI with SGUGA in its own CSF basis,
+  !     or with Lucia; FAROald (above) also replaces SGUGA
+  if (Key('LUCI') .or. DoFaro) DoSGCI = .false.
 
   !---  Process NOCA command
   if (DBG) write(u6,*) ' Check if NOCALC case.'
@@ -4111,16 +4113,17 @@ call mma_deallocate(initial_occ,safe='*')
 ! ======================================================================
 
 
-! SGCI: SGUGA covers CAS, RAS and GAS spaces (GAS through the relaxed space,
-! HEXS/DEXS applied by the CI interface), and is not combined with the
-! other CI back ends or wave function types.
+! SGUGA (the default CI library, keyword SGCI) covers CAS, RAS and GAS
+! spaces (GAS through the relaxed space, HEXS/DEXS applied by the CI
+! interface); not with DMRG, NECI or CASVB (CASVB works with the CSF basis
+! of Lucia), which then use Lucia.
 if (DoSGCI) then
-  if (DoFaro .or. DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
-    write(u6,'(1X,A)') 'SGCI keyword was used, but SGUGA cannot run this CI (FARO, DMRG, NECI or CASVB);'
-    write(u6,'(1X,A)') 'the CI is done by the CI backend.'
+  if (DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
+    if (Key('SGCI')) then
+      write(u6,'(1X,A)') 'SGCI keyword was used, but SGUGA cannot run this CI (DMRG, NECI or CASVB);'
+      write(u6,'(1X,A)') 'the CI is done by Lucia.'
+    end if
     DoSGCI = .false.
-  else
-    write(u6,'(1X,A)') '**EXPERIMENTAL** SGCI: the CI is done by SGUGA in its own CSF basis.'
   end if
 end if
 ! ======================================================================
@@ -4132,7 +4135,10 @@ if (.not. SkipGUGA) then
   ! force the Faroald SD CI code, to compare it with Lucia (not with the
   ! expert keyword; the restrictions of FARO below apply). Normal runs use
   ! Faroald only if requested with the FARO keyword.
-  if (CI_Verify('FARO') .and. (.not. DoSGCI) .and. (.not. Key('EXPE'))) DoFaro = .true.
+  if (CI_Verify('FARO') .and. (.not. Key('SGCI')) .and. (.not. Key('LUCI')) .and. (.not. Key('EXPE'))) then
+    DoFaro = .true.
+    DoSGCI = .false.
+  end if
   ! FARO: the CI in the configuration basis of Faroald (citrans), for
   ! CAS, RAS and GAS spaces (with symmetry, also with HEXS/DEXS, applied by
   ! the CI interface), and not with the other CI back ends or CASVB (which
@@ -4141,7 +4147,7 @@ if (.not. SkipGUGA) then
     if (DoDMRG .or. DoBlockDMRG .or. DoNECI .or. (IfVB /= 0)) then
       if (Key('FARO')) then
         write(u6,'(1X,A)') 'FARO keyword was used, but Faroald cannot run this CI (DMRG, NECI'
-        write(u6,'(1X,A)') 'or CASVB); the CI is done by the CI backend.'
+        write(u6,'(1X,A)') 'or CASVB); the CI is done by Lucia.'
       end if
       DoFaro = .false.
     end if
@@ -4152,6 +4158,9 @@ if (.not. SkipGUGA) then
   ! do not fit in the available memory. (The GAS description NGSSH, IGSOCCX
   ! is set for CAS and RAS as well.)
   if (DoFaro) then
+    ! the library used if Faroald cannot run this CI
+    FaroFB = 'SGUGA'
+    if (Key('LUCI')) FaroFB = 'Lucia'
     call mma_maxDBLE(MaxFaro)
     if (iDoGAS .or. (nHole1+nElec3 /= 0)) then
       do iGAS=1,NGAS
@@ -4164,12 +4173,14 @@ if (.not. SkipGUGA) then
     end if
     if (NAC > 30) then
       write(u6,'(1X,A,I0,A)') 'Faroald cannot run this CI: ',NAC,' active orbitals (at most 30, bit strings);'
-      write(u6,'(1X,A)') 'the CI is done by the CI backend.'
+      write(u6,'(1X,A)') 'the CI is done by '//trim(FaroFB)//'.'
       DoFaro = .false.
+      DoSGCI = .not. Key('LUCI')
     else if (8.0_wp*nDetFaro > real(MaxFaro,kind=wp)) then
       write(u6,'(1X,A,ES10.3,A)') 'Faroald cannot run this CI: ',nDetFaro,' determinants'
-      write(u6,'(1X,A)') 'do not fit in the available memory; the CI is done by the CI backend.'
+      write(u6,'(1X,A)') 'do not fit in the available memory; the CI is done by '//trim(FaroFB)//'.'
       DoFaro = .false.
+      DoSGCI = .not. Key('LUCI')
     end if
   end if
 
