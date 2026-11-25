@@ -18,7 +18,6 @@ use Lucia_Interface, only: Lucia_Util
 use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
 use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
 use faroald_ras, only: n_ras, ras_active, ras_sigma
-use CI_Op_Defs, only: CI_Lib, CI_Lib_Lucia, CI_Lib_SGUGA
 ! FARO: Faroald works with the active orbitals in the order of the levels
 ! of the split graph (by partition, within each by symmetry), so that its
 ! CSFs couple the spins in the order of the file basis. Faro_L2O(lev) is
@@ -26,14 +25,13 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Lucia, CI_Lib_SGUGA
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
-use CI_Operations, only: Cnf_Exc, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Block, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, &
+use CI_Operations, only: Cnf_Exc, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Block, CI_Lib_Close, CI_Lib_Diag, &
                          CI_Lib_Sigma, Faro_L2O => Faro_Lev, Faroald_HDet, Rel_Map, Report_Dev, SG_Rel_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
 use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_ras, sg_hdiag_fast, sg_hdiag_ref
-use SGUGA_Densities, only: sg_one_pdm
 use CI_Input, only: DoSGEx, iDoGAS
 use CI_Verify_Options, only: CI_Verify
 use CI_Info, only: CI_St
@@ -43,7 +41,7 @@ use CI_Info, only: CI_St
 implicit none
 Private
 
-Public :: Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
+Public :: Mk_H_Psi, Mk_H_Psi_Det, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
 Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
           CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_CI, Faro_nTmp, SG_CI
 
@@ -563,175 +561,6 @@ End Subroutine Mk_H_Psi_Det
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-!> One-particle spin density SD(iTri(p,q)) = <Psi|a+_pa a_qa - a+_pb a_qb|Psi>
-!> (levels, triangular packing as sg_spin_pdm) of the CI vector CI in the
-!> split-graph order, from the ASTA triplet operator (SG_Tpq_Psi): the
-!> segment values of the triplet operator, no two-particle intermediates.
-subroutine SG_Spin_Density_ASTA(iState,LSM,n,CI,nTri,SD)
-use sguga, only: SG_Tpq_Psi
-use Index_Functions, only: iTri
-integer(kind=iwp), intent(in) :: iState, LSM, n, nTri
-real(kind=wp), intent(in) :: CI(n)
-real(kind=wp), intent(out) :: SD(nTri)
-integer(kind=iwp) :: p, q
-real(kind=wp), allocatable :: Sgm(:)
-call mma_allocate(Sgm,n,Label='SD_Sgm')
-SD(:) = Zero
-do p=1,SGS(iState)%nLev
-  do q=1,p
-    if (SGS(iState)%ISm(p) /= SGS(iState)%ISm(q)) cycle
-    Sgm(:) = Zero
-    call SG_Tpq_Psi(iState,p,q,One,LSM,CI,Sgm)
-    SD(iTri(p,q)) = dot_product(CI,Sgm)
-  end do
-end do
-call mma_deallocate(Sgm)
-end subroutine SG_Spin_Density_ASTA
-
-Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
-! The densities of the state CIVec (basis of the selected library) in the
-! layout of RASSCF: D, SD (triangular), P, PA (packed pairs), in level
-! order, from CI_Lib_Dens in its packed layout (any library). Under
-! MOLCAS_CI_VERIFY=SIGMA compared with Lucia and SGUGA (those not in use).
-use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
-use Index_Functions, only: nTri_Elem
-implicit none
-integer(kind=iwp), intent(in) :: nCIVEC
-real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
-real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
-integer(kind=iwp), intent(in) :: nD, nP
-integer(kind=iwp), parameter :: iState = 1
-integer(kind=iwp) :: I12, LSM, NACPAR, NACPR2
-real(kind=wp), allocatable :: D_loc(:), P_loc(:), PA_loc(:), R2(:), SD_loc(:)
-real(kind=wp) :: TimT(2)
-
-call Tim_On(TimT)
-LSM = CI_St(iState)%STSym
-! the packed active pairs and pairs of pairs
-NACPAR = nTri_Elem(CI_St(iState)%nLev)
-NACPR2 = nTri_Elem(NACPAR)
-I12 = 1
-if (Present(P) .or. Present(PA)) I12 = 2
-call mma_allocate(D_loc,max(1,NACPAR),Label='D_loc')
-call mma_allocate(SD_loc,max(1,NACPAR),Label='SD_loc')
-call mma_allocate(P_loc,max(1,NACPR2),Label='P_loc')
-call mma_allocate(PA_loc,max(1,NACPR2),Label='PA_loc')
-call mma_allocate(R2,max(1,2*NACPR2),Label='R2')
-SD_loc(:) = Zero
-P_loc(:) = Zero
-PA_loc(:) = Zero
-! the packed layout of RASSCF (CI_Lib_Dens, Packed)
-call CI_Lib_Dens(iState,I12,0,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(D_loc),D_loc,size(R2),R2,Packed=.true.)
-if (I12 == 2) then
-  P_loc(1:NACPR2) = R2(1:NACPR2)
-  PA_loc(1:NACPR2) = R2(NACPR2+1:2*NACPR2)
-end if
-if (Present(SD)) call CI_Lib_Dens(iState,1,1,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(SD_loc),SD_loc,size(R2),R2,Packed=.true.)
-if (Present(D)) then
-  D(1:nD) = Zero
-  D(1:NACPAR) = D_loc(1:NACPAR)
-end if
-if (Present(SD)) then
-  SD(1:nD) = Zero
-  SD(1:NACPAR) = SD_loc(1:NACPAR)
-end if
-if (Present(P)) P(1:nP) = P_loc(1:nP)
-if (Present(PA)) PA(1:nP) = PA_loc(1:nP)
-
-! CI development (MOLCAS_CI_VERIFY=SIGMA): against the other libraries
-if (CI_Verify('SIGMA')) call Check_Densities()
-
-call mma_deallocate(PA_loc)
-call mma_deallocate(P_loc)
-call mma_deallocate(SD_loc)
-call mma_deallocate(D_loc)
-call mma_deallocate(R2)
-call Tim_Off(Tim_PDM,TimT)
-
-contains
-
-  ! The densities of the libraries not in use: Lucia (vector in its basis;
-  ! its spin density only for S > 0) and SGUGA (split-graph order; not for
-  ! GAS with Lucia, as before), and the ASTA spin density for SGUGA and
-  ! Faroald.
-  subroutine Check_Densities()
-    real(kind=wp), allocatable :: CIL(:), DS(:), SDS(:), PS(:), PAS(:)
-    real(kind=wp) :: Dev(4)
-    logical(kind=iwp) :: Done
-    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
-    call mma_allocate(CIL,nCIVEC,Label='CIL')
-    if (CI_Lib /= CI_Lib_Lucia) then
-      call CI_Basis_To_Lucia(iState,LSM,nCIVEC,CIVEC,CIL)
-      call mma_allocate(DTMP,nD,Label='DTMP')
-      call mma_allocate(DSTMP,nD,Label='DSTMP')
-      call mma_allocate(PTMP,nP,Label='PTMP')
-      call mma_allocate(PATMP,nP,Label='PATMP')
-      call Lucia_Util('Densi',CI_Vector=CIL)
-      ! (only the triangles are defined; no spin density for singlets)
-      Dev(1) = maxval(abs(DTMP(1:NACPAR)-D_loc(1:NACPAR)))
-      Dev(2) = Zero
-      if (Present(SD) .and. (CI_St(iState)%iSpin > 1)) Dev(2) = maxval(abs(DSTMP(1:NACPAR)-SD_loc(1:NACPAR)))
-      Dev(3) = Zero
-      Dev(4) = Zero
-      if (I12 == 2) then
-        Dev(3) = maxval(abs(PTMP(1:nP)-P_loc(1:nP)))
-        Dev(4) = maxval(abs(PATMP(1:nP)-PA_loc(1:nP)))
-      end if
-      Done = PDM_SG_Verified
-      call Report_Dev('Mk_pdms: D, SD, P, PA vs Lucia',maxval(Dev),ThrD,Done)
-      call mma_deallocate(PATMP)
-      call mma_deallocate(PTMP)
-      call mma_deallocate(DSTMP)
-      call mma_deallocate(DTMP)
-    end if
-    if ((CI_Lib /= CI_Lib_SGUGA) .and. SG_Avail() .and. ((CI_Lib /= CI_Lib_Lucia) .or. (.not. iDoGAS))) then
-      call CI_Basis_To_File(iState,LSM,nCIVEC,CIVEC,CIL)
-      call mma_allocate(DS,NACPAR,Label='DS')
-      call mma_allocate(SDS,NACPAR,Label='SDS')
-      call mma_allocate(PS,NACPR2,Label='PS')
-      call mma_allocate(PAS,NACPR2,Label='PAS')
-      call sg_one_pdm(SGS(iState),CIS(iState),EXS(iState),CIL,nCIVEC,LSM,DS,NACPAR)
-      Dev(:) = Zero
-      Dev(1) = maxval(abs(DS(:)-D_loc(1:NACPAR)))
-      if (Present(SD) .and. (CI_Lib /= CI_Lib_Lucia)) then
-        call SG_Spin_PDM_G(iState,CIL,nCIVEC,LSM,DS,SDS,NACPAR)
-        Dev(2) = maxval(abs(SDS(:)-SD_loc(1:NACPAR)))
-      end if
-      if (I12 == 2) then
-        call SG_Two_PDM_G(iState,CIL,nCIVEC,LSM,PS,PAS,NACPR2)
-        Dev(3) = maxval(abs(PS(1:nP)-P_loc(1:nP)))
-        Dev(4) = maxval(abs(PAS(1:nP)-PA_loc(1:nP)))
-      end if
-      Done = PDM_Faro_Verified
-      call Report_Dev('Mk_pdms: D, SD, P, PA vs SGUGA',maxval(Dev),ThrD,Done)
-      call mma_deallocate(PAS)
-      call mma_deallocate(PS)
-      call mma_deallocate(SDS)
-      call mma_deallocate(DS)
-    end if
-    if (Present(SD) .and. (CI_Lib /= CI_Lib_Lucia) .and. SG_Avail()) then
-      call CI_Basis_To_File(iState,LSM,nCIVEC,CIVEC,CIL)
-      call Check_SD_ASTA(CIL,SD_loc(1:NACPAR),'Mk_pdms: spin density, ASTA T_pq vs the CI library')
-    end if
-    call mma_deallocate(CIL)
-  end subroutine Check_Densities
-
-  ! CI development: the ASTA spin density of the state
-  ! (SG_Spin_Density_ASTA, vector CIS in the split-graph order) against SDRef.
-  subroutine Check_SD_ASTA(CIS_,SDRef,Text)
-    real(kind=wp), intent(in) :: CIS_(:), SDRef(:)
-    character(len=*), intent(in) :: Text
-    real(kind=wp), allocatable :: SDA(:)
-    logical(kind=iwp) :: Done
-    call mma_allocate(SDA,NACPAR,Label='SDA')
-    call SG_Spin_Density_ASTA(iState,LSM,nCIVEC,CIS_,NACPAR,SDA)
-    Done = SD_ASTA_Verified
-    call Report_Dev(Text,maxval(abs(SDA(:)-SDRef(1:NACPAR))),1.0e-10_wp,Done)
-    SD_ASTA_Verified = .true.
-    call mma_deallocate(SDA)
-  end subroutine Check_SD_ASTA
-
-End Subroutine Mk_pdms
 
 
 !***********************************************************************************************************************************

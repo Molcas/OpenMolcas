@@ -41,10 +41,10 @@ private
 public :: CI_Basis, CI_Basis_To_File, CI_Basis_To_Lucia, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
           CI_Lucia_To_Basis, CI_Timer, CI_Work_Need, Faro_CI, Faro_nTmp, HPsi_Faro_Verified, HPsi_FaroRAS_Verified, &
           HPsi_RAS_Verified, HPsi_SG_Verified, IHI_Avg_Verified, IHI_Faro_SG_Verified, IHI_SG_Verified, IHJ_Verified, nTimOp, &
-          PDM_Faro_Verified, PDM_SG_Verified, Ref_Sigma, SD_ASTA_Verified, SG_Avail, SG_CI, SG_HDiag_G, SG_HPsi, SG_Spin_PDM_G, &
-          SG_Trans_PDM_G, SG_Two_PDM_G, SGEx_Warned, T1DM_Faro_Verified, T1DM_SG_Verified, Tim_Calls, Tim_CPU, Tim_HPsi, Tim_IHI, &
-          Tim_IHJ, Tim_Label, Tim_Off, Tim_On, Tim_PDM, Tim_Print, Tim_T1DM, Tim_TraPsi, Tim_Wall, TraPsi_Faro_Verified, &
-          TraPsi_Verified
+          PDM_Faro_Verified, PDM_SG_Verified, Ref_Sigma, SD_ASTA_Verified, SG_Avail, SG_CI, SG_HDiag_G, SG_HPsi, &
+          SG_Spin_Density_ASTA, SG_Spin_PDM_G, SG_Trans_PDM_G, SG_Two_PDM_G, SGEx_Warned, T1DM_Faro_Verified, T1DM_SG_Verified, &
+          Tim_Calls, Tim_CPU, Tim_HPsi, Tim_IHI, Tim_IHJ, Tim_Label, Tim_Off, Tim_On, Tim_PDM, Tim_Print, Tim_T1DM, Tim_TraPsi, &
+          Tim_Wall, TraPsi_Faro_Verified, TraPsi_Verified
 
 ! Mk_IHJ is verified against Mk_H_Psi only once per run.
 logical(kind=iwp) :: IHJ_Verified = .false.
@@ -420,6 +420,31 @@ integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp) :: Avail
 Avail = (.not. iDoGAS) .or. (CI_St(iState)%iRel > 0)
 end function SG_Avail
+
+!> One-particle spin density SD(iTri(p,q)) = <Psi|a+_pa a_qa - a+_pb a_qb|Psi>
+!> (levels, triangular packing as sg_spin_pdm) of the CI vector CI in the
+!> split-graph order, from the ASTA triplet operator (SG_Tpq_Psi): the
+!> segment values of the triplet operator, no two-particle intermediates.
+subroutine SG_Spin_Density_ASTA(iState,LSM,n,CI,nTri,SD)
+use sguga, only: SG_Tpq_Psi
+use Index_Functions, only: iTri
+integer(kind=iwp), intent(in) :: iState, LSM, n, nTri
+real(kind=wp), intent(in) :: CI(n)
+real(kind=wp), intent(out) :: SD(nTri)
+integer(kind=iwp) :: p, q
+real(kind=wp), allocatable :: Sgm(:)
+call mma_allocate(Sgm,n,Label='SD_Sgm')
+SD(:) = Zero
+do p=1,SGS(iState)%nLev
+  do q=1,p
+    if (SGS(iState)%ISm(p) /= SGS(iState)%ISm(q)) cycle
+    Sgm(:) = Zero
+    call SG_Tpq_Psi(iState,p,q,One,LSM,CI,Sgm)
+    SD(iTri(p,q)) = dot_product(CI,Sgm)
+  end do
+end do
+call mma_deallocate(Sgm)
+end subroutine SG_Spin_Density_ASTA
 
 !> Start the timer of an operation (T: CPU and wall time at the start).
 subroutine Tim_On(T)

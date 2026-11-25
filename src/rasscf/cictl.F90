@@ -61,7 +61,7 @@ use qcmaquis_interface_utility_routines, only: fiedlerorder_length, file_name_ge
 use RASWfn, only: wfn_dmrg_checkpoint
 use rasscf_global, only: DOFCIDump, Emy, RF1, RF2, TwoRDM_qcm
 #endif
-use ci_interfaces, only: Mk_pdms
+use RAS_CI_Dens, only: RAS_PDMs
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
@@ -284,7 +284,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
       else
 
 
-        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+        call RAS_PDMs(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
       end if
     end if
@@ -485,7 +485,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     if (NAC >= 1) then
       if (.not. doDMRG) then
 
-        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+        call RAS_PDMs(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
       end if
     end if

@@ -17,6 +17,7 @@ module RAS_CI_Dens
 
 use CI_Library, only: CI_Lib_Dens, CI_Lib_Level_Map
 use CI_Info, only: CI_St
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -24,9 +25,50 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-public :: RAS_T1DM
+public :: RAS_PDMs, RAS_T1DM
 
 contains
+
+!> The densities of the state CIVec (basis of the selected library) in the
+!> layout of RASSCF: D, SD (triangular), P, PA (packed pairs), in level
+!> order, from CI_Lib_Dens in its packed layout (any library).
+subroutine RAS_PDMs(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
+
+  integer(kind=iwp), intent(in) :: nCIVEC, nD, nP
+  real(kind=wp), intent(in) :: CIVEC(nCIVEC)
+  real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
+  ! the CI state of RASSCF
+  integer(kind=iwp), parameter :: iState = 1
+  integer(kind=iwp) :: I12, LSM, NACPAR, NACPR2
+  real(kind=wp), allocatable :: D_loc(:), R2(:), SD_loc(:)
+
+  LSM = CI_St(iState)%STSym
+  ! the packed active pairs and pairs of pairs
+  NACPAR = nTri_Elem(CI_St(iState)%nLev)
+  NACPR2 = nTri_Elem(NACPAR)
+  I12 = 1
+  if (present(P) .or. present(PA)) I12 = 2
+  call mma_allocate(D_loc,max(1,NACPAR),Label='D_loc')
+  call mma_allocate(R2,max(1,2*NACPR2),Label='R2')
+  R2(:) = Zero
+  call CI_Lib_Dens(iState,I12,0,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(D_loc),D_loc,size(R2),R2,Packed=.true.)
+  if (present(D)) then
+    D(1:nD) = Zero
+    D(1:NACPAR) = D_loc(1:NACPAR)
+  end if
+  if (present(P)) P(1:nP) = R2(1:nP)
+  if (present(PA)) PA(1:nP) = R2(NACPR2+1:NACPR2+nP)
+  if (present(SD)) then
+    call mma_allocate(SD_loc,max(1,NACPAR),Label='SD_loc')
+    call CI_Lib_Dens(iState,1,1,LSM,LSM,nCIVEC,CIVEC,nCIVEC,CIVEC,size(SD_loc),SD_loc,size(R2),R2,Packed=.true.)
+    SD(1:nD) = Zero
+    SD(1:NACPAR) = SD_loc(1:NACPAR)
+    call mma_deallocate(SD_loc)
+  end if
+  call mma_deallocate(R2)
+  call mma_deallocate(D_loc)
+
+end subroutine RAS_PDMs
 
 !> The one-body transition density (and its spin part) of the CI vectors
 !> Bra and Ket (basis of the selected library, the symmetry of the state)
