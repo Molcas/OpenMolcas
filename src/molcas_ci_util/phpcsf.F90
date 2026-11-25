@@ -111,7 +111,7 @@ end if
 
 ! construct Hamiltonian matrix in subspace
 
-call Mk_IHJ(PHP,nTri_Elem(MXPDIM),IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
+call Mk_IHJ(PHP,nTri_Elem(MXPDIM),IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX)
 
 call mma_deallocate(IPCNF)
 call mma_deallocate(iCSFCnf)

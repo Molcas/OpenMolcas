@@ -17,7 +17,7 @@ use CI_Library, only: Checked_Sigma => CI_Lib_Sigma
 use SG_Lucia_Bridge, only: SG_Lucia_Walk, SG_ReOrd, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
-use citrans, only: citrans_conf_dets, citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
+use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
 use faroald_ras, only: n_ras, ras_active, ras_sigma
 ! FARO: Faroald works with the active orbitals in the order of the levels
 ! of the split graph (by partition, within each by symmetry), so that its
@@ -26,8 +26,7 @@ use faroald_ras, only: n_ras, ras_active, ras_sigma
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep_SG, HEXS_Proj
-use CI_Operations, only: Cnf_Exc, CI_Lib_Block, CI_Lib_Cnf_Layout, CI_Lib_nCnf, Faro_L2O => Faro_Lev, Faroald_HDet, &
-                         Rel_Map, Report_Dev, SG_Rel_Map
+use CI_Operations, only: CI_Lib_Block, CI_Lib_Cnf_Layout, CI_Lib_nCnf, Faro_L2O => Faro_Lev, Rel_Map, Report_Dev, SG_Rel_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
@@ -435,17 +434,14 @@ End Subroutine Mk_H_Psi_Det
 !> with the other back ends (the Faroald block also with columns H e_J of
 !> the Faroald sigma vector) and checked against Mk_H_Psi; the CPU time of
 !> each back end is reported.
-subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX,NTEST)
+subroutine Mk_IHJ(PHP,nPHP,IPCNF,NPCNF,IREFSM,ECORE,TU,nTU,TUVX,nTUVX)
 use Index_Functions, only: nTri_Elem
-use Lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, Sigma_on_disk
-use csfbas, only: NAEL, NBEL
-use lucia_data, only: NCSFTP, NDTFTP, NTYP
+use Lucia_data, only: Sigma_on_disk
 use Constants, only: One
 
 integer(kind=iwp), intent(in) :: nPHP, NPCNF, IPCNF(NPCNF), IREFSM, nTU, nTUVX
 real(kind=wp), intent(out) :: PHP(nPHP)
 real(kind=wp), intent(in) :: ECORE, TU(nTU), TUVX(nTUVX)
-integer(kind=iwp), intent(inout) :: NTEST
 integer(kind=iwp) :: NPCSF
 integer(kind=iwp), allocatable :: IPCSF(:), nSelCnf(:)
 real(kind=wp) :: T0, T1, W
@@ -454,14 +450,13 @@ real(kind=wp), parameter :: Thr = 1.0e-10_wp
 ! the CI state of RASSCF (SGS, CIS, EXS)
 integer(kind=iwp), parameter :: iState = 1
 logical(kind=iwp) :: SG_OK, UseSG, Verify
-! the active orbitals and the CSFs of the CI symmetry
-integer(kind=iwp) :: NAC, nConf
+! the CSFs of the CI symmetry
+integer(kind=iwp) :: nConf
 character(len=8) :: Lab
 
 ! CSF indices (in the CSF basis of symmetry IREFSM) of the selection.
 real(kind=wp) :: TimT(2)
 call Tim_On(TimT)
-NAC = CI_St(iState)%nLev
 nConf = CI_St(iState)%nCSF(IREFSM)
 call Sel_CSFs()
 NPCSF = size(IPCSF)
@@ -584,9 +579,8 @@ contains
     call CWTime(T2,W2)
     select case (LabRef)
       case ('Lucia')
-        call IHJ_Lucia(PHP_Ref)
-      case ('Faroald')
-        call IHJ_Faroald(PHP_Ref)
+        ! (with SGEX the library is RASSCF's Lucia: its block of the core)
+        call Lib_Block(PHP_Ref)
       case ('Faroald H e_J')
         call IHJ_Faroald_Col(PHP_Ref)
       case ('Lucia H e_J')
@@ -635,213 +629,8 @@ contains
 
   end subroutine Sel_CSFs
 
-  ! Lucia back end: CNHCN for each pair of selected configurations.
-  subroutine IHJ_Lucia(H)
-    real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
-    integer(kind=iwp) :: NEL, MXDT, MXCS, nScr, ICNL, ICNR, ILTYP, IRTYP, NCSFL, NCSFR, IILB, IIRB, IIL, IIR, IIRMAX, DL, SL, DR, &
-                         SR
-    integer(kind=iwp), allocatable :: ICONFL(:), ICONFR(:)
-    real(kind=wp), allocatable :: HONE(:,:), CNHCNM(:), Scr(:)
 
-    NEL = NAEL+NBEL
-    MXDT = maxval(NDTFTP(1:NTYP))
-    MXCS = maxval(NCSFTP(1:NTYP))
 
-    ! One-body matrix in square storage, as CNHCN wants it.
-    call mma_allocate(HONE,NAC,NAC,Label='HONE')
-    call SQUARE(TU,HONE,NAC,1,NAC)
-
-    ! Scratch for CNHCN: determinant strings and signs of both configurations,
-    ! CNFSTR work space, the determinant block, DIHDJ_MOLCAS work space and the
-    ! half-transformed block.
-    nScr = 2*MXDT*(NEL+1)+NEL*(MXDT+1)+MXDT*MXDT+4*NAC+MXDT+MXCS*MXDT+64
-    call mma_allocate(Scr,nScr,Label='IHJ_Scr')
-    call mma_allocate(CNHCNM,MXCS*MXCS,Label='CNHCNM')
-    call mma_allocate(ICONFL,NEL,Label='ICONFL')
-    call mma_allocate(ICONFR,NEL,Label='ICONFR')
-
-    IILB = 1
-    do ICNL=1,NPCNF
-      call GETCNF(ICONFL,ILTYP,IPCNF(ICNL),Conf_Occ(IREFSM)%A,IREFSM,NEL)
-      NCSFL = NCSFTP(ILTYP)
-      call Lucia_Occ(ICONFL,ILTYP,DL,SL)
-      IIRB = 1
-      do ICNR=1,ICNL
-        call GETCNF(ICONFR,IRTYP,IPCNF(ICNR),Conf_Occ(IREFSM)%A,IREFSM,NEL)
-        NCSFR = NCSFTP(IRTYP)
-        call Lucia_Occ(ICONFR,IRTYP,DR,SR)
-        if (Cnf_Exc(DL,SL,DR,SR) > 2) then
-          CNHCNM(1:NCSFL*NCSFR) = Zero
-        else
-          call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECORE,HONE,DFTP,DTOC,NAC,TUVX,NTEST,One,IREOTS)
-        end if
-        do IIL=1,NCSFL
-          IIRMAX = merge(IIL,NCSFR,IILB == IIRB)
-          do IIR=1,IIRMAX
-            H(nTri_Elem(IILB-1+IIL-1)+IIRB-1+IIR) = CNHCNM((IIR-1)*NCSFL+IIL)
-          end do
-        end do
-        IIRB = IIRB+NCSFR
-      end do
-      IILB = IILB+NCSFL
-    end do
-
-    call mma_deallocate(ICONFR)
-    call mma_deallocate(ICONFL)
-    call mma_deallocate(CNHCNM)
-    call mma_deallocate(Scr)
-    call mma_deallocate(HONE)
-
-  end subroutine IHJ_Lucia
-
-  ! Doubly (D) and singly (S) occupied orbitals, as bit strings (orbital t in
-  ! bit t-1), of the Lucia configuration ICONF of type ITYP (GETCNF form:
-  ! the closed orbitals first, then the open ones).
-  subroutine Lucia_Occ(ICONF,ITYP,D,S)
-    use lucia_data, only: MINOP
-    integer(kind=iwp), intent(in) :: ICONF(*), ITYP
-    integer(kind=iwp), intent(out) :: D, S
-    integer(kind=iwp) :: IOP, ICL, I
-
-    IOP = ITYP-1+MINOP
-    ICL = (NAEL+NBEL-IOP)/2
-    D = 0
-    S = 0
-    do I=1,ICL
-      D = ibset(D,ICONF(I)-1)
-    end do
-    do I=ICL+1,ICL+IOP
-      S = ibset(S,ICONF(I)-1)
-    end do
-
-  end subroutine Lucia_Occ
-
-  ! Faroald back end: for each pair of selected configurations L, R the
-  ! determinant block <D_L|H|D_R> (Faroald_HDet) is transformed to the CSFs
-  ! with the spin tables of citrans, C_L^T H C_R; pairs of configurations
-  ! more than a double excitation apart are skipped (Cnf_Exc). The CI
-  ! vectors (and the selected CSFs) are in the configuration order of
-  ! citrans (FARO).
-  subroutine IHJ_Faroald(H)
-    real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
-    integer(kind=iwp) :: I, J, kCnf, ICNL, ICNR, IILB, IIRB, IIL, IIR, IIRMAX, k1, nc, nd, nDTot, nCTot, nL, nR, ndL, ndR
-    integer(kind=iwp), allocatable :: kSel(:), iSel(:), iDOff(:), iCOff(:), nDCnf(:), DA(:), DB(:), da1(:), db1(:), &
-                                      DOcc(:), SOcc(:)
-    real(kind=wp), allocatable :: C(:), cf(:,:), HDet(:,:), T(:,:), Blk(:,:)
-
-    call Faroald_Ints(TU,TUVX)
-
-    ! selected CSF J <-> citrans CSF kSel(J), with phase iSel(J)
-    call mma_allocate(kSel,NPCSF,Label='kSel')
-    call mma_allocate(iSel,NPCSF,Label='iSel')
-    ! (the selected CSFs are citrans CSFs: FARO works in that basis)
-    kSel(:) = IPCSF(:)
-    iSel(:) = 1
-
-    ! Determinants and CSF coefficients of the selected configurations.
-    call mma_allocate(nDCnf,NPCNF,Label='nDCnf')
-    call mma_allocate(iDOff,NPCNF,Label='iDOff')
-    call mma_allocate(iCOff,NPCNF,Label='iCOff')
-    call mma_allocate(DOcc,NPCNF,Label='DOcc')
-    call mma_allocate(SOcc,NPCNF,Label='SOcc')
-    nDTot = 0
-    nCTot = 0
-    IILB = 0
-    do kCnf=1,NPCNF
-      call citrans_conf_dets(kSel(IILB+1),k1,nc,nd,da1,db1,cf)
-      if (nc /= nSelCnf(kCnf)) then
-        write(u6,*) 'Mk_IHJ: different number of CSFs in Lucia and citrans:',nSelCnf(kCnf),nc
-        call Abend()
-      end if
-      nDCnf(kCnf) = nd
-      ! doubly and singly occupied orbitals of the configuration
-      DOcc(kCnf) = iand(da1(1),db1(1))
-      SOcc(kCnf) = ieor(da1(1),db1(1))
-      iDOff(kCnf) = nDTot
-      iCOff(kCnf) = nCTot
-      nDTot = nDTot+nd
-      nCTot = nCTot+nd*nc
-      IILB = IILB+nc
-      call mma_deallocate(da1)
-      call mma_deallocate(db1)
-      call mma_deallocate(cf)
-    end do
-    call mma_allocate(DA,nDTot,Label='DA')
-    call mma_allocate(DB,nDTot,Label='DB')
-    call mma_allocate(C,nCTot,Label='C')
-    IILB = 0
-    do kCnf=1,NPCNF
-      call citrans_conf_dets(kSel(IILB+1),k1,nc,nd,da1,db1,cf)
-      DA(iDOff(kCnf)+1:iDOff(kCnf)+nd) = da1(:)
-      DB(iDOff(kCnf)+1:iDOff(kCnf)+nd) = db1(:)
-      do I=1,nc
-        J = kSel(IILB+I)-k1+1
-        if ((J < 1) .or. (J > nc)) then
-          write(u6,*) 'Mk_IHJ: CSF of the selection not in its configuration:',IPCSF(IILB+I)
-          call Abend()
-        end if
-        C(iCOff(kCnf)+(I-1)*nd+1:iCOff(kCnf)+I*nd) = iSel(IILB+I)*cf(:,J)
-      end do
-      IILB = IILB+nc
-      call mma_deallocate(da1)
-      call mma_deallocate(db1)
-      call mma_deallocate(cf)
-    end do
-    call mma_deallocate(iSel)
-    call mma_deallocate(kSel)
-
-    ! Blocks C_L^T <D_L|H|D_R> C_R.
-    nd = maxval(nDCnf)
-    nc = maxval(nSelCnf)
-    call mma_allocate(HDet,nd,nd,Label='HDet')
-    call mma_allocate(T,nd,nc,Label='T')
-    call mma_allocate(Blk,nc,nc,Label='Blk')
-    IILB = 1
-    do ICNL=1,NPCNF
-      nL = nSelCnf(ICNL)
-      ndL = nDCnf(ICNL)
-      IIRB = 1
-      do ICNR=1,ICNL
-        nR = nSelCnf(ICNR)
-        ndR = nDCnf(ICNR)
-        if (Cnf_Exc(DOcc(ICNL),SOcc(ICNL),DOcc(ICNR),SOcc(ICNR)) > 2) then
-          Blk(1:nL,1:nR) = Zero
-        else
-          do J=1,ndR
-            do I=1,ndL
-              HDet(I,J) = Faroald_HDet(DA(iDOff(ICNL)+I),DB(iDOff(ICNL)+I),DA(iDOff(ICNR)+J),DB(iDOff(ICNR)+J))
-            end do
-          end do
-          call DGEMM_('N','N',ndL,nR,ndR,One,HDet,nd,C(iCOff(ICNR)+1:iCOff(ICNR)+ndR*nR),ndR,Zero,T,nd)
-          call DGEMM_('T','N',nL,nR,ndL,One,C(iCOff(ICNL)+1:iCOff(ICNL)+ndL*nL),ndL,T,nd,Zero,Blk,nc)
-        end if
-        do IIL=1,nL
-          IIRMAX = merge(IIL,nR,IILB == IIRB)
-          do IIR=1,IIRMAX
-            H(nTri_Elem(IILB-1+IIL-1)+IIRB-1+IIR) = Blk(IIL,IIR)
-          end do
-        end do
-        IIRB = IIRB+nR
-      end do
-      IILB = IILB+nL
-    end do
-    do I=1,NPCSF
-      H(nTri_Elem(I)) = H(nTri_Elem(I))+ECORE
-    end do
-
-    call mma_deallocate(Blk)
-    call mma_deallocate(T)
-    call mma_deallocate(HDet)
-    call mma_deallocate(C)
-    call mma_deallocate(DB)
-    call mma_deallocate(DA)
-    call mma_deallocate(SOcc)
-    call mma_deallocate(DOcc)
-    call mma_deallocate(iCOff)
-    call mma_deallocate(iDOff)
-    call mma_deallocate(nDCnf)
-
-  end subroutine IHJ_Faroald
 
   ! SGUGA back end: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECORE, with
   ! I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
