@@ -106,7 +106,7 @@ logical(kind=iwp) :: Lucia_Active = .true.
 integer(kind=iwp) :: iState_Input = 0
 ! SGEX given where it does not apply: warned once
 logical(kind=iwp) :: SGEx_Warned = .false.
-! HEXS/DEXS (RASSCF keywords, CI_Lib_Info Space_Inp): the configurations with
+! HEXS/DEXS (RASSCF keywords, CI_Lib_Info HEXS_DEXS_Inp): the configurations with
 ! the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in the
 ! listed RAS partitions are removed as in Lucia: their CSFs stay in the
 ! vectors, the CI works with P H P (zero sigma, zero diagonal there). The
@@ -178,7 +178,6 @@ subroutine CI_Lib_Close(iState)
   use sguga, only: SG_Free
   use Lucia_Interface, only: Lucia_Util
   use CI_Space_Def, only: Space_Free
-  use CI_Lib_Info, only: Space_CI
   use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState
   if (CI_Lib_Selected == CI_Lib_MCLR_Lucia) call MCLR_Lucia_Close(iState)
@@ -202,7 +201,7 @@ subroutine CI_Lib_Close(iState)
   CI_Lib_Space(iState)%Active = .false.
   call mma_deallocate(CI_HEXS_Keep,safe='*')
   call mma_deallocate(CI_HEXS_Keep_SG,safe='*')
-  call Space_Free(Space_CI)
+  call Space_Free(CI_Lib_Space(iState)%Space)
   iState_Input = 0
 end subroutine CI_Lib_Close
 
@@ -222,7 +221,7 @@ function CI_Lucia_Active() result(Active)
 end function CI_Lucia_Active
 
 !> The CI state iState from the CI input (CI_Input, Orbital_Spaces), when the
-!> program has not set it up itself: the CI space (Space_CI, with the HEXS/DEXS
+!> program has not set it up itself: the CI space (CI_Lib_Space(iState)%Space, with the HEXS/DEXS
 !> removals), the split graph (for GAS also the relaxed space), Lucia (as the
 !> library or as the reference of MOLCAS_CI_VERIFY=SIGMA), the self-tests of
 !> SGUGA on request, the selected library and the HEXS/DEXS masks.
@@ -246,7 +245,7 @@ subroutine CI_Lib_Setup_Input(iState)
                        (.not. CI_Verify('SIGMA')))
 
   ! the CI space in the common description of the libraries
-  call CI_Space_Setup()
+  call CI_Space_Setup(iState)
 
   if (Lucia_Active) then
     ! the determinant tables (CI_Lib_Space%nCSF, %nDet set by lucia2molcas; Lucia's
@@ -310,7 +309,7 @@ subroutine CI_Lib_Setup_Input(iState)
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
     write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
-    ! the one Faroald setup, from Space_CI
+    ! the one Faroald setup, from CI_Lib_Space(iState)%Space
     call CI_Faro_Init(iState)
     if ((citrans_ncsf() /= CI_Lib_Space(iState)%nCSF(STSym)) .and. (CI_Lib_Space(iState)%nActEl > 0)) then
       write(u6,*) 'CI_Lib_Initialize: number of CSFs, Faroald and the split graph:',citrans_ncsf(),CI_Lib_Space(iState)%nCSF(STSym)
@@ -322,26 +321,26 @@ subroutine CI_Lib_Setup_Input(iState)
   call CI_HEXS_Setup(iState)
 end subroutine CI_Lib_Setup_Input
 
-!> The CI space (Space_CI) from the GAS description of the input (NGAS,
+!> The CI space (CI_Lib_Space(iState)%Space) from the GAS description of the input (NGAS,
 !> NGSSH, IGSOCCX; CAS and RAS are converted to it by the input readers) and
 !> the HEXS/DEXS lists. With MOLCAS_CI_VERIFY (any level) printed and checked
 !> against the RAS description (nRsPrt, nRas, nRasEl, NSM) and the HEXS/DEXS
 !> thresholds used by the CI interface.
-subroutine CI_Space_Setup()
+subroutine CI_Space_Setup(iState)
   use Orbital_Spaces, only: nAsh, nSym
-  use CI_Input, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NGAS, NGSSH, nElec3, nHole1, nRs1, nRs2, nRs3
-  use CI_Lib_Info, only: Space_CI, Space_Inp
+  use CI_Input, only: HEXS_DEXS_Inp, iDoGAS, IGSOCCX, ISPIN, NACTEL, NGAS, NGSSH, nElec3, nHole1, nRs1, nRs2, nRs3
   use CI_Space_Def, only: Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
   use CI_Lib_States, only: RAS_Partitions
   use CI_Verify_Options, only: CI_Verify
   use stdalloc, only: mma_allocate, mma_deallocate
   use Molcas, only: MxGAS, MxSym
+  integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: g, k, i, iLev, iSym, iPart(MxGAS), nBelow, nAbove, MinR, MaxR, MinEO(MxGAS), nRsPrt, nRas(MxSym,3), &
                        nRasEl(3)
   integer(kind=iwp), allocatable :: NMx(:)
   logical(kind=iwp) :: OK
 
-  call Space_From_GAS(Space_CI,nSym,NACTEL,ISPIN,NGAS,NGSSH(1:NGAS,1:nSym),IGSOCCX(1:NGAS,1:2))
+  call Space_From_GAS(CI_Lib_Space(iState)%Space,nSym,NACTEL,ISPIN,NGAS,NGSSH(1:NGAS,1:nSym),IGSOCCX(1:NGAS,1:2))
   ! partition of each input space (0: no orbitals, dropped)
   k = 0
   do g=1,NGAS
@@ -351,22 +350,22 @@ subroutine CI_Space_Setup()
     iPart(g) = k
   end do
   ! HEXS (maximum occupation) and DEXS (maximum - 1) removals
-  if (Space_Removals(Space_Inp)) then
-    call mma_allocate(NMx,max(1,Space_CI%nPart),Label='NMx')
-    call Space_Max_Occ(Space_CI,NMx)
-    do i=1,Space_Inp%nHEXS
-      g = Space_Inp%iHEXS(i)
-      if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g)))
+  if (Space_Removals(HEXS_DEXS_Inp)) then
+    call mma_allocate(NMx,max(1,CI_Lib_Space(iState)%Space%nPart),Label='NMx')
+    call Space_Max_Occ(CI_Lib_Space(iState)%Space,NMx)
+    do i=1,HEXS_DEXS_Inp%nHEXS
+      g = HEXS_DEXS_Inp%iHEXS(i)
+      if (iPart(g) > 0) call Space_Remove(CI_Lib_Space(iState)%Space,iPart(g),NMx(iPart(g)))
     end do
-    do i=1,Space_Inp%nDEXS
-      g = Space_Inp%iDEXS(i)
-      if (iPart(g) > 0) call Space_Remove(Space_CI,iPart(g),NMx(iPart(g))-1)
+    do i=1,HEXS_DEXS_Inp%nDEXS
+      g = HEXS_DEXS_Inp%iDEXS(i)
+      if (iPart(g) > 0) call Space_Remove(CI_Lib_Space(iState)%Space,iPart(g),NMx(iPart(g))-1)
     end do
     call mma_deallocate(NMx)
   end if
   if (.not. CI_Verify('ANY')) return
 
-  call Space_Print(Space_CI)
+  call Space_Print(CI_Lib_Space(iState)%Space)
   ! GAS: no RAS description to compare with
   if (iDoGAS) return
   ! the RAS description (as CI_Setup_RAS builds it), with its empty
@@ -374,7 +373,7 @@ subroutine CI_Space_Setup()
   ! same partitions, the same lower bounds (after tightening to the physical
   ! ones), no upper bounds, the same levels
   call RAS_Partitions(nSym,NACTEL,nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,.false.,nRsPrt,nRas,nRasEl)
-  OK = (Space_CI%nLev == sum(nAsh(1:nSym)))
+  OK = (CI_Lib_Space(iState)%Space%nLev == sum(nAsh(1:nSym)))
   k = 0
   nBelow = 0
   do i=1,nRsPrt
@@ -383,31 +382,31 @@ subroutine CI_Space_Setup()
       cycle
     end if
     k = k+1
-    if (k > Space_CI%nPart) then
+    if (k > CI_Lib_Space(iState)%Space%nPart) then
       OK = .false.
       exit
     end if
-    OK = OK .and. all(Space_CI%nOrb(1:nSym,k) == nRas(1:nSym,i))
+    OK = OK .and. all(CI_Lib_Space(iState)%Space%nOrb(1:nSym,k) == nRas(1:nSym,i))
     MinEO(k) = nRasEl(i)
   end do
-  OK = OK .and. (k == Space_CI%nPart)
+  OK = OK .and. (k == CI_Lib_Space(iState)%Space%nPart)
   if (OK) then
-    do k=1,Space_CI%nPart
-      nBelow = nBelow+sum(Space_CI%nOrb(1:nSym,k))
-      nAbove = sum(Space_CI%nOrb(1:nSym,k+1:Space_CI%nPart))
+    do k=1,CI_Lib_Space(iState)%Space%nPart
+      nBelow = nBelow+sum(CI_Lib_Space(iState)%Space%nOrb(1:nSym,k))
+      nAbove = sum(CI_Lib_Space(iState)%Space%nOrb(1:nSym,k+1:CI_Lib_Space(iState)%Space%nPart))
       MinR = max(MinEO(k),0,NACTEL-2*nAbove)
       MaxR = min(NACTEL,2*nBelow)
-      if (k == Space_CI%nPart) then
+      if (k == CI_Lib_Space(iState)%Space%nPart) then
         MinR = NACTEL
         MaxR = NACTEL
       end if
-      OK = OK .and. (Space_CI%MinEl(k) == MinR) .and. (Space_CI%MaxEl(k) == MaxR)
+      OK = OK .and. (CI_Lib_Space(iState)%Space%MinEl(k) == MinR) .and. (CI_Lib_Space(iState)%Space%MaxEl(k) == MaxR)
     end do
     ! the levels: partition by partition, within each by symmetry
     iLev = 0
     do i=1,nRsPrt
       do iSym=1,nSym
-        OK = OK .and. all(Space_CI%LevSym(iLev+1:iLev+nRas(iSym,i)) == iSym)
+        OK = OK .and. all(CI_Lib_Space(iState)%Space%LevSym(iLev+1:iLev+nRas(iSym,i)) == iSym)
         iLev = iLev+nRas(iSym,i)
       end do
     end do
@@ -419,7 +418,7 @@ subroutine CI_Space_Setup()
   write(u6,'(1X,A)') 'CI_Space_Setup: CI space verified against the RAS description'
 end subroutine CI_Space_Setup
 
-!> The split graph of the CI state iState from Space_CI (levels partition by
+!> The split graph of the CI state iState from CI_Lib_Space(iState)%Space (levels partition by
 !> partition and within each by symmetry, the identity as orbital -> level
 !> map): CAS/RAS as RAS graph (CI_Setup_RAS); GAS with the upper bounds, plus
 !> the relaxed space (CI_SG_Rel_Space: the bounds widened by one electron at
@@ -428,35 +427,36 @@ subroutine CI_Lib_Graph_Setup(iState)
   use Orbital_Spaces, only: nSym
   use CI_Input, only: iDoGAS, iSpin, nActEl, nElec3, nHole1, nRs1, nRs2, nRs3, STSym
   use CI_Lib_States, only: CI_Setup_RAS, CI_Setup_SG
-  use CI_Lib_Info, only: CI_SG_Rel_Space, Space_CI
+  use CI_Lib_Info, only: CI_SG_Rel_Space
   use stdalloc, only: mma_allocate, mma_deallocate
   use Molcas, only: MxLev, MxSym
   integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: k, nP, nLev, iq, Level(MxLev), NSM(MxLev)
   integer(kind=iwp), allocatable :: nRasG(:,:), MinR(:), MaxR(:)
 
-  nLev = Space_CI%nLev
+  nLev = CI_Lib_Space(iState)%Space%nLev
   do iq=1,MxLev
     Level(iq) = iq
   end do
   NSM(:) = 0
-  NSM(1:nLev) = Space_CI%LevSym(1:nLev)
+  NSM(1:nLev) = CI_Lib_Space(iState)%Space%LevSym(1:nLev)
   if (iDoGAS) then
-    call mma_allocate(nRasG,MxSym,Space_CI%nPart,Label='nRasG')
+    call mma_allocate(nRasG,MxSym,CI_Lib_Space(iState)%Space%nPart,Label='nRasG')
     nRasG(:,:) = 0
-    nRasG(1:nSym,:) = Space_CI%nOrb(1:nSym,1:Space_CI%nPart)
-    call CI_Setup_SG(iState,nSym,nActEl,iSpin,STSym,nRasG,Space_CI%MinEl,Space_CI%nPart,Level,Level,nLev,NSM,'FULL', &
-                     nRasMx=Space_CI%MaxEl)
-    nP = Space_CI%nPart
+    nRasG(1:nSym,:) = CI_Lib_Space(iState)%Space%nOrb(1:nSym,1:CI_Lib_Space(iState)%Space%nPart)
+    call CI_Setup_SG(iState,nSym,nActEl,iSpin,STSym,nRasG,CI_Lib_Space(iState)%Space%MinEl,CI_Lib_Space(iState)%Space%nPart, &
+      Level,Level,nLev,NSM,'FULL', &
+                     nRasMx=CI_Lib_Space(iState)%Space%MaxEl)
+    nP = CI_Lib_Space(iState)%Space%nPart
     call mma_allocate(MinR,nP,Label='MinR')
     call mma_allocate(MaxR,nP,Label='MaxR')
     do k=1,nP
       if (k < nP) then
-        MinR(k) = max(0,Space_CI%MinEl(k)-1)
-        MaxR(k) = min(nActEl,Space_CI%MaxEl(k)+1)
+        MinR(k) = max(0,CI_Lib_Space(iState)%Space%MinEl(k)-1)
+        MaxR(k) = min(nActEl,CI_Lib_Space(iState)%Space%MaxEl(k)+1)
       else
-        MinR(k) = Space_CI%MinEl(k)
-        MaxR(k) = Space_CI%MaxEl(k)
+        MinR(k) = CI_Lib_Space(iState)%Space%MinEl(k)
+        MaxR(k) = CI_Lib_Space(iState)%Space%MaxEl(k)
       end if
     end do
     call CI_Setup_SG(CI_SG_Rel_Space,nSym,nActEl,iSpin,STSym,nRasG,MinR,nP,Level,Level,nLev,NSM,'FULL',nRasMx=MaxR)
@@ -471,20 +471,18 @@ subroutine CI_Lib_Graph_Setup(iState)
 end subroutine CI_Lib_Graph_Setup
 
 !> HEXS/DEXS: is a configuration with nOcc(k) electrons in partition k of
-!> Space_CI removed (the removal rules of the CI space)?
-function CI_HEXS_Removed(nOcc) result(Rem)
-  use CI_Lib_Info, only: Space_CI
+!> CI_Lib_Space(iState)%Space removed (the removal rules of the CI space)?
+function CI_HEXS_Removed(iState,nOcc) result(Rem)
   use CI_Space_Def, only: Space_Allowed
-  integer(kind=iwp), intent(in) :: nOcc(:)
+  integer(kind=iwp), intent(in) :: iState, nOcc(:)
   logical(kind=iwp) :: Rem
-  Rem = .not. Space_Allowed(Space_CI,nOcc(1:Space_CI%nPart))
+  Rem = .not. Space_Allowed(CI_Lib_Space(iState)%Space,nOcc(1:CI_Lib_Space(iState)%Space%nPart))
 end function CI_HEXS_Removed
 
 !> HEXS/DEXS: the kept CSFs of symmetry STSym in the split-graph basis, from
 !> the SGUGA configurations.
 subroutine CI_HEXS_Mask_SG(iState,Keep)
   use sguga, only: SGCnfList, SG_Cnf_Occ, SG_Free_Cnf_List, SG_Mk_Cnf_List
-  use CI_Lib_Info, only: Space_CI
   use stdalloc, only: mma_allocate, mma_deallocate
   use Molcas, only: MxGAS
   integer(kind=iwp), intent(in) :: iState
@@ -499,9 +497,9 @@ subroutine CI_HEXS_Mask_SG(iState,Keep)
     call SG_Cnf_Occ(Cnf,k,Occ)
     nOcc(:) = 0
     do iLev=1,Cnf%nLev
-      nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+Occ(iLev)
+      nOcc(CI_Lib_Space(iState)%Space%LevPart(iLev)) = nOcc(CI_Lib_Space(iState)%Space%LevPart(iLev))+Occ(iLev)
     end do
-    if (CI_HEXS_Removed(nOcc)) Keep(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))) = .false.
+    if (CI_HEXS_Removed(iState,nOcc)) Keep(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))) = .false.
   end do
   call mma_deallocate(Occ)
   call SG_Free_Cnf_List(Cnf)
@@ -509,12 +507,11 @@ end subroutine CI_HEXS_Mask_SG
 
 !> HEXS/DEXS: the kept CSFs in the basis of Faroald (citrans), from its
 !> configurations (the orbitals of Faroald are the levels).
-subroutine CI_HEXS_Mask_Faro(nLev,Keep)
+subroutine CI_HEXS_Mask_Faro(iState,nLev,Keep)
   use citrans, only: citrans_conf_dets
-  use CI_Lib_Info, only: Space_CI
   use stdalloc, only: mma_deallocate
   use Molcas, only: MxGAS
-  integer(kind=iwp), intent(in) :: nLev
+  integer(kind=iwp), intent(in) :: iState, nLev
   logical(kind=iwp), intent(out) :: Keep(:)
   integer(kind=iwp) :: k, k1, nc, nd, iLev, nOcc(MxGAS)
   integer(kind=iwp), allocatable :: da(:), db(:)
@@ -525,10 +522,10 @@ subroutine CI_HEXS_Mask_Faro(nLev,Keep)
     call citrans_conf_dets(k,k1,nc,nd,da,db,cf)
     nOcc(:) = 0
     do iLev=1,nLev
-      if (btest(da(1),iLev-1)) nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+1
-      if (btest(db(1),iLev-1)) nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+1
+      if (btest(da(1),iLev-1)) nOcc(CI_Lib_Space(iState)%Space%LevPart(iLev)) = nOcc(CI_Lib_Space(iState)%Space%LevPart(iLev))+1
+      if (btest(db(1),iLev-1)) nOcc(CI_Lib_Space(iState)%Space%LevPart(iLev)) = nOcc(CI_Lib_Space(iState)%Space%LevPart(iLev))+1
     end do
-    if (CI_HEXS_Removed(nOcc)) Keep(k1:k1+nc-1) = .false.
+    if (CI_HEXS_Removed(iState,nOcc)) Keep(k1:k1+nc-1) = .false.
     k = k1+nc
     call mma_deallocate(da)
     call mma_deallocate(db)
@@ -541,14 +538,13 @@ end subroutine CI_HEXS_Mask_Faro
 !> program caps its explicit subspace with it); with Lucia they are compared.
 subroutine CI_HEXS_Setup(iState)
   use CI_Input, only: iDoGAS
-  use CI_Lib_Info, only: Space_CI
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: nKeep, nCSF
   call mma_deallocate(CI_HEXS_Keep,safe='*')
   call mma_deallocate(CI_HEXS_Keep_SG,safe='*')
   ! the removals are part of the CI space (CI_Space_Setup)
-  if (Space_CI%nRem <= 0) return
+  if (CI_Lib_Space(iState)%Space%nRem <= 0) return
   nCSF = CI_Lib_Space(iState)%nCSF(CI_Lib_Space(iState)%STSym)
   ! (SGUGA covers CAS and RAS directly, GAS through the relaxed space)
   if ((.not. iDoGAS) .or. (CI_Lib_Space(iState)%iRel > 0)) then
@@ -560,7 +556,7 @@ subroutine CI_HEXS_Setup(iState)
     CI_HEXS_Keep(:) = CI_HEXS_Keep_SG(:)
   else if (CI_Lib_Selected == CI_Lib_Faroald) then
     call mma_allocate(CI_HEXS_Keep,nCSF,Label='CI_HEXS_Keep')
-    call CI_HEXS_Mask_Faro(Space_CI%nLev,CI_HEXS_Keep)
+    call CI_HEXS_Mask_Faro(iState,CI_Lib_Space(iState)%Space%nLev,CI_HEXS_Keep)
   end if
   if (allocated(CI_HEXS_Keep)) then
     nKeep = count(CI_HEXS_Keep)
@@ -1017,18 +1013,15 @@ end subroutine Lib_Dens_Rho
 
 !> The level order of the CI state iState (the order of the split graph
 !> and of the RASSCF densities: partition by partition, within each by
-!> symmetry, Space_CI): L2O(iLev) is the symmetry-ordered active orbital of
+!> symmetry, CI_Lib_Space(iState)%Space): L2O(iLev) is the symmetry-ordered active orbital of
 !> level iLev (n = nAct; the identity without a CI space)
 subroutine CI_Lib_Level_Map(iState,n,L2O)
-  use CI_Lib_Info, only: Space_CI
   use Orbital_Spaces, only: nAsh, nSym
   use Molcas, only: MxSym
   integer(kind=iwp), intent(in) :: iState, n
   integer(kind=iwp), intent(out) :: L2O(n)
   integer(kind=iwp) :: iLev, iSym, nOff(MxSym)
-#include "macros.fh"
-  unused_var(iState)
-  if (Space_CI%nLev /= n) then
+  if (CI_Lib_Space(iState)%Space%nLev /= n) then
     do iLev=1,n
       L2O(iLev) = iLev
     end do
@@ -1039,8 +1032,8 @@ subroutine CI_Lib_Level_Map(iState,n,L2O)
     nOff(iSym) = nOff(iSym-1)+nAsh(iSym-1)
   end do
   do iLev=1,n
-    nOff(Space_CI%LevSym(iLev)) = nOff(Space_CI%LevSym(iLev))+1
-    L2O(iLev) = nOff(Space_CI%LevSym(iLev))
+    nOff(CI_Lib_Space(iState)%Space%LevSym(iLev)) = nOff(CI_Lib_Space(iState)%Space%LevSym(iLev))+1
+    L2O(iLev) = nOff(CI_Lib_Space(iState)%Space%LevSym(iLev))
   end do
 end subroutine CI_Lib_Level_Map
 
@@ -2120,7 +2113,7 @@ end subroutine CI_SG_Diag
 
 !> Faroald: the setup for the CI state iState, for every program. The
 !> partitions (CAS, RAS, GAS) and their cumulative electron bounds come
-!> from the CI space Space_CI when the program has it (RASSCF; MCLR from the
+!> from the CI space CI_Lib_Space(iState)%Space when the program has it (RASSCF; MCLR from the
 !> CI-space record of the JobIph), otherwise from the RAS input (CI_Input).
 !> The orbitals of Faroald are the levels: partition by partition, within
 !> each by symmetry; CI_Faro_Lev(iLev) is the symmetry-ordered active orbital
@@ -2129,7 +2122,6 @@ end subroutine CI_SG_Diag
 !> (CI_Faro_Full_Init: other symmetries, non-Hermitian operators).
 subroutine CI_Faro_Init(iState)
   use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3
-  use CI_Lib_Info, only: Space_CI
   use CI_Lib_States, only: RAS_Partitions
   use CI_Verify_Options, only: CI_Verify
   use Orbital_Spaces, only: nAsh, nSym
@@ -2147,15 +2139,15 @@ subroutine CI_Faro_Init(iState)
   nAct = sum(nAsh(1:nSym))
   call mma_allocate(OrbSym,max(1,nAct),Label='OrbSym')
   call mma_allocate(OrbRas,max(1,nAct),Label='OrbRas')
-  if ((Space_CI%nLev == nAct) .and. (Space_CI%nPart >= 1)) then
+  if ((CI_Lib_Space(iState)%Space%nLev == nAct) .and. (CI_Lib_Space(iState)%Space%nPart >= 1)) then
     ! the CI space of the program (also GAS)
-    nPrt = Space_CI%nPart
-    OrbSym(1:nAct) = Space_CI%LevSym(1:nAct)
-    OrbRas(1:nAct) = Space_CI%LevPart(1:nAct)
+    nPrt = CI_Lib_Space(iState)%Space%nPart
+    OrbSym(1:nAct) = CI_Lib_Space(iState)%Space%LevSym(1:nAct)
+    OrbRas(1:nAct) = CI_Lib_Space(iState)%Space%LevPart(1:nAct)
     call mma_allocate(MinEl,nPrt,Label='MinEl')
     call mma_allocate(MaxEl,nPrt,Label='MaxEl')
-    MinEl(:) = Space_CI%MinEl(1:nPrt)
-    MaxEl(:) = Space_CI%MaxEl(1:nPrt)
+    MinEl(:) = CI_Lib_Space(iState)%Space%MinEl(1:nPrt)
+    MaxEl(:) = CI_Lib_Space(iState)%Space%MaxEl(1:nPrt)
   else
     ! the RAS input
     call RAS_Partitions(nSym,nActEl,nRs1,nRs2,nRs3,nHole1,nElec3,.false.,nPrt,nRas,nRasEl)

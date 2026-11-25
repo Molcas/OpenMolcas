@@ -37,7 +37,7 @@ use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iTOC, iTocIph, lRoots, nBa
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
-use CI_Lib_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
+use CI_Lib_States, only: CI_No_GAS, CI_Space_Rd_JobIph
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -65,7 +65,6 @@ call iDaFile(LuJob,2,iToc,iTOCIPH,iDisk)
 ! the CI space of the wave function (record of RASSCF)
 call CI_Space_Rd_JobIph(LuJob,iToc(19),FoundSpace,GAS)
 if (GAS) call CI_No_GAS('MCLR')
-call CI_Space_Free()
 !----------------------------------------------------------------------*
 !     Read the the system description                                  *
 !----------------------------------------------------------------------*

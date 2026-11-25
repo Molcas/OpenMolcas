@@ -28,8 +28,7 @@ use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr,
 use stdalloc, only: mma_allocate, mma_deallocate
 use CI_Lib_States, only: CI_Space_Rd_H5
 #endif
-use CI_Lib_Info, only: Space_CI
-use CI_Lib_States, only: CI_Space_Free, CI_Space_Rd_JobIph
+use CI_Lib_States, only: CI_Space, CI_Space_Free, CI_Space_Rd_JobIph
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
 use Definitions, only: wp, iwp, u6
@@ -41,6 +40,8 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: i, iad19, IADR19(30), iorbdata, iprlev, isym, ndiff
 real(kind=wp) :: potnucdummy
 logical(kind=iwp) :: DBG, FoundSpace, GAS, keyjobi, lExists, RunFile_Exists
+! the CI space of the reference wave function (its CI-space record)
+type(CI_Space) :: Space_Ref
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=72) :: JobTit(mxTit), ReadStatus
 character(len=120) :: msg
@@ -235,7 +236,7 @@ if (IORBDATA == 0) then
   call WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,mxSym,lJobH1,(LenIn+8)*mxOrb,NCONF,lJobH2, &
                       2*72,JobTit,4*18*mxTit,POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
   ! the CI space of the wave function (record of RASSCF)
-  call CI_Space_Rd_JobIph(JOBIPH,IADR19(19),FoundSpace,GAS)
+  call CI_Space_Rd_JobIph(JOBIPH,IADR19(19),FoundSpace,GAS,Space_Ref)
 end if  !> IORBDATA
 
 !> read CI optimization parameters from HDF5 file
@@ -259,7 +260,7 @@ if (mcpdft_options%is_hdf5_wfn) then
   end if
   call mh5_fetch_attr(mh5id,'STATE_WEIGHT',weight)
   ! the CI space of the wave function (record of RASSCF)
-  call CI_Space_Rd_H5(mh5id,FoundSpace,GAS)
+  call CI_Space_Rd_H5(mh5id,FoundSpace,GAS,Space_Ref)
 
   call mh5_close_file(mh5id)
 end if
@@ -293,13 +294,13 @@ if (GAS) then
   end if
   do iSym=1,nSym
     nrs1(iSym) = 0
-    nrs2(iSym) = sum(Space_CI%nOrb(iSym,1:Space_CI%nPart))
+    nrs2(iSym) = sum(Space_Ref%nOrb(iSym,1:Space_Ref%nPart))
     nrs3(iSym) = 0
   end do
   nhole1 = 0
   nelec3 = 0
 end if
-call CI_Space_Free()
+call CI_Space_Free(Space_Ref)
 do iSym=1,nSym
   nash(isym) = nrs1(isym)+nrs2(isym)+nrs3(isym)
   NORB(ISYM) = NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)

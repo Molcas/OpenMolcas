@@ -24,8 +24,8 @@ use CI_SG_Lucia_Bridge, only: CI_SG_ReOrd, CI_SG_ReOrd_Orig
 use SGUGA_Sigma, only: SG_Occ_Diag
 use SGUGA_Print, only: SG_Print, SG_PRWF
 use SGUGA_Transform, only: SG_CITRA, SYG2SGU
-use CI_Lib_Info, only: CI_Lib_Space, Space_CI
-use CI_Space_Def, only: Space_Free, Space_Pack, Space_Rec_Len, Space_Unpack
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Space_Def, only: CI_Space, Space_Free, Space_Pack, Space_Rec_Len, Space_Unpack
 use CI_Verify_Options, only: CI_Verify
 use CSF_Graph, only: CSFG_Walk_Next
 use Molcas, only: MxLev, MxSym
@@ -36,8 +36,8 @@ private
 
 public :: CI_CITRA, CI_Epq_Psi, CI_Free_State, CI_Occ_Diag, CI_Print_Graph, CI_PrWF, CI_ReOrd, CI_ReOrd_Orig, CI_Setup_RAS, &
           CI_Setup_SG, CI_StepVec, CI_SYG2SGU, CI_Walk_Next, RAS_Partitions
-public :: CI_New_Tag, CI_No_GAS, CI_No_Reuse, CI_Space_Free, CI_Space_From_Rec, CI_Space_Rd_H5, CI_Space_Rd_JobIph, &
-          CI_Space_Rec_Len, CI_Space_To_Rec
+public :: CI_New_Tag, CI_No_GAS, CI_No_Reuse, CI_Space, CI_Space_Free, CI_Space_Rd_H5, CI_Space_Rd_JobIph, CI_Space_Rec_Len, &
+          CI_Space_To_Rec
 
 ! length of the CI-space record of JobIph (IADR15(19)) and HDF5 (CI_SPACE)
 integer(kind=iwp), parameter :: CI_Space_Rec_Len = Space_Rec_Len
@@ -263,80 +263,88 @@ subroutine CI_SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,iPrint)
   call SYG2SGU(IMODE,iState,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW,iPrint)
 end subroutine CI_SYG2SGU
 
-!> The CI space of the wave function (CI_Lib_Info's Space_CI) as the record of
-!> JobIph/HDF5; GAS tells whether it came from a GAS input. Have is false
-!> if there is no space (e.g. DMRG, NECI: no CI of the CI interface).
-subroutine CI_Space_To_Rec(GAS,n,Rec,Have)
+!> The CI space of the CI state iState (CI_Lib_Space(iState)%Space) as the
+!> record of JobIph/HDF5; GAS tells whether it came from a GAS input. Have is
+!> false if there is no space (e.g. DMRG, NECI: no CI of the CI interface).
+subroutine CI_Space_To_Rec(iState,GAS,n,Rec,Have)
+  integer(kind=iwp), intent(in) :: iState, n
   logical(kind=iwp), intent(in) :: GAS
-  integer(kind=iwp), intent(in) :: n
   integer(kind=iwp), intent(out) :: Rec(n)
   logical(kind=iwp), intent(out) :: Have
-  Have = (Space_CI%nPart > 0)
+  Have = (CI_Lib_Space(iState)%Space%nPart > 0)
   Rec(:) = 0
-  if (Have) call Space_Pack(Space_CI,GAS,n,Rec)
+  if (Have) call Space_Pack(CI_Lib_Space(iState)%Space,GAS,n,Rec)
 end subroutine CI_Space_To_Rec
 
-!> CI_Lib_Info's Space_CI from the record of JobIph/HDF5; GAS tells whether the
-!> wave function came from a GAS input.
-subroutine CI_Space_From_Rec(n,Rec,GAS)
-  integer(kind=iwp), intent(in) :: n, Rec(n)
-  logical(kind=iwp), intent(out) :: GAS
-  call Space_Unpack(n,Rec,Space_CI,GAS)
-end subroutine CI_Space_From_Rec
-
 !> The CI-space record of a JobIph at the disk address iAdr (IADR15(19));
-!> iAdr <= 0 (files without the record): Found = .false. and no space, the
-!> reader keeps the RAS description of the header.
-subroutine CI_Space_Rd_JobIph(Lu,iAdr,Found,GAS)
+!> iAdr <= 0 (files without the record): Found = .false., the reader keeps
+!> the RAS description of the header. GAS tells whether the wave function
+!> came from a GAS input. The space itself is returned in Space if present
+!> (free it with CI_Space_Free), otherwise it is only read for the flags.
+subroutine CI_Space_Rd_JobIph(Lu,iAdr,Found,GAS,Space)
   integer(kind=iwp), intent(in) :: Lu, iAdr
   logical(kind=iwp), intent(out) :: Found, GAS
+  type(CI_Space), intent(inout), optional :: Space
   integer(kind=iwp) :: iDisk, Rec(CI_Space_Rec_Len)
   GAS = .false.
   Found = (iAdr > 0)
-  if (.not. Found) then
-    call Space_Free(Space_CI)
-    return
-  end if
+  if (present(Space)) call Space_Free(Space)
+  if (.not. Found) return
   iDisk = iAdr
   call iDaFile(Lu,2,Rec,CI_Space_Rec_Len,iDisk)
-  call CI_Space_From_Rec(CI_Space_Rec_Len,Rec,GAS)
+  call Space_From_Rec(Rec,GAS,Space)
 end subroutine CI_Space_Rd_JobIph
 
 !> The CI-space record of an HDF5 wave-function file (attribute CI_SPACE);
 !> files without it (older files, DMRG, NECI) give Found = .false.; their
-!> GAS flag is then taken from CI_TYPE.
-subroutine CI_Space_Rd_H5(id,Found,GAS)
+!> GAS flag is then taken from CI_TYPE. Space as for CI_Space_Rd_JobIph.
+subroutine CI_Space_Rd_H5(id,Found,GAS,Space)
 # ifdef _HDF5_
   use mh5, only: mh5_exists_attr, mh5_fetch_attr
 # endif
   integer(kind=iwp), intent(in) :: id
   logical(kind=iwp), intent(out) :: Found, GAS
+  type(CI_Space), intent(inout), optional :: Space
 # ifdef _HDF5_
   integer(kind=iwp) :: Rec(CI_Space_Rec_Len)
   character(len=3) :: CIType
 # endif
   Found = .false.
   GAS = .false.
+  if (present(Space)) call Space_Free(Space)
 # ifdef _HDF5_
   if (mh5_exists_attr(id,'CI_SPACE')) then
     call mh5_fetch_attr(id,'CI_SPACE',Rec)
-    call CI_Space_From_Rec(CI_Space_Rec_Len,Rec,GAS)
+    call Space_From_Rec(Rec,GAS,Space)
     Found = .true.
-  else
-    call Space_Free(Space_CI)
-    if (mh5_exists_attr(id,'CI_TYPE')) then
-      call mh5_fetch_attr(id,'CI_TYPE',CIType)
-      GAS = (CIType == 'GAS')
-    end if
+  else if (mh5_exists_attr(id,'CI_TYPE')) then
+    call mh5_fetch_attr(id,'CI_TYPE',CIType)
+    GAS = (CIType == 'GAS')
   end if
 # else
   unused_var(id)
 # endif
 end subroutine CI_Space_Rd_H5
 
-!> Free CI_Lib_Info's Space_CI (read by CI_Space_Rd_*).
-subroutine CI_Space_Free()
-  call Space_Free(Space_CI)
+!> The CI space from its record into Space if present; otherwise only the
+!> GAS flag (the space is unpacked into a temporary and freed).
+subroutine Space_From_Rec(Rec,GAS,Space)
+  integer(kind=iwp), intent(in) :: Rec(CI_Space_Rec_Len)
+  logical(kind=iwp), intent(out) :: GAS
+  type(CI_Space), intent(inout), optional :: Space
+  type(CI_Space) :: Tmp
+  if (present(Space)) then
+    call Space_Unpack(CI_Space_Rec_Len,Rec,Space,GAS)
+  else
+    call Space_Unpack(CI_Space_Rec_Len,Rec,Tmp,GAS)
+    call Space_Free(Tmp)
+  end if
+end subroutine Space_From_Rec
+
+!> Free a CI space read by CI_Space_Rd_*.
+subroutine CI_Space_Free(Space)
+  type(CI_Space), intent(inout) :: Space
+  call Space_Free(Space)
 end subroutine CI_Space_Free
 
 !> Stop a program that cannot yet treat a GAS reference wave function.

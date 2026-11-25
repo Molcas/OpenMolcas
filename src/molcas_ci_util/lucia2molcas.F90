@@ -16,7 +16,8 @@ subroutine LUCIA2MOLCAS(NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,MXPCSM,MXPORB,NCONF
 use csfbas, only: maxop_lucia, NAEL, NBEL
 use CI_Input, only: ISPIN, NACTEL, STSYM
 use rasscf_global, only: NSEL, NDET
-use CI_Lib_Info, only: CI_Lib_Space, Space_Inp
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Input, only: HEXS_DEXS_Inp
 use CI_Space_Def, only: Space_Removals
 use lucia_data, only: IDC, MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
 use Molcas, only: MxSym
@@ -34,7 +35,7 @@ CI_Lib_Space(iState)%nCSF(1:MxSym) = NCSASM_LUCIA(1:MxSym)
 if (NSEL > CI_Lib_Space(iState)%nCSF(STSYM)) NSEL = CI_Lib_Space(iState)%nCSF(STSYM)
 ! For small calculations - Lasse/MGD
 CI_Lib_Space(iState)%nCSF_Kept = nCSF_HEXS_LUCIA
-if (Space_Removals(Space_Inp) .and. (NSEL > CI_Lib_Space(iState)%nCSF_Kept)) NSEL = CI_Lib_Space(iState)%nCSF_Kept
+if (Space_Removals(HEXS_DEXS_Inp) .and. (NSEL > CI_Lib_Space(iState)%nCSF_Kept)) NSEL = CI_Lib_Space(iState)%nCSF_Kept
 
 MS2 = iSpin-1
 ! TOTAL NO. OF ALPHA AND BETA EL.

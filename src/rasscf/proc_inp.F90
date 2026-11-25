@@ -42,7 +42,8 @@ use CI_Input, only: DoSGEx, iDoGAS, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH,
                     STSYM
 use rasscf_global, only: NCONF, nDet, NSEL
 use DWSol, only: DWSol_DWRO
-use CI_Lib_Info, only: CI_Lib_Space, Space_CI, Space_Inp
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Input, only: HEXS_DEXS_Inp
 use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
@@ -2811,13 +2812,13 @@ else
       call Error(1)
       return
     end if
-    if (Space_Inp%nHEXS /= 0) then
+    if (HEXS_DEXS_Inp%nHEXS /= 0) then
       call WarningMessage(2,'HEXS keyword defined more than once')
       call Error(1)
       return
     end if
     ReadStatus = ' Failure reading data following HEXS keyword.'
-    read(LUInput,*,iostat=istatus) Space_Inp%nHEXS
+    read(LUInput,*,iostat=istatus) HEXS_DEXS_Inp%nHEXS
     if (istatus < 0) then
       call Error(2)
       return
@@ -2827,7 +2828,7 @@ else
     end if
     ReadStatus = ' O.K. after reading data following HEXS keyword.'
     ReadStatus = ' Failure reading data following HEXS keyword.'
-    read(LUInput,*,iostat=istatus) (Space_Inp%iHEXS(I),I=1,Space_Inp%nHEXS)
+    read(LUInput,*,iostat=istatus) (HEXS_DEXS_Inp%iHEXS(I),I=1,HEXS_DEXS_Inp%nHEXS)
     if (istatus < 0) then
       call Error(2)
       return
@@ -2846,13 +2847,13 @@ else
       call Error(1)
       return
     end if
-    if (Space_Inp%nDEXS /= 0) then
+    if (HEXS_DEXS_Inp%nDEXS /= 0) then
       call WarningMessage(2,'DEXS keyword defined more than once')
       call Error(1)
       return
     end if
     ReadStatus = ' Failure reading data following DEXS keyword.'
-    read(LUInput,*,iostat=istatus) Space_Inp%nDEXS
+    read(LUInput,*,iostat=istatus) HEXS_DEXS_Inp%nDEXS
     if (istatus < 0) then
       call Error(2)
       return
@@ -2862,7 +2863,7 @@ else
     end if
     ReadStatus = ' O.K. after reading data following DEXS keyword.'
     ReadStatus = ' Failure reading data following DEXS keyword.'
-    read(LUInput,*,iostat=istatus) (Space_Inp%iDEXS(I),I=1,Space_Inp%nDEXS)
+    read(LUInput,*,iostat=istatus) (HEXS_DEXS_Inp%iDEXS(I),I=1,HEXS_DEXS_Inp%nDEXS)
     if (istatus < 0) then
       call Error(2)
       return
@@ -4167,7 +4168,7 @@ if (.not. SkipGUGA) then
     nDet = maxval(CI_Lib_Space(iState_CI)%nDet(:))
   else
     nDet = NCONF
-    if (Space_CI%nRem > 0) NSEL = min(NSEL,CI_Lib_Space(iState_CI)%nCSF_Kept)
+    if (CI_Lib_Space(iState_CI)%Space%nRem > 0) NSEL = min(NSEL,CI_Lib_Space(iState_CI)%nCSF_Kept)
   end if
 
 else

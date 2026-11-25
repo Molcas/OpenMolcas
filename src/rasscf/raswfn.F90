@@ -94,7 +94,7 @@ subroutine cre_raswfn()
 
   call mh5_init_attr(wfn_fileid,'L2ACT',1,[mxAct],IDXSX)
   ! the CI space (partitions, electron bounds, HEXS/DEXS, GAS flag)
-  call CI_Space_To_Rec(iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
+  call CI_Space_To_Rec(istate,iDoGAS,CI_Space_Rec_Len,SpaceRec,HaveSpace)
   if (HaveSpace) call mh5_init_attr(wfn_fileid,'CI_SPACE',1,[CI_Space_Rec_Len],SpaceRec)
   call mh5_init_attr(wfn_fileid,'A2LEV',1,[mxAct],IDXCI)
 

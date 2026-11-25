@@ -129,7 +129,7 @@ subroutine refwfn_info()
   use caspt2_module, only: nDet
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
-  use CI_Lib_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_H5, CI_Space_Rd_JobIph
+  use CI_Lib_States, only: CI_No_GAS, CI_Space_Rd_H5, CI_Space_Rd_JobIph
 
 # ifdef _HDF5_
   character(len=1), allocatable :: typestring(:)
@@ -215,7 +215,6 @@ subroutine refwfn_info()
     call CI_Space_Rd_JobIph(refwfn_id,IADR15(19),Found,GAS)
   end if
   if (GAS) call CI_No_GAS(ProgName)
-  call CI_Space_Free()
   if (nSym /= ref_nSym) then
     write(u6,*) ' Number of irreps of the reference wavefunction'
     write(u6,*) ' does not match the data on the RunFile, abort!'

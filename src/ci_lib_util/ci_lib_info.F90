@@ -18,7 +18,7 @@
 module CI_Lib_Info
 
 use Molcas, only: MxLev, MxSym
-use CI_Space_Def, only: CI_Space, CI_Space_Input
+use CI_Space_Def, only: CI_Space
 use Definitions, only: iwp
 
 implicit none
@@ -54,6 +54,11 @@ type CI_Lib_Space_Info
   ! STSym: the symmetry of the CI state (CI_Setup_SG; one graph covers all
   ! symmetries)
   integer(kind=iwp) :: STSym = 0
+  ! Space: the CI space in the common description of all libraries
+  ! (CI_Space_Def: partitions with cumulative bounds, removed HEXS/DEXS
+  ! configurations); built by CI_Lib_Initialize from the CI input
+  ! (CI_Space_Setup), empty for a space the program sets up itself
+  type(CI_Space) :: Space
 end type CI_Lib_Space_Info
 
 type(CI_Lib_Space_Info) :: CI_Lib_Space(CI_Lib_MxSpace)
@@ -65,14 +70,5 @@ type(CI_Lib_Space_Info) :: CI_Lib_Space(CI_Lib_MxSpace)
 integer(kind=iwp), parameter :: CI_SG_Rel_Space = CI_Lib_MxSpace
 
 public :: CI_Lib_Space, CI_Lib_Space_Info, CI_Lib_MxSpace, CI_SG_Rel_Space
-
-!> The CI space of RASSCF in the common description of all back ends
-!> (CI_Space_Def: partitions with cumulative bounds, removed HEXS/DEXS
-!> configurations), built by the CI interface (CI_Space_Setup).
-type(CI_Space) :: Space_CI
-!> The HEXS/DEXS requests of the input (set by RASSCF's input processing),
-!> from which CI_Space_Setup builds the removals of Space_CI.
-type(CI_Space_Input) :: Space_Inp
-public :: Space_CI, Space_Inp
 
 end module CI_Lib_Info
