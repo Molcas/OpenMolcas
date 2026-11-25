@@ -103,6 +103,7 @@ set (sources
      putrlx.F90
      qcmaquis_rdinp.F90
      qune.F90
+     ras_ci_dens.F90
      rasscf.F90
      rasscf_init.F90
      rasscf_mcontrol.F90

@@ -19,14 +19,132 @@
 !> program set up itself gets the core operations unchanged.
 module CI_Library
 
-use CI_Operations, Raw_Transform => CI_Lib_Transform
+use CI_Operations, Raw_Dens => CI_Lib_Dens, Raw_Transform => CI_Lib_Transform
 
 implicit none
-private :: Raw_Transform
+private :: Check_T1DM, Raw_Dens, Raw_Transform
 
-public :: CI_Lib_Transform
+public :: CI_Lib_Dens, CI_Lib_Transform
 
 contains
+
+!> The 1- and 2-particle (transition) densities of the core (CI_Lib_Dens of
+!> CI_Operations, see there for the layouts). Under MOLCAS_CI_VERIFY=SIGMA a
+!> one-body transition density of one symmetry (spin-free, not packed) is
+!> compared, together with its spin part, with Lucia and SGUGA (those not
+!> in use).
+subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Packed)
+
+  use CI_Lib_Checks, only: Tim_Off, Tim_On, Tim_PDM, Tim_T1DM
+  use CI_Verify_Options, only: CI_Verify
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
+  real(kind=wp), intent(in) :: L(nL), R(nR)
+  real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
+  logical(kind=iwp), intent(in), optional :: Packed
+  logical(kind=iwp) :: Pk
+  real(kind=wp) :: TimT(2)
+
+  Pk = .false.
+  if (present(Packed)) Pk = Packed
+  call Tim_On(TimT)
+  call Raw_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Packed)
+  if (CI_Verify('SIGMA') .and. CI_Lib_Input_State(iState) .and. (.not. Pk) .and. (I12 == 1) .and. (iOpSpin == 0) .and. &
+      (iLSym == iRSym) .and. (nL == nR)) call Check_T1DM(iState,iLSym,nL,L,R,n1,Rho1,n2)
+  if (Pk) then
+    call Tim_Off(Tim_PDM,TimT)
+  else
+    call Tim_Off(Tim_T1DM,TimT)
+  end if
+
+end subroutine CI_Lib_Dens
+
+!> CI development (SIGMA): the one-body transition density Rho1 (spin-free,
+!> layout of CI_Lib_Dens) of Bra and Ket and its spin part (computed here)
+!> against Lucia (no spin density for singlets) and SGUGA (sg_trans_pdm,
+!> whose layout is the transpose), those not in use; in the level layout
+!> T(p+(q-1)*nAct) = <Bra|E_qp|Ket> (Lucia's).
+subroutine Check_T1DM(iState,LSM,nVec,Bra_Vec,Ket_Vec,n1,Rho1,n2)
+
+  use CI_Lib_Checks, only: CI_Basis_To_File, CI_Basis_To_Lucia, SG_Avail, SG_Trans_PDM_G, T1DM_Faro_Verified, T1DM_SG_Verified
+  use CI_Info, only: CI_St
+  use CI_Op_Defs, only: CI_Lib, CI_Lib_Lucia, CI_Lib_SGUGA
+  use Lucia_Interface, only: Lucia_Util
+  use Lucia_Data, only: DSTmp, DTmp
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero
+  use Definitions, only: wp, iwp
+
+  integer(kind=iwp), intent(in) :: iState, LSM, nVec, n1, n2
+  real(kind=wp), intent(in) :: Bra_Vec(nVec), Ket_Vec(nVec), Rho1(n1)
+  integer(kind=iwp) :: NAC, p, q
+  real(kind=wp) :: Dev(2)
+  logical(kind=iwp) :: Done
+  integer(kind=iwp), allocatable :: L2O(:)
+  real(kind=wp), allocatable :: BL(:), KL(:), R1(:), R2(:), T1DM(:), T1SDM(:), TS(:), TSS(:)
+  real(kind=wp), parameter :: ThrD = 1.0e-10_wp
+
+  NAC = CI_St(iState)%nLev
+  call mma_allocate(L2O,max(1,NAC),Label='L2O')
+  call CI_Lib_Level_Map(iState,NAC,L2O)
+  call mma_allocate(T1DM,max(1,NAC**2),Label='T1DM')
+  call mma_allocate(T1SDM,max(1,NAC**2),Label='T1SDM')
+  call mma_allocate(R1,max(1,NAC**2),Label='R1')
+  call mma_allocate(R2,max(1,n2),Label='R2')
+  call Raw_Dens(iState,1,1,LSM,LSM,nVec,Bra_Vec,nVec,Ket_Vec,size(R1),R1,size(R2),R2)
+  do q=1,NAC
+    do p=1,NAC
+      T1DM(p+(q-1)*NAC) = Rho1(L2O(q)+(L2O(p)-1)*NAC)
+      T1SDM(p+(q-1)*NAC) = R1(L2O(q)+(L2O(p)-1)*NAC)
+    end do
+  end do
+  call mma_deallocate(R2)
+  call mma_deallocate(R1)
+  call mma_deallocate(L2O)
+
+  call mma_allocate(BL,nVec,Label='BL')
+  call mma_allocate(KL,nVec,Label='KL')
+  if (CI_Lib /= CI_Lib_Lucia) then
+    call CI_Basis_To_Lucia(iState,LSM,nVec,Bra_Vec,BL)
+    call CI_Basis_To_Lucia(iState,LSM,nVec,Ket_Vec,KL)
+    call mma_allocate(DTMP,NAC*NAC,Label='DTMP')
+    call mma_allocate(DSTMP,NAC*NAC,Label='DSTMP')
+    call Lucia_Util('Densi',CI_Vector=KL(:),RVec=BL(:))
+    Dev(1) = maxval(abs(DTMP(1:NAC*NAC)-T1DM(1:NAC*NAC)))
+    Dev(2) = Zero
+    if (CI_St(iState)%iSpin > 1) Dev(2) = maxval(abs(DSTMP(1:NAC*NAC)-T1SDM(1:NAC*NAC)))
+    Done = T1DM_Faro_Verified
+    call Report_Dev('Mk_T1DM: T1DM, T1SDM vs Lucia',maxval(Dev),ThrD,Done)
+    call mma_deallocate(DSTMP)
+    call mma_deallocate(DTMP)
+  end if
+  if ((CI_Lib /= CI_Lib_SGUGA) .and. SG_Avail()) then
+    call CI_Basis_To_File(iState,LSM,nVec,Bra_Vec,BL)
+    call CI_Basis_To_File(iState,LSM,nVec,Ket_Vec,KL)
+    call mma_allocate(TS,NAC*NAC,Label='TS')
+    call mma_allocate(TSS,NAC*NAC,Label='TSS')
+    call SG_Trans_PDM_G(iState,BL,KL,nVec,LSM,NAC,TS,TSS,.true.)
+    Dev(:) = Zero
+    do q=1,NAC
+      do p=1,NAC
+        Dev(1) = max(Dev(1),abs(T1DM(p+(q-1)*NAC)-TS(q+(p-1)*NAC)))
+        if (CI_Lib /= CI_Lib_Lucia) Dev(2) = max(Dev(2),abs(T1SDM(p+(q-1)*NAC)-TSS(q+(p-1)*NAC)))
+      end do
+    end do
+    Done = T1DM_SG_Verified
+    call Report_Dev('Mk_T1DM: T1DM, T1SDM vs SGUGA',maxval(Dev),ThrD,Done)
+    call mma_deallocate(TSS)
+    call mma_deallocate(TS)
+  end if
+  T1DM_Faro_Verified = .true.
+  T1DM_SG_Verified = .true.
+  call mma_deallocate(KL)
+  call mma_deallocate(BL)
+  call mma_deallocate(T1SDM)
+  call mma_deallocate(T1DM)
+
+end subroutine Check_T1DM
 
 !> The CI vector CI (basis of the selected library, symmetry iSym of state
 !> iState) for the active orbitals rotated by TU (per symmetry the square

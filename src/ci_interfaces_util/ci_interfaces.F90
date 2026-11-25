@@ -27,8 +27,7 @@ use CI_Op_Defs, only: CI_Lib, CI_Lib_Lucia, CI_Lib_SGUGA
 ! order (as Lucia's and SGUGA's).
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
 use CI_Operations, only: Cnf_Exc, CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Block, CI_Lib_Close, CI_Lib_Dens, CI_Lib_Diag, &
-                         CI_Lib_Level_Map, CI_Lib_Sigma, CI_Lib_Transform, Faro_L2O => Faro_Lev, Faroald_HDet, Rel_Map, &
-                         Report_Dev, SG_Rel_Map
+                         CI_Lib_Sigma, Faro_L2O => Faro_Lev, Faroald_HDet, Rel_Map, Report_Dev, SG_Rel_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
@@ -44,7 +43,7 @@ use CI_Info, only: CI_St
 implicit none
 Private
 
-Public :: Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
+Public :: Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
 Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
           CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_CI, Faro_nTmp, SG_CI
 
@@ -560,109 +559,6 @@ End Subroutine Mk_H_Psi_Det
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM, T1SDM)
-! The one-body transition density (and its spin part) of the CI vectors
-! Bra and Ket (basis of the selected library, the symmetry of the state)
-! in the layout of RASSCF: T1DM(p+(q-1)*NAC) = <Bra|E_qp|Ket> over the
-! levels (Lucia's layout), from CI_Lib_Dens (a permutation of its Rho1).
-! Under MOLCAS_CI_VERIFY=SIGMA compared with Lucia and SGUGA (those not in
-! use).
-use Lucia_Data, only: DTmp, DSTmp
-implicit none
-integer(kind=iwp), intent(in) :: nVec, nT1DM
-real(kind=wp), intent(_IN_):: Bra_Vec(nVec), Ket_Vec(nVec)
-real(kind=wp), intent(out):: T1DM(nT1DM)
-real(kind=wp), optional, intent(out):: T1SDM(nT1DM)
-integer(kind=iwp), parameter :: iState=1
-integer(kind=iwp) :: LSM, NAC, p, q
-integer(kind=iwp), allocatable :: L2O(:)
-real(kind=wp), allocatable :: R1(:), R2(:), T1SDM_loc(:)
-real(kind=wp) :: TimT(2)
-
-call Tim_On(TimT)
-LSM = CI_St(iState)%STSym
-NAC = CI_St(iState)%nLev
-call mma_allocate(L2O,max(1,NAC),Label='L2O')
-call CI_Lib_Level_Map(iState,NAC,L2O)
-call mma_allocate(R1,max(1,NAC**2),Label='R1')
-call mma_allocate(R2,1,Label='R2')
-call mma_allocate(T1SDM_loc,max(1,nT1DM),Label='T1SDM')
-call CI_Lib_Dens(iState,1,0,LSM,LSM,nVec,Bra_Vec,nVec,Ket_Vec,size(R1),R1,size(R2),R2)
-T1DM(:) = Zero
-do q=1,NAC
-  do p=1,NAC
-    T1DM(p+(q-1)*NAC) = R1(L2O(q)+(L2O(p)-1)*NAC)
-  end do
-end do
-T1SDM_loc(:) = Zero
-if (present(T1SDM) .or. CI_Verify('SIGMA')) then
-  call CI_Lib_Dens(iState,1,1,LSM,LSM,nVec,Bra_Vec,nVec,Ket_Vec,size(R1),R1,size(R2),R2)
-  do q=1,NAC
-    do p=1,NAC
-      T1SDM_loc(p+(q-1)*NAC) = R1(L2O(q)+(L2O(p)-1)*NAC)
-    end do
-  end do
-end if
-if (present(T1SDM)) T1SDM(1:nT1DM) = T1SDM_loc(1:nT1DM)
-if (CI_Verify('SIGMA')) call Check_T1DM()
-call mma_deallocate(T1SDM_loc)
-call mma_deallocate(R2)
-call mma_deallocate(R1)
-call mma_deallocate(L2O)
-call Tim_Off(Tim_T1DM,TimT)
-
-contains
-
-  ! CI development (SIGMA): against Lucia (no spin density for singlets)
-  ! and SGUGA (sg_trans_pdm, whose layout is the transpose), those not in
-  ! use
-  subroutine Check_T1DM()
-    integer(kind=iwp) :: p, q
-    real(kind=wp), allocatable :: BL(:), KL(:), TS(:), TSS(:)
-    real(kind=wp) :: Dev(2)
-    logical(kind=iwp) :: Done
-    real(kind=wp), parameter :: ThrD = 1.0e-10_wp
-    call mma_allocate(BL,nVec,Label='BL')
-    call mma_allocate(KL,nVec,Label='KL')
-    if (CI_Lib /= CI_Lib_Lucia) then
-      call CI_Basis_To_Lucia(iState,LSM,nVec,Bra_Vec,BL)
-      call CI_Basis_To_Lucia(iState,LSM,nVec,Ket_Vec,KL)
-      call mma_allocate(DTMP,max(nT1DM,NAC*NAC),Label='DTMP')
-      call mma_allocate(DSTMP,max(nT1DM,NAC*NAC),Label='DSTMP')
-      call Lucia_Util('Densi',CI_Vector=KL(:),RVec=BL(:))
-      Dev(1) = maxval(abs(DTMP(1:NAC*NAC)-T1DM(1:NAC*NAC)))
-      Dev(2) = Zero
-      if (CI_St(iState)%iSpin > 1) Dev(2) = maxval(abs(DSTMP(1:NAC*NAC)-T1SDM_loc(1:NAC*NAC)))
-      Done = T1DM_Faro_Verified
-      call Report_Dev('Mk_T1DM: T1DM, T1SDM vs Lucia',maxval(Dev),ThrD,Done)
-      call mma_deallocate(DSTMP)
-      call mma_deallocate(DTMP)
-    end if
-    if ((CI_Lib /= CI_Lib_SGUGA) .and. SG_Avail()) then
-      call CI_Basis_To_File(iState,LSM,nVec,Bra_Vec,BL)
-      call CI_Basis_To_File(iState,LSM,nVec,Ket_Vec,KL)
-      call mma_allocate(TS,NAC*NAC,Label='TS')
-      call mma_allocate(TSS,NAC*NAC,Label='TSS')
-      call SG_Trans_PDM_G(iState,BL,KL,nVec,LSM,NAC,TS,TSS,.true.)
-      Dev(:) = Zero
-      do q=1,NAC
-        do p=1,NAC
-          Dev(1) = max(Dev(1),abs(T1DM(p+(q-1)*NAC)-TS(q+(p-1)*NAC)))
-          if (CI_Lib /= CI_Lib_Lucia) Dev(2) = max(Dev(2),abs(T1SDM_loc(p+(q-1)*NAC)-TSS(q+(p-1)*NAC)))
-        end do
-      end do
-      Done = T1DM_SG_Verified
-      call Report_Dev('Mk_T1DM: T1DM, T1SDM vs SGUGA',maxval(Dev),ThrD,Done)
-      call mma_deallocate(TSS)
-      call mma_deallocate(TS)
-    end if
-    T1DM_Faro_Verified = .true.
-    T1DM_SG_Verified = .true.
-    call mma_deallocate(KL)
-    call mma_deallocate(BL)
-  end subroutine Check_T1DM
-
-End Subroutine Mk_T1DM
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
