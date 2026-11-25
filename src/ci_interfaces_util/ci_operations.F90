@@ -1159,7 +1159,8 @@ subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   end select
   ! HEXS/DEXS (the state from the CI input): zero for the removed CSFs, as
   ! Lucia's (which does it itself)
-  if ((iState == iState_Input) .and. ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald))) call HEXS_Proj(HEXS_Keep,Diag)
+  if ((iState == iState_Input) .and. (iSym == CI_St(iState)%STSym) .and. &
+      ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald))) call HEXS_Proj(HEXS_Keep,Diag)
 end subroutine CI_Lib_Diag
 
 !> The check of the Mode of CI_Lib_Diag
