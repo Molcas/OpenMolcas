@@ -12,7 +12,8 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO)
 
-use ci_interfaces, only: Mk_Tra_Psi
+use CI_Library, only: CI_Lib_Transform
+use CI_Info, only: CI_St
 use rasscf_global, only: NROOTS
 use Orbital_Spaces, only: nSym, NASH
 use rasscf_global, only: NAC, nCSF=>nConf
@@ -88,7 +89,7 @@ do JROOT=1,NROOTS
 !    0.9131679804438881_wp  &
 !]
 
-  Call Mk_Tra_Psi(iState,LT,NAC**2,CI_Vector,nCSF)
+  call CI_Lib_Transform(iState,CI_St(iState)%STSym,NAC**2,LT,nCSF,CI_Vector)
 
   Call VecPhase(CI_Vector,nCSF)
   call DDAFILE(JOBIPH,1,CI_Vector,nCSF,JOBDISK)

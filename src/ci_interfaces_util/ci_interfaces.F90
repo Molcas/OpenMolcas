@@ -44,7 +44,7 @@ use CI_Info, only: CI_St
 implicit none
 Private
 
-Public :: Mk_Tra_Psi, Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
+Public :: Mk_H_Psi, Mk_H_Psi_Det, Mk_PDMS, Mk_T1DM, Mk_IHI, Mk_IHJ, Mk_Cnf_Layout
 Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
           CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_CI, Faro_nTmp, SG_CI
 
@@ -2177,64 +2177,5 @@ contains
   end subroutine Verify_IHJ
 
 end subroutine Mk_IHJ
-
-
-subroutine Mk_Tra_Psi(iState,TU,nTU,CI_Vector,nCSF)
-
-! The CI transformation of the selected library (CI_Lib_Transform); under
-! MOLCAS_CI_VERIFY=SIGMA compared with Lucia (SGUGA, Faroald) and with SGUGA
-! (the other libraries).
-use sguga, only: sg_traci
-
-integer(kind=iwp), intent(in) :: iState, nTU, nCSF
-real(kind=wp), intent(in) :: TU(nTU)
-real(kind=wp), intent(inout) :: CI_Vector(nCSF)
-integer(kind=iwp) :: LSM
-real(kind=wp) :: Dev, TimT(2)
-logical(kind=iwp) :: Ref_Lucia, Verify_SG
-real(kind=wp), allocatable :: CI_Ref(:), CI_SGUGA(:), ctemp(:)
-
-call Tim_On(TimT)
-LSM = CI_St(iState)%STSym
-Ref_Lucia = CI_Verify('SIGMA') .and. (SG_CI() .or. Faro_CI())
-Verify_SG = CI_Verify('SIGMA') .and. SG_Avail() .and. (.not. SG_CI())
-if (Ref_Lucia) then
-  ! the reference of Lucia, in the Lucia basis
-  call mma_allocate(CI_Ref,nCSF,Label='CI_Lucia')
-  call CI_Basis_To_Lucia(iState,LSM,nCSF,CI_Vector,CI_Ref)
-  call Lucia_Util('TRACI',CI_Vector=CI_Ref(:),TU=TU(:),nTU=nTU)
-end if
-if (Verify_SG) then
-  ! the reference of SGUGA, in the order of the file
-  call mma_allocate(CI_SGUGA,nCSF,Label='CI_SGUGA')
-  call CI_Basis_To_File(iState,LSM,nCSF,CI_Vector,CI_SGUGA)
-  call SG_TRACI(iState,LSM,TU,nTU,CI_SGUGA,nCSF)
-end if
-
-call CI_Lib_Transform(iState,LSM,nTU,TU,nCSF,CI_Vector)
-
-if (Ref_Lucia) then
-  call mma_allocate(ctemp,nCSF,Label='ctemp')
-  call CI_Lucia_To_Basis(iState,LSM,nCSF,CI_Ref,ctemp)
-  Dev = maxval(abs(CI_Vector(:)-ctemp(:)))
-  if (SG_CI()) then
-    call Report_Dev('Mk_Tra_Psi (SGCI): SGUGA CI transformation vs Lucia',Dev,1.0e-10_wp,TraPsi_Verified)
-  else
-    call Report_Dev('Mk_Tra_Psi (FARO): Faroald CI transformation vs Lucia',Dev,1.0e-10_wp,TraPsi_Faro_Verified)
-  end if
-  call mma_deallocate(ctemp)
-  call mma_deallocate(CI_Ref)
-end if
-if (Verify_SG) then
-  call mma_allocate(ctemp,nCSF,Label='ctemp')
-  call CI_File_To_Basis(iState,LSM,nCSF,CI_SGUGA,ctemp)
-  call Report_Dev('Mk_Tra_Psi: SGUGA CI transformation vs the CI library',maxval(abs(CI_Vector(:)-ctemp(:))), &
-                  1.0e-10_wp*max(One,maxval(abs(CI_Vector(:)))),TraPsi_Verified)
-  call mma_deallocate(ctemp)
-  call mma_deallocate(CI_SGUGA)
-end if
-call Tim_Off(Tim_TraPsi,TimT)
-
-end subroutine Mk_Tra_Psi
 
 End module CI_Interfaces

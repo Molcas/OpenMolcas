@@ -119,7 +119,7 @@ type(Rel_Map_Type) :: Rel_Map(8)
 ! Faroald: its string-driven sigma checked once against the full space
 logical(kind=iwp) :: Faro_RAS_Verified = .false.
 
-public :: CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
+public :: CI_Lib_Input_State, CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSel, &
@@ -197,6 +197,14 @@ subroutine CI_Lib_Close(iState)
   call Space_Free(Space_CI)
   iState_Input = 0
 end subroutine CI_Lib_Close
+
+!> The CI state iState was set up by CI_Lib_Initialize from the CI input
+!> (not by the program itself): the checks of MOLCAS_CI_VERIFY apply to it.
+function CI_Lib_Input_State(iState) result(Is)
+  integer(kind=iwp), intent(in) :: iState
+  logical(kind=iwp) :: Is
+  Is = (iState == iState_Input)
+end function CI_Lib_Input_State
 
 !> Lucia (RASSCF's) is initialized (CI_Lib_Initialize): its tables
 !> (determinant counts, configuration types) may be used.
