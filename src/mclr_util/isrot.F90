@@ -77,6 +77,11 @@ logical(kind=iwp) :: InvSCF = .true.
 logical(kind=iwp) :: IntRotOff = .true.
 ! unequal state-average?
 logical(kind=iwp) :: unequal_SA = .false.
+! States whose energies differ by less than ThrDegE are treated as
+! degenerate in the internal state rotations: the RASSCF energies of
+! exactly degenerate states differ by their convergence error (1e-9 and
+! more), and dividing by that difference ruins the rotation parameters
+real(kind=wp), parameter :: ThrDegE = 1.0e-6_wp
 ! InvSol is true only if the ASCs are polarized by the state-averaged
 ! density matrix. If .not.InvSCF, InvSol is always false, but the
 ! converse may not be true.
@@ -227,8 +232,9 @@ subroutine ISR_RHS(CI,CIDER)
     do j=1,i-1
       scal = DDot_(ncsf(CI_St(iState)%STSym),CI(:,i),1,CIDER(:,j),1)-DDot_(ncsf(CI_St(iState)%STSym),CI(:,j),1,CIDER(:,i),1)
       if (InvSCF) then
-        ! non-iterative internal state rotations, if invariant
-        ISR%Rvec(i,j) = ISR%Rvec(i,j)+scal/(ERASSCF(j)-ERASSCF(i))
+        ! non-iterative internal state rotations, if invariant (the
+        ! rotation between degenerate states is redundant: none)
+        if (abs(ERASSCF(j)-ERASSCF(i)) >= ThrDegE) ISR%Rvec(i,j) = ISR%Rvec(i,j)+scal/(ERASSCF(j)-ERASSCF(i))
       else
         ! initial residue (for iterative solution)
         ISR%Rvec(i,j) = ISR%Rvec(i,j)+scal
@@ -358,7 +364,7 @@ subroutine DMInvISR(ISRotIn,ISRotOut)
       ! The diagonal of the S-S block is 2*(E_i-E_j) (times (w_i-w_j) with
       ! ScalWeight). A (near-)vanishing factor is replaced by one, so that
       ! degenerate states do not lead to a division by (almost) zero.
-      Edeg = abs(ERASSCF(i)-ERASSCF(j)) < 1.0e-9_wp
+      Edeg = abs(ERASSCF(i)-ERASSCF(j)) < ThrDegE
       Wdeg = (.not. ScalWeight) .or. (abs(Weight(i)-Weight(j)) < 1.0e-9_wp)
       if (Edeg .and. Wdeg) then
         ISRotOut(i,j) = Half*ISRotIn(i,j)
