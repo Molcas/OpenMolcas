@@ -225,8 +225,7 @@ subroutine Act_Check_Final(nCMO,CMO,Have_H5,H5Id,Lost)
       call mma_allocate(M,nA,nA,Label='M')
       call DGEMM_('N','N',nB,nA,nB,One,Sq,nB,COut,nB,Zero,SC,nB)
       call DGEMM_('T','N',nA,nA,nB,One,CIn,nB,SC,nB,Zero,M,nA)
-      ! weights outside the converged active space (before the SVD
-      ! overwrites M)
+      ! weights outside the converged active space
       write(u6,'(/,6X,A,I2,A,I4,A)') 'Irrep',iS,':',nA,' active orbitals'
       write(u6,'(6X,A)') 'start orbital   weight outside the converged active space'
       do i=1,nA
@@ -294,25 +293,36 @@ subroutine Free_Start()
   Have_Start = .false.
 end subroutine Free_Start
 
-!> The singular values of the n x n matrix A (overwritten), descending.
+!> The singular values of the n x n matrix A, descending,
+!> as square roots of the eigenvalues of A^T A. (dsyev instead of
+!> dgesvd: dgesvd without singular vectors goes through dlasq2, whose
+!> IEEE probe ieeeck traps in builds with floating-point exceptions.)
 subroutine SVD_Values(n,A,SV)
 
   use stdalloc, only: mma_allocate, mma_deallocate
 
   integer(kind=iwp), intent(in) :: n
-  real(kind=wp), intent(inout) :: A(n,n)
+  real(kind=wp), intent(in) :: A(n,n)
   real(kind=wp), intent(out) :: SV(n)
   integer(kind=iwp) :: Info, lWork
-  real(kind=wp) :: Dum(1,1), Wrk1(1)
-  real(kind=wp), allocatable :: Wrk(:)
+  real(kind=wp) :: Wrk1(1)
+  real(kind=wp), allocatable :: ATA(:,:), Wrk(:)
 
-  call dgesvd_('N','N',n,n,A,n,SV,Dum,1,Dum,1,Wrk1,-1,Info)
+  call mma_allocate(ATA,n,n,Label='ATA')
+  call DGEMM_('T','N',n,n,n,One,A,n,A,n,Zero,ATA,n)
+  call dsyev_('N','L',n,ATA,n,SV,Wrk1,-1,Info)
   lWork = max(1,int(Wrk1(1)))
   call mma_allocate(Wrk,lWork,Label='Wrk')
-  call dgesvd_('N','N',n,n,A,n,SV,Dum,1,Dum,1,Wrk,lWork,Info)
+  call dsyev_('N','L',n,ATA,n,SV,Wrk,lWork,Info)
   call mma_deallocate(Wrk)
-  ! (no false alarm if the SVD fails)
-  if (Info /= 0) SV(:) = One
+  call mma_deallocate(ATA)
+  if (Info /= 0) then
+    ! (no false alarm if the diagonalization fails)
+    SV(:) = One
+  else
+    ! ascending eigenvalues -> descending singular values
+    SV(:) = sqrt(max(SV(n:1:-1),Zero))
+  end if
 
 end subroutine SVD_Values
 
