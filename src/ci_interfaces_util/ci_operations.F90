@@ -668,8 +668,10 @@ subroutine Lucia1_Sigma(iState,iSym,nTU,TU,nTUVX,TUVX,n,C,S)
   call Lucia_Util('Sigma',CI_Vector=Lucia1_C,Sigma_Vector=Lucia1_S,nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
   ! the sigma vector exists on disk (densi_master)
   Sigma_on_disk = .true.
-  ! determinants -> CSFs
-  call csdtvc(S,Lucia1_S,2,iSym,0)
+  ! determinants -> CSFs (csdtvc uses its CSF vector as work of nD
+  ! elements: through the scratch)
+  call csdtvc(Lucia1_C,Lucia1_S,2,iSym,0)
+  S(1:n) = Lucia1_C(1:n)
   call mma_deallocate(Lucia1_C)
   call mma_deallocate(Lucia1_S)
   IREFSM = IREFSM_Keep
