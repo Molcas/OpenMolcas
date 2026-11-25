@@ -14,7 +14,7 @@
 
 subroutine cvbmn_cvb(icode)
 
-use ci_interfaces, only: CI_Close
+use CI_Library, only: CI_Lib_Close
 use casvb_global, only: esym, n_iter
 use Definitions, only: iwp
 
@@ -30,6 +30,6 @@ call cvbstart_cvb_lt9(icode)
 call main_cvb()
 call setretvals_cvb(esym,n_iter)
 
-call CI_Close(iState)
+call CI_Lib_Close(iState)
 
 end subroutine cvbmn_cvb

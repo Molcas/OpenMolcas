@@ -52,7 +52,8 @@ subroutine RASSCF(IRETURN)
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use Index_Functions, only: nTri_Elem
-use ci_interfaces, only: CI_Close, CI_Timer
+use ci_interfaces, only: CI_Timer
+use CI_Library, only: CI_Lib_Close
 use OneDat, only: sNoNuc, sNoOri
 use Fock_util_global, only: ALGO, DoActive, DoCholesky
 use write_orbital_files, only: OrbFiles, putOrbFile, write_orb_per_iter
@@ -1809,7 +1810,7 @@ if (Do_OFemb) then
 end if
 
 ! Release the CI environment
-call CI_Close(istate)
+call CI_Lib_Close(istate)
 
 if (allocated(CI_solver)) then
   call CI_solver%cleanup()

@@ -26,7 +26,7 @@ use faroald_ras, only: n_ras, ras_active, ras_sigma
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep_SG, HEXS_Proj
-use CI_Operations, only: Cnf_Exc, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, CI_Lib_nCnf, Faro_L2O => Faro_Lev, Faroald_HDet, &
+use CI_Operations, only: Cnf_Exc, CI_Lib_Block, CI_Lib_Cnf_Layout, CI_Lib_nCnf, Faro_L2O => Faro_Lev, Faroald_HDet, &
                          Rel_Map, Report_Dev, SG_Rel_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -42,7 +42,7 @@ implicit none
 Private
 
 Public :: Mk_H_Psi_Det, Mk_IHJ
-Public :: CI_Basis, CI_Basis_To_File, CI_Close, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
+Public :: CI_Basis, CI_Basis_To_File, CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_File_To_Basis, &
           CI_Lucia_Active, CI_Timer, CI_Verify, CI_Work_Need, Faro_CI, Faro_nTmp, SG_CI
 
 ! CI_Verify (module CI_Verify_Options) is re-exported, see there for the
@@ -397,13 +397,6 @@ End Subroutine Mk_H_Psi_Det
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-subroutine CI_Close(iState)
-integer(kind=iwp), Intent(in):: iState
-
-! the library and the state from the CI input (CI_Lib_Close); the selection is kept
-call CI_Lib_Close(iState)
-
-end subroutine CI_Close
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
