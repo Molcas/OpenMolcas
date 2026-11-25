@@ -13,7 +13,7 @@
 
 subroutine DerHEff(nConf,nRoots,nState,CLag,VECROT)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri3_Elem
 use caspt2_global, only: IDTCEX, LUCIEX
 use EQSOLV, only: IVECC, IVECW
@@ -76,7 +76,8 @@ if (ISCF == 0) then
   end do
 
   CI3(1:NCONF) = Zero
-  call DERTG3(.true.,CI_St(iState)%STSym,CI_St(iState)%STSym,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,CI3,CLag(1,JST))
+  call DERTG3(.true.,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,CI3, &
+    CLag(1,JST))
 
   do I=1,NSTATE
     IST = I

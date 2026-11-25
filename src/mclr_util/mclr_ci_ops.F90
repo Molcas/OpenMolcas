@@ -73,7 +73,7 @@ end subroutine MCLR_CI_Ints
 !> CI_Lib_Sigma (the full triangle, or for Square the square pair index).
 subroutine MCLR_CI_Sigma(iOpSpin,iCSym,iSSym,Square,Have_2_el,nInt1,Int1,nInt2,Int2,nC,C,nS,S)
 
-use CI_Operations, only: CI_Lib_Sigma
+use CI_Lib_Core, only: CI_Lib_Sigma
 use Symmetry_Info, only: Mul
 use Orbital_Spaces, only: nAsh, nSym
 use Index_Functions, only: nTri_Elem
@@ -112,7 +112,7 @@ end subroutine MCLR_CI_Sigma
 !> integrals of MCLR (Int1 as for MCLR_CI_Ints, Int2 the active triangle)
 subroutine MCLR_CI_Diag(Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
 
-use CI_Operations, only: CI_Lib_Diag
+use CI_Lib_Core, only: CI_Lib_Diag
 use Orbital_Spaces, only: nAsh, nSym
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -141,7 +141,7 @@ end subroutine MCLR_CI_Diag
 !> the block) with the integrals of MCLR (as for MCLR_CI_Diag)
 subroutine MCLR_CI_PSpace(iSym,nInt1,Int1,nInt2,Int2,n,Diag,nPMax,nP,IdxP,nHP,HP)
 
-use CI_Operations, only: CI_Lib_PSpace
+use CI_Lib_Core, only: CI_Lib_PSpace
 use Orbital_Spaces, only: nAsh, nSym
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate

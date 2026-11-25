@@ -129,7 +129,7 @@ subroutine refwfn_info()
   use caspt2_module, only: nDet
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
-  use CI_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_H5, CI_Space_Rd_JobIph
+  use CI_Lib_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_H5, CI_Space_Rd_JobIph
 
 # ifdef _HDF5_
   character(len=1), allocatable :: typestring(:)

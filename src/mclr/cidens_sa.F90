@@ -14,7 +14,7 @@ subroutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, W
 use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA
-use CI_Operations, only: CI_Lib_Dens
+use CI_Lib_Core, only: CI_Lib_Dens
 use input_mclr, only: nCSF, nRoots, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use pcm_grad, only: do_RF, DZACTMO, iStpPCM

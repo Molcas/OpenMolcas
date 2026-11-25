@@ -13,9 +13,9 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,T
 
 use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, hRoots, ICIRST, lRoots, MAXJT
-use CI_Library, only: CI_Lib_Sigma
+use CI_Lib, only: CI_Lib_Sigma
 use rasscf_files, only: ITERFILE, LUDAVID
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use rasscf_global, only: NCONF, NSEL
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use Rank0_Sync, only: Rank0_Bcast
@@ -107,7 +107,8 @@ do it_ci=1,mxItr
     call Timing(Time2(1),dum1,dum2,dum3)
 
     ! H|Psi> of the CI library (H of the CI state, its symmetry)
-    call CI_Lib_Sigma(iState,0,CI_St(iState)%STSym,CI_St(iState)%STSym,.false.,.true.,nTU,TU,nTUVX,TUVX,nConf,Vec1,nConf,Vec2)
+    call CI_Lib_Sigma(iState,0,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,.false.,.true.,nTU,TU,nTUVX,TUVX,nConf, &
+      Vec1,nConf,Vec2)
 
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)

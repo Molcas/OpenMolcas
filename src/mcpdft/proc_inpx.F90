@@ -26,10 +26,10 @@ use rctfld_module, only: lrf
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
-use CI_States, only: CI_Space_Rd_H5
+use CI_Lib_States, only: CI_Space_Rd_H5
 #endif
-use CI_Info, only: Space_CI
-use CI_States, only: CI_Space_Free, CI_Space_Rd_JobIph
+use CI_Lib_Info, only: Space_CI
+use CI_Lib_States, only: CI_Space_Free, CI_Space_Rd_JobIph
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
 use Definitions, only: wp, iwp, u6

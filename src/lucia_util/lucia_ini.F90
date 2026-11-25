@@ -16,7 +16,7 @@ use lucia_data, only: ECORE, ENVIRO, iDEXS, nDEXS, nHEXS, IADVICE, ICISTR, ICJKA
                       iHEXS, IGSOCCX, IH0INSPC, IH0SPC, ini_h0, IPART, IPRCIX, IPRDEN, IREFSM, IRESTR, ISIMSYM, &
                       LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, nDEXS, nHEXS, NACTEL, NCISPC, NCMBSPC, &
                       NGAS, NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN, Sigma_on_disk, IH1FORM, I12
-use CI_Info, only: Space_Inp
+use CI_Lib_Info, only: Space_Inp
 use Orbital_Spaces, only: NSYM
 use CI_Input, only: IGSOCCX_MOLCAS => IGSOCCX, iSpin, NACTEL_MOLCAS => NACTEL, nGAS_MOLCAS => nGAS, NGSSH_MOLCAS => NGSSH, STSYM
 use rasscf_global, only: ITMAX, lROOTS, nROOTS, POTNUC
@@ -299,7 +299,7 @@ end if
 PLSIGN = Zero
 #endif
 
-! IDC = 2: spin combinations (lucia2molcas sets CI_St%Spin_Comb from it)
+! IDC = 2: spin combinations (lucia2molcas sets CI_Lib_Space%Spin_Comb from it)
 if (PSSIGN == Zero) then
   IDC = 1
 else

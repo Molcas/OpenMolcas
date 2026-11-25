@@ -13,7 +13,7 @@
 
 module ontop_functional
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Functionals, only: Get_Func_Type
 use nq_Info, only: meta_GGA_Type1, meta_GGA_Type2, Other_Type
 use Constants, only: Zero
@@ -223,7 +223,7 @@ function energy_ot(self,folded_dm1,folded_dm1s,casdm2,charge)
   dummy_lrf = .false.
   dummy_noneq = .false.
   call drvxv(dummy1,dummy2,folded_dm1,potnuc,ntot1,first,dff,dummy_noneq,dummy_lrf,self%otxc,exfac,charge_, &
-             CI_St(iState)%iSpin,dftfock,do_dft)
+             CI_Lib_Space(iState)%iSpin,dftfock,do_dft)
   call mma_deallocate(dummy1)
   call mma_deallocate(dummy2)
 

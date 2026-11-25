@@ -106,7 +106,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !  End of the "essay".
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipget, W
 use MCLR_Data, only: ipCI, nConf1, nDens, nNA
@@ -138,7 +138,7 @@ do jSym=2,nSym
 end do
 
 ! Memory allocation
-nConf3 = CI_St(iState)%nDet(CI_St(iState)%STSym)
+nConf3 = CI_Lib_Space(iState)%nDet(CI_Lib_Space(iState)%STSym)
 ipwslam = ipGet(nConf3*nRoots)
 
 call mma_allocate(Wop,nDens)
@@ -165,7 +165,7 @@ do M=1,nRoots
     Coeff = Two*zx(IKM2)
     if (K > M) Coeff = -Coeff
     call CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
-    call CISigma_SA(0,CI_St(iState)%STSym,CI_St(iState)%STSym,Wop,nDens,tempda,1,tempda,1,ipci,ipwslam,.false.)
+    call CISigma_SA(0,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,Wop,nDens,tempda,1,tempda,1,ipci,ipwslam,.false.)
     !call ipin(ipwslam)
     AXPzx(:,M) = AXPzx(:,M)+dRoots*W(ipwslam)%A((K-1)*nConf1+1:K*nConf1)
   end do
@@ -173,7 +173,7 @@ do M=1,nRoots
   D_acc(:) = Zero
   call CalcDacc(D_acc,GDMat,M,nnA,nRoots,zx)
   call CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,One,off_Ash)
-  call CISigma_SA(0,CI_St(iState)%STSym,CI_St(iState)%STSym,Wop,nDens,tempda,1,tempda,1,ipci,ipwslam,.false.)
+  call CISigma_SA(0,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,Wop,nDens,tempda,1,tempda,1,ipci,ipwslam,.false.)
   AXPzx(:,M) = AXPzx(:,M)+dRoots*W(ipwslam)%A((M-1)*nConf1+1:M*nConf1)
   ! Computing (3)
   do K=2,nRoots

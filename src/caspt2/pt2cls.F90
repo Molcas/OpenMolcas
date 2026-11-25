@@ -21,7 +21,7 @@ use qcmaquis_info, only: qcmaquis_info_deinit
 use caspt2_module, only: DMRG
 #endif
 use ChoCASPT2, only: NASplit, NISplit, NumCho_PT2
-use CI_States, only: CI_Free_State
+use CI_Lib_States, only: CI_Free_State
 use Orbital_Spaces, only: NASH
 use caspt2_global, only: CMOPT2, DMIX, DREF, DWGT, FIFA, FIMO, IDCIEX, IDSCT, IDTCEX, PREF, TAT, TORB, Weight
 use caspt2_module, only: IfChol, nIsh, nSsh, nSym

@@ -14,10 +14,10 @@
 !> Generic CI operations of the CI interface, for any program, and the
 !> choice of the CI library that performs them.
 !>
-!> Operations (all for the CI state iState, CI_St(iState)):
+!> Operations (all for the CI state iState, CI_Lib_Space(iState)):
 !>  - CI_Lib_Initialize, CI_Lib_Close: set up and free the selected
 !>    library for the CI state (CI_Lib_Close is safe to call in any case).
-!>    The library publishes its dimensions in CI_St(iState) (nCSF; nDet: the
+!>    The library publishes its dimensions in CI_Lib_Space(iState) (nCSF; nDet: the
 !>    dimension of its determinant space per symmetry).
 !>  - CI_Lib_Sigma: sigma = H C for one CI vector, H an active-space
 !>    operator of any symmetry, Hermitian or not (layout of the integrals
@@ -59,10 +59,11 @@
 !> The orbital spaces are taken from Orbital_Spaces (nSym, nOrb, nIsh,
 !> nAsh) and CI_Input, the active orbitals in symmetry order; the
 !> integrals come with each operation.
-module CI_Operations
+module CI_Lib_Core
 
-use CI_Info, only: CI_St
-use CI_Op_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, &
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_Defs, only: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Selected, CI_Lib_Faroald, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, &
+                       CI_Lib_None, &
                       CI_Lib_Select, CI_Lib_SGUGA, CI_To_Basis, CI_To_File
 use MCLR_Lucia_CI, only: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_Conv, MCLR_Lucia_Dets, &
                          MCLR_Lucia_Diag_Act, MCLR_Lucia_Init, MCLR_Lucia_nCnf, MCLR_Lucia_Sigma_Act, MCLR_Lucia_TDens
@@ -72,27 +73,27 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-!> The selected library is CI_Lib of CI_Op_Defs (set by CI_Lib_Select, one
+!> The selected library is CI_Lib_Selected of CI_Lib_Defs (set by CI_Lib_Select, one
 !> selection for every program; re-exported here)
 
 
 ! Faroald: its orbitals are the levels of the split graph (by RAS
-! partition, within each by symmetry); Faro_Lev(iLev) is the
-! symmetry-ordered active orbital of level iLev. Faro_Sym is the symmetry
+! partition, within each by symmetry); CI_Faro_Lev(iLev) is the
+! symmetry-ordered active orbital of level iLev. CI_Faro_Sym is the symmetry
 ! of the CI state, the space of the string-driven RAS CI (faroald_ras);
-! citrans holds the CSF space of one symmetry at a time, Faro_Cur, set up
-! again from the stored description (Faro_OrbSym, ...) when another one
-! is needed (Faro_Set_Sym).
-integer(kind=iwp) :: Faro_Cur = 0, Faro_nAct = 0, Faro_nPrt = 0, Faro_Sym = 0
-integer(kind=iwp), allocatable :: Faro_MaxEl(:), Faro_MinEl(:), Faro_OrbRas(:), Faro_OrbSym(:)
+! citrans holds the CSF space of one symmetry at a time, CI_Faro_Cur, set up
+! again from the stored description (CI_Faro_OrbSym, ...) when another one
+! is needed (CI_Faro_Set_Sym).
+integer(kind=iwp) :: CI_Faro_Cur = 0, CI_Faro_nAct = 0, CI_Faro_nPrt = 0, CI_Faro_Sym = 0
+integer(kind=iwp), allocatable :: CI_Faro_MaxEl(:), CI_Faro_MinEl(:), CI_Faro_OrbRas(:), CI_Faro_OrbSym(:)
 !> (public, read-only: the level map for the programs' Faroald paths)
-integer(kind=iwp), allocatable, protected :: Faro_Lev(:)
+integer(kind=iwp), allocatable, protected :: CI_Faro_Lev(:)
 
 ! GAS: SGUGA evaluates products of excitation operators (H, 2-RDM, spin and
 ! transition densities, diagonal, explicit block) in the relaxed space of
-! the state (CI_St(iState)%iRel, see SG_Rel_State), which holds all their
-! intermediate states; Rel_Map(LSM)%M(I) is the index there of the CSF I of
-! symmetry LSM (SG_Rel_Map).
+! the state (CI_Lib_Space(iState)%iRel, see CI_SG_Rel_Space), which holds all their
+! intermediate states; CI_Rel_Map(LSM)%M(I) is the index there of the CSF I of
+! symmetry LSM (CI_SG_Rel_Map).
 ! Lucia (RASSCF's) has been initialized (not for SGCI and FARO, except as the
 ! reference of MOLCAS_CI_VERIFY=SIGMA)
 logical(kind=iwp) :: Lucia_Active = .true.
@@ -105,37 +106,38 @@ logical(kind=iwp) :: Lucia_Active = .true.
 integer(kind=iwp) :: iState_Input = 0
 ! SGEX given where it does not apply: warned once
 logical(kind=iwp) :: SGEx_Warned = .false.
-! HEXS/DEXS (RASSCF keywords, CI_Info Space_Inp): the configurations with
+! HEXS/DEXS (RASSCF keywords, CI_Lib_Info Space_Inp): the configurations with
 ! the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in the
 ! listed RAS partitions are removed as in Lucia: their CSFs stay in the
 ! vectors, the CI works with P H P (zero sigma, zero diagonal there). The
 ! maximum occupation of partition g is maxa(g) + maxb(g) (Space_Max_Occ), the
 ! largest numbers of alpha and beta electrons in g in the determinants of the
 ! space (Lucia's rule for the determinant blocks, I_AM_SO_EXCITED).
-! HEXS_Keep: the kept CSFs in the CI basis (SGCI, FARO; Lucia does it
-! itself); HEXS_Keep_SG: in the split-graph basis (the SGUGA references).
-logical(kind=iwp), allocatable :: HEXS_Keep(:), HEXS_Keep_SG(:)
+! CI_HEXS_Keep: the kept CSFs in the CI basis (SGCI, FARO; Lucia does it
+! itself); CI_HEXS_Keep_SG: in the split-graph basis (the SGUGA references).
+logical(kind=iwp), allocatable :: CI_HEXS_Keep(:), CI_HEXS_Keep_SG(:)
 
-type Rel_Map_Type
+type CI_Rel_Map_Type
   integer(kind=iwp), allocatable :: M(:)
-end type Rel_Map_Type
-type(Rel_Map_Type) :: Rel_Map(8)
+end type CI_Rel_Map_Type
+type(CI_Rel_Map_Type) :: CI_Rel_Map(8)
 
 ! Faroald: its string-driven sigma checked once against the full space
-logical(kind=iwp) :: Faro_RAS_Verified = .false.
+logical(kind=iwp) :: CI_Chk_Faro_RAS = .false.
 
-public :: CI_Lib_Input_State, CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Proj
-public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
+public :: CI_Lib_Input_State, CI_Lucia_Active, CI_HEXS_Keep, CI_HEXS_Keep_SG, CI_HEXS_Proj
+public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Selected, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSel, &
           CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGEX, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Sigma_Det, CI_Lib_Transform, CI_To_Basis, &
-          CI_To_File, Cnf_Exc, Faro_Ints_Act, Faro_Lev, Faroald_HDet, Lucia1_Block, Lucia1_Block_SG, Rel_Map, Report_Dev, &
-          SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+          CI_To_File, CI_Cnf_Exc, CI_Faro_Ints_Act, CI_Faro_Lev, CI_Faro_HDet, CI_Lucia_Block, CI_Lucia_Block_SG, CI_Rel_Map, &
+            CI_Chk_Report_Dev, &
+          CI_SG_Rel_Embed, CI_SG_Rel_Free, CI_SG_Rel_Map, CI_SG_Rel_Project
 
 contains
 
 !> Set up the selected library for the CI state. If the program has set up
-!> the state itself (CI_Setup_SG/CI_Setup_RAS before the call, CI_St%Active:
+!> the state itself (CI_Setup_SG/CI_Setup_RAS before the call, CI_Lib_Space%Active:
 !> MCLR), only the library; otherwise (RASSCF) the whole state from the CI
 !> input (CI_Lib_Setup_Input: space, graph, Lucia, self-tests, library,
 !> HEXS/DEXS masks).
@@ -145,45 +147,45 @@ subroutine CI_Lib_Initialize(iState)
   use Molcas, only: MxSym
   integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: nDet(MxSym)
-  if (.not. CI_St(iState)%Active) then
+  if (.not. CI_Lib_Space(iState)%Active) then
     ! no state set up by the program: the state from the CI input
     call CI_Lib_Setup_Input(iState)
     return
   end if
-  if (CI_Lib == CI_Lib_SGUGA) then
+  if (CI_Lib_Selected == CI_Lib_SGUGA) then
     ! the split graph is the state of the CI interface (set up by the
     ! program with CI_Lib_Graph_Mode()); no determinants
-    CI_St(iState)%nDet(:) = CI_St(iState)%nCSF(:)
+    CI_Lib_Space(iState)%nDet(:) = CI_Lib_Space(iState)%nCSF(:)
     return
   end if
-  if (CI_Lib == CI_Lib_Faroald) then
-    call Faro_Init(iState)
+  if (CI_Lib_Selected == CI_Lib_Faroald) then
+    call CI_Faro_Init(iState)
     return
   end if
   call Check_Lib('CI_Lib_Initialize')
   ! the CI space as arguments: the library keeps its own copies
   call MCLR_Lucia_Init(nSym,nOrb(1:nSym),nIsh(1:nSym),nAsh(1:nSym),nRs1(1:nSym),nRs2(1:nSym),nRs3(1:nSym),nHole1,nElec3,nActEl, &
-                       iSpin,CI_St(iState)%STSym,CI_St(iState)%nCSF(1:nSym),nDet(1:nSym))
-  CI_St(iState)%nDet(:) = 0
-  CI_St(iState)%nDet(1:nSym) = nDet(1:nSym)
+                       iSpin,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%nCSF(1:nSym),nDet(1:nSym))
+  CI_Lib_Space(iState)%nDet(:) = 0
+  CI_Lib_Space(iState)%nDet(1:nSym) = nDet(1:nSym)
 end subroutine CI_Lib_Initialize
 
 !> Free the library of the CI state (safe to call in any case); the
-!> selection is kept (CI_Op_Defs: other code of the program may still read it)
+!> selection is kept (CI_Lib_Defs: other code of the program may still read it)
 subroutine CI_Lib_Close(iState)
   use SGUGA_Sigma, only: SG_Sigma_Free
   use SGUGA_Densities, only: SG_Densities_Free
   use sguga, only: SG_Free
   use Lucia_Interface, only: Lucia_Util
   use CI_Space_Def, only: Space_Free
-  use CI_Info, only: Space_CI
+  use CI_Lib_Info, only: Space_CI
   use stdalloc, only: mma_deallocate
   integer(kind=iwp), intent(in) :: iState
-  if (CI_Lib == CI_Lib_MCLR_Lucia) call MCLR_Lucia_Close(iState)
-  if (CI_Lib == CI_Lib_Faroald) call Faro_Close()
+  if (CI_Lib_Selected == CI_Lib_MCLR_Lucia) call MCLR_Lucia_Close(iState)
+  if (CI_Lib_Selected == CI_Lib_Faroald) call CI_Faro_Close()
   ! the work space of SGUGA (safe to call in any case; also used as the
   ! reference of MOLCAS_CI_VERIFY=SIGMA with the other libraries)
-  if ((CI_Lib == CI_Lib_SGUGA) .or. (iState == iState_Input)) then
+  if ((CI_Lib_Selected == CI_Lib_SGUGA) .or. (iState == iState_Input)) then
     call SG_Sigma_Free()
     call SG_Densities_Free()
   end if
@@ -191,15 +193,15 @@ subroutine CI_Lib_Close(iState)
   ! the state from the CI input (CI_Lib_Setup_Input): Lucia, the graphs, the
   ! CI space and the HEXS/DEXS masks
   if (Lucia_Active) call Lucia_Util('Close')
-  if (CI_St(iState)%iRel > 0) then
-    call SG_Free(CI_St(iState)%iRel)
-    CI_St(iState)%iRel = 0
+  if (CI_Lib_Space(iState)%iRel > 0) then
+    call SG_Free(CI_Lib_Space(iState)%iRel)
+    CI_Lib_Space(iState)%iRel = 0
   end if
-  call SG_Rel_Free()
+  call CI_SG_Rel_Free()
   call SG_Free(iState)
-  CI_St(iState)%Active = .false.
-  call mma_deallocate(HEXS_Keep,safe='*')
-  call mma_deallocate(HEXS_Keep_SG,safe='*')
+  CI_Lib_Space(iState)%Active = .false.
+  call mma_deallocate(CI_HEXS_Keep,safe='*')
+  call mma_deallocate(CI_HEXS_Keep_SG,safe='*')
   call Space_Free(Space_CI)
   iState_Input = 0
 end subroutine CI_Lib_Close
@@ -240,17 +242,18 @@ subroutine CI_Lib_Setup_Input(iState)
   nCSF_Lucia = 0
   ! SGCI and FARO do not need Lucia; it is set up only as the reference of
   ! MOLCAS_CI_VERIFY=SIGMA.
-  Lucia_Active = .not. (((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald)) .and. (.not. CI_Verify('SIGMA')))
+  Lucia_Active = .not. (((CI_Lib_Selected == CI_Lib_SGUGA) .or. (CI_Lib_Selected == CI_Lib_Faroald)) .and. &
+                       (.not. CI_Verify('SIGMA')))
 
   ! the CI space in the common description of the libraries
   call CI_Space_Setup()
 
   if (Lucia_Active) then
-    ! the determinant tables (CI_St%nCSF, %nDet set by lucia2molcas; Lucia's
+    ! the determinant tables (CI_Lib_Space%nCSF, %nDet set by lucia2molcas; Lucia's
     ! CSF count of the CI symmetry kept for the check against the split
-    ! graph, which redefines CI_St%nCSF below)
+    ! graph, which redefines CI_Lib_Space%nCSF below)
     call Lucia_Util('Ini')
-    nCSF_Lucia = CI_St(iState)%nCSF(STSym)
+    nCSF_Lucia = CI_Lib_Space(iState)%nCSF(STSym)
   end if
 
   if (CI_Verify('SIGMA')) then
@@ -273,9 +276,9 @@ subroutine CI_Lib_Setup_Input(iState)
   if (.not. Lucia_Active) then
     ! the CSF counts from SGUGA; no determinants (the Davidson scratch for
     ! the determinant expansion of the other libraries is not needed)
-    CI_St(iState)%nCSF(:) = 0
-    CI_St(iState)%nCSF(1:nSym) = CIS(iState)%nCSF(1:nSym)
-    CI_St(iState)%nDet(:) = CI_St(iState)%nCSF(:)
+    CI_Lib_Space(iState)%nCSF(:) = 0
+    CI_Lib_Space(iState)%nCSF(1:nSym) = CIS(iState)%nCSF(1:nSym)
+    CI_Lib_Space(iState)%nDet(:) = CI_Lib_Space(iState)%nCSF(:)
     write(u6,'(1X,A)') 'SGCI/FARO: Lucia is not initialized.'
   end if
   ! Exhaustive verification of the SGUGA coupling-coefficient codes, only on
@@ -303,20 +306,20 @@ subroutine CI_Lib_Setup_Input(iState)
     call SG_Test_EpqErs_Ref(iState,STSym,sg_h_psi,sg_h_psi_ras,Epq_Only=.true.)
   end if
 
-  if (CI_Lib == CI_Lib_Faroald) then
+  if (CI_Lib_Selected == CI_Lib_Faroald) then
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
     write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
     ! the one Faroald setup, from Space_CI
-    call Faro_Init(iState)
-    if ((citrans_ncsf() /= CI_St(iState)%nCSF(STSym)) .and. (CI_St(iState)%nActEl > 0)) then
-      write(u6,*) 'CI_Lib_Initialize: number of CSFs, Faroald and the split graph:',citrans_ncsf(),CI_St(iState)%nCSF(STSym)
+    call CI_Faro_Init(iState)
+    if ((citrans_ncsf() /= CI_Lib_Space(iState)%nCSF(STSym)) .and. (CI_Lib_Space(iState)%nActEl > 0)) then
+      write(u6,*) 'CI_Lib_Initialize: number of CSFs, Faroald and the split graph:',citrans_ncsf(),CI_Lib_Space(iState)%nCSF(STSym)
       call Abend()
     end if
   end if
 
   ! HEXS/DEXS: the kept CSFs
-  call HEXS_Setup(iState)
+  call CI_HEXS_Setup(iState)
 end subroutine CI_Lib_Setup_Input
 
 !> The CI space (Space_CI) from the GAS description of the input (NGAS,
@@ -327,9 +330,9 @@ end subroutine CI_Lib_Setup_Input
 subroutine CI_Space_Setup()
   use Orbital_Spaces, only: nAsh, nSym
   use CI_Input, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NGAS, NGSSH, nElec3, nHole1, nRs1, nRs2, nRs3
-  use CI_Info, only: Space_CI, Space_Inp
+  use CI_Lib_Info, only: Space_CI, Space_Inp
   use CI_Space_Def, only: Space_From_GAS, Space_Max_Occ, Space_Print, Space_Remove, Space_Removals
-  use CI_States, only: RAS_Partitions
+  use CI_Lib_States, only: RAS_Partitions
   use CI_Verify_Options, only: CI_Verify
   use stdalloc, only: mma_allocate, mma_deallocate
   use Molcas, only: MxGAS, MxSym
@@ -419,13 +422,13 @@ end subroutine CI_Space_Setup
 !> The split graph of the CI state iState from Space_CI (levels partition by
 !> partition and within each by symmetry, the identity as orbital -> level
 !> map): CAS/RAS as RAS graph (CI_Setup_RAS); GAS with the upper bounds, plus
-!> the relaxed space (SG_Rel_State: the bounds widened by one electron at
+!> the relaxed space (CI_SG_Rel_Space: the bounds widened by one electron at
 !> every boundary), in which the CI interface evaluates the products.
 subroutine CI_Lib_Graph_Setup(iState)
   use Orbital_Spaces, only: nSym
   use CI_Input, only: iDoGAS, iSpin, nActEl, nElec3, nHole1, nRs1, nRs2, nRs3, STSym
-  use CI_States, only: CI_Setup_RAS, CI_Setup_SG
-  use CI_Info, only: SG_Rel_State, Space_CI
+  use CI_Lib_States, only: CI_Setup_RAS, CI_Setup_SG
+  use CI_Lib_Info, only: CI_SG_Rel_Space, Space_CI
   use stdalloc, only: mma_allocate, mma_deallocate
   use Molcas, only: MxLev, MxSym
   integer(kind=iwp), intent(in) :: iState
@@ -456,8 +459,8 @@ subroutine CI_Lib_Graph_Setup(iState)
         MaxR(k) = Space_CI%MaxEl(k)
       end if
     end do
-    call CI_Setup_SG(SG_Rel_State,nSym,nActEl,iSpin,STSym,nRasG,MinR,nP,Level,Level,nLev,NSM,'FULL',nRasMx=MaxR)
-    CI_St(iState)%iRel = SG_Rel_State
+    call CI_Setup_SG(CI_SG_Rel_Space,nSym,nActEl,iSpin,STSym,nRasG,MinR,nP,Level,Level,nLev,NSM,'FULL',nRasMx=MaxR)
+    CI_Lib_Space(iState)%iRel = CI_SG_Rel_Space
     call mma_deallocate(MaxR)
     call mma_deallocate(MinR)
     call mma_deallocate(nRasG)
@@ -469,19 +472,19 @@ end subroutine CI_Lib_Graph_Setup
 
 !> HEXS/DEXS: is a configuration with nOcc(k) electrons in partition k of
 !> Space_CI removed (the removal rules of the CI space)?
-function HEXS_Removed(nOcc) result(Rem)
-  use CI_Info, only: Space_CI
+function CI_HEXS_Removed(nOcc) result(Rem)
+  use CI_Lib_Info, only: Space_CI
   use CI_Space_Def, only: Space_Allowed
   integer(kind=iwp), intent(in) :: nOcc(:)
   logical(kind=iwp) :: Rem
   Rem = .not. Space_Allowed(Space_CI,nOcc(1:Space_CI%nPart))
-end function HEXS_Removed
+end function CI_HEXS_Removed
 
 !> HEXS/DEXS: the kept CSFs of symmetry STSym in the split-graph basis, from
 !> the SGUGA configurations.
-subroutine HEXS_Mask_SG(iState,Keep)
+subroutine CI_HEXS_Mask_SG(iState,Keep)
   use sguga, only: SGCnfList, SG_Cnf_Occ, SG_Free_Cnf_List, SG_Mk_Cnf_List
-  use CI_Info, only: Space_CI
+  use CI_Lib_Info, only: Space_CI
   use stdalloc, only: mma_allocate, mma_deallocate
   use Molcas, only: MxGAS
   integer(kind=iwp), intent(in) :: iState
@@ -489,8 +492,8 @@ subroutine HEXS_Mask_SG(iState,Keep)
   type(SGCnfList) :: Cnf
   integer(kind=iwp) :: k, iLev, nOcc(MxGAS)
   integer(kind=iwp), allocatable :: Occ(:)
-  call SG_Mk_Cnf_List(iState,CI_St(iState)%STSym,Cnf)
-  call mma_allocate(Occ,max(1,Cnf%nLev),Label='HEXS_Occ')
+  call SG_Mk_Cnf_List(iState,CI_Lib_Space(iState)%STSym,Cnf)
+  call mma_allocate(Occ,max(1,Cnf%nLev),Label='CI_HEXS_Occ')
   Keep(:) = .true.
   do k=1,Cnf%nCnf
     call SG_Cnf_Occ(Cnf,k,Occ)
@@ -498,17 +501,17 @@ subroutine HEXS_Mask_SG(iState,Keep)
     do iLev=1,Cnf%nLev
       nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+Occ(iLev)
     end do
-    if (HEXS_Removed(nOcc)) Keep(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))) = .false.
+    if (CI_HEXS_Removed(nOcc)) Keep(Cnf%iCSF(Cnf%iOff(k)+1:Cnf%iOff(k+1))) = .false.
   end do
   call mma_deallocate(Occ)
   call SG_Free_Cnf_List(Cnf)
-end subroutine HEXS_Mask_SG
+end subroutine CI_HEXS_Mask_SG
 
 !> HEXS/DEXS: the kept CSFs in the basis of Faroald (citrans), from its
 !> configurations (the orbitals of Faroald are the levels).
-subroutine HEXS_Mask_Faro(nLev,Keep)
+subroutine CI_HEXS_Mask_Faro(nLev,Keep)
   use citrans, only: citrans_conf_dets
-  use CI_Info, only: Space_CI
+  use CI_Lib_Info, only: Space_CI
   use stdalloc, only: mma_deallocate
   use Molcas, only: MxGAS
   integer(kind=iwp), intent(in) :: nLev
@@ -525,69 +528,69 @@ subroutine HEXS_Mask_Faro(nLev,Keep)
       if (btest(da(1),iLev-1)) nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+1
       if (btest(db(1),iLev-1)) nOcc(Space_CI%LevPart(iLev)) = nOcc(Space_CI%LevPart(iLev))+1
     end do
-    if (HEXS_Removed(nOcc)) Keep(k1:k1+nc-1) = .false.
+    if (CI_HEXS_Removed(nOcc)) Keep(k1:k1+nc-1) = .false.
     k = k1+nc
     call mma_deallocate(da)
     call mma_deallocate(db)
     call mma_deallocate(cf)
   end do
-end subroutine HEXS_Mask_Faro
+end subroutine CI_HEXS_Mask_Faro
 
 !> HEXS/DEXS: the masks of the kept CSFs (end of CI_Lib_Setup_Input). Without
-!> Lucia the number of kept CSFs (CI_St%nCSF_Kept) comes from here (the
+!> Lucia the number of kept CSFs (CI_Lib_Space%nCSF_Kept) comes from here (the
 !> program caps its explicit subspace with it); with Lucia they are compared.
-subroutine HEXS_Setup(iState)
+subroutine CI_HEXS_Setup(iState)
   use CI_Input, only: iDoGAS
-  use CI_Info, only: Space_CI
+  use CI_Lib_Info, only: Space_CI
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState
   integer(kind=iwp) :: nKeep, nCSF
-  call mma_deallocate(HEXS_Keep,safe='*')
-  call mma_deallocate(HEXS_Keep_SG,safe='*')
+  call mma_deallocate(CI_HEXS_Keep,safe='*')
+  call mma_deallocate(CI_HEXS_Keep_SG,safe='*')
   ! the removals are part of the CI space (CI_Space_Setup)
   if (Space_CI%nRem <= 0) return
-  nCSF = CI_St(iState)%nCSF(CI_St(iState)%STSym)
+  nCSF = CI_Lib_Space(iState)%nCSF(CI_Lib_Space(iState)%STSym)
   ! (SGUGA covers CAS and RAS directly, GAS through the relaxed space)
-  if ((.not. iDoGAS) .or. (CI_St(iState)%iRel > 0)) then
-    call mma_allocate(HEXS_Keep_SG,nCSF,Label='HEXS_Keep_SG')
-    call HEXS_Mask_SG(iState,HEXS_Keep_SG)
+  if ((.not. iDoGAS) .or. (CI_Lib_Space(iState)%iRel > 0)) then
+    call mma_allocate(CI_HEXS_Keep_SG,nCSF,Label='CI_HEXS_Keep_SG')
+    call CI_HEXS_Mask_SG(iState,CI_HEXS_Keep_SG)
   end if
-  if (CI_Lib == CI_Lib_SGUGA) then
-    call mma_allocate(HEXS_Keep,nCSF,Label='HEXS_Keep')
-    HEXS_Keep(:) = HEXS_Keep_SG(:)
-  else if (CI_Lib == CI_Lib_Faroald) then
-    call mma_allocate(HEXS_Keep,nCSF,Label='HEXS_Keep')
-    call HEXS_Mask_Faro(Space_CI%nLev,HEXS_Keep)
+  if (CI_Lib_Selected == CI_Lib_SGUGA) then
+    call mma_allocate(CI_HEXS_Keep,nCSF,Label='CI_HEXS_Keep')
+    CI_HEXS_Keep(:) = CI_HEXS_Keep_SG(:)
+  else if (CI_Lib_Selected == CI_Lib_Faroald) then
+    call mma_allocate(CI_HEXS_Keep,nCSF,Label='CI_HEXS_Keep')
+    call CI_HEXS_Mask_Faro(Space_CI%nLev,CI_HEXS_Keep)
   end if
-  if (allocated(HEXS_Keep)) then
-    nKeep = count(HEXS_Keep)
-  else if (allocated(HEXS_Keep_SG)) then
-    nKeep = count(HEXS_Keep_SG)
+  if (allocated(CI_HEXS_Keep)) then
+    nKeep = count(CI_HEXS_Keep)
+  else if (allocated(CI_HEXS_Keep_SG)) then
+    nKeep = count(CI_HEXS_Keep_SG)
   else
     return
   end if
   write(u6,'(1X,A,I0,A,I0,A)') 'HEXS/DEXS: ',nKeep,' of ',nCSF,' CSFs kept'
   if (.not. Lucia_Active) then
-    CI_St(iState)%nCSF_Kept = nKeep
-  else if (nKeep /= CI_St(iState)%nCSF_Kept) then
-    write(u6,'(1X,A,I0)') 'HEXS/DEXS: Lucia keeps (nCSF_HEXS) ',CI_St(iState)%nCSF_Kept
+    CI_Lib_Space(iState)%nCSF_Kept = nKeep
+  else if (nKeep /= CI_Lib_Space(iState)%nCSF_Kept) then
+    write(u6,'(1X,A,I0)') 'HEXS/DEXS: Lucia keeps (nCSF_HEXS) ',CI_Lib_Space(iState)%nCSF_Kept
   end if
-end subroutine HEXS_Setup
+end subroutine CI_HEXS_Setup
 
 !> HEXS/DEXS: v := P v (zero on the removed CSFs), if the mask is set and
 !> matches v.
-subroutine HEXS_Proj(Keep,v)
+subroutine CI_HEXS_Proj(Keep,v)
   logical(kind=iwp), allocatable, intent(in) :: Keep(:)
   real(kind=wp), intent(inout) :: v(:)
   if (.not. allocated(Keep)) return
   if (size(Keep) /= size(v)) return
   where (.not. Keep) v = Zero
-end subroutine HEXS_Proj
+end subroutine CI_HEXS_Proj
 
 !> S = H C (S is overwritten, never accumulated) for the CI state iState
-!> (its CI space, CI_St(iState)), C of symmetry iCSym (nC = nCSF(iCSym)),
+!> (its CI space, CI_Lib_Space(iState)), C of symmetry iCSym (nC = nCSF(iCSym)),
 !> S of symmetry iSSym (nS = nCSF(iSSym)), both in the CSF basis of the
-!> selected library (CI_Lib). That basis is the library's own and differs
+!> selected library (CI_Lib_Selected). That basis is the library's own and differs
 !> between the libraries; only CI_Lib_File_To_Basis and
 !> CI_Lib_Basis_To_File map it to the order of the files. H is an
 !> active-space operator of symmetry iOp = Mul(iCSym,iSSym), with no core
@@ -628,15 +631,15 @@ subroutine CI_Lib_Sigma(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX
   real(kind=wp), allocatable :: CM(:)
   call Check_Op('CI_Lib_Sigma',iOpSpin,Have_2_el,Square)
   ! HEXS/DEXS (the state from the CI input, its symmetry): P H P, the vector
-  ! and the result projected on the kept CSFs (HEXS_Keep; Lucia does it
+  ! and the result projected on the kept CSFs (CI_HEXS_Keep; Lucia does it
   ! itself, its mask is not allocated)
-  if ((iState == iState_Input) .and. allocated(HEXS_Keep) .and. (iCSym == CI_St(iState)%STSym) .and. &
-      (iSSym == CI_St(iState)%STSym)) then
-    call mma_allocate(CM,nC,Label='HEXS_CM')
+  if ((iState == iState_Input) .and. allocated(CI_HEXS_Keep) .and. (iCSym == CI_Lib_Space(iState)%STSym) .and. &
+      (iSSym == CI_Lib_Space(iState)%STSym)) then
+    call mma_allocate(CM,nC,Label='CI_HEXS_CM')
     CM(:) = C(:)
-    call HEXS_Proj(HEXS_Keep,CM)
+    call CI_HEXS_Proj(CI_HEXS_Keep,CM)
     call Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,CM,nS,S)
-    call HEXS_Proj(HEXS_Keep,S)
+    call CI_HEXS_Proj(CI_HEXS_Keep,S)
     call mma_deallocate(CM)
   else
     call Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
@@ -660,7 +663,7 @@ subroutine CI_Lib_Sigma_Det(iState,iSym,nTU,TU,nTUVX,TUVX,nDet,C,S)
   integer(kind=iwp) :: IREFSM_Save
 #include "macros.fh"
   unused_var(iState)
-  if (CI_Lib /= CI_Lib_Lucia) call Not_Yet('CI_Lib_Sigma_Det','the sigma vector in the determinant basis (CASVB)')
+  if (CI_Lib_Selected /= CI_Lib_Lucia) call Not_Yet('CI_Lib_Sigma_Det','the sigma vector in the determinant basis (CASVB)')
   IREFSM_Save = IREFSM
   IREFSM = iSym
   ICSM = iSym
@@ -679,19 +682,19 @@ subroutine Lib_Sigma_Run(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUV
   logical(kind=iwp), intent(in) :: Square, Have_2_el
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
   real(kind=wp), intent(out) :: S(nS)
-  select case (CI_Lib)
+  select case (CI_Lib_Selected)
     case (CI_Lib_SGUGA)
       if (iOpSpin /= 0) call Not_Yet('CI_Lib_Sigma','triplet operators')
-      call SG_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+      call CI_SG_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
     case (CI_Lib_Faroald)
       if (iOpSpin /= 0) call Not_Yet('CI_Lib_Sigma','triplet operators')
-      call Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+      call CI_Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
     case (CI_Lib_MCLR_Lucia)
       call MCLR_Lucia_Sigma_Act(iState,iOpSpin,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
     case (CI_Lib_Lucia)
-      if ((iOpSpin /= 0) .or. Square .or. (.not. Have_2_el) .or. (iCSym /= iSSym) .or. (iCSym /= CI_St(iState)%STSym)) &
+      if ((iOpSpin /= 0) .or. Square .or. (.not. Have_2_el) .or. (iCSym /= iSSym) .or. (iCSym /= CI_Lib_Space(iState)%STSym)) &
         call Not_Yet('CI_Lib_Sigma','RASSCF''s Lucia for other operators than H in the symmetry of the state')
-      call Lucia1_Sigma(iState,iCSym,nTU,TU,nTUVX,TUVX,nC,C,S)
+      call CI_Lucia_Sigma(iState,iCSym,nTU,TU,nTUVX,TUVX,nC,C,S)
     case default
       call Check_Lib('CI_Lib_Sigma')
   end select
@@ -699,7 +702,7 @@ end subroutine Lib_Sigma_Run
 
 !> RASSCF's Lucia (CI_Lib_Lucia): S = H C in the symmetry of the state, via
 !> its determinant basis (csdtvc), with determinant scratch of this call
-subroutine Lucia1_Sigma(iState,iSym,nTU,TU,nTUVX,TUVX,n,C,S)
+subroutine CI_Lucia_Sigma(iState,iSym,nTU,TU,nTUVX,TUVX,n,C,S)
   use lucia_data, only: IREFSM, Sigma_on_disk
   use cands, only: ICSM, ISSM
   use Lucia_Interface, only: Lucia_Util
@@ -709,40 +712,40 @@ subroutine Lucia1_Sigma(iState,iSym,nTU,TU,nTUVX,TUVX,n,C,S)
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(n)
   real(kind=wp), intent(out) :: S(n)
   integer(kind=iwp) :: IREFSM_Keep, nD, nW
-  real(kind=wp), allocatable :: Lucia1_C(:), Lucia1_S(:)
+  real(kind=wp), allocatable :: CI_Lucia_C(:), CI_Lucia_S(:)
   ! the determinant scratch, only for this call (peak memory as before)
-  nD = CI_St(iState)%nDet(iSym)
+  nD = CI_Lib_Space(iState)%nDet(iSym)
   nW = max(n,nD)
-  call mma_allocate(Lucia1_C,nW,Label='Lucia1_C')
-  call mma_allocate(Lucia1_S,nW,Label='Lucia1_S')
+  call mma_allocate(CI_Lucia_C,nW,Label='CI_Lucia_C')
+  call mma_allocate(CI_Lucia_S,nW,Label='CI_Lucia_S')
   IREFSM_Keep = IREFSM
   IREFSM = iSym
   ICSM = iSym
   ISSM = iSym
-  ! CSFs -> determinants (Lucia1_S is the scratch of the conversion)
-  Lucia1_C(1:n) = C(1:n)
-  Lucia1_S(:) = Zero
-  call csdtvc(Lucia1_C,Lucia1_S,1,iSym,0)
-  Lucia1_C(1:nD) = Lucia1_S(1:nD)
-  call Lucia_Util('Sigma',CI_Vector=Lucia1_C,Sigma_Vector=Lucia1_S,nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+  ! CSFs -> determinants (CI_Lucia_S is the scratch of the conversion)
+  CI_Lucia_C(1:n) = C(1:n)
+  CI_Lucia_S(:) = Zero
+  call csdtvc(CI_Lucia_C,CI_Lucia_S,1,iSym,0)
+  CI_Lucia_C(1:nD) = CI_Lucia_S(1:nD)
+  call Lucia_Util('Sigma',CI_Vector=CI_Lucia_C,Sigma_Vector=CI_Lucia_S,nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
   ! the sigma vector exists on disk (densi_master)
   Sigma_on_disk = .true.
   ! determinants -> CSFs (csdtvc uses its CSF vector as work of nD
   ! elements: through the scratch)
-  call csdtvc(Lucia1_C,Lucia1_S,2,iSym,0)
-  S(1:n) = Lucia1_C(1:n)
-  call mma_deallocate(Lucia1_C)
-  call mma_deallocate(Lucia1_S)
+  call csdtvc(CI_Lucia_C,CI_Lucia_S,2,iSym,0)
+  S(1:n) = CI_Lucia_C(1:n)
+  call mma_deallocate(CI_Lucia_C)
+  call mma_deallocate(CI_Lucia_S)
   IREFSM = IREFSM_Keep
   ICSM = IREFSM
   ISSM = IREFSM
-end subroutine Lucia1_Sigma
+end subroutine CI_Lucia_Sigma
 
 !> RASSCF's Lucia (CI_Lib_Lucia): the densities of one state (L = R, the
 !> symmetry of the state) from Lucia's DENSI (packed, in level order),
 !> brought to the layout of CI_Lib_Dens. The spin density is Lucia's as it
 !> is (for singlets Lucia's spin-combination value).
-subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Pk)
+subroutine CI_Lucia_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Pk)
   use lucia_data, only: DStmp, Dtmp, PAtmp, Ptmp
   use Lucia_Interface, only: Lucia_Util
   use Orbital_Spaces, only: nAsh, nSym
@@ -756,18 +759,18 @@ subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,
   logical(kind=iwp) :: Own
   integer(kind=iwp), allocatable :: L2O(:)
   real(kind=wp), allocatable :: CL(:)
-  if ((iLSym /= iRSym) .or. (iLSym /= CI_St(iState)%STSym) .or. (nL /= nR)) &
+  if ((iLSym /= iRSym) .or. (iLSym /= CI_Lib_Space(iState)%STSym) .or. (nL /= nR)) &
     call Not_Yet('CI_Lib_Dens','RASSCF''s Lucia for densities between symmetries')
   if (.not. all(L(:) == R(:))) then
     ! transition densities (one-body): Lucia's DENSI with two vectors gives
     ! DTMP(p+(q-1)*N) = <L|E_qp|R> over the levels
     if ((I12 /= 1) .or. Pk) call Not_Yet('CI_Lib_Dens','RASSCF''s Lucia for two-body or packed transition densities')
-    call Lucia1_TDens(iState,iOpSpin,nL,L,nR,R,n1,Rho1)
+    call CI_Lucia_TDens(iState,iOpSpin,nL,L,nR,R,n1,Rho1)
     return
   end if
   N = sum(nAsh(1:nSym))
   nP = nTri_Elem(nTri_Elem(N))
-  call Lucia1_Work(N,Own)
+  call CI_Lucia_Work(N,Own)
   call mma_allocate(CL,nL,Label='CL')
   CL(:) = L(:)
   call Lucia_Util('Densi',CI_Vector=CL)
@@ -795,13 +798,13 @@ subroutine Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,
     end if
     call mma_deallocate(L2O)
   end if
-  if (Own) call Lucia1_Work_Free()
-end subroutine Lucia1_Dens
+  if (Own) call CI_Lucia_Work_Free()
+end subroutine CI_Lucia_Dens
 
 !> RASSCF's Lucia: the one-body transition density (or its spin part)
 !> <L|E_ij|R> in the layout of CI_Lib_Dens, from Lucia's DENSI with two
 !> vectors (DTMP(p+(q-1)*N) = <L|E_qp|R> over the levels; a permutation)
-subroutine Lucia1_TDens(iState,iOpSpin,nL,L,nR,R,n1,Rho1)
+subroutine CI_Lucia_TDens(iState,iOpSpin,nL,L,nR,R,n1,Rho1)
   use lucia_data, only: DStmp, Dtmp
   use Lucia_Interface, only: Lucia_Util
   use Orbital_Spaces, only: nAsh, nSym
@@ -815,7 +818,7 @@ subroutine Lucia1_TDens(iState,iOpSpin,nL,L,nR,R,n1,Rho1)
   real(kind=wp), allocatable :: CL(:), CR(:)
   N = sum(nAsh(1:nSym))
   if (n1 < N**2) call Abend()
-  call Lucia1_Work(N,Own)
+  call CI_Lucia_Work(N,Own)
   call mma_allocate(CL,nL,Label='CL')
   call mma_allocate(CR,nR,Label='CR')
   CL(:) = L(:)
@@ -835,12 +838,12 @@ subroutine Lucia1_TDens(iState,iOpSpin,nL,L,nR,R,n1,Rho1)
     end do
   end do
   call mma_deallocate(L2O)
-  if (Own) call Lucia1_Work_Free()
-end subroutine Lucia1_TDens
+  if (Own) call CI_Lucia_Work_Free()
+end subroutine CI_Lucia_TDens
 
 !> RASSCF's Lucia: the result arrays of DENSI (lucia_data), allocated here
 !> unless the program has them already (Own: allocated here)
-subroutine Lucia1_Work(N,Own)
+subroutine CI_Lucia_Work(N,Own)
   use lucia_data, only: DStmp, Dtmp, PAtmp, Ptmp
   use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate
@@ -857,21 +860,21 @@ subroutine Lucia1_Work(N,Own)
   call mma_allocate(DSTMP,N**2,Label='DSTMP')
   call mma_allocate(PTMP,max(1,nP),Label='PTMP')
   call mma_allocate(PATMP,max(1,nP),Label='PATMP')
-end subroutine Lucia1_Work
+end subroutine CI_Lucia_Work
 
-!> RASSCF's Lucia: free the arrays of Lucia1_Work
-subroutine Lucia1_Work_Free()
+!> RASSCF's Lucia: free the arrays of CI_Lucia_Work
+subroutine CI_Lucia_Work_Free()
   use lucia_data, only: DStmp, Dtmp, PAtmp, Ptmp
   use stdalloc, only: mma_deallocate
   call mma_deallocate(DTMP,safe='*')
   call mma_deallocate(DSTMP,safe='*')
   call mma_deallocate(PTMP,safe='*')
   call mma_deallocate(PATMP,safe='*')
-end subroutine Lucia1_Work_Free
+end subroutine CI_Lucia_Work_Free
 
 !> RASSCF's Lucia: the configuration-average diagonal (Lucia's CSDIAG of
 !> its determinant diagonal) in the symmetry of the state, plus ECore
-subroutine Lucia1_Diag(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+subroutine CI_Lucia_Diag(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   use Lucia_Interface, only: Lucia_Util
   use lucia_data, only: NCNFTP, NCSFTP, NDTFTP, NTYP, SDREO
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -880,15 +883,15 @@ subroutine Lucia1_Diag(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   real(kind=wp), intent(out) :: Diag(n)
   integer(kind=iwp) :: nD
   real(kind=wp), allocatable :: DD(:)
-  if (iSym /= CI_St(iState)%STSym) call Not_Yet('CI_Lib_Diag','RASSCF''s Lucia in other symmetries')
-  nD = CI_St(iState)%nDet(iSym)
+  if (iSym /= CI_Lib_Space(iState)%STSym) call Not_Yet('CI_Lib_Diag','RASSCF''s Lucia in other symmetries')
+  nD = CI_Lib_Space(iState)%nDet(iSym)
   call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
   call mma_allocate(DD,max(1,nD),Label='DETDIA')
   call get_diag(DD,nD)
   call CSDIAG(n,nD,Diag,DD,NCNFTP(1,iSym),NTYP,SDREO,NDTFTP,NCSFTP,0)
   call mma_deallocate(DD)
   Diag(:) = Diag(:)+ECore
-end subroutine Lucia1_Diag
+end subroutine CI_Lucia_Diag
 
 !> The checks of the operator arguments of CI_Lib_Sigma
 subroutine Check_Op(Caller,iOpSpin,Have_2_el,Square)
@@ -962,13 +965,13 @@ subroutine CI_Lib_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,
     nP = nTri_Elem(nTri_Elem(N))
     if ((n1 < nTri_Elem(N)) .or. ((I12 == 2) .and. (n2 < 2*nP))) call Abend()
     ! the libraries with the state densities in this layout
-    if (CI_Lib == CI_Lib_Lucia) then
-      call Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.true.)
+    if (CI_Lib_Selected == CI_Lib_Lucia) then
+      call CI_Lucia_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.true.)
       return
     end if
-    if (CI_Lib == CI_Lib_SGUGA) then
+    if (CI_Lib_Selected == CI_Lib_SGUGA) then
       if (all(L(:) == R(:))) then
-        call SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.true.)
+        call CI_SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.true.)
         return
       end if
     end if
@@ -996,16 +999,16 @@ subroutine Lib_Dens_Rho(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
   real(kind=wp), intent(in) :: L(nL), R(nR)
   real(kind=wp), intent(out) :: Rho1(n1), Rho2(n2)
-  if (CI_Lib == CI_Lib_SGUGA) then
-    call SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.false.)
+  if (CI_Lib_Selected == CI_Lib_SGUGA) then
+    call CI_SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.false.)
     return
   end if
-  if (CI_Lib == CI_Lib_Faroald) then
-    call Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+  if (CI_Lib_Selected == CI_Lib_Faroald) then
+    call CI_Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
     return
   end if
-  if (CI_Lib == CI_Lib_Lucia) then
-    call Lucia1_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.false.)
+  if (CI_Lib_Selected == CI_Lib_Lucia) then
+    call CI_Lucia_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,.false.)
     return
   end if
   call Check_Lib('CI_Lib_Dens')
@@ -1017,7 +1020,7 @@ end subroutine Lib_Dens_Rho
 !> symmetry, Space_CI): L2O(iLev) is the symmetry-ordered active orbital of
 !> level iLev (n = nAct; the identity without a CI space)
 subroutine CI_Lib_Level_Map(iState,n,L2O)
-  use CI_Info, only: Space_CI
+  use CI_Lib_Info, only: Space_CI
   use Orbital_Spaces, only: nAsh, nSym
   use Molcas, only: MxSym
   integer(kind=iwp), intent(in) :: iState, n
@@ -1180,14 +1183,14 @@ subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
   real(kind=wp), intent(out) :: Diag(n)
   call Check_Diag_Mode('CI_Lib_Diag',Mode)
-  select case (CI_Lib)
+  select case (CI_Lib_Selected)
     case (CI_Lib_SGUGA)
-      call SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+      call CI_SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case (CI_Lib_Faroald)
-      call Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+      call CI_Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case (CI_Lib_Lucia)
       if (Mode /= CI_Diag_Cnf_Avg) call Not_Yet('CI_Lib_Diag','the exact diagonal with RASSCF''s Lucia')
-      call Lucia1_Diag(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+      call CI_Lucia_Diag(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case (CI_Lib_MCLR_Lucia)
       call MCLR_Lucia_Diag_Act(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     case default
@@ -1195,8 +1198,8 @@ subroutine CI_Lib_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   end select
   ! HEXS/DEXS (the state from the CI input): zero for the removed CSFs, as
   ! Lucia's (which does it itself)
-  if ((iState == iState_Input) .and. (iSym == CI_St(iState)%STSym) .and. &
-      ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald))) call HEXS_Proj(HEXS_Keep,Diag)
+  if ((iState == iState_Input) .and. (iSym == CI_Lib_Space(iState)%STSym) .and. &
+      ((CI_Lib_Selected == CI_Lib_SGUGA) .or. (CI_Lib_Selected == CI_Lib_Faroald))) call CI_HEXS_Proj(CI_HEXS_Keep,Diag)
 end subroutine CI_Lib_Diag
 
 !> The check of the Mode of CI_Lib_Diag
@@ -1221,13 +1224,13 @@ function CI_Lib_nCnf(iState,iSym) result(nCnf)
   integer(kind=iwp), allocatable :: dco(:), kf(:), ncs(:), sco(:)
   type(SGCnfList) :: Cnf
   nCnf = 0
-  select case (CI_Lib)
+  select case (CI_Lib_Selected)
     case (CI_Lib_SGUGA)
       call SG_Mk_Cnf_List(iState,iSym,Cnf)
       nCnf = Cnf%nCnf
       call SG_Free_Cnf_List(Cnf)
     case (CI_Lib_Faroald)
-      call Faro_Set_Sym(iState,iSym)
+      call CI_Faro_Set_Sym(iState,iSym)
       call citrans_conf_occ(nCnf,kf,ncs,dco,sco)
       call mma_deallocate(kf)
       call mma_deallocate(ncs)
@@ -1258,7 +1261,7 @@ subroutine CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
   integer(kind=iwp) :: i, iTyp, k, m, ncf
   integer(kind=iwp), allocatable :: dco(:), kf(:), ncs(:), sco(:)
   type(SGCnfList) :: Cnf
-  select case (CI_Lib)
+  select case (CI_Lib_Selected)
     case (CI_Lib_SGUGA)
       call SG_Mk_Cnf_List(iState,iSym,Cnf)
       if ((Cnf%nCnf /= nCnf) .or. (Cnf%iOff(nCnf+1) /= n)) call Abend()
@@ -1269,7 +1272,7 @@ subroutine CI_Lib_Cnf_Layout(iState,iSym,nCnf,nCSFCnf,n,iCSFCnf)
       call SG_Free_Cnf_List(Cnf)
     case (CI_Lib_Faroald)
       ! (the library basis is the configuration order of citrans)
-      call Faro_Set_Sym(iState,iSym)
+      call CI_Faro_Set_Sym(iState,iSym)
       call citrans_conf_occ(ncf,kf,ncs,dco,sco)
       if (ncf /= nCnf) call Abend()
       m = 0
@@ -1325,11 +1328,11 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
   integer(kind=iwp) :: k, m, n, nCnf
   integer(kind=iwp), allocatable :: iCSFCnf(:), kOff(:), nCSFCnf(:), nSelCnf(:)
   type(SGCnfList) :: Cnf
-  n = CI_St(iState)%nCSF(iSym)
+  n = CI_Lib_Space(iState)%nCSF(iSym)
   nP = 0
   IdxP(:) = 0
   HP(:) = Zero
-  if (CI_Lib == CI_Lib_SGUGA) then
+  if (CI_Lib_Selected == CI_Lib_SGUGA) then
     call SG_Mk_Cnf_List(iState,iSym,Cnf)
     do k=1,nPC
       m = Cnf%iOff(IPC(k)+1)-Cnf%iOff(IPC(k))
@@ -1338,17 +1341,17 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
       nP = nP+m
     end do
     if (nHP < nTri_Elem(nP)) call Abend()
-    if (CI_St(iState)%iRel > 0) then
+    if (CI_Lib_Space(iState)%iRel > 0) then
       ! GAS: the matrix elements in the relaxed space of the state
-      call SG_Rel_Map(iState,iSym)
-      call SG_Explicit_Block(iState,Cnf,nPC,IPC,ECore,TU,nTU,TUVX,nTUVX,HP,iRel=CI_St(iState)%iRel,RelMap=Rel_Map(iSym)%M)
+      call CI_SG_Rel_Map(iState,iSym)
+      call SG_Explicit_Block(iState,Cnf,nPC,IPC,ECore,TU,nTU,TUVX,nTUVX,HP,iRel=CI_Lib_Space(iState)%iRel,RelMap=CI_Rel_Map(iSym)%M)
     else
       call SG_Explicit_Block(iState,Cnf,nPC,IPC,ECore,TU,nTU,TUVX,nTUVX,HP)
     end if
     call SG_Free_Cnf_List(Cnf)
     return
   end if
-  if (CI_Lib == CI_Lib_MCLR_Lucia) then
+  if (CI_Lib_Selected == CI_Lib_MCLR_Lucia) then
     call MCLR_Lucia_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
     return
   end if
@@ -1375,22 +1378,22 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
   ! SGEX (RASSCF keyword, the state from the CI input): the block of SGUGA
   ! for RASSCF's Lucia; not with GAS without the relaxed space, nor Faroald
   if (DoSGEx .and. (iState == iState_Input) .and. (.not. SGEx_Warned)) then
-    if (.not. SG_Block_Avail(iState)) then
+    if (.not. CI_SG_Block_Avail(iState)) then
       write(u6,'(1X,A)') 'CI_Lib_Block: SGEX ignored, SGUGA is not available with GAS; using the CI back end'
       SGEx_Warned = .true.
-    else if (CI_Lib == CI_Lib_Faroald) then
+    else if (CI_Lib_Selected == CI_Lib_Faroald) then
       write(u6,'(1X,A)') 'CI_Lib_Block: SGEX ignored with FARO; the explicit block is computed by Faroald'
       SGEx_Warned = .true.
     end if
   end if
-  select case (CI_Lib)
+  select case (CI_Lib_Selected)
     case (CI_Lib_Faroald)
-      call Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
+      call CI_Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
     case (CI_Lib_Lucia)
       if (CI_Lib_SGEX(iState)) then
-        call Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
+        call CI_Lucia_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
       else
-        call Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,HP)
+        call CI_Lucia_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,HP)
       end if
     case default
       call Check_Lib('CI_Lib_Block')
@@ -1404,9 +1407,9 @@ end subroutine CI_Lib_Block
 !> Faroald: the explicit block for the configurations of the CSFs
 !> IdxP(1:nP) (citrans order, nSelCnf(k) CSFs of configuration k): for each
 !> pair of configurations L, R the determinant block <D_L|H|D_R>
-!> (Faroald_HDet, Slater-Condon) transformed to the CSFs, C_L^T H C_R;
-!> pairs more than a double excitation apart are skipped (Cnf_Exc)
-subroutine Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
+!> (CI_Faro_HDet, Slater-Condon) transformed to the CSFs, C_L^T H C_R;
+!> pairs more than a double excitation apart are skipped (CI_Cnf_Exc)
+subroutine CI_Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
   use citrans, only: citrans_conf_dets
   use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -1417,8 +1420,8 @@ subroutine Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
   integer(kind=iwp) :: I, IIL, IILB, IIR, IIRB, IIRMAX, ICNL, ICNR, J, k1, kCnf, nc, nCTot, nd, nDTot, ndL, ndR, nL, nR
   integer(kind=iwp), allocatable :: DA(:), da1(:), DB(:), db1(:), DOcc(:), iCOff(:), iDOff(:), nDCnf(:), SOcc(:)
   real(kind=wp), allocatable :: Blk(:,:), C(:), cf(:,:), HDet(:,:), T(:,:)
-  call Faro_Set_Sym(iState,iSym)
-  call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,.true.)
+  call CI_Faro_Set_Sym(iState,iSym)
+  call CI_Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,.true.)
   ! determinants and CSF coefficients of the configurations
   call mma_allocate(nDCnf,nPC,Label='nDCnf')
   call mma_allocate(iDOff,nPC,Label='iDOff')
@@ -1476,12 +1479,12 @@ subroutine Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
     do ICNR=1,ICNL
       nR = nSelCnf(ICNR)
       ndR = nDCnf(ICNR)
-      if (Cnf_Exc(DOcc(ICNL),SOcc(ICNL),DOcc(ICNR),SOcc(ICNR)) > 2) then
+      if (CI_Cnf_Exc(DOcc(ICNL),SOcc(ICNL),DOcc(ICNR),SOcc(ICNR)) > 2) then
         Blk(1:nL,1:nR) = Zero
       else
         do J=1,ndR
           do I=1,ndL
-            HDet(I,J) = Faroald_HDet(DA(iDOff(ICNL)+I),DB(iDOff(ICNL)+I),DA(iDOff(ICNR)+J),DB(iDOff(ICNR)+J))
+            HDet(I,J) = CI_Faro_HDet(DA(iDOff(ICNL)+I),DB(iDOff(ICNL)+I),DA(iDOff(ICNR)+J),DB(iDOff(ICNR)+J))
           end do
         end do
         call DGEMM_('N','N',ndL,nR,ndR,One,HDet,nd,C(iCOff(ICNR)+1:iCOff(ICNR)+ndR*nR),ndR,Zero,T,nd)
@@ -1511,12 +1514,12 @@ subroutine Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
   call mma_deallocate(iCOff)
   call mma_deallocate(iDOff)
   call mma_deallocate(nDCnf)
-end subroutine Faro_Block
+end subroutine CI_Faro_Block
 
 !> RASSCF's Lucia: the explicit block for its configurations IPC(1:nPC)
 !> (Lucia's configuration order of symmetry iSym), CNHCN for each pair
 !> (pairs more than a double excitation apart skipped)
-subroutine Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,H)
+subroutine CI_Lucia_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,H)
   use lucia_data, only: Conf_Occ, DFTP, DTOC, IREOTS, MINOP, NCSFTP, NDTFTP, NTYP
   use csfbas, only: NAEL, NBEL
   use Orbital_Spaces, only: nAsh, nSym
@@ -1556,7 +1559,7 @@ subroutine Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,H)
       call GETCNF(ICONFR,IRTYP,IPC(ICNR),Conf_Occ(iSym)%A,iSym,NEL)
       NCSFR = NCSFTP(IRTYP)
       call Occ_Bits(ICONFR,IRTYP-1+MINOP,NEL,DR,SR)
-      if (Cnf_Exc(DL,SL,DR,SR) > 2) then
+      if (CI_Cnf_Exc(DL,SL,DR,SR) > 2) then
         CNHCNM(1:NCSFL*NCSFR) = Zero
       else
         call CNHCN(ICONFL,ILTYP,ICONFR,IRTYP,CNHCNM,Scr,NAEL,NBEL,ECore,HONE,DFTP,DTOC,NAC,TUVX,NTEST,One,IREOTS)
@@ -1576,34 +1579,34 @@ subroutine Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,H)
   call mma_deallocate(CNHCNM)
   call mma_deallocate(Scr)
   call mma_deallocate(HONE)
-end subroutine Lucia1_Block
+end subroutine CI_Lucia_Block
 
 !> SGEX (RASSCF keyword): the explicit block of RASSCF's Lucia for the
-!> state from the CI input comes from SGUGA (Lucia1_Block_SG)
+!> state from the CI input comes from SGUGA (CI_Lucia_Block_SG)
 function CI_Lib_SGEX(iState) result(Use_SG)
   use CI_Input, only: DoSGEx
   integer(kind=iwp), intent(in) :: iState
   logical(kind=iwp) :: Use_SG
-  Use_SG = DoSGEx .and. (CI_Lib == CI_Lib_Lucia) .and. (iState == iState_Input) .and. SG_Block_Avail(iState)
+  Use_SG = DoSGEx .and. (CI_Lib_Selected == CI_Lib_Lucia) .and. (iState == iState_Input) .and. CI_SG_Block_Avail(iState)
 end function CI_Lib_SGEX
 
 !> SGUGA can evaluate matrix elements of the CI space of iState: CAS and RAS
 !> directly, GAS through the relaxed space
-function SG_Block_Avail(iState) result(Avail)
+function CI_SG_Block_Avail(iState) result(Avail)
   use CI_Input, only: iDoGAS
   integer(kind=iwp), intent(in) :: iState
   logical(kind=iwp) :: Avail
-  Avail = (.not. iDoGAS) .or. (CI_St(iState)%iRel > 0)
-end function SG_Block_Avail
+  Avail = (.not. iDoGAS) .or. (CI_Lib_Space(iState)%iRel > 0)
+end function CI_SG_Block_Avail
 
 !> RASSCF's Lucia with SGEX: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECore
 !> over the CSFs IdxP(1:nP) (Lucia order, nSelCnf(k) of configuration k),
-!> with I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
+!> with I_G the GUGA CSF of the Lucia CSF I and P_I the phase of CI_SG_ReOrd
 !> (mode 0: c_G(I_G) = P_I c(I)); the block <I_G|H|J_G> from SG_Block_H
 !> (pairs of configurations more than a double excitation apart skipped;
 !> GAS: in the relaxed space, the CSFs by their walks)
-subroutine Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
-  use SG_Lucia_Bridge, only: SG_Lucia_Walk
+subroutine CI_Lucia_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
+  use CI_SG_Lucia_Bridge, only: CI_SG_Lucia_Walk
   use sguga, only: EXS, SG_Block_H, SG_MatEl_Init, SG_NUM, SGS
   use Molcas, only: MxAct
   use Index_Functions, only: nTri_Elem
@@ -1615,12 +1618,12 @@ subroutine Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,Id
   integer(kind=iwp) :: IWALK(MxAct)
   integer(kind=iwp), allocatable :: iG(:), iPG(:)
   iS = iState
-  if (CI_St(iState)%iRel > 0) iS = CI_St(iState)%iRel
+  if (CI_Lib_Space(iState)%iRel > 0) iS = CI_Lib_Space(iState)%iRel
   call SG_MatEl_Init(iS,iSym)
   call mma_allocate(iG,nP,Label='iG')
   call mma_allocate(iPG,nP,Label='iPG')
   do J=1,nP
-    call SG_Lucia_Walk(iState,iSym,IdxP(J),IWALK,iPG(J))
+    call CI_SG_Lucia_Walk(iState,iSym,IdxP(J),IWALK,iPG(J))
     iG(J) = SG_NUM(SGS(iS),EXS(iS),IWALK)
   end do
   call SG_Block_H(iSym,nPC,nSelCnf,nP,iG,TU,nTU,TUVX,nTUVX,H)
@@ -1632,7 +1635,7 @@ subroutine Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,Id
   end do
   call mma_deallocate(iPG)
   call mma_deallocate(iG)
-end subroutine Lucia1_Block_SG
+end subroutine CI_Lucia_Block_SG
 
 !> Doubly (D) and singly (S) occupied orbitals, as bit strings (orbital t
 !> in bit t-1), of the configuration ICONF with nOp open shells (GETCNF
@@ -1773,39 +1776,39 @@ end subroutine CI_Lib_PSpace
 !> Faroald: a CI vector of symmetry iSym between the order of the files
 !> and the configuration order of citrans, in place (Dir = 'C': to citrans,
 !> 'O': back; citrans_sort)
-subroutine Faro_Sort(iState,iSym,Dir,n,CI)
+subroutine CI_Faro_Sort(iState,iSym,Dir,n,CI)
   use citrans, only: citrans_sort
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym, n
   character, intent(in) :: Dir
   real(kind=wp), intent(inout) :: CI(n)
   real(kind=wp), allocatable :: V(:)
-  call Faro_Set_Sym(iState,iSym)
+  call CI_Faro_Set_Sym(iState,iSym)
   call mma_allocate(V,n,Label='V')
   call citrans_sort(Dir,CI,V)
   CI(:) = V(:)
   call mma_deallocate(V)
-end subroutine Faro_Sort
+end subroutine CI_Faro_Sort
 
 !> RASSCF's Lucia: a CI vector between the split-graph order of the files
-!> and Lucia's CSF order (SG_ReOrd: iWay = 1 file -> Lucia, 0 back)
-subroutine Lucia1_Sort(iState,iSym,iWay,n,CI)
-  use SG_Lucia_Bridge, only: SG_ReOrd
+!> and Lucia's CSF order (CI_SG_ReOrd: iWay = 1 file -> Lucia, 0 back)
+subroutine CI_Lucia_Sort(iState,iSym,iWay,n,CI)
+  use CI_SG_Lucia_Bridge, only: CI_SG_ReOrd
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym, iWay, n
   real(kind=wp), intent(inout) :: CI(n)
   real(kind=wp), allocatable :: V(:)
   call mma_allocate(V,n,Label='V')
-  call SG_ReOrd(iState,iSym,iWay,n,CI,V)
+  call CI_SG_ReOrd(iState,iSym,iWay,n,CI,V)
   CI(:) = V(:)
   call mma_deallocate(V)
-end subroutine Lucia1_Sort
+end subroutine CI_Lucia_Sort
 
 subroutine CI_Lib_Dets_To_Basis(iState,iSym,nD,DetVec,IdxD,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, nD, IdxD(nD), n
   real(kind=wp), intent(in) :: DetVec(nD)
   real(kind=wp), intent(out) :: CI(n)
-  if ((CI_Lib == CI_Lib_SGUGA) .or. (CI_Lib == CI_Lib_Faroald)) &
+  if ((CI_Lib_Selected == CI_Lib_SGUGA) .or. (CI_Lib_Selected == CI_Lib_Faroald)) &
     call Not_Yet('CI_Lib_Dets_To_Basis','determinant vectors (DMRG)')
   call Check_Lib('CI_Lib_Dets_To_Basis')
   call MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
@@ -1816,13 +1819,13 @@ subroutine CI_Lib_File_To_Basis(iState,iSym,n,CI)
   real(kind=wp), intent(inout) :: CI(n)
   ! SGUGA: the split-graph basis is the stored one; Faroald: the
   ! configuration order of citrans (a signed permutation)
-  if (CI_Lib == CI_Lib_SGUGA) return
-  if (CI_Lib == CI_Lib_Faroald) then
-    call Faro_Sort(iState,iSym,'C',n,CI)
+  if (CI_Lib_Selected == CI_Lib_SGUGA) return
+  if (CI_Lib_Selected == CI_Lib_Faroald) then
+    call CI_Faro_Sort(iState,iSym,'C',n,CI)
     return
   end if
-  if (CI_Lib == CI_Lib_Lucia) then
-    call Lucia1_Sort(iState,iSym,1,n,CI)
+  if (CI_Lib_Selected == CI_Lib_Lucia) then
+    call CI_Lucia_Sort(iState,iSym,1,n,CI)
     return
   end if
   call Check_Lib('CI_Lib_File_To_Basis')
@@ -1834,13 +1837,13 @@ subroutine CI_Lib_Basis_To_File(iState,iSym,n,CI)
   real(kind=wp), intent(inout) :: CI(n)
   ! SGUGA: the split-graph basis is the stored one; Faroald: back from
   ! the configuration order of citrans
-  if (CI_Lib == CI_Lib_SGUGA) return
-  if (CI_Lib == CI_Lib_Faroald) then
-    call Faro_Sort(iState,iSym,'O',n,CI)
+  if (CI_Lib_Selected == CI_Lib_SGUGA) return
+  if (CI_Lib_Selected == CI_Lib_Faroald) then
+    call CI_Faro_Sort(iState,iSym,'O',n,CI)
     return
   end if
-  if (CI_Lib == CI_Lib_Lucia) then
-    call Lucia1_Sort(iState,iSym,0,n,CI)
+  if (CI_Lib_Selected == CI_Lib_Lucia) then
+    call CI_Lucia_Sort(iState,iSym,0,n,CI)
     return
   end if
   call Check_Lib('CI_Lib_Basis_To_File')
@@ -1851,7 +1854,7 @@ end subroutine CI_Lib_Basis_To_File
 !> with the coupling tables, for SGUGA; 'GRAPH': graph and walks only)
 function CI_Lib_Graph_Mode() result(Mode)
   character(len=5) :: Mode
-  if (CI_Lib == CI_Lib_SGUGA) then
+  if (CI_Lib_Selected == CI_Lib_SGUGA) then
     Mode = 'FULL'
   else
     Mode = 'GRAPH'
@@ -1866,7 +1869,7 @@ end subroutine Not_Yet
 
 !> SGUGA: sigma for a singlet operator (CI_Lib_Sigma; TU, TUVX in its
 !> layout)
-subroutine SG_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+subroutine CI_SG_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
   use Symmetry_Info, only: Mul
   use Orbital_Spaces, only: nAsh, nSym
   use Index_Functions, only: nTri_Elem
@@ -1889,19 +1892,19 @@ subroutine SG_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC
   end if
   if (Have_2_el) then
     if (nTUVX < n2) call Abend()
-    call SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,TUVX,nC,C,nS,S)
+    call CI_SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,TUVX,nC,C,nS,S)
   else
     call mma_allocate(G0,n2,Label='G0')
     G0(:) = Zero
-    call SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G0,nC,C,nS,S)
+    call CI_SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G0,nC,C,nS,S)
     call mma_deallocate(G0)
   end if
 
-end subroutine SG_Sigma_Act
+end subroutine CI_SG_Sigma_Act
 
-!> SGUGA: the sigma routine for the operator of SG_Sigma_Act (G: the
+!> SGUGA: the sigma routine for the operator of CI_SG_Sigma_Act (G: the
 !> two-body integrals, n2 elements)
-subroutine SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G,nC,C,nS,S)
+subroutine CI_SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G,nC,C,nS,S)
   use sguga, only: CIS, EXS, SGS
   use SGUGA_Sigma, only: sg_h_psi, sg_h_psi_op, sg_h_psi_ras, sg_h_psi_sq
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -1911,7 +1914,7 @@ subroutine SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G,nC,C,nS,S)
   real(kind=wp), intent(out) :: S(nS)
   integer(kind=iwp) :: iR, nR
   real(kind=wp), allocatable :: PR(:), SR(:)
-  iR = CI_St(iState)%iRel
+  iR = CI_Lib_Space(iState)%iRel
   if ((iR > 0) .and. (Square .or. (iOp /= 1))) call Not_Yet('CI_Lib_Sigma','GAS with other operators than H')
   if (iR > 0) then
     ! GAS: in the relaxed space of the state (it holds all intermediate
@@ -1919,9 +1922,9 @@ subroutine SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G,nC,C,nS,S)
     nR = CIS(iR)%NCSF(iCSym)
     call mma_allocate(PR,nR,Label='PR')
     call mma_allocate(SR,nR,Label='SR')
-    call SG_Rel_Embed(iState,iCSym,nC,C,PR)
+    call CI_SG_Rel_Embed(iState,iCSym,nC,C,PR)
     call sg_h_psi_ras(SGS(iR),CIS(iR),EXS(iR),PR,nR,iCSym,SR,G,n2,TU,nTU)
-    call SG_Rel_Project(iState,iCSym,nS,SR,S)
+    call CI_SG_Rel_Project(iState,iCSym,nS,SR,S)
     call mma_deallocate(SR)
     call mma_deallocate(PR)
   else if (Square) then
@@ -1929,18 +1932,18 @@ subroutine SG_Sigma_Run(iState,iCSym,iOp,Square,nA,nTU,TU,n2,G,nC,C,nS,S)
   else if (iOp /= 1) then
     ! operator of non-total symmetry (perturbations)
     call sg_h_psi_op(SGS(iState),CIS(iState),EXS(iState),nC,C,iCSym,nS,S,iOp,G,n2,TU,nTU)
-  else if (CI_St(iState)%nRsPrt > 1) then
+  else if (CI_Lib_Space(iState)%nRsPrt > 1) then
     if (nS /= nC) call Abend()
     call sg_h_psi_ras(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,G,n2,TU,nTU)
   else
     if (nS /= nC) call Abend()
     call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),C,nC,iCSym,S,G,n2,TU,nTU)
   end if
-end subroutine SG_Sigma_Run
+end subroutine CI_SG_Sigma_Run
 
 !> SGUGA: spin-free transition densities, mapped from the level order to
 !> the symmetry-ordered active orbitals
-subroutine SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Pk)
+subroutine CI_SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2,Pk)
   use sguga, only: CIS
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, I12, iOpSpin, iLSym, iRSym, nL, nR, n1, n2
@@ -1954,7 +1957,7 @@ subroutine SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho
   ! state-density routines
   Same = Pk .and. (iLSym == iRSym) .and. (nL == nR)
   if (Same) Same = all(L(:) == R(:))
-  iR = CI_St(iState)%iRel
+  iR = CI_Lib_Space(iState)%iRel
   if (iR > 0) then
     ! GAS: in the relaxed space of the state (it holds all intermediate
     ! states of the products)
@@ -1962,19 +1965,19 @@ subroutine SG_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho
     nRR = CIS(iR)%NCSF(iRSym)
     call mma_allocate(LR,nLR,Label='LR')
     call mma_allocate(RR,nRR,Label='RR')
-    call SG_Rel_Embed(iState,iLSym,nL,L,LR)
-    call SG_Rel_Embed(iState,iRSym,nR,R,RR)
-    call SG_Dens_Core(iR,Same,Pk,I12,iOpSpin,iLSym,iRSym,nLR,LR,nRR,RR,n1,Rho1,n2,Rho2)
+    call CI_SG_Rel_Embed(iState,iLSym,nL,L,LR)
+    call CI_SG_Rel_Embed(iState,iRSym,nR,R,RR)
+    call CI_SG_Dens_Core(iR,Same,Pk,I12,iOpSpin,iLSym,iRSym,nLR,LR,nRR,RR,n1,Rho1,n2,Rho2)
     call mma_deallocate(RR)
     call mma_deallocate(LR)
   else
-    call SG_Dens_Core(iState,Same,Pk,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+    call CI_SG_Dens_Core(iState,Same,Pk,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   end if
-end subroutine SG_Trans_Dens
+end subroutine CI_SG_Trans_Dens
 
-!> SGUGA: the densities of SG_Trans_Dens in the graph of the state jS (the
+!> SGUGA: the densities of CI_SG_Trans_Dens in the graph of the state jS (the
 !> state or its relaxed space); Same: L and R are the same state
-subroutine SG_Dens_Core(iState,Same,Pk,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+subroutine CI_SG_Dens_Core(iState,Same,Pk,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use sguga, only: CIS, EXS, SGS, SG_Level_Map
   use SGUGA_Densities, only: sg_one_pdm, sg_spin_pdm, sg_trans_pdm, sg_trans_two_pdm, sg_two_pdm
   use Orbital_Spaces, only: nAsh, nSym
@@ -2077,10 +2080,10 @@ subroutine SG_Dens_Core(iState,Same,Pk,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1
   call mma_deallocate(R2,safe='*')
   call mma_deallocate(R1)
   call mma_deallocate(L2O)
-end subroutine SG_Dens_Core
+end subroutine CI_SG_Dens_Core
 
 !> SGUGA: the CSF diagonal (exact or configuration average) + ECore
-subroutine SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+subroutine CI_SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   use sguga, only: CIS, EXS, SGCnfList, SGS, SG_Cnf_Avg_Diag, SG_Free_Cnf_List, SG_Mk_Cnf_List
   use SGUGA_Sigma, only: sg_hdiag_fast
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -2090,13 +2093,13 @@ subroutine SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   integer(kind=iwp) :: iR, nR
   real(kind=wp), allocatable :: DR(:)
   type(SGCnfList) :: Cnf
-  if ((Mode == CI_Diag_Exact) .and. (CI_St(iState)%iRel > 0)) then
+  if ((Mode == CI_Diag_Exact) .and. (CI_Lib_Space(iState)%iRel > 0)) then
     ! GAS: the exact diagonal in the relaxed space of the state
-    iR = CI_St(iState)%iRel
+    iR = CI_Lib_Space(iState)%iRel
     nR = CIS(iR)%NCSF(iSym)
     call mma_allocate(DR,nR,Label='DR')
     call sg_hdiag_fast(SGS(iR),CIS(iR),EXS(iR),nR,iSym,TUVX,nTUVX,TU,nTU,DR)
-    call SG_Rel_Project(iState,iSym,n,DR,Diag)
+    call CI_SG_Rel_Project(iState,iSym,n,DR,Diag)
     call mma_deallocate(DR)
   else if (Mode == CI_Diag_Exact) then
     call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState),n,iSym,TUVX,nTUVX,TU,nTU,Diag)
@@ -2106,7 +2109,7 @@ subroutine SG_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
     call SG_Free_Cnf_List(Cnf)
   end if
   Diag(:) = Diag(:)+ECore
-end subroutine SG_Diag
+end subroutine CI_SG_Diag
 
 !***********************************************************************
 ! Faroald (string-driven RAS CI, faroald_ras), in its CSF basis (citrans);
@@ -2120,14 +2123,14 @@ end subroutine SG_Diag
 !> from the CI space Space_CI when the program has it (RASSCF; MCLR from the
 !> CI-space record of the JobIph), otherwise from the RAS input (CI_Input).
 !> The orbitals of Faroald are the levels: partition by partition, within
-!> each by symmetry; Faro_Lev(iLev) is the symmetry-ordered active orbital
+!> each by symmetry; CI_Faro_Lev(iLev) is the symmetry-ordered active orbital
 !> of level iLev. The full determinant space is set up here only as the
 !> reference of MOLCAS_CI_VERIFY=SIGMA, otherwise later on demand
-!> (Faro_Full_Init: other symmetries, non-Hermitian operators).
-subroutine Faro_Init(iState)
+!> (CI_Faro_Full_Init: other symmetries, non-Hermitian operators).
+subroutine CI_Faro_Init(iState)
   use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3
-  use CI_Info, only: Space_CI
-  use CI_States, only: RAS_Partitions
+  use CI_Lib_Info, only: Space_CI
+  use CI_Lib_States, only: RAS_Partitions
   use CI_Verify_Options, only: CI_Verify
   use Orbital_Spaces, only: nAsh, nSym
   use faroald, only: nela, nelb
@@ -2140,7 +2143,7 @@ subroutine Faro_Init(iState)
   integer(kind=iwp) :: i, iLev, iSym, k, nAbove, nAct, nBelow, nOff(MxSym), nPrt, nRas(MxSym,3), nRasEl(3)
   integer(kind=iwp), allocatable :: MaxEl(:), MinEl(:), nOrbP(:), OrbRas(:), OrbSym(:)
   logical(kind=iwp) :: Full
-  Faro_Sym = CI_St(iState)%STSym
+  CI_Faro_Sym = CI_Lib_Space(iState)%STSym
   nAct = sum(nAsh(1:nSym))
   call mma_allocate(OrbSym,max(1,nAct),Label='OrbSym')
   call mma_allocate(OrbRas,max(1,nAct),Label='OrbRas')
@@ -2167,7 +2170,7 @@ subroutine Faro_Init(iState)
       end do
     end do
     if (iLev /= nAct) then
-      write(u6,*) 'Faro_Init: the RAS partitions do not hold the active orbitals',iLev,nAct
+      write(u6,*) 'CI_Faro_Init: the RAS partitions do not hold the active orbitals',iLev,nAct
       call Abend()
     end if
     call mma_allocate(MinEl,nPrt,Label='MinEl')
@@ -2183,15 +2186,15 @@ subroutine Faro_Init(iState)
     MaxEl(nPrt) = nActEl
   end if
   ! levels -> symmetry-ordered active orbitals
-  call mma_deallocate(Faro_Lev,safe='*')
-  call mma_allocate(Faro_Lev,max(1,nAct),Label='Faro_Lev')
+  call mma_deallocate(CI_Faro_Lev,safe='*')
+  call mma_allocate(CI_Faro_Lev,max(1,nAct),Label='CI_Faro_Lev')
   nOff(1) = 0
   do iSym=2,nSym
     nOff(iSym) = nOff(iSym-1)+nAsh(iSym-1)
   end do
   do iLev=1,nAct
     nOff(OrbSym(iLev)) = nOff(OrbSym(iLev))+1
-    Faro_Lev(iLev) = nOff(OrbSym(iLev))
+    CI_Faro_Lev(iLev) = nOff(OrbSym(iLev))
   end do
   ! the tables of the full (C1) determinant space up front only as the
   ! reference of MOLCAS_CI_VERIFY=SIGMA (for CAS always, for RAS/GAS for
@@ -2203,7 +2206,7 @@ subroutine Faro_Init(iState)
       Full = real(binom_coef((nActEl+iSpin-1)/2,nAct),kind=wp)*real(binom_coef((nActEl-iSpin+1)/2,nAct),kind=wp) <= 1.0e6_wp
   end if
   call faroald_init(nActEl,nAct,iSpin,Full)
-  call citrans_init(nActEl,nAct,iSpin,nSym,OrbSym,Faro_Sym,nPrt,OrbRas,MinEl,MaxEl)
+  call citrans_init(nActEl,nAct,iSpin,nSym,OrbSym,CI_Faro_Sym,nPrt,OrbRas,MinEl,MaxEl)
   ! the string-driven CI (faroald_ras): the determinant blocks of the CI
   ! symmetry, for singlets with the spin-flip symmetry
   if (nAct > 0) then
@@ -2211,100 +2214,101 @@ subroutine Faro_Init(iState)
     do k=1,nPrt
       nOrbP(k) = count(OrbRas(1:nAct) == k)
     end do
-    call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP,MinEl,MaxEl,nSym,OrbSym(1:nAct),Faro_Sym,iSpin == 1,.not. Faro_Reproducible())
+    call faroald_ras_init(nela,nelb,nAct,nPrt,nOrbP,MinEl,MaxEl,nSym,OrbSym(1:nAct),CI_Faro_Sym,iSpin == 1, &
+      .not. CI_Faro_Reproducible())
     call mma_deallocate(nOrbP)
     write(u6,'(1X,A,I0,A,I0,A)') 'Faroald: string-driven CI, ',nPrt,' partition(s), ',n_ras,' determinants of the CI symmetry'
     if (iSpin == 1) write(u6,'(1X,A)') 'Faroald: singlet, spin-flip symmetry C(Ib,Ia) = C(Ia,Ib) used'
   end if
   ! the description of the CSF spaces, for the other symmetries
-  call mma_deallocate(Faro_OrbSym,safe='*')
-  call mma_deallocate(Faro_OrbRas,safe='*')
-  call mma_deallocate(Faro_MinEl,safe='*')
-  call mma_deallocate(Faro_MaxEl,safe='*')
-  call mma_allocate(Faro_OrbSym,max(1,nAct),Label='Faro_OrbSym')
-  call mma_allocate(Faro_OrbRas,max(1,nAct),Label='Faro_OrbRas')
-  call mma_allocate(Faro_MinEl,nPrt,Label='Faro_MinEl')
-  call mma_allocate(Faro_MaxEl,nPrt,Label='Faro_MaxEl')
-  Faro_OrbSym(:) = OrbSym(:)
-  Faro_OrbRas(:) = OrbRas(:)
-  Faro_MinEl(:) = MinEl(:)
-  Faro_MaxEl(:) = MaxEl(:)
-  Faro_nAct = nAct
-  Faro_nPrt = nPrt
-  Faro_Cur = Faro_Sym
+  call mma_deallocate(CI_Faro_OrbSym,safe='*')
+  call mma_deallocate(CI_Faro_OrbRas,safe='*')
+  call mma_deallocate(CI_Faro_MinEl,safe='*')
+  call mma_deallocate(CI_Faro_MaxEl,safe='*')
+  call mma_allocate(CI_Faro_OrbSym,max(1,nAct),Label='CI_Faro_OrbSym')
+  call mma_allocate(CI_Faro_OrbRas,max(1,nAct),Label='CI_Faro_OrbRas')
+  call mma_allocate(CI_Faro_MinEl,nPrt,Label='CI_Faro_MinEl')
+  call mma_allocate(CI_Faro_MaxEl,nPrt,Label='CI_Faro_MaxEl')
+  CI_Faro_OrbSym(:) = OrbSym(:)
+  CI_Faro_OrbRas(:) = OrbRas(:)
+  CI_Faro_MinEl(:) = MinEl(:)
+  CI_Faro_MaxEl(:) = MaxEl(:)
+  CI_Faro_nAct = nAct
+  CI_Faro_nPrt = nPrt
+  CI_Faro_Cur = CI_Faro_Sym
   call mma_deallocate(MaxEl)
   call mma_deallocate(MinEl)
   call mma_deallocate(OrbSym)
   call mma_deallocate(OrbRas)
-  if ((citrans_ncsf() /= CI_St(iState)%nCSF(Faro_Sym)) .and. (nActEl > 0)) then
-    write(u6,*) 'Faro_Init: CSFs of Faroald and of the split graph',citrans_ncsf(),CI_St(iState)%nCSF(Faro_Sym)
+  if ((citrans_ncsf() /= CI_Lib_Space(iState)%nCSF(CI_Faro_Sym)) .and. (nActEl > 0)) then
+    write(u6,*) 'CI_Faro_Init: CSFs of Faroald and of the split graph',citrans_ncsf(),CI_Lib_Space(iState)%nCSF(CI_Faro_Sym)
     call Abend()
   end if
   ! no determinant vectors outside the library (a larger dimension of
   ! another library initialized as a reference is kept)
-  CI_St(iState)%nDet(:) = max(CI_St(iState)%nDet(:),CI_St(iState)%nCSF(:))
-end subroutine Faro_Init
+  CI_Lib_Space(iState)%nDet(:) = max(CI_Lib_Space(iState)%nDet(:),CI_Lib_Space(iState)%nCSF(:))
+end subroutine CI_Faro_Init
 
 !> Faroald: inside the verification (MOLCAS_TEST set, as for the seed of
 !> GetSeed) its alpha-beta sigma path comes from the cost estimate, so that
 !> the results do not depend on timings; otherwise the fastest is timed
-function Faro_Reproducible() result(Repro)
+function CI_Faro_Reproducible() result(Repro)
   logical(kind=iwp) :: Repro
   character(len=16) :: Env
   Env = ' '
   call get_environment_variable('MOLCAS_TEST',Env)
   Repro = Env /= ' '
-end function Faro_Reproducible
+end function CI_Faro_Reproducible
 
-subroutine Faro_Close()
+subroutine CI_Faro_Close()
   use faroald_ras, only: faroald_ras_free
   use stdalloc, only: mma_deallocate
   call faroald_ras_free()
   call citrans_free()
   call faroald_free()
-  call mma_deallocate(Faro_Lev,safe='*')
-  call mma_deallocate(Faro_OrbSym,safe='*')
-  call mma_deallocate(Faro_OrbRas,safe='*')
-  call mma_deallocate(Faro_MinEl,safe='*')
-  call mma_deallocate(Faro_MaxEl,safe='*')
-  Faro_Sym = 0
-  Faro_Cur = 0
-end subroutine Faro_Close
+  call mma_deallocate(CI_Faro_Lev,safe='*')
+  call mma_deallocate(CI_Faro_OrbSym,safe='*')
+  call mma_deallocate(CI_Faro_OrbRas,safe='*')
+  call mma_deallocate(CI_Faro_MinEl,safe='*')
+  call mma_deallocate(CI_Faro_MaxEl,safe='*')
+  CI_Faro_Sym = 0
+  CI_Faro_Cur = 0
+end subroutine CI_Faro_Close
 
 !> Faroald: citrans for the CSF space of symmetry iSym (the configuration
 !> lists; the graph of the file order is common to all symmetries)
-subroutine Faro_Set_Sym(iState,iSym)
+subroutine CI_Faro_Set_Sym(iState,iSym)
   use CI_Input, only: nActEl
   use Orbital_Spaces, only: nSym
   use citrans, only: citrans_ncsf, citrans_sym_init
   integer(kind=iwp), intent(in) :: iState, iSym
-  if (iSym == Faro_Cur) return
-  call citrans_sym_init(nActEl,Faro_nAct,nSym,Faro_OrbSym,iSym,Faro_nPrt,Faro_OrbRas,Faro_MinEl, &
-                        Faro_MaxEl)
-  Faro_Cur = iSym
-  if (citrans_ncsf() /= CI_St(iState)%nCSF(iSym)) then
-    write(u6,*) 'Faro_Set_Sym: CSFs of Faroald and of the split graph',iSym,citrans_ncsf(),CI_St(iState)%nCSF(iSym)
+  if (iSym == CI_Faro_Cur) return
+  call citrans_sym_init(nActEl,CI_Faro_nAct,nSym,CI_Faro_OrbSym,iSym,CI_Faro_nPrt,CI_Faro_OrbRas,CI_Faro_MinEl, &
+                        CI_Faro_MaxEl)
+  CI_Faro_Cur = iSym
+  if (citrans_ncsf() /= CI_Lib_Space(iState)%nCSF(iSym)) then
+    write(u6,*) 'CI_Faro_Set_Sym: CSFs of Faroald and of the split graph',iSym,citrans_ncsf(),CI_Lib_Space(iState)%nCSF(iSym)
     call Abend()
   end if
-end subroutine Faro_Set_Sym
+end subroutine CI_Faro_Set_Sym
 
 !> Faroald: the tables of the full determinant space (sigma_update and the
 !> transition densities over determinant matrices), for the vectors of
 !> other symmetries than the CI state; set up on first use
-subroutine Faro_Full_Init()
+subroutine CI_Faro_Full_Init()
   use CI_Input, only: iSpin, nActEl
   use faroald, only: faroald_full, ndeta, ndetb
   if (faroald_full) return
   call faroald_free()
-  call faroald_init(nActEl,Faro_nAct,iSpin,.true.)
+  call faroald_init(nActEl,CI_Faro_nAct,iSpin,.true.)
   if (real(ndeta,kind=wp)*real(ndetb,kind=wp) > 2.0e8_wp) &
     call Not_Yet('Faroald','vectors of other symmetries than the CI state in this large a determinant space')
-end subroutine Faro_Full_Init
+end subroutine CI_Faro_Full_Init
 
 !> Faroald: htu, gtuvx over the levels from the integrals of CI_Lib_Sigma
 !> (Hermitian, full triangles over the symmetry-ordered active orbitals);
 !> only the elements allowed by the operator symmetry iOp are taken
-subroutine Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
+subroutine CI_Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
   use faroald, only: gtuvx, htu, my_norb
   use Index_Functions, only: iTri, nTri_Elem
   use Constants, only: Zero
@@ -2316,12 +2320,12 @@ subroutine Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
   if (Have_2_el .and. (nTUVX < nTri_Elem(nTU))) call Abend()
   do iu=1,my_norb
     do it=1,my_norb
-      otu = iTri(Faro_Lev(it),Faro_Lev(iu))
+      otu = iTri(CI_Faro_Lev(it),CI_Faro_Lev(iu))
       htu(it,iu) = TU(otu)
       do ix=1,my_norb
         do iv=1,my_norb
-          if (Have_2_el .and. (Faro_Sym4(it,iu,iv,ix) == iOp)) then
-            ovx = iTri(Faro_Lev(iv),Faro_Lev(ix))
+          if (Have_2_el .and. (CI_Faro_Sym4(it,iu,iv,ix) == iOp)) then
+            ovx = iTri(CI_Faro_Lev(iv),CI_Faro_Lev(ix))
             gtuvx(it,iu,iv,ix) = TUVX(iTri(otu,ovx))
           else
             gtuvx(it,iu,iv,ix) = Zero
@@ -2330,13 +2334,13 @@ subroutine Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
       end do
     end do
   end do
-end subroutine Faro_Ints_Act
+end subroutine CI_Faro_Ints_Act
 
 !> Faroald: htu, gtuvx (over the levels) of a non-Hermitian operator of
 !> symmetry iOp (Square): H1 = h(t,u), the full nA x nA matrix, G2 =
 !> g(tu,vx) at iTri(tu,vx), square pair index tu = (u-1)*N+t, both over
 !> the symmetry-ordered active orbitals (the layout of CI_Lib_Sigma)
-subroutine Faro_Ints_Sq_Act(iOp,N,H1,nG2,G2,Have_2_el)
+subroutine CI_Faro_Ints_Sq_Act(iOp,N,H1,nG2,G2,Have_2_el)
   use faroald, only: gtuvx, htu, my_norb
   use Index_Functions, only: iTri, nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -2357,11 +2361,11 @@ subroutine Faro_Ints_Sq_Act(iOp,N,H1,nG2,G2,Have_2_el)
   call mma_allocate(G,N,N,N,N,Label='G')
   do ix=1,N
     do iv=1,N
-      ovx = Faro_Lev(iv)+(Faro_Lev(ix)-1)*N
+      ovx = CI_Faro_Lev(iv)+(CI_Faro_Lev(ix)-1)*N
       do iu=1,N
         do it=1,N
-          otu = Faro_Lev(it)+(Faro_Lev(iu)-1)*N
-          if (Have_2_el .and. (Faro_Sym4(it,iu,iv,ix) == iOp)) then
+          otu = CI_Faro_Lev(it)+(CI_Faro_Lev(iu)-1)*N
+          if (Have_2_el .and. (CI_Faro_Sym4(it,iu,iv,ix) == iOp)) then
             G(it,iu,iv,ix) = G2(iTri(otu,ovx))
           else
             G(it,iu,iv,ix) = Zero
@@ -2381,27 +2385,27 @@ subroutine Faro_Ints_Sq_Act(iOp,N,H1,nG2,G2,Have_2_el)
   end do
   do iu=1,N
     do it=1,N
-      htu(it,iu) = H1(Faro_Lev(iu),Faro_Lev(it))
+      htu(it,iu) = H1(CI_Faro_Lev(iu),CI_Faro_Lev(it))
       do iv=1,N
         htu(it,iu) = htu(it,iu)+Half*(gtuvx(iv,it,iv,iu)-G(iu,iv,iv,it))
       end do
     end do
   end do
   call mma_deallocate(G)
-end subroutine Faro_Ints_Sq_Act
+end subroutine CI_Faro_Ints_Sq_Act
 
 !> Faroald: the symmetry of the product of the orbitals of levels t, u,
 !> v, x
-function Faro_Sym4(it,iu,iv,ix) result(iS)
+function CI_Faro_Sym4(it,iu,iv,ix) result(iS)
   use Symmetry_Info, only: Mul
   integer(kind=iwp), intent(in) :: it, iu, iv, ix
   integer(kind=iwp) :: iS
-  iS = Mul(Mul(Faro_OrbSym(it),Faro_OrbSym(iu)),Mul(Faro_OrbSym(iv),Faro_OrbSym(ix)))
-end function Faro_Sym4
+  iS = Mul(Mul(CI_Faro_OrbSym(it),CI_Faro_OrbSym(iu)),Mul(CI_Faro_OrbSym(iv),CI_Faro_OrbSym(ix)))
+end function CI_Faro_Sym4
 
 !> Faroald: S = H C in the CSF space of the CI state (CI_Lib_Sigma; TU,
 !> TUVX in its layout)
-subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
+subroutine CI_Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,nC,C,nS,S)
   use Symmetry_Info, only: Mul
   use faroald, only: faroald_full, gtuvx, htu, my_norb, ndeta, ndetb, sigma_update
   use CI_Verify_Options, only: CI_Verify
@@ -2414,30 +2418,30 @@ subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), C(nC)
   real(kind=wp), intent(out) :: S(nS)
   real(kind=wp), allocatable :: PC(:,:), PS(:,:), VR(:), WR(:)
-  if ((iCSym /= Faro_Sym) .or. (iSSym /= Faro_Sym) .or. Square) then
+  if ((iCSym /= CI_Faro_Sym) .or. (iSSym /= CI_Faro_Sym) .or. Square) then
     ! other symmetries or a non-Hermitian operator: in the full determinant
     ! space, P_S H P_C exactly
-    call Faro_Full_Init()
+    call CI_Faro_Full_Init()
     if (Square) then
-      call Faro_Ints_Sq_Act(Mul(iCSym,iSSym),my_norb,TU,nTUVX,TUVX,Have_2_el)
+      call CI_Faro_Ints_Sq_Act(Mul(iCSym,iSSym),my_norb,TU,nTUVX,TUVX,Have_2_el)
     else
-      call Faro_Ints_Act(Mul(iCSym,iSSym),nTU,TU,nTUVX,TUVX,Have_2_el)
+      call CI_Faro_Ints_Act(Mul(iCSym,iSSym),nTU,TU,nTUVX,TUVX,Have_2_el)
     end if
     call mma_allocate(PC,ndeta,ndetb,Label='PC')
     call mma_allocate(PS,ndeta,ndetb,Label='PS')
-    call Faro_Set_Sym(iState,iCSym)
+    call CI_Faro_Set_Sym(iState,iCSym)
     call citrans_csf2sd(C,PC)
     PS(:,:) = Zero
     call sigma_update(htu,gtuvx,PS,PC)
-    call Faro_Set_Sym(iState,iSSym)
+    call CI_Faro_Set_Sym(iState,iSSym)
     call citrans_sd2csf(PS,S)
     call mma_deallocate(PS)
     call mma_deallocate(PC)
     return
   end if
   if (nS /= nC) call Abend()
-  call Faro_Set_Sym(iState,Faro_Sym)
-  call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,Have_2_el)
+  call CI_Faro_Set_Sym(iState,CI_Faro_Sym)
+  call CI_Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,Have_2_el)
   call mma_allocate(VR,max(1,n_ras),Label='VR')
   call mma_allocate(WR,max(1,n_ras),Label='WR')
   call citrans_csf2ras(C,VR)
@@ -2447,7 +2451,7 @@ subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,
   call mma_deallocate(VR)
   ! CI development (MOLCAS_CI_VERIFY=SIGMA): once against the sigma of the
   ! full determinant space (P H P), if its tables are set up
-  if ((.not. Faro_RAS_Verified) .and. CI_Verify('SIGMA') .and. faroald_full) then
+  if ((.not. CI_Chk_Faro_RAS) .and. CI_Verify('SIGMA') .and. faroald_full) then
     call mma_allocate(PC,ndeta,ndetb,Label='PC')
     call mma_allocate(PS,ndeta,ndetb,Label='PS')
     call mma_allocate(VR,nC,Label='SF')
@@ -2455,17 +2459,17 @@ subroutine Faro_Sigma_Act(iState,iCSym,iSSym,Square,Have_2_el,nTU,TU,nTUVX,TUVX,
     PS(:,:) = Zero
     call sigma_update(htu,gtuvx,PS,PC)
     call citrans_sd2csf(PS,VR)
-    call Report_Dev('Faroald: string-driven sigma vs full determinant space',maxval(abs(VR(:)-S(:))), &
-                    1.0e-10_wp*max(One,maxval(abs(VR(:)))),Faro_RAS_Verified)
+    call CI_Chk_Report_Dev('Faroald: string-driven sigma vs full determinant space',maxval(abs(VR(:)-S(:))), &
+                    1.0e-10_wp*max(One,maxval(abs(VR(:)))),CI_Chk_Faro_RAS)
     call mma_deallocate(VR)
     call mma_deallocate(PS)
     call mma_deallocate(PC)
   end if
-end subroutine Faro_Sigma_Act
+end subroutine CI_Faro_Sigma_Act
 
-!> Faroald: the spin-free transition densities (as SG_Trans_Dens), mapped
+!> Faroald: the spin-free transition densities (as CI_SG_Trans_Dens), mapped
 !> from the levels to the symmetry-ordered active orbitals
-subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
+subroutine CI_Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use faroald, only: my_norb, ndeta, ndetb, transition_one_pdm, transition_two_pdm
   use faroald_ras, only: n_ras, ras_trans_one_pdm, ras_trans_two_pdm
   use citrans, only: citrans_csf2ras, citrans_csf2sd
@@ -2481,17 +2485,17 @@ subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,R
   N = my_norb
   if (n1 < N**2) call Abend()
   ! other symmetries: in the full determinant space
-  Full = (iLSym /= Faro_Sym) .or. (iRSym /= Faro_Sym)
+  Full = (iLSym /= CI_Faro_Sym) .or. (iRSym /= CI_Faro_Sym)
   if (Full) then
-    call Faro_Full_Init()
+    call CI_Faro_Full_Init()
     call mma_allocate(PL,ndeta,ndetb,Label='PL')
     call mma_allocate(PR,ndeta,ndetb,Label='PR')
-    call Faro_Set_Sym(iState,iLSym)
+    call CI_Faro_Set_Sym(iState,iLSym)
     call citrans_csf2sd(L,PL)
-    call Faro_Set_Sym(iState,iRSym)
+    call CI_Faro_Set_Sym(iState,iRSym)
     call citrans_csf2sd(R,PR)
   else
-    call Faro_Set_Sym(iState,Faro_Sym)
+    call CI_Faro_Set_Sym(iState,CI_Faro_Sym)
     call mma_allocate(BR,max(1,n_ras),Label='BR')
     call mma_allocate(KR,max(1,n_ras),Label='KR')
     call citrans_csf2ras(L,BR)
@@ -2509,9 +2513,9 @@ subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,R
   do iu=1,N
     do it=1,N
       if (iOpSpin == 1) then
-        Rho1(Faro_Lev(it)+(Faro_Lev(iu)-1)*N) = SD(it,iu)
+        Rho1(CI_Faro_Lev(it)+(CI_Faro_Lev(iu)-1)*N) = SD(it,iu)
       else
-        Rho1(Faro_Lev(it)+(Faro_Lev(iu)-1)*N) = D(it,iu)
+        Rho1(CI_Faro_Lev(it)+(CI_Faro_Lev(iu)-1)*N) = D(it,iu)
       end if
     end do
   end do
@@ -2528,10 +2532,10 @@ subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,R
     Rho2(:) = Zero
     do iu=1,N
       do it=1,N
-        ij = Faro_Lev(it)+(Faro_Lev(iu)-1)*N
+        ij = CI_Faro_Lev(it)+(CI_Faro_Lev(iu)-1)*N
         do ix=1,N
           do iv=1,N
-            kl = Faro_Lev(iv)+(Faro_Lev(ix)-1)*N
+            kl = CI_Faro_Lev(iv)+(CI_Faro_Lev(ix)-1)*N
             if (kl > ij) cycle
             Rho2(iTri(ij,kl)) = P2(it,iu,iv,ix)
           end do
@@ -2547,12 +2551,12 @@ subroutine Faro_Trans_Dens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,R
     call mma_deallocate(KR)
     call mma_deallocate(BR)
   end if
-end subroutine Faro_Trans_Dens
+end subroutine CI_Faro_Trans_Dens
 
 !> Faroald: the configuration average of the CSF diagonal (as for RASSCF
 !> with Faroald: the average of the determinant energies of each
 !> configuration, from its occupations) + ECore
-subroutine Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
+subroutine CI_Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   use faroald, only: gtuvx, htu, my_norb, nela, nelb
   use citrans, only: citrans_conf_occ
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -2565,8 +2569,8 @@ subroutine Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   real(kind=wp) :: E, ni, nj, P
   real(kind=wp), allocatable :: DC(:)
   if (Mode /= CI_Diag_Cnf_Avg) call Not_Yet('CI_Lib_Diag','the exact CSF diagonal')
-  call Faro_Set_Sym(iState,iSym)
-  call Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,.true.)
+  call CI_Faro_Set_Sym(iState,iSym)
+  call CI_Faro_Ints_Act(1,nTU,TU,nTUVX,TUVX,.true.)
   call mma_allocate(DC,n,Label='DC')
   call citrans_conf_occ(ncf,kf,ncs,dco,sco)
   do ic=1,ncf
@@ -2614,55 +2618,55 @@ subroutine Faro_Diag(iState,Mode,iSym,nTU,TU,nTUVX,TUVX,ECore,n,Diag)
   ! to the file order (the sort carries the CSF phases: undo them)
   Diag(:) = DC(:)+ECore
   call mma_deallocate(DC)
-end subroutine Faro_Diag
+end subroutine CI_Faro_Diag
 
 !> GAS: the CSF map of symmetry LSM of state iState into its relaxed space.
-subroutine SG_Rel_Map(iState,LSM)
+subroutine CI_SG_Rel_Map(iState,LSM)
 use sguga, only: CIS, SG_Map_CSFs
 use stdalloc, only: mma_allocate
 integer(kind=iwp), intent(in) :: iState, LSM
 integer(kind=iwp) :: n
-if (allocated(Rel_Map(LSM)%M)) return
+if (allocated(CI_Rel_Map(LSM)%M)) return
 n = CIS(iState)%NCSF(LSM)
-call mma_allocate(Rel_Map(LSM)%M,max(1,n),Label='Rel_Map')
-Rel_Map(LSM)%M(:) = 0
-call SG_Map_CSFs(iState,CI_St(iState)%iRel,LSM,n,Rel_Map(LSM)%M)
-if (any(Rel_Map(LSM)%M(1:n) == 0)) then
-  write(u6,*) 'SG_Rel_Map: a CSF of the GAS space is missing in the relaxed space'
+call mma_allocate(CI_Rel_Map(LSM)%M,max(1,n),Label='CI_Rel_Map')
+CI_Rel_Map(LSM)%M(:) = 0
+call SG_Map_CSFs(iState,CI_Lib_Space(iState)%iRel,LSM,n,CI_Rel_Map(LSM)%M)
+if (any(CI_Rel_Map(LSM)%M(1:n) == 0)) then
+  write(u6,*) 'CI_SG_Rel_Map: a CSF of the GAS space is missing in the relaxed space'
   call Abend()
 end if
-end subroutine SG_Rel_Map
+end subroutine CI_SG_Rel_Map
 
-subroutine SG_Rel_Free()
+subroutine CI_SG_Rel_Free()
 use stdalloc, only: mma_deallocate
 integer(kind=iwp) :: k
-do k=1,size(Rel_Map)
-  call mma_deallocate(Rel_Map(k)%M,safe='*')
+do k=1,size(CI_Rel_Map)
+  call mma_deallocate(CI_Rel_Map(k)%M,safe='*')
 end do
-end subroutine SG_Rel_Free
+end subroutine CI_SG_Rel_Free
 
 !> GAS: X (n CSFs of symmetry LSM of iState) into the relaxed space (XR,
 !> zero elsewhere), and back (the components of the GAS CSFs).
-subroutine SG_Rel_Embed(iState,LSM,n,X,XR)
+subroutine CI_SG_Rel_Embed(iState,LSM,n,X,XR)
 use Constants, only: Zero
 integer(kind=iwp), intent(in) :: iState, LSM, n
 real(kind=wp), intent(in) :: X(n)
 real(kind=wp), intent(out) :: XR(:)
-call SG_Rel_Map(iState,LSM)
+call CI_SG_Rel_Map(iState,LSM)
 XR(:) = Zero
-XR(Rel_Map(LSM)%M(1:n)) = X(1:n)
-end subroutine SG_Rel_Embed
+XR(CI_Rel_Map(LSM)%M(1:n)) = X(1:n)
+end subroutine CI_SG_Rel_Embed
 
-subroutine SG_Rel_Project(iState,LSM,n,XR,X)
+subroutine CI_SG_Rel_Project(iState,LSM,n,XR,X)
 integer(kind=iwp), intent(in) :: iState, LSM, n
 real(kind=wp), intent(in) :: XR(:)
 real(kind=wp), intent(out) :: X(n)
-call SG_Rel_Map(iState,LSM)
-X(1:n) = XR(Rel_Map(LSM)%M(1:n))
-end subroutine SG_Rel_Project
+call CI_SG_Rel_Map(iState,LSM)
+X(1:n) = XR(CI_Rel_Map(LSM)%M(1:n))
+end subroutine CI_SG_Rel_Project
 
 !> Report (once, Done) and check a maximal deviation of a verification.
-subroutine Report_Dev(Text,Dev,Thr,Done)
+subroutine CI_Chk_Report_Dev(Text,Dev,Thr,Done)
 character(len=*), intent(in) :: Text
 real(kind=wp), intent(in) :: Dev, Thr
 logical(kind=iwp), intent(inout) :: Done
@@ -2672,28 +2676,28 @@ if (Dev > Thr) then
   write(u6,'(1X,3A,ES10.3)') 'Verification failed: ',Text,', max. abs. difference',Dev
   call Abend()
 end if
-end subroutine Report_Dev
+end subroutine CI_Chk_Report_Dev
 
 
 !> Excitation level between two configurations given by their doubly (D)
 !> and singly (S) occupied orbitals as bit strings: the number of electrons
 !> to move, Sum_t max(0,n_t(L)-n_t(R)). H couples only configurations with
 !> an excitation level of at most 2.
-function Cnf_Exc(DL,SL,DR,SR) result(nExc)
+function CI_Cnf_Exc(DL,SL,DR,SR) result(nExc)
 integer(kind=iwp) :: nExc
 integer(kind=iwp), intent(in) :: DL, SL, DR, SR
 
 ! n_t(L)-n_t(R) = 2 (doubly -> empty), 1 (doubly -> singly, singly -> empty)
 nExc = 2*popcnt(iand(DL,not(ior(DR,SR))))+popcnt(iand(DL,SR))+popcnt(iand(SL,not(ior(DR,SR))))
 
-end function Cnf_Exc
+end function CI_Cnf_Exc
 
 !> <aL bL|H|aR bR> between Faroald determinants (alpha and beta strings as
 !> bit strings, orbital t in bit t-1, alpha string before the beta string)
 !> by the Slater-Condon rules, with the integrals htu and gtuvx (chemists'
 !> notation) of Faroald, H = sum_tu h_tu E_tu + 1/2 sum_tuvx g_tuvx
 !> (E_tu E_vx - delta_uv E_tx), as in sigma_update.
-function Faroald_HDet(aL,bL,aR,bR) result(E)
+function CI_Faro_HDet(aL,bL,aR,bR) result(E)
 use faroald, only: gtuvx, htu, my_norb
 use Constants, only: Zero, Half
 
@@ -2807,7 +2811,7 @@ contains
 
   end function Par
 
-end function Faroald_HDet
+end function CI_Faro_HDet
 
 !> The CI vector CI (n CSFs of symmetry iSym, in the library basis) for
 !> orbitals transformed by T: the active orbital transformation of each
@@ -2820,11 +2824,11 @@ subroutine CI_Lib_Transform(iState,iSym,nTU,TU,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, nTU, n
   real(kind=wp), intent(in) :: TU(nTU)
   real(kind=wp), intent(inout) :: CI(n)
-  select case (CI_Lib)
+  select case (CI_Lib_Selected)
     case (CI_Lib_SGUGA)
       call SG_TRACI(iState,iSym,TU,nTU,CI,n)
     case (CI_Lib_Faroald)
-      call Faro_Transform(iState,iSym,nTU,TU,n,CI)
+      call CI_Faro_Transform(iState,iSym,nTU,TU,n,CI)
     case (CI_Lib_Lucia)
       ! (the vector goes through Lucia's determinant basis inside)
       call Lucia_Util('TRACI',CI_Vector=CI,TU=TU,nTU=nTU)
@@ -2837,7 +2841,7 @@ end subroutine CI_Lib_Transform
 
 !> Faroald: the CI transformation (CI_Lib_Transform) through the
 !> determinants, with the transformation matrix over its orbitals (levels)
-subroutine Faro_Transform(iState,iSym,nTU,TU,n,CI)
+subroutine CI_Faro_Transform(iState,iSym,nTU,TU,n,CI)
   use faroald, only: ndeta, ndetb, traci_faroald
   use faroald_ras, only: n_ras, ras_active, ras_traci
   use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf
@@ -2848,11 +2852,11 @@ subroutine Faro_Transform(iState,iSym,nTU,TU,n,CI)
   real(kind=wp), intent(inout) :: CI(n)
   integer(kind=iwp) :: nA, iLev, jLev, iO, jO, iS, nAshS(MxSym), iOffO(MxSym), iOffT(MxSym)
   real(kind=wp), allocatable :: TF(:), PsiR(:), PsiD(:,:)
-  nA = Faro_nAct
+  nA = CI_Faro_nAct
   ! the symmetry and the offsets of the orbitals and of the blocks of T
   nAshS(:) = 0
   do iLev=1,nA
-    nAshS(Faro_OrbSym(iLev)) = nAshS(Faro_OrbSym(iLev))+1
+    nAshS(CI_Faro_OrbSym(iLev)) = nAshS(CI_Faro_OrbSym(iLev))+1
   end do
   iOffO(1) = 0
   iOffT(1) = 0
@@ -2861,22 +2865,22 @@ subroutine Faro_Transform(iState,iSym,nTU,TU,n,CI)
     iOffT(iS) = iOffT(iS-1)+nAshS(iS-1)**2
   end do
   if (iOffT(MxSym)+nAshS(MxSym)**2 > nTU) then
-    write(u6,*) 'Faro_Transform: T too short',nTU
+    write(u6,*) 'CI_Faro_Transform: T too short',nTU
     call Abend()
   end if
   call mma_allocate(TF,max(1,nA*nA),Label='TF')
   TF(:) = Zero
   do jLev=1,nA
-    jO = Faro_Lev(jLev)
-    iS = Faro_OrbSym(jLev)
+    jO = CI_Faro_Lev(jLev)
+    iS = CI_Faro_OrbSym(jLev)
     do iLev=1,nA
-      if (Faro_OrbSym(iLev) /= iS) cycle
-      iO = Faro_Lev(iLev)
+      if (CI_Faro_OrbSym(iLev) /= iS) cycle
+      iO = CI_Faro_Lev(iLev)
       TF(iLev+(jLev-1)*nA) = TU(iOffT(iS)+iO-iOffO(iS)+(jO-iOffO(iS)-1)*nAshS(iS))
     end do
   end do
-  call Faro_Set_Sym(iState,iSym)
-  if (ras_active .and. (iSym == Faro_Sym)) then
+  call CI_Faro_Set_Sym(iState,iSym)
+  if (ras_active .and. (iSym == CI_Faro_Sym)) then
     ! in the string classes of the CI symmetry (faroald_ras)
     call mma_allocate(PsiR,max(1,n_ras),Label='PsiR')
     call citrans_csf2ras(CI,PsiR)
@@ -2884,7 +2888,7 @@ subroutine Faro_Transform(iState,iSym,nTU,TU,n,CI)
     call citrans_ras2csf(PsiR,CI)
     call mma_deallocate(PsiR)
   else
-    call Faro_Full_Init()
+    call CI_Faro_Full_Init()
     call mma_allocate(PsiD,ndeta,ndetb,Label='PsiD')
     PsiD(:,:) = Zero
     call citrans_csf2sd(CI,PsiD)
@@ -2893,16 +2897,16 @@ subroutine Faro_Transform(iState,iSym,nTU,TU,n,CI)
     call mma_deallocate(PsiD)
   end if
   call mma_deallocate(TF)
-end subroutine Faro_Transform
+end subroutine CI_Faro_Transform
 
 !> The remaining case of the operations is the MCLR copy of Lucia (also the
 !> stop for RASSCF's Lucia, CI_Lib_Lucia, not available for MCLR)
 subroutine Check_Lib(Caller)
   character(len=*), intent(in) :: Caller
-  if (CI_Lib /= CI_Lib_MCLR_Lucia) then
-    write(u6,'(1X,A,A,I2)') Caller,': no CI library selected, or not available:',CI_Lib
+  if (CI_Lib_Selected /= CI_Lib_MCLR_Lucia) then
+    write(u6,'(1X,A,A,I2)') Caller,': no CI library selected, or not available:',CI_Lib_Selected
     call Abend()
   end if
 end subroutine Check_Lib
 
-end module CI_Operations
+end module CI_Lib_Core

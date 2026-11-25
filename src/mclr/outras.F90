@@ -24,7 +24,7 @@ subroutine OutRAS(iKapDisp,iCiDisp)
 !         Theoretical Chemistry, University of Lund                *
 !*******************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use MCLR_Data, only: DspVec, lDisp, LuTEMP, nConf1, nDens, nDensC
@@ -34,7 +34,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-use CI_Operations, only: CI_Lib_Basis_To_File
+use CI_Lib_Core, only: CI_Lib_Basis_To_File
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
@@ -56,7 +56,7 @@ write(u6,*)
 idisp = 0
 do iSym=1,nSym
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(CI_St(iState)%STSym,iSym)
+  PState_SYM = Mul(CI_Lib_Space(iState)%STSym,iSym)
   nconfM = ncsf(PState_Sym)
   nconf1 = ncsf(PState_Sym)
   CI = .false.

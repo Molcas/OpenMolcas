@@ -42,7 +42,7 @@ use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Molcas, only: MxLev
 use caspt2_module, only: MxCI, nG1, nG2, nG3, nSym
 #ifdef _DMRG_
@@ -85,9 +85,9 @@ if (mkF) then
   F3(1:NG3) = Zero
 end if
 
-if (CI_St(iState)%nActEl == 0) return
+if (CI_Lib_Space(iState)%nActEl == 0) return
 
-NCI = CI_St(istate)%nCSF(CI_St(iState)%STSym)
+NCI = CI_Lib_Space(istate)%nCSF(CI_Lib_Space(iState)%STSym)
 ! This should not happen, but...
 if (NCI == 0) return
 
@@ -157,8 +157,8 @@ iG3OFF = 0
 ! A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 
 do issg1=1,nsym
-  isp1 = Mul(issg1,CI_St(iState)%STSym)
-  !nsgm1 = CI_St(istate)%nCSF(issg1)
+  isp1 = Mul(issg1,CI_Lib_Space(iState)%STSym)
+  !nsgm1 = CI_Lib_Space(istate)%nCSF(issg1)
   !call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1)
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -168,7 +168,7 @@ do issg1=1,nsym
   do ip1=1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
+    istu = Mul(CI_Lib_Space(istate)%ISm(itlev),CI_Lib_Space(istate)%ISm(iulev))
     if (istu == isp1) then
       ibuf1 = ibuf1+1
       ip1_buf(ibuf1) = ip1
@@ -249,9 +249,9 @@ do issg1=1,nsym
       do ip1i=ip1sta,ip1end
         itlev = idx2ij(1,ip1i)
         iulev = idx2ij(2,ip1i)
-        istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
-        it = CI_St(istate)%L2Act(itlev)
-        iu = CI_St(istate)%L2Act(iulev)
+        istu = Mul(CI_Lib_Space(istate)%ISm(itlev),CI_Lib_Space(istate)%ISm(iulev))
+        it = CI_Lib_Space(istate)%L2Act(itlev)
+        iu = CI_Lib_Space(istate)%L2Act(iulev)
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
@@ -273,8 +273,8 @@ do issg1=1,nsym
     !    idx = ip1_buf(ib)
     !    itlev = idx2ij(1,idx)
     !    iulev = idx2ij(2,idx)
-    !    it = CI_St(istate)%L2Act(itlev)
-    !    iu = CI_St(istate)%L2Act(iulev)
+    !    it = CI_Lib_Space(istate)%L2Act(itlev)
+    !    iu = CI_Lib_Space(istate)%L2Act(iulev)
     !    G1(it,iu) = DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
     !    if (mkF) then
     !      F1sum = Zero
@@ -307,11 +307,11 @@ do issg1=1,nsym
     ! The indices corresponding to pair index p3:
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
-    issg2 = Mul(isyz,CI_St(iState)%STSym)
-    !nsgm2 = CI_St(istate)%nCSF(issg2)
-    iy = CI_St(istate)%L2Act(iylev)
-    iz = CI_St(istate)%L2Act(izlev)
+    isyz = Mul(CI_Lib_Space(istate)%ISm(iylev),CI_Lib_Space(istate)%ISm(izlev))
+    issg2 = Mul(isyz,CI_Lib_Space(iState)%STSym)
+    !nsgm2 = CI_Lib_Space(istate)%nCSF(issg2)
+    iy = CI_Lib_Space(istate)%L2Act(iylev)
+    iz = CI_Lib_Space(istate)%L2Act(izlev)
     !BUF2(1:nsgm2) = Zero
     !call SG_Epq_Psi(IYLEV,IZLEV,One,STSYM,CI,BUF2)
     !if (issg2 == issg1) then
@@ -319,8 +319,8 @@ do issg1=1,nsym
     !    idx = ip1_buf(ib)
     !    itlev = idx2ij(1,idx)
     !    iulev = idx2ij(2,idx)
-    !    it = CI_St(istate)%L2Act(itlev)
-    !    iu = CI_St(istate)%L2Act(iulev)
+    !    it = CI_Lib_Space(istate)%L2Act(itlev)
+    !    iu = CI_Lib_Space(istate)%L2Act(iulev)
     !    G2(it,iu,iy,iz) = DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
     !    if (mkF) then
     !      F2sum = Zero
@@ -335,9 +335,9 @@ do issg1=1,nsym
     do ip2=ip3,ntri2
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
-      isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
-      iv = CI_St(istate)%L2Act(ivlev)
-      ix = CI_St(istate)%L2Act(ixlev)
+      isvx = Mul(CI_Lib_Space(istate)%ISm(ivlev),CI_Lib_Space(istate)%ISm(ixlev))
+      iv = CI_Lib_Space(istate)%L2Act(ivlev)
+      ix = CI_Lib_Space(istate)%L2Act(ixlev)
       if (isvx == Mul(issg1,issg2)) then
         !BUFT(1:nsgm1) = Zero
         !call SG_Epq_Psi(IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
@@ -375,8 +375,8 @@ do issg1=1,nsym
             idx = ip1_buf(ibmn-1+ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            iT = CI_St(istate)%L2Act(itlev)
-            iU = CI_St(istate)%L2Act(iulev)
+            iT = CI_Lib_Space(istate)%L2Act(itlev)
+            iU = CI_Lib_Space(istate)%L2Act(iulev)
             idxG3(1,iG3) = int(iT,kind=byte)
             idxG3(2,iG3) = int(iU,kind=byte)
             idxG3(3,iG3) = int(iV,kind=byte)

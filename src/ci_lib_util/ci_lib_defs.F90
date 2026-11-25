@@ -11,11 +11,11 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-!> The constants of the CI operations (CI_Operations), shared with the CI
+!> The constants of the CI operations (CI_Lib_Core), shared with the CI
 !> libraries that it calls, and the CI library selected for the run (one
 !> selection for every program: RASSCF and MCLR set it with CI_Lib_Select,
-!> everyone else reads CI_Lib or asks CI_Lib_Is)
-module CI_Op_Defs
+!> everyone else reads CI_Lib_Selected or asks CI_Lib_Is)
+module CI_Lib_Defs
 
 use Definitions, only: iwp, u6
 
@@ -38,9 +38,10 @@ integer(kind=iwp), parameter :: CI_To_File = 0, CI_To_Basis = 1
 !> program that uses a CI library has to select it: the default is none.
 !> Closing a library (CI_Close, CI_Lib_Close) frees its data but keeps the
 !> selection.
-integer(kind=iwp), protected :: CI_Lib = CI_Lib_None
+integer(kind=iwp), protected :: CI_Lib_Selected = CI_Lib_None
 
-public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_None, &
+public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib_Selected, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, &
+  CI_Lib_None, &
           CI_Lib_Select, CI_Lib_SGUGA, CI_To_Basis, CI_To_File
 
 contains
@@ -53,7 +54,7 @@ subroutine CI_Lib_Select(iLib)
   integer(kind=iwp), intent(in) :: iLib
   select case (iLib)
     case (CI_Lib_None,CI_Lib_Lucia,CI_Lib_SGUGA,CI_Lib_Faroald,CI_Lib_MCLR_Lucia)
-      CI_Lib = iLib
+      CI_Lib_Selected = iLib
     case default
       write(u6,'(A,I4)') ' CI_Lib_Select: unknown CI library',iLib
       call Abend()
@@ -64,7 +65,7 @@ end subroutine CI_Lib_Select
 function CI_Lib_Is(iLib) result(Is)
   integer(kind=iwp), intent(in) :: iLib
   logical(kind=iwp) :: Is
-  Is = (CI_Lib == iLib)
+  Is = (CI_Lib_Selected == iLib)
 end function CI_Lib_Is
 
-end module CI_Op_Defs
+end module CI_Lib_Defs

@@ -21,7 +21,7 @@ subroutine MKRHSD(IVEC,FIMO,NFIMO,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
 ! Set up RHS vector of PT2 Linear Equation System, in vector
 ! number IVEC of LUSOLV, for case 5, AIVX.
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTU
@@ -75,7 +75,7 @@ do ISYM=1,NSYM
             ONEADD = Zero
             if (ISYM == 1) then
               FAI = FIMO(NFIMOES+iTri(IATOT,II))
-              ONEADD = FAI/real(max(1,CI_St(iState)%nActEl),kind=wp)
+              ONEADD = FAI/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
             end if
             do IT=1,NASH(ISYMT)
               ITABS = IT+NAES(ISYMT)

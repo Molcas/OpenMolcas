@@ -14,7 +14,7 @@
 
 subroutine InpPri_m()
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Functionals, only: Print_Info
 use libxc_parameters, only: Clear_External_Params
 use KSDFT_Info, only: CoefR, CoefX
@@ -83,7 +83,7 @@ if (iPrLev >= USUAL) then
   write(u6,*)
   if (NFR > 0) write(u6,Fmt2//'A,T45,I6)') 'Number of frozen shell electrons',2*NFR
   write(u6,Fmt2//'A,T45,I6)') 'Number of closed shell electrons',2*NIN
-  write(u6,Fmt2//'A,T45,I6)') 'Number of electrons in active shells',CI_St(iState)%nActEl
+  write(u6,Fmt2//'A,T45,I6)') 'Number of electrons in active shells',CI_Lib_Space(iState)%nActEl
   write(u6,Fmt2//'A,T45,I6)') 'Max number of holes in RAS1 space',NHOLE1
   write(u6,Fmt2//'A,T45,I6)') 'Max nr of electrons in RAS3 space',NELEC3
 
@@ -91,8 +91,8 @@ if (iPrLev >= USUAL) then
   write(u6,Fmt2//'A,T45,I6)') 'Number of inactive orbitals',NIN
   write(u6,Fmt2//'A,T45,I6)') 'Number of active orbitals',NAC
   write(u6,Fmt2//'A,T45,I6)') 'Number of secondary orbitals',NSEC
-  write(u6,Fmt2//'A,T45,F6.1)') 'Spin quantum number',Half*real(CI_St(iState)%iSpin-1,kind=wp)
-  write(u6,Fmt2//'A,T45,I6)') 'State symmetry',CI_St(iState)%STSym
+  write(u6,Fmt2//'A,T45,F6.1)') 'Spin quantum number',Half*real(CI_Lib_Space(iState)%iSpin-1,kind=wp)
+  write(u6,Fmt2//'A,T45,I6)') 'State symmetry',CI_Lib_Space(iState)%STSym
   write(u6,fmt2//'A,T40,I11)') 'Number of CSFs',NCONF
   write(u6,Fmt2//'A,T45,I6)') 'Number of RASSCF root(s) available',nroots
   call CollapseOutput(0,'Wave function specifications:')

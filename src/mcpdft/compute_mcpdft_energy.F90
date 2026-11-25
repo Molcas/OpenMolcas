@@ -16,7 +16,7 @@
 
 subroutine compute_mcpdft_energy(cmo,e_mcscf,e_states)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use mcpdft_input, only: mcpdft_options
 use KSDFT_Info, only: do_pdftpot
 use mspdftgrad, only: D1aoMS, D1SaoMS, DIDA, P2MOT
@@ -145,7 +145,7 @@ do jroot=1,lroots
     call fold2(nsym,nbas,dm1_cas,DIDA(:,jroot))
     d1aoms(:,jroot) = folded_dm1(:)
     call P2_contraction(casdm1,P2MOt(:,jroot))
-    if (CI_St(iState)%iSpin /= 1) d1saoms(:,jroot) = folded_dm1s(:)
+    if (CI_Lib_Space(iState)%iSpin /= 1) d1saoms(:,jroot) = folded_dm1s(:)
   end if
 
   do_pdftpot = (mcpdft_options%grad .and. (mcpdft_options%mspdft .or. (jroot == mcpdft_options%rlxroot)))

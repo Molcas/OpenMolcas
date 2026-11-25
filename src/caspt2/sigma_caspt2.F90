@@ -23,7 +23,7 @@ subroutine SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
 ! where the vectors are represented in transformed basis and
 ! are  stored at positions IVEC and JVEC on the LUSOLV unit.
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
 use EQSOLV, only: IFCoup
@@ -247,7 +247,7 @@ do ICASE1=1,11
     ! If there are 1-electron contributions, add them into the 2-el
     ! part (This requires a non-empty active space.)
     if (NSGM1 > 0) then
-      FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
+      FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
       if (ICASE1 == 1) then
         call SPEC1A(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
       else if (ICASE1 == 4) then
@@ -347,7 +347,7 @@ do ICASE1=1,11
 
     ND1 = 0
     IMLTOP = 1
-    FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
+    FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
     if (ICASE1 == 1) then
       ND1 = NASH(ISYM1)*NISH(ISYM1)
       if (ND1 > 0) then

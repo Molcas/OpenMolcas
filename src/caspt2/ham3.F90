@@ -25,8 +25,8 @@ subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 
 use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
-use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi, CI_New_Tag
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Epq_Psi, CI_New_Tag
 use Molcas, only: MxLev
 use caspt2_module, only: IASYM, ISCF, MxCI, NASHT, NCONF, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -45,13 +45,13 @@ integer(kind=iwp), parameter :: istate = 1
 
 if (NCONF == 0) return
 if (abs(OP0) > 1.0e-15_wp) SGM(1:NCONF) = SGM(1:NCONF)+OP0*CI(1:NCONF)
-if (CI_St(iState)%nActEl == 0) return
+if (CI_Lib_Space(iState)%nActEl == 0) return
 
 ! Unless this is a special-case wave function, reserve space
 ! for intermediate results of elementary excitations.
 if (ISCF == 0) then
   call mma_allocate(SGM1,MXCI,Label='SGM1')
-  if (CI_St(iState)%nActEl >= 2) call mma_allocate(SGM2,MXCI,Label='SGM2')
+  if (CI_Lib_Space(iState)%nActEl >= 2) call mma_allocate(SGM2,MXCI,Label='SGM2')
 end if
 ! Special cases:
 OCCNO = Zero
@@ -62,8 +62,8 @@ if (ISCF == 2) OCCNO = One
 ! ordinal number of each active orbital.
 ITABS = 0
 do ISYM=1,NSYM
-  do I=1,CI_St(iState)%nLev
-    if (CI_St(istate)%ISm(I) == ISYM) then
+  do I=1,CI_Lib_Space(iState)%nLev
+    if (CI_Lib_Space(istate)%ISm(I) == ISYM) then
       ITABS = ITABS+1
       IATOG(ITABS) = I
     end if
@@ -77,7 +77,7 @@ do IZ=1,NASHT
     IYZ = IY+(IZ-1)*NASHT
     ISYZ = Mul(IASYM(IY),IASYM(IZ))
     ISYM1 = Mul(ISYZ,ISYCI)
-    NSGM1 = CI_St(istate)%nCSF(ISYM1)
+    NSGM1 = CI_Lib_Space(istate)%nCSF(ISYM1)
     if (NSGM1 == 0) cycle
     if (ISCF == 0) then
       ! The general case:
@@ -98,7 +98,7 @@ do IZ=1,NASHT
       X = OCCNO*OP1(IY,IZ)
       SGM(1) = SGM(1)+X*CI(1)
     end if
-    if (CI_St(iState)%nActEl == 1) cycle
+    if (CI_Lib_Space(iState)%nActEl == 1) cycle
     do IX=IZ,NASHT
       IVMIN = 1
       if (IX == IZ) IVMIN = IY
@@ -108,7 +108,7 @@ do IZ=1,NASHT
         ISVXYZ = Mul(ISVX,ISYZ)
         IVXYZ = iTri(IVX,IYZ)
         ISYM2 = Mul(ISVX,ISYM1)
-        NSGM2 = CI_St(istate)%nCSF(ISYM2)
+        NSGM2 = CI_Lib_Space(istate)%nCSF(ISYM2)
         if (NSGM2 == 0) cycle
         if (ISCF == 0) then
           ! The general case:
@@ -130,7 +130,7 @@ do IZ=1,NASHT
           X = (OCCNO**2)*OP2(IVXYZ)
           SGM(1) = SGM(1)+X*CI(1)
         end if
-        if (CI_St(iState)%nActEl == 2) cycle
+        if (CI_Lib_Space(iState)%nActEl == 2) cycle
         do IU=IX,NASHT
           ITMIN = 1
           if (IU == IX) ITMIN = IV
@@ -164,7 +164,7 @@ end do
 ! Deallocate temporary arrays, if any:
 if (ISCF == 0) then
   call mma_deallocate(SGM1)
-  if (CI_St(iState)%nActEl >= 2) call mma_deallocate(SGM2)
+  if (CI_Lib_Space(iState)%nActEl >= 2) call mma_deallocate(SGM2)
 end if
 
 end subroutine HAM3

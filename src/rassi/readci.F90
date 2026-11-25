@@ -12,7 +12,7 @@
 subroutine READCI(ISTATE,iStateX,NCI,CI)
 
 use rassi_aux, only: ipglob
-use CI_States, only: CI_PrWF
+use CI_Lib_States, only: CI_PrWF
 use rassi_global_arrays, only: JBNUM, LROOT
 use Cntrl, only: CITHR, IRREP, iTOC15, JBNAME, LuIph, MLTPLT, NSTATE, PRCI
 use Molcas, only: MxRoot

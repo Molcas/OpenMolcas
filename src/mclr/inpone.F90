@@ -11,7 +11,7 @@
 
 subroutine InpOne()
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use rctfld_module, only: Conductor, lRF
@@ -68,7 +68,7 @@ call mma_allocate(Nuc,nAtoms,Label='Nuc')
 call Get_dArray('Effective nuclear Charge',Nuc,nAtoms)
 Tot_Nuc_Charge = sum(Nuc(1:nAtoms))
 call mma_deallocate(Nuc)
-Tot_El_Charge = -Two*sum(real(nFro(1:nSym)+nIsh(1:nSym),kind=wp))-real(CI_St(iState)%nActEl,kind=wp)
+Tot_El_Charge = -Two*sum(real(nFro(1:nSym)+nIsh(1:nSym),kind=wp))-real(CI_Lib_Space(iState)%nActEl,kind=wp)
 Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 iCharge = int(Tot_Charge)
 call DecideOnESPF(Do_ESPF)
@@ -126,7 +126,7 @@ if (Do_ESPF .or. (lRF .and. (iStpPCM == 1))) then
 
     ! Don't care about the last arguments: no (CAS-)DFT here I guess)
 
-    call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge,CI_St(iState)%iSpin,'1234',Do_DFT)
+    call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge,CI_Lib_Space(iState)%iSpin,'1234',Do_DFT)
     potnuc_pcm = potnuc-potnucsav
     Temp1(1:leng) = Temp1(1:leng)+Htmp(:)+Gtmp(:)
 

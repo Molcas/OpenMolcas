@@ -18,7 +18,7 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 !                                                                      *
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: FANCY_PRECONDITIONER, ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC
 use Orbital_Spaces, only: nAsh
@@ -34,7 +34,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-use CI_Operations, only: CI_Lib_File_To_Basis
+use CI_Lib_Core, only: CI_Lib_File_To_Basis
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp)
@@ -77,7 +77,7 @@ if (lSAVE) then
   call Abend()
 end if
 isym = 1
-nconf1 = ncsf(CI_St(iState)%STSym)
+nconf1 = ncsf(CI_Lib_Space(iState)%STSym)
 !! iStpPCM has been set somewhere; just a reminder
 iStpPCM = 1
 
@@ -93,7 +93,7 @@ if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 !
 ! Output: Commonblocks (Pointers.fh)
 
-nConf3 = CI_St(iState)%nDet(CI_St(iState)%STSym)
+nConf3 = CI_Lib_Space(iState)%nDet(CI_Lib_Space(iState)%STSym)
 
 call Setup_MCLR(iSym)
 
@@ -103,7 +103,7 @@ call Setup_MCLR(iSym)
 
 call mma_allocate(FANCY,nroots**3,Label='FANCY')
 call mma_allocate(rCHC,nRoots,Label='rCHC')
-call CIDia_SA(CI_St(iState)%STSym,rCHC,Fancy)
+call CIDia_SA(CI_Lib_Space(iState)%STSym,rCHC,Fancy)
 call mma_deallocate(rCHC)
 
 call ipOut(ipdia)
@@ -196,7 +196,7 @@ else
       call mma_allocate(wrk,nConf1,Label='wrk')
       do iR=1,nRoots
         wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
-        call CI_Lib_File_To_Basis(iState,CI_St(iState)%STSym,nConf1,wrk)
+        call CI_Lib_File_To_Basis(iState,CI_Lib_Space(iState)%STSym,nConf1,wrk)
         W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
       end do
       call mma_deallocate(wrk)

@@ -12,7 +12,7 @@
 !> The CI space as read from the input or the wave-function file (spin,
 !> active electrons, state symmetry, RAS and GAS description). Only the
 !> input readers and the CI setups use it; after the setup the programs
-!> read the state from CI_Info (CI_St(iState)).
+!> read the state from CI_Lib_Info (CI_Lib_Space(iState)).
 module CI_Input
 
 use Molcas, only: MxSym, MxGas

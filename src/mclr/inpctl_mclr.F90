@@ -30,7 +30,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-use CI_Operations, only: CI_Lib_Dets_To_Basis, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Initialize, CI_Lib_MCLR_Lucia, &
+use CI_Lib_Core, only: CI_Lib_Dets_To_Basis, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Initialize, CI_Lib_MCLR_Lucia, &
                          CI_Lib_Select, CI_Lib_SGUGA
 implicit none
 integer(kind=iwp), intent(in) :: iPL
@@ -183,7 +183,7 @@ if (iMethod == 2) then
   end if
 else
   ! SCF reference: a CI state without active electrons, so that the
-  ! state's values (CI_St) are defined for the whole run as well
+  ! state's values (CI_Lib_Space) are defined for the whole run as well
   nActEl = 0
   iSpin = 1
   call SG_Setup_MCLR('NONE')

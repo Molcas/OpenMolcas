@@ -28,7 +28,7 @@ subroutine TRDNS1(IVEC,DPT1,NDPT1)
 
 ! Only cases A, C and D(Symm 1) contributes.
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 #endif
@@ -72,7 +72,7 @@ if (NWTI /= 0) then
     if (NVEC == 0) cycle
     call RHS_ALLO(NAS,NIS,LVEC)
     call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-    FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
+    FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
 #   ifdef _MOLCAS_MPP_
     if (IS_REAL_PAR()) then
       if (KING()) then
@@ -106,7 +106,7 @@ if (NWAT /= 0) then
     if (NSSH(ISYM)*NASH(ISYM) == 0) cycle
     call RHS_ALLO(NAS,NIS,LVEC)
     call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-    FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
+    FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
 #   ifdef _MOLCAS_MPP_
     if (IS_REAL_PAR()) then
       if (KING()) then
@@ -138,7 +138,7 @@ if (NWAI /= 0) then
     if (NVEC == 0) cycle
     call RHS_ALLO(NAS,NIS,LVEC)
     call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-    FACT = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
+    FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
 #   ifdef _MOLCAS_MPP_
     if (IS_REAL_PAR()) then
       if (KING()) then

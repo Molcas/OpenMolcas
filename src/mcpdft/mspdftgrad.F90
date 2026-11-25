@@ -13,7 +13,7 @@
 
 module mspdftgrad
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
@@ -42,7 +42,7 @@ subroutine mspdftgrad_init()
   call mma_allocate(P2MOT,nacpr2,nroots,label='P2MO')
   call mma_allocate(D1AOMS,ntot1,nroots,label='D1AOMS')
   call mma_allocate(DIDA,ntot1,nroots+1,label='DIDA')
-  if (CI_St(iState)%iSpin /= 1) call mma_allocate(D1SaoMS,nTot1,nRoots,label='D1SAOMS')
+  if (CI_Lib_Space(iState)%iSpin /= 1) call mma_allocate(D1SaoMS,nTot1,nRoots,label='D1SAOMS')
 
   P2MOT(:,:) = Zero
 

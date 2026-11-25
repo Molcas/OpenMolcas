@@ -24,7 +24,7 @@ subroutine TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 ! The present solution gives just a reasonable approximation,
 ! with correct trace.
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri
 use PrintLevel, only: VERBOSE
 use caspt2_global, only: DREF, iPrGlb
@@ -51,10 +51,10 @@ end if
 
 COEF1 = Zero
 COEF2 = Zero
-NAHOLE = 2*NASHT-CI_St(iState)%nActEl
+NAHOLE = 2*NASHT-CI_Lib_Space(iState)%nActEl
 do ICASE=1,13
   NADIFF = NACTD(ICASE)
-  if (CI_St(iState)%nActEl+NADIFF < 0) cycle
+  if (CI_Lib_Space(iState)%nActEl+NADIFF < 0) cycle
   if (NAHOLE-NADIFF < 0) cycle
   OVL = Zero
   do ISYM=1,NSYM
@@ -75,7 +75,7 @@ do ICASE=1,13
     COEF1 = COEF1+OVL*real(NADIFF,kind=wp)/real(max(1,NAHOLE),kind=wp)
     COEF2 = COEF2+OVL*real(NAHOLE-NADIFF,kind=wp)/real(max(1,NAHOLE),kind=wp)
   else
-    COEF2 = COEF2+OVL*real(CI_St(iState)%nActEl+NADIFF,kind=wp)/real(max(1,CI_St(iState)%nActEl),kind=wp)
+    COEF2 = COEF2+OVL*real(CI_Lib_Space(iState)%nActEl+NADIFF,kind=wp)/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
   end if
 end do
 

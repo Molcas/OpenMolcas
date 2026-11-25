@@ -24,7 +24,7 @@ use Symmetry_Info, only: Mul
 use caspt2_qmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: iSCF, jState, mState, nAshT, nG1
 #ifdef _DMRG_
@@ -80,7 +80,7 @@ if (ISCF == 2) then
   return
 end if
 ! Special code for closed-shell:
-if ((ISCF == 1) .and. (CI_St(iState)%nActEl > 0)) then
+if ((ISCF == 1) .and. (CI_Lib_Space(iState)%nActEl > 0)) then
   do IT=1,NASHT
     G1(IT,IT) = Two
   end do
@@ -94,7 +94,7 @@ end if
 ! have to take account of orbital order.
 ! We will use level indices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
-! Translation tables L2ACT and LEVEL, in CI_St (CI_Info)
+! Translation tables L2ACT and LEVEL, in CI_Lib_Space (CI_Lib_Info)
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -118,18 +118,18 @@ do while (Rsv_Tsk(ID,iTask))
   ! Compute SGM1 = E_UT acting on CI, with T >= U,
   ! i.e., lowering operations. These are allowed in RAS.
   LT = TASK(iTask,1)
-  IST = CI_St(istate)%ISm(LT)
-  IT = CI_St(istate)%L2Act(LT)
+  IST = CI_Lib_Space(istate)%ISm(LT)
+  IT = CI_Lib_Space(istate)%L2Act(LT)
   LU = Task(iTask,2)
-  ISU = CI_St(istate)%ISm(LU)
-  IU = CI_St(istate)%L2Act(LU)
+  ISU = CI_Lib_Space(istate)%ISm(LU)
+  IU = CI_Lib_Space(istate)%L2Act(LU)
   ISTU = Mul(IST,ISU)
   if (ISTU /= 1) cycle
-  ISSG = Mul(ISTU,CI_St(iState)%STSym)
-  NSGM = CI_St(istate)%nCSF(ISSG)
+  ISSG = Mul(ISTU,CI_Lib_Space(iState)%STSym)
+  NSGM = CI_Lib_Space(istate)%nCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
-  call GETSGM2(LU,LT,CI_St(iState)%STSym,CI,nCI,SGM1,NSGM)
+  call GETSGM2(LU,LT,CI_Lib_Space(iState)%STSym,CI,nCI,SGM1,NSGM)
   GTU = DDOT_(NSGM,CI,1,SGM1,1)
   G1(IT,IU) = GTU
   G1(IU,IT) = GTU
@@ -154,10 +154,10 @@ subroutine End_Stuff()
 
 # ifdef _ENABLE_CHEMPS2_DMRG_
   if (DoCumulant) then
-    if (CI_St(iState)%nActEl > 1) then
+    if (CI_Lib_Space(iState)%nActEl > 1) then
       !QP: At this point, only load 2RDM of one state, JSTATE=1
       call chemps2_load2pdm(nlev,G2,MSTATE(1),.false.)
-      call two2onerdm(nlev,CI_St(iState)%nActEl,G2,G1)
+      call two2onerdm(nlev,CI_Lib_Space(iState)%nActEl,G2,G1)
     else
       write(u6,*) 'FATAL ERROR: DMRG-CASPT2 with CHEMPS2 does not work with NACTEL=1'
     end if

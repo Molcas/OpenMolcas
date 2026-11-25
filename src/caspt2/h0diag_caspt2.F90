@@ -22,7 +22,7 @@ subroutine H0DIAG_CASPT2(ISYCI,DIAG,nDiag)
 ! FOR THE SPECIFIED TOTAL SYMMETRY ISYCI: sum_lev n_lev ETA(lev) over the
 ! CSFs (CI interface, CI_Occ_Diag)
 
-use CI_States, only: CI_Occ_Diag
+use CI_Lib_States, only: CI_Occ_Diag
 use caspt2_module, only: ETA
 use Definitions, only: wp, iwp
 

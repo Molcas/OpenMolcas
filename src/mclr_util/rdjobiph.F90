@@ -31,8 +31,8 @@ use Symmetry_Info, only: Mul
 use MckDat, only: sNew
 use MCLR_Data, only: CMO, FnJob, FnMck, G1t, G2t, IRLXROOT, ISNAC, ISTATE, LuJob, LuMck, nA, NACSTATES, nNA, NSSA, OVERRIDE, SA
 use Orbital_Spaces, only: nAsh, nIsh, nOrb_CI => nOrb, nSym
-use CI_Info, only: CI_St
-use CI_Operations, only: CI_Lib_Graph_Mode
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_Core, only: CI_Lib_Graph_Mode
 use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
 use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iTOC, iTocIph, lRoots, McKinley, nBas, nCOnf, nCSF, &
                       nDel, nFro, nIrrep, nOrb, nRoots, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, &
@@ -41,7 +41,7 @@ use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
-use CI_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
+use CI_Lib_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -96,7 +96,7 @@ if (doDMRG) then ! yma
   nash(:) = LRras2(:)
   nrs2(:) = LRras2(:)
 end if
-! the CI state of MCLR for the whole run (CI_Info)
+! the CI state of MCLR for the whole run (CI_Lib_Info)
 call SG_Setup_MCLR(CI_Lib_Graph_Mode())
 !do i=1,8
 !  write(u6,*) i,'-irrep',nIsh(i),nAsh(i),nRs1(i),nRs2(i),nRs3(i)
@@ -132,8 +132,8 @@ nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
 ! the orbital spaces and CSF counts for the CI interface
 nOrb_CI(1:nSym) = nOrb(1:nSym)
 nIrrep = nSym
-nCSF(1:nSym) = CI_St(iState_CI)%nCSF(1:nSym)
-nConf = CI_St(iState_CI)%nCSF(STSym)
+nCSF(1:nSym) = CI_Lib_Space(iState_CI)%nCSF(1:nSym)
+nConf = CI_Lib_Space(iState_CI)%nCSF(STSym)
 Length = sum(nBas(1:nSym)*nOrb(1:nSym))
 ntItri = 0
 ntAtri = 0

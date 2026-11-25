@@ -277,7 +277,7 @@ end subroutine lpdft_rf_step
 
 subroutine lpdft_rf_scf(nroots)
 
-  use CI_Info, only: CI_St
+  use CI_Lib_Info, only: CI_Lib_Space
   use Orbital_Spaces, only: ntot1
   use rasscf_global, only: potnuc, exfac, weight
   use Constants, only: Zero
@@ -400,7 +400,7 @@ subroutine lpdft_rf_scf(nroots)
     repnuc = potnuc
     exf = exfac
     icharge = get_charge()
-    call DrvXV(h1d,g2d,d_rf,repnuc,ntot1,lFirst,lDff,lNonEq,lRFon,'SCF',exf,icharge,CI_St(iState)%iSpin,dftfock,lDoDFT)
+    call DrvXV(h1d,g2d,d_rf,repnuc,ntot1,lFirst,lDff,lNonEq,lRFon,'SCF',exf,icharge,CI_Lib_Space(iState)%iSpin,dftfock,lDoDFT)
 
     call get_dArray('Reaction field',v,ntot1)
     e_rf_core = dDot_(ntot1,v,1,dao_core,1)

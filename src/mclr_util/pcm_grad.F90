@@ -33,7 +33,7 @@
 
 module PCM_grad
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use DWSol, only: DWSol_init, DWSol_final, DWSol_wgt, DWSolv, W_SOLV
@@ -284,7 +284,7 @@ subroutine PrepPCM()
   !! Gtmp: electron-electron contributions
   Htmp(:) = Zero
   Gtmp(:) = Zero
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_St(iState)%iSpin,'1234',Do_DFT)
+  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_Lib_Space(iState)%iSpin,'1234',Do_DFT)
 
   ip1 = 1
   do iSym=1,nSym
@@ -311,7 +311,7 @@ subroutine PrepPCM()
 
   Htmp(:) = Zero
   Gtmp(:) = Zero
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_St(iState)%iSpin,'1234',Do_DFT)
+  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_Lib_Space(iState)%iSpin,'1234',Do_DFT)
 
   ip1 = 1
   do iSym=1,nSym
@@ -377,7 +377,7 @@ subroutine PrepPCM2(mode,DMO,DAO,PCMAO,PCMMO)
   !! Gtmp: electron-electron contributions
   Htmp(:) = Zero
   Gtmp(:) = Zero
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_St(iState)%iSpin,'1234',Do_DFT)
+  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_Lib_Space(iState)%iSpin,'1234',Do_DFT)
 
   ip1 = 1
   do iSym=1,nSym
@@ -405,7 +405,7 @@ subroutine PCM_grad_dens(mode)
 
   use ipPage, only: W
   use MCLR_Data, only: ipCI, iRlxRoot, isNAC, NSSA
-  use CI_Operations, only: CI_Lib_Dens
+  use CI_Lib_Core, only: CI_Lib_Dens
   use input_mclr, only: nConf, ncsf, nRoots, ntAsh
 
   integer(kind=iwp), parameter :: iState = 1
@@ -418,8 +418,8 @@ subroutine PCM_grad_dens(mode)
   ! mode=1: construct density used for PCM in SCF
   ! mode=2: mostly state-specific density
 
-  nconf1 = ncsf(CI_St(iState)%STSym)
-  iSy = CI_St(iState)%STSym
+  nconf1 = ncsf(CI_Lib_Space(iState)%STSym)
+  iSy = CI_Lib_Space(iState)%STSym
 
   ng1 = ntash*ntash
   ng2 = nTri_Elem(ng1)
@@ -469,7 +469,7 @@ subroutine PCM_grad_dens(mode)
   call mma_deallocate(G1r)
   call mma_deallocate(G2r)
 
-  nConf = ncsf(CI_St(iState)%STSym)
+  nConf = ncsf(CI_Lib_Space(iState)%STSym)
   !! use weights
   !if (mode == 1) G1q(:,:) = G1q(:,:)/real(nRoots,kind=wp)
 
@@ -564,7 +564,7 @@ subroutine PCM_grad_D2V(dens,vintMO,vintAO,first_,Dff_,NonEq_,Do_DFT_)
 
   ! h1, vint, and dens is triangular in the AO basis
   !call DrvRF(Htmp,Gtmp,D1ao,RepNuc,nh1,First,Dff,NonEq,iCharge)
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_St(iState)%iSpin,'1234',Do_DFT)
+  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge_PCM,CI_Lib_Space(iState)%iSpin,'1234',Do_DFT)
 
   ip1 = 1
   do iSym=1,nSym
@@ -713,7 +713,7 @@ subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
   ! Note that ipCIOUT will be weighted with (2)W_SOLV
   call dswap_(nRoots,weight,1,W_SOLV,1)
   Weight(:) = Two*Weight(:)
-  call CISigma_sa(0,CI_St(iState)%STSym,CI_St(iState)%STSym,DZMO,size(DZMO),rdum,1,rdum,1,ipCI,ipCIOUT,.false.)
+  call CISigma_sa(0,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,DZMO,size(DZMO),rdum,1,rdum,1,ipCI,ipCIOUT,.false.)
   Weight(:) = Half*Weight(:)
   call dswap_(nRoots,weight,1,W_SOLV,1)
 
@@ -743,7 +743,7 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   ! mode = 1: evaluate derivatives of the state-specific energy
   ! mode = 2: evaluate derivatives of the rotated state
 
-  nconf1 = ncsf(CI_St(iState)%STSym)
+  nconf1 = ncsf(CI_Lib_Space(iState)%STSym)
   rtmp(1) = Zero
 
   call mma_allocate(SCFcont,nDens,Label='SCFcont')
@@ -760,7 +760,7 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   ! For NAC, we just need the implicit part of D^SS*V(e,SCF) in the eigenenergy
   do iS=1,nSym
     if (nAsh(iS) > 0) then
-      jS = Mul(iS,CI_St(iState)%STSym)
+      jS = Mul(iS,CI_Lib_Space(iState)%STSym)
       do jA=1,nAsh(js)
         !ip1 = nIsh(iS)+1+nBas(jS)*(nIsh(js)+jA-1)!+ipCM(is)
         ip1 = nIsh(iS)+1+nBas(iS)*(nIsh(js)+jA-1)+ipMat(iS,jS)-1 !+ipCM(is)
@@ -783,11 +783,11 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   !! state averaged quantities (ipCID is overwritten)
   !! it is not actually state-averaged; it is solvent density, so use W_SOLV
   call dswap_(nRoots,weight,1,W_SOLV,1)
-  call CISigma_sa(0,CI_St(iState)%STSym,CI_St(iState)%STSym,SCFcont,nDens,rtmp,1,rtmp,1,ipCI,ipCID,.false.)
+  call CISigma_sa(0,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,SCFcont,nDens,rtmp,1,rtmp,1,ipCI,ipCID,.false.)
   call dswap_(nRoots,weight,1,W_SOLV,1)
 
   !! consider the weight of the derivative
-  idsym = CI_St(iState)%STSym !?
+  idsym = CI_Lib_Space(iState)%STSym !?
   if (DWSolv%DWZeta /= Zero) call DWder_MCLR(2,idsym,SCFcont,nDens,SCFcont,nDens,ISR%RVec)
 
   !! State rotations are not needed, because CI vectors are obtained by diagonalization (?)

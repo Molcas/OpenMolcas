@@ -23,7 +23,7 @@
 
 subroutine RasScf_Init()
 
-use CI_Library, only: CI_Timer
+use CI_Lib, only: CI_Timer
 use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk, DoCholesky, DoLocK, Estimate, Nscreen, Update
 use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings
@@ -41,7 +41,7 @@ use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoo
                          KSDFT, kTight, LOWDIN_ON, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NALTER, NewFock, NonEq, &
                          NQUNE, NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXDAMP, SXSel, &
                          ThFact, Thre, ThrEn, ThrSX, ThrTE, Title, TMin, Weight
-use CI_Info, only: Space_Inp
+use CI_Lib_Info, only: Space_Inp
 use rasscf_files, only: STARTORBFILE
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half

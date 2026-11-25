@@ -37,7 +37,7 @@
 !> it switches on the internal sanity checks of the SGUGA and SD/CSF codes.
 !>
 !> This module sits in sguga_util so that the SGUGA code itself can use it;
-!> CI_Interfaces re-exports CI_Verify.
+!> CI_Lib re-exports CI_Verify.
 module CI_Verify_Options
 
 use Definitions, only: iwp, u6

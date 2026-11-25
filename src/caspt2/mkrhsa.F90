@@ -21,7 +21,7 @@ subroutine MKRHSA(IVEC,FIMO,NFIMO,ERI,nERI,SCR,nSCR)
 ! Set up RHS vector of PT2 Linear Equation System, in vector
 ! number IVEC of LUSOLV, for case 1 (VJTU).
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
@@ -65,7 +65,7 @@ do ISYM=1,NSYM
           ONEADD = Zero
           if (ISYMT == ISYM) then
             FTI = FIMO(NFIMOES+iTri(ITTOT,II))
-            ONEADD = FTI/real(max(1,CI_St(iState)%nActEl),kind=wp)
+            ONEADD = FTI/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
           end if
           do IU=1,NASH(ISYMU)
             IUTOT = IU+NISH(ISYMU)

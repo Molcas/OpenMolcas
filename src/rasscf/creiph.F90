@@ -81,7 +81,7 @@ use Orbital_Spaces, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM, NTOT, NTOT2
 use CI_Input, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NRS3, STSYM
 use rasscf_global, only: NCONF
 use CI_Input, only: iDoGAS
-use CI_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
+use CI_Lib_States, only: CI_Space_Rec_Len, CI_Space_To_Rec
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate

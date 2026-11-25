@@ -46,9 +46,9 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use rasscf_files, only: JOBIPH, JOBOLD, LUDAVID
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use rasscf_global, only: NCONF, NSEL
-use CI_Operations, only: CI_Lib_File_To_Basis
+use CI_Lib_Core, only: CI_Lib_File_To_Basis
 #ifdef _HDF5_
 use rasscf_files, only: STARTORBFILE
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
@@ -131,7 +131,7 @@ if (Start_Vectors) then
         do i=1,lRoots
           call mh5_fetch_dset(mh5id,'CI_VECTORS',Tmp1,[nconf,1],[0,i-1])
           C(1:nConf) = Tmp1(1:nConf)
-          call CI_Lib_File_To_Basis(iState,CI_St(iState)%STSym,nConf,C)
+          call CI_Lib_File_To_Basis(iState,CI_Lib_Space(iState)%STSym,nConf,C)
           call Save_CI_vec(i,nConf,C,LuDavid)
         end do
         call mma_deallocate(Tmp1)
@@ -169,7 +169,7 @@ if (Start_Vectors) then
       do i=1,lRoots
         call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
         C(1:nConf) = Tmp1(1:nConf)
-        call CI_Lib_File_To_Basis(iState,CI_St(iState)%STSym,nConf,C)
+        call CI_Lib_File_To_Basis(iState,CI_Lib_Space(iState)%STSym,nConf,C)
         call Save_CI_vec(i,nConf,C,LuDavid)
         if (IPRLEV >= INSANE) then
           write(String,'(A,I2)') 'Start vector of root',i

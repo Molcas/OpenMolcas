@@ -11,7 +11,7 @@
 
 subroutine SIGMADET_CVB(C,HC,IREFSM_CASVB,NCI)
 
-use CI_Library, only: CI_Lib_Sigma_Det
+use CI_Lib, only: CI_Lib_Sigma_Det
 use wadr, only: FMO, TUVX
 use Definitions, only: wp, iwp
 

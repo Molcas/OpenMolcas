@@ -16,7 +16,7 @@ subroutine LUCIA2MOLCAS(NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,MXPCSM,MXPORB,NCONF
 use csfbas, only: maxop_lucia, NAEL, NBEL
 use CI_Input, only: ISPIN, NACTEL, STSYM
 use rasscf_global, only: NSEL, NDET
-use CI_Info, only: CI_St, Space_Inp
+use CI_Lib_Info, only: CI_Lib_Space, Space_Inp
 use CI_Space_Def, only: Space_Removals
 use lucia_data, only: IDC, MINOP, NCNFTP, NCSFTP, NDTFTP, NTYP
 use Molcas, only: MxSym
@@ -28,13 +28,13 @@ integer(kind=iwp), intent(in) :: NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTAS
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp) :: MS2
 
-! the CI dimensions of the RASSCF state (CI_Info)
-CI_St(iState)%nDet(1:MxSym) = NDTASM_LUCIA(1:MxSym)
-CI_St(iState)%nCSF(1:MxSym) = NCSASM_LUCIA(1:MxSym)
-if (NSEL > CI_St(iState)%nCSF(STSYM)) NSEL = CI_St(iState)%nCSF(STSYM)
+! the CI dimensions of the RASSCF state (CI_Lib_Info)
+CI_Lib_Space(iState)%nDet(1:MxSym) = NDTASM_LUCIA(1:MxSym)
+CI_Lib_Space(iState)%nCSF(1:MxSym) = NCSASM_LUCIA(1:MxSym)
+if (NSEL > CI_Lib_Space(iState)%nCSF(STSYM)) NSEL = CI_Lib_Space(iState)%nCSF(STSYM)
 ! For small calculations - Lasse/MGD
-CI_St(iState)%nCSF_Kept = nCSF_HEXS_LUCIA
-if (Space_Removals(Space_Inp) .and. (NSEL > CI_St(iState)%nCSF_Kept)) NSEL = CI_St(iState)%nCSF_Kept
+CI_Lib_Space(iState)%nCSF_Kept = nCSF_HEXS_LUCIA
+if (Space_Removals(Space_Inp) .and. (NSEL > CI_Lib_Space(iState)%nCSF_Kept)) NSEL = CI_Lib_Space(iState)%nCSF_Kept
 
 MS2 = iSpin-1
 ! TOTAL NO. OF ALPHA AND BETA EL.
@@ -51,11 +51,11 @@ NCSFTP(1:NTYP) = NPCSCNF(MINOP+1:maxop_lucia+1)
 ! the determinant count for the output: with spin combinations (IDC = 2,
 ! MS = 0) each combination holds two determinants, except those of the
 ! closed-shell configurations (type 1, one determinant)
-CI_St(iState)%Spin_Comb = (IDC == 2)
-if (CI_St(iState)%Spin_Comb) then
-  CI_St(iState)%nSD(1:MxSym) = 2*CI_St(iState)%nDet(1:MxSym)-NDTFTP(1)*NCNFTP(1,1:MxSym)
+CI_Lib_Space(iState)%Spin_Comb = (IDC == 2)
+if (CI_Lib_Space(iState)%Spin_Comb) then
+  CI_Lib_Space(iState)%nSD(1:MxSym) = 2*CI_Lib_Space(iState)%nDet(1:MxSym)-NDTFTP(1)*NCNFTP(1,1:MxSym)
 else
-  CI_St(iState)%nSD(1:MxSym) = CI_St(iState)%nDet(1:MxSym)
+  CI_Lib_Space(iState)%nSD(1:MxSym) = CI_Lib_Space(iState)%nDet(1:MxSym)
 end if
 
 NDET = NDET_LUCIA

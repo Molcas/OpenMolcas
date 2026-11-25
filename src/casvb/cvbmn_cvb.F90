@@ -14,7 +14,7 @@
 
 subroutine cvbmn_cvb(icode)
 
-use CI_Library, only: CI_Lib_Close
+use CI_Lib, only: CI_Lib_Close
 use casvb_global, only: esym, n_iter
 use Definitions, only: iwp
 

@@ -14,7 +14,7 @@
 subroutine CnstCLag(IFF,nLev,NG3,NCONF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
 use PrintLevel, only: VERBOSE
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
 use caspt2_module, only: CITHR, EPSA, ETA, ISCF, JSTATE, MSTATE, NSTATE
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -35,7 +35,7 @@ integer(kind=iwp), parameter :: istate = 1
 if (IFF == 1) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
   do ILEV=1,NLEV
-    ETA(ILEV) = EPSA(CI_St(istate)%L2Act(ILEV))
+    ETA(ILEV) = EPSA(CI_Lib_Space(istate)%L2Act(ILEV))
   end do
 end if
 
@@ -55,7 +55,7 @@ if (ISCF == 0) then
     else
       write(u6,*) ' With new orbitals, the CI array is:'
     end if
-    call PRWF_CP2(CI_St(iState)%STSym,NCONF,CI1,CITHR)
+    call PRWF_CP2(CI_Lib_Space(iState)%STSym,NCONF,CI1,CITHR)
   end if
 else
   CI1(1) = One

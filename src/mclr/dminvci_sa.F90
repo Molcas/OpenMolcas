@@ -11,7 +11,7 @@
 
 subroutine DMinvCI_sa(ipSigma,rout,S)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use ipPage, only: ipin, W
 use MCLR_Data, only: FANCY_PRECONDITIONER, ipCI, ipDia, nConf1
 use input_mclr, only: ERASSCF, nCSF, nRoots, Weight
@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: ipSigma
-real(kind=wp), intent(out) :: rout(nCSF(CI_St(iState)%STSym),nRoots)
+real(kind=wp), intent(out) :: rout(nCSF(CI_Lib_Space(iState)%STSym),nRoots)
 real(kind=wp), intent(in) :: S(nRoots,nRoots,nRoots)
 integer(kind=iwp) :: iR, jR, k, n
 real(kind=wp) :: alpha(nRoots), rcoeff(nRoots)
@@ -37,7 +37,7 @@ real(kind=wp), external :: DDot_
 !                                    <0|(H -E) |0>
 !                                         0
 
-n = nCSF(CI_St(iState)%STSym)
+n = nCSF(CI_Lib_Space(iState)%STSym)
 if (nconf1 > 1) then
   call ipin(ipdia)
   call ipin(ipsigma)

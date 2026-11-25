@@ -30,12 +30,12 @@ use input_ras, only: Key
 #ifdef _HDF5_
 use Index_Functions, only: nTri_Elem
 use RAS_CI_Dens, only: RAS_PDMs
-use CI_Operations, only: CI_Lib_File_To_Basis
+use CI_Lib_Core, only: CI_Lib_File_To_Basis
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
 use CI_Input, only: iDoGAS, NELEC3, NHOLE1, STSYM
 use rasscf_global, only: NCONF
 use rasscf_files, only: JOBIPH
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_dset_real, mh5_create_file, mh5_put_dset
@@ -47,7 +47,7 @@ implicit none
 integer(kind=iwp) :: dDisk, fileId, iDisk, iPair, jRoot, kDisk, kRoot, lFileName, nPairs, oneTdmId, rootPairsId, twoTdmId
 character(len=1024) :: fileName
 integer(kind=iwp), allocatable :: rootPairs(:,:)
-! the CI state of RASSCF (CI_St)
+! the CI state of RASSCF (CI_Lib_Space)
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), allocatable :: Dstate(:,:), DStmp(:), Dtmp(:), Pstate(:,:), Ptmp(:), Tdm1(:), Tmp(:), VecL(:), VecR(:), VecSum(:)
 character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
@@ -101,7 +101,7 @@ do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
   ! JOBIPH holds the split-graph order
   VecL(:) = Tmp(:)
-  call CI_Lib_File_To_Basis(iState,STSYM,CI_St(iState)%nCSF(STSYM),VecL)
+  call CI_Lib_File_To_Basis(iState,STSYM,CI_Lib_Space(iState)%nCSF(STSYM),VecL)
   ! 1-RDM and 2-PDM of the root, needed for the polarization identity below.
   VecSum(:) = VecL(:)
   call RAS_PDMs(VecSum,nConf,D=Dstate(:,jRoot),P=Pstate(:,jRoot),nD=NAC*NAC,nP=NACPR2)
@@ -109,7 +109,7 @@ do jRoot=1,lRoots
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
     VecR(:) = Tmp(:)
-    call CI_Lib_File_To_Basis(iState,STSYM,CI_St(iState)%nCSF(STSYM),VecR)
+    call CI_Lib_File_To_Basis(iState,STSYM,CI_Lib_Space(iState)%nCSF(STSYM),VecR)
     ! Symmetrized transition 1-RDM and 2-PDM from polarization of the (bilinear) densities:
     ! X[L+R] = X[L] + X[R] + (X_LR + X_RL), so (X_LR + X_RL)/2 = (X[L+R] - X[L] - X[R])/2.
     ! These are the only parts of the 1-TDM and 2-TDM that contract with the (symmetric) L-PDFT

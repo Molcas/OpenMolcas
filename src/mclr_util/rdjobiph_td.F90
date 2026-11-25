@@ -29,15 +29,15 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, FnJob, G1t, G2sq, G2t, LuJob, nA, nNA
 use Orbital_Spaces, only: nAsh, nIsh, nOrb_CI => nOrb, nSym
-use CI_Info, only: CI_St
-use CI_Operations, only: CI_Lib_Graph_Mode
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_Core, only: CI_Lib_Graph_Mode
 use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
 use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iTOC, iTocIph, lRoots, nBas, nCOnf, nCSF, nDel, nFro, nIrrep, nOrb, nRoots, &
                       ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, TitleJP, Weight
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
-use CI_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
+use CI_Lib_States, only: CI_No_GAS, CI_Space_Free, CI_Space_Rd_JobIph
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -74,7 +74,7 @@ iDisk = iToc(1)
 call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,STSym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,(LenIn+8)*mxorb,nConf,HeaderJP, &
                     144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
 call mma_deallocate(TempTxt)
-! the CI state of MCLR for the whole run (CI_Info)
+! the CI state of MCLR for the whole run (CI_Lib_Info)
 call SG_Setup_MCLR(CI_Lib_Graph_Mode())
 !----------------------------------------------------------------------*
 !     Overwrite the variable lroots if approriate                      *
@@ -112,8 +112,8 @@ nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
 ! the orbital spaces and CSF counts for the CI interface
 nOrb_CI(1:nSym) = nOrb(1:nSym)
 nIrrep = nSym
-nCSF(1:nSym) = CI_St(iState_CI)%nCSF(1:nSym)
-nConf = CI_St(iState_CI)%nCSF(STSym)
+nCSF(1:nSym) = CI_Lib_Space(iState_CI)%nCSF(1:nSym)
+nConf = CI_Lib_Space(iState_CI)%nCSF(STSym)
 Length = sum(nBas(1:nSym)*nOrb(1:nSym))
 ntItri = 0
 ntAtri = 0

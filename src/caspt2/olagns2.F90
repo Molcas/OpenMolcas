@@ -13,7 +13,7 @@
 
 subroutine OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Symmetry_Info, only: Mul
 use Orbital_Spaces, only: NASH
 use caspt2_module, only: NBAS, NDEL, NFRO, NISH, NSSH, NSYM
@@ -63,7 +63,7 @@ do iSymI=1,nSym !! Symmetry of occupied (docc+act) orbitals
   end do
 end do
 
-DPT2C(1:NBSQT) = DPT2C(1:NBSQT)/real(max(1,CI_St(iState)%nActEl),kind=wp)
+DPT2C(1:NBSQT) = DPT2C(1:NBSQT)/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
 
 call mma_deallocate(Int1)
 call mma_deallocate(Scr1)

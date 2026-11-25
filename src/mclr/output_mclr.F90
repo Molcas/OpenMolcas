@@ -33,7 +33,7 @@ subroutine OutPut_MCLR(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,
 !         Theoretical Chemistry, University of Lund                    *
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
@@ -102,8 +102,8 @@ do iSym=1,nSym
   ! Output: Commonblocks (Pointers.fh)
 
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(CI_St(iState)%STSym,iSym)
-  nconfM = max(ncsf(PState_Sym),CI_St(iState)%nDet(Pstate_Sym))
+  PState_SYM = Mul(CI_Lib_Space(iState)%STSym,iSym)
+  nconfM = max(ncsf(PState_Sym),CI_Lib_Space(iState)%nDet(Pstate_Sym))
   nconf1 = ncsf(PState_Sym)
   CI = .false.
   if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
@@ -135,7 +135,7 @@ do iSym=1,nSym
     if (jspin == 0) then
       nconf1 = ncsf(Pstate_sym)
     else
-      nconf1 = CI_St(iState)%nDet(Pstate_Sym)
+      nconf1 = CI_Lib_Space(iState)%nDet(Pstate_Sym)
     end if
 
     !------------------------------------------------------------------*
@@ -230,7 +230,7 @@ do iSym=1,nSym
       if (kspin == 0) then
         nconf1 = ncsf(PState_Sym)
       else
-        nConf1 = CI_St(iState)%nDet(Pstate_Sym)
+        nConf1 = CI_Lib_Space(iState)%nDet(Pstate_Sym)
       end if
       if (.not. lCalc(kDisp+ksym)) cycle
 

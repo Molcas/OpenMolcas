@@ -13,7 +13,7 @@
 
 subroutine RHSOD_D_NOSYM(IVEC)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTU, MAREL, MIA, MIREL, MTREL, MTU
@@ -76,7 +76,7 @@ iCASE = 5
 ! outer loop over symmetry blocks in the RHS
 !***********************************************************************
 ! set up FIMO access
-ACTINV = One/real(max(1,CI_St(iState)%nActEl),kind=wp)
+ACTINV = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
 IFIMOES = 0
 do ISYM=1,NSYM
   NFIMOES(ISYM) = IFIMOES

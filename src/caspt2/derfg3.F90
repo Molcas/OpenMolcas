@@ -17,8 +17,8 @@ use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi, CI_New_Tag, CI_No_Reuse
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Epq_Psi, CI_New_Tag, CI_No_Reuse
 use caspt2_global, only: iPrGlb, nbuf1_grad
 use caspt2_module, only: EPSA, MxCI, nSym
 #ifdef _MOLCAS_MPP_
@@ -55,7 +55,7 @@ if (nlev == 0) return
 ! tags of the CI vectors for CI_Epq_Psi (CI is fixed, BUF2 changes per ip3)
 TAG_CI = CI_New_Tag()
 TAG_BUF2 = CI_No_Reuse
-if (CI_St(iState)%nActEl == 0) return
+if (CI_Lib_Space(iState)%nActEl == 0) return
 
 ! This should not happen, but...
 if (NCONF == 0) return
@@ -105,13 +105,13 @@ if (IFF == 1) then
   do ip1=1,nlev2-1
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = CI_St(istate)%L2Act(itlev)
-    iu = CI_St(istate)%L2Act(iulev)
+    it = CI_Lib_Space(istate)%L2Act(itlev)
+    iu = CI_Lib_Space(istate)%L2Act(iulev)
     do ip3=ip1+1,nlev2
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = CI_St(istate)%L2Act(iylev)
-      iz = CI_St(istate)%L2Act(izlev)
+      iy = CI_Lib_Space(istate)%L2Act(iylev)
+      iz = CI_Lib_Space(istate)%L2Act(izlev)
       SCAL = DF2(iy,iz,it,iu)+DF2(it,iu,iy,iz)
       DF2(it,iu,iy,iz) = Zero
       DF2(iy,iz,it,iu) = Scal
@@ -123,13 +123,13 @@ if (IFF == 1) then
   do ip1=ntri2+1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = CI_St(istate)%L2Act(itlev)
-    iu = CI_St(istate)%L2Act(iulev)
+    it = CI_Lib_Space(istate)%L2Act(itlev)
+    iu = CI_Lib_Space(istate)%L2Act(iulev)
     do ip3=ntri1+1,ip1
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = CI_St(istate)%L2Act(iylev)
-      iz = CI_St(istate)%L2Act(izlev)
+      iy = CI_Lib_Space(istate)%L2Act(iylev)
+      iz = CI_Lib_Space(istate)%L2Act(izlev)
       Scal = DF2(iz,iy,iu,it)+DF2(it,iu,iy,iz)
       DF2(it,iu,iy,iz) = Zero
       DF2(iz,iy,iu,it) = Scal
@@ -176,13 +176,13 @@ end if
 do ip1=1,nlev2-1
   itlev = idx2ij(1,ip1)
   iulev = idx2ij(2,ip1)
-  it = CI_St(istate)%L2Act(itlev)
-  iu = CI_St(istate)%L2Act(iulev)
+  it = CI_Lib_Space(istate)%L2Act(itlev)
+  iu = CI_Lib_Space(istate)%L2Act(iulev)
   do ip3=ip1+1,nlev2
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    iy = CI_St(istate)%L2Act(iylev)
-    iz = CI_St(istate)%L2Act(izlev)
+    iy = CI_Lib_Space(istate)%L2Act(iylev)
+    iz = CI_Lib_Space(istate)%L2Act(izlev)
     SCAL = DG2(iy,iz,it,iu)+DG2(it,iu,iy,iz)
     DG2(it,iu,iy,iz) = Zero
     DG2(iy,iz,it,iu) = Scal
@@ -194,13 +194,13 @@ end do
 do ip1=ntri2+1,nlev2
   itlev = idx2ij(1,ip1)
   iulev = idx2ij(2,ip1)
-  it = CI_St(istate)%L2Act(itlev)
-  iu = CI_St(istate)%L2Act(iulev)
+  it = CI_Lib_Space(istate)%L2Act(itlev)
+  iu = CI_Lib_Space(istate)%L2Act(iulev)
   do ip3=ntri1+1,ip1
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    iy = CI_St(istate)%L2Act(iylev)
-    iz = CI_St(istate)%L2Act(izlev)
+    iy = CI_Lib_Space(istate)%L2Act(iylev)
+    iz = CI_Lib_Space(istate)%L2Act(izlev)
     Scal = DG2(iz,iy,iu,it)+DG2(it,iu,iy,iz)
     DG2(it,iu,iy,iz) = Zero
     DG2(iz,iy,iu,it) = Scal
@@ -296,8 +296,8 @@ end if
 ! A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 ! This also allows precomputing the Hamiltonian (H0) diagonal elements.
 do issg1=1,nsym
-  isp1 = Mul(issg1,CI_St(iState)%STSym)
-  nsgm1 = CI_St(istate)%nCSF(issg1)
+  isp1 = Mul(issg1,CI_Lib_Space(iState)%STSym)
+  nsgm1 = CI_Lib_Space(istate)%nCSF(issg1)
   !!BufD_I = \sum_t <I|E_{tt}|I>*f_{tt}
   if (IFF == 1) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1)
 
@@ -308,7 +308,7 @@ do issg1=1,nsym
   do ip1=1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
+    istu = Mul(CI_Lib_Space(istate)%ISm(itlev),CI_Lib_Space(istate)%ISm(iulev))
     if (istu == isp1) then
       ibuf1 = ibuf1+1
       ip1_buf(ibuf1) = ip1
@@ -415,11 +415,11 @@ do issg1=1,nsym
       do ip1loc=TaskList(iTask,1),TaskList(iTask,2)
         itlev = idx2ij(1,ip1loc)
         iulev = idx2ij(2,ip1loc)
-        if (Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev)) /= isp1) cycle
+        if (Mul(CI_Lib_Space(istate)%ISm(itlev),CI_Lib_Space(istate)%ISm(iulev)) /= isp1) cycle
         ibuf1 = ibuf1+1
         ip1_buf(ibuf1) = ip1loc
         BUF1(1:nsgm1,ibuf1) = Zero
-        call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibuf1),TAG_CI)
+        call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_Lib_Space(iState)%STSym,CI,BUF1(:,ibuf1),TAG_CI)
       end do
       myBuffer = iTask
       DTU(1:MXCI,1:ibuf1) = Zero
@@ -432,7 +432,7 @@ do issg1=1,nsym
     ! The ip1 buffer could be the same on different processes
     ! so only compute the G1 contribution when ip3 is 1, as
     ! this will only be one task per buffer.
-    if ((issg1 == CI_St(iState)%STSym) .and. (ip3 == 1)) then
+    if ((issg1 == CI_Lib_Space(iState)%STSym) .and. (ip3 == 1)) then
       !! buf1 = <Psi0|E_ip1|I>
       !! <0|E_{tu}I> = <I|E_{ut}|0>
       !write(u6,*) 'ib loop'
@@ -440,8 +440,8 @@ do issg1=1,nsym
         idx = ip1_buf(ib)
         itlev = idx2ij(1,idx)
         iulev = idx2ij(2,idx)
-        it = CI_St(istate)%L2Act(itlev)
-        iu = CI_St(istate)%L2Act(iulev)
+        it = CI_Lib_Space(istate)%L2Act(itlev)
+        iu = CI_Lib_Space(istate)%L2Act(iulev)
         !write(u6,'('itlev,iulev,it,iu = ',4i3)') itlev,iulev,it,iu
         !! DG1 contribution
         SCAL = DG1(iT,iU)+DG1(iT,iU)
@@ -480,13 +480,13 @@ do issg1=1,nsym
     ! The indices corresponding to pair index p3:
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
-    issg2 = Mul(isyz,CI_St(iState)%STSym)
-    nsgm2 = CI_St(istate)%nCSF(issg2)
-    iy = CI_St(istate)%L2Act(iylev)
-    iz = CI_St(istate)%L2Act(izlev)
+    isyz = Mul(CI_Lib_Space(istate)%ISm(iylev),CI_Lib_Space(istate)%ISm(izlev))
+    issg2 = Mul(isyz,CI_Lib_Space(iState)%STSym)
+    nsgm2 = CI_Lib_Space(istate)%nCSF(issg2)
+    iy = CI_Lib_Space(istate)%L2Act(iylev)
+    iz = CI_Lib_Space(istate)%L2Act(izlev)
     buf2(1:nsgm2) = Zero
-    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(iState)%STSym,CI,BUF2,TAG_CI)
+    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_Lib_Space(iState)%STSym,CI,BUF2,TAG_CI)
     TAG_BUF2 = CI_New_Tag()
     DYZ(1:nsgm1) = Zero
     if (issg2 == issg1) then
@@ -494,8 +494,8 @@ do issg1=1,nsym
         idx = ip1_buf(ib)
         itlev = idx2ij(1,idx)
         iulev = idx2ij(2,idx)
-        it = CI_St(istate)%L2Act(itlev)
-        iu = CI_St(istate)%L2Act(iulev)
+        it = CI_Lib_Space(istate)%L2Act(itlev)
+        iu = CI_Lib_Space(istate)%L2Act(iulev)
 
         ScalG = DG2(iT,iU,iY,iZ)
         ScalF = DF2(iT,iU,iY,iZ)
@@ -526,7 +526,7 @@ do issg1=1,nsym
       do ip2=ip3,ntri2
         ivlev = idx2ij(1,ip2)
         ixlev = idx2ij(2,ip2)
-        isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
+        isvx = Mul(CI_Lib_Space(istate)%ISm(ivlev),CI_Lib_Space(istate)%ISm(ixlev))
         if (isvx /= Mul(issg1,issg2)) cycle
         !-----------
         ! Max and min values of index p1:
@@ -565,7 +565,7 @@ do issg1=1,nsym
       ! BUFX(I,a) = <I|EaxEyz|0>
       BUFX(1:nsgm1,1:nlev) = Zero
       do ivlev=1,nlev
-        call CI_Epq_Psi(istate,IVLEV,IXLEV0,One,CI_St(iState)%STSym,BUF2,BUFX(:,ivlev),TAG_BUF2)
+        call CI_Epq_Psi(istate,IVLEV,IXLEV0,One,CI_Lib_Space(iState)%STSym,BUF2,BUFX(:,ivlev),TAG_BUF2)
       end do
 
       ! Construct DG3 and DF3 matrices that are convenient for DGEMM
@@ -583,7 +583,7 @@ do issg1=1,nsym
         if (IFF == 1) then
           CF(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC)) = DF3(iG3+1:iG3+nb)
           CG(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC)) = CG(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC)) &
-                                                    -EPSA(CI_St(istate)%L2Act(ivlev))*CF(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC))
+                                                    -EPSA(CI_Lib_Space(istate)%L2Act(ivlev))*CF(ivlev,ib_tmp(1,IVEC):ib_tmp(2,IVEC))
         end if
       end do
       nb = ibmx-ibmn+1
@@ -619,13 +619,13 @@ do issg1=1,nsym
 
       !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
       do IVEC=1,NVEC
-        call CI_Epq_Psi(istate,IXLEV0,IVLEV_tmp(IVEC),One,CI_St(iState)%STSym,BUFX(:,IVLEV_tmp(IVEC)),DYZ,CI_No_Reuse)
+        call CI_Epq_Psi(istate,IXLEV0,IVLEV_tmp(IVEC),One,CI_Lib_Space(iState)%STSym,BUFX(:,IVLEV_tmp(IVEC)),DYZ,CI_No_Reuse)
       end do
     end do !! end of ixlev0 loop
 
     !! Complete the right derivative contribution:
     !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
-    call CI_Epq_Psi(istate,IZLEV,IYLEV,One,CI_St(iState)%STSym,DYZ,CLAG,CI_No_Reuse)
+    call CI_Epq_Psi(istate,IZLEV,IYLEV,One,CI_Lib_Space(iState)%STSym,DYZ,CLAG,CI_No_Reuse)
 
     if (iPrGlb >= DEBUG) then
       write(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)') iSubTask,ip1sta,ip1end,ip3,nbtot
@@ -705,7 +705,7 @@ subroutine Flush_Buffers(jLast)
       do ip1loc=TaskList(jTask,1),TaskList(jTask,2)
         itlev = idx2ij(1,ip1loc)
         iulev = idx2ij(2,ip1loc)
-        if (Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev)) /= isp1) cycle
+        if (Mul(CI_Lib_Space(istate)%ISm(itlev),CI_Lib_Space(istate)%ISm(iulev)) /= isp1) cycle
         ibuf1 = ibuf1+1
         ip1_buf(ibuf1) = ip1loc
       end do
@@ -728,7 +728,7 @@ subroutine LEFT_DEPSA(have_task)
       iulev = idx2ij(2,idx)
       !! left derivative
       if (IFF == 1) DTU(1:nsgm1,ibloc) = DTU(1:nsgm1,ibloc)+DAB(1:nsgm1,ibloc)*BUFD(1:nsgm1)
-      call CI_Epq_Psi(istate,ITLEV,IULEV,One,CI_St(iState)%STSym,DTU(1,ibloc),CLAG,CI_No_Reuse)
+      call CI_Epq_Psi(istate,ITLEV,IULEV,One,CI_Lib_Space(iState)%STSym,DTU(1,ibloc),CLAG,CI_No_Reuse)
     end do
   end if
   if (IFF /= 1) return
@@ -744,13 +744,13 @@ subroutine LEFT_DEPSA(have_task)
     iulev = idx2ij(2,idx)
     if (.not. have_task) then
       BUF1(1:nsgm1,ibloc) = Zero
-      call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibloc),TAG_CI)
+      call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_Lib_Space(iState)%STSym,CI,BUF1(:,ibloc),TAG_CI)
     end if
     TAG_DAB = CI_New_Tag()
     do IALEVloc=1,NLEV
       do IBLEVloc=1,NLEV
         BUF2(1:nsgm1) = Zero
-        call CI_Epq_Psi(istate,IALEVloc,IBLEVloc,One,CI_St(iState)%STSym,DAB(1,ibloc),BUF2,TAG_DAB)
+        call CI_Epq_Psi(istate,IALEVloc,IBLEVloc,One,CI_Lib_Space(iState)%STSym,DAB(1,ibloc),BUF2,TAG_DAB)
         DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)+dot_product(BUF1(1:nsgm1,IBloc),BUF2(1:nsgm1))
       end do
     end do

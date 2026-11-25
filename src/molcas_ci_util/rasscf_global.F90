@@ -37,9 +37,9 @@ logical(kind=iwp) :: DoBlockDMRG, doDMRG, DOFCIDUMP, IfCRPR, kIvo, l_casdft, Low
                      Start_Vectors
 ! RASSCF's CI vector and Davidson dimensions (formerly in general_data):
 ! NCONF the length of the CI vector of the wave-function method in use (the
-! CSFs of the CI symmetry, CI_St(1)%nCSF(STSYM), for the CI libraries; 1 or 0
+! CSFs of the CI symmetry, CI_Lib_Space(1)%nCSF(STSYM), for the CI libraries; 1 or 0
 ! for DMRG, NECI, CC-CI, FCIQMC), NDET the length of the Davidson scratch
-! (the determinant dimension of the CI back end, CI_St(1)%nDet), NSEL the
+! (the determinant dimension of the CI back end, CI_Lib_Space(1)%nDet), NSEL the
 ! size of the explicit subspace (keyword SDAV, capped by the CI interface)
 integer(kind=iwp) :: NCONF, NDET, NSEL
 public :: NCONF, NDET, NSEL

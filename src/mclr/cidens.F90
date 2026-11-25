@@ -14,7 +14,7 @@ subroutine CIDens(response,iLS,iRS,iL,iR,rP,rD)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, W
 use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA
-use CI_Operations, only: CI_Lib_Dens
+use CI_Lib_Core, only: CI_Lib_Dens
 use input_mclr, only: nCSF, TimeDep
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate

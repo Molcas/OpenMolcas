@@ -13,7 +13,7 @@
 
 subroutine RHSOD_C(IVEC)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV, MTREL, MTUV
@@ -128,7 +128,7 @@ do ISYM=1,NSYM
         SUMU = SUMU+GA_Arrays(lg_W)%A(IDX)
 #       endif
       end do
-      ADDONE = (FAT-SUMU)/real(max(1,CI_St(iState)%nActEl),kind=wp)
+      ADDONE = (FAT-SUMU)/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
       do IVABS=1,NASHT
         ITVV = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
         IDX = ITVV+NAS*(IA-IISTA)

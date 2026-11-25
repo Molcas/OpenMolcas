@@ -13,7 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
-use CI_Library, only: CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Lucia_Active, CI_Verify
+use CI_Lib, only: CI_Faro_nDet_RAS, CI_File_Index_To_Basis, CI_Lucia_Active, CI_Verify
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -42,7 +42,7 @@ use CI_Input, only: DoSGEx, iDoGAS, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH,
                     STSYM
 use rasscf_global, only: NCONF, nDet, NSEL
 use DWSol, only: DWSol_DWRO
-use CI_Info, only: CI_St, Space_CI, Space_Inp
+use CI_Lib_Info, only: CI_Lib_Space, Space_CI, Space_Inp
 use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
@@ -57,8 +57,8 @@ use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, C
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
-use CI_Op_Defs, only: CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_Select, CI_Lib_SGUGA
-use CI_Operations, only: CI_Lib_Initialize
+use CI_Lib_Defs, only: CI_Lib_Faroald, CI_Lib_Is, CI_Lib_Lucia, CI_Lib_Select, CI_Lib_SGUGA
+use CI_Lib_Core, only: CI_Lib_Initialize
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: ChemPS2_BLB, ChemPS2_Can, ChemPS2_lRestart, ChemPS2_No4RDM, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, &
                          Do3RDM, Max_Canonical, Max_Sweep, MxDMRG
@@ -4148,7 +4148,7 @@ if (.not. SkipGUGA) then
     end if
   end if
 
-  ! the CI library of the run (CI_Op_Defs), read by the CI interface
+  ! the CI library of the run (CI_Lib_Defs), read by the CI interface
   if (DoSGCI) then
     call CI_Lib_Select(CI_Lib_SGUGA)
   else if (DoFaro) then
@@ -4162,12 +4162,12 @@ if (.not. SkipGUGA) then
   ! the CI symmetry, the determinants of the Davidson scratch (Lucia's, else
   ! none: the CSF dimension), the explicit subspace at most the kept CSFs
   call SETSXCI()
-  NCONF = CI_St(iState_CI)%nCSF(STSYM)
+  NCONF = CI_Lib_Space(iState_CI)%nCSF(STSYM)
   if (CI_Lucia_Active()) then
-    nDet = maxval(CI_St(iState_CI)%nDet(:))
+    nDet = maxval(CI_Lib_Space(iState_CI)%nDet(:))
   else
     nDet = NCONF
-    if (Space_CI%nRem > 0) NSEL = min(NSEL,CI_St(iState_CI)%nCSF_Kept)
+    if (Space_CI%nRem > 0) NSEL = min(NSEL,CI_Lib_Space(iState_CI)%nCSF_Kept)
   end if
 
 else
@@ -4193,7 +4193,7 @@ end if
 ! numbers already)
 if (ICICH == 1 .and. (.not. SkipGUGA)) then
   if (CI_Lib_Is(CI_Lib_Lucia)) then
-    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
+    call CI_SG_UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
   else
     ! SGCI and FARO: map the reference CSFs from the file order
     JCJ(:,:) = 0

@@ -23,7 +23,7 @@ subroutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,c
 !                                                                      *
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
@@ -189,7 +189,7 @@ do
     end if
     iSym_Old = iSym
 
-    PState_SYM = Mul(CI_St(iState)%STSym,iSym)
+    PState_SYM = Mul(CI_Lib_Space(iState)%STSym,iSym)
     nconf1 = ncsf(PState_Sym)
     CI = .false.
     if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
@@ -204,10 +204,10 @@ do
     !
     ! Output: Commonblocks (Pointers.fh)
 
-    PState_SYM = Mul(CI_St(iState)%STSym,iSym)
-    !nConf2 = CI_St(iState)%nDet(PState_SYM)
+    PState_SYM = Mul(CI_Lib_Space(iState)%STSym,iSym)
+    !nConf2 = CI_Lib_Space(iState)%nDet(PState_SYM)
     !nConf2 = ndtasm(PState_SYM)
-    nconf3 = max(CI_St(iState)%nDet(PState_SYM),CI_St(iState)%nDet(CI_St(iState)%STSym))
+    nconf3 = max(CI_Lib_Space(iState)%nDet(PState_SYM),CI_Lib_Space(iState)%nDet(CI_Lib_Space(iState)%STSym))
     !nconf3 = max(ndtasm(PState_SYM),ndtasm(STSym))
 
     if (doDMRG) then  ! yma
@@ -277,7 +277,7 @@ do
   if (jspin == 0) then
     nconf1 = ncsf(PState_Sym)
   else
-    nConf1 = CI_St(iState)%nDet(Pstate_Sym)
+    nConf1 = CI_Lib_Space(iState)%nDet(Pstate_Sym)
   end if
 
   ! Allocate areas for scratch and state variables
@@ -468,7 +468,7 @@ do
       !*****************************************************************
       !                                                                *
       if (CI) then
-        call CISigma(jspin,CI_St(iState)%STSym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,.true.)
+        call CISigma(jspin,CI_Lib_Space(iState)%STSym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,.true.)
         Clock(iTimeKC) = Clock(iTimeKC)+Tim3
 #       ifdef _DEBUGPRINT_
         call ipin(ipCI)
@@ -545,7 +545,7 @@ do
       call RecPrt('CI','(3F10.4)',W(ipCI)%A,1,nConf1)
       call RecPrt('CId','(3F10.4)',W(ipCId)%A,1,nConf1)
 #     endif
-      call CIDens(Response,ipCI,ipCId,CI_St(iState)%STSym,PState_Sym,Pens,Dens)     ! Jeppe's
+      call CIDens(Response,ipCI,ipCId,CI_Lib_Space(iState)%STSym,PState_Sym,Pens,Dens)     ! Jeppe's
 
 #     ifdef _DEBUGPRINT_
       write(LuWr,*) 'After CIDens'

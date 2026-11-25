@@ -14,8 +14,8 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use CI_Info, only: CI_St
-use CI_States, only: CI_CITRA, CI_Free_State, CI_Print_Graph
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_CITRA, CI_Free_State, CI_Print_Graph
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use CI_Input, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
 use rasscf_global, only: DoDMRG
@@ -386,7 +386,7 @@ if (WFTP1 == 'GENERAL') then
       call CI_Print_Graph(iState1)
     end if
     ! CI sizes, as function of symmetry, are now known.
-    NCONF1 = CI_St(iState1)%nCSF(LSYM1)
+    NCONF1 = CI_Lib_Space(iState1)%nCSF(LSYM1)
   else
     NCONF1 = 1
   end if
@@ -497,7 +497,7 @@ if (WFTP2 == 'GENERAL') then
       call CI_Print_Graph(iState2)
     end if
     ! CI sizes, as function of symmetry, are now known.
-    NCONF2 = CI_St(iState2)%nCSF(LSYM2)
+    NCONF2 = CI_Lib_Space(iState2)%nCSF(LSYM2)
   else
     NCONF2 = 1
   end if

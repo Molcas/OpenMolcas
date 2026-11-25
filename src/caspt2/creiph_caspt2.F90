@@ -25,8 +25,8 @@ use PrintLevel, only: USUAL
 use REFWFN, only: IADR15, REFWFN_FILENAME
 use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
-use CI_Info, only: CI_St
-use CI_States, only: CI_Space_Rec_Len
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Space_Rec_Len
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
 use Orbital_Spaces, only: NASH
 use CI_Input, only: nElec3, NHOLE1
@@ -112,7 +112,8 @@ end if
 call mma_allocate(Weight_,MxRoot,Label='Weight_')
 WEIGHT_(1:NROOTS) = WEIGHT(1:NROOTS)
 WEIGHT_(NROOTS+1:) = Zero
-call WR_RASSCF_INFO(JOBMIX,1,iAd15,CI_St(jState)%nActEl,CI_St(jState)%iSpin,NSYM,CI_St(jState)%STSym,NFRO,NISH,NASH,NDEL,NBAS,8, &
+call WR_RASSCF_INFO(JOBMIX,1,iAd15,CI_Lib_Space(jState)%nActEl,CI_Lib_Space(jState)%iSpin,NSYM,CI_Lib_Space(jState)%STSym,NFRO, &
+  NISH,NASH,NDEL,NBAS,8, &
                     BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144,TITLE,4*18*MXTIT,POTNUC,LROOTS,MROOTS,JROOT,MXROOT,NRAS1,NRAS2,NRAS3, &
                     NHOLE1,nElec3,IFQCAN,Weight_)
 call mma_deallocate(Weight_)
@@ -160,10 +161,10 @@ IAD15 = IADR15(18)
 !Copy to local array since L2Act and Level are protected.
 call mma_allocate(xL2Act,MxLev,Label='xL2Act')
 call mma_allocate(xLevel,MxLev,Label='xLevel')
-XL2Act(:) = CI_St(jstate)%L2Act(:)
+XL2Act(:) = CI_Lib_Space(jstate)%L2Act(:)
 call IDAFILE(JOBMIX,1,xL2ACT,mxAct,IAD15)
 !SVC: translates orbital index to levels
-XLevel(:) = CI_St(jstate)%Level(:)
+XLevel(:) = CI_Lib_Space(jstate)%Level(:)
 call IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
 call mma_deallocate(xL2Act)
 call mma_deallocate(xLevel)
@@ -231,7 +232,7 @@ if (IFMSCOUP) then
     if (ISCF == 0) then
       if (IPRGLB >= USUAL) then
         write(u6,'(1x,a,i3)') ' The CI coefficients for the MIXED state nr. ',ISTATE
-        call PRWF_CP2(CI_St(jState)%STSym,NCONF,CI2,CITHR)
+        call PRWF_CP2(CI_Lib_Space(jState)%STSym,NCONF,CI2,CITHR)
       end if
     end if
     IDISK = IDIST(ISTATE)

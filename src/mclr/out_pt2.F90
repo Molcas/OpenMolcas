@@ -11,7 +11,7 @@
 
 subroutine Out_Pt2(iKapDisp,iCIDisp)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO, ESTERR, ipCI, ipCM, ipMat, IRLXROOT, ISNAC, ISTATE, LuJob, LuPT2, LuTEMP, n1Dens, n2Dens, nA, NACSTATES, &
@@ -78,7 +78,7 @@ call mma_allocate(Dtmp,nDens,Label='DTmp')
 ! All multipliers are introduced as densities
 
 if (CI) then
-  nconf1 = ncsf(CI_St(iState_CI)%STSym)
+  nconf1 = ncsf(CI_Lib_Space(iState_CI)%STSym)
   ilen = nconf1*nroots ! nroot = # of roots in SA
   ipcip = ipget(nconf1*nroots)
   iDisk = iCIDisp(1)
@@ -87,7 +87,7 @@ if (CI) then
 
   ! Calculate the densities that correct the nonvariational CI stuff
 
-  call CIDens_sa(.true.,ipCIp,ipCI,CI_St(iState_CI)%STSym,CI_St(iState_CI)%STSym,P_CI,D_CI) ! \bar{d} and \bar{D}
+  call CIDens_sa(.true.,ipCIp,ipCI,CI_Lib_Space(iState_CI)%STSym,CI_Lib_Space(iState_CI)%STSym,P_CI,D_CI) ! \bar{d} and \bar{D}
 
   ! ====================================================================
   if (doDMRG) then  ! yma

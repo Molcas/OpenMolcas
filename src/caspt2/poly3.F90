@@ -38,7 +38,7 @@ subroutine POLY3(mkF)
 
 use caspt2_qmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: VERBOSE
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
 use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
@@ -58,12 +58,12 @@ real(kind=wp), pointer :: F1(:), F2(:), F3(:)
 integer(kind=iwp), parameter :: istate = 1
 
 ! Note that in case of FCIQMC nConf is set to 0.
-nCI = CI_St(istate)%nCSF(CI_St(iState)%STSym)
+nCI = CI_Lib_Space(istate)%nCSF(CI_Lib_Space(iState)%STSym)
 
-if (mkF .or. ((ISCF /= 0) .and. (CI_St(iState)%nActEl /= 0))) then
+if (mkF .or. ((ISCF /= 0) .and. (CI_Lib_Space(iState)%nActEl /= 0))) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
-  do ILEV=1,CI_St(iState)%nLev
-    ETA(ILEV) = EPSA(CI_St(istate)%L2Act(ILEV))
+  do ILEV=1,CI_Lib_Space(iState)%nLev
+    ETA(ILEV) = EPSA(CI_Lib_Space(istate)%L2Act(ILEV))
   end do
 end if
 
@@ -84,7 +84,7 @@ G2(1) = Zero
 G3(1) = Zero
 
 ! ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
-if (mkF .or. ((ISCF /= 0) .and. (CI_St(iState)%nActEl /= 0))) then
+if (mkF .or. ((ISCF /= 0) .and. (CI_Lib_Space(iState)%nActEl /= 0))) then
   call mma_allocate(F1_H,NG1,LABEL='F1_H')
   call mma_allocate(F2_H,NG2,LABEL='F2_H')
   call mma_allocate(F3_H,NG3MAX,LABEL='F3_H')
@@ -118,14 +118,14 @@ if (.not. DoFCIQMC) then
       else
         write(u6,*) ' With new orbitals, the CI array is:'
       end if
-      call PRWF_CP2(CI_St(iState)%STSym,NCONF,CI,CITHR)
+      call PRWF_CP2(CI_Lib_Space(iState)%STSym,NCONF,CI,CITHR)
     end if
   else
     CI(1) = One
   end if
 end if
 
-if ((ISCF /= 0) .and. (CI_St(iState)%nActEl /= 0)) then
+if ((ISCF /= 0) .and. (CI_Lib_Space(iState)%nActEl /= 0)) then
   call SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nAshT,nG3)
 else if (ISCF == 0) then
   !-SVC20100903: during mkfg3, NG3 is set to the actual value
@@ -133,38 +133,38 @@ else if (ISCF == 0) then
   if ((.not. DoCumulant) .and. (.not. DMRG)) then
 # endif
     if (.not. DoFCIQMC) then
-      call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,CI_St(iState)%nLev,nG1,nG2,nG3)
+      call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,CI_Lib_Space(iState)%nLev,nG1,nG2,nG3)
     else
-      call mkfg3fciqmc(mkF,G1,F1,G2,F2,G3,F3,idxG3,CI_St(iState)%nLev,nG3)
+      call mkfg3fciqmc(mkF,G1,F1,G2,F2,G3,F3,idxG3,CI_Lib_Space(iState)%nLev,nG3)
     end if
 # if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
   else
-    call MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,CI_St(iState)%nLev,nG3)
+    call MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,CI_Lib_Space(iState)%nLev,nG3)
   end if
 # endif
 end if
 
 call mma_deallocate(CI,safe='*')
 
-if (CI_St(iState)%nLev > 0) then
+if (CI_Lib_Space(iState)%nLev > 0) then
   call PT2_PUT(NG1,' GAMMA1',G1)
   call PT2_PUT(NG2,' GAMMA2',G2)
   call PT2_PUT(NG3,' GAMMA3',G3)
   iLUID = 0
   call I1DAFILE(LUSOLV,1,idxG3,6*NG3,iLUID)
-  if (mkF .or. ((ISCF /= 0) .and. (CI_St(iState)%nActEl /= 0))) then
+  if (mkF .or. ((ISCF /= 0) .and. (CI_Lib_Space(iState)%nActEl /= 0))) then
     call PT2_PUT(NG1,' DELTA1',F1)
     call PT2_PUT(NG2,' DELTA2',F2)
     call PT2_PUT(NG3,' DELTA3',F3)
   end if
 end if
 
-if (CI_St(iState)%nLev > 0) then
+if (CI_Lib_Space(iState)%nLev > 0) then
   call mma_deallocate(G1)
   call mma_deallocate(G2)
   call mma_deallocate(G3)
   call mma_deallocate(idxG3)
-  if (mkF .or. ((ISCF /= 0) .and. (CI_St(iState)%nActEl /= 0))) then
+  if (mkF .or. ((ISCF /= 0) .and. (CI_Lib_Space(iState)%nActEl /= 0))) then
     call mma_deallocate(F1_H)
     call mma_deallocate(F2_H)
     call mma_deallocate(F3_H)

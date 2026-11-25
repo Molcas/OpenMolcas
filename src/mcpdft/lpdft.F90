@@ -14,7 +14,7 @@
 
 module lpdft
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use Orbital_Spaces, only: nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
 use mcpdft_input, only: mcpdft_options
@@ -175,7 +175,7 @@ subroutine compute_Eot_and_potentials(CMO)
   htmp(:) = Zero
   gtmp(:) = Zero
   call DrvXV(htmp,gtmp,d1ao_0,potnuc,nTot1,First,Dff,dummy_noneq,dummy_lrf,mcpdft_options%otfnal%otxc,ExFac,charge, &
-             CI_St(iState)%iSpin,dftfock,Do_DFT)
+             CI_Lib_Space(iState)%iSpin,dftfock,Do_DFT)
 
   ! Load in the on-top potentials.
   call get_dArray('ONTOPO',veff1,ntot1)

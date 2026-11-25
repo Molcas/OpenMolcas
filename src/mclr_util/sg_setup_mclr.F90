@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!> The CI state of MCLR (CI_St(iState), CI_Info) for the whole run: set up
+!> The CI state of MCLR (CI_Lib_Space(iState), CI_Lib_Info) for the whole run: set up
 !> once after the reference wave function has been read (RdJobIph,
 !> RdJobIph_td; Mode 'GRAPH': graph and walks, for the reorderings of
 !> SG2SymG), freed at the end of MCLR.
 subroutine SG_Setup_MCLR(Mode)
 
 use molcas, only: MxLev
-use CI_States, only: CI_Setup_RAS
+use CI_Lib_States, only: CI_Setup_RAS
 use Orbital_Spaces, only: nSym
 use CI_Input, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, STSym
 use Definitions, only: iwp

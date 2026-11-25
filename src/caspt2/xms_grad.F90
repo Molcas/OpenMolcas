@@ -14,7 +14,7 @@
 subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use caspt2_global, only: CLag, CLagFull, CMOPT2, do_csf, do_nac, DPT2_tot, FIFA, FIFA_all, FIFASA_all, if_equalW, iRoot1, iRoot2, &
                          NDREF, nOLag, OLag, RDMSCF, TORB
 use caspt2_module, only: ENERGY, IFDW, IFRMS, IFXMS, MXCI, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NROOTS, NSTATE, &
@@ -36,7 +36,7 @@ real(kind=wp), allocatable :: CI1(:), CI2(:), DG1(:), DG2(:), DG3(:), DPT2(:), D
 integer(kind=iwp), parameter :: jstate = 1
 real(kind=wp), external :: ddot_
 
-nLev = CI_St(jstate)%nLev
+nLev = CI_Lib_Space(jstate)%nLev
 
 call mma_allocate(SLag,nState,nState,Label='SLag')
 
@@ -93,7 +93,8 @@ if (IFXMS .or. IFRMS) then
       NTG1 = NASHT**2
       NTG3 = nTri3_Elem(NTG1)
       OVL = Zero
-      call DERTG3(.false.,CI_St(jState)%STSym,CI_St(jState)%STSym,NCONF,NASHT,CI1,CI2,OVL,DG1,DG2,NTG3,DG3,CLag(1,iStat), &
+      call DERTG3(.false.,CI_Lib_Space(jState)%STSym,CI_Lib_Space(jState)%STSym,NCONF,NASHT,CI1,CI2,OVL,DG1,DG2,NTG3,DG3, &
+        CLag(1,iStat), &
                   CLag(1,jStat))
       call mma_deallocate(DG3)
     end do

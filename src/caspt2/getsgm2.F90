@@ -32,8 +32,8 @@ subroutine GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 use Symmetry_Info, only: Mul
-use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Epq_Psi
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -45,11 +45,11 @@ integer(kind=iwp) :: IJS, IS, ISSG, JS, NSGM
 integer(kind=iwp), parameter :: istate = 1
 
 SGM(1:MSGM) = Zero
-IS = CI_St(istate)%ISm(ILEV)
-JS = CI_St(istate)%ISm(JLEV)
+IS = CI_Lib_Space(istate)%ISm(ILEV)
+JS = CI_Lib_Space(istate)%ISm(JLEV)
 IJS = Mul(IS,JS)
 ISSG = Mul(IJS,ISYCI)
-NSGM = CI_St(istate)%nCSF(ISSG)
+NSGM = CI_Lib_Space(istate)%nCSF(ISSG)
 if (NSGM > MSGM) then
   write(u6,*) 'GETSGM2: NSGM>MSGM'
   call Abend()

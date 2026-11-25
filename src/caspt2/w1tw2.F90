@@ -23,7 +23,7 @@ subroutine W1TW2(IVEC,JVEC,CI,SGM,nCI)
 ! compute the vector in CAS space
 !   | SGM > := | SGM > + (W1 conj)*(W2)*| CI >
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use caspt2_module, only: nAshT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -53,7 +53,7 @@ call MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
 call MODOP(OP1,NOP2,OP2,NOP3,OP3)
 
 ! (2) Apply the operators:
-call HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,CI_St(iState)%STSym,CI,SGM,nCI)
+call HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,CI_Lib_Space(iState)%STSym,CI,SGM,nCI)
 
 call mma_deallocate(OP1)
 call mma_deallocate(OP2)

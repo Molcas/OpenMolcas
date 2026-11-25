@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !> The MCLR copy of Lucia as a CI library of the CI interface
-!> (CI_Operations, which calls these routines directly): the CI operations
+!> (CI_Lib_Core, which calls these routines directly): the CI operations
 !> on top of the Lucia routines of the copy, which keep their data in
 !> MCLR_Lucia_Data and Str_Info. The CI space comes with MCLR_Lucia_Init
 !> (copies L_* in MCLR_Lucia_Data), the integrals with each operation; no
@@ -34,7 +34,7 @@ public :: MCLR_Lucia_Block, MCLR_Lucia_Close, MCLR_Lucia_Cnf_Layout, MCLR_Lucia_
 contains
 
 !> Set up the determinant tables for the CI state (State_Proc of
-!> CI_Operations) and publish the dimensions of the determinant space
+!> CI_Lib_Core) and publish the dimensions of the determinant space
 subroutine MCLR_Lucia_Init(nSym,nOrb,nIsh,nAsh,nRs1,nRs2,nRs3,nHole1,nElec3,nActEl,iSpin,STSym,nCSF,nDet)
   use MCLR_Lucia_Data, only: L_iSpin, L_nActEl, L_nAsh, L_nElec3, L_nHole1, L_nIsh, L_nOrb, L_nRs1, L_nRs2, L_nRs3, L_nSym, &
                              XISPSM
@@ -72,7 +72,7 @@ subroutine MCLR_Lucia_Init(nSym,nOrb,nIsh,nAsh,nRs1,nRs2,nRs3,nHole1,nElec3,nAct
   Initialized = .true.
 end subroutine MCLR_Lucia_Init
 
-!> Free the determinant tables (State_Proc of CI_Operations)
+!> Free the determinant tables (State_Proc of CI_Lib_Core)
 subroutine MCLR_Lucia_Close(iState)
   use Str_Info, only: CFTP, CNSM, DFTP, DTOC
   use MCLR_Lucia_Data, only: LuCSF2SD, pInt1
@@ -114,7 +114,7 @@ subroutine Use_Syms(iSym1,iSym2)
   end if
 end subroutine Use_Syms
 
-!> sigma = H C (Sigma_Proc of CI_Operations)
+!> sigma = H C (Sigma_Proc of CI_Lib_Core)
 subroutine MCLR_Lucia_Sigma(iState,iOpSpin,iCSym,iSSym,nInt1,Int1,nInt2,Int2,Have_2_el,Square,nC,C,nS,S)
   use Symmetry_Info, only: Mul
   use MCLR_Lucia_Data, only: i12, iRefSM, iST, KAIN1, KINT2, pInt1, Square_ => Square, XISPSM
@@ -404,7 +404,7 @@ contains
 
 end subroutine MCLR_Lucia_Block
 
-!> Transition densities between L and R (TDens_Proc of CI_Operations)
+!> Transition densities between L and R (TDens_Proc of CI_Lib_Core)
 subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,Rho2)
   use CandS, only: ICSM, ISSM
   use MCLR_Lucia_Data, only: NOCSF, XISPSM
@@ -441,10 +441,10 @@ subroutine MCLR_Lucia_TDens(iState,I12,iOpSpin,iLSym,iRSym,nL,L,nR,R,n1,Rho1,n2,
 
 end subroutine MCLR_Lucia_TDens
 
-!> The CSF diagonal (CI_Diag of CI_Operations), from the integrals of the
+!> The CSF diagonal (CI_Diag of CI_Lib_Core), from the integrals of the
 !> call (a totally symmetric operator)
 subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
-  use CI_Op_Defs, only: CI_Diag_Cnf_Avg
+  use CI_Lib_Defs, only: CI_Diag_Cnf_Avg
   use Str_Info, only: CNSM
   use MCLR_Lucia_Data, only: ICISTR, KAIN1, KINT2, NCNFTP, NCSFTP, NDPCNT, NOCSF, NTYP, pInt1, XISPSM
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -486,7 +486,7 @@ subroutine MCLR_Lucia_Diag(iState,Mode,iSym,nInt1,Int1,nInt2,Int2,ECore,n,Diag)
 end subroutine MCLR_Lucia_Diag
 
 !> Determinants (of a DMRG reconstruction) into the CSF basis (Dets_Proc
-!> of CI_Operations)
+!> of CI_Lib_Core)
 subroutine MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
   use Str_Info, only: DTOC
   use stdalloc, only: mma_allocate, mma_deallocate
@@ -504,7 +504,7 @@ subroutine MCLR_Lucia_Dets(iState,iSym,nD,DetVec,IdxD,n,CI)
 end subroutine MCLR_Lucia_Dets
 
 !> Stored basis <-> the CSF basis of the MCLR copy of Lucia (Conv_Proc
-!> of CI_Operations; the reordering of CI_ReOrd_Orig, via sg2symg)
+!> of CI_Lib_Core; the reordering of CI_ReOrd_Orig, via sg2symg)
 subroutine MCLR_Lucia_Conv(iState,iSym,iMode,n,CI)
   integer(kind=iwp), intent(in) :: iState, iSym, iMode, n
   real(kind=wp), intent(inout) :: CI(n)

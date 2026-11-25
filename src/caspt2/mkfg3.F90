@@ -61,8 +61,8 @@ subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG, VERBOSE
-use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi, CI_New_Tag
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Epq_Psi, CI_New_Tag
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
 use caspt2_module, only: EPSA, MxCI, nAshT, nBasT, nSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
@@ -110,7 +110,7 @@ if (mkF) then
   F3(:) = Zero
 end if
 
-if (CI_St(iState)%nActEl == 0) return
+if (CI_Lib_Space(iState)%nActEl == 0) return
 
 ! This should not happen, but...
 if (NCI == 0) return
@@ -233,14 +233,14 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
 !                                                                      *
 !***********************************************************************
 
-  isp1 = Mul(issg1,CI_St(iState)%STSym)       ! Symmetry index of E_ut
+  isp1 = Mul(issg1,CI_Lib_Space(iState)%STSym)       ! Symmetry index of E_ut
 
   ! form: H0_I = \sum_t e_{t}  |I><I|E_{tt}|I><I|
 
   ! Note: this only works if the Fock matrix is presented in the
   ! block diagonal form. i.e. in the pseudo canonical basis.
 
-  nsgm1 = CI_St(istate)%nCSF(issg1)
+  nsgm1 = CI_Lib_Space(istate)%nCSF(issg1)
   if (mkF) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1)
 
   ! build the task list for this symmetry (TaskList and ip1_buf) and count the number of larger tasks/inner-loop subtasks.
@@ -297,17 +297,17 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
         itlev = idx2ij(1,ip1i)
         iulev = idx2ij(2,ip1i)
 
-        istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev))
+        istu = Mul(CI_Lib_Space(istate)%ISm(itlev),CI_Lib_Space(istate)%ISm(iulev))
 
-        it = CI_St(istate)%L2Act(itlev)
-        iu = CI_St(istate)%L2Act(iulev)
+        it = CI_Lib_Space(istate)%L2Act(itlev)
+        iu = CI_Lib_Space(istate)%L2Act(iulev)
 
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
           ! form E_ut |0>
           BUF1(1:nSgm1,iBuf1) = Zero
-          call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_St(iState)%STSym,CI,BUF1(:,ibuf1),TAG_CI)
+          call CI_Epq_Psi(istate,IULEV,ITLEV,One,CI_Lib_Space(iState)%STSym,CI,BUF1(:,ibuf1),TAG_CI)
         end if
       end do
 
@@ -324,14 +324,14 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     ! form <0| *  E_ut|0> = G_tu and
     !      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
 
-    if ((issg1 == CI_St(iState)%STSym) .and. (ip3 == 1)) then
+    if ((issg1 == CI_Lib_Space(iState)%STSym) .and. (ip3 == 1)) then
       if (mkF) then
         do ib=1,ibuf1
           idx = ip1_buf(ib)
           itlev = idx2ij(1,idx)
           iulev = idx2ij(2,idx)
-          it = CI_St(istate)%L2Act(itlev)
-          iu = CI_St(istate)%L2Act(iulev)
+          it = CI_Lib_Space(istate)%L2Act(itlev)
+          iu = CI_Lib_Space(istate)%L2Act(iulev)
           G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
           F1(it,iu) = sum(CI(1:nsgm1)*BUF1(1:nsgm1,ib)*bufd(1:nsgm1))-EPSA(iu)*G1(it,iu)
         end do
@@ -340,8 +340,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
           idx = ip1_buf(ib)
           itlev = idx2ij(1,idx)
           iulev = idx2ij(2,idx)
-          it = CI_St(istate)%L2Act(itlev)
-          iu = CI_St(istate)%L2Act(iulev)
+          it = CI_Lib_Space(istate)%L2Act(itlev)
+          iu = CI_Lib_Space(istate)%L2Act(iulev)
           G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
         end do
       end if
@@ -364,14 +364,14 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     ! The indices corresponding to pair index p3:
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    isyz = Mul(CI_St(istate)%ISm(iylev),CI_St(istate)%ISm(izlev))
-    issg2 = Mul(isyz,CI_St(iState)%STSym)
-    iy = CI_St(istate)%L2Act(iylev)
-    iz = CI_St(istate)%L2Act(izlev)
-    nsgm2 = CI_St(istate)%nCSF(issg2)
+    isyz = Mul(CI_Lib_Space(istate)%ISm(iylev),CI_Lib_Space(istate)%ISm(izlev))
+    issg2 = Mul(isyz,CI_Lib_Space(iState)%STSym)
+    iy = CI_Lib_Space(istate)%L2Act(iylev)
+    iz = CI_Lib_Space(istate)%L2Act(izlev)
+    nsgm2 = CI_Lib_Space(istate)%nCSF(issg2)
     BUF2(1:nSgm2) = Zero
     ! form <0| E_zy|
-    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_St(iState)%STSym,CI,BUF2,TAG_CI)
+    call CI_Epq_Psi(istate,IYLEV,IZLEV,One,CI_Lib_Space(iState)%STSym,CI,BUF2,TAG_CI)
     TAG_BUF2 = CI_New_Tag()
 
     if (issg2 == issg1) then
@@ -381,8 +381,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
           idx = ip1_buf(ib)
           itlev = idx2ij(1,idx)
           iulev = idx2ij(2,idx)
-          it = CI_St(istate)%L2Act(itlev)
-          iu = CI_St(istate)%L2Act(iulev)
+          it = CI_Lib_Space(istate)%L2Act(itlev)
+          iu = CI_Lib_Space(istate)%L2Act(iulev)
           ! form <0| E_zy E_ut |0> = G_tu,yz
           !      <0| E_zy * H0 * E_ut |0> = F_tu,yz
           G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
@@ -393,8 +393,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
           idx = ip1_buf(ib)
           itlev = idx2ij(1,idx)
           iulev = idx2ij(2,idx)
-          it = CI_St(istate)%L2Act(itlev)
-          iu = CI_St(istate)%L2Act(iulev)
+          it = CI_Lib_Space(istate)%L2Act(itlev)
+          iu = CI_Lib_Space(istate)%L2Act(iulev)
           G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
         end do
       end if
@@ -406,7 +406,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     do ip2=ip3,ntri2
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
-      isvx = Mul(CI_St(istate)%ISm(ivlev),CI_St(istate)%ISm(ixlev))
+      isvx = Mul(CI_Lib_Space(istate)%ISm(ivlev),CI_Lib_Space(istate)%ISm(ixlev))
       if (isvx /= Mul(issg1,issg2)) cycle
       !-----------
       ! Max and min values of index p1:
@@ -433,8 +433,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
       nbat = nbat+1
       bat_idx(1,nbat) = ibmn
       bat_idx(2,nbat) = nb
-      bat_idx(3,nbat) = CI_St(istate)%L2Act(ivlev)
-      bat_idx(4,nbat) = CI_St(istate)%L2Act(ixlev)
+      bat_idx(3,nbat) = CI_Lib_Space(istate)%L2Act(ivlev)
+      bat_idx(4,nbat) = CI_Lib_Space(istate)%L2Act(ixlev)
       j = NCOL*(nbat-1)+1
       BUFT(1:nSgm1,j) = Zero
       ! form <0| E_zy E_xv
@@ -508,13 +508,13 @@ end do
 do ip1=ntri2+1,nlev2
   itlev = idx2ij(1,ip1)
   iulev = idx2ij(2,ip1)
-  it = CI_St(istate)%L2Act(itlev)
-  iu = CI_St(istate)%L2Act(iulev)
+  it = CI_Lib_Space(istate)%L2Act(itlev)
+  iu = CI_Lib_Space(istate)%L2Act(iulev)
   do ip3=ntri1+1,ip1
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    iy = CI_St(istate)%L2Act(iylev)
-    iz = CI_St(istate)%L2Act(izlev)
+    iy = CI_Lib_Space(istate)%L2Act(iylev)
+    iz = CI_Lib_Space(istate)%L2Act(izlev)
     G2(it,iu,iy,iz) = G2(iz,iy,iu,it)
   end do
 end do
@@ -522,13 +522,13 @@ end do
 do ip1=1,nlev2-1
   itlev = idx2ij(1,ip1)
   iulev = idx2ij(2,ip1)
-  it = CI_St(istate)%L2Act(itlev)
-  iu = CI_St(istate)%L2Act(iulev)
+  it = CI_Lib_Space(istate)%L2Act(itlev)
+  iu = CI_Lib_Space(istate)%L2Act(iulev)
   do ip3=ip1+1,nlev2
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    iy = CI_St(istate)%L2Act(iylev)
-    iz = CI_St(istate)%L2Act(izlev)
+    iy = CI_Lib_Space(istate)%L2Act(iylev)
+    iz = CI_Lib_Space(istate)%L2Act(izlev)
     G2(it,iu,iy,iz) = G2(iy,iz,it,iu)
   end do
 end do
@@ -548,13 +548,13 @@ if (mkF) then
   do ip1=ntri2+1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = CI_St(istate)%L2Act(itlev)
-    iu = CI_St(istate)%L2Act(iulev)
+    it = CI_Lib_Space(istate)%L2Act(itlev)
+    iu = CI_Lib_Space(istate)%L2Act(iulev)
     do ip3=ntri1+1,ip1
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = CI_St(istate)%L2Act(iylev)
-      iz = CI_St(istate)%L2Act(izlev)
+      iy = CI_Lib_Space(istate)%L2Act(iylev)
+      iz = CI_Lib_Space(istate)%L2Act(izlev)
       F2(it,iu,iy,iz) = F2(iz,iy,iu,it)
     end do
   end do
@@ -562,13 +562,13 @@ if (mkF) then
   do ip1=1,nlev2-1
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = CI_St(istate)%L2Act(itlev)
-    iu = CI_St(istate)%L2Act(iulev)
+    it = CI_Lib_Space(istate)%L2Act(itlev)
+    iu = CI_Lib_Space(istate)%L2Act(iulev)
     do ip3=ip1+1,nlev2
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = CI_St(istate)%L2Act(iylev)
-      iz = CI_St(istate)%L2Act(izlev)
+      iy = CI_Lib_Space(istate)%L2Act(iylev)
+      iz = CI_Lib_Space(istate)%L2Act(izlev)
       F2(it,iu,iy,iz) = F2(iy,iz,it,iu)
     end do
   end do
@@ -675,8 +675,8 @@ subroutine Flush_Batch()
     ! and copy the active indices into idxG3:
     do iG3_=iG3OFF+1,iG3OFF+nb_
       idx_ = ip1_buf(bat_idx(1,ibat)+iG3_-iG3OFF-1)
-      idxG3(1,iG3_) = int(CI_St(istate)%L2Act(idx2ij(1,idx_)),kind=byte)
-      idxG3(2,iG3_) = int(CI_St(istate)%L2Act(idx2ij(2,idx_)),kind=byte)
+      idxG3(1,iG3_) = int(CI_Lib_Space(istate)%L2Act(idx2ij(1,idx_)),kind=byte)
+      idxG3(2,iG3_) = int(CI_Lib_Space(istate)%L2Act(idx2ij(2,idx_)),kind=byte)
       idxG3(3,iG3_) = int(bat_idx(3,ibat),kind=byte)
       idxG3(4,iG3_) = int(bat_idx(4,ibat),kind=byte)
       idxG3(5,iG3_) = int(iY,kind=byte)
@@ -697,7 +697,7 @@ subroutine build_TaskList(issg,nTasks_,nSubTasks_)
   integer(kind=iwp), intent(out) :: nTasks_, nSubTasks_
   integer(kind=iwp) :: ibuf1, iOffSet, ip1, ip1end, ip1sta, ip3mx, isp1, istu, iTask, itlev, iulev
 
-  isp1 = Mul(issg,CI_St(iState)%STSym)  ! Symmetry index of E_ut
+  isp1 = Mul(issg,CI_Lib_Space(iState)%STSym)  ! Symmetry index of E_ut
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
   !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
@@ -707,7 +707,7 @@ subroutine build_TaskList(issg,nTasks_,nSubTasks_)
   do ip1=1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    istu = Mul(CI_St(istate)%ISm(itlev),CI_St(istate)%ISm(iulev)) ! Symmetry of E_tu
+    istu = Mul(CI_Lib_Space(istate)%ISm(itlev),CI_Lib_Space(istate)%ISm(iulev)) ! Symmetry of E_tu
 
     if (istu == isp1) then
       ! Add pair index to ip1_buf

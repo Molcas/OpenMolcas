@@ -11,12 +11,12 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-!> RASSCF's densities from the CI library (CI_Library, CI_Lib_Dens), in
+!> RASSCF's densities from the CI library (CI_Lib, CI_Lib_Dens), in
 !> the layouts of RASSCF.
 module RAS_CI_Dens
 
-use CI_Library, only: CI_Lib_Dens, CI_Lib_Level_Map
-use CI_Info, only: CI_St
+use CI_Lib, only: CI_Lib_Dens, CI_Lib_Level_Map
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -42,9 +42,9 @@ subroutine RAS_PDMs(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
   integer(kind=iwp) :: I12, LSM, NACPAR, NACPR2
   real(kind=wp), allocatable :: D_loc(:), R2(:), SD_loc(:)
 
-  LSM = CI_St(iState)%STSym
+  LSM = CI_Lib_Space(iState)%STSym
   ! the packed active pairs and pairs of pairs
-  NACPAR = nTri_Elem(CI_St(iState)%nLev)
+  NACPAR = nTri_Elem(CI_Lib_Space(iState)%nLev)
   NACPR2 = nTri_Elem(NACPAR)
   I12 = 1
   if (present(P) .or. present(PA)) I12 = 2
@@ -86,8 +86,8 @@ subroutine RAS_T1DM(Bra_Vec,Ket_Vec,nVec,T1DM,nT1DM,T1SDM)
   integer(kind=iwp), allocatable :: L2O(:)
   real(kind=wp), allocatable :: R1(:), R2(:)
 
-  LSM = CI_St(iState)%STSym
-  NAC = CI_St(iState)%nLev
+  LSM = CI_Lib_Space(iState)%STSym
+  NAC = CI_Lib_Space(iState)%nLev
   call mma_allocate(L2O,max(1,NAC),Label='L2O')
   call CI_Lib_Level_Map(iState,NAC,L2O)
   call mma_allocate(R1,max(1,NAC**2),Label='R1')

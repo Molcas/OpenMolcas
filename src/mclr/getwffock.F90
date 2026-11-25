@@ -18,7 +18,7 @@
 subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
 ! Partially readapted from rhs_sa
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: ipCI, IRLXROOT, LuJob, nConf1, nDens, nNA
@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
-use CI_Operations, only: CI_Lib_Dens
+use CI_Lib_Core, only: CI_Lib_Dens
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: nTri, nG2
@@ -54,10 +54,10 @@ call mma_allocate(G1r,ntash**2,Label='G1r')
 call mma_allocate(G2r,nTri_Elem(ntash**2),Label='G2r')
 call mma_allocate(G2rt,nTri_Elem(ntash**2),Label='G2rt')
 ! Rotate CI vectors back to those for reference states
-NCSFs = NCSF(CI_St(iState)%STSym)
+NCSFs = NCSF(CI_Lib_Space(iState)%STSym)
 call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%A,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
 I = IRlxRoot
-call CI_Lib_Dens(iState,2,0,CI_St(iState)%STSym,CI_St(iState)%STSym,NCSFs,FinCI(1+(I-1)*NCSFs:I*NCSFs),NCSFs, &
+call CI_Lib_Dens(iState,2,0,CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,NCSFs,FinCI(1+(I-1)*NCSFs:I*NCSFs),NCSFs, &
                    FinCI(1+(I-1)*NCSFs:I*NCSFs),ntash**2,G1r,nTri_Elem(ntash**2),G2rt)
 do iA=1,nnA
   do jA=1,nnA

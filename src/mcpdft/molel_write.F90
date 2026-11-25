@@ -13,7 +13,7 @@
 
 subroutine molel_write(CMO)
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use onedat, only: snoori
 use rasscf_global, only: lRoots
 use Orbital_Spaces, only: nash, nbas, nfro, nish, nsym, ntot, ntot1, ntot2
@@ -44,11 +44,11 @@ molet_lu = IsFreeUnit(40)
 call molcas_open(molet_lu,'MOLEL')
 nActOrb = sum(nAsh(1:nsym))
 
-Tot_El = 2*sum(nfro+nish)+CI_St(iState)%nActEl
+Tot_El = 2*sum(nfro+nish)+CI_Lib_Space(iState)%nActEl
 
 FMT1 = '(I4,1X,I4,1X,I4,1X,I4,1X,I4)'
 write(molet_lu,*) 'Number of states,orbitals,electrons,ActOrb,ActEl'
-write(molet_lu,FMT1) lroots,nTot,Tot_El,nActOrb,CI_St(iState)%nActEl
+write(molet_lu,FMT1) lroots,nTot,Tot_El,nActOrb,CI_Lib_Space(iState)%nActEl
 write(molet_lu,*) 'Overlap Matrix (AO)'
 
 FMT1 = '(I4,1X,I4,1X,F20.14)'

@@ -19,7 +19,7 @@
 
 function get_charge()
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use onedat, only: snoori
 use Orbital_Spaces, only: nfro, nish, ntot1
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -39,7 +39,7 @@ comp = 1
 sylbl = 1
 label = 'Mltpl  0'
 
-el_charge = -2*sum(nfro+nish)-CI_St(iState)%nActEl
+el_charge = -2*sum(nfro+nish)-CI_Lib_Space(iState)%nActEl
 
 call mma_allocate(int1e_ovlp,ntot1+4,label='int1e_ovlp')
 call rdone(rc,opt,label,comp,int1e_ovlp,sylbl)

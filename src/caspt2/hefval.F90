@@ -18,7 +18,7 @@ subroutine hefval(ist,jst,dvalue)
 ! vector is stored. This depends on the MOs used, but is actually
 ! the same for all the root states.
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri3_Elem
 use PrintLevel, only: debug
 use eqsolv, only: iVecC, iVecW
@@ -59,7 +59,7 @@ tg3(1) = Zero
 
 #if defined _DMRG_
 if (DMRG) then
-  call mktg3qcm(CI_St(iState)%STSym,CI_St(iState)%STSym,ist,jst,ovl,tg1,tg2,ntg3,tg3)
+  call mktg3qcm(CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,ist,jst,ovl,tg1,tg2,ntg3,tg3)
 else if (.not. DMRG) then
 #endif
   call mma_allocate(ci1,mxci,label='CI1')
@@ -83,7 +83,7 @@ else if (.not. DMRG) then
     write(u6,*) '=== VANILLA: Building TRANSITION-RDM === '
     write(u6,*) 'between bra ',ist,' and  ket ',jst
   end if
-  call mktg3(CI_St(iState)%STSym,CI_St(iState)%STSym,ci1,ci2,ovl,tg1,tg2,ntg3,tg3)
+  call mktg3(CI_Lib_Space(iState)%STSym,CI_Lib_Space(iState)%STSym,ci1,ci2,ovl,tg1,tg2,ntg3,tg3)
   call mma_deallocate(ci1)
   call mma_deallocate(ci2)
 #if defined _DMRG_

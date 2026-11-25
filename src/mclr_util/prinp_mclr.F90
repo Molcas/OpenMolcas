@@ -23,7 +23,7 @@ subroutine PrInp_MCLR(iPL)
 !                                                                      *
 !***********************************************************************
 
-use CI_Info, only: CI_St
+use CI_Lib_Info, only: CI_Lib_Space
 use MCLR_Data, only: ChDisp, DspVec, IRLXROOT, ISNAC, ISTATE, lDisp, NACSTATES, nexp_max, NSSA, SA, SwLbl
 use MCLR_Lucia_Data, only: XISPSM
 use Orbital_Spaces, only: nAsh, nIsh, nSym
@@ -118,14 +118,14 @@ if (iMethod == 2) then
     write(u6,Fmt1) '-----------------------------'
     write(u6,*)
     write(u6,Fmt2//'A,T47,I6)') 'Number of closed shell electrons',2*ntIsh
-    write(u6,Fmt2//'A,T47,I6)') 'Number of electrons in active shells',CI_St(iState_CI)%nActEl
+    write(u6,Fmt2//'A,T47,I6)') 'Number of electrons in active shells',CI_Lib_Space(iState_CI)%nActEl
     write(u6,Fmt2//'A,T47,I6)') 'Max number of holes in RAS1 space',nHole1
     write(u6,Fmt2//'A,T47,I6)') 'Max number of electrons in RAS3 space',nElec3
     write(u6,Fmt2//'A,T47,I6)') 'Number of inactive orbitals',ntIsh
     write(u6,Fmt2//'A,T47,I6)') 'Number of active orbitals',ntAsh
     write(u6,Fmt2//'A,T47,I6)') 'Number of secondary orbitals',ntSsh
-    write(u6,Fmt2//'A,T47,F6.1)') 'Spin quantum number',real(CI_St(iState_CI)%iSpin-1,kind=wp)*Half
-    write(u6,Fmt2//'A,T47,I6)') 'State symmetry',CI_St(iState_CI)%STSym
+    write(u6,Fmt2//'A,T47,F6.1)') 'Spin quantum number',real(CI_Lib_Space(iState_CI)%iSpin-1,kind=wp)*Half
+    write(u6,Fmt2//'A,T47,I6)') 'State symmetry',CI_Lib_Space(iState_CI)%STSym
     write(u6,Fmt2//'A,T47,I6)') 'Number of CI roots',nroots
     write(u6,Fmt2//'A,(T47,10I6))') 'States considered',(iroot(i),i=1,nroots)
     write(u6,Fmt2//'A,(T47,10F6.3))') 'Weights',(weight(i),i=1,nroots)

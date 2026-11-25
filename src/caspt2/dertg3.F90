@@ -35,8 +35,8 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use CI_Info, only: CI_St
-use CI_States, only: CI_Epq_Psi, CI_New_Tag
+use CI_Lib_Info, only: CI_Lib_Space
+use CI_Lib_States, only: CI_Epq_Psi, CI_New_Tag
 use caspt2_module, only: IASYM, ISCF, MXCI
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One
@@ -58,7 +58,7 @@ integer(kind=iwp), parameter :: istate = 1
 ! Put in zeroes. Recognize special cases:
 !OVL = One
 if (NASHT == 0) return
-if (CI_St(iState)%nActEl == 0) return
+if (CI_Lib_Space(iState)%nActEl == 0) return
 !if (LSYM1 /= LSYM2) OVL = Zero
 !TG1(:,:) = Zero
 !TG2(:,:,:,:) = Zero
@@ -77,17 +77,17 @@ end if
 call mma_allocate(P2LEV,2,NASHT**2,Label='P2LEV')
 IP = 0
 ! First, IL < JL pairs.
-do IL=1,CI_St(iState)%nLev-1
-  P2LEV(1,IP+1:IP+CI_St(iState)%nLev-IL) = IL
-  P2LEV(2,IP+1:IP+CI_St(iState)%nLev-IL) = [(JL,JL=IL+1,CI_St(iState)%nLev)]
-  IP = IP+CI_St(iState)%nLev-IL
+do IL=1,CI_Lib_Space(iState)%nLev-1
+  P2LEV(1,IP+1:IP+CI_Lib_Space(iState)%nLev-IL) = IL
+  P2LEV(2,IP+1:IP+CI_Lib_Space(iState)%nLev-IL) = [(JL,JL=IL+1,CI_Lib_Space(iState)%nLev)]
+  IP = IP+CI_Lib_Space(iState)%nLev-IL
 end do
 ! Then, IL = JL pairs.
-P2LEV(1,IP+1:IP+CI_St(iState)%nLev) = [(IL,IL=1,CI_St(iState)%nLev)]
-P2LEV(2,IP+1:IP+CI_St(iState)%nLev) = [(IL,IL=1,CI_St(iState)%nLev)]
-IP = IP+CI_St(iState)%nLev
+P2LEV(1,IP+1:IP+CI_Lib_Space(iState)%nLev) = [(IL,IL=1,CI_Lib_Space(iState)%nLev)]
+P2LEV(2,IP+1:IP+CI_Lib_Space(iState)%nLev) = [(IL,IL=1,CI_Lib_Space(iState)%nLev)]
+IP = IP+CI_Lib_Space(iState)%nLev
 ! Last, IL > JL pairs.
-do IL=2,CI_St(iState)%nLev
+do IL=2,CI_Lib_Space(iState)%nLev
   P2LEV(1,IP+1:IP+IL-1) = IL
   P2LEV(2,IP+1:IP+IL-1) = [(JL,JL=1,IL-1)]
   IP = IP+IL-1
@@ -99,22 +99,22 @@ end do
 ! -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
 if (DOG3) then
   do IP1=1,NASHT**2
-    IT = CI_St(istate)%L2Act(P2LEV(1,IP1))
-    IU = CI_St(istate)%L2Act(P2LEV(2,IP1))
+    IT = CI_Lib_Space(istate)%L2Act(P2LEV(1,IP1))
+    IU = CI_Lib_Space(istate)%L2Act(P2LEV(2,IP1))
     ITU = IT+NASHT*(IU-1)
     ITS = IASYM(IT)
     IUS = IASYM(IU)
     IS1 = Mul(Mul(ITS,IUS),LSYM1)
     do IP2=1,IP1
-      IV = CI_St(istate)%L2Act(P2LEV(1,IP2))
-      IX = CI_St(istate)%L2Act(P2LEV(2,IP2))
+      IV = CI_Lib_Space(istate)%L2Act(P2LEV(1,IP2))
+      IX = CI_Lib_Space(istate)%L2Act(P2LEV(2,IP2))
       IVX = IV+NASHT*(IX-1)
       IVS = IASYM(IV)
       IXS = IASYM(IX)
       IS2 = Mul(Mul(IVS,IXS),IS1)
       do IP3=1,IP2
-        IY = CI_St(istate)%L2Act(P2LEV(1,IP3))
-        IZ = CI_St(istate)%L2Act(P2LEV(2,IP3))
+        IY = CI_Lib_Space(istate)%L2Act(P2LEV(1,IP3))
+        IZ = CI_Lib_Space(istate)%L2Act(P2LEV(2,IP3))
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
         IS3 = Mul(Mul(IYS,IZS),IS2)
@@ -166,11 +166,11 @@ end if
 ! Then, the 2-particle density matrix:
 ! <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
 do IP1=1,NASHT**2
-  IT = CI_St(istate)%L2Act(P2LEV(1,IP1))
-  IU = CI_St(istate)%L2Act(P2LEV(2,IP1))
+  IT = CI_Lib_Space(istate)%L2Act(P2LEV(1,IP1))
+  IU = CI_Lib_Space(istate)%L2Act(P2LEV(2,IP1))
   do IP2=1,IP1
-    IV = CI_St(istate)%L2Act(P2LEV(1,IP2))
-    IX = CI_St(istate)%L2Act(P2LEV(2,IP2))
+    IV = CI_Lib_Space(istate)%L2Act(P2LEV(1,IP2))
+    IX = CI_Lib_Space(istate)%L2Act(P2LEV(2,IP2))
     if (IP1 /= IP2) then
       DTG2(IT,IU,IV,IX) = DTG2(IT,IU,IV,IX)+DTG2(IV,IX,IT,IU)
       DTG2(IV,IX,IT,IU) = Zero
@@ -186,7 +186,7 @@ end do
 ! But we also need the 'usual' pair index in order to use the
 ! packed addressing.
 
-NCI1 = CI_St(istate)%nCSF(LSYM1)
+NCI1 = CI_Lib_Space(istate)%nCSF(LSYM1)
 ! Overlap:
 !if (LSYM1 == LSYM2) OVL = DDOT_(NCI1,CI1,1,CI2,1)
 if (LSYM1 == LSYM2) then
@@ -247,8 +247,8 @@ do IP3STA=1,NASHT**2,NYZBUF
     ! Translate to levels in the SGUGA coupling order:
     IL = P2LEV(1,IP3)
     JL = P2LEV(2,IP3)
-    IY = CI_St(istate)%L2Act(IL)
-    IZ = CI_St(istate)%L2Act(JL)
+    IY = CI_Lib_Space(istate)%L2Act(IL)
+    IZ = CI_Lib_Space(istate)%L2Act(JL)
     IYS = IASYM(IY)
     IZS = IASYM(IZ)
     ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
@@ -273,8 +273,8 @@ do IP3STA=1,NASHT**2,NYZBUF
       ! Translate to levels:
       JL = P2LEV(1,IP1)
       IL = P2LEV(2,IP1)
-      IT = CI_St(istate)%L2Act(IL)
-      IU = CI_St(istate)%L2Act(JL)
+      IT = CI_Lib_Space(istate)%L2Act(IL)
+      IU = CI_Lib_Space(istate)%L2Act(JL)
       ITS = IASYM(IT)
       IUS = IASYM(IU)
       ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -290,8 +290,8 @@ do IP3STA=1,NASHT**2,NYZBUF
     LFROM = LSGM2
     LFROMD = 1
     do IP3=IP3STA,IP3END
-      IY = CI_St(istate)%L2Act(P2LEV(1,IP3))
-      IZ = CI_St(istate)%L2Act(P2LEV(2,IP3))
+      IY = CI_Lib_Space(istate)%L2Act(P2LEV(1,IP3))
+      IZ = CI_Lib_Space(istate)%L2Act(P2LEV(2,IP3))
       ! LFROM will be start element of Sigma2=E(YZ) Psi2
       IYZ = IY+NASHT*(IZ-1)
       IYS = IASYM(IY)
@@ -302,13 +302,13 @@ do IP3STA=1,NASHT**2,NYZBUF
       do IP2=IP3,IP1END
         IL = P2LEV(1,IP2)
         JL = P2LEV(2,IP2)
-        IV = CI_St(istate)%L2Act(IL)
-        IX = CI_St(istate)%L2Act(JL)
+        IV = CI_Lib_Space(istate)%L2Act(IL)
+        IX = CI_Lib_Space(istate)%L2Act(JL)
         IVX = IV+NASHT*(IX-1)
         IVS = IASYM(IV)
         IXS = IASYM(IX)
         ISTAU = Mul(Mul(IVS,IXS),ISSG2)
-        NTAU = CI_St(istate)%nCSF(ISTAU)
+        NTAU = CI_Lib_Space(istate)%nCSF(ISTAU)
         TG3WRK(LTAU:LTAU+MXCI-1) = Zero
         ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
         !! LTAU = EvxEyz|Psi2>
@@ -329,8 +329,8 @@ do IP3STA=1,NASHT**2,NYZBUF
         if (DOG3) then
           BUF1(1:MXCI) = Zero
           do IP1=max(IP2,IP1STA),IP1END
-            IT = CI_St(istate)%L2Act(P2LEV(1,IP1))
-            IU = CI_St(istate)%L2Act(P2LEV(2,IP1))
+            IT = CI_Lib_Space(istate)%L2Act(P2LEV(1,IP1))
+            IU = CI_Lib_Space(istate)%L2Act(P2LEV(2,IP1))
             ITS = IASYM(IT)
             IUS = IASYM(IU)
             ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -401,8 +401,8 @@ do IP3STA=1,NASHT**2,NYZBUF
       ! Translate to levels:
       IL = P2LEV(1,IP1)
       JL = P2LEV(2,IP1)
-      IT = CI_St(istate)%L2Act(IL)
-      IU = CI_St(istate)%L2Act(JL)
+      IT = CI_Lib_Space(istate)%L2Act(IL)
+      IU = CI_Lib_Space(istate)%L2Act(JL)
       ITS = IASYM(IT)
       IUS = IASYM(IU)
       ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -414,8 +414,8 @@ do IP3STA=1,NASHT**2,NYZBUF
 
   LTO = 1
   do IP3=IP3STA,IP3END
-    IY = CI_St(istate)%L2Act(P2LEV(1,IP3))
-    IZ = CI_St(istate)%L2Act(P2LEV(2,IP3))
+    IY = CI_Lib_Space(istate)%L2Act(P2LEV(1,IP3))
+    IZ = CI_Lib_Space(istate)%L2Act(P2LEV(2,IP3))
     ! LFROM will be start element of Sigma2=E(YZ) Psi2
     IYZ = IY+NASHT*(IZ-1)
     IYS = IASYM(IY)
