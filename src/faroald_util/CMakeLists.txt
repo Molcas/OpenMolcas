@@ -11,12 +11,9 @@
 
 set (sources
      faroald_citrans.F90
-     faroald_citrans_free.F90
-     faroald_citrans_init.F90
      faroald.F90
-     faroald_free.F90
+     faroald_core.F90
      faroald_ras.F90
-     faroald_init.F90
      faroald_secquant.F90
 )
 
@@ -24,6 +21,7 @@ set (sources
 set (modfile_list
      faroald_citrans.F90
      faroald.F90
+     faroald_core.F90
      faroald_ras.F90
      faroald_secquant.F90
 )

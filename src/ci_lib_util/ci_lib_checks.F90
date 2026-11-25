@@ -21,7 +21,7 @@ module CI_Lib_Checks
 
 use CI_SG_Lucia_Bridge, only: CI_SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
-use Faroald_CITrans, only: Faro_sort
+use Faroald, only: Faro_sort
 use CI_Lib_Defs, only: CI_Lib_Selected, CI_Lib_Faroald, CI_Lib_Is, CI_Lib_SGUGA
 use CI_Lib_Core, only: CI_Lucia_Active, CI_HEXS_Keep_SG, CI_HEXS_Proj, CI_SG_Rel_Embed, CI_SG_Rel_Project
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -105,7 +105,7 @@ end function CI_Faro_CI
 !> mn(k) to mx(k) electrons in the partitions 1..k), before any setup, for
 !> the memory estimate of RASSCF.
 function CI_Faro_nDet_RAS(nela,nelb,np,o,mn,mx) result(n)
-use Faroald_RAS, only: Faro_RAS_count_dets
+use Faroald, only: Faro_RAS_count_dets
 integer(kind=iwp), intent(in) :: nela, nelb, np, o(np), mn(np), mx(np)
 real(kind=wp) :: n
 n = Faro_RAS_count_dets(nela,nelb,np,o,mn,mx)

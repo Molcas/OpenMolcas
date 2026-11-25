@@ -85,13 +85,17 @@ end type ras_spin
 ! partitions: number, orbitals, first orbital - 1, cumulative bounds on
 ! the electrons in the partitions 1..k; ras_rdx the radices of occ_key
 integer(kind=iwp) :: ras_norb = 0, ras_np = 0, ras_o(MxGAS) = 0, ras_pos(MxGAS) = 0, ras_mn(MxGAS) = 0, ras_mx(MxGAS) = 0, &
-                     ras_rdx(MxGAS) = 0, Faro_n_ras = 0, ras_nsym = 1, ras_lsym = 1, ras_osym(30) = 1
+                     ras_rdx(MxGAS) = 0, ras_nsym = 1, ras_lsym = 1, ras_osym(30) = 1
+! the number of RAS determinants of the CI symmetry and the RAS setup is
+! active (read-only outside this module)
+integer(kind=iwp), protected :: Faro_n_ras = 0
+logical(kind=iwp), protected :: Faro_RAS_active = .false.
 type(ras_spin) :: sa, sb
 ! block offsets (0-based) of (alpha group, beta group), -1 outside the
 ! RAS space or of another symmetry; blk_offT: the same blocks transposed
 ! (beta x alpha)
 integer(kind=iwp), allocatable :: blk_off(:,:), blk_offT(:,:)
-logical(kind=iwp) :: Faro_RAS_active = .false., ras_singlet = .false.
+logical(kind=iwp) :: ras_singlet = .false.
 ! the beta single excitations Jb -> Ib = a+_v a_x Jb in batches, one per
 ! beta group of Jb and (v,x): batch b holds the entries
 ! bat_off(b)+1..bat_off(b+1) (Jb and Ib as indices within their groups,

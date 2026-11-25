@@ -242,7 +242,7 @@ end subroutine Faro_sym_free
 !> kept configurations, in the loop order of Faro_csf2ras.
 subroutine mk_det_map()
   use Faroald_SecQuant, only: Faro_lex_init, Faro_lex_next
-  use Faroald, only: Faro_nEl, Faro_nela
+  use Faroald_Core, only: Faro_nEl, Faro_nela
   use Faroald_RAS, only: Faro_RAS_addr
   integer(kind=iwp) :: ido, iso, isoa, idet, kconf, k, n, doub, sing, alfa, beta, deta, detb, phase
   n = 0
@@ -528,7 +528,7 @@ subroutine Faro_sort(mode,ciold,cinew)
 ! sort CSFs such that they are grouped by configurations
 ! and fill in the transformation matrices to determinants
 
-  use Faroald, only: Faro_nOrb
+  use Faroald_Core, only: Faro_nOrb
 
   ! 'C' for configuration order, 'O' for original order
   character, intent(in) :: mode
@@ -613,7 +613,7 @@ subroutine Faro_csf_rank(stepvector,k,iphase)
 ! configuration order of Faro_sort, and its phase iphase:
 ! cinew(k) = iphase*ciold(icsf) for mode 'C'.
 
-  use Faroald, only: Faro_nOrb
+  use Faroald_Core, only: Faro_nOrb
 
   integer(kind=iwp), intent(in) :: stepvector(Faro_nOrb)
   integer(kind=iwp), intent(out) :: k, iphase
@@ -639,7 +639,7 @@ function csf_rank(stepvector,csf_offset,wtab,iphase) result(ioff_csf)
 ! configuration order, and its phase (see Faro_sort).
 
   use Faroald_SecQuant, only: Faro_lexrank
-  use Faroald, only: Faro_nOrb
+  use Faroald_Core, only: Faro_nOrb
 
   integer(kind=iwp) :: ioff_csf
   integer(kind=iwp), intent(in) :: stepvector(Faro_nOrb), csf_offset(Faro_ndo_min:Faro_ndo_max)
@@ -697,7 +697,7 @@ end function csf_rank
 subroutine Faro_csf2sd(ci,det)
 
   use Faroald_SecQuant, only: Faro_lex_init, Faro_lex_next, Faro_lexrank
-  use Faroald, only: Faro_nEl, Faro_nOrb, Faro_ndeta, Faro_ndetb, Faro_nela
+  use Faroald_Core, only: Faro_nEl, Faro_nOrb, Faro_ndeta, Faro_ndetb, Faro_nela
 
   real(kind=wp), intent(in) :: ci(:)
   real(kind=wp), intent(out) :: det(Faro_ndeta,Faro_ndetb)
@@ -769,7 +769,7 @@ end subroutine Faro_csf2sd
 subroutine Faro_sd2csf(det,ci)
 
   use Faroald_SecQuant, only: Faro_lex_init, Faro_lex_next, Faro_lexrank
-  use Faroald, only: Faro_nEl, Faro_nOrb, Faro_ndeta, Faro_ndetb, Faro_nela
+  use Faroald_Core, only: Faro_nEl, Faro_nOrb, Faro_ndeta, Faro_ndetb, Faro_nela
 
   real(kind=wp), intent(in) :: det(Faro_ndeta,Faro_ndetb)
   real(kind=wp), intent(out) :: ci(:)
@@ -830,7 +830,7 @@ end subroutine Faro_sd2csf
 !> string classes (Faroald_RAS) instead of the full determinant matrix.
 subroutine Faro_csf2ras(ci,vec)
 
-  use Faroald, only: Faro_nOrb
+  use Faroald_Core, only: Faro_nOrb
   use Faroald_RAS, only: Faro_n_ras
 
   real(kind=wp), intent(in) :: ci(:)
@@ -899,7 +899,7 @@ end subroutine Faro_csf2ras
 
 subroutine Faro_ras2csf(vec,ci)
 
-  use Faroald, only: Faro_nOrb
+  use Faroald_Core, only: Faro_nOrb
   use Faroald_RAS, only: Faro_n_ras
 
   real(kind=wp), intent(in) :: vec(Faro_n_ras)
@@ -959,7 +959,7 @@ end subroutine Faro_ras2csf
 !> occupied orbitals as bit strings (docc, socc; orbital p is bit p-1).
 subroutine Faro_conf_occ(nconf,k1,nc,docc,socc)
 
-  use Faroald, only: Faro_nOrb
+  use Faroald_Core, only: Faro_nOrb
 
   integer(kind=iwp), intent(out) :: nconf
   integer(kind=iwp), allocatable, intent(out) :: k1(:), nc(:), docc(:), socc(:)
@@ -999,7 +999,7 @@ subroutine Faro_conf_dets(kcsf,k1,ncsf,ndet,deta,detb,coef)
 ! deta, detb and coef are allocated here, to be freed by the caller.
 
   use Faroald_SecQuant, only: Faro_lex_init, Faro_lex_next
-  use Faroald, only: Faro_nEl, Faro_nela
+  use Faroald_Core, only: Faro_nEl, Faro_nela
 
   integer(kind=iwp), intent(in) :: kcsf
   integer(kind=iwp), intent(out) :: k1, ncsf, ndet
@@ -1232,7 +1232,7 @@ subroutine Faro_spintabs_allocate()
 ! 000101, 1101, 101 (dsa) and as 100111, 010101 (ab)
 ! as usual counting orbitals from the right with bits (lower-most bit)
 
-      use Faroald, only: Faro_nOrb
+      use Faroald_Core, only: Faro_nOrb
 
       integer(kind=iwp) :: phase
       integer(kind=iwp), intent(in) :: doub, sing, alfa, beta

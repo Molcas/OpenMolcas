@@ -453,14 +453,15 @@ subroutine Check_Diag_SG(iState,n,Diag,nTU,TU,nTUVX,TUVX)
 end subroutine Check_Diag_SG
 
 !> FARO (SIGMA): the configuration average of Faroald (from the
-!> occupations) checked once against the average of CI_Faro_HDet over the
+!> occupations) checked once against the average of Faro_HDet over the
 !> determinants (M_S = S) of each kept configuration, and against Lucia and
 !> SGUGA.
 subroutine Check_Diag_Faro(iState,n,Diag,nTU,TU,nTUVX,TUVX)
 
   use CI_Lib_Checks, only: CI_Basis_To_Lucia, CI_Chk_IHI_Avg, CI_SG_Avail
   use CI_Lib_Info, only: CI_Lib_Space
-  use Faroald_CITrans, only: Faro_conf_dets
+  use Faroald, only: Faro_conf_dets, Faro_HDet, Faro_nOrb
+  use CI_Lib_Core, only: CI_Faro_G, CI_Faro_H
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: One, Zero
   use Definitions, only: wp, iwp, u6
@@ -489,7 +490,7 @@ subroutine Check_Diag_Faro(iState,n,Diag,nTU,TU,nTUVX,TUVX)
       call Faro_conf_dets(k,k1,nc,nd,da,db,cf)
       E = Zero
       do i=1,nd
-        E = E+CI_Faro_HDet(da(i),db(i),da(i),db(i))
+        E = E+Faro_HDet(Faro_nOrb,CI_Faro_H,CI_Faro_G,da(i),db(i),da(i),db(i))
       end do
       if (Kept(k1)) MaxDev = max(MaxDev,abs(Diag(k1)-E/real(max(nd,1),kind=wp)))
       k = k1+nc
