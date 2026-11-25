@@ -100,6 +100,8 @@ logical(kind=iwp) :: Lucia_Active = .true.
 ! that state is torn down by CI_Lib_Close (a program that sets up its state
 ! itself, as MCLR, frees it itself)
 integer(kind=iwp) :: iState_Input = 0
+! SGEX given where it does not apply: warned once
+logical(kind=iwp) :: SGEx_Warned = .false.
 ! HEXS/DEXS (RASSCF keywords, CI_Info Space_Inp): the configurations with
 ! the maximum occupation (HEXS) or at least the maximum - 1 (DEXS) in the
 ! listed RAS partitions are removed as in Lucia: their CSFs stay in the
@@ -123,8 +125,9 @@ public :: CI_Lib_Input_State, CI_Lucia_Active, HEXS_Keep, HEXS_Keep_SG, HEXS_Pro
 public :: CI_Diag_Cnf_Avg, CI_Diag_Exact, CI_Lib, CI_Lib_Basis_To_File, CI_Lib_Block, CI_Lib_Close, CI_Lib_Cnf_Layout, &
           CI_Lib_Dens, CI_Lib_Dets_To_Basis, CI_Lib_Diag, CI_Lib_Faroald, CI_Lib_File_To_Basis, CI_Lib_Graph_Mode, &
           CI_Lib_Initialize, CI_Lib_Level_Map, CI_Lib_Lucia, CI_Lib_MCLR_Lucia, CI_Lib_nCnf, CI_Lib_None, CI_Lib_PSel, &
-          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Transform, CI_To_Basis, CI_To_File, Cnf_Exc, &
-          Faro_Ints_Act, Faro_Lev, Faroald_HDet, Rel_Map, Report_Dev, SG_Rel_Embed, SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
+          CI_Lib_PSpace, CI_Lib_Select, CI_Lib_SGEX, CI_Lib_SGUGA, CI_Lib_Sigma, CI_Lib_Transform, CI_To_Basis, CI_To_File, &
+          Cnf_Exc, Faro_Ints_Act, Faro_Lev, Faroald_HDet, Lucia1_Block, Lucia1_Block_SG, Rel_Map, Report_Dev, SG_Rel_Embed, &
+          SG_Rel_Free, SG_Rel_Map, SG_Rel_Project
 
 contains
 
@@ -1279,6 +1282,7 @@ end subroutine CI_Lib_Cnf_Layout
 !> packed as a lower triangle (nHP >= nTri(nP)).
 subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,IdxP,nHP,HP)
   use sguga, only: SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List, SG_Mk_Cnf_List
+  use CI_Input, only: DoSGEx
   use Index_Functions, only: nTri_Elem
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, IPC(nPC), nPMax, nHP
@@ -1335,11 +1339,26 @@ subroutine CI_Lib_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nPMax,nP,Idx
     nP = nP+m
   end do
   if (nHP < nTri_Elem(nP)) call Abend()
+  ! SGEX (RASSCF keyword, the state from the CI input): the block of SGUGA
+  ! for RASSCF's Lucia; not with GAS without the relaxed space, nor Faroald
+  if (DoSGEx .and. (iState == iState_Input) .and. (.not. SGEx_Warned)) then
+    if (.not. SG_Block_Avail(iState)) then
+      write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA is not available with GAS; using the CI back end'
+      SGEx_Warned = .true.
+    else if (CI_Lib == CI_Lib_Faroald) then
+      write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored with FARO; the explicit block is computed by Faroald'
+      SGEx_Warned = .true.
+    end if
+  end if
   select case (CI_Lib)
     case (CI_Lib_Faroald)
       call Faro_Block(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
     case (CI_Lib_Lucia)
-      call Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,HP)
+      if (CI_Lib_SGEX(iState)) then
+        call Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,HP)
+      else
+        call Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,HP)
+      end if
     case default
       call Check_Lib('CI_Lib_Block')
   end select
@@ -1525,6 +1544,62 @@ subroutine Lucia1_Block(iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,IPC,nP,H)
   call mma_deallocate(Scr)
   call mma_deallocate(HONE)
 end subroutine Lucia1_Block
+
+!> SGEX (RASSCF keyword): the explicit block of RASSCF's Lucia for the
+!> state from the CI input comes from SGUGA (Lucia1_Block_SG)
+function CI_Lib_SGEX(iState) result(Use_SG)
+  use CI_Input, only: DoSGEx
+  integer(kind=iwp), intent(in) :: iState
+  logical(kind=iwp) :: Use_SG
+  Use_SG = DoSGEx .and. (CI_Lib == CI_Lib_Lucia) .and. (iState == iState_Input) .and. SG_Block_Avail(iState)
+end function CI_Lib_SGEX
+
+!> SGUGA can evaluate matrix elements of the CI space of iState: CAS and RAS
+!> directly, GAS through the relaxed space
+function SG_Block_Avail(iState) result(Avail)
+  use CI_Input, only: iDoGAS
+  integer(kind=iwp), intent(in) :: iState
+  logical(kind=iwp) :: Avail
+  Avail = (.not. iDoGAS) .or. (CI_St(iState)%iRel > 0)
+end function SG_Block_Avail
+
+!> RASSCF's Lucia with SGEX: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECore
+!> over the CSFs IdxP(1:nP) (Lucia order, nSelCnf(k) of configuration k),
+!> with I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
+!> (mode 0: c_G(I_G) = P_I c(I)); the block <I_G|H|J_G> from SG_Block_H
+!> (pairs of configurations more than a double excitation apart skipped;
+!> GAS: in the relaxed space, the CSFs by their walks)
+subroutine Lucia1_Block_SG(iState,iSym,nTU,TU,nTUVX,TUVX,ECore,nPC,nSelCnf,nP,IdxP,H)
+  use SG_Lucia_Bridge, only: SG_Lucia_Walk
+  use sguga, only: EXS, SG_Block_H, SG_MatEl_Init, SG_NUM, SGS
+  use Molcas, only: MxAct
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate, mma_deallocate
+  integer(kind=iwp), intent(in) :: iState, iSym, nTU, nTUVX, nPC, nSelCnf(nPC), nP, IdxP(nP)
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX), ECore
+  real(kind=wp), intent(inout) :: H(*)
+  integer(kind=iwp) :: I, iS, J
+  integer(kind=iwp) :: IWALK(MxAct)
+  integer(kind=iwp), allocatable :: iG(:), iPG(:)
+  iS = iState
+  if (CI_St(iState)%iRel > 0) iS = CI_St(iState)%iRel
+  call SG_MatEl_Init(iS,iSym)
+  call mma_allocate(iG,nP,Label='iG')
+  call mma_allocate(iPG,nP,Label='iPG')
+  do J=1,nP
+    call SG_Lucia_Walk(iState,iSym,IdxP(J),IWALK,iPG(J))
+    iG(J) = SG_NUM(SGS(iS),EXS(iS),IWALK)
+  end do
+  call SG_Block_H(iSym,nPC,nSelCnf,nP,iG,TU,nTU,TUVX,nTUVX,H)
+  do I=1,nP
+    do J=1,I
+      H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*H(nTri_Elem(I-1)+J)
+    end do
+    H(nTri_Elem(I)) = H(nTri_Elem(I))+ECore
+  end do
+  call mma_deallocate(iPG)
+  call mma_deallocate(iG)
+end subroutine Lucia1_Block_SG
 
 !> Doubly (D) and singly (S) occupied orbitals, as bit strings (orbital t
 !> in bit t-1), of the configuration ICONF with nOp open shells (GETCNF

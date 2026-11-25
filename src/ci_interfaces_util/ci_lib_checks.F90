@@ -42,9 +42,9 @@ public :: CI_Basis, CI_Basis_To_File, CI_Basis_To_Lucia, CI_Faro_nDet_RAS, CI_Fi
           CI_Lucia_To_Basis, CI_Timer, CI_Work_Need, Faro_CI, Faro_nTmp, HPsi_Faro_Verified, HPsi_FaroRAS_Verified, &
           HPsi_RAS_Verified, HPsi_SG_Verified, IHI_Avg_Verified, IHI_Faro_SG_Verified, IHI_SG_Verified, IHJ_Verified, nTimOp, &
           PDM_Faro_Verified, PDM_SG_Verified, Ref_Sigma, SD_ASTA_Verified, SG_Avail, SG_CI, SG_HDiag_G, SG_HPsi, &
-          SG_Spin_Density_ASTA, SG_Spin_PDM_G, SG_Trans_PDM_G, SG_Two_PDM_G, SGEx_Warned, T1DM_Faro_Verified, T1DM_SG_Verified, &
-          Tim_Calls, Tim_CPU, Tim_HPsi, Tim_IHI, Tim_IHJ, Tim_Label, Tim_Off, Tim_On, Tim_PDM, Tim_Print, Tim_T1DM, Tim_TraPsi, &
-          Tim_Wall, TraPsi_Faro_Verified, TraPsi_Verified
+          SG_Spin_Density_ASTA, SG_Spin_PDM_G, SG_Trans_PDM_G, SG_Two_PDM_G, T1DM_Faro_Verified, T1DM_SG_Verified, Tim_Calls, &
+          Tim_CPU, Tim_HPsi, Tim_IHI, Tim_IHJ, Tim_Label, Tim_Off, Tim_On, Tim_PDM, Tim_Print, Tim_T1DM, Tim_TraPsi, Tim_Wall, &
+          TraPsi_Faro_Verified, TraPsi_Verified
 
 ! Mk_IHJ is verified against Mk_H_Psi only once per run.
 logical(kind=iwp) :: IHJ_Verified = .false.
@@ -54,8 +54,6 @@ logical(kind=iwp) :: HPsi_RAS_Verified = .false.
 ! The SGUGA CI transformation (Mk_Tra_Psi, SIGMA) is checked on every call,
 ! its maximum error printed once.
 logical(kind=iwp) :: TraPsi_Verified = .false.
-! SGEX given but SGUGA not available: warned once.
-logical(kind=iwp) :: SGEx_Warned = .false.
 ! SGCI: the SGUGA sigma vector compared with Lucia (SIGMA), printed once.
 logical(kind=iwp) :: HPsi_SG_Verified = .false.
 ! SGCI: the SGUGA densities compared with Lucia (SIGMA), printed once.

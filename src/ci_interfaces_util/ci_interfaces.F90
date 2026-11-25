@@ -14,7 +14,7 @@
 module CI_Interfaces
 use CI_Lib_Checks
 use CI_Library, only: Checked_Sigma => CI_Lib_Sigma
-use SG_Lucia_Bridge, only: SG_Lucia_Walk, SG_ReOrd, SG_Verify_Lucia_Walk
+use SG_Lucia_Bridge, only: SG_ReOrd, SG_Verify_Lucia_Walk
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: faroald_full, my_norb, sigma_update, htu, gtuvx, ndeta, ndetb
 use citrans, only: citrans_csf2ras, citrans_csf2sd, citrans_ras2csf, citrans_sd2csf, citrans_sort
@@ -26,12 +26,12 @@ use faroald_ras, only: n_ras, ras_active, ras_sigma
 ! up by the one Faroald setup of CI_Operations; the densities are in level
 ! order (as Lucia's and SGUGA's).
 use CI_Operations, only: CI_Lucia_Active, HEXS_Keep_SG, HEXS_Proj
-use CI_Operations, only: CI_Lib_Block, CI_Lib_Cnf_Layout, CI_Lib_nCnf, Faro_L2O => Faro_Lev, Rel_Map, Report_Dev, SG_Rel_Map
+use CI_Operations, only: CI_Lib_Block, CI_Lib_Cnf_Layout, CI_Lib_nCnf, CI_Lib_SGEX, Faro_L2O => Faro_Lev, Lucia1_Block, &
+                         Lucia1_Block_SG, Rel_Map, Report_Dev, SG_Rel_Map
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use sguga, only: CIS, SGS, EXS, SGCnfList, SG_Explicit_Block, SG_Free_Cnf_List
-use CI_Input, only: DoSGEx
 use CI_Verify_Options, only: CI_Verify
 use CI_Info, only: CI_St
 
@@ -483,17 +483,8 @@ end if
 ! SGUGA is available without GAS and for a single RAS partition (SGS is not
 ! set up with GAS, so test iDoGAS first).
 SG_OK = SG_Avail()
-if (DoSGEx .and. (.not. SG_OK) .and. (.not. SGEx_Warned)) then
-  write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored, SGUGA is not available with GAS; using the CI back end'
-  SGEx_Warned = .true.
-end if
-! FARO: the explicit block is always that of Faroald, in its own basis
-! (SGEX belongs to the Lucia path)
-if (DoSGEx .and. Faro_CI() .and. (.not. SGEx_Warned)) then
-  write(u6,'(1X,A)') 'Mk_IHJ: SGEX ignored with FARO; the explicit block is computed by Faroald'
-  SGEx_Warned = .true.
-end if
-UseSG = DoSGEx .and. SG_OK .and. (.not. Faro_CI())
+! SGEX: the block of the core is SGUGA's for RASSCF's Lucia (CI_Lib_SGEX)
+UseSG = CI_Lib_SGEX(iState)
 Verify = CI_Verify('SIGMA') .and. (.not. IHJ_Verified)
 ! the walks of the Lucia CSFs, once per run
 if (Verify .and. SG_OK .and. (.not. Faro_CI())) call SG_Verify_Lucia_Walk(iState,IREFSM,nConf)
@@ -501,7 +492,7 @@ if (Verify .and. SG_OK .and. (.not. Faro_CI())) call SG_Verify_Lucia_Walk(iState
 call CWTime(T0,W)
 if (UseSG) then
   Lab = 'SGUGA'
-  call IHJ_SGUGA(PHP)
+  call Lib_Block(PHP)
 else if (Faro_CI()) then
   Lab = 'Faroald'
   call Lib_Block(PHP)
@@ -579,8 +570,8 @@ contains
     call CWTime(T2,W2)
     select case (LabRef)
       case ('Lucia')
-        ! (with SGEX the library is RASSCF's Lucia: its block of the core)
-        call Lib_Block(PHP_Ref)
+        ! (with SGEX: the Lucia block of the core)
+        call Lucia1_Block(IREFSM,nTU,TU,nTUVX,TUVX,ECORE,NPCNF,IPCNF,NPCSF,PHP_Ref)
       case ('Faroald H e_J')
         call IHJ_Faroald_Col(PHP_Ref)
       case ('Lucia H e_J')
@@ -588,7 +579,7 @@ contains
       case ('SGUGA H e_J')
         call IHJ_Ref_Col('SGUGA',PHP_Ref)
       case ('SGUGA')
-        call IHJ_SGUGA(PHP_Ref)
+        call Lucia1_Block_SG(iState,IREFSM,nTU,TU,nTUVX,TUVX,ECORE,NPCNF,nSelCnf,NPCSF,IPCSF,PHP_Ref)
     end select
     call CWTime(T3,W2)
     write(u6,'(1X,3A,F10.3,A)') 'Mk_IHJ: ',LabRef,' block, CPU ',T3-T2,' s'
@@ -632,39 +623,6 @@ contains
 
 
 
-  ! SGUGA back end: <I|H|J> = P_I P_J <I_G|H|J_G> + delta_IJ ECORE, with
-  ! I_G the GUGA CSF of the Lucia CSF I and P_I the phase of SG_ReOrd
-  ! (mode 0: c_G(I_G) = P_I c(I)); the block <I_G|H|J_G> from SG_Block_H
-  ! (pairs of configurations more than a double excitation apart skipped).
-  subroutine IHJ_SGUGA(H)
-    use Molcas, only: MxAct
-    use sguga, only: SG_Block_H, SG_MatEl_Init, SG_NUM
-    real(kind=wp), intent(out) :: H(nTri_Elem(NPCSF))
-    integer(kind=iwp) :: I, J, iS
-    integer(kind=iwp) :: IWALK(MxAct)
-    integer(kind=iwp), allocatable :: iG(:), iPG(:)
-
-    ! GAS: in the relaxed space (the CSFs by their walks)
-    iS = iState
-    if (CI_St(iState)%iRel > 0) iS = CI_St(iState)%iRel
-    call SG_MatEl_Init(iS,IREFSM)
-    call mma_allocate(iG,NPCSF,Label='iG')
-    call mma_allocate(iPG,NPCSF,Label='iPG')
-    do J=1,NPCSF
-      call SG_Lucia_Walk(iState,IREFSM,IPCSF(J),IWALK,iPG(J))
-      iG(J) = SG_NUM(SGS(iS),EXS(iS),IWALK)
-    end do
-    call SG_Block_H(IREFSM,NPCNF,nSelCnf,NPCSF,iG,TU,nTU,TUVX,nTUVX,H)
-    do I=1,NPCSF
-      do J=1,I
-        H(nTri_Elem(I-1)+J) = iPG(I)*iPG(J)*H(nTri_Elem(I-1)+J)
-      end do
-      H(nTri_Elem(I)) = H(nTri_Elem(I))+ECORE
-    end do
-    call mma_deallocate(iPG)
-    call mma_deallocate(iG)
-
-  end subroutine IHJ_SGUGA
 
   ! CI development (SIGMA): SGUGA's own configuration list and explicit
   ! subspace (SG_Mk_Cnf_List, SG_Select_Explicit, SG_Explicit_Block) against
