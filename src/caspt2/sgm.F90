@@ -254,8 +254,10 @@ select case (KOD)
           NLST1 = NLIST(ISYM1,ISYMIJ,14)
           if (NA*NLST1 /= 0) then
             LLST1 = LLIST(ISYM1,ISYMIJ,14)
-            VAL1(1) = One
-            VAL1(2) = SQR2
+            ! A-E coupling factors: was (1, sqrt(2)), a factor sqrt(2) too large
+            ! compared with H0 = P F P (checked against an explicit P F P and ORCA FIC-CASPT2)
+            VAL1(1) = SQRI2
+            VAL1(2) = One
             IXTI = 1
             INCX1 = NT
             INCX2 = 1
@@ -288,8 +290,9 @@ select case (KOD)
           NLST1 = NLIST(ISYM1,ISYMIJ,15)
           if (NA*NLST1 /= 0) then
             LLST1 = LLIST(ISYM1,ISYMIJ,15)
-            VAL1(1) = -SQR3
-            VAL1(2) = SQR3
+            ! was (-sqrt(3), sqrt(3)), see case (4)
+            VAL1(1) = -SQR32
+            VAL1(2) = SQR32
             IXTI = 1
             INCX1 = NT
             INCX2 = 1
