@@ -76,6 +76,10 @@ type ras_spin
   ! single excitations J = a+_p a_q I (sign sgn), I = 1..nstr, entries
   ! ex_off(I)+1..ex_off(I+1); only J of this spin's classes
   integer(kind=iwp), allocatable :: ex_off(:), ex_p(:), ex_q(:), ex_sgn(:), ex_j(:)
+  ! the entries of string I sorted by the symmetry k of the pair (p,q)
+  ! (stable: ascending pair key (q-1)*norb+p within each symmetry): those of
+  ! symmetry k are exs_off(k,I)+1..exs_off(k+1,I), k = 1..ras_nsym
+  integer(kind=iwp), allocatable :: exs_off(:,:)
   ! same-spin double excitations J = a+_t a+_v a_x a_u I (t > v, u > x),
   ! entries dex_off(I)+1..dex_off(I+1): J, sign, (t,u,v,x) packed (pack4);
   ! has_dex = .false. if they did not fit in memory (generated on the fly)
@@ -194,9 +198,14 @@ subroutine Faro_RAS_Init(Faro_nela,Faro_nelb,norb,np,o,mn,mx,nsym,osym,lsym,spin
   call mk_strings(sa)
   call mk_strings(sb)
   call mk_singles(sa)
-  call mk_singles(sb)
   call mk_doubles(sa)
-  call mk_doubles(sb)
+  if (Faro_nela == Faro_nelb) then
+    ! the same classes and strings for both spins: copy the excitation lists
+    call copy_excitations(sa,sb)
+  else
+    call mk_singles(sb)
+    call mk_doubles(sb)
+  end if
   call mk_batches()
   call mk_resolution()
 
@@ -288,6 +297,7 @@ subroutine free_spin(s)
   call mma_deallocate(s%ex_q,safe='*')
   call mma_deallocate(s%ex_sgn,safe='*')
   call mma_deallocate(s%ex_j,safe='*')
+  call mma_deallocate(s%exs_off,safe='*')
   call mma_deallocate(s%dex_off,safe='*')
   call mma_deallocate(s%dex_j,safe='*')
   call mma_deallocate(s%dex_sgn,safe='*')
@@ -634,7 +644,48 @@ subroutine mk_singles(s)
       call mma_allocate(s%ex_j,max(1,n),label='ras_ex_j')
     end if
   end do
+  call sort_singles(s)
 end subroutine mk_singles
+
+!> The single excitations of each string sorted by the symmetry of the pair
+!> (stable), and the segment offsets exs_off.
+subroutine sort_singles(s)
+  type(ras_spin), intent(inout) :: s
+  integer(kind=iwp) :: g, e, k, n, m
+  integer(kind=iwp), allocatable :: tp(:), tq(:), tsg(:), tj(:)
+  call mma_allocate(s%exs_off,ras_nsym+1,max(1,s%nstr),label='ras_exs_off')
+  n = 0
+  do g=1,s%nstr
+    n = max(n,s%ex_off(g+1)-s%ex_off(g))
+  end do
+  call mma_allocate(tp,max(1,n),label='ras_tp')
+  call mma_allocate(tq,max(1,n),label='ras_tq')
+  call mma_allocate(tsg,max(1,n),label='ras_tsg')
+  call mma_allocate(tj,max(1,n),label='ras_tj')
+  do g=1,s%nstr
+    m = 0
+    do k=1,ras_nsym
+      s%exs_off(k,g) = s%ex_off(g)+m
+      do e=s%ex_off(g)+1,s%ex_off(g+1)
+        if (ieor(ras_osym(s%ex_p(e))-1,ras_osym(s%ex_q(e))-1)+1 /= k) cycle
+        m = m+1
+        tp(m) = s%ex_p(e)
+        tq(m) = s%ex_q(e)
+        tsg(m) = s%ex_sgn(e)
+        tj(m) = s%ex_j(e)
+      end do
+    end do
+    s%exs_off(ras_nsym+1,g) = s%ex_off(g)+m
+    s%ex_p(s%ex_off(g)+1:s%ex_off(g)+m) = tp(1:m)
+    s%ex_q(s%ex_off(g)+1:s%ex_off(g)+m) = tq(1:m)
+    s%ex_sgn(s%ex_off(g)+1:s%ex_off(g)+m) = tsg(1:m)
+    s%ex_j(s%ex_off(g)+1:s%ex_off(g)+m) = tj(1:m)
+  end do
+  call mma_deallocate(tp)
+  call mma_deallocate(tq)
+  call mma_deallocate(tsg)
+  call mma_deallocate(tj)
+end subroutine sort_singles
 
 !> The batches of the beta single excitations (bat_*, be_*): per beta
 !> group and pair (v,x), in the order of the pair key (x-1)*norb+v.
@@ -1021,24 +1072,54 @@ end function chunk_size
 
 !> The same-spin double excitations of each string within the strings of s
 !> (lists, if they fit in a quarter of the available memory).
+!> The class of J follows from that of I: occ_key is linear in the electrons
+!> of the partitions, key(J) = key(I)+r(t)+r(v)-r(u)-r(x) with r(p) the
+!> radix of the partition of orbital p, so the candidates without a class
+!> of s are skipped before the address lookup.
+!> Only the totally symmetric quadruples (t,u,v,x) are kept: the lists serve
+!> the sigma and the densities within the CI symmetry, where same-spin
+!> excitations couple strings of the same symmetry only.
 subroutine mk_doubles(s)
   use stdalloc, only: mma_maxDBLE
   type(ras_spin), intent(inout) :: s
-  integer(kind=iwp) :: g, t, u, v, x, d, dd, j, n, pass, mxmem
+  integer(kind=iwp) :: g, t, u, v, x, d, dd, j, n, pass, mxmem, k, p, kmax, key_i, key_d, key_t, r_orb(30), sux, stux
+  logical(kind=iwp), allocatable :: key_ok(:)
 
+  ! r_orb(p): the radix of the partition of orbital p; key_ok(key): a class
+  ! of s has the packed occupation key
+  do k=1,ras_np
+    do p=ras_pos(k)+1,ras_pos(k)+ras_o(k)
+      r_orb(p) = ras_rdx(k)
+    end do
+  end do
+  kmax = sum(ras_o(1:ras_np)*ras_rdx(1:ras_np))
+  call mma_allocate(key_ok,[0,kmax],label='ras_key_ok')
+  key_ok(:) = .false.
+  do k=1,s%nocc
+    key_ok(s%occ_skey(k)) = .true.
+  end do
   call mma_allocate(s%dex_off,s%nstr+1,label='ras_dex_off')
   do pass=1,2
     n = 0
     do g=1,s%nstr
       s%dex_off(g) = n
+      key_i = occ_key(s%cls_n(:,s%str_cls(g)))
       do u=2,ras_norb
         if (.not. btest(s%str(g),u-1)) cycle
         do x=1,u-1
           d = Faro_ann2(x,u,s%str(g))
           if (d == -1) cycle
+          key_d = key_i-r_orb(u)-r_orb(x)
+          sux = ieor(ras_osym(u)-1,ras_osym(x)-1)
           do t=2,ras_norb
             if (btest(d,t-1)) cycle
+            key_t = key_d+r_orb(t)
+            stux = ieor(sux,ras_osym(t)-1)
             do v=1,t-1
+              if (ras_osym(v)-1 /= stux) cycle
+              k = key_t+r_orb(v)
+              if ((k < 0) .or. (k > kmax)) cycle
+              if (.not. key_ok(k)) cycle
               dd = Faro_cre2(t,v,d)
               if (dd == -1) cycle
               j = str_index(s,ibits(dd,0,31))
@@ -1059,6 +1140,7 @@ subroutine mk_doubles(s)
       call mma_maxDBLE(mxmem)
       if (3*n > mxmem/4) then
         call mma_deallocate(s%dex_off)
+        call mma_deallocate(key_ok)
         s%has_dex = .false.
         return
       end if
@@ -1068,8 +1150,51 @@ subroutine mk_doubles(s)
       call mma_allocate(s%dex_tuvx,max(1,n),label='ras_dex_tuvx')
     end if
   end do
+  call mma_deallocate(key_ok)
   s%has_dex = .true.
 end subroutine mk_doubles
+
+!> The single and double excitation lists of s copied to d (the same
+!> classes and strings: equal numbers of alpha and beta electrons).
+subroutine copy_excitations(s,d)
+  type(ras_spin), intent(in) :: s
+  type(ras_spin), intent(inout) :: d
+  integer(kind=iwp) :: n
+  if ((d%nstr /= s%nstr) .or. (d%ncls /= s%ncls)) then
+    write(u6,*) 'faroald_ras: alpha and beta strings differ',s%nstr,d%nstr,s%ncls,d%ncls
+    call Abend()
+  end if
+  if (any(d%str(1:d%nstr) /= s%str(1:s%nstr))) then
+    write(u6,*) 'faroald_ras: alpha and beta strings differ'
+    call Abend()
+  end if
+  n = s%nex
+  d%nex = n
+  call mma_allocate(d%ex_off,s%nstr+1,label='ras_ex_off')
+  call mma_allocate(d%ex_p,max(1,n),label='ras_ex_p')
+  call mma_allocate(d%ex_q,max(1,n),label='ras_ex_q')
+  call mma_allocate(d%ex_sgn,max(1,n),label='ras_ex_sgn')
+  call mma_allocate(d%ex_j,max(1,n),label='ras_ex_j')
+  d%ex_off(:) = s%ex_off(:)
+  d%ex_p(:) = s%ex_p(:)
+  d%ex_q(:) = s%ex_q(:)
+  d%ex_sgn(:) = s%ex_sgn(:)
+  d%ex_j(:) = s%ex_j(:)
+  call mma_allocate(d%exs_off,ras_nsym+1,max(1,s%nstr),label='ras_exs_off')
+  d%exs_off(:,:) = s%exs_off(:,:)
+  d%has_dex = s%has_dex
+  if (.not. s%has_dex) return
+  n = s%ndex
+  d%ndex = n
+  call mma_allocate(d%dex_off,s%nstr+1,label='ras_dex_off')
+  call mma_allocate(d%dex_j,max(1,n),label='ras_dex_j')
+  call mma_allocate(d%dex_sgn,max(1,n),label='ras_dex_sgn')
+  call mma_allocate(d%dex_tuvx,max(1,n),label='ras_dex_tuvx')
+  d%dex_off(:) = s%dex_off(:)
+  d%dex_j(:) = s%dex_j(:)
+  d%dex_sgn(:) = s%dex_sgn(:)
+  d%dex_tuvx(:) = s%dex_tuvx(:)
+end subroutine copy_excitations
 
 !> (t,u,v,x) packed into one integer, and back.
 pure function pack4(t,u,v,x) result(k)
@@ -1289,8 +1414,8 @@ subroutine same_spin(r,c,off,h,g,vec,sgm)
     nl = 0
     ! (no row class allowed with the class of I: no contribution)
     if (.not. any(comp(:,ci))) cycle
-    ! one-electron: J = a+_p a_q I
-    do e=c%ex_off(gi)+1,c%ex_off(gi+1)
+    ! one-electron: J = a+_p a_q I (totally symmetric pairs, segment 1)
+    do e=c%exs_off(1,gi)+1,c%exs_off(2,gi)
       gj = c%ex_j(e)
       if (.not. comp(c%str_cls(gj),ci)) cycle
       call add(gj,c%ex_sgn(e)*h(c%ex_p(e),c%ex_q(e)))
@@ -1568,7 +1693,7 @@ end subroutine opposite_spin
 subroutine opposite_spin_dir(g,vec,sgm)
   real(kind=wp), intent(in) :: g(ras_norb,ras_norb,ras_norb,ras_norb), vec(Faro_n_ras)
   real(kind=wp), intent(inout) :: sgm(Faro_n_ras)
-  integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka
+  integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka, ks
   real(kind=wp) :: w
   real(kind=wp), allocatable :: Cp(:,:), Vw(:,:)
 
@@ -1581,6 +1706,8 @@ subroutine opposite_spin_dir(g,vec,sgm)
     v = bat_v(b)
     x = bat_x(b)
     kb = (x-1)*ras_norb+v
+    ! the alpha pairs (t,u) of the symmetry of (v,x): g(t,u,v,x) /= 0
+    ks = ieor(ras_osym(v)-1,ras_osym(x)-1)+1
     do k0=bat_off(b),bat_off(b+1)-1,kc
       nk = min(kc,bat_off(b+1)-k0)
       ! gather
@@ -1600,7 +1727,7 @@ subroutine opposite_spin_dir(g,vec,sgm)
       do caj=1,sa%ncls
         if (blk_off(caj,cbj) < 0) cycle
         do ga=sa%cls_off(caj)+1,sa%cls_off(caj)+sa%cls_nstr(caj)
-          do ea=sa%ex_off(ga+1),sa%ex_off(ga)+1,-1
+          do ea=sa%exs_off(ks+1,ga),sa%exs_off(ks,ga)+1,-1
             ka = (sa%ex_q(ea)-1)*ras_norb+sa%ex_p(ea)
             if (ras_singlet .and. (ka < kb)) exit
             w = g(sa%ex_p(ea),sa%ex_q(ea),v,x)
@@ -1671,19 +1798,28 @@ subroutine col_one_pdm(r,c,off,bra,ket,dm)
   integer(kind=iwp), intent(in) :: off(:,:)
   real(kind=wp), intent(in) :: bra(:), ket(:)
   real(kind=wp), intent(inout) :: dm(ras_norb,ras_norb)
-  integer(kind=iwp) :: gi, gj, e, cr, nr, oi, oj
+  integer(kind=iwp) :: gi, gj, e, cr, nr, oi, oj, ci, cj
+  logical(kind=iwp), allocatable :: comp(:,:)
+  ! bra and ket are of the CI symmetry: only the totally symmetric pairs
+  ! (p,q) (segment 1) between classes with a common row class contribute
+  call col_pairs(r,c,off,comp)
   do gi=1,c%nstr
-    do e=c%ex_off(gi)+1,c%ex_off(gi+1)
+    ci = c%str_cls(gi)
+    if (.not. any(comp(:,ci))) cycle
+    do e=c%exs_off(1,gi)+1,c%exs_off(2,gi)
       gj = c%ex_j(e)
+      cj = c%str_cls(gj)
+      if (.not. comp(cj,ci)) cycle
       do cr=1,r%ncls
-        if ((off(cr,c%str_cls(gi)) < 0) .or. (off(cr,c%str_cls(gj)) < 0)) cycle
+        if ((off(cr,ci) < 0) .or. (off(cr,cj) < 0)) cycle
         nr = r%cls_nstr(cr)
-        oi = off(cr,c%str_cls(gi))+(c%str_idx(gi)-1)*nr
-        oj = off(cr,c%str_cls(gj))+(c%str_idx(gj)-1)*nr
+        oi = off(cr,ci)+(c%str_idx(gi)-1)*nr
+        oj = off(cr,cj)+(c%str_idx(gj)-1)*nr
         dm(c%ex_p(e),c%ex_q(e)) = dm(c%ex_p(e),c%ex_q(e))+c%ex_sgn(e)*dot_product(bra(oj+1:oj+nr),ket(oi+1:oi+nr))
       end do
     end do
   end do
+  call mma_deallocate(comp)
 end subroutine col_one_pdm
 
 !> Spin-free transition two-particle density between RAS vectors,
@@ -1868,7 +2004,7 @@ end subroutine ab_res_blocks
 subroutine ab_two_pdm(bra,ket,p2)
   real(kind=wp), intent(in) :: bra(Faro_n_ras), ket(Faro_n_ras)
   real(kind=wp), intent(inout) :: p2(ras_norb,ras_norb,ras_norb,ras_norb)
-  integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka, t, u
+  integer(kind=iwp) :: b, cbj, cbi, v, x, kb, kc, k0, nk, k, caj, cai, naj, nai, o, ga, ea, ia, ka, t, u, ks
   real(kind=wp) :: val
   real(kind=wp), allocatable :: Kp(:,:), Bp(:,:)
 
@@ -1881,6 +2017,9 @@ subroutine ab_two_pdm(bra,ket,p2)
     v = bat_v(b)
     x = bat_x(b)
     kb = (x-1)*ras_norb+v
+    ! bra and ket are of the CI symmetry: only the alpha pairs (t,u) of the
+    ! symmetry of (v,x) contribute
+    ks = ieor(ras_osym(v)-1,ras_osym(x)-1)+1
     do k0=bat_off(b),bat_off(b+1)-1,kc
       nk = min(kc,bat_off(b+1)-k0)
       do caj=1,sa%ncls
@@ -1902,7 +2041,7 @@ subroutine ab_two_pdm(bra,ket,p2)
       do caj=1,sa%ncls
         if (blk_off(caj,cbj) < 0) cycle
         do ga=sa%cls_off(caj)+1,sa%cls_off(caj)+sa%cls_nstr(caj)
-          do ea=sa%ex_off(ga+1),sa%ex_off(ga)+1,-1
+          do ea=sa%exs_off(ks+1,ga),sa%exs_off(ks,ga)+1,-1
             t = sa%ex_p(ea)
             u = sa%ex_q(ea)
             ka = (u-1)*ras_norb+t

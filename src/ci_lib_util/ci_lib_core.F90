@@ -91,6 +91,13 @@ integer(kind=iwp), allocatable, protected :: CI_Faro_Lev(:)
 ! Faroald: the integrals h(t,u), g(t,u,v,x) over its orbitals (the levels),
 ! passed to every Faroald routine that needs them (CI_Faro_Ints_Act)
 real(kind=wp), allocatable :: CI_Faro_G(:,:,:,:), CI_Faro_H(:,:)
+! the input of the last CI_Faro_Ints_Act (operator symmetry, with or
+! without the two-electron part, TU and TUVX): the same integrals again
+! (every sigma of a CI run) are not converted again. CI_Faro_Ints_Op = 0:
+! CI_Faro_H/G hold something else (none yet, or CI_Faro_Ints_Sq_Act).
+integer(kind=iwp) :: CI_Faro_Ints_Op = 0
+logical(kind=iwp) :: CI_Faro_Ints_2el = .false.
+real(kind=wp), allocatable :: CI_Faro_Ints_TU(:), CI_Faro_Ints_TUVX(:)
 
 ! GAS: SGUGA evaluates products of excitation operators (H, 2-RDM, spin and
 ! transition densities, diagonal, explicit block) in the relaxed space of
@@ -2211,6 +2218,7 @@ subroutine CI_Faro_Init(iState)
   call Faro_Init(nActEl,nAct,iSpin,Full)
   call mma_allocate(CI_Faro_H,nAct,nAct,Label='CI_Faro_H')
   call mma_allocate(CI_Faro_G,nAct,nAct,nAct,nAct,Label='CI_Faro_G')
+  call CI_Faro_Ints_Forget()
   call Faro_CITrans_Init(nActEl,nAct,iSpin,nSym,OrbSym,CI_Faro_Sym,nPrt,OrbRas,MinEl,MaxEl)
   ! the string-driven CI (Faroald_RAS): the determinant blocks of the CI
   ! symmetry, for singlets with the spin-flip symmetry
@@ -2273,6 +2281,7 @@ subroutine CI_Faro_Close()
   call Faro_Free()
   call mma_deallocate(CI_Faro_H,safe='*')
   call mma_deallocate(CI_Faro_G,safe='*')
+  call CI_Faro_Ints_Forget()
   call mma_deallocate(CI_Faro_Lev,safe='*')
   call mma_deallocate(CI_Faro_OrbSym,safe='*')
   call mma_deallocate(CI_Faro_OrbRas,safe='*')
@@ -2325,6 +2334,7 @@ subroutine CI_Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
   integer(kind=iwp) :: it, iu, iv, ix, otu, ovx
   if (nTU /= nTri_Elem(Faro_nOrb)) call Abend()
   if (Have_2_el .and. (nTUVX < nTri_Elem(nTU))) call Abend()
+  if (CI_Faro_Ints_Same(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)) return
   do iu=1,Faro_nOrb
     do it=1,Faro_nOrb
       otu = iTri(CI_Faro_Lev(it),CI_Faro_Lev(iu))
@@ -2343,6 +2353,45 @@ subroutine CI_Faro_Ints_Act(iOp,nTU,TU,nTUVX,TUVX,Have_2_el)
   end do
 end subroutine CI_Faro_Ints_Act
 
+!> CI_Faro_Ints_Act: .true. if CI_Faro_H/G already hold these integrals;
+!> else they are stored as the new key (the caller converts them).
+function CI_Faro_Ints_Same(iOp,nTU,TU,nTUVX,TUVX,Have_2_el) result(Same)
+  use Index_Functions, only: nTri_Elem
+  use stdalloc, only: mma_allocate
+  integer(kind=iwp), intent(in) :: iOp, nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
+  logical(kind=iwp), intent(in) :: Have_2_el
+  logical(kind=iwp) :: Same
+  integer(kind=iwp) :: n2
+  n2 = 0
+  if (Have_2_el) n2 = nTri_Elem(nTU)
+  Same = .false.
+  if ((CI_Faro_Ints_Op == iOp) .and. (CI_Faro_Ints_2el .eqv. Have_2_el) .and. allocated(CI_Faro_Ints_TU)) then
+    if ((size(CI_Faro_Ints_TU) == nTU) .and. (size(CI_Faro_Ints_TUVX) == max(1,n2))) then
+      Same = all(CI_Faro_Ints_TU(:) == TU(:))
+      if (Same .and. (n2 > 0)) Same = all(CI_Faro_Ints_TUVX(1:n2) == TUVX(1:n2))
+    end if
+  end if
+  if (Same) return
+  call CI_Faro_Ints_Forget()
+  call mma_allocate(CI_Faro_Ints_TU,nTU,Label='CI_Faro_Ints_TU')
+  call mma_allocate(CI_Faro_Ints_TUVX,max(1,n2),Label='CI_Faro_Ints_TUVX')
+  CI_Faro_Ints_TU(:) = TU(:)
+  CI_Faro_Ints_TUVX(:) = Zero
+  if (n2 > 0) CI_Faro_Ints_TUVX(1:n2) = TUVX(1:n2)
+  CI_Faro_Ints_Op = iOp
+  CI_Faro_Ints_2el = Have_2_el
+end function CI_Faro_Ints_Same
+
+!> CI_Faro_H/G no longer hold the integrals of the last CI_Faro_Ints_Act.
+subroutine CI_Faro_Ints_Forget()
+  use stdalloc, only: mma_deallocate
+  call mma_deallocate(CI_Faro_Ints_TU,safe='*')
+  call mma_deallocate(CI_Faro_Ints_TUVX,safe='*')
+  CI_Faro_Ints_Op = 0
+  CI_Faro_Ints_2el = .false.
+end subroutine CI_Faro_Ints_Forget
+
 !> Faroald: CI_Faro_H, CI_Faro_G (over the levels) of a non-Hermitian operator of
 !> symmetry iOp (Square): H1 = h(t,u), the full nA x nA matrix, G2 =
 !> g(tu,vx) at iTri(tu,vx), square pair index tu = (u-1)*N+t, both over
@@ -2359,6 +2408,7 @@ subroutine CI_Faro_Ints_Sq_Act(iOp,N,H1,nG2,G2,Have_2_el)
   real(kind=wp), allocatable :: G(:,:,:,:)
   if (N /= Faro_nOrb) call Abend()
   if (Have_2_el .and. (nG2 < nTri_Elem(N**2))) call Abend()
+  call CI_Faro_Ints_Forget()
   ! Faro_sigma_update applies sum_tu h(t,u) <J|E_tu|I> to C(J), i.e. E_ut with
   ! h(t,u), and likewise within each pair of g (harmless for Hermitian
   ! operators): pass g'(t,u,v,x) = g(u,t,x,v) and h transposed, and correct
