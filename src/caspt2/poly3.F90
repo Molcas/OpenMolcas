@@ -159,17 +159,14 @@ if (CI_Lib_Space(iState)%nLev > 0) then
   end if
 end if
 
-if (CI_Lib_Space(iState)%nLev > 0) then
-  call mma_deallocate(G1)
-  call mma_deallocate(G2)
-  call mma_deallocate(G3)
-  call mma_deallocate(idxG3)
-  if (mkF .or. ((ISCF /= 0) .and. (CI_Lib_Space(iState)%nActEl /= 0))) then
-    call mma_deallocate(F1_H)
-    call mma_deallocate(F2_H)
-    call mma_deallocate(F3_H)
-  end if
-  nullify(F1,F2,F3)
-end if
+! the work arrays are allocated also without active orbitals (nLev = 0)
+call mma_deallocate(G1,safe='*')
+call mma_deallocate(G2,safe='*')
+call mma_deallocate(G3,safe='*')
+call mma_deallocate(idxG3,safe='*')
+call mma_deallocate(F1_H,safe='*')
+call mma_deallocate(F2_H,safe='*')
+call mma_deallocate(F3_H,safe='*')
+nullify(F1,F2,F3)
 
 end subroutine POLY3
