@@ -662,6 +662,7 @@ subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri
   end do
   call mma_deallocate(PJ)
   call mma_deallocate(PI)
+  call Wrk_Trim()
 
 contains
 
@@ -912,6 +913,7 @@ subroutine sg_h_psi_ras(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU
   call mma_deallocate(PJ)
   call mma_deallocate(PI)
   call mma_deallocate(L2Orb)
+  call Wrk_Trim()
 
 contains
 
@@ -1589,6 +1591,17 @@ subroutine SG_Sigma_Free()
   call mma_deallocate(Wrk_S1,safe='*')
   call mma_deallocate(Wrk_S2,safe='*')
 end subroutine SG_Sigma_Free
+
+!> Keep the work arrays for the next call only if they hold at most a quarter
+!> of the memory (held + free); otherwise free them, so that the other parts
+!> of the program have room when memory is short.
+subroutine Wrk_Trim()
+  use stdalloc, only: mma_maxDBLE
+  integer(kind=iwp) :: nFree, nHeld
+  call mma_maxDBLE(nFree)
+  nHeld = Wrk_Held(1)+Wrk_Held(2)
+  if (4*nHeld > nHeld+nFree) call SG_Sigma_Free()
+end subroutine Wrk_Trim
 
 !> Wrk has at least n elements (grown if needed, contents not kept).
 subroutine Get_Wrk(Wrk,n,Label)

@@ -84,8 +84,8 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
 
   use Index_Functions, only: iTri
   use Symmetry_Info, only: Mul
-  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SG_New_Tag, SGStruct
-  use stdalloc, only: mma_allocate, mma_deallocate
+  use sguga, only: CIStruct, EXStruct, SG_New_Tag, SGStruct
+  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
   use Constants, only: Zero, One, Two, Half
   use Definitions, only: wp, iwp
 
@@ -96,10 +96,11 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
   integer(kind=iwp), intent(in) :: lCI, ISYCI, lD1MAT
   real(kind=wp), intent(in) :: CI(lCI), D1MAT(lD1MAT)
   real(kind=wp), intent(out) :: SDMAT(lD1MAT)
-  integer(kind=iwp) :: nL, p, q, r, MaxDim, iSymA
+  integer(kind=iwp) :: nL, p, q, r, iSymO, iSymA, m, nA, nC, jq, ip, nq, np, i, j, MaxMem
   real(kind=wp) :: S, X, Fact
+  integer(kind=iwp), allocatable :: Lv(:)
   real(kind=wp), allocatable :: G(:)
-  real(kind=wp), pointer :: A(:,:), B(:,:)
+  real(kind=wp), pointer :: AQ(:,:), BQ(:,:), AP(:,:), BP(:,:)
 
   integer(kind=iwp) :: tCI
   tCI = SG_New_Tag()
@@ -107,34 +108,69 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
   if (SGS%iSpin == 1) return
   nL = SGS%nLev
   S = Half*real(SGS%iSpin-1,kind=wp)
-  MaxDim = maxval(CIS%nCSF(:))
-  call Get_Wrk(Wrk_D1,MaxDim*nL,'SG_Wrk_D1')
-  call Get_Wrk(Wrk_D2,MaxDim*nL,'SG_Wrk_D2')
-  A(1:MaxDim,1:nL) => Wrk_D1(1:MaxDim*nL)
-  B(1:MaxDim,1:nL) => Wrk_D2(1:MaxDim*nL)
+  call mma_maxDBLE(MaxMem)
+  MaxMem = (4*(MaxMem+Wrk_Held()))/5
+  call mma_allocate(Lv,nL,Label='SD_Lv')
   ! G = Sum_r <E_pr E_rq>, triangular
   call mma_allocate(G,lD1MAT,Label='SD_G')
   G(:) = Zero
   do r=1,nL
-    ! A(:,q) = E_rq Psi, B(:,q) = E_qr Psi
-    do q=1,nL
-      A(:,q) = Zero
-      B(:,q) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,r,q,One,ISYCI,CI,A(:,q),CI_Tag=tCI)
-      call SG_Epq_Psi(SGS,CIS,EXS,q,r,One,ISYCI,CI,B(:,q),CI_Tag=tCI)
-    end do
-    do p=1,nL
-      do q=1,p
-        if (SGS%ISm(p) /= SGS%ISm(q)) cycle
-        ! E_rq Psi has the symmetry of E_rp Psi
-        iSymA = Mul(ISYCI,Mul(SGS%ISm(r),SGS%ISm(q)))
-        if (r <= max(p,q)) then
-          X = dot_product(A(1:CIS%nCSF(iSymA),p),A(1:CIS%nCSF(iSymA),q))
-        else
-          X = dot_product(B(1:CIS%nCSF(iSymA),q),B(1:CIS%nCSF(iSymA),p))+D1MAT(iTri(p,q))
-          if (p == q) X = X-D1MAT(iTri(r,r))
-        end if
-        G(iTri(p,q)) = G(iTri(p,q))+X
+    ! the levels q of one symmetry, in chunks of nC: A(:,k) = E_rq Psi,
+    ! B(:,k) = E_qr Psi (all of the symmetry at once if they fit, otherwise
+    ! pairs of chunks, the second one recomputed)
+    do iSymO=1,SGS%nSym
+      m = 0
+      do p=1,nL
+        if (SGS%ISm(p) /= iSymO) cycle
+        m = m+1
+        Lv(m) = p
+      end do
+      if (m == 0) cycle
+      ! E_rq Psi has the symmetry of E_rp Psi
+      iSymA = Mul(ISYCI,Mul(SGS%ISm(r),iSymO))
+      nA = CIS%nCSF(iSymA)
+      if (nA == 0) cycle
+      if (2*nA*m <= MaxMem) then
+        nC = m
+      else
+        nC = max(1,min(m,MaxMem/(4*nA)))
+      end if
+      call Get_Wrk(Wrk_D1,2*nA*nC,'SG_Wrk_D1')
+      AQ(1:nA,1:nC) => Wrk_D1(1:nA*nC)
+      BQ(1:nA,1:nC) => Wrk_D1(nA*nC+1:2*nA*nC)
+      if (nC < m) then
+        call Get_Wrk(Wrk_D2,2*nA*nC,'SG_Wrk_D2')
+        AP(1:nA,1:nC) => Wrk_D2(1:nA*nC)
+        BP(1:nA,1:nC) => Wrk_D2(nA*nC+1:2*nA*nC)
+      end if
+      do jq=1,m,nC
+        nq = min(nC,m-jq+1)
+        call SD_Fill(SGS,CIS,EXS,r,Lv(jq),nq,ISYCI,CI,nA,AQ,BQ,tCI)
+        do ip=jq,m,nC
+          np = min(nC,m-ip+1)
+          if (ip == jq) then
+            AP => AQ
+            BP => BQ
+          else
+            AP(1:nA,1:nC) => Wrk_D2(1:nA*nC)
+            BP(1:nA,1:nC) => Wrk_D2(nA*nC+1:2*nA*nC)
+            call SD_Fill(SGS,CIS,EXS,r,Lv(ip),np,ISYCI,CI,nA,AP,BP,tCI)
+          end if
+          do i=1,np
+            p = Lv(ip+i-1)
+            do j=1,nq
+              q = Lv(jq+j-1)
+              if (q > p) exit
+              if (r <= p) then
+                X = dot_product(AP(:,i),AQ(:,j))
+              else
+                X = dot_product(BQ(:,j),BP(:,i))+D1MAT(iTri(p,q))
+                if (p == q) X = X-D1MAT(iTri(r,r))
+              end if
+              G(iTri(p,q)) = G(iTri(p,q))+X
+            end do
+          end do
+        end do
       end do
     end do
   end do
@@ -147,10 +183,37 @@ subroutine sg_spin_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,SDMAT,lD1MAT)
     end do
   end do
   call mma_deallocate(G)
-  nullify(B)
-  nullify(A)
+  call mma_deallocate(Lv)
+  nullify(AQ,BQ,AP,BP)
+  call Wrk_Trim()
 
 end subroutine sg_spin_pdm
+
+!> A(:,k) = E_rq Psi, B(:,k) = E_qr Psi for the n levels q = Lv(1:n)
+!> (for sg_spin_pdm).
+subroutine SD_Fill(SGS,CIS,EXS,r,Lv,n,ISYCI,CI,nA,A,B,tCI)
+
+  use sguga, only: CIStruct, EXStruct, sg_epq_psi, SGStruct
+  use Constants, only: Zero, One
+  use Definitions, only: wp, iwp
+
+  implicit none
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  integer(kind=iwp), intent(in) :: r, n, Lv(n), ISYCI, nA, tCI
+  real(kind=wp), intent(in) :: CI(*)
+  real(kind=wp), intent(out) :: A(nA,*), B(nA,*)
+  integer(kind=iwp) :: k
+
+  do k=1,n
+    A(:,k) = Zero
+    B(:,k) = Zero
+    call SG_Epq_Psi(SGS,CIS,EXS,r,Lv(k),One,ISYCI,CI,A(:,k),CI_Tag=tCI)
+    call SG_Epq_Psi(SGS,CIS,EXS,Lv(k),r,One,ISYCI,CI,B(:,k),CI_Tag=tCI)
+  end do
+
+end subroutine SD_Fill
 
 !> Transition densities between the CSF vectors Bra and Ket of symmetry
 !> ISYCI (two states of the same spin S, M_S = S), square over the levels,
@@ -759,6 +822,7 @@ subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
   call mma_deallocate(PI)
   P(:) = Half*P(:)
   PA(:) = Half*PA(:)
+  call Wrk_Trim()
 end subroutine sg_two_pdm
 
 subroutine sg_two_pdm_direct(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
@@ -903,6 +967,16 @@ subroutine SG_Densities_Free()
   call mma_deallocate(Wrk_D1,safe='*')
   call mma_deallocate(Wrk_D2,safe='*')
 end subroutine SG_Densities_Free
+
+!> Keep the work arrays for the next call only if they hold at most a quarter
+!> of the memory (held + free); otherwise free them.
+subroutine Wrk_Trim()
+  use stdalloc, only: mma_maxDBLE
+  integer(kind=iwp) :: nFree, nHeld
+  call mma_maxDBLE(nFree)
+  nHeld = Wrk_Held()
+  if (4*nHeld > nHeld+nFree) call SG_Densities_Free()
+end subroutine Wrk_Trim
 
 !> Wrk has at least n elements (grown if needed, contents not kept).
 subroutine Get_Wrk(Wrk,n,Label)
