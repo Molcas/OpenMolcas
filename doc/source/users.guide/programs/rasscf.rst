@@ -1451,6 +1451,37 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`OCCThreshold`
+  At the end of the calculation, the program also checks the occupation numbers of the
+  converged active natural orbitals. An active orbital with an occupation number above
+  :math:`2-t` or below :math:`t`, with the threshold :math:`t` given on the next line
+  (default 0.005), adds hardly any correlation: it may have left the correlated space
+  (e.g. a lone pair that became a pure atomic orbital) although it is still in the
+  active space, which the deficit of :kword:`ACTThreshold` cannot see. Such orbitals are
+  flagged with their largest atomic contributions (Mulliken gross populations). If the
+  starting orbitals carry occupation numbers (:file:`JOBIPH`/:file:`JOBOLD`, an HDF5
+  file, an orbital file), the start and final occupation numbers of all active orbitals
+  are printed side by side: for each converged natural orbital its occupation in the
+  active density of the start, and the starting active orbital it overlaps most. The
+  check is done for every start, also without a restart, and only gives a warning: a
+  nearly empty or nearly doubly occupied orbital can be
+  intended, e.g. near a dissociation limit. A threshold of 0 switches it off. The flags
+  are stored in the HDF5 file (attribute ``ACTIVE_SPACE_OCC_FLAGS``: 1 nearly doubly
+  occupied, :math:`-1` nearly empty, 0 otherwise; with occupation numbers of the start
+  also ``ACTIVE_SPACE_OCC_START``, the occupations in the active density of the start).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="OCCTHRESHOLD" APPEAR="Occupation check threshold" KIND="REAL" DEFAULT_VALUE="0.005" LEVEL="ADVANCED">
+              %%Keyword: OCCThreshold <advanced>
+              <HELP>
+              Threshold t of the occupation check of the converged active natural orbitals
+              (default 0.005): orbitals with an occupation number above 2-t or below t are
+              flagged with a warning (never an error), with their largest atomic
+              contributions. 0 switches the check off. Done for every start; with occupation
+              numbers on the starting orbitals, start and final occupations are printed
+              side by side.
+              </HELP>
+              </KEYWORD>
+
 :kword:`RFPErt`
   This keyword will add a constant reaction field perturbation to the
   Hamiltonian. The perturbation is read from the :file:`RUNOLD` (if not present defaults to :file:`RUNFILE`) and

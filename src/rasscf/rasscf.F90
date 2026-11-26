@@ -402,7 +402,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
   !GG03 Aug 03
   if (NAlter > 0) call Alter_MO(CMO)
   ! the active space the macro iterations start from (active-space check)
-  if (ifvb /= 2) call Act_Check_Start(NTOT2,CMO)
+  if (ifvb /= 2) call Act_Check_Start(NTOT2,CMO,NTOT,OCCN)
 
   ! At this point all is ready to potentially dump MO integrals... just do it if required.
   if ((.not. DumpOnly) .and. (ifvb /= 2) .and. (.not. dofcidump)) then
@@ -1698,8 +1698,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
 #   endif
 
     if (ITERM /= 99) call OUTCTL(CMO,OCCN,SMAT,lOPTO)
-    ! how far the active space moved from the start
-    call Act_Check_Final(NTOT2,CMO,ifvb /= 2,wfn_fileid,Act_Lost)
+    ! how far the active space moved from the start, and the occupation
+    ! numbers of the active natural orbitals
+    if (ifvb /= 2) call Act_Check_Final(NTOT2,NTOT,.true.,wfn_fileid,Act_Lost)
 
     call mma_deallocate(SMAT)
 

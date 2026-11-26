@@ -100,6 +100,7 @@ real(kind=wp), allocatable :: CMO_copy(:), Ene(:), JobR(:), Scr(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: mh5id
 character(len=:), allocatable :: typestring
+character(len=80) :: OccTit
 character(len=16) :: H5Module
 logical(kind=iwp) :: H5Restart
 #endif
@@ -333,6 +334,9 @@ else if (InVec == 4) then
   end select
   call RdVec_HDF5(mh5id,Label,NSYM,NBAS,CMO,Dummy,Dummy,iDummy)
   if (mh5_exists_dset(mh5id,trim(VecTit))) call mh5_fetch_dset(mh5id,trim(VecTit),typestring)
+  ! the occupation numbers, if the file has them (occupation check)
+  OccTit = 'MO_'//VecTit(4:index(VecTit,'TYPEINDICES')-1)//'OCCUPATIONS'
+  if (mh5_exists_dset(mh5id,trim(OccTit))) call mh5_fetch_dset(mh5id,trim(OccTit),OCC)
   ! a restart (active-space check) if the file is a RASSCF wave function, or
   ! orbitals projected by MORT that define active orbitals
   H5Module = ''

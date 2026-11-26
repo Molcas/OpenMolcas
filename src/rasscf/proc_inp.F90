@@ -40,7 +40,7 @@ use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
 use Orbital_Spaces, only: NASH, NBAS, NDEL, NDELT, NFRO, NFROT, NISH, NORB, NSSH, NSYM, NTOT, NTOT1, NTOT2
 use CI_Input, only: DoSGEx, iDoGAS, IGSOCCX, ISPIN, NACTEL, NELEC3, NGAS, NGSSH, NHOLE1, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, &
                     STSYM
-use Active_Space_Check, only: ActStop, ThrAct
+use Active_Space_Check, only: ActStop, ThrAct, ThrOcc
 use rasscf_global, only: NCONF, nDet, NSEL
 use DWSol, only: DWSol_DWRO
 use CI_Lib_Info, only: CI_Lib_Space
@@ -3072,6 +3072,26 @@ else
       return
     end if
     ReadStatus = ' O.K. reading the threshold after the ACTThreshold keyword.'
+    call ChkIfKey()
+  end if
+  !---  Process OCCT command (threshold of the occupation check)
+  if (Key('OCCT')) then
+    if (DBG) write(u6,*) ' OCCT (occupation check threshold) keyword was used.'
+    call SetPos(LUInput,'OCCT',Line,iRc)
+    if (iRc /= _RC_ALL_IS_WELL_) then
+      call Error(1)
+      return
+    end if
+    ReadStatus = ' Failure reading the threshold after the OCCThreshold keyword.'
+    read(LUInput,*,iostat=istatus) ThrOcc
+    if (istatus < 0) then
+      call Error(2)
+      return
+    else if (istatus > 0) then
+      call Error(3)
+      return
+    end if
+    ReadStatus = ' O.K. reading the threshold after the OCCThreshold keyword.'
     call ChkIfKey()
   end if
   ! EXPERT: a lost active space gives a warning only
