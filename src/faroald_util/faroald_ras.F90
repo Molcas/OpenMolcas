@@ -566,7 +566,10 @@ end function sub_bits
 
 !> Global address of the string with bits c (sign bit ignored) among the
 !> strings of spin s, 0 if its class is not one of s.
-function str_index(s,c) result(g)
+!> (recursive only to avoid the -fcheck=recursion flag: with it, gfortran 13
+!> -O2 splits the function (str_index.part.0) and then drops the second call
+!> in Faro_RAS_addr as a certain recursion error.)
+recursive function str_index(s,c) result(g)
   type(ras_spin), intent(in) :: s
   integer(kind=iwp), intent(in) :: c
   integer(kind=iwp) :: g
