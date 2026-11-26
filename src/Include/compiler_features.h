@@ -139,6 +139,16 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #  undef _LIFETIME_BUG_
 #endif
 
+/* False "Recursive call to nonrecursive procedure" with -O2 -fcheck=recursion -finit-integer
+(gfortran 11-13 at least): partial inlining splits a function into a part that sets the recursion
+flag and a part that clears it, and a second call from the same caller becomes a certain error.
+Functions affected are declared recursive (no check) */
+#if ( __GNUC__ )
+#  define _BUGGY_GCC_RECURSION_CHECK_
+#else
+#  undef _BUGGY_GCC_RECURSION_CHECK_
+#endif
+
 /* Assumed-length association */
 #if (( __GNUC__ ) && ( GCC_VERSION < 50000 ))
 #  undef _ASSUMED_LENGTH_ASSOCIATE_

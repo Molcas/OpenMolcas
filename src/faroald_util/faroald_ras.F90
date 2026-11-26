@@ -11,6 +11,8 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
+#include "compiler_features.h"
+
 module Faroald_RAS
 ! String-driven RAS/GAS for Faroald (Olsen et al., J. Chem. Phys. 89, 2185
 ! (1988)): the alpha and beta strings are grouped in occupation classes
@@ -566,10 +568,13 @@ end function sub_bits
 
 !> Global address of the string with bits c (sign bit ignored) among the
 !> strings of spin s, 0 if its class is not one of s.
-!> (recursive only to avoid the -fcheck=recursion flag: with it, gfortran 13
-!> -O2 splits the function (str_index.part.0) and then drops the second call
-!> in Faro_RAS_addr as a certain recursion error.)
+!> (recursive with gfortran only because of _BUGGY_GCC_RECURSION_CHECK_, see
+!> compiler_features.h: Faro_RAS_addr calls it twice.)
+#ifdef _BUGGY_GCC_RECURSION_CHECK_
 recursive function str_index(s,c) result(g)
+#else
+function str_index(s,c) result(g)
+#endif
   type(ras_spin), intent(in) :: s
   integer(kind=iwp), intent(in) :: c
   integer(kind=iwp) :: g
