@@ -46,11 +46,11 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: EOcc(*), EVir(*), EFro(*)
 integer(kind=iwp), intent(in) :: lWrk
 real(kind=wp), intent(inout) :: Wrk(lWrk)
-integer(kind=iwp) :: i, iA, iAdr, iB, iBat, iClos, iI, iIter, iJ, indx, index1, index2, iOff, iOffL, iOpt, iOrb, iOrbI, iSeed, &
+integer(kind=iwp) :: i, iA, iAdr, iB, iBat, iClos, iI, iIter, iJ, indx, index1, index2, iOff, iOffL, iOpt, iOrb, iSeed, &
                      iSym, iSym1, iSymOffFV, iSymOffOV, iTypL, iVec, iVec1, iVecFF, iVecFO, iVecFV, iVecOF, iVecOO, iVecOV, &
                      iVecVV, j, jOrb, kCGVec(9), kDiag(2), kEndCGVec(9), kEndDiag, kEndFDiag, kEndLab, kEndLfa, kEndLia, kEndLij, &
-                     kEndLiK, kEndLJK, kEndLKi, kEndU, kLab, kLfa, kLia, kLij, kLiK, kLJK, kLKi, kU, lCGFVec, lCGOVec, lCGVec, &
-                     lDiag, lFDiag, lLab, lLfa, lLia, lLij, lLiK, lLJK, lLKi, lScr, lTot, lU, maxvalue, nA, nBatL, nCGvec, nI, &
+                     kEndLiK, kEndLKi, kEndU, kLab, kLfa, kLia, kLij, kLiK, kLJK, kLKi, kU, lCGFVec, lCGOVec, lCGVec, &
+                     lDiag, lFDiag, lLab, lLfa, lLia, lLij, lLiK, lLKi, lScr, lTot, lU, maxvalue, nA, nBatL, nCGvec, nI, &
                      nIter, nOccAll(8), NumVec, nVec
 integer(kind=iwp) :: iSymI, iSymJ, iSymP, iType, kLBuf(9), kW2(8), lLBuf, lW2, mxLip, nVecJ
 real(kind=wp) :: Ea, Eb, Ei, Ej, Eps, Res, term
@@ -396,14 +396,12 @@ do iSym=1,nsym
   end do
   do iI=1,nFro(iSym)
     Ei = Efro(iFro(iSym)+iI)
-    iOrbI = iI
     do iA=1,nVir(iSym)
       Wrk(kWak(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kWak(iSym)+iA-1+nVir(iSym)*(iI-1))-Two*Wrk(kPaK(iSym)+iA-1+nVir(iSym)*(iI-1))*Ei
     end do
   end do
   do iI=1,nOcc(iSym)
     Ei = EOcc(iOcc(iSym)+iI)
-    iOrbI = nFro(iSYm)+iI
     do iA=1,nVir(iSym)
       Wrk(kWai(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kWai(iSym)+iA-1+nVir(iSym)*(iI-1))-Two*Wrk(kPai(iSym)+iA-1+nVir(iSym)*(iI-1))*Ei
     end do
@@ -458,9 +456,7 @@ lLab = nMoMo(iSym,iVecVV)*nVec
 kLab = kEndLKi
 kEndLab = kLab+lLab
 
-lLJK = nMoMo(iSym,iVecFF)*nVec
 kLJK = kEndLab
-kEndLJK = kLJK+lLJK
 
 do iBat=1,nBatL
   if (iBat == nBatL) then
