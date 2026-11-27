@@ -530,11 +530,16 @@ are disregarded for algorithm 0 (see below).
   Takes as argument one real number.
   Default is the threshold used by :program:`SEWARD` for decomposing the two-electron
   integrals.
+  With :kword:`GRDT` or :kword:`PRPT` (and without :kword:`DECOmpose`) the keyword sets the
+  threshold for the Cholesky decomposition of the MP2 amplitudes used to build the densities.
+  The default is then the smaller of the :program:`SEWARD` threshold and :math:`10^{-6}`;
+  a looser threshold makes the analytic gradient inconsistent with the energy.
 
   .. xmldoc:: <KEYWORD MODULE="MBPT2" NAME="THRCHOLESKY" APPEAR="CD threshold" LEVEL="ADVANCED" KIND="REAL">
               %%Keyword: ThrCholesky <advanced>
               <HELP>
               Specifies the threshold for (ai|bj) Cholesky decomposition.
+              With GRDT/PRPT it is the threshold of the amplitude decomposition (default min(CD threshold,1e-6)).
               </HELP>
               </KEYWORD>
 

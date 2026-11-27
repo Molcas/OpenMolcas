@@ -37,6 +37,8 @@ integer(kind=iwp) :: blast, bsize, iSym, iSyma, iSymAl, iSymb, iSymi, iTyp, l_X,
 real(kind=wp) :: Byte, lX, xb, xbp, xM, xn
 logical(kind=iwp) :: Accepted, ChoMP2_Setup_MemChk
 character(len=2) :: Unt
+! default (upper bound) of the amplitude decomposition threshold for MP2 densities and gradients
+real(kind=wp), parameter :: ThrAmp_Def = 1.0e-6_wp
 character(len=*), parameter :: SecNam = 'ChoMP2_Setup'
 #ifdef _DISABLED_
 integer(kind=iwp) :: iSymP, iSymQ, nPQprodx
@@ -47,7 +49,15 @@ irc = 0
 ! Setup index arrays and counters.
 ! --------------------------------
 
-if ((DecoMP2 .or. DoDens) .and. (ThrMP2 <= Zero)) call Get_dScalar('Cholesky Threshold',ThrMP2)
+if ((DecoMP2 .or. DoDens) .and. (ThrMP2 <= Zero)) then
+  call Get_dScalar('Cholesky Threshold',ThrMP2)
+  ! The density/gradient code (DoDens) uses Cholesky-decomposed amplitudes
+  ! (ChoMP2_DecDrv 'Amplitudes') while the energy uses the exact ones. With
+  ! the integral threshold ('Cholesky Threshold', CDThreshold in GATEWAY)
+  ! the gradient is then inconsistent with the energy by roughly that
+  ! threshold in au; ThrAmp_Def keeps the error near 1e-7 au.
+  if (DoDens .and. (.not. DecoMP2)) ThrMP2 = min(ThrMP2,ThrAmp_Def)
+end if
 
 call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
 iOcc(1) = 0
