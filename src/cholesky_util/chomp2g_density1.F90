@@ -170,8 +170,8 @@ Wrk(kPaK(1):kEndPaK-1) = Zero
 lWaK = nVir(1)*nFro(1)
 kWaK(1) = kEndPaK
 do iSym=2,nSym
-  kWaK(iSym) = kWaK(iSym-1)+nVir(iSym-1)*nOcc(iSym-1)
-  lWaK = lWaK+nVir(iSym)*nOcc(iSym)
+  kWaK(iSym) = kWaK(iSym-1)+nVir(iSym-1)*nFro(iSym-1)
+  lWaK = lWaK+nVir(iSym)*nFro(iSym)
 end do
 kEndWaK = kWaK(1)+lWaK
 Wrk(kWaK(1):kEndWaK-1) = Zero
@@ -711,6 +711,7 @@ do iSym=1,nSym
             call dGemm_('T','N',nOcc(iSymI),nOcc(iSymK),nVir(iSymB),Four,Wrk(kU+iOff),nVir(iSymB),Wrk(kLia+iOff),nVir(iSymB),One, &
                         Wrk(kWij(iSymK)),nOcc(iSymI))
           end if
+          iOff1 = iOff1+nOcc(iSymI)*nVir(iSymB)
         end do
       end do
 
