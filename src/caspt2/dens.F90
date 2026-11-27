@@ -23,6 +23,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use CHOVEC_IO, only: nvloc_chobatch
 use PrintLevel, only: DEBUG, VERBOSE
 use EQSOLV, only: IVECC, IVECC2, IVECR, IVECW, IVECX
+use TRDNS2O_Mod, only: TRDNS2O
 use ChoCASPT2, only: iALGO, MaxVec_PT2
 use CI_Lib_Info, only: CI_Lib_Space
 use Orbital_Spaces, only: nAsh
@@ -141,7 +142,7 @@ if (do_grad) then
   if (MAXIT /= 0) then
     !! off-diagonal are ignored for CASPT2-D
     DPT(:) = Zero
-    call TRDNS2O(iVecX,iVecR,DPT,size(DPT),NDPT,VECROT(JSTATE))
+    call TRDNS2O(iVecX,iVecR,DPT,size(DPT),NDPT,VECROT(JSTATE),.true.)
     DSUM(:) = DSUM(:)+DPT(:)
   end if
   !write(u6,*) ' DPT after TRDNS2O.'
@@ -1010,7 +1011,7 @@ else
   !write(u6,*) ' DPT after TRDNS2D.'
   !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)
   DPT(1:NDPT) = Zero
-  call TRDNS2O(IVEC,IVEC,DPT,size(DPT),NDPT,One)
+  call TRDNS2O(IVEC,IVEC,DPT,size(DPT),NDPT,One,.false.)
   DSUM(1:NDPT) = DSUM(1:NDPT)+DPT(1:NDPT)
   !write(u6,*) ' DPT after TRDNS2O.'
   !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)

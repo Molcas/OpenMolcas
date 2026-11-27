@@ -26,12 +26,12 @@ subroutine SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
 use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
-use EQSOLV, only: IFCoup
+use EQSOLV, only: Cpl_Code
 use Sigma_data, only: IFTEST, NFDXP, NFMV, NFR1, NFSCA
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: FIFA, LISTS
 use Orbital_Spaces, only: nAsh
-use caspt2_module, only: CPUSGM, FockType, G1SecIn, MaxIt, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, ThrShn, ThrShS, &
+use caspt2_module, only: CPUSGM, MaxIt, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, ThrShn, ThrShS, &
                          TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Vec_Backup, only: BackupVecs
@@ -55,14 +55,6 @@ write(u6,*) ' Compute |JVEC> := Beta*|JVEC> + Alpha*(H0-E0)|IVEC>'
 write(u6,'(1x,a,2f15.6)') 'Alpha,Beta:',Alpha,Beta
 write(u6,'(1x,a,2i5)') 'IVEC,JVEC:',IVEC,JVEC
 #endif
-
-! If the G1 correction to the Fock matrix is used, then the
-! inactive/virtual coupling elements (which are non-zero for the
-! case of average CASSCF) cannot be used in the CASPT2 equations.
-if ((FOCKTYPE == 'G1') .and. (.not. G1SECIN)) then
-  IFCOUP(12,5) = 0
-  IFCOUP(13,5) = 0
-end if
 
 IFTEST = 0
 ! Flop counts:
@@ -168,7 +160,7 @@ do ICASE1=1,11
 
     IMLTOP = 0
     do ICASE2=ICASE1+1,NCASES
-      IFC = IFCOUP(ICASE2,ICASE1)
+      IFC = Cpl_Code(ICASE2,ICASE1,.true.)
       if (IFC == 0) cycle
       do ISYM2=1,NSYM
         if (NINDEP(ISYM2,ICASE2) == 0) cycle
@@ -382,7 +374,7 @@ do ICASE1=1,11
     end if
 
     do ICASE2=ICASE1+1,NCASES
-      if (IFCOUP(ICASE2,ICASE1) == 0) cycle
+      if (Cpl_Code(ICASE2,ICASE1,.true.) == 0) cycle
       do ISYM2=1,NSYM
         if (NINDEP(ISYM2,ICASE2) == 0) cycle
         NIS2 = NISUP(ISYM2,ICASE2)

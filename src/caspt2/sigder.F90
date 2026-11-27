@@ -22,7 +22,7 @@ subroutine SIGDER(IVEC,JVEC,SCAL)
 use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
-use EQSOLV, only: IFCOUP
+use EQSOLV, only: Cpl_Code
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 use Para_Info, only: Is_Real_Par
 use GA_Wrapper, only: GA_Destroy
@@ -30,7 +30,7 @@ use GA_Wrapper, only: GA_Destroy
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: do_lindep, FIFA, idSCMat, idSDMat, LISTS, LUSTD
 use Orbital_Spaces, only: nAsh
-use caspt2_module, only: CPUSGM, FockType, G1SecIn, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, TIOSGM
+use caspt2_module, only: CPUSGM, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Vec_Backup, only: BackupVecs
 use Constants, only: Zero, One, Two
@@ -100,14 +100,6 @@ do iCase=1,11
   end do
 end do
 call mma_deallocate(WRK)
-
-! If the G1 correction to the Fock matrix is used, then the
-! inactive/virtual coupling elements (which are non-zero for the
-! case of average CASSCF) cannot be used in the CASPT2 equations.
-if ((FOCKTYPE == 'G1') .and. (.not. G1SECIN)) then
-  IFCOUP(12,5) = 0
-  IFCOUP(13,5) = 0
-end if
 
 ! Keep the rows of the vectors that the transformation below does not recover (see BackupVecs)
 call BackupVecs(1,IVEC,VecKeepI)
@@ -207,7 +199,7 @@ do ILOOP=1,NLOOP
 
       IMLTOP = 0
       do ICASE2=ICASE1+1,NCASES
-        IFC = IFCOUP(ICASE2,ICASE1)
+        IFC = Cpl_Code(ICASE2,ICASE1,.true.)
         if (IFC == 0) cycle
         do ISYM2=1,NSYM
           if (NINDEP(ISYM2,ICASE2) == 0) cycle
@@ -392,7 +384,7 @@ do ILOOP=1,NLOOP
 
       !! No need to compute for ICASE2 = 12 and 13
       do ICASE2=ICASE1+1,11 !! NCASES
-        if (IFCOUP(ICASE2,ICASE1) == 0) cycle
+        if (Cpl_Code(ICASE2,ICASE1,.true.) == 0) cycle
         do ISYM2=1,NSYM
           if (NINDEP(ISYM2,ICASE2) == 0) cycle
           NIS2 = NISUP(ISYM2,ICASE2)

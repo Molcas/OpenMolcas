@@ -634,6 +634,12 @@ Keywords
   :cite:`Andersson:90,Andersson:92a` and the other original CASPT2 references.
   The three different modifications named G1, G2 and G3 are described in
   :cite:`Andersson:95a`.
+  As in that paper, with G1 the inactive-secondary block of the modified Fock
+  matrix is left out of the zeroth-order Hamiltonian: the first-order cases
+  coupled by this block (VJTU-VJAI, ATVX-BJAT and AIVX-BJAI) are not coupled in
+  :math:`H_0`, also not in the analytic gradients. The CASPT2 density matrix used
+  for the properties is the full expectation value of the first-order wave function.
+  :kword:`G1SEcin` keeps the block.
   Note: from 6.4 it is not recommended to use this keyword but
   stay with the IPEA modified :math:`H_0`, which is default.
 
@@ -642,6 +648,19 @@ Keywords
               <HELP>
               Present choices: G1, G2, G3. Refers to modified Fock matrices
               (See manual). It is better to use the default IPEA shift.
+              </HELP>
+              </KEYWORD>
+
+:kword:`G1SEcin`
+  With :kword:`FOCKtype` G1, keep the inactive-secondary block of the modified
+  Fock matrix in the zeroth-order Hamiltonian, which is then the full projected
+  Fock operator, as for G2 and G3. By default this block is left out, as in
+  :cite:`Andersson:95a`. No effect for other Fock matrices.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="G1SE" APPEAR="G1 inactive-secondary" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: G1SEcin <advanced>
+              <HELP>
+              With FOCKtype G1, keep the inactive-secondary block of the Fock matrix in H0.
               </HELP>
               </KEYWORD>
 
@@ -1332,7 +1351,5 @@ Input example for SA-DMRG-CASPT2 with |molcas|--CheMPS2 interface
 .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="RHSD" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="WTHR" KIND="REALS" SIZE="3" LEVEL="UNDOCUMENTED" />
-
-.. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="G1SE" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: </MODULE>

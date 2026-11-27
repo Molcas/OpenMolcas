@@ -159,7 +159,7 @@ if (.not. (Input%ChoI .or. Input%Chol)) call Cho_caspt2_rdInp(.true.,iDummy)
 RFpert = Input%RFPert
 
 OUTFMT = 'DEFAULT'
-G1SECIN = .false.
+G1SECIN = Input%G1SECIN
 PRORB = Input%PrOrb
 PRSD = Input%PrSD
 NCASES = 13
