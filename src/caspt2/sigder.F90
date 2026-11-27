@@ -19,9 +19,9 @@
 
 subroutine SIGDER(IVEC,JVEC,SCAL)
 
-use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
+use Case_Pairs, only: Cpl_Block, Cpl_D_Arrays, Cpl_GSum, Cpl_N1, Cpl_Read_Vec, Cpl_Spec1
 use EQSOLV, only: Cpl_Code
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 use Para_Info, only: Is_Real_Par
@@ -30,7 +30,7 @@ use GA_Wrapper, only: GA_Destroy
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: do_lindep, FIFA, idSCMat, idSDMat, LISTS, LUSTD
 use Orbital_Spaces, only: nAsh
-use caspt2_module, only: CPUSGM, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, TIOSGM
+use caspt2_module, only: CPUSGM, nASup, nCases, nInDep, nIsh, nOrb, nSsh, nSym, TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Vec_Backup, only: BackupVecs
 use Constants, only: Zero, One, Two
@@ -40,13 +40,12 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), intent(in) :: iVec, jVec
 real(kind=wp), intent(in) :: Scal
-integer(kind=iwp) :: iCase, iCase1, idSDer, IfC, IFIFA, iLoop, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, Lg_SgmX, &
-                     lg_V1, lSgmX, lSgmX_Sta, Max_MESG_SIZE, NA, NAS, NAS1, NAS2, nCX, nD1, NFIA, NFIT, NFTA, NI, NIN1, NIN2, &
-                     NIS1, NIS2, nLoop, NO, NS, nSgm1, nSgm2, lSgm2_Sta, nD2, iCase2, nSgm2_Blk, nSgmX, nSgmX_Blk, MaxLen
-real(kind=wp) :: CPU, CPU0, CPU1, FACT, TIO, TIO0, TIO1
+integer(kind=iwp) :: iCase, iCase1, idSDer, IFIFA, iLoop, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, Lg_SgmX, lg_V1, &
+                     lSgmX, NA, NAS, NAS1, NAS2, nCX, nD1, NFIA, NFIT, NFTA, NI, NIN1, NIN2, NIS1, NIS2, nLoop, NO, NS, nSgm1, &
+                     nSgm2, nD2, iCase2, nSgmX, MaxLen
+real(kind=wp) :: CPU, CPU0, CPU1, TIO, TIO0, TIO1
 logical(kind=iwp) :: DoSC
 real(kind=wp), allocatable :: D1(:), D2(:), SCDER2(:), SDER1(:), SDER2(:), SGM1(:), SGM2(:), VecKeepI(:), VecKeepJ(:), WRK(:)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
@@ -175,49 +174,27 @@ do ILOOP=1,NLOOP
   do ICASE1=1,11
     !do ICASE1=1,NCASES
     do ISYM1=1,NSYM
-      if (NINDEP(ISYM1,ICASE1) == 0) cycle
-      NIS1 = NISUP(ISYM1,ICASE1)
-      NAS1 = NASUP(ISYM1,ICASE1)
+      if (.not. Cpl_Block(ICASE1,ISYM1,NAS1,NIS1)) cycle
       NIN1 = NINDEP(ISYM1,ICASE1)
       NSGM2 = NIS1*NAS1
-      if (NSGM2 == 0) cycle
 
       call mma_allocate(SGM2,NSGM2,Label='SGM2')
       SGM2(:) = Zero
 
-      NSGM1 = 0
-      !LSGM1 = 1
-      if (ICASE1 == 1) then
-        NSGM1 = NASH(ISYM1)*NISH(ISYM1)
-      else if (ICASE1 == 4) then
-        NSGM1 = NASH(ISYM1)*NSSH(ISYM1)
-      else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
-        NSGM1 = NIS1
-      end if
+      NSGM1 = Cpl_N1(ICASE1,ISYM1,NIS1)
       call mma_allocate(SGM1,max(1,NSGM1),Label='SGM1')
       SGM1(:) = Zero
 
       IMLTOP = 0
       do ICASE2=ICASE1+1,NCASES
-        IFC = Cpl_Code(ICASE2,ICASE1,.true.)
-        if (IFC == 0) cycle
+        if (Cpl_Code(ICASE2,ICASE1,.true.) == 0) cycle
         do ISYM2=1,NSYM
-          if (NINDEP(ISYM2,ICASE2) == 0) cycle
-          NIS2 = NISUP(ISYM2,ICASE2)
-          NAS2 = NASUP(ISYM2,ICASE2)
+          if (.not. Cpl_Block(ICASE2,ISYM2,NAS2,NIS2)) cycle
           NCX = NIS2*NAS2
-          if (NCX == 0) cycle
 
+          ! T + \lambda in the second loop
           call RHS_ALLO(NAS2,NIS2,lg_CX)
-          call RHS_READ(NAS2,NIS2,lg_CX,ICASE2,ISYM2,IVEC)
-          if ((IVEC /= JVEC) .and. (ILOOP == 2)) then
-            !! T = T + \lambda
-            if (SCAL /= One) call RHS_SCAL(NAS2,NIS2,lg_CX,SCAL)
-            call RHS_ALLO(NAS2,NIS2,lg_V1)
-            call RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
-            call RHS_DAXPY(NAS2,NIS2,One,lg_V1,lg_CX)
-            call RHS_FREE(lg_V1)
-          end if
+          call Cpl_Read_Vec(NAS2,NIS2,lg_CX,ICASE2,ISYM2,IVEC,JVEC,(IVEC /= JVEC) .and. (ILOOP == 2),SCAL)
           ! SVC: for case H (12,13) we can now pass the distributed array ID to
           ! the SGM subroutines
           if ((ICASE2 == 12) .or. (ICASE2 == 13)) then
@@ -247,25 +224,14 @@ do ILOOP=1,NLOOP
       end do
 
       !-SVC: sum the replicate arrays:
-      MAX_MESG_SIZE = 2**27
-      do LSGM2_STA=1,NSGM2,MAX_MESG_SIZE
-        NSGM2_BLK = min(MAX_MESG_SIZE,NSGM2-LSGM2_STA+1)
-        call GADGOP(SGM2(LSGM2_STA),NSGM2_BLK,'+')
-      end do
+      call Cpl_GSum(SGM2,NSGM2)
 
       if (NSGM1 > 0) call GADGOP(SGM1,NSGM1,'+')
 
       ! If there are 1-electron contributions, add them into the 2-el
       ! part (This requires a non-empty active space.)
       if (NSGM1 > 0) then
-        FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
-        if (ICASE1 == 1) then
-          call SPEC1A(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
-        else if (ICASE1 == 4) then
-          call SPEC1C(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
-        else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
-          call SPEC1D(IMLTOP,FACT,SGM2,size(SGM2),SGM1,size(SGM1))
-        end if
+        call Cpl_Spec1(IMLTOP,ICASE1,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
       end if
       call mma_deallocate(SGM1)
 
@@ -278,16 +244,9 @@ do ILOOP=1,NLOOP
       !call RHS_ALLO(NAS1,NIS1,lg_SGMX)
       !call RHS_READ(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
       if (ICASE1 <= 11) then
+        ! T + \lambda in the first loop
         call RHS_ALLO(NAS1,NIS1,lg_CX)
-        call RHS_READ(NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC)
-        if ((IVEC /= JVEC) .and. (ILOOP == 1)) then
-          !! T = T + \lambda
-          if (SCAL /= One) call RHS_SCAL(NAS1,NIS1,lg_CX,SCAL)
-          call RHS_ALLO(NAS1,NIS1,lg_V1)
-          call RHS_READ(NAS1,NIS1,lg_V1,ICASE1,ISYM1,JVEC)
-          call RHS_DAXPY(NAS1,NIS1,One,lg_V1,lg_CX)
-          call RHS_FREE(lg_V1)
-        end if
+        call Cpl_Read_Vec(NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC,JVEC,(IVEC /= JVEC) .and. (ILOOP == 1),SCAL)
 
         call mma_allocate(SDER1,NAS1*NAS1,Label='SDER1')
         idSDer = idSDMat(iSym1,iCase1)
@@ -320,28 +279,17 @@ do ILOOP=1,NLOOP
   do ICASE1=1,11
     !do ICASE1=1,NCASES
     do ISYM1=1,NSYM
-      if (NINDEP(ISYM1,ICASE1) == 0) cycle
-      NIS1 = NISUP(ISYM1,ICASE1)
-      NAS1 = NASUP(ISYM1,ICASE1)
+      if (.not. Cpl_Block(ICASE1,ISYM1,NAS1,NIS1)) cycle
       ND2 = NIS1*NAS1
-      if (ND2 == 0) cycle
 
       call RHS_ALLO(NAS1,NIS1,lg_D2)
       call RHS_SCAL(NAS1,NIS1,lg_D2,Zero)
       ! Contract S*CX to form D2. Also form D1 from D2, if needed.
 
       NCX = ND2
+      ! T + \lambda in the first loop
       call RHS_ALLO(NAS1,NIS1,lg_CX)
-      call RHS_READ(NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC)
-
-      if ((IVEC /= JVEC) .and. (ILOOP == 1)) then
-        !! T = T + \lambda
-        if (SCAL /= One) call RHS_SCAL(NAS1,NIS1,lg_CX,SCAL)
-        call RHS_ALLO(NAS1,NIS1,lg_V1)
-        call RHS_READ(NAS1,NIS1,lg_V1,ICASE1,ISYM1,JVEC)
-        call RHS_DAXPY(NAS1,NIS1,One,lg_V1,lg_CX)
-        call RHS_FREE(lg_V1)
-      end if
+      call Cpl_Read_Vec(NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC,JVEC,(IVEC /= JVEC) .and. (ILOOP == 1),SCAL)
 
       if ((ICASE1 /= 12) .and. (ICASE1 /= 13)) then
         call RHS_STRANS(NAS1,NIS1,One,lg_CX,lg_D2,ICASE1,ISYM1)
@@ -350,48 +298,16 @@ do ILOOP=1,NLOOP
       end if
       call RHS_FREE(lg_CX)
 
-      call mma_allocate(D2,ND2,Label='D2')
-      call RHS_GET(NAS1,NIS1,lg_D2,D2)
-      call RHS_FREE(lg_D2)
-
-      ND1 = 0
-      !LD1 = 1
       IMLTOP = 1
-      FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
-      if (ICASE1 == 1) then
-        ND1 = NASH(ISYM1)*NISH(ISYM1)
-        if (ND1 > 0) then
-          call mma_allocate(D1,ND1,Label='D1')
-          D1(:) = Zero
-          call SPEC1A(IMLTOP,FACT,ISYM1,D2,size(D2),D1,size(D1))
-        end if
-      else if (ICASE1 == 4) then
-        ND1 = NASH(ISYM1)*NSSH(ISYM1)
-        if (ND1 > 0) then
-          call mma_allocate(D1,ND1,Label='D1')
-          D1(:) = Zero
-          call SPEC1C(IMLTOP,FACT,ISYM1,D2,size(D2),D1,size(D1))
-        end if
-      else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
-        ND1 = NIS1
-        if (ND1 > 0) then
-          call mma_allocate(D1,ND1,Label='D1')
-          D1(:) = Zero
-          call SPEC1D(IMLTOP,FACT,D2,size(D2),D1,size(D1))
-        end if
-      end if
-      if (.not. allocated(D1)) call mma_allocate(D1,1,Label='D1')
+      call Cpl_D_Arrays(ICASE1,ISYM1,NAS1,NIS1,lg_D2,D2,D1,ND1)
 
       !! No need to compute for ICASE2 = 12 and 13
       do ICASE2=ICASE1+1,11 !! NCASES
         if (Cpl_Code(ICASE2,ICASE1,.true.) == 0) cycle
         do ISYM2=1,NSYM
-          if (NINDEP(ISYM2,ICASE2) == 0) cycle
-          NIS2 = NISUP(ISYM2,ICASE2)
-          NAS2 = NASUP(ISYM2,ICASE2)
+          if (.not. Cpl_Block(ICASE2,ISYM2,NAS2,NIS2)) cycle
           NIN2 = NINDEP(ISYM2,ICASE2)
           NSGMX = NIS2*NAS2
-          if (NSGMX == 0) cycle
 
           if ((ICASE2 == 12) .or. (ICASE2 == 13)) then
             call RHS_ALLO(NAS2,NIS2,lg_SGMX)
@@ -412,11 +328,7 @@ do ILOOP=1,NLOOP
           !end if
 
           if ((ICASE2 /= 12) .and. (ICASE2 /= 13)) then
-            MAX_MESG_SIZE = 2**27
-            do LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
-              NSGMX_BLK = min(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-              call GADGOP(GA_Arrays(LSGMX)%A(LSGMX_STA),NSGMX_BLK,'+')
-            end do
+            call Cpl_GSum(GA_Arrays(LSGMX)%A,NSGMX)
             !call RHS_ALLO(NAS2,NIS2,lg_SGMX)
             !call RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
             !call RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%A)

@@ -23,29 +23,26 @@ subroutine SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
 ! where the vectors are represented in transformed basis and
 ! are  stored at positions IVEC and JVEC on the LUSOLV unit.
 
-use CI_Lib_Info, only: CI_Lib_Space
 use Index_Functions, only: nTri_Elem
 use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
+use Case_Pairs, only: Cpl_Block, Cpl_D_Arrays, Cpl_GSum, Cpl_N1, Cpl_Spec1
 use EQSOLV, only: Cpl_Code
 use Sigma_data, only: IFTEST, NFDXP, NFMV, NFR1, NFSCA
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: FIFA, LISTS
 use Orbital_Spaces, only: nAsh
-use caspt2_module, only: CPUSGM, MaxIt, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, ThrShn, ThrShS, &
-                         TIOSGM
+use caspt2_module, only: CPUSGM, MaxIt, nCases, nIsh, nOrb, nSsh, nSym, ThrShn, ThrShS, TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Vec_Backup, only: BackupVecs
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(in) :: ALPHA, BETA
 integer(kind=iwp), intent(in) :: IVEC, JVEC
-integer(kind=iwp) :: iCASE1, iCase2, IfC, IFIFA, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, lg_SgmX, lSgm2_Sta, &
-                     lSgmX, lSgmX_Sta, Max_MESG_Size, NA, NAS1, NAS2, nCX, ND1, ND2, NFIA, NFIT, NFTA, NI, NIS1, NIS2, NO, NS, &
-                     nSgm1, nSgm2, nSgm2_Blk, nSgmX, nSgmX_blk
-real(kind=wp) :: CPU, CPU0, CPU1, Fact, TIO, TIO0, TIO1, XTST
+integer(kind=iwp) :: iCASE1, iCase2, IFIFA, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, lg_SgmX, lSgmX, NA, NAS1, &
+                     NAS2, nCX, ND1, ND2, NFIA, NFIT, NFTA, NI, NIS1, NIS2, NO, NS, nSgm1, nSgm2, nSgmX
+real(kind=wp) :: CPU, CPU0, CPU1, TIO, TIO0, TIO1, XTST
 real(kind=wp), allocatable :: D1(:), D2(:), SGM1(:), SGM2(:), VecKeep(:)
 real(kind=wp), external :: RHS_DDot, DDot_
 
@@ -137,37 +134,22 @@ call TIMING(CPU0,CPU,TIO0,TIO)
 ! Loop over types and symmetry block of sigma vector:
 do ICASE1=1,11
   do ISYM1=1,NSYM
-    if (NINDEP(ISYM1,ICASE1) == 0) cycle
-    NIS1 = NISUP(ISYM1,ICASE1)
-    NAS1 = NASUP(ISYM1,ICASE1)
+    if (.not. Cpl_Block(ICASE1,ISYM1,NAS1,NIS1)) cycle
     NSGM2 = NIS1*NAS1
-    if (NSGM2 == 0) cycle
 
     call mma_allocate(SGM2,NSGM2,Label='SGM2')
     SGM2(:) = Zero
 
-    if (ICASE1 == 1) then
-      NSGM1 = NASH(ISYM1)*NISH(ISYM1)
-    else if (ICASE1 == 4) then
-      NSGM1 = NASH(ISYM1)*NSSH(ISYM1)
-    else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
-      NSGM1 = NIS1
-    else
-      NSGM1 = 0
-    end if
+    NSGM1 = Cpl_N1(ICASE1,ISYM1,NIS1)
     call mma_allocate(SGM1,max(1,NSGM1),LABEL='SGM1')
     SGM1(:) = Zero
 
     IMLTOP = 0
     do ICASE2=ICASE1+1,NCASES
-      IFC = Cpl_Code(ICASE2,ICASE1,.true.)
-      if (IFC == 0) cycle
+      if (Cpl_Code(ICASE2,ICASE1,.true.) == 0) cycle
       do ISYM2=1,NSYM
-        if (NINDEP(ISYM2,ICASE2) == 0) cycle
-        NIS2 = NISUP(ISYM2,ICASE2)
-        NAS2 = NASUP(ISYM2,ICASE2)
+        if (.not. Cpl_Block(ICASE2,ISYM2,NAS2,NIS2)) cycle
         NCX = NIS2*NAS2
-        if (NCX == 0) cycle
 
         call RHS_ALLO(NAS2,NIS2,lg_CX)
         call RHS_READ(NAS2,NIS2,lg_CX,ICASE2,ISYM2,IVEC)
@@ -223,11 +205,7 @@ do ICASE1=1,11
     end do
 
     !-SVC: sum the replicate arrays:
-    MAX_MESG_SIZE = 2**27
-    do LSGM2_STA=1,NSGM2,MAX_MESG_SIZE
-      NSGM2_BLK = min(MAX_MESG_SIZE,NSGM2-LSGM2_STA+1)
-      call GADGOP(SGM2(LSGM2_STA:),NSGM2_BLK,'+')
-    end do
+    call Cpl_GSum(SGM2,NSGM2)
 
     if (NSGM1 > 0) call GADGOP(SGM1,NSGM1,'+')
 
@@ -239,14 +217,7 @@ do ICASE1=1,11
     ! If there are 1-electron contributions, add them into the 2-el
     ! part (This requires a non-empty active space.)
     if (NSGM1 > 0) then
-      FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
-      if (ICASE1 == 1) then
-        call SPEC1A(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
-      else if (ICASE1 == 4) then
-        call SPEC1C(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
-      else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
-        call SPEC1D(IMLTOP,FACT,SGM2,size(SGM2),SGM1,size(SGM1))
-      end if
+      call Cpl_Spec1(IMLTOP,ICASE1,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
 
       XTST = DDOT_(NSGM2,SGM2,1,SGM2,1)
       if (XTST > 1.0e12_wp) then
@@ -298,11 +269,8 @@ IMLTOP = 1
 ! Loop over types and symmetry block of CX vector:
 do ICASE1=1,11
   do ISYM1=1,NSYM
-    if (NINDEP(ISYM1,ICASE1) == 0) cycle
-    NIS1 = NISUP(ISYM1,ICASE1)
-    NAS1 = NASUP(ISYM1,ICASE1)
+    if (.not. Cpl_Block(ICASE1,ISYM1,NAS1,NIS1)) cycle
     ND2 = NIS1*NAS1
-    if (ND2 == 0) cycle
 
     call RHS_ALLO(NAS1,NIS1,lg_D2)
     call RHS_SCAL(NAS1,NIS1,lg_D2,Zero)
@@ -333,36 +301,8 @@ do ICASE1=1,11
       call Crash()
     end if
 
-    call mma_allocate(D2,ND2,Label='D2')
-    call RHS_GET(NAS1,NIS1,lg_D2,D2)
-    call RHS_FREE(lg_D2)
-
-    ND1 = 0
     IMLTOP = 1
-    FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
-    if (ICASE1 == 1) then
-      ND1 = NASH(ISYM1)*NISH(ISYM1)
-      if (ND1 > 0) then
-        call mma_allocate(D1,ND1,Label='D1')
-        D1(:) = Zero
-        call SPEC1A(IMLTOP,FACT,ISYM1,D2,size(D2),D1,size(D1))
-      end if
-    else if (ICASE1 == 4) then
-      ND1 = NASH(ISYM1)*NSSH(ISYM1)
-      if (ND1 > 0) then
-        call mma_allocate(D1,ND1,Label='D1')
-        D1(:) = Zero
-        call SPEC1C(IMLTOP,FACT,ISYM1,D2,size(D2),D1,size(D1))
-      end if
-    else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
-      ND1 = NIS1
-      if (ND1 > 0) then
-        call mma_allocate(D1,ND1,Label='D1')
-        D1(:) = Zero
-        call SPEC1D(IMLTOP,FACT,D2,size(D2),D1,size(D1))
-      end if
-    end if
-    if (.not. allocated(D1)) call mma_allocate(D1,1,Label='D1')
+    call Cpl_D_Arrays(ICASE1,ISYM1,NAS1,NIS1,lg_D2,D2,D1,ND1)
 
     if (ND1 > 0) then
       XTST = DDOT_(ND1,D1,1,D1,1)
@@ -376,11 +316,8 @@ do ICASE1=1,11
     do ICASE2=ICASE1+1,NCASES
       if (Cpl_Code(ICASE2,ICASE1,.true.) == 0) cycle
       do ISYM2=1,NSYM
-        if (NINDEP(ISYM2,ICASE2) == 0) cycle
-        NIS2 = NISUP(ISYM2,ICASE2)
-        NAS2 = NASUP(ISYM2,ICASE2)
+        if (.not. Cpl_Block(ICASE2,ISYM2,NAS2,NIS2)) cycle
         NSGMX = NIS2*NAS2
-        if (NSGMX == 0) cycle
 
         if ((ICASE2 == 12) .or. (ICASE2 == 13)) then
           call RHS_ALLO(NAS2,NIS2,lg_SGMX)
@@ -419,11 +356,7 @@ do ICASE1=1,11
         end if
 
         if ((ICASE2 /= 12) .and. (ICASE2 /= 13)) then
-          MAX_MESG_SIZE = 2**27
-          do LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
-            NSGMX_BLK = min(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-            call GADGOP(GA_Arrays(LSGMX)%A(LSGMX_STA),NSGMX_BLK,'+')
-          end do
+          call Cpl_GSum(GA_Arrays(LSGMX)%A,NSGMX)
           call RHS_ALLO(NAS2,NIS2,lg_SGMX)
           call RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
           call RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Arrays(LSGMX)%A)

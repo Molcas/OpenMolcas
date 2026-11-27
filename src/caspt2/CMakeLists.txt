@@ -22,6 +22,7 @@ set (sources
      asind.F90
      backtransform.F90
      bdernev.F90
+     case_pairs.F90
      caspt2.F90
      caspt2_grad_invaria1.F90
      caspt2_grad_invaria2.F90

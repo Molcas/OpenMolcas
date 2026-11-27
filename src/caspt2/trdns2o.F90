@@ -35,31 +35,30 @@ subroutine TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL,H0)
   ! H0 = .true. for the gradient (only the couplings of H0, see Cpl_Code),
   ! .false. for the expectation value (all couplings).
 
-  use CI_Lib_Info, only: CI_Lib_Space
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
+  use Case_Pairs, only: Cpl_Block, Cpl_N1, Cpl_Read_Vec, Cpl_Spec1
   use EQSOLV, only: Cpl_Code
   use fake_GA, only: GA_Arrays
   use caspt2_global, only: LISTS
   use Orbital_Spaces, only: nAsh
-  use caspt2_module, only: nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
+  use caspt2_module, only: nIsh, nOrb, nSym
   use stdalloc, only: mma_allocate, mma_deallocate
   use Vec_Backup, only: BackupVecs
   use Constants, only: Zero, One
   use Definitions, only: wp, iwp
 
-  integer(kind=iwp), parameter :: iState = 1
   integer(kind=iwp), intent(in) :: IVEC, JVEC, MDPT2
   real(kind=wp), intent(inout) :: DPT2(MDPT2)
   integer(kind=iwp), intent(inout) :: NDPT2
   real(kind=wp), intent(in) :: SCAL
   logical(kind=iwp), intent(in) :: H0
-  integer(kind=iwp) :: iCase1, iCase2, idoff, idpq, idqp, iLoop, iMltOp, ip, iq, iSta, iSym, iSym1, iSym2, lScr, lScr2, lVec1, &
-                       lVec2, na, nas1, nas2, ni, nis1, nis2, nLoop, no, nVec1, nVec2, nWec1
-  real(kind=wp) :: Fact
+  integer(kind=iwp) :: iCase1, iCase2, idoff, idpq, idqp, iLoop, iMltOp, ip, iq, iSta, iSym, iSym1, iSym2, lScr, lVec1, lVec2, &
+                       na, nas1, nas2, ni, nis1, nis2, nLoop, no, nWec1
   real(kind=wp), allocatable :: SCR(:), VecKeepI(:), VecKeepJ(:), WEC1(:)
 #ifdef _MOLCAS_MPP_
+  integer(kind=iwp) :: nVec1, nVec2
   real(kind=wp), allocatable :: TMP1(:), TMP2(:)
 #endif
 
@@ -90,42 +89,23 @@ subroutine TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL,H0)
     ! Loop over types and symmetry block of VEC1 vector:
     do ICASE1=1,13
       do ISYM1=1,NSYM
-        if (NINDEP(ISYM1,ICASE1) == 0) cycle
-        NIS1 = NISUP(ISYM1,ICASE1)
-        NAS1 = NASUP(ISYM1,ICASE1)
+        if (.not. Cpl_Block(ICASE1,ISYM1,NAS1,NIS1)) cycle
+#       ifdef _MOLCAS_MPP_
         NVEC1 = NIS1*NAS1
-        if (NVEC1 == 0) cycle
+#       endif
         ! Form VEC1 from the BRA vector, transformed to covariant form.
         call RHS_ALLO(NAS1,NIS1,LVEC1)
         call RHS_SCAL(NAS1,NIS1,LVEC1,Zero)
         if (ICASE1 <= 11) then
           call RHS_ALLO(NAS1,NIS1,LSCR)
-          call RHS_READ(NAS1,NIS1,LSCR,ICASE1,ISYM1,IVEC) !! IBRA)
-          if ((IVEC /= JVEC) .and. (ILOOP == 1)) then
-            if (SCAL /= One) call RHS_SCAL(NAS1,NIS1,LSCR,SCAL)
-            call RHS_ALLO(NAS1,NIS1,LSCR2)
-            call RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
-            call RHS_DAXPY(NAS1,NIS1,One,LSCR2,LSCR)
-            call RHS_FREE(LSCR2)
-          end if
+          call Cpl_Read_Vec(NAS1,NIS1,LSCR,ICASE1,ISYM1,IVEC,JVEC,(IVEC /= JVEC) .and. (ILOOP == 1),SCAL)
           call RHS_STRANS(NAS1,NIS1,One,LSCR,LVEC1,ICASE1,ISYM1)
           call RHS_FREE(LSCR)
         else
-          call RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IVEC) !! IBRA)
-          if ((IVEC /= JVEC) .and. (ILOOP == 1)) then
-            if (SCAL /= One) call RHS_SCAL(NAS1,NIS1,LVEC1,SCAL)
-            call RHS_ALLO(NAS1,NIS1,LSCR2)
-            call RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
-            call RHS_DAXPY(NAS1,NIS1,One,LSCR2,LVEC1)
-            call RHS_FREE(LSCR2)
-          end if
+          call Cpl_Read_Vec(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IVEC,JVEC,(IVEC /= JVEC) .and. (ILOOP == 1),SCAL)
         end if
         ! Form WEC1 from VEC1, if needed.
-        NWEC1 = 0
-        FACT = One/real(max(1,CI_Lib_Space(iState)%nActEl),kind=wp)
-        if (ICASE1 == 1) NWEC1 = NASH(ISYM1)*NISH(ISYM1)
-        if (ICASE1 == 4) NWEC1 = NASH(ISYM1)*NSSH(ISYM1)
-        if ((ICASE1 == 5) .and. (ISYM1 == 1)) NWEC1 = NIS1
+        NWEC1 = Cpl_N1(ICASE1,ISYM1,NIS1)
         if (NWEC1 > 0) then
           call mma_allocate(WEC1,NWEC1,Label='WEC1')
           WEC1(:) = Zero
@@ -134,23 +114,11 @@ subroutine TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL,H0)
           if (IS_REAL_PAR()) then
             call mma_allocate(TMP1,NVEC1,Label='TMP1')
             call RHS_GET(NAS1,NIS1,LVEC1,TMP1)
-            if (ICASE1 == 1) then
-              call SPEC1A(IMLTOP,FACT,ISYM1,TMP1,NVEC1,WEC1,NWEC1)
-            else if (ICASE1 == 4) then
-              call SPEC1C(IMLTOP,FACT,ISYM1,TMP1,NVEC1,WEC1,NWEC1)
-            else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
-              call SPEC1D(IMLTOP,FACT,TMP1,NVEC1,WEC1,NWEC1)
-            end if
+            call Cpl_Spec1(IMLTOP,ICASE1,ISYM1,TMP1,NVEC1,WEC1,NWEC1)
             call mma_deallocate(TMP1)
           else
 #       endif
-            if (ICASE1 == 1) then
-              call SPEC1A(IMLTOP,FACT,ISYM1,GA_Arrays(LVEC1)%A,size(GA_Arrays(LVEC1)%A),WEC1,NWEC1)
-            else if (ICASE1 == 4) then
-              call SPEC1C(IMLTOP,FACT,ISYM1,GA_Arrays(LVEC1)%A,size(GA_Arrays(LVEC1)%A),WEC1,NWEC1)
-            else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
-              call SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC1)%A,size(GA_Arrays(LVEC1)%A),WEC1,NWEC1)
-            end if
+            call Cpl_Spec1(IMLTOP,ICASE1,ISYM1,GA_Arrays(LVEC1)%A,size(GA_Arrays(LVEC1)%A),WEC1,NWEC1)
 #       ifdef _MOLCAS_MPP_
           end if
 #       endif
@@ -163,20 +131,12 @@ subroutine TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL,H0)
         do ICASE2=ICASE1+1,13
           if (Cpl_Code(ICASE2,ICASE1,H0) == 0) cycle
           do ISYM2=1,NSYM
-            if (NINDEP(ISYM2,ICASE2) == 0) cycle
-            NIS2 = NISUP(ISYM2,ICASE2)
-            NAS2 = NASUP(ISYM2,ICASE2)
+            if (.not. Cpl_Block(ICASE2,ISYM2,NAS2,NIS2)) cycle
+#           ifdef _MOLCAS_MPP_
             NVEC2 = NIS2*NAS2
-            if (NVEC2 == 0) cycle
+#           endif
             call RHS_ALLO(NAS2,NIS2,LVEC2)
-            call RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IVEC) !! IKET)
-            if ((IVEC /= JVEC) .and. (ILOOP == 2)) then
-              if (SCAL /= One) call RHS_SCAL(NAS2,NIS2,LVEC2,SCAL)
-              call RHS_ALLO(NAS2,NIS2,LSCR2)
-              call RHS_READ(NAS2,NIS2,LSCR2,ICASE2,ISYM2,JVEC)
-              call RHS_DAXPY(NAS2,NIS2,One,LSCR2,LVEC2)
-              call RHS_FREE(LSCR2)
-            end if
+            call Cpl_Read_Vec(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IVEC,JVEC,(IVEC /= JVEC) .and. (ILOOP == 2),SCAL)
 #         ifdef _MOLCAS_MPP_
             if (IS_REAL_PAR()) then
               call mma_allocate(TMP1,NVEC1,Label='TMP1')
