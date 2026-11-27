@@ -10,8 +10,8 @@
 !***********************************************************************
 
 ! Template used in PGet2_RI3
-#if ! defined (_COULOMB_) && ! defined (_EXCHANGE_) && ! defined (_ACTIVE_)
-# "At least one of _COULOMB_, _EXCHANGE_, _ACTIVE_ should be defined"
+#if ! defined (_COULOMB_) && ! defined (_EXCHANGE_) && ! defined (_ACTIVE_) && ! defined (_MP2_)
+# "At least one of _COULOMB_, _EXCHANGE_, _ACTIVE_, _MP2_ should be defined"
 #endif
 
 mijkl = 0
@@ -29,7 +29,7 @@ do lAOl=0,lBas-1
       Indkl = iPntSO(j3,j4,lOper,nBas)+iTri(kSOk,lSOl)
 #     endif
 
-      temp = ( &
+      temp = (Zero &
 #            ifdef _COULOMB_
              +CoulFac*V_k(jSOj,1)*DSO(Indkl,1) &
 #            endif
@@ -40,6 +40,20 @@ do lAOl=0,lBas-1
              +Thpkl(mijkl) &
 #            endif
              )
+
+#     ifdef _MP2_
+      ! Nonseparable MP2 terms, symmetrized in k and l (cf. Compute_B).
+      ! B-tilde of aux function jAOj: elements (k,l) and (l,k), layout
+      ! described where kBslot, nLRbS and iOffLRbS are set (PGet2_RI3).
+      ikl = kBslot(j2)+nLRbS(j2)*jAOj+iOffLRbS(j2,j3)+kSOk+nBas(j3)*(lSOl-1)
+      ilk = kBslot(j2)+nLRbS(j2)*jAOj+iOffLRbS(j2,j4)+lSOl+nBas(j4)*(kSOk-1)
+      B1 = Half*(BMP2(ikl,1)+BMP2(ilk,1))
+      B2 = Half*(BMP2(ikl,2)+BMP2(ilk,2))
+      temp = temp+CoulFac*B2-ExFac*Half*B1
+#     ifdef _COULOMB_
+      temp = temp+CoulFac*(U_k(jSOj)*DSO(Indkl,1)+V_k(jSOj,1)*(DVar(Indkl,1)-DSO(Indkl,1)))
+#     endif
+#     endif
 
       PMax = max(PMax,abs(temp))
       PSO(mijkl,MemSO2) = Fac*temp

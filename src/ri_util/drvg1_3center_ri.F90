@@ -319,7 +319,10 @@ if (DoCholExch) then
   call mma_allocate(BklK,lBklK,Label='BklK')
 
   if (iMp2prpt == 2) then
-    lB_mp2 = mxChVInShl*nBas(0)*nBas(0)
+    ! Room for the B-tilde vectors (MP2) of one auxiliary component in all
+    ! irreps where it has an SO: jBas*sum_j2 nLRb(j2) <= mxChVInShl*(sum nBas)**2,
+    ! the same as nBas(0)**2 per vector in C1 (see PGet2_RI3 and PGet1_RI3).
+    lB_mp2 = mxChVInShl*sum(nBas(0:nIrrep-1))**2
     call mma_allocate(BMP2,lB_mp2,2,Label='BMP2')
   end if
   !                                                                    *

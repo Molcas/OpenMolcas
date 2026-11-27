@@ -15,12 +15,13 @@ module Cholesky_procedures
 implicit none
 private
 
-public :: Build_Mp2Dens, Cho_CGM_InfVec, Cho_GetLQ, Cho_P_GetLQ, Cho_VecBuf_Subtr, Cho_X_GetIP_InfVec
+public :: Build_Mp2Dens, ChoMP2g_Unpack_Pairs, Cho_CGM_InfVec, Cho_GetLQ, Cho_P_GetLQ, Cho_VecBuf_Subtr, Cho_X_GetIP_InfVec
 
 contains
 
 #define _IN_MODULE_
 #include "build_mp2dens.F90"
+#include "chomp2g_unpack_pairs.F90"
 #include "cho_cgm_infvec.F90"
 #include "cho_getlq.F90"
 #include "cho_p_getlq.F90"
