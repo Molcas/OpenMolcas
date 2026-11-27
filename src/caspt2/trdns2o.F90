@@ -17,22 +17,24 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 
-subroutine TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL)
+subroutine TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL,H0)
 ! Add to the block-off-diag parts of transition density matrix,
 !    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>.
 ! i.e. inact/act, inact/virt and act/virt submatrices only,
 ! where IVEC, JVEC stands for the 1st-order perturbed CASPT2
 ! wave functions stored as vectors nr IVEC, JVEC on LUSOLV.
+! H0 = .true. for the gradient (only the couplings of H0, see Cpl_Code),
+! .false. for the expectation value (all couplings).
 
 use CI_Lib_Info, only: CI_Lib_Space
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use EQSOLV, only: IfCoup
+use EQSOLV, only: Cpl_Code
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: LISTS
 use Orbital_Spaces, only: nAsh
-use caspt2_module, only: FockType, G1SecIn, nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
+use caspt2_module, only: nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Vec_Backup, only: BackupVecs
 use Constants, only: Zero, One
@@ -44,6 +46,7 @@ integer(kind=iwp), intent(in) :: IVEC, JVEC, MDPT2
 real(kind=wp), intent(inout) :: DPT2(MDPT2)
 integer(kind=iwp), intent(inout) :: NDPT2
 real(kind=wp), intent(in) :: SCAL
+logical(kind=iwp), intent(in) :: H0
 integer(kind=iwp) :: iCase1, iCase2, idoff, idpq, idqp, iLoop, iMltOp, ip, iq, iSta, iSym, iSym1, iSym2, lScr, lScr2, lVec1, &
                      lVec2, na, nas1, nas2, ni, nis1, nis2, nLoop, no, nVec1, nVec2, nWec1
 real(kind=wp) :: Fact
@@ -51,14 +54,6 @@ real(kind=wp), allocatable :: SCR(:), VecKeepI(:), VecKeepJ(:), WEC1(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: TMP1(:), TMP2(:)
 #endif
-
-! If the G1 correction to the Fock matrix is used, then the
-! inactive/virtual coupling elements (which are non-zero for the
-! case of average CASSCF) cannot be used in the CASPT2 equations.
-if ((FOCKTYPE == 'G1') .and. (.not. G1SECIN)) then
-  IFCOUP(12,5) = 0
-  IFCOUP(13,5) = 0
-end if
 
 NDPT2 = sum(NORB(1:NSYM)**2)
 
@@ -158,7 +153,7 @@ do ILOOP=1,NLOOP
       ! Note: WEC1 is identical to <IBRA| E(p,q) |0> for the cases
       ! (p,q)=(t,i), (a,t), and (a,i), resp.
       do ICASE2=ICASE1+1,13
-        if (IFCOUP(ICASE2,ICASE1) == 0) cycle
+        if (Cpl_Code(ICASE2,ICASE1,H0) == 0) cycle
         do ISYM2=1,NSYM
           if (NINDEP(ISYM2,ICASE2) == 0) cycle
           NIS2 = NISUP(ISYM2,ICASE2)

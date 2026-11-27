@@ -141,7 +141,7 @@ if (do_grad) then
   if (MAXIT /= 0) then
     !! off-diagonal are ignored for CASPT2-D
     DPT(:) = Zero
-    call TRDNS2O(iVecX,iVecR,DPT,size(DPT),NDPT,VECROT(JSTATE))
+    call TRDNS2O(iVecX,iVecR,DPT,size(DPT),NDPT,VECROT(JSTATE),.true.)
     DSUM(:) = DSUM(:)+DPT(:)
   end if
   !write(u6,*) ' DPT after TRDNS2O.'
@@ -1010,7 +1010,7 @@ else
   !write(u6,*) ' DPT after TRDNS2D.'
   !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)
   DPT(1:NDPT) = Zero
-  call TRDNS2O(IVEC,IVEC,DPT,size(DPT),NDPT,One)
+  call TRDNS2O(IVEC,IVEC,DPT,size(DPT),NDPT,One,.false.)
   DSUM(1:NDPT) = DSUM(1:NDPT)+DPT(1:NDPT)
   !write(u6,*) ' DPT after TRDNS2O.'
   !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)

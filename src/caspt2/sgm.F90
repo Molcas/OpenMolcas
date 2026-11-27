@@ -76,7 +76,7 @@ if ((IMLTOP < 0) .or. (IMLTOP > 2)) then
   call AbEnd()
 end if
 
-! SVC: IFCOUP is set in SIGMA_CASPT2
+! The caller checks with Cpl_Code whether this coupling is used
 KOD = IFCOUP(ICASE2,ICASE1)
 if (KOD == 0) return
 
