@@ -19,12 +19,32 @@ subroutine ChoMP2g_GradSetup(irc,CMO)
 !             Roland Lindh, Implementation of symmetry (some while in  *
 !                           New Orleans during the 245th National ACS  *
 !                           meeting, 7-11 April 2013).                 *
+!                                                                      *
+! Purpose: build the nonseparable 2- and 3-center MP2 densities of the *
+!          Cholesky/RI MP2 gradient (Bostrom et al., Int. J. Quantum   *
+!          Chem. 114, 321 (2014); the equation numbers below follow    *
+!          the original implementation) in the basis of the NumCho     *
+!          Cholesky vectors of each irrep:                             *
+!            AMP2V1/2: A(J,K) per irrep (exchange / Coulomb type),     *
+!                      NumCho(iSym)**2, irrep blocks consecutive;      *
+!            BMP2V1/2: B_mn^J per irrep, nLRb(iSym) x NumCho(iSym),    *
+!                      starting at iAdrB(iSym).                        *
+!          nLRb(iSym) = sum_j nBas(j)*nBas(j x iSym); block (j,k) is   *
+!          nBas(j) x nBas(k) at iOffLRb(iSym,j). The same layout is    *
+!          used for the scratch files of C_mn^J, U, V (iAdrB) and of   *
+!          the amplitude vectors R_mn^K (iAdrR). Mult_with_Q_MP2 later *
+!          transforms A and B to the auxiliary basis.                  *
+!                                                                      *
+! irc (out) return code (0 = OK)                                       *
+! CMO (in)  MO coefficients, irrep blocks nBas x nOrb                  *
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
+use Cholesky_procedures, only: ChoMP2g_Unpack_Pairs
 use OneDat, only: sNoNuc, sNoOri
 use Cholesky, only: nBas, nSym, NumCho
-use ChoMP2, only: iAdrOff, lUnit_F, nFro, nMoMo, nMP2Vec, nOcc, nOrb, nVir
+use ChoMP2, only: iAdrOff, iMoMo, lUnit_F, nFro, nMoMo, nMP2Vec, nOcc, nOrb, nVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight, Half
 use Definitions, only: wp, iwp
@@ -32,23 +52,25 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: CMO(*)
-integer(kind=iwp) :: i, iAdr, iAdr1, iAdr2, iAdrB(8), iAdrR(8), iB3, iClos, iCMOo, iComp, iiJ, iiK, iJ, iK, indx, iOff, iOff0, &
-                     iOff1, iOff2, iOff3, iOff_A, iOff_A2, iOff_JL, iOff_Ria, iOff_Rin, iOff_Rmn, iOff_WJL(8), iOffA, iOffB, &
-                     iOffB1, iOffB2, iOffB3(8,8), iOffBB, iOffCInv(8), iOffCMOo(8), iOffD(8), iOffFF, iOffFO, iOffFV, iOffL, &
-                     iOffLRb(8,8), iOffLRo(8,8), iOffOF, iOffOO, iOffOV, iOffR, iOffVF, iOffVO, iOffVV, iOffZ, iOpt, iRd, iSeed, &
-                     iSym, iSymlbl, iTypL, iTypR, iVecFF, iVecFO, iVecFV, iVecOF, iVecOO, iVecOV, iVecVF, iVecVO, iVecVV, iWr, j, &
-                     jAdr, jSym, k, k_o, k_v, kl, kl_s, kSym, l, lA1, lA2, lB1kl, lB2kl, lB3jl, lB3kl, lB3kl_s, lCab, lCai, lCaK, &
-                     lCia, lCij, lCiK, lCJK, lCKa, lCKi, lCmn, lCpn, lCpq, lk, lRecDens, lRia, lRin, lRmn, lSym, lTot, lTriDens, &
-                     LuA(2), LuB(2), LuBTmp, lUkn, LuLVec, LuRVec, LuXVec, LuYVec, lVkn, lWJL, lWmjKJ, maxvalue, mSym, mSym2, &
-                     nB3(8), nBas2, nBB, nJ, nK, nLRb(8), nLRo(8), nOccAll(8), nOccBas, nOO, nOrbBas, nVec, nVirBas
-real(kind=wp) :: Fac, Fact
+integer(kind=iwp) :: i, iAdr, iAdr1, iAdr2, iAdrB(8), iAdrR(8), iB3, iClos, iCMOo, iCMOv, iComp, iiJ, iiK, iJ, iK, indx, iOff, &
+                     iOff0, iOff1, iOff2, iOff3, iOff_A, iOff_A2, iOff_JL, iOff_WJL(8), iOffA, iOffB, iOffB1, iOffB2, iOffB3(8,8), &
+                     iOffBB, iOffCInv(8), iOffCMOo(8), iOffCMOv(8), iOffD(8), iOffL, iOffLRb(8,8), iOffLRo(8,8), iOffR, iOffZ, &
+                     iOpt, iRd, iSeed, iSym, iSymlbl, iType, iTypL, iTypR, iWr, j, jAdr, jSym, k, k_o, k_v, kCBuf(9), kl, kl_s, &
+                     kSym, l, lA1, lA2, lB1kl, lB2kl, lB3jl, lB3kl, lB3kl_s, lCBuf, lCmn, lCpn, lCpq, lk, lRecDens, lRia, lRin, &
+                     lRmn, lSym, lTot, lTriDens, LuA(2), LuB(2), LuBTmp, lUkn, LuLVec, LuRVec, LuXVec, LuYVec, lVkn, lWJL, lWmjKJ, &
+                     mSym, mSym2, mxB3, mxBas, mxLRb, mxLRo, mxMoMo(9), mxOcc, mxOrb, mxOV, nB3(8), nBas2, nBB, nJ, nK, nLRb(8), &
+                     nLRo(8), nOccAll(8), nOccBas, nOO, nOrbBas, nVec, nVirBas
+real(kind=wp) :: Fact
 character(len=8) :: label
 character(len=6) :: fname2
 character(len=5) :: fname
-real(kind=wp), allocatable :: A1(:), A2(:), B1kl(:), B2kl(:), B3jl(:), B3kl(:), B3kl_s(:), Cab(:), Cai(:), CaK(:), Cia(:), Cij(:), &
-                              CiK(:), CJK(:), CKa(:), CKi(:), Cmn(:), CMO_Inv(:), CMO_o(:), CMO_v(:), Cpn(:), Cpq(:), &
+real(kind=wp), allocatable :: A1(:), A2(:), B1kl(:), B2kl(:), B3jl(:), B3kl(:), B3kl_s(:), CBuf(:), Cmn(:), CMO_Inv(:), &
+                              CMO_o(:), CMO_v(:), Cpn(:), Cpq(:), &
                               MP2Density(:), MP2TDensity(:), MP2TTotDensity(:), Ria(:), Rin(:), Rmn(:), SCFDensity(:), &
                               SCFTDensity(:), SMat(:), STMat(:), Ukn(:), Vkn(:), WJL(:), WmjKJ(:)
+integer(kind=iwp), parameter :: iVecR = 6 ! (vir,occ) pair type of the amplitude vectors, ordered by occ irrep
+! max. number of Cholesky/amplitude vectors per batch (fixed; not yet adapted to the available memory)
+integer(kind=iwp), parameter :: MaxVecBat = 10
 character(len=*), parameter :: SecNam = 'ChoMP2g_GradSetup'
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -290,103 +312,97 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Max number of vectors in one batch. This is not foolproof, if you
-! run the code with too little ram you might get problems
-! ------------------------------------------------------------------
-!
-! This has to be recoded to be dynamic. To be done after the
-! symmetry has been implemented in the code.
-
-maxvalue = 10
+! Number of vectors in one batch (MaxVecBat). This is not adapted to the
+! available memory, so a run with too little memory may fail.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 nVec = 0
 do iSym=1,nSym
-  nVec = min(max(NumCho(iSym),nMP2Vec(iSym),nVec),maxvalue)
-  if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[1]')
+  nVec = min(max(NumCho(iSym),nMP2Vec(iSym),nVec),MaxVecBat)
 end do
-iSym = 1  ! Here we are!
+if (nVec < 1) call SysAbendMsg(SecNam,'Insufficient memory','[1]')
 
-! Allocate memory for L-vectors
-! -----------------------------
+! Largest dimensions over the irreps of the Cholesky vectors
 
-iVecFF = 1
-iVecOF = 2
-iVecVF = 3
-iVecFO = 4
-iVecOO = 5
-iVecVO = 6
-iVecFV = 7
-iVecOV = 8
-iVecVV = 9
+mxLRo = 0
+mxLRb = 0
+mxB3 = 0
+mxOV = 0
+mxBas = 0
+mxOrb = 0
+mxOcc = 0
+mxMoMo(:) = 0
+do iSym=1,nSym
+  mxLRo = max(mxLRo,nLRo(iSym))
+  mxLRb = max(mxLRb,nLRb(iSym))
+  mxB3 = max(mxB3,nB3(iSym))
+  mxOV = max(mxOV,nMoMo(iSym,iVecR))
+  mxBas = max(mxBas,nBas(iSym))
+  mxOrb = max(mxOrb,nOrb(iSym))
+  mxOcc = max(mxOcc,nOcc(iSym))
+  do iType=1,9
+    mxMoMo(iType) = max(mxMoMo(iType),nMoMo(iSym,iType))
+  end do
+end do
 
-lCJK = nMoMo(iSym,iVecFF)*nVec
-call mma_allocate(CJK,lCJK,Label='CJK')
+! Offsets of the irrep blocks of the virtual MO coefficients
 
-lCKi = nMoMo(iSym,iVecOF)*nVec
-call mma_allocate(CKi,lCKi,Label='CKi')
+iCMOv = 0
+do iSym=1,nSym
+  iOffCMOv(iSym) = iCMOv
+  iCMOv = iCMOv+nBas(iSym)*nVir(iSym)
+end do
 
-lCKa = nMoMo(iSym,iVecVF)*nVec
-call mma_allocate(CKa,lCKa,Label='CKa')
+! Allocate memory for the MO Cholesky vectors of the nine orbital-pair
+! types, C_pq^J (all in one buffer), and for the assembled C_pq^J
 
-lCiK = nMoMo(iSYm,iVecFO)*nVec
-call mma_allocate(CiK,lCiK,Label='CiK')
+lCBuf = 0
+do iType=1,9
+  kCBuf(iType) = lCBuf
+  lCBuf = lCBuf+mxMoMo(iType)*nVec
+end do
+call mma_allocate(CBuf,max(1,lCBuf),Label='CBuf')
 
-lCij = nMoMo(iSym,iVecOO)*nVec
-call mma_allocate(Cij,lCij,Label='Cij')
-
-lCia = nMoMo(iSym,iVecVO)*nVec
-call mma_allocate(Cia,lCia,Label='Cia')
-
-lCaK = nMoMo(iSym,iVecFV)*nVec
-call mma_allocate(CaK,lCaK,Label='CaK')
-
-lCai = nMoMo(iSym,iVecOV)*nVec
-call mma_allocate(Cai,lCai,Label='Cai')
-
-lCab = nMoMo(iSym,iVecVV)*nVec
-call mma_allocate(Cab,lCab,Label='Cab')
-
-lCpq = nOrb(iSym)*nOrb(iSym)*nVec
-call mma_allocate(Cpq,lCpq,Label='Cpq')
+lCpq = mxLRo*nVec
+call mma_allocate(Cpq,max(1,lCpq),Label='Cpq')
 
 ! The Cholesky vectors of the MP2 amplitudes,
 ! see Eq. 26.
 
-lRia = nOcc(iSym)*nVir(iSym)*nVec
-call mma_allocate(Ria,lRia,Label='Ria')
+lRia = mxOV*nVec
+call mma_allocate(Ria,max(1,lRia),Label='Ria')
 
-lCpn = nOrb(iSym)*nBas(iSym)*nVec
-call mma_allocate(Cpn,lCpn,Label='Cpn')
+lCpn = mxOrb*mxBas
+call mma_allocate(Cpn,max(1,lCpn),Label='Cpn')
 
-lRin = nOcc(iSym)*nBas(iSym)*nVec
-call mma_allocate(Rin,lRin,Label='Rin')
+lRin = mxB3*nVec
+call mma_allocate(Rin,max(1,lRin),Label='Rin')
 
-lCmn = nBas(iSym)*nBas(iSym)*nVec
-call mma_allocate(Cmn,lCmn,Label='Cmn')
+lCmn = mxLRb*nVec
+call mma_allocate(Cmn,max(1,lCmn),Label='Cmn')
 
-lRmn = nBas(iSym)*nBas(iSym)*nVec
-call mma_allocate(Rmn,lRmn,Label='Rmn')
+lRmn = mxLRb*nVec
+call mma_allocate(Rmn,max(1,lRmn),Label='Rmn')
 
-lUkn = nBas(iSym)*nBas(iSym)*nVec
-call mma_allocate(Ukn,lUkn,Label='Ukn')
+lUkn = mxLRb*nVec
+call mma_allocate(Ukn,max(1,lUkn),Label='Ukn')
 
-lVkn = nBas(iSym)*nBas(iSym)*nVec
-call mma_allocate(Vkn,lVkn,Label='Vkn')
+lVkn = mxLRb*nVec
+call mma_allocate(Vkn,max(1,lVkn),Label='Vkn')
 
-lWJL = NumCho(iSym)*nMP2Vec(iSym)
+lWJL = max(1,iOff_JL)
 call mma_allocate(WJL,lWJL,Label='WJL')
 WJL(:) = Zero
 
-lWmjKJ = nVec*nVec*nOcc(iSym)*nBas(iSym)
-call mma_allocate(WmjKJ,lWmjKJ,Label='WmjKJ')
+lWmjKJ = mxBas*mxOcc
+call mma_allocate(WmjKJ,max(1,lWmjKJ),Label='WmjKJ')
 
-lB3jl = nBas(iSym)*nOcc(iSym)*nVec
-call mma_allocate(B3jl,lB3jl,Label='B3jl')
+lB3jl = mxB3*nVec
+call mma_allocate(B3jl,max(1,lB3jl),Label='B3jl')
 
-lB3kl = nBas(iSym)*nBas(iSym)*nVec
-call mma_allocate(B3kl,lB3kl,Label='B3kl')
+lB3kl = mxLRb*nVec
+call mma_allocate(B3kl,max(1,lB3kl),Label='B3kl')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -396,139 +412,57 @@ do iSym=1,nSym
   do iiJ=1,NumCho(iSym),nVec
     nJ = min(nVec,NumCho(iSym)-(iiJ-1))
 
-    ! Read C_pq^J-vectors from disk
-    ! -----------------------------
+    ! Read the C_pq^J-vectors of the nine orbital-pair types from disk
+    ! ----------------------------------------------------------------
 
-    lTot = nMoMo(iSym,iVecFF)*nJ
-    iAdr = 1+nMoMo(iSym,iVecFF)*(iiJ-1)+iAdrOff(iSym,iVecFF)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,CJK,lTot,iAdr)
+    do iType=1,9
+      lTot = nMoMo(iSym,iType)*nJ
+      if (lTot == 0) cycle
+      iAdr = 1+nMoMo(iSym,iType)*(iiJ-1)+iAdrOff(iSym,iType)
+      call dDaFile(lUnit_F(iSym,iTypL),iRd,CBuf(1+kCBuf(iType)),lTot,iAdr)
+    end do
 
-    lTot = nMoMo(iSym,iVecOF)*nJ
-    iAdr = 1+nMoMo(iSym,iVecOF)*(iiJ-1)+iAdrOff(iSym,iVecOF)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,CKi,lTot,iAdr)
+    ! Put the C_pq^J-vectors together to one large vector: block
+    ! (jSym,kSym) of C_pq^J is nOrb(jSym) x nOrb(kSym) at iOffLRo(iSym,jSym),
+    ! p (rows) in jSym and q (columns) in kSym = jSym x iSym.
+    ! ----------------------------------------------------------------------
 
-    lTot = nMoMo(iSym,iVecVF)*nJ
-    iAdr = 1+nMoMo(iSym,iVecVF)*(iiJ-1)+iAdrOff(iSym,iVecVF)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,CKa,lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecFO)*nJ
-    iAdr = 1+nMoMo(iSym,iVecFO)*(iiJ-1)+iAdrOff(iSym,iVecFO)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,CiK,lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecOO)*nJ
-    iAdr = 1+nMoMo(iSym,iVecOO)*(iiJ-1)+iAdrOff(iSym,iVecOO)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,Cij,lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecVO)*nJ
-    iAdr = 1+nMoMo(iSym,iVecVO)*(iiJ-1)+iAdrOff(iSym,iVecVO)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,Cia,lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecFV)*nJ
-    iAdr = 1+nMoMo(iSym,iVecFV)*(iiJ-1)+iAdrOff(iSym,iVecFV)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,CaK,lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecOV)*nJ
-    iAdr = 1+nMoMo(iSym,iVecOV)*(iiJ-1)+iAdrOff(iSym,iVecOV)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,Cai,lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecVV)*nJ
-    iAdr = 1+nMoMo(iSym,iVecVV)*(iiJ-1)+iAdrOff(iSym,iVecVV)
-    call dDaFile(lUnit_F(iSym,iTypL),iRd,Cab,lTot,iAdr)
-
-    ! Put the C_pq^J-vectors together to one large vector
-    ! ------------------------------------------------
-
-    iOff3 = 0
     do iJ=1,nJ
-
-      iOffFF = 0
-      iOffOF = 0
-      iOffFO = 0
-      iOffOO = 0
-      iOffVF = 0
-      iOffFV = 0
-      iOffVO = 0
-      iOffOV = 0
-      iOffVV = 0
-      iOffBB = 0
       do jSym=1,nSym
-        kSym = ieor(iSym-1,jSym-1)+1
-        do i=1,nFro(kSym)
-          iOff1 = iOffFF+nMoMo(iSym,iVecFF)*(iJ-1)+(i-1)*nFro(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nFro(jSym)) = CJK(iOff1+1:iOff1+nFro(jSym))
-          iOff3 = iOff3+nFro(jSym)
-          iOff1 = iOffOF+nMoMo(iSym,iVecOF)*(iJ-1)+(i-1)*nOcc(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nOcc(jSym)) = Cki(iOff1+1:iOff1+nOcc(jSym))
-          iOff3 = iOff3+nOcc(jSym)
-          iOff1 = iOffVF+nMoMo(iSym,iVecVF)*(iJ-1)+(i-1)*nVir(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nVir(jSym)) = Cka(iOff1+1:iOff1+nVir(jSym))
-          iOff3 = iOff3+nVir(jSym)
-        end do
-
-        do i=1,nOcc(kSym)
-          iOff1 = iOffFO+nMoMo(iSym,iVecFO)*(iJ-1)+(i-1)*nFro(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nFro(jSym)) = CiK(iOff1+1:iOff1+nFro(jSym))
-          iOff3 = iOff3+nFro(jSym)
-          iOff1 = iOffOO+nMoMo(iSym,iVecOO)*(iJ-1)+(i-1)*nOcc(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nOcc(jSym)) = Cij(iOff1+1:iOff1+nOcc(jSym))
-          iOff3 = iOff3+nOcc(jSym)
-          iOff1 = iOffVO+nMoMo(iSym,iVecVO)*(iJ-1)+(i-1)*nVir(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nVir(jSym)) = Cia(iOff1+1:iOff1+nVir(jSym))
-          iOff3 = iOff3+nVir(jSym)
-        end do
-
-        do i=1,nVir(kSym)
-          iOff1 = iOffFV+nMoMo(iSym,iVecFV)*(iJ-1)+(i-1)*nFro(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nFro(jSym)) = CaK(iOff1+1:iOff1+nFro(jSym))
-          iOff3 = iOff3+nFro(jSym)
-          iOff1 = iOffOV+nMoMo(iSym,iVecOV)*(iJ-1)+(i-1)*nOcc(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nOcc(jSym)) = Cai(iOff1+1:iOff1+nOcc(jSym))
-          iOff3 = iOff3+nOcc(jSym)
-          iOff1 = iOffVV+nMoMo(iSym,iVecVV)*(iJ-1)+(i-1)*nVir(jSym)
-          Cpq(iOff3+iOffBB+1:iOff3+iOffBB+nVir(jSym)) = Cab(iOff1+1:iOff1+nVir(jSym))
-          iOff3 = iOff3+nVir(jSym)
-        end do
-
-        iOffFF = iOffFF+nFro(jSym)*nFro(kSym)
-        iOffOF = iOffOF+nOcc(jSym)*nFro(kSym)
-        iOffFO = iOffFO+nFro(jSym)*nOcc(kSym)
-        iOffOO = iOffFO+nOcc(jSym)*nOcc(kSym)
-        iOffVF = iOffVF+nVir(jSym)*nFro(kSym)
-        iOffFV = iOffFV+nFro(jSym)*nVir(kSym)
-        iOffVO = iOffVO+nVir(jSym)*nOcc(kSym)
-        iOffOV = iOffOV+nOcc(jSym)*nVir(kSym)
-        iOffVV = iOffVV+nVir(jSym)*nVir(kSym)
-        iOffBB = iOffBB+nBas(jSym)*nBas(kSym)
+        kSym = Mul(iSym,jSym)
+        if (nOrb(jSym)*nOrb(kSym) == 0) cycle
+        iOffBB = nLRo(iSym)*(iJ-1)+iOffLRo(iSym,jSym)
+        call ChoMP2g_Unpack_Pairs(iSym,iJ,jSym,3,CBuf,size(CBuf),kCBuf,Cpq(iOffBB+1:iOffBB+nOrb(jSym)*nOrb(kSym)),nOrb(jSym), &
+                                  nOrb(kSym))
       end do
-      !                                                                *
-      !*****************************************************************
-      !*****************************************************************
-      !                                                                *
+    end do
+    !                                                                  *
+    !*******************************************************************
+    !*******************************************************************
+    !                                                                  *
+    do iJ=1,nJ
       do jSym=1,nSym
-        kSym = ieor(iSym-1,jSym-1)+1
+        kSym = Mul(iSym,jSym)
+        if (nBas(jSym)*nBas(kSym) == 0) cycle
 
         ! Do backtransformations of the Cholesky-vectors to get C_mn.
         ! ----------------------------------------------------------
         !
         ! (C^-1)^T x C_pq^J = C_nq^J
 
-        iOff1 = nLRo(iSym)*(iJ-1)+iOffLRo(iSym,jSym)
-        call dGemm_('T','N',nBas(jSym),nOrb(kSym),nOrb(jSym),One,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),Cpq(1+iOff1),nOrb(jSym), &
-                    Zero,Cpn,nBas(jSym))
-
-        ! C_nq^J x  (C^-1) = C_nm^J
-
         iOff2 = nLRb(iSym)*(iJ-1)+iOffLRb(iSym,jSym)
-        call dGemm_('N','N',nBas(jSym),nBas(kSym),nOrb(kSym),One,Cpn,nBas(jSym),CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),Zero, &
-                    Cmn(1+iOff2),nBas(jSym))
+        if (nOrb(jSym)*nOrb(kSym) == 0) then
+          Cmn(iOff2+1:iOff2+nBas(jSym)*nBas(kSym)) = Zero
+        else
+          iOff1 = nLRo(iSym)*(iJ-1)+iOffLRo(iSym,jSym)
+          call dGemm_('T','N',nBas(jSym),nOrb(kSym),nOrb(jSym),One,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),Cpq(1+iOff1), &
+                      nOrb(jSym),Zero,Cpn,nBas(jSym))
 
-      end do
-      !                                                                *
-      !*****************************************************************
-      !*****************************************************************
-      !                                                                *
-      do jSym=1,nSym
-        kSym = ieor(iSym-1,jSym-1)+1
+          ! C_nq^J x  (C^-1) = C_nm^J
+
+          call dGemm_('N','N',nBas(jSym),nBas(kSym),nOrb(kSym),One,Cpn,nBas(jSym),CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),Zero, &
+                      Cmn(1+iOff2),nBas(jSym))
+        end if
 
         ! C_nm^J x D(MP2)_mk = U_nk^J, Eq. (43)
 
@@ -561,52 +495,63 @@ do iSym=1,nSym
     !                                                                  *
     !*******************************************************************
     !                                                                  *
+    B3jl(1:nB3(iSym)*nJ) = Zero
+
     do lSym=1,nSym
       do iiK=1,nMP2Vec(lSym),nVec
         nK = min(nVec,nMP2Vec(lSym)-(iiK-1))
 
         ! Read the R-Vectors
 
-        lTot = nMoMo(lSym,iVecOV)*nK
-        iAdr = nMoMo(lSym,iVecOV)*(iiK-1)+1
+        lTot = nMoMo(lSym,iVecR)*nK
+        iAdr = nMoMo(lSym,iVecR)*(iiK-1)+1
         call dDaFile(lUnit_F(lSym,iTypR),iRd,Ria,lTot,iAdr)
 
         ! Do backtransformations of the Amplitude-vectors to get Rmnx.
         ! ------------------------------------------------------------
         ! See Eq. (39).
 
-        iOff_Ria = 0
-        iOff_Rin = 0
-        iOff_Rmn = 0
         do iK=1,nK
 
           do jSym=1,nSym
-            kSym = ieor(lSym-1,jSym-1)+1
+            kSym = Mul(lSym,jSym)
 
-            ! C_na x R_ai^K = R_ni^K  (Temporary storage)
+            iOff2 = nB3(lSym)*(iK-1)+iOffB3(lSym,jSym)
+            iOff3 = nLRb(lSym)*(iK-1)+iOffLRb(lSym,jSym)
+            if (nBas(jSym)*nOcc(kSym) > 0) then
 
-            iOff1 = iOff_Ria
-            iOff_Ria = iOff_Ria+nVir(jSym)*nOcc(kSym)
-            iOff2 = iOff_Rin
-            iOff_Rin = iOff_Rin+nBas(jSym)*nOcc(kSym)
-            call dGemm_('N','N',nBas(jSym),nOcc(kSym),nVir(jSym),One,CMO_v,nBas(jSym),Ria(1+iOff1),nVir(jSym),Zero,Rin(1+iOff2), &
-                        nBas(jSym))
+              ! C_na x R_ai^K = R_ni^K  (Temporary storage)
+              ! (R_ai^K: a in jSym, i in kSym; ordered by the irrep of i)
+
+              if (nVir(jSym) > 0) then
+                iOff1 = nMoMo(lSym,iVecR)*(iK-1)+iMoMo(jSym,kSym,iVecR)
+                call dGemm_('N','N',nBas(jSym),nOcc(kSym),nVir(jSym),One,CMO_v(1+iOffCMOv(jSym)),nBas(jSym),Ria(1+iOff1), &
+                            nVir(jSym),Zero,Rin(1+iOff2),nBas(jSym))
+              else
+                Rin(iOff2+1:iOff2+nBas(jSym)*nOcc(kSym)) = Zero
+              end if
+            end if
 
             ! R_ni^K x C_mi^T = R_nm^K
 
-            iOff3 = iOff_Rmn
-            iOff_Rmn = iOff_Rmn+nBas(jSym)*nBas(kSym)
-            call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),One,Rin(1+iOff2),nBas(jSym),CMO_o,nBas(kSym),Zero,Rmn(1+iOff3), &
-                        nBas(jSym))
+            if (nBas(jSym)*nBas(kSym) == 0) cycle
+            if (nOcc(kSym) > 0) then
+              call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),One,Rin(1+iOff2),nBas(jSym),CMO_o(1+iOffCMOo(kSym)), &
+                          nBas(kSym),Zero,Rmn(1+iOff3),nBas(jSym))
+            else
+              Rmn(iOff3+1:iOff3+nBas(jSym)*nBas(kSym)) = Zero
+            end if
 
           end do ! jSym
         end do   ! iK
 
-        ! Write  R_mn^K to disk
+        ! Write  R_mn^K to disk (once)
 
-        lTot = nLRb(iSym)*nK
-        iAdr = iAdrR(iSym)+nLRb(iSym)*(iiK-1)
-        call dDaFile(LuRVec,iWr,Rmn,lTot,iAdr)
+        if ((iSym == 1) .and. (iiJ == 1)) then
+          lTot = nLRb(lSym)*nK
+          iAdr = iAdrR(lSym)+nLRb(lSym)*(iiK-1)
+          call dDaFile(LuRVec,iWr,Rmn,lTot,iAdr)
+        end if
         !                                                              *
         !***************************************************************
         !                                                              *
@@ -620,31 +565,28 @@ do iSym=1,nSym
         !***************************************************************
         !                                                              *
         do iJ=1,nJ
-          iOff_Rin = 0
           do iK=1,nK
 
             do jSym=1,nSym
-              kSym = ieor(iSym-1,jSym-1)+1
-              mSym = ieor(lSym-1,kSym-1)+1
-
-              iOffL = nLRb(iSym)*(iJ-1)+iOffLRb(iSym,jSym)
-              iOffR = iOff_Rin
-              iOff_Rin = iOff_Rin+nBas(kSym)*nOcc(mSym)
+              kSym = Mul(iSym,jSym)
+              mSym = Mul(lSym,kSym)
+              mSym2 = Mul(lSym,jSym)
+              if (nBas(jSym)*nBas(kSym)*nOcc(mSym)*nBas(mSym2) == 0) cycle
 
               ! C_mn^J x R_ni^K = W_mi^JK, see Eq. (44)
+              ! (m in jSym, n in kSym, i in mSym)
 
-              call dGemm_('N','N',nBas(jSym),nOcc(mSym),nBas(kSym),One,Cmn(1+iOffL),nBas(jSym),Rin(1+iOffR),nBas(kSym),Zero,WmjKJ, &
-                          nBas(jSym))
-
-              Fac = One
-              if ((iK == 1) .and. (iiK == 1)) Fac = Zero
+              iOffL = nLRb(iSym)*(iJ-1)+iOffLRb(iSym,jSym)
+              iOffR = nB3(lSym)*(iK-1)+iOffB3(lSym,kSym)
+              call dGemm_('N','N',nBas(jSym),nOcc(mSym),nBas(kSym),One,Cmn(1+iOffL),nBas(jSym),Rin(1+iOffR),nBas(kSym),Zero, &
+                          WmjKJ,nBas(jSym))
 
               ! R_nm^K x W_mi^JK, last two summation in Eqs. 40 and 41
+              ! (n in mSym2, m in jSym, i in mSym = mSym2 x iSym)
 
-              mSym2 = ieor(lSym-1,jSym-1)+1
               iOffB = nB3(iSym)*(iJ-1)+iOffB3(iSym,mSym2)
               iOffR = nLRb(lSym)*(iK-1)+iOffLRb(lSym,mSym2)
-              call dGemm_('N','N',nBas(mSym2),nOcc(mSym),nBas(jSym),One,Rmn(1+iOffR),nBas(mSym2),WmjKJ,nBas(jSym),Fac, &
+              call dGemm_('N','N',nBas(mSym2),nOcc(mSym),nBas(jSym),One,Rmn(1+iOffR),nBas(mSym2),WmjKJ,nBas(jSym),One, &
                           B3jl(1+iOffB),nBas(mSym2))
 
             end do ! jSym
@@ -658,16 +600,21 @@ do iSym=1,nSym
     do iJ=1,nJ
 
       do jSym=1,nSym
-        kSym = ieor(iSym-1,jSym-1)+1
+        kSym = Mul(iSym,jSym)
 
         iOffB1 = nB3(iSym)*(iJ-1)+iOffB3(iSym,jSym)
         iOffB2 = nLRb(iSym)*(iJ-1)+iOffLRb(iSym,jSym)
         iOff = iOffCMOo(kSym)
+        if (nBas(jSym)*nBas(kSym) == 0) cycle
 
         ! Complete the 3rd RHS term in Eq. 40
 
-        call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),-Eight,B3jl(1+iOffB1),nBas(jSym),CMO_o(1+iOff),nBas(kSym),Zero, &
-                    B3kl(1+iOffB2),nBas(jSym))
+        if (nOcc(kSym) > 0) then
+          call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),-Eight,B3jl(1+iOffB1),nBas(jSym),CMO_o(1+iOff),nBas(kSym),Zero, &
+                      B3kl(1+iOffB2),nBas(jSym))
+        else
+          B3kl(iOffB2+1:iOffB2+nBas(jSym)*nBas(kSym)) = Zero
+        end if
 
       end do ! jSym
     end do   ! iJ
@@ -691,36 +638,26 @@ call mma_deallocate(Cpn)
 call mma_deallocate(Ria)
 
 call mma_deallocate(Cpq)
-call mma_deallocate(Cab)
-call mma_deallocate(Cai)
-call mma_deallocate(CaK)
-call mma_deallocate(Cia)
-call mma_deallocate(Cij)
-call mma_deallocate(CiK)
-call mma_deallocate(CKa)
-call mma_deallocate(CKi)
-call mma_deallocate(CJK)
+call mma_deallocate(CBuf)
 
 call mma_deallocate(SCFDensity)
 
-iSym = 1
+lB1kl = mxLRb*nVec
+call mma_allocate(B1kl,max(1,lB1kl),Label='B1kl')
 
-lB1kl = nBas(iSym)*nBas(iSym)*nVec
-call mma_allocate(B1kl,lB1kl,Label='B1kl')
+lB3kl_s = mxLRb*nVec
+call mma_allocate(B3kl_s,max(1,lB3kl_s),Label='B3kl_s')
 
-lB3kl_s = nBas(iSym)*nBas(iSym)*nVec
-call mma_allocate(B3kl_s,lB3kl_s,Label='B3kl_s')
-
-lA1 = NumCho(iSym)*NumCho(iSym)
-call mma_allocate(A1,lA1,Label='A1')
+lA1 = sum(NumCho(1:nSym)**2)
+call mma_allocate(A1,max(1,lA1),Label='A1')
 A1(:) = Zero
 
-lA2 = NumCho(iSym)*NumCho(iSym)
-call mma_allocate(A2,lA2,Label='A2')
+lA2 = sum(NumCho(1:nSym)**2)
+call mma_allocate(A2,max(1,lA2),Label='A2')
 A2(:) = Zero
 
-lB2kl = nBas(iSym)*nBas(iSym)*nVec
-call mma_allocate(B2kl,lB2kl,Label='B2kl')
+lB2kl = mxLRb*nVec
+call mma_allocate(B2kl,max(1,lB2kl),Label='B2kl')
 
 !                                                                      *
 !***********************************************************************
@@ -758,6 +695,7 @@ do iSym=1,nSym
     !                                                                  *
     !*******************************************************************
     !                                                                  *
+    B2kl(1:nLRb(iSym)*nJ) = Zero
     do iiK=1,nMP2Vec(iSym),nVec
       nK = min(nVec,nMP2Vec(iSym)-(iiK-1))
 
@@ -769,10 +707,8 @@ do iSym=1,nSym
 
       ! R_mn_K x W_JK, 2nd RHS term Eq. 35
 
-      Fac = One
-      if (iiK == 1) Fac = Zero
       iOffZ = iOff_WJL(iSym)+iiK-1+(iiJ-1)*nMp2Vec(iSym)
-      call dGemm_('N','N',nLRb(iSym),nJ,nK,-Eight,Rmn,nLRb(iSym),WJL(1+iOffZ),nMP2Vec(iSym),Fac,B2kl,nLRb(iSym))
+      call dGemm_('N','N',nLRb(iSym),nJ,nK,-Eight,Rmn,nLRb(iSym),WJL(1+iOffZ),nMP2Vec(iSym),One,B2kl,nLRb(iSym))
     end do
 
     ! Write to disk

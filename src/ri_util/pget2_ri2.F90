@@ -29,9 +29,9 @@ subroutine PGet2_RI2(iCmp,jBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,ExFac,CoulFac,PMax,
 
 use Basis_Info, only: nBas, nBas_Aux
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: DMdiag, lPSO, lSA, nnP
+use pso_stuff, only: DMdiag, lPSO, lSA, nnP, U_K
 use Symmetry_Info, only: Mul, nIrrep
-use RI_glob, only: A, CijK, iAdrCVec, iMP2prpt, iUHF, LuCVector, nIJ1, tavec
+use RI_glob, only: A, AMP2, CijK, iAdrCVec, iMP2prpt, iUHF, LuAVector, LuCVector, nIJ1, tavec
 use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6
 
@@ -41,6 +41,7 @@ real(kind=wp), intent(out) :: PSO(nijkl,nPSO), PMax
 real(kind=wp), intent(in) :: ExFac, CoulFac, V_K(mV_K,nSA), Z_p_K(nZ_p_k,*)
 integer(kind=iwp) :: CumnnP(0:7), CumnnP2(0:7), i, i2, i4, iAdrJ, iAdrL, iE, iS, iSO, iSym, j, j2, j4, jAOj, jp, jpSOj, jpSOl, js, &
                      jSO, jSOj, jSym(0:7), kSym, lAOl, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, nB, nik, njSym, nlSym
+integer(kind=iwp) :: iAdrA, iAdrAo(0:7), NumAuxS(0:7)
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fact, temp, temp2, Wall, Wall1, Wall2
 real(kind=wp), pointer :: CiKj(:), CiKl(:), V2(:)
 
@@ -150,7 +151,20 @@ if (ExFac == Zero) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
+else if ((.not. lPSO) .and. (iUHF == 0)) then
+  ! (closed-shell HF/DFT, and MP2 with the extra MP2 terms)
+
+  if (iMP2prpt == 2) then
+    ! Addresses of the 2-center MP2 densities (A-tilde), one NumAux x NumAux
+    ! matrix per irrep, see Mult_with_Q_MP2. The dummy function is in irrep 0.
+    iAdrA = 1
+    do i=0,nIrrep-1
+      NumAuxS(i) = nBas_Aux(i)
+      if (i == 0) NumAuxS(i) = NumAuxS(i)-1
+      iAdrAo(i) = iAdrA
+      iAdrA = iAdrA+NumAuxS(i)**2
+    end do
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -227,6 +241,13 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
           mijkl = 0
           do lAOl=0,lBas-1
             lSOl = lSO+lAOl-nBas(j4)
+            if (iMP2prpt == 2) then
+              ! dDaFile advances the address, so it is set again for the second file
+              iAdrA = iAdrAo(j2)+NumAuxS(j2)*(lSOl-1)+(jSO-nBas(j2))-1
+              call dDaFile(LuAVector(1),2,AMP2(:,1),jBas,iAdrA)
+              iAdrA = iAdrAo(j2)+NumAuxS(j2)*(lSOl-1)+(jSO-nBas(j2))-1
+              call dDaFile(LuAVector(2),2,AMP2(:,2),jBas,iAdrA)
+            end if
             do jAOj=0,jBas-1
               jSOj = jSO+jAOj-nBas(j2)
               mijkl = mijkl+1
@@ -242,6 +263,12 @@ else if ((iMP2prpt /= 2) .and. (.not. lPSO) .and. (iUHF == 0)) then
 
               ! Exchange contribution
               temp = temp-ExFac*A(mijkl)
+
+              ! Nonseparable MP2 terms and the MP2 part of the Coulomb term
+              if (iMP2prpt == 2) then
+                temp = temp+CoulFac*AMP2(1+jAOj,2)-ExFac*Half*AMP2(1+jAOj,1)
+                if (j2 == 0) temp = temp+CoulFac*(V_K(jSOj,1)*U_K(lSOl)+U_K(jSOj)*V_K(lSOl,1))
+              end if
 
               PMax = max(PMax,abs(Temp))
               PSO(mijkl,MemSO2) = Fac*temp

@@ -722,12 +722,11 @@ if (SuperName(1:18) == 'numerical_gradient') then
   DoGrdt = .false.
 end if
 
-if (nSym == 1) then
-  if ((isStructure() == 1) .and. (.not. DNG)) then
-    call Put_iScalar('mp2prpt',2)
-    DoDens = .true.
-    DoGrdt = .true.
-  end if
+if ((isStructure() == 1) .and. (.not. DNG)) then
+  call Put_iScalar('mp2prpt',2)
+  DoDens = .true.
+  DoGrdt = .true.
+  NoGamma = .false. ! the gradient needs the 2-particle density (PRPT turns it off)
 end if
 
 if (LumOrb) then

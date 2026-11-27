@@ -17,6 +17,24 @@ subroutine Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
 !
 ! Purpose: Multiply MP2 A~_sep and B~_sep with inverse cholesky factors.
 !
+! The 2-center (A~, files AMP2V1/2) and 3-center (B~, files BMP2V1/2)
+! MP2 densities written by ChoMP2g_GradSetup are given in the basis of
+! the NumCV Cholesky (RI) vectors of each irrep. They are transformed to
+! the NumAux auxiliary functions with Q (NumAux x NumCV):
+!   A(aux) = Q A~ Q^T,  B(aux) = B~ Q^T.
+! Record layout (addresses are element counts, first element at 1):
+!   A: one square matrix per irrep, irrep blocks consecutive,
+!      in: NumCV**2 each, out (same files): NumAux**2 each;
+!   B: per irrep nLRb x NumCV (in, BMP2V1/2) and nLRb x NumAux (out,
+!      BMP2V3/4), nLRb = sum_j nBas(j)*nBas(j x iSym), blocked as in
+!      ChoMP2g_GradSetup (iOffLRb).
+! The dummy auxiliary function exists only in irrep 1 (NumAux =
+! nBas_Aux-1 there). These layouts are read in PGet1/2_RI2 and PGet1/2_RI3.
+!
+! nIrrep   (in) number of irreps
+! nBas_Aux (in) number of auxiliary functions per irrep (incl. dummy)
+! nBas     (in) number of valence basis functions per irrep
+!
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
@@ -31,11 +49,11 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
-integer(kind=iwp) :: i, iA_in, iA_Out, iAdr, iAdrA, iAdrA_in(8), iAdrA_Out(8), iAdrQ, iOffQ1, iOpt, ip_B, iSym, iType, jSym, jVec, &
-                     kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, l_Q, lTot, Lu_A(2), Lu_B(4), Lu_Q, MaxMem, nBas2, nLR, nLRb(8), &
-                     NumAux, NumCV, NumVecJ, NumVecK, nVec
+integer(kind=iwp) :: i, iA_in, iA_Out, iAdr, iAdrA, iAdrA_in(8), iAdrA_Out(8), iAdrB_in(8), iAdrB_Out(8), iB_in, iB_Out, iOffQ1, &
+                     iOpt, ip_B, iSym, iType, jSym, jVec, kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, l_Q, lTot, Lu_A(2), Lu_B(4), &
+                     MaxMem, nBas2, nLR, nLRb(8), NumAux, NumCV, NumVecJ, NumVecK, nVec
 real(kind=wp) :: Fac, TotCPU1, TotWall1
-character(len=6) :: FName, Name_Q
+character(len=6) :: FName
 real(kind=wp), allocatable :: A(:), A_ht(:), A_t(:), B_t(:), QVec(:)
 character(len=*), parameter :: SECNAM = 'Mult_with_Q_MP2'
 integer(kind=iwp), external :: IsFreeUnit
@@ -59,11 +77,18 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+! Offsets of the irrep blocks. The dummy auxiliary function is only in
+! the totally symmetric irrep. The input (NumCV) and output (NumAux)
+! A-matrices share the same file, see the reverse loop below.
+
 iA_in = 1
 iA_Out = 1
+iB_in = 1
+iB_Out = 1
 do iSym=1,nSym
   NumCV = NumCho(iSym)
-  NumAux = nBas_Aux(iSym)-1
+  NumAux = nBas_Aux(iSym)
+  if (iSym == 1) NumAux = NumAux-1
   nLR = 0
   do jSym=1,nSym
     kSym = Mul(iSym,jSym)
@@ -74,30 +99,29 @@ do iSym=1,nSym
   iA_in = iA_in+NumCV*NumCV
   iAdrA_out(iSym) = iA_out
   iA_out = iA_out+NumAux*NumAux
+  iAdrB_in(iSym) = iB_in
+  iB_in = iB_in+nLR*NumCV
+  iAdrB_out(iSym) = iB_out
+  iB_out = iB_out+nLR*NumAux
 end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-do iSym=1,nSym
+! A-matrices. NumAux >= NumCV, so processing the irreps in reverse
+! order never overwrites input that has not been read yet.
 
-  nBas2 = nLRb(iSym)
+do iSym=nSym,1,-1
+
   NumCV = NumCho(iSym)
-  NumAux = nBas_Aux(iSym)-1
-  nAuxVe = NumAux
+  NumAux = nBas_Aux(iSym)
+  if (iSym == 1) NumAux = NumAux-1
+  if (NumAux*NumCV == 0) cycle
 
   ! Get Q-vectors from disk
   ! -----------------------
-
   l_Q = NumCV*NumAux
   call mma_allocate(QVec,l_Q,Label='QVec')
-
-  Lu_Q = IsFreeUnit(7)
-  write(Name_Q,'(A4,I2.2)') 'QVEC',iSym-1
-  call DaName_MF_WA(Lu_Q,Name_Q)
-
-  iOpt = 2
-  iAdrQ = 0
-  call dDaFile(Lu_Q,iOpt,QVec,l_Q,iAdrQ)
+  call Read_QVec(iSym,l_Q,QVec)
 
   ! Get MP2 A-tilde vectors from disk
   ! ---------------------------------
@@ -144,18 +168,36 @@ do iSym=1,nSym
   call mma_deallocate(A_t)
   call mma_deallocate(A)
   call mma_deallocate(A_ht)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+  call mma_deallocate(QVec)
+
+end do
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! B-matrices (separate input and output files)
+
+do iSym=1,nSym
+
+  nBas2 = nLRb(iSym)
+  NumCV = NumCho(iSym)
+  NumAux = nBas_Aux(iSym)
+  if (iSym == 1) NumAux = NumAux-1
+  nAuxVe = NumAux
+  if (NumAux*NumCV*nBas2 == 0) cycle
+
+  l_Q = NumCV*NumAux
+  call mma_allocate(QVec,l_Q,Label='QVec')
+  call Read_QVec(iSym,l_Q,QVec)
+
   call mma_maxDBLE(MaxMem)
   MaxMem = 9*(MaxMem/10)
   call mma_allocate(B_t,MaxMem,Label='B_t')
 
-  nVec = MaxMem/(2*nLRb(iSym))
+  nVec = MaxMem/(2*nBas2)
   nVec = min(max(NumCV,NumAux),nVec)
   if (nVec < 1) call SysAbendMsg(SecNam,'nVec is non-positive','[1]')
 
-  l_B_t = nLRb(iSym)*nVec
+  l_B_t = nBas2*nVec
   ip_B = 1+l_B_t
 
   do iType=1,2
@@ -170,8 +212,8 @@ do iSym=1,nSym
         NumVecJ = min(nVec,NumCV-(jVec-1))
 
         iOpt = 2
-        lTot = NumVecJ*nLRb(iSym)
-        iAdr = 1+nLRb(iSym)*(jVec-1)
+        lTot = NumVecJ*nBas2
+        iAdr = iAdrB_in(iSym)+nBas2*(jVec-1)
         call dDaFile(Lu_B(iType),iOpt,B_t,lTot,iAdr)
 
         Fac = Zero
@@ -182,7 +224,7 @@ do iSym=1,nSym
 
       iOpt = 1
       lTot = NumVecK*nBas2
-      iAdr = 1+nBas2*(kVec-1)
+      iAdr = iAdrB_out(iSym)+nBas2*(kVec-1)
       call dDaFile(Lu_B(iType+2),iOpt,B_t(ip_B),lTot,iAdr)
 
     end do
@@ -191,8 +233,6 @@ do iSym=1,nSym
 
   call mma_deallocate(B_t)
   call mma_deallocate(QVec)
-
-  call DaClos(Lu_Q)
 
 end do ! iSym
 
@@ -204,5 +244,25 @@ do i=1,4
 end do
 
 return
+
+contains
+
+subroutine Read_QVec(iSym,lQ,Q)
+  ! Read the lQ = NumAux x NumCV inverse-Cholesky factors of the metric of
+  ! irrep iSym (file QVECnn, nn = iSym-1, written by Gen_QVec).
+
+  integer(kind=iwp), intent(in) :: iSym, lQ
+  real(kind=wp), intent(out) :: Q(lQ)
+  integer(kind=iwp) :: iAdrQ, Lu_Q
+  character(len=6) :: Name_Q
+
+  Lu_Q = IsFreeUnit(7)
+  write(Name_Q,'(A4,I2.2)') 'QVEC',iSym-1
+  call DaName_MF_WA(Lu_Q,Name_Q)
+  iAdrQ = 0
+  call dDaFile(Lu_Q,2,Q,lQ,iAdrQ)
+  call DaClos(Lu_Q)
+
+end subroutine Read_QVec
 
 end subroutine Mult_with_Q_MP2

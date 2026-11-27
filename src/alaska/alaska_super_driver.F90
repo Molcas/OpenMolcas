@@ -103,7 +103,7 @@ if ((Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1)))) then
       (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA') .or. &
       (Method == 'RASSCFSA') .or. (Method == 'CASPT2  ') .or. (Method == 'MCPDFT  ') .or. (Method == 'MSPDFT  ')) then
     Do_Numerical_Cholesky = .false.
-  else if ((Method == 'MBPT2   ') .and. (nSym == 1)) then
+  else if ((Method == 'MBPT2   ') .and. (iMp2Prpt == 2)) then
     Do_Numerical_Cholesky = .false.
     !write(u6,*) 'Do Numerical', Do_Numerical_Cholesky
   end if

@@ -29,13 +29,14 @@ subroutine PGet2_RI3(iCmp,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,nDSO,ExFac
 
 use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: AOrb, lPSO, nnP, Thpkl
+use pso_stuff, only: AOrb, DVar, lPSO, nnP, Thpkl, U_k
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: D0, iD0Lbl
 #endif
 use Basis_Info, only: nBas, nBas_Aux
 use Symmetry_Info, only: Mul, nIrrep
-use RI_glob, only: BklK, CijK, CilK, CMOi, iAdrCVec, iOff_Ymnij, LuCVector, nAvec, nChOrb, nIJR, nYmnij, tbvec, Yij, Ymnij
+use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, iOff_Ymnij, LuBVector, LuCVector, nAvec, nChOrb, nIJR, &
+                   nYmnij, tbvec, Yij, Ymnij
 use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp, u6
 
@@ -47,6 +48,10 @@ integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indkl, iS
                      jmo, jp, js, jSO, jSO_off, jSOj, jSym(0:7), k, kAct, kAOk, kmo, ks, kSO, kSOk, kSym(0:7), l, lAct, lAOl, &
                      lCVec, lda, lmo, lOper, ls, lSO, lSOl, lSym(0:7), MemSO2, mijkl, n2j, nCumnnP(0:7), nCumnnP2(0:7), nJ, njSym, &
                      nk, nkSym, nl, nlSym, ntmp
+integer(kind=iwp) :: iAdrBo(0:7), iBMP2, ikl, ilk, iOffLRbS(0:7,0:7), iS, j2s, kBslot(0:7), lBVec, mBMP2, nLRbS(0:7), &
+                     NumAuxS
+real(kind=wp) :: B1, B2
+logical(kind=iwp) :: DoMP2
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iSym
 #endif
@@ -84,6 +89,37 @@ PMax = Zero
 iSO = 1
 PSO(:,:) = Zero
 
+! MP2: layout of the back-transformed 3-center MP2 densities B-tilde
+! (files BMP2V3/4, written by Mult_with_Q_MP2). For an auxiliary function
+! of irrep iS there is one vector of nLRbS(iS) = sum_j nBas(j)*nBas(j x iS)
+! elements; block (j,k=j x iS) is nBas(j) x nBas(k) (j fastest) and starts
+! at iOffLRbS(iS,j). The vectors of irrep iS start at file address
+! iAdrBo(iS) (no dummy function except in irrep 0).
+! In memory (BMP2) the jBas vectors of one auxiliary component are held for
+! all irreps in which that component has an SO, irrep j2 at offset
+! kBslot(j2); they are read once per component i2 because the irrep loop
+! (js) is inside the i3/i4 loops. The buffer is allocated in
+! Drvg1_3Center_RI with this bound.
+
+DoMP2 = iMP2prpt == 2
+mBMP2 = 0
+if (DoMP2) then
+  iBMP2 = 1
+  do iS=0,nIrrep-1
+    nLRbS(iS) = 0
+    do j=0,nIrrep-1
+      k = Mul(iS+1,j+1)-1
+      iOffLRbS(iS,j) = nLRbS(iS)
+      nLRbS(iS) = nLRbS(iS)+nBas(j)*nBas(k)
+    end do
+    iAdrBo(iS) = iBMP2
+    NumAuxS = nBas_Aux(iS)
+    if (iS == 0) NumAuxS = NumAuxS-1
+    iBMP2 = iBMP2+nLRbS(iS)*NumAuxS
+  end do
+  mBMP2 = size(BMP2,1)
+end if
+
 if (lPSO) then
   nCumnnP(0) = 0
   nBas_Aux(0) = nBas_Aux(0)-1
@@ -110,6 +146,28 @@ do i2=1,iCmp(2)
       njSym = njSym+1
     end if
   end do
+
+  if (DoMP2) then
+    ! Read the B-tilde vectors of the jBas auxiliary SOs of this
+    ! component in each irrep.
+    kBslot(:) = 0
+    lBVec = 0
+    do js=0,njSym-1
+      j2s = jSym(js)
+      kBslot(j2s) = lBVec
+      lBVec = lBVec+nLRbS(j2s)*jBas
+    end do
+    if (lBVec > mBMP2) call SysAbendMsg('PGet2_RI3','BMP2 too small',' ')
+    do js=0,njSym-1
+      j2s = jSym(js)
+      if (nLRbS(j2s) == 0) cycle
+      jSO_off = iAOtSO(iAO(2)+i2,j2s)+iAOst(2)-nBas(j2s)
+      iAdr = iAdrBo(j2s)+nLRbS(j2s)*(jSO_off-1)
+      call dDaFile(LuBVector(1),2,BMP2(1+kBslot(j2s):,1),nLRbS(j2s)*jBas,iAdr)
+      iAdr = iAdrBo(j2s)+nLRbS(j2s)*(jSO_off-1)
+      call dDaFile(LuBVector(2),2,BMP2(1+kBslot(j2s):,2),nLRbS(j2s)*jBas,iAdr)
+    end do
+  end if
   do i3=1,iCmp(3)
     nkSym = 0
     do j=0,nIrrep-1
@@ -334,7 +392,31 @@ do i2=1,iCmp(2)
             !                                                          *
             !***********************************************************
             !                                                          *
-            if (ExFac_ /= Zero) then
+            if (DoMP2) then
+              ! MP2: SCF-like terms plus the nonseparable MP2 terms
+
+#             define _MP2_
+              if (ExFac_ /= Zero) then
+#               define _EXCHANGE_
+                if (j3 /= j4) then
+#                 include "pget2_ri3.fh"
+                else
+#                 define _COULOMB_
+#                 include "pget2_ri3.fh"
+#                 undef _COULOMB_
+                end if
+#               undef _EXCHANGE_
+              else
+                if (j3 /= j4) then
+#                 include "pget2_ri3.fh"
+                else
+#                 define _COULOMB_
+#                 include "pget2_ri3.fh"
+#                 undef _COULOMB_
+                end if
+              end if
+#             undef _MP2_
+            else if (ExFac_ /= Zero) then
             !                                                          *
             !***********************************************************
             !                                                          *

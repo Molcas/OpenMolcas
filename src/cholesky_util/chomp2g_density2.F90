@@ -16,11 +16,28 @@ subroutine ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)
 ! Jonas Bostrom, Mars 2010
 !
 ! Purpose: Solve the CPHF-equations to obtain occ-vir
-!          contributions to the 1-pdm.
+!          contributions to the 1-pdm, and complete the MP2 one-particle
+!          density MP2D and energy-weighted density MP2W (all irreps).
+!
+! The Z-vector (conjugate-gradient vectors kCGVec, Lagrangians kFLagr and
+! kLagr) is stored as all frozen-virtual blocks (lCGFVec = sum nFro*nVir)
+! followed by all occupied-virtual blocks (sum nOcc*nVir), each part
+! ordered by irrep with the virtual index fastest (as in ChoMP2g_Constrap).
+!
+! irc  (out)   return code
+! EOcc (in)    occupied orbital energies, by irrep (offsets iOcc)
+! EVir (in)    virtual orbital energies, by irrep (offsets iVir)
+! EFro (in)    frozen orbital energies, by irrep (offsets iFro)
+! Wrk  (inout) work space holding the P, W and Lagrangian blocks set up in
+!              ChoMP2g_Density1 (offsets kPab, kWij, ... in module ChoMP2)
+! lWrk (in)    length of Wrk
 
+use Symmetry_Info, only: Mul
+use Cholesky_procedures, only: ChoMP2g_Unpack_Pairs
 use Cholesky, only: nSym, NumCho
-use ChoMP2, only: iAdrOff, iFro, iOcc, iVir, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, kWJK, &
-                  lFLagr, lUnit_F, LuVVec, LuWVec, MP2D, MP2W, nFro, nMoMo, nOcc, nOrb, nVir
+use ChoMP2, only: iAdrOff, iFro, iOcc, iVir, kFLagr, kLagr, kPab, kPai, kPaK, kPij, kPik, kWab, kWai, kWaK, kWij, kWiK, &
+                  kWJK, lFLagr, lUnit_F, LuVVec, LuWVec, MP2D, MP2W, nFro, nMoMo, nOcc, nOrb, nVir
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Half
 use Definitions, only: wp, iwp, u6
 
@@ -29,16 +46,19 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: EOcc(*), EVir(*), EFro(*)
 integer(kind=iwp), intent(in) :: lWrk
 real(kind=wp), intent(inout) :: Wrk(lWrk)
-integer(kind=iwp) :: i, iA, iAdr, iB, iBat, iClos, iI, iIter, iJ, indx, index1, iOff, iOff1, iOff2, iOffL, iOpt, iOrb, iOrbI, &
-                     iSeed, iSym, iSym1, iSymOffOV, iTypL, iVec, iVec1, iVecFF, iVecFO, iVecFV, iVecOF, iVecOO, iVecOV, iVecVF, &
-                     iVecVO, iVecVV, j, jOrb, kCGVec(9), kDiag(2), kEndCGVec(9), kEndDiag, kEndFDiag, kEndLab, kEndLfa, kEndLia, &
-                     kEndLij, kEndLiK, kEndLip, kEndLJK, kEndLKa, kEndLKi, kEndU, kEndVip, kLab, kLfa, kLia, kLij, kLiK, kLip, &
-                     kLJK, kLKa, kLKi, kU, kVip, kWij2, lCGFVec, lCGOVec, lCGVec, lDiag, lFDiag, lLab, lLfa, lLia, lLij, lLiK, &
-                     lLip, lLJK, lLKa, lLKi, lScr, lTot, lU, lVip, lWij2, maxvalue, nA, nBatL, nCGvec, nI, nIter, nOccAll(8), &
-                     NumVec, nVec
+integer(kind=iwp) :: i, iA, iAdr, iB, iBat, iClos, iI, iIter, iJ, indx, index1, index2, iOff, iOffL, iOpt, iOrb, iOrbI, iSeed, &
+                     iSym, iSym1, iSymOffFV, iSymOffOV, iTypL, iVec, iVec1, iVecFF, iVecFO, iVecFV, iVecOF, iVecOO, iVecOV, &
+                     iVecVV, j, jOrb, kCGVec(9), kDiag(2), kEndCGVec(9), kEndDiag, kEndFDiag, kEndLab, kEndLfa, kEndLia, kEndLij, &
+                     kEndLiK, kEndLJK, kEndLKi, kEndU, kLab, kLfa, kLia, kLij, kLiK, kLJK, kLKi, kU, lCGFVec, lCGOVec, lCGVec, &
+                     lDiag, lFDiag, lLab, lLfa, lLia, lLij, lLiK, lLJK, lLKi, lScr, lTot, lU, maxvalue, nA, nBatL, nCGvec, nI, &
+                     nIter, nOccAll(8), NumVec, nVec
+integer(kind=iwp) :: iSymI, iSymJ, iSymP, iType, kLBuf(9), kW2(8), lLBuf, lW2, mxLip, nVecJ
 real(kind=wp) :: Ea, Eb, Ei, Ej, Eps, Res, term
 logical(kind=iwp) :: Done
+real(kind=wp), allocatable :: LBuf(:), Lip(:), Vip(:), W2(:)
 character(len=5) :: Fname
+! number of orbital-pair types whose second (slow) index is frozen or occupied, see ChoMP2g_Unpack_Pairs
+integer(kind=iwp), parameter :: nTypeFO = 6
 character(len=*), parameter :: SecNam = 'ChoMP2g_Density2'
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -75,7 +95,7 @@ kEndDiag = kDiag(2)+lDiag
 Wrk(kDiag(2):kEndDiag-1) = Zero
 
 iSym = 1
-nOccAll(iSym) = nFro(iSym)+nOcc(iSym)
+nOccAll(1:nSym) = nFro(1:nSym)+nOcc(1:nSym)
 
 ! Open Cholesky vector files.
 ! ---------------------------
@@ -135,13 +155,14 @@ do iBat=1,nBatL
   end do
 
   index1 = 0
+  index2 = 0
   do iSym1=1,nSym
     nA = nVir(iSym1)
     nI = nFro(iSym1)
     do iI=1,nI
       Ei = EFro(iFro(iSym1)+iI)
       do iA=1,nA
-        indx = iA-1+(iI-1)*nA+index1
+        indx = iA-1+(iI-1)*nA+index2
         Ea = EVir(iVir(iSym1)+iA)
         Wrk(kDiag(1)+indx) = Wrk(kDiag(1)+indx)+Ea-Ei
       end do
@@ -156,6 +177,7 @@ do iBat=1,nBatL
       end do
     end do
     index1 = index1+nOcc(iSym1)*nVir(iSym1)
+    index2 = index2+nFro(iSym1)*nVir(iSym1)
   end do
   do i=1,lFDiag
     Wrk(kDiag(1)+i-1) = One/Wrk(kDiag(1)+i-1)
@@ -248,13 +270,14 @@ do iIter=1,nIter
   end do
 
   index1 = 0
+  index2 = 0
   do iSym1=1,nSym
     nA = nVir(iSym1)
     nI = nFro(iSym1)
     do iI=1,nI
       Ei = EFro(iFro(iSym1)+iI)
       do iA=1,nA
-        indx = iA-1+(iI-1)*nA+index1
+        indx = iA-1+(iI-1)*nA+index2
         Ea = EVir(iVir(iSym1)+iA)
         Wrk(kCGVec(9)+indx) = Wrk(kCGVec(9)+indx)+(Ea-Ei)*Wrk(kCGVec(5)+indx)
       end do
@@ -268,7 +291,8 @@ do iIter=1,nIter
         Wrk(kCGVec(9)+indx+iOff) = Wrk(kCGVec(9)+indx+iOff)+(Ea-Ei)*Wrk(kCGVec(5)+indx+iOff)
       end do
     end do
-    index1 = index1+(nFro(iSym1)+nOcc(iSym1))*nVir(iSym1)
+    index1 = index1+nOcc(iSym1)*nVir(iSym1)
+    index2 = index2+nFro(iSym1)*nVir(iSym1)
   end do
 
   call Conj_Grad(Done,lCGVec,Wrk(kDiag(1)),Wrk(kCGVec(7)),Wrk(kCGVec(8)),Wrk(kCGVec(3)),Wrk(kCGVec(4)),Wrk(kCGVec(5)), &
@@ -287,6 +311,7 @@ end if
 ! Construct MP2 Density contribution from parts of the matrix
 ! -----------------------------------------------------------
 iSymOffOV = 0
+iSymOffFV = 0
 do iSym=1,nSym
   do i=1,nOcc(iSym)
     iOrb = nFro(iSym)+i
@@ -305,15 +330,16 @@ do iSym=1,nSym
     end do
   end do
 
+  ! The solution vector holds all frozen-virtual blocks (lCGFVec) followed by
+  ! all occupied-virtual blocks, each part ordered by irrep.
   do iI=1,nFro(iSym)
     do iA=1,nVir(iSym)
-      Wrk(kPaK(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kCGVec(7)+iA-1+nVir(iSym)*(iI-1)+iSymOffOV)
+      Wrk(kPaK(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kCGVec(7)+iA-1+nVir(iSym)*(iI-1)+iSymOffFV)
     end do
   end do
   do iI=1,nOcc(iSym)
-    iOrbI = nFro(iSym)+iI
     do iA=1,nVir(iSym)
-      Wrk(kPai(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kCGVec(7)+iA-1+nVir(iSym)*(iOrbI-1)+iSymOffOV)
+      Wrk(kPai(iSym)+iA-1+nVir(iSym)*(iI-1)) = Wrk(kCGVec(7)+iA-1+nVir(iSym)*(iI-1)+lCGFVec+iSymOffOV)
     end do
   end do
 
@@ -321,9 +347,12 @@ do iSym=1,nSym
     iOrb = i
     do j=1,nVir(iSym)
       jOrb = nFro(iSym)+nOcc(iSym)+j
-      MP2D(iSym)%A(jOrb,iOrb) = Wrk(kCGVec(7)+j-1+(nVir(iSym))*(i-1)+iSymOffOV)
+      if (i <= nFro(iSym)) then
+        MP2D(iSym)%A(jOrb,iOrb) = Wrk(kPaK(iSym)+j-1+nVir(iSym)*(i-1))
+      else
+        MP2D(iSym)%A(jOrb,iOrb) = Wrk(kPai(iSym)+j-1+nVir(iSym)*(i-nFro(iSym)-1))
+      end if
       MP2D(iSym)%A(iOrb,jOrb) = MP2D(iSym)%A(jOrb,iOrb)
-
     end do
   end do
 
@@ -334,7 +363,8 @@ do iSym=1,nSym
       MP2D(iSym)%A(jOrb,iOrb) = Wrk(kPab(iSym)+j-1+nVir(iSym)*(i-1))
     end do
   end do
-  iSymOffOV = iSymOffOV+(nOcc(iSym)+nFro(iSym))*nVir(iSym)
+  iSymOffOV = iSymOffOV+nOcc(iSym)*nVir(iSym)
+  iSymOffFV = iSymOffFV+nFro(iSym)*nVir(iSym)
 end do
 
 ! Add type (II) terms to W-matrix
@@ -548,139 +578,78 @@ do iBat=1,nBatL
 
 end do
 
-iVecFF = 1
-iVecOF = 2
-iVecVF = 3
-iVecFO = 4
-iVecOO = 5
-iVecVO = 6
-iVecFV = 7
-iVecOV = 8
-iVecVV = 9
+call ChoMP2_OpenF(iClos,1,iSym)
 
-! Allocate memory for Lia-vector and LIa-vector
-! ---------------------------------------------
+! Exchange contribution to Wij (all frozen+occupied pairs):
+!   W2_ij = Sum_J Sum_pq L_pi^J D_pq L_qj^J,
+! i,j in irrep iSymI, p,q in irrep iSymP = iSymI x iSymJ (J in iSymJ).
+! L-vector pair type 3*(t_i-1)+t_p (t: 1=frozen, 2=occupied, 3=virtual),
+! blocks ordered by the irrep of i, see iMoMo.
 
-lLJK = nMoMo(iSym,iVecFF)*nVec
-kLJK = kEndDiag
-kEndLJK = kLJK+lLJK
+lW2 = 0
+do iSymI=1,nSym
+  kW2(iSymI) = lW2
+  lW2 = lW2+nOccAll(iSymI)**2
+end do
+call mma_allocate(W2,max(1,lW2),Label='W2')
+W2(:) = Zero
 
-lLKi = nMoMo(iSym,iVecOF)*nVec
-kLKi = kEndLJK
-kEndLKi = kLKi+lLKi
-
-lLKa = nMoMo(iSym,iVecVF)*nVec
-kLKa = kEndLKi
-kEndLKa = kLKa+lLKa
-
-lLiK = nMoMo(iSym,iVecFO)*nVec
-kLiK = kEndLKa
-kEndLiK = kLiK+lLiK
-
-lLij = nMoMo(iSym,iVecOO)*nVec
-kLij = kEndLiK
-kEndLij = kLij+lLij
-
-lLia = nMoMo(iSym,iVecVO)*nVec
-kLia = kEndLij
-kEndLia = kLia+lLia
-
-lLip = nOccAll(iSym)*nOrb(iSym)*nVec
-kLip = kEndLia
-kEndLip = kLip+lLip
-
-lVip = nOccAll(iSym)*nOrb(iSym)*nVec
-kVip = kEndLip
-kEndVip = kVip+lVip
-
-lWij2 = nOccAll(iSym)*nOccAll(iSym)
-kWij2 = kEndVip
-Wrk(kWij2:kWij2+lWij2-1) = Zero
-
-do iBat=1,nBatL
-  if (iBat == nBatL) then
-    NumVec = NumCho(iSym)-nVec*(nBatL-1)
-  else
-    NumVec = nVec
-  end if
-  iVec = nVec*(iBat-1)+1
-
-  ! Read Lpq^J-vectors from disk
-  ! ----------------------------
-
-  if (NumVec > 0) then
-    iOpt = 2
-    lTot = nMoMo(iSym,iVecFF)*NumVec
-    iAdr = 1+nMoMo(iSym,iVecFF)*(iVec-1)+iAdrOff(iSym,iVecFF)
-    call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLJK),lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecOF)*NumVec
-    iAdr = 1+nMoMo(iSym,iVecOF)*(iVec-1)+iAdrOff(iSym,iVecOF)
-    call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLKi),lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecVF)*NumVec
-    iAdr = 1+nMoMo(iSym,iVecVF)*(iVec-1)+iAdrOff(iSym,iVecVF)
-    call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLKa),lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecFO)*NumVec
-    iAdr = 1+nMoMo(iSym,iVecFO)*(iVec-1)+iAdrOff(iSym,iVecFO)
-    call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLiK),lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecOO)*NumVec
-    iAdr = 1+nMoMo(iSym,iVecOO)*(iVec-1)+iAdrOff(iSym,iVecOO)
-    call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLij),lTot,iAdr)
-
-    lTot = nMoMo(iSym,iVecVO)*NumVec
-    iAdr = 1+nMoMo(iSym,iVecVO)*(iVec-1)+iAdrOff(iSym,iVecVO)
-    call dDaFile(lUnit_F(iSym,iTypL),iOpt,Wrk(kLia),lTot,iAdr)
-  end if
-
-  ! Put the Lpq-vectors together to one large vector
-  ! ------------------------------------------------
-
-  iOff2 = kLip
-  do iVec1=1,NumVec
-    do i=1,nFro(iSym)
-      iOff1 = kLJK+nMoMo(iSym,iVecFF)*(iVec1-1)+(i-1)*nFro(iSym)
-      Wrk(iOff2:iOff2+nFro(iSym)-1) = Wrk(iOff1:iOff1+nFro(iSym)-1)
-      iOff2 = iOff2+nFro(iSym)
-      iOff1 = kLKi+nMoMo(iSym,iVecOF)*(iVec1-1)+(i-1)*nOcc(iSym)
-      Wrk(iOff2:iOff2+nOcc(iSym)-1) = Wrk(iOff1:iOff1+nOcc(iSym)-1)
-      iOff2 = iOff2+nOcc(iSym)
-      iOff1 = kLKa+nMoMo(iSym,iVecVF)*(iVec1-1)+(i-1)*nVir(iSym)
-      Wrk(iOff2:iOff2+nVir(iSym)-1) = Wrk(iOff1:iOff1+nVir(iSym)-1)
-      iOff2 = iOff2+nVir(iSym)
-    end do
-    do i=1,nOcc(iSym)
-      iOff1 = kLiK+nMoMo(iSym,iVecFO)*(iVec1-1)+(i-1)*nFro(iSym)
-      Wrk(iOff2:iOff2+nFro(iSym)-1) = Wrk(iOff1:iOff1+nFro(iSym)-1)
-      iOff2 = iOff2+nFro(iSym)
-      iOff1 = kLij+nMoMo(iSym,iVecOO)*(iVec1-1)+(i-1)*nOcc(iSym)
-      Wrk(iOff2:iOff2+nOcc(iSym)-1) = Wrk(iOff1:iOff1+nOcc(iSym)-1)
-      iOff2 = iOff2+nOcc(iSym)
-      iOff1 = kLia+nMoMo(iSym,iVecVO)*(iVec1-1)+(i-1)*nVir(iSym)
-      Wrk(iOff2:iOff2+nVir(iSym)-1) = Wrk(iOff1:iOff1+nVir(iSym)-1)
-      iOff2 = iOff2+nVir(iSym)
-    end do
-  end do
-
-  do iVec1=1,NumVec
-    iOff = nOrb(iSym)*nOccAll(iSym)*(iVec1-1)
-    call dGemm_('N','N',nOrb(iSym),nOccAll(iSym),nOrb(iSym),One,MP2D(iSym)%A,nOrb(iSym),Wrk(kLip+iOff),nOrb(iSym),Zero, &
-                Wrk(kVip+iOff),nOrb(iSym))
-  end do
-
-  ! Construct exchange contribution to Wij
-  ! --------------------------------------
-
-  do iVec1=1,NumVec
-    iOff = nOrb(iSym)*nOccAll(iSym)*(iVec1-1)
-    call dGemm_('T','N',nOccAll(iSym),nOccAll(iSym),nOrb(iSym),One,Wrk(kLip+iOff),nOrb(iSym),Wrk(kVip+iOff),nOrb(iSym),One, &
-                Wrk(kWij2),nOccAll(iSym))
+mxLip = 0
+do iSymI=1,nSym
+  do iSymP=1,nSym
+    mxLip = max(mxLip,nOrb(iSymP)*nOccAll(iSymI))
   end do
 end do
+call mma_allocate(Lip,max(1,mxLip),Label='Lip')
+call mma_allocate(Vip,max(1,mxLip),Label='Vip')
 
-call ChoMP2_OpenF(iClos,1,iSym)
+do iSymJ=1,nSym
+  if (NumCho(iSymJ) < 1) cycle
+  nVecJ = min(NumCho(iSymJ),maxvalue)
+  ! Pair types 1..nTypeFO have a frozen or occupied second index, the
+  ! only ones needed here (types nTypeFO+1..9 are not read).
+  lLBuf = 0
+  kLBuf(:) = 0
+  do iType=1,nTypeFO
+    kLBuf(iType) = lLBuf
+    lLBuf = lLBuf+nMoMo(iSymJ,iType)*nVecJ
+  end do
+  call mma_allocate(LBuf,max(1,lLBuf),Label='LBuf')
+
+  call ChoMP2_OpenF(1,1,iSymJ)
+  do iVec=1,NumCho(iSymJ),nVecJ
+    NumVec = min(nVecJ,NumCho(iSymJ)-(iVec-1))
+
+    ! Read the L_pi^J vectors with i frozen or occupied
+    do iType=1,nTypeFO
+      lTot = nMoMo(iSymJ,iType)*NumVec
+      if (lTot == 0) cycle
+      iAdr = 1+nMoMo(iSymJ,iType)*(iVec-1)+iAdrOff(iSymJ,iType)
+      call dDaFile(lUnit_F(iSymJ,iTypL),2,LBuf(1+kLBuf(iType)),lTot,iAdr)
+    end do
+
+    do iVec1=1,NumVec
+      do iSymI=1,nSym
+        iSymP = Mul(iSymI,iSymJ)
+        if (nOccAll(iSymI)*nOrb(iSymP) == 0) cycle
+
+        ! L_pi^J, p in iSymP (all orbitals, rows), i in iSymI (frozen and
+        ! occupied, columns)
+        call ChoMP2g_Unpack_Pairs(iSymJ,iVec1,iSymP,2,LBuf,size(LBuf),kLBuf,Lip(1:nOrb(iSymP)*nOccAll(iSymI)),nOrb(iSymP), &
+                                  nOccAll(iSymI))
+
+        call dGemm_('N','N',nOrb(iSymP),nOccAll(iSymI),nOrb(iSymP),One,MP2D(iSymP)%A,nOrb(iSymP),Lip,nOrb(iSymP),Zero,Vip, &
+                    nOrb(iSymP))
+        call dGemm_('T','N',nOccAll(iSymI),nOccAll(iSymI),nOrb(iSymP),One,Lip,nOrb(iSymP),Vip,nOrb(iSymP),One,W2(1+kW2(iSymI)), &
+                    nOccAll(iSymI))
+      end do
+    end do
+  end do
+  call ChoMP2_OpenF(iClos,1,iSymJ)
+  call mma_deallocate(LBuf)
+end do
+call mma_deallocate(Lip)
+call mma_deallocate(Vip)
 
 ! Add SCF-density to MP2-density contribution
 ! -------------------------------------------
@@ -691,60 +660,64 @@ do iSym1=1,nSym
 end do
 
 ! Construct Mp2 + SCF W-density
-! -----------------------------
 
-do i=1,nFro(iSym)
-  iOrb = i
-  do j=1,nFro(iSym)
-    jOrb = j
-    term = Zero
-    if (i == j) term = Efro(iFro(iSym)+i)
-    MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWJK(iSym)+j-1+nFro(iSym)*(i-1))+Two*term-Wrk(kWij2+j-1+nOccAll(iSym)*(i-1))
-  end do
-end do
-do i=1,nOcc(iSym)
-  iOrb = nFro(iSym)+i
-  do j=1,nFro(iSym)
-    jOrb = j
-    MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWiK(iSym)+i-1+nOcc(iSym)*(j-1))-Wrk(kWij2+jOrb-1+nOccAll(iSym)*(iOrb-1))
-    MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
-  end do
-end do
-do i=1,nOcc(iSym)
-  iOrb = nFro(iSym)+i
-  do j=1,nOcc(iSym)
-    jOrb = nFro(iSym)+j
-    term = Zero
-    if (i == j) term = EOcc(iOcc(iSym)+i)
-    MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWij(iSym)+j-1+nOcc(iSym)*(i-1))+Two*term-Wrk(kWij2+jOrb-1+nOccAll(iSym)*(iOrb-1))
-  end do
-end do
+do iSym=1,nSym
+  ! -----------------------------
 
-do i=1,nFro(iSym)
-  iOrb = i
-  do j=1,nVir(iSym)
-    jOrb = nFro(iSym)+nOcc(iSym)+j
-    MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWaK(iSym)+j-1+nVir(iSym)*(i-1))
-    MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
+  do i=1,nFro(iSym)
+    iOrb = i
+    do j=1,nFro(iSym)
+      jOrb = j
+      term = Zero
+      if (i == j) term = Efro(iFro(iSym)+i)
+      MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWJK(iSym)+j-1+nFro(iSym)*(i-1))+Two*term-W2(1+kW2(iSym)+j-1+nOccAll(iSym)*(i-1))
+    end do
   end do
-end do
+  do i=1,nOcc(iSym)
+    iOrb = nFro(iSym)+i
+    do j=1,nFro(iSym)
+      jOrb = j
+      MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWiK(iSym)+i-1+nOcc(iSym)*(j-1))-W2(1+kW2(iSym)+jOrb-1+nOccAll(iSym)*(iOrb-1))
+      MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
+    end do
+  end do
+  do i=1,nOcc(iSym)
+    iOrb = nFro(iSym)+i
+    do j=1,nOcc(iSym)
+      jOrb = nFro(iSym)+j
+      term = Zero
+      if (i == j) term = EOcc(iOcc(iSym)+i)
+      MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWij(iSym)+j-1+nOcc(iSym)*(i-1))+Two*term-W2(1+kW2(iSym)+jOrb-1+nOccAll(iSym)*(iOrb-1))
+    end do
+  end do
 
-do i=1,nOcc(iSym)
-  iOrb = nFro(iSym)+i
-  do j=1,nVir(iSym)
-    jOrb = nFro(iSym)+nOcc(iSym)+j
-    MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWai(iSym)+j-1+nVir(iSym)*(i-1))
-    MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
+  do i=1,nFro(iSym)
+    iOrb = i
+    do j=1,nVir(iSym)
+      jOrb = nFro(iSym)+nOcc(iSym)+j
+      MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWaK(iSym)+j-1+nVir(iSym)*(i-1))
+      MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
+    end do
   end do
-end do
 
-do i=1,nVir(iSym)
-  iOrb = nFro(iSym)+nOcc(iSym)+i
-  do j=1,nVir(iSym)
-    jOrb = nFro(iSym)+nOcc(iSym)+j
-    MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWab(iSym)+j-1+nVir(iSym)*(i-1))
+  do i=1,nOcc(iSym)
+    iOrb = nFro(iSym)+i
+    do j=1,nVir(iSym)
+      jOrb = nFro(iSym)+nOcc(iSym)+j
+      MP2W(iSym)%A(jOrb,iOrb) = -Half*Wrk(kWai(iSym)+j-1+nVir(iSym)*(i-1))
+      MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
+    end do
+  end do
+
+  do i=1,nVir(iSym)
+    iOrb = nFro(iSym)+nOcc(iSym)+i
+    do j=1,nVir(iSym)
+      jOrb = nFro(iSym)+nOcc(iSym)+j
+      MP2W(iSym)%A(jOrb,iOrb) = -Wrk(kWab(iSym)+j-1+nVir(iSym)*(i-1))
+    end do
   end do
 end do
+call mma_deallocate(W2)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Full One-electron Density Matrix'
