@@ -828,13 +828,16 @@ end subroutine Faro_sd2csf
 
 !> As Faro_csf2sd and Faro_sd2csf, with the CI vector of the RAS
 !> string classes (Faroald_RAS) instead of the full determinant matrix.
+!> ci (in): the CSF vector of the current symmetry ci_lsym (Faro_sym_init);
+!> vec (out): the RAS vector of that symmetry, at least
+!> Faro_RAS_ndet(ci_lsym) elements (block layout of Faroald_RAS).
 subroutine Faro_csf2ras(ci,vec)
 
   use Faroald_Core, only: Faro_nOrb
-  use Faroald_RAS, only: Faro_n_ras
+  use Faroald_RAS, only: Faro_RAS_check_size, Faro_RAS_ndet
 
   real(kind=wp), intent(in) :: ci(:)
-  real(kind=wp), intent(out) :: vec(Faro_n_ras)
+  real(kind=wp), intent(out) :: vec(:)
   integer(kind=iwp) :: ido, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, k
   integer(kind=iwp), allocatable :: stepvector(:)
   real(kind=wp), allocatable :: tmp(:,:)
@@ -848,6 +851,7 @@ subroutine Faro_csf2ras(ci,vec)
   ! the determinants of the others are zero.)
 
   call mma_allocate(stepvector,Faro_nOrb,label='stepvector')
+  call Faro_RAS_check_size('Faro_csf2ras: vec',size(vec),Faro_RAS_ndet(ci_lsym))
   vec(:) = Zero
 
 # ifdef _DEBUGPRINT_
@@ -897,12 +901,13 @@ subroutine Faro_csf2ras(ci,vec)
 
 end subroutine Faro_csf2ras
 
+!> The inverse of Faro_csf2ras (vec in, ci out; same sizes).
 subroutine Faro_ras2csf(vec,ci)
 
   use Faroald_Core, only: Faro_nOrb
-  use Faroald_RAS, only: Faro_n_ras
+  use Faroald_RAS, only: Faro_RAS_check_size, Faro_RAS_ndet
 
-  real(kind=wp), intent(in) :: vec(Faro_n_ras)
+  real(kind=wp), intent(in) :: vec(:)
   real(kind=wp), intent(out) :: ci(:)
   integer(kind=iwp) :: ido, idet, kconf, ndet, ncsf, nconf, ioff_csf1, ioff_csf2, k
   integer(kind=iwp), allocatable :: stepvector(:)
@@ -915,6 +920,7 @@ subroutine Faro_ras2csf(vec,ci)
   ! and put the determinants in the correct place with the right phase.
 
   call mma_allocate(stepvector,Faro_nOrb,label='stepvector')
+  call Faro_RAS_check_size('Faro_ras2csf: vec',size(vec),Faro_RAS_ndet(ci_lsym))
 
   if (.not. allocated(det_map)) call mk_det_map()
   k = 0

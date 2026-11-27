@@ -24,8 +24,8 @@ module Faroald
 
 use Faroald_Core, only: Faro_Free, Faro_Full, Faro_Init, Faro_nOrb, Faro_ndeta, Faro_ndetb, Faro_nela, Faro_nelb, &
                         Faro_sigma_update, Faro_transition_one_pdm, Faro_transition_two_pdm, Faro_TRACI
-use Faroald_RAS, only: Faro_n_ras, Faro_RAS_active, Faro_RAS_count_dets, Faro_RAS_Free, Faro_RAS_Init, Faro_RAS_sigma, &
-                       Faro_RAS_traci, Faro_RAS_trans_one_pdm, Faro_RAS_trans_two_pdm
+use Faroald_RAS, only: Faro_n_ras, Faro_RAS_active, Faro_RAS_count_dets, Faro_RAS_Free, Faro_RAS_Init, Faro_RAS_ndet, &
+                       Faro_RAS_sigma, Faro_RAS_traci, Faro_RAS_trans_one_pdm, Faro_RAS_trans_two_pdm
 use Faroald_CITrans, only: Faro_conf_dets, Faro_conf_occ, Faro_csf2ras, Faro_csf2sd, Faro_ncsf, Faro_ras2csf, Faro_sd2csf, &
                            Faro_sort, Faro_sym_init
 use Faroald_SecQuant, only: Faro_Binom
@@ -37,8 +37,8 @@ private
 public :: Faro_Binom, Faro_CITrans_Free, Faro_CITrans_Init, Faro_conf_dets, Faro_conf_occ, Faro_csf2ras, Faro_csf2sd, &
           Faro_Diag_Cnf_Avg, Faro_Free, Faro_Full, Faro_HDet, Faro_Init, Faro_n_ras, Faro_ncsf, Faro_ndeta, Faro_ndetb, &
           Faro_nela, Faro_nelb, Faro_nOrb, Faro_ras2csf, Faro_RAS_active, Faro_RAS_count_dets, Faro_RAS_Free, Faro_RAS_Init, &
-          Faro_RAS_sigma, Faro_RAS_traci, Faro_RAS_trans_one_pdm, Faro_RAS_trans_two_pdm, Faro_sd2csf, Faro_sigma_update, &
-          Faro_sort, Faro_sym_init, Faro_transition_one_pdm, Faro_transition_two_pdm, Faro_TRACI
+          Faro_RAS_ndet, Faro_RAS_sigma, Faro_RAS_traci, Faro_RAS_trans_one_pdm, Faro_RAS_trans_two_pdm, Faro_sd2csf, &
+          Faro_sigma_update, Faro_sort, Faro_sym_init, Faro_transition_one_pdm, Faro_transition_two_pdm, Faro_TRACI
 
 contains
 
