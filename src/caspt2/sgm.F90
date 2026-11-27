@@ -76,7 +76,7 @@ if ((IMLTOP < 0) .or. (IMLTOP > 2)) then
   call AbEnd()
 end if
 
-! The caller checks with Cpl_Code whether this coupling is used
+! The callers (sigma_caspt2, SIGDER) check with Cpl_Code whether this coupling is used
 KOD = IFCOUP(ICASE2,ICASE1)
 if (KOD == 0) return
 

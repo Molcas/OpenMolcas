@@ -23,6 +23,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use CHOVEC_IO, only: nvloc_chobatch
 use PrintLevel, only: DEBUG, VERBOSE
 use EQSOLV, only: IVECC, IVECC2, IVECR, IVECW, IVECX
+use TRDNS2O_Mod, only: TRDNS2O
 use ChoCASPT2, only: iALGO, MaxVec_PT2
 use CI_Lib_Info, only: CI_Lib_Space
 use Orbital_Spaces, only: nAsh

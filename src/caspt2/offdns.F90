@@ -44,6 +44,7 @@ NA = 0 ! dummy initialize
 
 IFTEST = 0
 IMLTOP = 2
+! The caller (TRDNS2O) checks with Cpl_Code whether this coupling is used
 KOD = IFCOUP(ICASE2,ICASE1)
 if (KOD == 0) return
 

@@ -338,6 +338,7 @@ if (do_grad) then
         M12 = M12+iPARDIV(NSGM2,0)
       end if
       do ICASE2=ICASE1+1,NCASES
+        ! All couplings: the memory estimate must cover every use, whatever Cpl_Code excludes
         if (IFCOUP(ICASE2,ICASE1) == 0) cycle
         do ISYM2=1,NSYM
           NIS2 = NISUP(ISYM2,ICASE2)
